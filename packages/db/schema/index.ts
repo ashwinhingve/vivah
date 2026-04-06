@@ -9,7 +9,7 @@
 import {
   pgTable, pgEnum, uuid, varchar, text, boolean,
   timestamp, date, integer, decimal, jsonb, inet,
-  uniqueIndex, index, primaryKey,
+  uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
