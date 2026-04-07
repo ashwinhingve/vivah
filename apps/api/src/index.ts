@@ -36,5 +36,5 @@ app.use('/api/v1/admin/kyc', adminKycRouter); // Admin review queue
 // ── Start ──────────────────────────────────────────────────────────────────────
 
 app.listen(env.PORT, () => {
-  console.log(`API server running on port ${env.PORT}`);
+  console.info(`API server running on port ${env.PORT}`);
 });
