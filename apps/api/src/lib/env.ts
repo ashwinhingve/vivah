@@ -22,12 +22,12 @@ const envSchema = z.object({
 
   FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL').default('http://localhost:3000'),
 
-  CLOUDFLARE_R2_ACCOUNT_ID: z.preprocess(v => v || 'unset-r2-account-id', z.string()),
-  CLOUDFLARE_R2_ACCESS_KEY: z.preprocess(v => v || 'unset-r2-access-key', z.string()),
-  CLOUDFLARE_R2_SECRET_KEY: z.preprocess(v => v || 'unset-r2-secret-key', z.string()),
-  CLOUDFLARE_R2_BUCKET:     z.preprocess(v => v || 'vivah-os-media',      z.string()),
+  CLOUDFLARE_R2_ACCOUNT_ID: z.string().min(1, 'CLOUDFLARE_R2_ACCOUNT_ID is required'),
+  CLOUDFLARE_R2_ACCESS_KEY: z.string().min(1, 'CLOUDFLARE_R2_ACCESS_KEY is required'),
+  CLOUDFLARE_R2_SECRET_KEY: z.string().min(1, 'CLOUDFLARE_R2_SECRET_KEY is required'),
+  CLOUDFLARE_R2_BUCKET:     z.string().min(1, 'CLOUDFLARE_R2_BUCKET is required'),
 
-  AWS_REKOGNITION_REGION: z.string().default('ap-south-1'),
+  AWS_REKOGNITION_REGION: z.string().min(1).default('ap-south-1'),
 });
 
 const parsed = envSchema.safeParse(process.env);
