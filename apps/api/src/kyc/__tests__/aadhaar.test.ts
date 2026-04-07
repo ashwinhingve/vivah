@@ -35,5 +35,6 @@ describe('verifyDigiLockerCallback (mock)', () => {
     expect(result).not.toHaveProperty('aadhaar');
     expect(result).not.toHaveProperty('uid');
     expect(result).not.toHaveProperty('name');
+    expect(result).not.toHaveProperty('dob');
   });
 });
