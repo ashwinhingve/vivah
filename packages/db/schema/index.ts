@@ -269,6 +269,26 @@ export const communityZones = pgTable('community_zones', {
   createdAt:      timestamp('created_at').defaultNow().notNull(),
 });
 
+// ── KYC ─────────────────────────────────────────────────────────────────────
+
+export const kycVerifications = pgTable('kyc_verifications', {
+  id:               uuid('id').primaryKey().defaultRandom(),
+  profileId:        uuid('profile_id').unique().notNull()
+                      .references(() => profiles.id, { onDelete: 'cascade' }),
+  aadhaarVerified:  boolean('aadhaar_verified').default(false).notNull(),
+  aadhaarRefId:     varchar('aadhaar_ref_id', { length: 100 }),   // DigiLocker ref, never Aadhaar number
+  photoAnalysis:    jsonb('photo_analysis'),                        // PhotoAnalysis JSON
+  duplicateFlag:    boolean('duplicate_flag').default(false).notNull(),
+  duplicateReason:  text('duplicate_reason'),
+  adminNote:        text('admin_note'),
+  reviewedBy:       uuid('reviewed_by').references(() => users.id),
+  reviewedAt:       timestamp('reviewed_at'),
+  createdAt:        timestamp('created_at').defaultNow().notNull(),
+  updatedAt:        timestamp('updated_at').defaultNow().notNull(),
+}, (t) => [
+  index('kyc_profile_idx').on(t.profileId),
+]);
+
 // ── Matchmaking ───────────────────────────────────────────────────────────────
 
 export const matchRequests = pgTable('match_requests', {
@@ -605,12 +625,18 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
-  user:           one(users,        { fields: [profiles.userId], references: [users.id] }),
-  photos:         many(profilePhotos),
-  communityZone:  one(communityZones, { fields: [profiles.id], references: [communityZones.profileId] }),
-  sentRequests:   many(matchRequests, { relationName: 'sender' }),
+  user:             one(users,        { fields: [profiles.userId], references: [users.id] }),
+  photos:           many(profilePhotos),
+  communityZone:    one(communityZones, { fields: [profiles.id], references: [communityZones.profileId] }),
+  kycVerification:  one(kycVerifications, { fields: [profiles.id], references: [kycVerifications.profileId] }),
+  sentRequests:     many(matchRequests, { relationName: 'sender' }),
   receivedRequests: many(matchRequests, { relationName: 'receiver' }),
-  weddings:       many(weddings),
+  weddings:         many(weddings),
+}));
+
+export const kycVerificationsRelations = relations(kycVerifications, ({ one }) => ({
+  profile:  one(profiles,  { fields: [kycVerifications.profileId],  references: [profiles.id] }),
+  reviewer: one(users,     { fields: [kycVerifications.reviewedBy], references: [users.id] }),
 }));
 
 export const vendorsRelations = relations(vendors, ({ one, many }) => ({
