@@ -32,7 +32,9 @@ export async function completeAadhaarVerification(
 ) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
-  if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus === 'VERIFIED')      kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus === 'REJECTED')      kycErr(KycErrorCode.KYC_REJECTED);
+  if (profile.verificationStatus === 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
   // Soft duplicate detection: same IP + device used by a different user
   const otherSessions = await db
@@ -90,7 +92,8 @@ export async function completeAadhaarVerification(
 export async function analyzeProfilePhoto(userId: string, r2Key: string) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
-  if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus === 'VERIFIED')  kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus === 'REJECTED')  kycErr(KycErrorCode.KYC_REJECTED);
 
   const photoAnalysis = await analyzePhoto(r2Key);
 

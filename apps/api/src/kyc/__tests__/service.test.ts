@@ -44,6 +44,7 @@ vi.mock('../../lib/db.js', () => {
 import { db } from '../../lib/db.js';
 import {
   initiateAadhaarVerification,
+  completeAadhaarVerification,
   analyzeProfilePhoto,
   getKycStatus,
   approveKyc,
@@ -119,6 +120,56 @@ describe('initiateAadhaarVerification', () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
     await expect(initiateAadhaarVerification('user-uuid-1', 'https://test.com'))
       .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+  });
+});
+
+// ── completeAadhaarVerification ───────────────────────────────────────────────
+
+describe('completeAadhaarVerification', () => {
+  it('returns duplicateFlag=false when no other sessions match', async () => {
+    // profile select, sessions select (empty = no duplicates), kyc select (empty = insert path)
+    setupSelectReturns([mockProfile], [], []);
+    setupInsertOk();
+    setupUpdateOk();
+    const result = await completeAadhaarVerification('user-uuid-1', 'code-abc', '1.2.3.4', 'Chrome/120');
+    expect(result.duplicateFlag).toBe(false);
+    expect(result.duplicateReason).toBeNull();
+  });
+
+  it('returns duplicateFlag=true when another session matches IP+device', async () => {
+    const otherSession = { userId: 'other-user-uuid' };
+    setupSelectReturns([mockProfile], [otherSession], []);
+    setupInsertOk();
+    setupUpdateOk();
+    const result = await completeAadhaarVerification('user-uuid-1', 'code-abc', '1.2.3.4', 'Chrome/120');
+    expect(result.duplicateFlag).toBe(true);
+    expect(result.duplicateReason).toContain('other account');
+  });
+
+  it('throws KYC_ALREADY_VERIFIED for a VERIFIED profile', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }]);
+    await expect(completeAadhaarVerification('user-uuid-1', 'code-abc', '1.2.3.4', 'Chrome/120'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
+  });
+
+  it('throws KYC_REJECTED for a REJECTED profile', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'REJECTED' }]);
+    await expect(completeAadhaarVerification('user-uuid-1', 'code-abc', '1.2.3.4', 'Chrome/120'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_REJECTED });
+  });
+
+  it('throws KYC_IN_REVIEW for a MANUAL_REVIEW profile', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
+    await expect(completeAadhaarVerification('user-uuid-1', 'code-abc', '1.2.3.4', 'Chrome/120'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+  });
+
+  it('throws AADHAAR_VERIFICATION_FAILED when DigiLocker returns verified=false', async () => {
+    const { verifyDigiLockerCallback } = await import('../aadhaar.js');
+    vi.mocked(verifyDigiLockerCallback).mockResolvedValueOnce({ verified: false, refId: '' });
+    setupSelectReturns([mockProfile], []);
+    await expect(completeAadhaarVerification('user-uuid-1', 'code-bad', '1.2.3.4', 'Chrome/120'))
+      .rejects.toMatchObject({ name: KycErrorCode.AADHAAR_VERIFICATION_FAILED });
   });
 });
 
