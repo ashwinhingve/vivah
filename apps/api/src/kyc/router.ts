@@ -21,11 +21,12 @@ kycRouter.post('/initiate', authenticate, async (req, res) => {
     const result = await service.initiateAadhaarVerification(req.user!.sub, parsed.data.redirectUri);
     ok(res, result);
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND)    { err(res, code, 'Profile not found', 404); return; }
     if (code === KycErrorCode.KYC_ALREADY_VERIFIED) { err(res, code, 'Already verified', 409); return; }
     if (code === KycErrorCode.KYC_REJECTED)         { err(res, code, 'KYC was rejected', 403); return; }
     if (code === KycErrorCode.KYC_IN_REVIEW)        { err(res, code, 'KYC is under review', 409); return; }
+    console.error('[kyc/initiate]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to initiate KYC', 500);
   }
 });
@@ -46,12 +47,13 @@ kycRouter.get('/callback', authenticate, async (req, res) => {
       duplicateFlag: result.duplicateFlag,
     });
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND)           { err(res, code, 'Profile not found', 404); return; }
     if (code === KycErrorCode.KYC_ALREADY_VERIFIED)        { err(res, code, 'Already verified', 409); return; }
     if (code === KycErrorCode.KYC_REJECTED)                { err(res, code, 'KYC was rejected', 403); return; }
     if (code === KycErrorCode.KYC_IN_REVIEW)               { err(res, code, 'KYC is under review', 409); return; }
     if (code === KycErrorCode.AADHAAR_VERIFICATION_FAILED) { err(res, code, 'Aadhaar verification failed', 422); return; }
+    console.error('[kyc/callback]', e);
     err(res, 'INTERNAL_ERROR', 'Aadhaar verification failed', 500);
   }
 });
@@ -67,10 +69,11 @@ kycRouter.post('/photo', authenticate, async (req, res) => {
     const result = await service.analyzeProfilePhoto(req.user!.sub, parsed.data.r2Key);
     ok(res, { status: result.status, photoAnalysis: result.photoAnalysis });
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND)    { err(res, code, 'Profile not found', 404); return; }
     if (code === KycErrorCode.KYC_ALREADY_VERIFIED) { err(res, code, 'Already verified', 409); return; }
     if (code === KycErrorCode.KYC_REJECTED)         { err(res, code, 'KYC was rejected', 403); return; }
+    console.error('[kyc/photo]', e);
     err(res, 'INTERNAL_ERROR', 'Photo analysis failed', 500);
   }
 });
@@ -81,8 +84,9 @@ kycRouter.get('/status', authenticate, async (req, res) => {
     const result = await service.getKycStatus(req.user!.sub);
     ok(res, result);
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND) { err(res, code, 'Profile not found', 404); return; }
+    console.error('[kyc/status]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to fetch KYC status', 500);
   }
 });
@@ -94,7 +98,8 @@ adminKycRouter.get('/pending', authenticate, authorize(['ADMIN']), async (_req, 
   try {
     const pendingProfiles = await service.getPendingKycProfiles();
     ok(res, { profiles: pendingProfiles, total: pendingProfiles.length });
-  } catch {
+  } catch (e) {
+    console.error('[kyc/pending]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to fetch pending KYC queue', 500);
   }
 });
@@ -110,8 +115,9 @@ adminKycRouter.put('/:profileId/approve', authenticate, authorize(['ADMIN']), as
     await service.approveKyc(req.params['profileId']!, req.user!.sub, parsed.data.note);
     ok(res, { message: 'KYC approved' });
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND) { err(res, code, 'Profile not found', 404); return; }
+    console.error('[kyc/approve]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to approve KYC', 500);
   }
 });
@@ -127,8 +133,9 @@ adminKycRouter.put('/:profileId/reject', authenticate, authorize(['ADMIN']), asy
     await service.rejectKyc(req.params['profileId']!, req.user!.sub, parsed.data.note);
     ok(res, { message: 'KYC rejected' });
   } catch (e) {
-    const code = (e as Error).name;
+    const code = e instanceof Error ? e.name : '';
     if (code === KycErrorCode.PROFILE_NOT_FOUND) { err(res, code, 'Profile not found', 404); return; }
+    console.error('[kyc/reject]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to reject KYC', 500);
   }
 });
