@@ -24,8 +24,10 @@ export interface AadhaarVerificationResult {
   // name intentionally omitted — callers must NOT persist it
 }
 
+export type KycVerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW';
+
 export interface KycStatusResponse {
-  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW';
+  verificationStatus: KycVerificationStatus;
   aadhaarVerified:    boolean;
   duplicateFlag:      boolean;
   photoAnalysis:      PhotoAnalysis | null;

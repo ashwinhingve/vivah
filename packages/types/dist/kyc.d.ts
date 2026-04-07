@@ -19,8 +19,9 @@ export interface AadhaarVerificationResult {
     verified: boolean;
     refId: string;
 }
+export type KycVerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW';
 export interface KycStatusResponse {
-    verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW';
+    verificationStatus: KycVerificationStatus;
     aadhaarVerified: boolean;
     duplicateFlag: boolean;
     photoAnalysis: PhotoAnalysis | null;
