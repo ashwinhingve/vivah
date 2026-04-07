@@ -25,4 +25,4 @@ export const PhotoAnalysisSchema = z.object({
 export type KycInitiateInput   = z.infer<typeof KycInitiateSchema>;
 export type KycPhotoInput      = z.infer<typeof KycPhotoSchema>;
 export type AdminReviewInput   = z.infer<typeof AdminReviewSchema>;
-export type PhotoAnalysisInput = z.infer<typeof PhotoAnalysisSchema>;
+export type PhotoAnalysisResult = z.infer<typeof PhotoAnalysisSchema>;
