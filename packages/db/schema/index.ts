@@ -285,9 +285,7 @@ export const kycVerifications = pgTable('kyc_verifications', {
   reviewedAt:       timestamp('reviewed_at'),
   createdAt:        timestamp('created_at').defaultNow().notNull(),
   updatedAt:        timestamp('updated_at').defaultNow().notNull(),
-}, (t) => [
-  index('kyc_profile_idx').on(t.profileId),
-]);
+});
 
 // ── Matchmaking ───────────────────────────────────────────────────────────────
 
