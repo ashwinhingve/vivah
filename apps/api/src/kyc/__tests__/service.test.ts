@@ -176,12 +176,24 @@ describe('completeAadhaarVerification', () => {
 // ── analyzeProfilePhoto ───────────────────────────────────────────────────────
 
 describe('analyzeProfilePhoto', () => {
-  it('returns MANUAL_REVIEW with photoAnalysis', async () => {
-    setupSelectReturns([mockProfile]);
+  it('returns MANUAL_REVIEW with photoAnalysis (update path — existing KYC row)', async () => {
+    // profile select, then existingKyc select (found → update path)
+    setupSelectReturns([mockProfile], [{ profileId: 'profile-uuid-1' }]);
     setupUpdateOk();
     const result = await analyzeProfilePhoto('user-uuid-1', 'profiles/test/photo.jpg');
     expect(result.status).toBe('MANUAL_REVIEW');
     expect(result.photoAnalysis.isRealPerson).toBe(true);
+  });
+
+  it('returns MANUAL_REVIEW with photoAnalysis (insert path — no existing KYC row)', async () => {
+    // profile select, then existingKyc select (empty → insert path)
+    setupSelectReturns([mockProfile], []);
+    setupInsertOk();
+    setupUpdateOk();
+    const result = await analyzeProfilePhoto('user-uuid-1', 'profiles/test/photo.jpg');
+    expect(result.status).toBe('MANUAL_REVIEW');
+    expect(result.photoAnalysis.isRealPerson).toBe(true);
+    expect(db.insert).toHaveBeenCalledTimes(1);
   });
 
   it('throws PROFILE_NOT_FOUND when no profile exists', async () => {
@@ -199,7 +211,8 @@ describe('analyzeProfilePhoto', () => {
       multipleFaces: true,
       analyzedAt: '2026-04-07T10:00:00.000Z',
     });
-    setupSelectReturns([mockProfile]);
+    // profile select, then existingKyc select (found → update path)
+    setupSelectReturns([mockProfile], [{ profileId: 'profile-uuid-1' }]);
     setupUpdateOk();
     const result = await analyzeProfilePhoto('user-uuid-1', 'profiles/fraud/photo.jpg');
     expect(result.status).toBe('MANUAL_REVIEW');
@@ -224,7 +237,7 @@ describe('getKycStatus', () => {
 
 describe('approveKyc', () => {
   it('calls db.update twice (profiles + kyc_verifications)', async () => {
-    setupSelectReturns([mockProfile]);
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
     setupUpdateOk();
     await approveKyc('profile-uuid-1', 'admin-uuid-1', 'Looks authentic');
     expect(db.update).toHaveBeenCalledTimes(2);
@@ -235,13 +248,37 @@ describe('approveKyc', () => {
     await expect(approveKyc('bad-id', 'admin-uuid-1'))
       .rejects.toMatchObject({ name: KycErrorCode.PROFILE_NOT_FOUND });
   });
+
+  it('throws KYC_ALREADY_VERIFIED when profile is already VERIFIED', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }]);
+    await expect(approveKyc('profile-uuid-1', 'admin-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
+  });
+
+  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
+    await expect(approveKyc('profile-uuid-1', 'admin-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+  });
 });
 
 describe('rejectKyc', () => {
   it('calls db.update twice (profiles + kyc_verifications)', async () => {
-    setupSelectReturns([mockProfile]);
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
     setupUpdateOk();
     await rejectKyc('profile-uuid-1', 'admin-uuid-1', 'Photo is fake');
     expect(db.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('throws KYC_ALREADY_VERIFIED when profile is already VERIFIED', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }]);
+    await expect(rejectKyc('profile-uuid-1', 'admin-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
+  });
+
+  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
+    await expect(rejectKyc('profile-uuid-1', 'admin-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
   });
 });

@@ -97,9 +97,22 @@ export async function analyzeProfilePhoto(userId: string, r2Key: string) {
 
   const photoAnalysis = await analyzePhoto(r2Key);
 
-  await db.update(kycVerifications)
-    .set({ photoAnalysis, updatedAt: new Date() })
-    .where(eq(kycVerifications.profileId, profile.id));
+  const [existingKyc] = await db
+    .select()
+    .from(kycVerifications)
+    .where(eq(kycVerifications.profileId, profile.id))
+    .limit(1);
+
+  if (!existingKyc) {
+    await db.insert(kycVerifications).values({
+      profileId:    profile.id,
+      photoAnalysis,
+    });
+  } else {
+    await db.update(kycVerifications)
+      .set({ photoAnalysis, updatedAt: new Date() })
+      .where(eq(kycVerifications.profileId, profile.id));
+  }
 
   // Never auto-reject — always MANUAL_REVIEW for admin to decide
   await db.update(profiles)
@@ -152,6 +165,8 @@ export async function getPendingKycProfiles() {
 export async function approveKyc(profileId: string, adminUserId: string, note?: string) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
+  if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus !== 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
   await db.update(profiles)
     .set({ verificationStatus: 'VERIFIED', updatedAt: new Date() })
@@ -168,6 +183,8 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
 export async function rejectKyc(profileId: string, adminUserId: string, note?: string) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
+  if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus !== 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
   await db.update(profiles)
     .set({ verificationStatus: 'REJECTED', updatedAt: new Date() })

@@ -106,17 +106,24 @@ adminKycRouter.get('/pending', authenticate, authorize(['ADMIN']), async (_req, 
 
 // PUT /api/v1/admin/kyc/:profileId/approve
 adminKycRouter.put('/:profileId/approve', authenticate, authorize(['ADMIN']), async (req, res) => {
+  const profileId = req.params['profileId'];
+  if (!profileId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId)) {
+    err(res, 'VALIDATION_ERROR', 'Invalid profileId format', 400);
+    return;
+  }
   const parsed = AdminReviewSchema.safeParse(req.body);
   if (!parsed.success) {
     err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
     return;
   }
   try {
-    await service.approveKyc(req.params['profileId']!, req.user!.sub, parsed.data.note);
+    await service.approveKyc(profileId, req.user!.sub, parsed.data.note);
     ok(res, { message: 'KYC approved' });
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
-    if (code === KycErrorCode.PROFILE_NOT_FOUND) { err(res, code, 'Profile not found', 404); return; }
+    if (code === KycErrorCode.PROFILE_NOT_FOUND)    { err(res, code, 'Profile not found', 404); return; }
+    if (code === KycErrorCode.KYC_ALREADY_VERIFIED) { err(res, code, 'Already verified', 409); return; }
+    if (code === KycErrorCode.KYC_IN_REVIEW)        { err(res, code, 'Profile is not in MANUAL_REVIEW status', 409); return; }
     console.error('[kyc/approve]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to approve KYC', 500);
   }
@@ -124,17 +131,24 @@ adminKycRouter.put('/:profileId/approve', authenticate, authorize(['ADMIN']), as
 
 // PUT /api/v1/admin/kyc/:profileId/reject
 adminKycRouter.put('/:profileId/reject', authenticate, authorize(['ADMIN']), async (req, res) => {
+  const profileId = req.params['profileId'];
+  if (!profileId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId)) {
+    err(res, 'VALIDATION_ERROR', 'Invalid profileId format', 400);
+    return;
+  }
   const parsed = AdminReviewSchema.safeParse(req.body);
   if (!parsed.success) {
     err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
     return;
   }
   try {
-    await service.rejectKyc(req.params['profileId']!, req.user!.sub, parsed.data.note);
+    await service.rejectKyc(profileId, req.user!.sub, parsed.data.note);
     ok(res, { message: 'KYC rejected' });
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
-    if (code === KycErrorCode.PROFILE_NOT_FOUND) { err(res, code, 'Profile not found', 404); return; }
+    if (code === KycErrorCode.PROFILE_NOT_FOUND)    { err(res, code, 'Profile not found', 404); return; }
+    if (code === KycErrorCode.KYC_ALREADY_VERIFIED) { err(res, code, 'Already verified', 409); return; }
+    if (code === KycErrorCode.KYC_IN_REVIEW)        { err(res, code, 'Profile is not in MANUAL_REVIEW status', 409); return; }
     console.error('[kyc/reject]', e);
     err(res, 'INTERNAL_ERROR', 'Failed to reject KYC', 500);
   }
