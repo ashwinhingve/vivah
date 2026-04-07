@@ -1,0 +1,258 @@
+# VivahOS Infinity — Roadmap
+
+> **Update this file at the end of every development session.**
+> Claude Code reads this to understand current progress and next targets.
+
+---
+
+## Current Sprint
+
+```
+Phase:    1 — Core Platform
+Week:     1 of 5
+Target:   Infrastructure & Authentication complete
+Blocker:  None
+```
+
+---
+
+## ✅ Completed
+
+_Nothing yet — project starts here._
+
+---
+
+## 🔵 PHASE 1 — Core Platform (Weeks 1–5)
+
+**End goal: Platform live, first revenue flowing**
+
+### Week 1
+
+- [ ] Monorepo setup (pnpm workspaces + Turborepo)
+- [ ] Docker Compose (PostgreSQL, MongoDB, Redis, Adminer)
+- [ ] GitHub repo + branch protection rules
+- [ ] GitHub Actions CI pipeline (lint → type-check → test → deploy preview)
+- [ ] Railway project (API service + AI service + Redis + PostgreSQL)
+- [ ] Vercel project (web app)
+- [ ] Cloudflare R2 bucket `vivah-os-media`
+- [ ] AWS SES domain verification
+- [ ] **SUBMIT:** Razorpay merchant account (3–5 day activation)
+- [ ] **SUBMIT:** Digilocker KYC API application (5–10 day approval)
+- [ ] **SUBMIT:** MSG91 DLT sender registration (5–10 days)
+- [ ] Better Auth setup (phone OTP + email + JWT + 6 roles)
+- [ ] PostgreSQL schema via Drizzle (users, sessions, otp_verifications)
+- [ ] MongoDB connection (profiles_content collection)
+- [ ] KYC module: Aadhaar verification flow
+- [ ] KYC module: Photo fraud detection (AWS Rekognition)
+- [ ] KYC module: Duplicate account detection
+- [ ] Verified badge system
+
+### Week 2
+
+- [ ] Profile module: personal details form
+- [ ] Profile module: Safety Mode (contact gating)
+- [ ] Profile module: family, education, profession fields
+- [ ] Profile module: lifestyle + hyper-niche tags
+- [ ] Profile module: partner preferences
+- [ ] Profile module: horoscope data (Rashi, Nakshatra, DOB/TOB/POB)
+- [ ] Profile photos: R2 upload via pre-signed URLs
+- [ ] Community Match Zones: zone assignment + language preference
+
+### Week 3
+
+- [ ] Reciprocal Matching engine (bilateral compatibility pre-check)
+- [ ] Guna Milan calculator: Varna factor
+- [ ] Guna Milan calculator: Vashya factor
+- [ ] Guna Milan calculator: Tara factor
+- [ ] Guna Milan calculator: Yoni factor
+- [ ] Guna Milan calculator: Graha Maitri factor
+- [ ] Guna Milan calculator: Gana factor
+- [ ] Guna Milan calculator: Bhakoot factor
+- [ ] Guna Milan calculator: Nadi factor
+- [ ] Compatibility score display on profile cards
+- [ ] Match feed with reciprocal filtering
+
+### Week 4
+
+- [ ] Match requests: send, accept, decline, withdraw
+- [ ] Match requests: block and report
+- [ ] Match requests: contact visibility controls
+- [ ] Real-time chat: Socket.io server setup
+- [ ] Real-time chat: message persistence (MongoDB)
+- [ ] Real-time chat: photo sharing (R2 pre-signed)
+- [ ] Real-time chat: read receipts
+- [ ] Real-time chat: Hindi–English translation integration
+
+### Week 5
+
+- [ ] Vendor listing pages (category + city filter)
+- [ ] Vendor portfolio pages (photos, packages, pricing)
+- [ ] Booking system: request → confirm → schedule → complete
+- [ ] Booking system: cancellation flow
+- [ ] Razorpay integration: UPI, cards, net banking, wallets, EMI
+- [ ] Invoice generation (PDF via pdfkit)
+- [ ] Refund handling (Razorpay refund API)
+- [ ] Customer dashboard (matches, bookings, notifications, profile status)
+- [ ] Vendor dashboard (calendar, bookings, revenue summary)
+- [ ] Admin dashboard (user management, vendor approval, complaints)
+- [ ] End-to-end QA — Phase 1
+- [ ] Production deployment — Phase 1 live 🚀
+
+---
+
+## 🟢 PHASE 2 — Wedding & Event Planning (Weeks 6–9)
+
+**End goal: Complete planning suite live**
+
+- [ ] Wedding plan creation (date, venue, style, theme, couple link)
+- [ ] Budget tracker by category (venue, catering, decor, photography…)
+- [ ] Kanban task board (auto-checklist from wedding date)
+- [ ] Wedding day timeline builder
+- [ ] Mood board + theme selection
+- [ ] Family member access (role-based permissions, task assignment)
+- [ ] Guest list management (manual + spreadsheet import)
+- [ ] RSVP tracking (yes/no/maybe)
+- [ ] Meal preference collection
+- [ ] Room allocation (outstation guests)
+- [ ] Digital invitation builder (template + couple photo)
+- [ ] Invitation delivery: email + SMS
+- [ ] In-platform video calls (Daily.co)
+- [ ] Meeting scheduler (slot proposal, confirmation, reminders)
+- [ ] Escrow payment system (50% advance, 48h dispute window)
+- [ ] Rental catalogue (decor, costumes, AV)
+- [ ] Rental booking (date-range, quantity, return tracking)
+- [ ] E-Commerce Store: vendor product listings (gifts, trousseau, ethnic wear, pooja items, invitation cards, decor pieces)
+- [ ] E-Commerce Store: shopping cart + Razorpay checkout
+- [ ] E-Commerce Store: order management flow (placed → confirmed → shipped → delivered)
+- [ ] E-Commerce Store: vendor product dashboard (inventory, orders, revenue)
+- [ ] E-Commerce Store: order tracking + delivery coordination
+- [ ] Multi-event booking extension (corporate, festival, community types)
+- [ ] Firebase push notifications (all key events)
+- [ ] Pre-wedding ceremony modules: Haldi, Mehndi, Sangeet
+- [ ] Muhurat date selector (integrated with horoscope data)
+- [ ] End-to-end QA — Phase 2
+- [ ] Production deployment — Phase 2 live 🚀
+
+---
+
+## 🟣 PHASE 3 — AI Intelligence Layer (Weeks 10–11)
+
+**End goal: Six AI features live, platform self-improving**
+
+- [ ] FastAPI AI service deployed to Railway
+- [ ] Data pipeline from Phase 1–2 user data
+- [ ] AI Conversation Coach (profile interest extraction, in-chat suggestions)
+- [ ] Emotional Compatibility Score (sentiment analysis, response timing)
+- [ ] AI Profile Optimizer (photo quality, bio scoring, suggestions panel)
+- [ ] Marriage Readiness Score (composite model, user-controlled display)
+- [ ] Family Compatibility Mode (dual score view, Parent Mode)
+- [ ] Reputation Score (response rate, communication consistency)
+- [ ] Divorcee & Widow Support Mode (dedicated filters, private flag)
+- [ ] Behaviour-Based Matching signal layer (view time, browse patterns)
+- [ ] Predictive Churn Detection (risk classifier, automated win-back)
+- [ ] Matrimony AI Assistant (unified conversational guide)
+- [ ] Vendor Utilization Engine Foundation (off-season routing begins)
+- [ ] End-to-end QA — Phase 3
+- [ ] Production deployment — Phase 3 live 🚀
+
+---
+
+## 🟡 PHASE 4 — Scale & Market Readiness (Weeks 12–13)
+
+**End goal: Subscriptions, SEO, market-ready**
+
+- [ ] Subscription tiers (Free / Standard / Premium)
+- [ ] Razorpay Subscriptions integration
+- [ ] Feature gating per tier
+- [ ] Full Hindi language support
+- [ ] i18n framework (extension-ready for regional languages)
+- [ ] Auto-SEO engine (LLM-generated community × city pages)
+- [ ] Structured data markup (Google rich results)
+- [ ] Dynamic pricing foundation (demand-based price signals)
+- [ ] Vendor lead generation fee system
+- [ ] Referral programme (codes, rewards, dashboard)
+- [ ] GDPR data controls (consent, deletion, portability)
+- [ ] Immutable audit logs (KYC, payment, contract events)
+- [ ] Analytics dashboard (growth, conversion, revenue, churn)
+- [ ] LGBTQ+ configurable matching (admin-level toggle)
+- [ ] Full platform security audit + load testing
+- [ ] End-to-end QA — Phase 4
+- [ ] Production deployment — Phase 4 live 🚀
+
+---
+
+## 🔵 PHASE 5 — Vendor Utilization Engine (Expansion Month 4)
+
+- [ ] Full Vendor Utilization Engine (wedding → off-season event routing)
+- [ ] Vendor Gap Detection (city-level category alerts)
+- [ ] Calendar Intelligence (muhurat, government, festival, school calendars)
+- [ ] Dynamic Pricing full (muhurat premium, off-season discounts)
+- [ ] Documentation & Compliance module
+- [ ] Digilocker e-sign integration
+- [ ] Contract template generator
+- [ ] B2B Self-Serve (corporate registration, event catalogue, invoiced bookings)
+- [ ] Advanced analytics & demand forecasting
+- [ ] Production deployment — Phase 5 live 🚀
+
+---
+
+## 🟢 PHASE 6 — Financial & Growth (Expansion Month 5)
+
+- [ ] NBFC partner API integration (loan referral flow)
+- [ ] EMI calculator in budget tracker
+- [ ] Wedding insurance referral flow
+- [ ] Auto-Marketing Engine (n8n + Claude API, content pipeline)
+- [ ] Multi-city vendor network
+- [ ] WhatsApp Business API integration
+- [ ] Production deployment — Phase 6 live 🚀
+
+---
+
+## 🟣 PHASE 7 — Mobile & International (Expansion Month 6)
+
+- [ ] React Native + Expo mobile app scaffold
+- [ ] iOS and Android feature parity
+- [ ] Biometric login
+- [ ] EAS Build CI/CD
+- [ ] Apple App Store submission
+- [ ] Google Play Store submission
+- [ ] NRI & international matching (country filters, time zone scheduling)
+- [ ] Virtual Date System (video + AI activities + WebGL environments)
+- [ ] Advanced Churn Recovery (ML-based re-engagement)
+- [ ] Production deployment — Phase 7 live 🚀
+
+---
+
+## 🟡 PHASE 8 — National Platform (Expansion Month 6)
+
+- [ ] Destination Wedding Module (premium packages, multi-city coordination)
+- [ ] Post-marriage services (honeymoon, anniversary, referral pathways)
+- [ ] National auto-scaling infrastructure
+- [ ] Government integration readiness
+- [ ] PDF reporting (vendors, couples, admin)
+- [ ] Project handover documentation
+- [ ] Production deployment — Phase 8 complete 🎉
+
+---
+
+## Blockers & Notes
+
+_Add blockers here with date:_
+
+```
+[YYYY-MM-DD] Description of blocker and what's needed to unblock
+```
+
+---
+
+## Dependencies — Submit Before Building
+
+| Item | Status | Deadline |
+|------|--------|----------|
+| Razorpay merchant account | ⬜ Not submitted | Submit Day 1 |
+| Digilocker KYC API | ⬜ Not submitted | Submit Day 1 |
+| MSG91 DLT registration | ⬜ Not submitted | Submit Week 1 |
+| WhatsApp Business API | ⬜ Not submitted | Submit start of Phase 6 |
+| Apple Developer Program | ⬜ Not submitted | Submit start of Phase 7 |
+| Google Play Console | ⬜ Not submitted | Submit start of Phase 7 |
+| NBFC lending partner agreement | ⬜ Not confirmed | Confirm before Phase 6 |

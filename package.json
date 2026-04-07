@@ -1,0 +1,30 @@
+{
+  "name": "vivah-os-infinity",
+  "private": true,
+  "version": "0.1.0",
+  "description": "National Smart Marriage-Centric Event Ecosystem",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "e2e": "turbo e2e",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "db:push": "turbo db:push --filter=@vivah/db",
+    "db:generate": "turbo db:generate --filter=@vivah/db",
+    "db:seed": "turbo db:seed --filter=@vivah/db",
+    "db:studio": "turbo db:studio --filter=@vivah/db",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

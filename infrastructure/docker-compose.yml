@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: vivah-postgres
+    environment:
+      POSTGRES_USER: vivah
+      POSTGRES_PASSWORD: vivah
+      POSTGRES_DB: vivahOS
+    ports:
+      - "5432:5432"
+    volumes:
+      - vivah-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vivah -d vivahOS"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7-jammy
+    container_name: vivah-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: vivah
+      MONGO_INITDB_ROOT_PASSWORD: vivah
+      MONGO_INITDB_DATABASE: vivahOS
+    ports:
+      - "27017:27017"
+    volumes:
+      - vivah-mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/vivahOS --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: vivah-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - vivah-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Adminer (DB Browser) ─────────────────────────────────────────────────
+  adminer:
+    image: adminer:latest
+    container_name: vivah-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+volumes:
+  vivah-postgres-data:
+  vivah-mongo-data:
+  vivah-redis-data:
