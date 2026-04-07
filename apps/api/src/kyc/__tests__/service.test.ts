@@ -202,6 +202,12 @@ describe('analyzeProfilePhoto', () => {
       .rejects.toMatchObject({ name: KycErrorCode.PROFILE_NOT_FOUND });
   });
 
+  it('throws KYC_IN_REVIEW when profile is in MANUAL_REVIEW', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
+    await expect(analyzeProfilePhoto('user-uuid-1', 'profiles/test/photo.jpg'))
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+  });
+
   it('still returns MANUAL_REVIEW even when fraud is detected (never auto-reject)', async () => {
     const { analyzePhoto } = await import('../rekognition.js');
     vi.mocked(analyzePhoto).mockResolvedValueOnce({
@@ -237,7 +243,10 @@ describe('getKycStatus', () => {
 
 describe('approveKyc', () => {
   it('calls db.update twice (profiles + kyc_verifications)', async () => {
-    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }],  // profile
+      [{ profileId: 'profile-uuid-1' }],                           // kycRecord exists
+    );
     setupUpdateOk();
     await approveKyc('profile-uuid-1', 'admin-uuid-1', 'Looks authentic');
     expect(db.update).toHaveBeenCalledTimes(2);
@@ -264,7 +273,10 @@ describe('approveKyc', () => {
 
 describe('rejectKyc', () => {
   it('calls db.update twice (profiles + kyc_verifications)', async () => {
-    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }],  // profile
+      [{ profileId: 'profile-uuid-1' }],                           // kycRecord exists
+    );
     setupUpdateOk();
     await rejectKyc('profile-uuid-1', 'admin-uuid-1', 'Photo is fake');
     expect(db.update).toHaveBeenCalledTimes(2);

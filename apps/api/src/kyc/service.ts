@@ -92,8 +92,9 @@ export async function completeAadhaarVerification(
 export async function analyzeProfilePhoto(userId: string, r2Key: string) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
-  if (profile.verificationStatus === 'VERIFIED')  kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
-  if (profile.verificationStatus === 'REJECTED')  kycErr(KycErrorCode.KYC_REJECTED);
+  if (profile.verificationStatus === 'VERIFIED')      kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
+  if (profile.verificationStatus === 'REJECTED')      kycErr(KycErrorCode.KYC_REJECTED);
+  if (profile.verificationStatus === 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
   const photoAnalysis = await analyzePhoto(r2Key);
 
@@ -168,16 +169,26 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
   if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
   if (profile.verificationStatus !== 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
+  const [kycRecord] = await db
+    .select()
+    .from(kycVerifications)
+    .where(eq(kycVerifications.profileId, profileId))
+    .limit(1);
+
   await db.update(profiles)
     .set({ verificationStatus: 'VERIFIED', updatedAt: new Date() })
     .where(eq(profiles.id, profileId));
 
-  await db.update(kycVerifications).set({
-    adminNote:  note ?? null,
-    reviewedBy: adminUserId,
-    reviewedAt: new Date(),
-    updatedAt:  new Date(),
-  }).where(eq(kycVerifications.profileId, profileId));
+  if (kycRecord) {
+    await db.update(kycVerifications).set({
+      adminNote:  note ?? null,
+      reviewedBy: adminUserId,
+      reviewedAt: new Date(),
+      updatedAt:  new Date(),
+    }).where(eq(kycVerifications.profileId, profileId));
+  } else {
+    console.warn(`[kyc] approveKyc: no kycVerifications row for profile ${profileId}`);
+  }
 }
 
 export async function rejectKyc(profileId: string, adminUserId: string, note?: string) {
@@ -186,14 +197,24 @@ export async function rejectKyc(profileId: string, adminUserId: string, note?: s
   if (profile.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
   if (profile.verificationStatus !== 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
+  const [kycRecord] = await db
+    .select()
+    .from(kycVerifications)
+    .where(eq(kycVerifications.profileId, profileId))
+    .limit(1);
+
   await db.update(profiles)
     .set({ verificationStatus: 'REJECTED', updatedAt: new Date() })
     .where(eq(profiles.id, profileId));
 
-  await db.update(kycVerifications).set({
-    adminNote:  note ?? null,
-    reviewedBy: adminUserId,
-    reviewedAt: new Date(),
-    updatedAt:  new Date(),
-  }).where(eq(kycVerifications.profileId, profileId));
+  if (kycRecord) {
+    await db.update(kycVerifications).set({
+      adminNote:  note ?? null,
+      reviewedBy: adminUserId,
+      reviewedAt: new Date(),
+      updatedAt:  new Date(),
+    }).where(eq(kycVerifications.profileId, profileId));
+  } else {
+    console.warn(`[kyc] rejectKyc: no kycVerifications row for profile ${profileId}`);
+  }
 }
