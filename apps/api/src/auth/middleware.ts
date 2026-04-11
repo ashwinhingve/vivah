@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyAccess } from './jwt.js';
-import type { UserRole, JwtPayload } from '@vivah/types';
-import { AuthErrorCode } from '@vivah/types';
+import type { UserRole, JwtPayload } from '@smartshaadi/types';
+import { AuthErrorCode } from '@smartshaadi/types';
 import { err } from '../lib/response.js';
 
 // Augment Express Request so TypeScript knows about req.user

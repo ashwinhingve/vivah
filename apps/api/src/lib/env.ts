@@ -28,6 +28,10 @@ const envSchema = z.object({
   CLOUDFLARE_R2_BUCKET:     z.string().min(1, 'CLOUDFLARE_R2_BUCKET is required'),
 
   AWS_REKOGNITION_REGION: z.string().min(1).default('ap-south-1'),
+
+  // Mock flag: set USE_MOCK_SERVICES=true in dev/test to skip real external calls.
+  // Swap to real by removing this var (or setting to false) — no code change needed.
+  USE_MOCK_SERVICES: z.string().optional().default('false').transform(v => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

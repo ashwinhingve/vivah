@@ -1,5 +1,5 @@
 /**
- * VivahOS Infinity — PostgreSQL Schema (Drizzle ORM)
+ * Smart Shaadi — PostgreSQL Schema (Drizzle ORM)
  * packages/db/schema/index.ts
  *
  * This is the complete Phase 1 schema.

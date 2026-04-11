@@ -3,7 +3,7 @@ import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema, PhotoAnalysisSche
 
 describe('KycInitiateSchema', () => {
   it('accepts a valid redirectUri', () => {
-    const r = KycInitiateSchema.safeParse({ redirectUri: 'https://app.vivah.in/kyc/callback' });
+    const r = KycInitiateSchema.safeParse({ redirectUri: 'https://app.smartshaadi.co.in/kyc/callback' });
     expect(r.success).toBe(true);
   });
   it('rejects non-URL redirectUri', () => {

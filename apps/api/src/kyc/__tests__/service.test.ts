@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { KycErrorCode } from '@vivah/types';
+import { KycErrorCode } from '@smartshaadi/types';
 
 vi.mock('../aadhaar.js', () => ({
   getDigiLockerAuthUrl: vi.fn().mockResolvedValue({

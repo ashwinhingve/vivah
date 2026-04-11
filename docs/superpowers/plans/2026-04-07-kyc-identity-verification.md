@@ -6,7 +6,7 @@
 
 **Architecture:** KYC follows the same layered pattern as auth: Router → Service → external clients (Aadhaar/Rekognition). Status lives in the existing `profiles.verification_status` column (PENDING → MANUAL_REVIEW → VERIFIED | REJECTED). A new `kyc_verifications` table stores fraud detection results and admin review metadata. All status changes go through MANUAL_REVIEW first — no auto-approval, no auto-rejection.
 
-**Tech Stack:** Express.js · Drizzle ORM (PostgreSQL) · @aws-sdk/client-rekognition · @aws-sdk/client-s3 (R2 download) · Vitest · Zod · @vivah/types · @vivah/schemas · @vivah/db
+**Tech Stack:** Express.js · Drizzle ORM (PostgreSQL) · @aws-sdk/client-rekognition · @aws-sdk/client-s3 (R2 download) · Vitest · Zod · @smartshaadi/types · @smartshaadi/schemas · @smartshaadi/db
 
 ---
 
@@ -83,7 +83,7 @@ Also update `profilesRelations` to add `kycVerification: one(kycVerifications)`.
 - [ ] **Step 3: Push schema to dev DB**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
 pnpm db:push
 ```
 
@@ -134,7 +134,7 @@ describe('KycErrorCode', () => {
 - [ ] **Step 2: Run test — expect FAIL**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS/packages/types
+cd D:/Do\ Not\ Open/vivah/smart_shaadi/packages/types
 pnpm test
 ```
 
@@ -188,7 +188,7 @@ export * from './kyc.js';
 - [ ] **Step 5: Run test — expect PASS**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS/packages/types
+cd D:/Do\ Not\ Open/vivah/smart_shaadi/packages/types
 pnpm test
 ```
 
@@ -219,7 +219,7 @@ import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema } from '../kyc.js'
 
 describe('KycInitiateSchema', () => {
   it('accepts a valid redirectUri', () => {
-    const r = KycInitiateSchema.safeParse({ redirectUri: 'https://app.vivah.in/kyc/callback' });
+    const r = KycInitiateSchema.safeParse({ redirectUri: 'https://app.smartshaadi.co.in/kyc/callback' });
     expect(r.success).toBe(true);
   });
   it('rejects non-URL redirectUri', () => {
@@ -254,7 +254,7 @@ describe('AdminReviewSchema', () => {
 - [ ] **Step 2: Run test — expect FAIL**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS/packages/schemas
+cd D:/Do\ Not\ Open/vivah/smart_shaadi/packages/schemas
 pnpm test
 ```
 
@@ -292,7 +292,7 @@ export * from './kyc.js';
 - [ ] **Step 5: Run test — expect PASS**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS/packages/schemas
+cd D:/Do\ Not\ Open/vivah/smart_shaadi/packages/schemas
 pnpm test
 ```
 
@@ -324,8 +324,8 @@ import { getDigiLockerAuthUrl, verifyDigiLockerCallback } from '../aadhaar.js';
 
 describe('getDigiLockerAuthUrl (mock)', () => {
   it('returns an authUrl and state', async () => {
-    const result = await getDigiLockerAuthUrl('https://app.vivah.in/kyc/callback');
-    expect(result.authUrl).toContain('https://app.vivah.in/kyc/callback');
+    const result = await getDigiLockerAuthUrl('https://app.smartshaadi.co.in/kyc/callback');
+    expect(result.authUrl).toContain('https://app.smartshaadi.co.in/kyc/callback');
     expect(result.state).toMatch(/^[0-9a-f-]{36}$/); // UUID format
   });
 });
@@ -349,8 +349,8 @@ describe('verifyDigiLockerCallback (mock)', () => {
 - [ ] **Step 2: Run test — expect FAIL**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/aadhaar.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/aadhaar.test.ts
 ```
 
 Expected: "Cannot find module '../aadhaar.js'"
@@ -408,8 +408,8 @@ export async function verifyDigiLockerCallback(code: string): Promise<DigiLocker
 - [ ] **Step 4: Run test — expect PASS**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/aadhaar.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/aadhaar.test.ts
 ```
 
 Expected: all tests pass.
@@ -433,8 +433,8 @@ git commit -m "feat(kyc): add Aadhaar mock client with one-line real swap"
 - [ ] **Step 1: Install AWS SDK packages**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api add @aws-sdk/client-rekognition @aws-sdk/client-s3
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api add @aws-sdk/client-rekognition @aws-sdk/client-s3
 ```
 
 Expected: packages added to `apps/api/package.json`.
@@ -559,8 +559,8 @@ describe('analyzePhoto', () => {
 - [ ] **Step 4: Run test — expect FAIL (module not found)**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/rekognition.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/rekognition.test.ts
 ```
 
 - [ ] **Step 5: Create `apps/api/src/kyc/rekognition.ts`**
@@ -569,7 +569,7 @@ pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/rekognition.te
 import { RekognitionClient, DetectFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../lib/env.js';
-import type { PhotoAnalysis } from '@vivah/types';
+import type { PhotoAnalysis } from '@smartshaadi/types';
 
 const rekognition = new RekognitionClient({ region: env.AWS_REKOGNITION_REGION });
 
@@ -621,8 +621,8 @@ export async function analyzePhoto(r2Key: string): Promise<PhotoAnalysis> {
 - [ ] **Step 6: Run test — expect PASS**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/rekognition.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/rekognition.test.ts
 ```
 
 Expected: all 4 tests pass.
@@ -648,7 +648,7 @@ Create `apps/api/src/kyc/__tests__/service.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { KycErrorCode } from '@vivah/types';
+import { KycErrorCode } from '@smartshaadi/types';
 
 // Mock external clients — never call real services in unit tests
 vi.mock('../aadhaar.js', () => ({
@@ -839,8 +839,8 @@ describe('approveKyc / rejectKyc', () => {
 - [ ] **Step 2: Run test — expect FAIL**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/service.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/service.test.ts
 ```
 
 Expected: "Cannot find module '../service.js'"
@@ -850,8 +850,8 @@ Expected: "Cannot find module '../service.js'"
 ```typescript
 import { eq, and, ne } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { users, profiles, sessions, kycVerifications } from '@vivah/db';
-import { KycErrorCode } from '@vivah/types';
+import { users, profiles, sessions, kycVerifications } from '@smartshaadi/db';
+import { KycErrorCode } from '@smartshaadi/types';
 import { analyzePhoto } from './rekognition.js';
 import { getDigiLockerAuthUrl, verifyDigiLockerCallback } from './aadhaar.js';
 
@@ -970,7 +970,7 @@ export async function getKycStatus(userId: string) {
     verificationStatus: profile.verificationStatus,
     aadhaarVerified:    kyc?.aadhaarVerified ?? false,
     duplicateFlag:      kyc?.duplicateFlag ?? false,
-    photoAnalysis:      (kyc?.photoAnalysis as import('@vivah/types').PhotoAnalysis | null) ?? null,
+    photoAnalysis:      (kyc?.photoAnalysis as import('@smartshaadi/types').PhotoAnalysis | null) ?? null,
     adminNote:          kyc?.adminNote ?? null,
   };
 }
@@ -1030,8 +1030,8 @@ export async function rejectKyc(profileId: string, adminUserId: string, note?: s
 - [ ] **Step 4: Run tests — expect PASS**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test -- --run apps/api/src/kyc/__tests__/service.test.ts
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test -- --run apps/api/src/kyc/__tests__/service.test.ts
 ```
 
 Expected: all tests pass.
@@ -1058,8 +1058,8 @@ No new tests needed here — router tests are integration-style and add minimal 
 import { Router } from 'express';
 import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema } from '@vivah/schemas';
-import { KycErrorCode } from '@vivah/types';
+import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema } from '@smartshaadi/schemas';
+import { KycErrorCode } from '@smartshaadi/types';
 import * as service from './service.js';
 
 export const kycRouter = Router();
@@ -1235,8 +1235,8 @@ git commit -m "feat(kyc): mount KYC and admin KYC routers"
 - [ ] **Step 1: Run all API tests**
 
 ```bash
-cd D:/Do\ Not\ Open/vivah/vivahOS
-pnpm --filter @vivah/api test
+cd D:/Do\ Not\ Open/vivah/smart_shaadi
+pnpm --filter @smartshaadi/api test
 ```
 
 Expected: all tests pass (jwt, middleware, otp, aadhaar, rekognition, service).
@@ -1260,8 +1260,8 @@ Expected: no lint errors.
 - [ ] **Step 4: Build packages to verify dist outputs**
 
 ```bash
-pnpm --filter @vivah/types build
-pnpm --filter @vivah/schemas build
+pnpm --filter @smartshaadi/types build
+pnpm --filter @smartshaadi/schemas build
 ```
 
 Expected: dist files updated without errors.

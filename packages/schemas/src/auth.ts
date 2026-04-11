@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { UserRole, OtpPurpose } from '@vivah/types';
+import type { UserRole, OtpPurpose } from '@smartshaadi/types';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

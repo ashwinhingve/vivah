@@ -1,153 +1,143 @@
-# VivahOS: Build UI Component — $ARGUMENTS
+# Smart Shaadi: Build UI Component — $ARGUMENTS
 # Usage: /ui-component [component name + context]
-# Example: /ui-component profile match card with compatibility score, accept/decline buttons
+# Example: /ui-component match feed card with Guna Milan score and accept/decline
 
 ## The Design-First Rule
-
-Never jump straight to writing JSX. Follow this three-step sequence every time.
-A component built without a design plan looks like AI slop. A component built with one looks like a senior designer built it.
-
----
-
-## Step 1 — Design Intent (say this first)
-
-Before generating any code, state:
-- What this component IS (e.g., "a match recommendation card")
-- Where it appears (e.g., "the main matchmaking feed, shown 10 at a time")
-- What the user DOES with it (e.g., "taps to view full profile, swipes or taps accept/decline")
-- What data it shows (e.g., "name, age, city, compatibility score, primary photo")
-- What emotional tone it should have (e.g., "warm, trustworthy, not dating-app flashy")
+Never jump straight to JSX. Always state intent first.
+A component built without a plan looks like AI slop. One built with one looks handcrafted.
 
 ---
 
-## Step 2 — VivahOS Design System
+## Step 1 — State Intent Before Generating
 
-All components must follow these values. Do NOT deviate.
+Tell me:
+- What this component IS ("a match recommendation card")
+- Where it appears ("main matchmaking feed, 10 at a time")
+- What the user DOES with it ("taps to view full profile, accepts or declines")
+- What data it shows ("name, age, city, Guna score, compatibility %, primary photo")
+- Emotional tone ("warm, trustworthy, auspicious — not dating-app flashy")
+
+---
+
+## Step 2 — Smart Shaadi Design System (DO NOT DEVIATE)
 
 ```
-Color palette:
-  Primary:     #0A1F4D (deep navy) — headings, key actions
-  Accent:      #1848C8 (blue) — interactive elements, badges
-  Success:     #059669 (green) — match scores, verified badges
-  Warning:     #D97706 (amber) — alerts, questions
-  Background:  White / #F8F9FC (light gray surfaces)
-  Text:        #0F172A (near-black) | #64748B (muted)
+COLOURS:
+Primary brand:   #7B2D42  Royal Burgundy   — headings, brand moments, Guna Milan score
+Accent gold:     #C5A47E  Warm Gold        — badge borders, decorative accents ONLY
+CTA / action:    #0E7C7B  Peacock Teal     — ALL buttons, verified badges, match %, scores
+Hover Burgundy:  #5C2032  | Hover Teal: #149998  | Gold text: #9E7F5A
+Page background: #FEFAF6  Warm Ivory       — NEVER plain white for page bg
+Card surface:    #FFFFFF  Pure White       — card interiors only
+Dark surface:    #2D2D3A                   — nav, footer
+Primary text:    #2E2E38  | Secondary: #6B6B76
 
-Typography:
-  Font:        System sans-serif stack (no Google Fonts — performance)
-  Headings:    font-semibold, tight tracking
-  Body:        text-sm or text-base, leading-relaxed
+TYPOGRAPHY:
+Headings:   font-[Playfair_Display] font-semibold — premium matrimonial weight
+Body:       font-sans (Inter or system-ui) — clean and readable
+Sizes:      Display: text-3xl | H1: text-2xl | H2: text-xl | Body: text-base | Caption: text-sm
 
-Spacing:
-  Base unit:   4px (Tailwind default)
-  Cards:       p-4 or p-5
-  Sections:    gap-4 or gap-6
-  Page:        max-w-screen-lg mx-auto px-4
+COMPONENTS:
+Cards:         bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-4 or p-5
+CTA Button:    bg-[#0E7C7B] hover:bg-[#149998] text-white rounded-lg min-h-[44px] px-6
+Brand Button:  bg-[#7B2D42] hover:bg-[#5C2032] text-white rounded-lg min-h-[44px] px-6
+Ghost Button:  border border-[#0E7C7B] text-[#0E7C7B] hover:bg-[#0E7C7B]/5 rounded-lg
+Gold Badge:    bg-[#C5A47E]/15 text-[#9E7F5A] border border-[#C5A47E]/40 rounded-full text-xs px-2
+Verified:      bg-[#0E7C7B] text-white rounded-full text-xs px-2 — Teal = trust
+Guna Score:    text-[#7B2D42] font-bold — Burgundy = auspicious
+Match Score:   text-[#0E7C7B] font-bold — Teal = action/positive
 
-Radius:
-  Cards:       rounded-xl
-  Badges:      rounded-full
-  Buttons:     rounded-lg
-
-Shadows:
-  Cards:       shadow-sm (subtle — no heavy drop shadows)
-  Hover:       shadow-md
-
-Mobile-first:
-  Everything works on 375px screen width
-  Touch targets minimum 44×44px
-  Bottom navigation for mobile (not sidebar)
+LAYOUT:
+Mobile-first: min-width 375px always
+Touch targets: 44×44px minimum — all interactive elements
+Bottom nav:   Mobile gets bottom nav bar (not sidebar)
+Page bg:      Always bg-[#FEFAF6] — never bg-white for pages
+Cards on ivory: white cards on ivory background = warm depth
 ```
 
 ---
 
-## Step 3 — Component Generation
+## Step 3 — Smart Shaadi Core Screens Reference
 
-After defining intent and confirming design system alignment:
+| Screen | Key Components Needed |
+|--------|----------------------|
+| Match Feed | MatchCard, CompatibilityBadge (Teal), GunaScore (Burgundy), AcceptDeclineButtons |
+| Profile View | ProfileHero, PhotoGallery, CompatibilityBreakdown, SafetyModeBadge (Gold) |
+| Chat | MessageBubble, TranslationToggle, PhotoMessage, ReadReceipt, TypingIndicator |
+| Wedding Dashboard | BudgetDonut (Teal fill), TaskKanban, CountdownTimer, CeremonyTimeline |
+| Guest List | GuestRow, RSVPBadge, MealPrefTag, RoomBadge, StatsBar |
+| Vendor Card | VendorPortfolioCard, StarRating (Gold), PriceRange, BookButton (Teal) |
+| Booking Flow | BookingSteps, DatePicker, EscrowInfoCard, PaymentSummary |
+| Dashboard | StatCard (Teal numbers), AlertBanner, MetricsChart, ActionList |
+| Subscription | PricingCard (PREMIUM: Burgundy border), FeatureList, UpgradeButton (Teal) |
 
+---
+
+## Step 4 — Generation Rules
+
+After intent is stated:
 ```
-"Using the VivahOS design system above, generate a [component name] component.
- Use shadcn/ui primitives where available.
- Use Tailwind CSS v4 utility classes only — no inline styles.
- The component must be a Server Component unless it needs:
-   - onClick / onSubmit handlers
-   - useState / useEffect
-   - browser APIs
- If client-side, name the file [ComponentName].client.tsx"
+"Using the Smart Shaadi design system (Royal Burgundy #7B2D42 · Warm Gold #C5A47E · 
+Peacock Teal #0E7C7B · Ivory background #FEFAF6), generate [component name].
+
+Requirements:
+- Server Component by default — .client.tsx only if needs hooks/browser events
+- shadcn/ui primitives as base components
+- Tailwind v4 utility classes ONLY — no inline styles
+- Playfair Display for headings, system-ui for body
+- Mobile-first, 375px minimum, all touch targets 44px"
 ```
 
-### Pull from 21st.dev (use /ui command in Claude Code)
-
-For complex interactive patterns — sliders, carousels, animated cards, charts — use:
+### Pull Complex Patterns from 21st.dev
+For carousels, animated transitions, complex forms, data visualizations:
 ```
 /ui [describe what you need]
 ```
-21st.dev MCP gives Claude Code access to a library of polished Tailwind + React components.
-Ask for the component, then adapt it to the VivahOS design system (colours, radius, typography).
+Then adapt the result to Smart Shaadi design system (replace their colours with ours).
 
 ---
 
-## VivahOS Core Screens — Reference
+## Step 5 — Quality Check Before Done
 
-These are the screens that matter most. Build them well.
-
-| Screen | Key Components |
-|--------|---------------|
-| Match Feed | MatchCard, CompatibilityBadge, AcceptDeclineButtons, GunaScore |
-| Profile View | ProfileHero, PhotoGallery, CompatibilityBreakdown, SafetyModeBadge |
-| Chat | MessageBubble, TranslationToggle, PhotoMessage, ReadReceipt |
-| Wedding Dashboard | BudgetDonut, TaskKanban, CountdownTimer, VendorGrid |
-| Guest List | GuestRow, RSVPBadge, MealPrefTag, RoomBadge |
-| Vendor Card | VendorPortfolioCard, StarRating, PriceRange, BookNowButton |
-| Booking Flow | BookingSteps, DatePicker, EscrowInfo, PaymentSummary |
-| Admin Dashboard | StatCard, AlertBanner, VendorApprovalRow, MetricsChart |
-
----
-
-## Quality Check (Run Before Every Component is "Done")
-
-Ask Claude Code:
+Run this before every component is marked complete:
 
 ```
-"Review this component against these checks:
- 1. Does it work on a 375px mobile screen without horizontal scroll?
- 2. Are all touch targets at least 44×44px?
- 3. Does it follow the VivahOS design system (navy/blue/green palette, rounded-xl cards)?
- 4. Is there a loading state if data might take > 200ms?
- 5. Is there an empty state if the list could be empty?
- 6. Are error states handled visually?
- 7. Is contact information (phone/email) masked by default?
- Point out any violations and fix them."
+"Review this component against Smart Shaadi quality standards:
+1. Works at 375px mobile width without horizontal scroll?
+2. All touch targets ≥ 44×44px?
+3. Uses correct colours: Teal for CTAs, Burgundy for brand, Gold for decorative only?
+4. Page background is #FEFAF6 (warm ivory), not plain white?
+5. Playfair Display for headings?
+6. Loading state implemented?
+7. Empty state implemented?
+8. Error state implemented?
+9. Phone/email not shown (Safety Mode respected)?
+10. Server Component unless genuinely needs browser APIs?
+Point out any violations."
 ```
 
 ---
 
-## Install 21st.dev MCP (One-Time Setup)
+## One-Time Setup (Run Once in Terminal)
 
-1. Go to [21st.dev/magic](https://21st.dev/magic)
-2. Sign in and copy your personal MCP server command
-3. In Claude Code, type: `"Install this MCP server: [paste command]"`
-4. Or add manually to `~/.claude/claude_desktop_config.json`:
+```bash
+# Install frontend-design skill
+npx skills add anthropics/claude-code --skill frontend-design
+
+# Use at start of any major UI planning session:
+/frontend-design create a design philosophy for Smart Shaadi Infinity.
+It is an Indian matrimonial platform — warm, trustworthy, premium.
+Colour: Royal Burgundy #7B2D42 + Warm Gold #C5A47E + Peacock Teal #0E7C7B.
+Background: Warm Ivory #FEFAF6. Typography: Playfair Display headings.
+Avoid Western wedding minimalism. Avoid dating-app flashy.
+```
+
+## 21st.dev Magic MCP (Add to claude.json)
 
 ```json
 "21st-dev-magic": {
-  "command": "npx",
-  "args": ["-y", "@21st-dev/magic@latest"],
-  "env": {
-    "API_KEY": "your-21st-dev-api-key"
-  }
+  "command": "cmd",
+  "args": ["/c", "npx", "-y", "@21st-dev/magic@latest"],
+  "env": { "API_KEY": "your-key-from-21st.dev/magic" }
 }
-```
-
-## Install Frontend Design Skill (One-Time Setup)
-
-```bash
-npx skills add anthropics/claude-code --skill frontend-design
-```
-
-After installing, use it at the start of any major UI planning session:
-```
-/frontend-design create a design philosophy and component architecture
-for the VivahOS matchmaking feed. The platform is an Indian matrimonial
-service — warm, trustworthy, not dating-app flashy. Avoid generic AI layouts.
 ```

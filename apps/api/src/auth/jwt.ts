@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify, errors as joseErrors } from 'jose';
 import { env } from '../lib/env.js';
-import type { JwtPayload, UserRole } from '@vivah/types';
+import type { JwtPayload, UserRole } from '@smartshaadi/types';
 
 const SECRET = new TextEncoder().encode(env.JWT_SECRET);
 const ACCESS_TTL = '15m';

@@ -1,4 +1,4 @@
-# VivahOS Infinity — System Architecture
+# Smart Shaadi — System Architecture
 
 ---
 

@@ -3,17 +3,17 @@ import { getDigiLockerAuthUrl, verifyDigiLockerCallback } from '../aadhaar.js';
 
 describe('getDigiLockerAuthUrl (mock)', () => {
   it('returns an authUrl containing the redirectUri', async () => {
-    const result = await getDigiLockerAuthUrl('https://app.vivah.in/kyc/callback');
-    expect(result.authUrl).toContain('https://app.vivah.in/kyc/callback');
+    const result = await getDigiLockerAuthUrl('https://app.smartshaadi.co.in/kyc/callback');
+    expect(result.authUrl).toContain('https://app.smartshaadi.co.in/kyc/callback');
   });
 
   it('returns a UUID-format state', async () => {
-    const result = await getDigiLockerAuthUrl('https://app.vivah.in/kyc/callback');
+    const result = await getDigiLockerAuthUrl('https://app.smartshaadi.co.in/kyc/callback');
     expect(result.state).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   it('includes mock=true flag in authUrl', async () => {
-    const result = await getDigiLockerAuthUrl('https://app.vivah.in/kyc/callback');
+    const result = await getDigiLockerAuthUrl('https://app.smartshaadi.co.in/kyc/callback');
     expect(result.authUrl).toContain('mock=true');
   });
 });

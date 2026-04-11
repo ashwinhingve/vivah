@@ -1,5 +1,5 @@
 {
-  "name": "@vivah/types",
+  "name": "@smartshaadi/types",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",

@@ -1,11 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SWAP FLAG: Set USE_REAL_DIGILOCKER = true once DigiLocker API approval arrives.
-// Then implement the two TODO blocks below using the official DigiLocker SDK.
+// SWAP FLAG: Set USE_MOCK_SERVICES=false in .env once DigiLocker API approval
+// arrives, then implement the two TODO blocks below using the official SDK.
 // No other file needs to change.
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
-
-const USE_REAL_DIGILOCKER = false;
+import { env } from '../lib/env.js';
 
 export interface DigiLockerAuthUrl {
   authUrl: string;
@@ -19,7 +18,7 @@ export interface DigiLockerVerifyResult {
 }
 
 export async function getDigiLockerAuthUrl(redirectUri: string): Promise<DigiLockerAuthUrl> {
-  if (USE_REAL_DIGILOCKER) {
+  if (!env.USE_MOCK_SERVICES) {
     // TODO: import DigiLocker SDK and call getAuthUrl(redirectUri, scopes)
     throw new Error('Real DigiLocker client not yet configured');
   }
@@ -32,7 +31,7 @@ export async function getDigiLockerAuthUrl(redirectUri: string): Promise<DigiLoc
 }
 
 export async function verifyDigiLockerCallback(_code: string): Promise<DigiLockerVerifyResult> {
-  if (USE_REAL_DIGILOCKER) {
+  if (!env.USE_MOCK_SERVICES) {
     // TODO: exchange code for token, pull Aadhaar XML, extract name + DOB,
     //       confirm identity, then discard all PII. Return only refId.
     throw new Error('Real DigiLocker client not yet configured');

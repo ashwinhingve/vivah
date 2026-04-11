@@ -21,8 +21,8 @@ npm install -g pnpm
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/ashwinhingve/vivah-os-infinity.git
-cd vivah-os-infinity
+git clone https://github.com/ashwinhingve/smart-shaadi-infinity.git
+cd smart-shaadi-infinity
 pnpm install
 ```
 
@@ -50,10 +50,10 @@ docker compose ps
 
 | Container | Port | Purpose |
 |-----------|------|---------|
-| `vivah-postgres` | 5432 | PostgreSQL database |
-| `vivah-mongo` | 27017 | MongoDB database |
-| `vivah-redis` | 6379 | Redis cache + queues |
-| `vivah-adminer` | 8080 | Database browser UI |
+| `smart-shaadi-postgres` | 5432 | PostgreSQL database |
+| `smart-shaadi-mongo` | 27017 | MongoDB database |
+| `smart-shaadi-redis` | 6379 | Redis cache + queues |
+| `smart-shaadi-adminer` | 8080 | Database browser UI |
 
 ### 4. Database Setup
 
@@ -110,8 +110,8 @@ NEXT_PUBLIC_POSTHOG_KEY=phc_...
 
 ```bash
 # Database
-DATABASE_URL=postgresql://vivah:vivah@localhost:5432/vivahOS
-MONGODB_URI=mongodb://localhost:27017/vivahOS
+DATABASE_URL=postgresql://vivah:vivah@localhost:5432/smart_shaadi
+MONGODB_URI=mongodb://localhost:27017/smart_shaadi
 REDIS_URL=redis://localhost:6379
 
 # Auth
@@ -123,7 +123,7 @@ BETTER_AUTH_SECRET=dev-auth-secret-change-in-prod
 CLOUDFLARE_R2_ACCOUNT_ID=...
 CLOUDFLARE_R2_ACCESS_KEY=...
 CLOUDFLARE_R2_SECRET_KEY=...
-CLOUDFLARE_R2_BUCKET=vivah-os-dev
+CLOUDFLARE_R2_BUCKET=smart-shaadi-dev
 CLOUDFLARE_R2_PUBLIC_URL=https://...
 
 # Payments (use Razorpay test keys for dev)
@@ -138,7 +138,7 @@ MSG91_TEMPLATE_OTP=...
 AWS_SES_ACCESS_KEY=...
 AWS_SES_SECRET_KEY=...
 AWS_SES_REGION=ap-south-1
-AWS_SES_FROM_EMAIL=noreply@vivahOS.in
+AWS_SES_FROM_EMAIL=noreply@smart_shaadi.in
 
 # Firebase
 FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
@@ -167,7 +167,7 @@ SENTRY_DSN=https://...
 ```bash
 ANTHROPIC_API_KEY=sk-ant-...
 HELICONE_API_KEY=sk-helicone-...
-MONGODB_URI=mongodb://localhost:27017/vivahOS
+MONGODB_URI=mongodb://localhost:27017/smart_shaadi
 REDIS_URL=redis://localhost:6379
 INTERNAL_API_KEY=internal-service-key-dev
 ENVIRONMENT=development
@@ -227,7 +227,12 @@ pnpm test apps/api/modules/matchmaking/guna-milan.test.ts
 
 ## MCP Configuration (Claude Code)
 
-Create or update `~/.claude/claude_desktop_config.json`:
+> **Environment:** This project uses Claude Code via WSL (Windows Subsystem for Linux).
+> The `npx` commands below are correct for WSL/Linux. If you are running Claude Code
+> natively on Windows (not WSL), wrap each entry as:
+> `"command": "cmd", "args": ["/c", "npx", ...]`
+
+Create or update `~/.claude/claude_desktop_config.json` (inside WSL home, i.e. `~`):
 
 ```json
 {
@@ -259,7 +264,7 @@ Create or update `~/.claude/claude_desktop_config.json`:
 }
 ```
 
-Get your 21st.dev API key at [21st.dev/magic](https://21st.dev/magic). This gives Claude Code access to a library of polished React + Tailwind components. Use the `/ui` command in Claude Code to pull components, then adapt them to the VivahOS design system using `/ui-component`.
+Get your 21st.dev API key at [21st.dev/magic](https://21st.dev/magic). This gives Claude Code access to a library of polished React + Tailwind components. Use the `/ui` command in Claude Code to pull components, then adapt them to the Smart Shaadi design system using `/ui-component`.
 
 **One-time skill installs (run once in terminal):**
 ```bash
@@ -277,14 +282,14 @@ Add these MCPs after the corresponding services are set up:
 
 **PostgreSQL connection refused:**
 ```bash
-docker compose restart vivah-postgres
+docker compose restart smart-shaadi-postgres
 # Wait 10 seconds, then retry
 ```
 
 **MongoDB not connecting:**
 ```bash
 # MongoDB takes longer to start than PostgreSQL
-docker compose logs vivah-mongo
+docker compose logs smart-shaadi-mongo
 ```
 
 **Drizzle schema out of sync:**

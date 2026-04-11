@@ -26,13 +26,13 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1025.0
         version: 3.1025.0
-      '@vivah/db':
+      '@smartshaadi/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@vivah/schemas':
+      '@smartshaadi/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
-      '@vivah/types':
+      '@smartshaadi/types':
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
@@ -93,10 +93,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@vivah/schemas':
+      '@smartshaadi/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
-      '@vivah/types':
+      '@smartshaadi/types':
         specifier: workspace:*
         version: link:../../packages/types
       class-variance-authority:
@@ -185,7 +185,7 @@ importers:
 
   packages/schemas:
     dependencies:
-      '@vivah/types':
+      '@smartshaadi/types':
         specifier: workspace:*
         version: link:../types
       zod:

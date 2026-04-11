@@ -1,8 +1,8 @@
 import { Router, type Router as ExpressRouter } from 'express';
 import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema } from '@vivah/schemas';
-import { KycErrorCode } from '@vivah/types';
+import { KycInitiateSchema, KycPhotoSchema, AdminReviewSchema } from '@smartshaadi/schemas';
+import { KycErrorCode } from '@smartshaadi/types';
 import * as service from './service.js';
 
 export const kycRouter:      ExpressRouter = Router();

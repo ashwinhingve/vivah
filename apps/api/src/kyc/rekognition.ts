@@ -1,7 +1,17 @@
 import { RekognitionClient, DetectFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../lib/env.js';
-import type { PhotoAnalysis } from '@vivah/types';
+import type { PhotoAnalysis } from '@smartshaadi/types';
+
+// Mock response returned when USE_MOCK_SERVICES=true.
+// Always passes — admin still manually reviews via the queue.
+const MOCK_ANALYSIS: PhotoAnalysis = {
+  isRealPerson:    true,
+  confidenceScore: 99,
+  hasSunglasses:   false,
+  multipleFaces:   false,
+  analyzedAt:      '', // filled at call time
+};
 
 // Clients are created lazily so test mocks applied in beforeEach are active
 // at instantiation time — module-level singletons would capture the unmocked
@@ -41,6 +51,11 @@ async function fetchImageBytes(r2Key: string): Promise<Uint8Array> {
 }
 
 export async function analyzePhoto(r2Key: string): Promise<PhotoAnalysis> {
+  // Read from process.env directly (not cached env) so tests can override per-block.
+  if (process.env['USE_MOCK_SERVICES'] === 'true') {
+    return { ...MOCK_ANALYSIS, analyzedAt: new Date().toISOString() };
+  }
+
   const imageBytes = await fetchImageBytes(r2Key);
 
   const result = await getRekognition().send(new DetectFacesCommand({

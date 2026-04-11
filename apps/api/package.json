@@ -1,5 +1,5 @@
 {
-  "name": "@vivah/api",
+  "name": "@smartshaadi/api",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -13,9 +13,9 @@
   "dependencies": {
     "@aws-sdk/client-rekognition": "^3.1025.0",
     "@aws-sdk/client-s3": "^3.1025.0",
-    "@vivah/db": "workspace:*",
-    "@vivah/schemas": "workspace:*",
-    "@vivah/types": "workspace:*",
+    "@smartshaadi/db": "workspace:*",
+    "@smartshaadi/schemas": "workspace:*",
+    "@smartshaadi/types": "workspace:*",
     "bullmq": "^5.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

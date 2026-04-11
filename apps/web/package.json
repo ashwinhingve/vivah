@@ -1,5 +1,5 @@
 {
-  "name": "@vivah/web",
+  "name": "@smartshaadi/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,8 +18,8 @@
     "tailwind-merge": "^2.6.0",
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.460.0",
-    "@vivah/types": "workspace:*",
-    "@vivah/schemas": "workspace:*"
+    "@smartshaadi/types": "workspace:*",
+    "@smartshaadi/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

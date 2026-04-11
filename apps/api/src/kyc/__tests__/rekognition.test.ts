@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('@aws-sdk/client-rekognition', () => ({
   RekognitionClient: vi.fn(),
@@ -23,7 +23,11 @@ beforeEach(() => {
   (RekognitionClient as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({ send: mockSend }));
 });
 
-describe('analyzePhoto', () => {
+// Real-path tests: temporarily disable mock mode so the AWS code path executes.
+describe('analyzePhoto (real path — USE_MOCK_SERVICES=false)', () => {
+  beforeEach(() => { process.env['USE_MOCK_SERVICES'] = 'false'; });
+  afterEach(() => { process.env['USE_MOCK_SERVICES'] = 'true'; });
+
   it('returns isRealPerson=true for one high-confidence face', async () => {
     mockSend
       .mockResolvedValueOnce({ // R2 GetObject
@@ -88,5 +92,19 @@ describe('analyzePhoto', () => {
 
     await expect(analyzePhoto('profiles/test/photo.jpg'))
       .rejects.toThrow('Empty body for R2 key');
+  });
+});
+
+// USE_MOCK_SERVICES=true is set in vitest.setup.ts — env is resolved at module
+// load time, so the mock path is active for every test in this file.
+describe('analyzePhoto (mock mode — USE_MOCK_SERVICES=true)', () => {
+  it('returns mock data without calling S3 or Rekognition', async () => {
+    const result = await analyzePhoto('any/key.jpg');
+    expect(result.isRealPerson).toBe(true);
+    expect(result.confidenceScore).toBe(99);
+    expect(result.hasSunglasses).toBe(false);
+    expect(result.multipleFaces).toBe(false);
+    expect(result.analyzedAt).toMatch(/^\d{4}-/);
+    expect(mockSend).not.toHaveBeenCalled();
   });
 });

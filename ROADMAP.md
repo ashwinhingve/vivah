@@ -1,4 +1,4 @@
-# VivahOS Infinity — Roadmap
+# Smart Shaadi — Roadmap
 
 > **Update this file at the end of every development session.**
 > Claude Code reads this to understand current progress and next targets.
@@ -9,8 +9,8 @@
 
 ```
 Phase:    1 — Core Platform
-Week:     1 of 5
-Target:   Infrastructure & Authentication complete
+Week:     2 of 5
+Target:   Profile module (personal details, photos, preferences, horoscope)
 Blocker:  None
 ```
 
@@ -18,7 +18,11 @@ Blocker:  None
 
 ## ✅ Completed
 
-_Nothing yet — project starts here._
+### Week 1 — Partial (KYC done; infra setup in progress)
+- [x] KYC module: Aadhaar verification flow
+- [x] KYC module: Photo fraud detection (AWS Rekognition)
+- [x] KYC module: Duplicate account detection
+- [x] Verified badge system
 
 ---
 
@@ -34,7 +38,7 @@ _Nothing yet — project starts here._
 - [ ] GitHub Actions CI pipeline (lint → type-check → test → deploy preview)
 - [ ] Railway project (API service + AI service + Redis + PostgreSQL)
 - [ ] Vercel project (web app)
-- [ ] Cloudflare R2 bucket `vivah-os-media`
+- [ ] Cloudflare R2 bucket `smart-shaadi-media`
 - [ ] AWS SES domain verification
 - [ ] **SUBMIT:** Razorpay merchant account (3–5 day activation)
 - [ ] **SUBMIT:** Digilocker KYC API application (5–10 day approval)
@@ -42,10 +46,10 @@ _Nothing yet — project starts here._
 - [ ] Better Auth setup (phone OTP + email + JWT + 6 roles)
 - [ ] PostgreSQL schema via Drizzle (users, sessions, otp_verifications)
 - [ ] MongoDB connection (profiles_content collection)
-- [ ] KYC module: Aadhaar verification flow
-- [ ] KYC module: Photo fraud detection (AWS Rekognition)
-- [ ] KYC module: Duplicate account detection
-- [ ] Verified badge system
+- [x] KYC module: Aadhaar verification flow ✅
+- [x] KYC module: Photo fraud detection (AWS Rekognition) ✅
+- [x] KYC module: Duplicate account detection ✅
+- [x] Verified badge system ✅
 
 ### Week 2
 

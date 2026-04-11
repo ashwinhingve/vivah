@@ -1,4 +1,4 @@
-# VivahOS Infinity — Master Development Plan
+# Smart Shaadi — Master Development Plan
 ## Solo Developer · AI-Assisted Build · 6 Months to National Platform
 
 ---

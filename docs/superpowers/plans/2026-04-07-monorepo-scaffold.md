@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Scaffold the full VivahOS Infinity monorepo with correct configs, tsconfigs, and package.json for every workspace — no feature code.
+**Goal:** Scaffold the full Smart Shaadi monorepo with correct configs, tsconfigs, and package.json for every workspace — no feature code.
 
-**Architecture:** pnpm workspaces + Turborepo orchestration. Shared packages (`@vivah/types`, `@vivah/schemas`, `@vivah/db`) are built first so apps can declare workspace dependencies on them. Each app/package gets its own `tsconfig.json` extending `tsconfig.base.json` at root with app-specific overrides.
+**Architecture:** pnpm workspaces + Turborepo orchestration. Shared packages (`@smartshaadi/types`, `@smartshaadi/schemas`, `@smartshaadi/db`) are built first so apps can declare workspace dependencies on them. Each app/package gets its own `tsconfig.json` extending `tsconfig.base.json` at root with app-specific overrides.
 
 **Tech Stack:** Next.js 15, Express 4, FastAPI, Drizzle ORM, Tailwind v4, shadcn/ui, Vitest, Zod, TypeScript 5.7 strict
 
@@ -16,29 +16,29 @@
 
 ```
 packages/types/
-  package.json              @vivah/types — empty shared type package
+  package.json              @smartshaadi/types — empty shared type package
   tsconfig.json             extends base, NodeNext, compiles to dist/
   src/index.ts              export {}
 
 packages/schemas/
-  package.json              @vivah/schemas — Zod schemas, depends on zod
+  package.json              @smartshaadi/schemas — Zod schemas, depends on zod
   tsconfig.json             extends base, NodeNext, compiles to dist/
   src/index.ts              export {}
 
 packages/db/
-  package.json              @vivah/db — Drizzle ORM schema + migrations
+  package.json              @smartshaadi/db — Drizzle ORM schema + migrations
   tsconfig.json             extends base, NodeNext, compiles to dist/
   drizzle.config.ts         points dialect=postgresql, schema=./schema/index.ts
   index.ts                  re-exports schema/index.ts
 
 apps/api/
-  package.json              @vivah/api — Express + Drizzle + BullMQ
+  package.json              @smartshaadi/api — Express + Drizzle + BullMQ
   tsconfig.json             extends base, NodeNext, outDir=dist/
   vitest.config.ts          environment=node
   src/index.ts              minimal Express server, /health endpoint
 
 apps/web/
-  package.json              @vivah/web — Next.js 15 + Tailwind v4 + shadcn
+  package.json              @smartshaadi/web — Next.js 15 + Tailwind v4 + shadcn
   tsconfig.json             extends base, overrides module=ESNext, moduleResolution=bundler
   next.config.ts            transpilePackages for vivah/* workspaces
   postcss.config.mjs        @tailwindcss/postcss plugin
@@ -66,8 +66,8 @@ packages/db/schema/index.ts complete Phase 1 Drizzle schema — already written
 ```
 
 ### Known discrepancy (do not fix in this plan)
-Root `package.json` db scripts use `--filter=@vivah/api`. They should be
-`--filter=@vivah/db`. Leave root unchanged for now; add the db:* scripts to
+Root `package.json` db scripts use `--filter=@smartshaadi/api`. They should be
+`--filter=@smartshaadi/db`. Leave root unchanged for now; add the db:* scripts to
 `packages/db/package.json` so they work when called directly.
 
 ---
@@ -83,7 +83,7 @@ Root `package.json` db scripts use `--filter=@vivah/api`. They should be
 
 ```json
 {
-  "name": "@vivah/types",
+  "name": "@smartshaadi/types",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/src/index.js",
@@ -129,7 +129,7 @@ export {};
 
 ```bash
 git add packages/types
-git commit -m "chore: scaffold @vivah/types package"
+git commit -m "chore: scaffold @smartshaadi/types package"
 ```
 
 ---
@@ -145,7 +145,7 @@ git commit -m "chore: scaffold @vivah/types package"
 
 ```json
 {
-  "name": "@vivah/schemas",
+  "name": "@smartshaadi/schemas",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/src/index.js",
@@ -194,7 +194,7 @@ export {};
 
 ```bash
 git add packages/schemas
-git commit -m "chore: scaffold @vivah/schemas package"
+git commit -m "chore: scaffold @smartshaadi/schemas package"
 ```
 
 ---
@@ -211,7 +211,7 @@ git commit -m "chore: scaffold @vivah/schemas package"
 
 ```json
 {
-  "name": "@vivah/db",
+  "name": "@smartshaadi/db",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -284,7 +284,7 @@ export * from './schema/index.js';
 
 ```bash
 git add packages/db
-git commit -m "chore: scaffold @vivah/db package with drizzle config"
+git commit -m "chore: scaffold @smartshaadi/db package with drizzle config"
 ```
 
 ---
@@ -301,7 +301,7 @@ git commit -m "chore: scaffold @vivah/db package with drizzle config"
 
 ```json
 {
-  "name": "@vivah/api",
+  "name": "@smartshaadi/api",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -318,9 +318,9 @@ git commit -m "chore: scaffold @vivah/db package with drizzle config"
     "pg": "^8.13.0",
     "ioredis": "^5.4.0",
     "bullmq": "^5.0.0",
-    "@vivah/types": "workspace:*",
-    "@vivah/schemas": "workspace:*",
-    "@vivah/db": "workspace:*"
+    "@smartshaadi/types": "workspace:*",
+    "@smartshaadi/schemas": "workspace:*",
+    "@smartshaadi/db": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.0",
@@ -383,7 +383,7 @@ app.listen(PORT, () => {
 
 ```bash
 git add apps/api
-git commit -m "chore: scaffold @vivah/api (Express + TypeScript)"
+git commit -m "chore: scaffold @smartshaadi/api (Express + TypeScript)"
 ```
 
 ---
@@ -406,7 +406,7 @@ git commit -m "chore: scaffold @vivah/api (Express + TypeScript)"
 
 ```json
 {
-  "name": "@vivah/web",
+  "name": "@smartshaadi/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -425,8 +425,8 @@ git commit -m "chore: scaffold @vivah/api (Express + TypeScript)"
     "tailwind-merge": "^2.6.0",
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.460.0",
-    "@vivah/types": "workspace:*",
-    "@vivah/schemas": "workspace:*"
+    "@smartshaadi/types": "workspace:*",
+    "@smartshaadi/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
@@ -474,7 +474,7 @@ git commit -m "chore: scaffold @vivah/api (Express + TypeScript)"
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@vivah/types', '@vivah/schemas', '@vivah/db'],
+  transpilePackages: ['@smartshaadi/types', '@smartshaadi/schemas', '@smartshaadi/db'],
 };
 
 export default nextConfig;
@@ -554,7 +554,7 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'VivahOS Infinity',
+  title: 'Smart Shaadi',
   description: 'National Smart Marriage-Centric Event Ecosystem',
 };
 
@@ -573,7 +573,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 export default function HomePage() {
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-4xl font-bold text-[#0A1F4D]">VivahOS Infinity</h1>
+      <h1 className="text-4xl font-bold text-[#0A1F4D]">Smart Shaadi</h1>
     </main>
   );
 }
@@ -594,7 +594,7 @@ export function cn(...inputs: ClassValue[]) {
 
 ```bash
 git add apps/web
-git commit -m "chore: scaffold @vivah/web (Next.js 15 + Tailwind v4 + shadcn)"
+git commit -m "chore: scaffold @smartshaadi/web (Next.js 15 + Tailwind v4 + shadcn)"
 ```
 
 ---
@@ -613,7 +613,7 @@ git commit -m "chore: scaffold @vivah/web (Next.js 15 + Tailwind v4 + shadcn)"
 [project]
 name = "vivah-ai-service"
 version = "0.1.0"
-description = "VivahOS AI Service — ML scoring, matchmaking, fraud detection"
+description = "Smart Shaadi AI Service — ML scoring, matchmaking, fraud detection"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
@@ -661,7 +661,7 @@ testpaths = ["tests"]
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="VivahOS AI Service",
+    title="Smart Shaadi AI Service",
     version="0.1.0",
     description="ML scoring, AI matchmaking, fraud detection",
 )

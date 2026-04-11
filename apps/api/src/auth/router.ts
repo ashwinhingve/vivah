@@ -1,9 +1,9 @@
 import { Router, type Router as ExpressRouter, type Request, type Response } from 'express';
-import { RegisterSchema, LoginPhoneSchema, VerifyOtpSchema } from '@vivah/schemas';
+import { RegisterSchema, LoginPhoneSchema, VerifyOtpSchema } from '@smartshaadi/schemas';
 import { ok, err } from '../lib/response.js';
 import { authenticate } from './middleware.js';
 import * as service from './service.js';
-import { AuthErrorCode } from '@vivah/types';
+import { AuthErrorCode } from '@smartshaadi/types';
 
 export const authRouter: ExpressRouter = Router();
 

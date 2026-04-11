@@ -1,5 +1,5 @@
 import { createHash, randomInt, timingSafeEqual } from 'crypto';
-import type { OtpPurpose } from '@vivah/types';
+import type { OtpPurpose } from '@smartshaadi/types';
 import { env } from '../lib/env.js';
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes

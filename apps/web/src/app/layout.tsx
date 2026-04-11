@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'VivahOS Infinity',
+  title: 'Smart Shaadi',
   description: 'National Smart Marriage-Centric Event Ecosystem',
 };
 

@@ -1,8 +1,8 @@
 import { eq, and, ne } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { profiles, sessions, kycVerifications } from '@vivah/db';
-import { KycErrorCode } from '@vivah/types';
-import type { PhotoAnalysis } from '@vivah/types';
+import { profiles, sessions, kycVerifications } from '@smartshaadi/db';
+import { KycErrorCode } from '@smartshaadi/types';
+import type { PhotoAnalysis } from '@smartshaadi/types';
 import { analyzePhoto } from './rekognition.js';
 import { getDigiLockerAuthUrl, verifyDigiLockerCallback } from './aadhaar.js';
 

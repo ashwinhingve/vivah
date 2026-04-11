@@ -13,15 +13,15 @@ import {
   OTP_MAX_ATTEMPTS,
   OTP_RATE_LIMIT_SECONDS,
 } from './otp.js';
-import { AuthErrorCode } from '@vivah/types';
-import type { UserRole, AuthUser, OtpPurpose } from '@vivah/types';
+import { AuthErrorCode } from '@smartshaadi/types';
+import type { UserRole, AuthUser, OtpPurpose } from '@smartshaadi/types';
 
-// Schema tables (compiled @vivah/db re-exports all from schema/index.ts)
+// Schema tables (compiled @smartshaadi/db re-exports all from schema/index.ts)
 import {
   users,
   sessions,
   otpVerifications,
-} from '@vivah/db';
+} from '@smartshaadi/db';
 
 // ── Redis key helper ──────────────────────────────────────────────────────────
 
