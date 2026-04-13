@@ -129,6 +129,7 @@ const profileContentSchema = new Schema(
 );
 
 // Prevent model re-registration in hot-reload environments
-export const ProfileContent =
-  (models['ProfileContent'] as ReturnType<typeof model> | undefined) ??
-  model('ProfileContent', profileContentSchema);
+export const ProfileContent = (
+  (models['ProfileContent'] as unknown) ??
+  model('ProfileContent', profileContentSchema)
+) as unknown;
