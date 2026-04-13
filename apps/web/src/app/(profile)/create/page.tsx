@@ -5,23 +5,35 @@ import { useRouter } from 'next/navigation';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 type StayQuotient = 'INDEPENDENT' | 'WITH_PARENTS' | 'WITH_INLAWS' | 'FLEXIBLE';
+type Gender       = 'MALE' | 'FEMALE' | 'OTHER';
+type MaritalStatus = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
 
-interface ProfileFields {
+interface PersonalFields {
+  fullName:      string;
+  dob:           string;           // YYYY-MM-DD
+  gender:        Gender | '';
+  maritalStatus: MaritalStatus | '';
+  city:          string;
+  religion:      string;
+}
+
+interface PreferenceFields {
   stayQuotient:            StayQuotient | '';
-  familyInclinationScore:  string; // kept as string for input binding
+  familyInclinationScore:  string;
   functionAttendanceScore: string;
 }
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
 
 function StepIndicator({ current }: { current: Step }) {
-  const steps = [
-    { n: 1 as Step, label: 'Details' },
-    { n: 2 as Step, label: 'Safety' },
-    { n: 3 as Step, label: 'Photos' },
+  const steps: { n: Step; label: string }[] = [
+    { n: 1, label: 'Personal' },
+    { n: 2, label: 'Preferences' },
+    { n: 3, label: 'Safety' },
+    { n: 4, label: 'Photos' },
   ];
 
   return (
@@ -61,15 +73,224 @@ function StepIndicator({ current }: { current: Step }) {
   );
 }
 
-// ── Step 1 — Profile details ──────────────────────────────────────────────────
+// ── Step 1 — Personal basics ──────────────────────────────────────────────────
 
 function Step1({
   fields,
   onChange,
   onNext,
 }: {
-  fields: ProfileFields;
-  onChange: (f: Partial<ProfileFields>) => void;
+  fields: PersonalFields;
+  onChange: (f: Partial<PersonalFields>) => void;
+  onNext: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  const genderOptions: { value: Gender; label: string }[] = [
+    { value: 'MALE',   label: 'Male' },
+    { value: 'FEMALE', label: 'Female' },
+    { value: 'OTHER',  label: 'Other' },
+  ];
+
+  const maritalOptions: { value: MaritalStatus; label: string }[] = [
+    { value: 'NEVER_MARRIED', label: 'Never married' },
+    { value: 'DIVORCED',      label: 'Divorced' },
+    { value: 'WIDOWED',       label: 'Widowed' },
+    { value: 'SEPARATED',     label: 'Separated' },
+  ];
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!fields.fullName.trim()) {
+      setError('Please enter your full name');
+      return;
+    }
+    if (!fields.dob) {
+      setError('Please enter your date of birth');
+      return;
+    }
+    if (!fields.gender) {
+      setError('Please select your gender');
+      return;
+    }
+    if (!fields.maritalStatus) {
+      setError('Please select your marital status');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/profiles/me/content/personal`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            fullName:      fields.fullName.trim(),
+            dob:           new Date(fields.dob).toISOString(),
+            gender:        fields.gender,
+            maritalStatus: fields.maritalStatus,
+            ...(fields.city.trim()     && { city: fields.city.trim() }),
+            ...(fields.religion.trim() && { religion: fields.religion.trim() }),
+          }),
+        },
+      );
+      const json = (await res.json()) as { success: boolean; error?: { message?: string } };
+      if (!json.success) {
+        setError(json.error?.message ?? 'Failed to save personal details');
+        setLoading(false);
+        return;
+      }
+      onNext();
+    } catch {
+      setError('Network error — please try again');
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5"
+    >
+      <div>
+        <h2 className="text-xl font-semibold text-[#0A1F4D]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          About you
+        </h2>
+        <p className="text-sm text-[#64748B] mt-1">Tell us a little about yourself</p>
+      </div>
+
+      {/* Full name */}
+      <div className="space-y-1">
+        <label htmlFor="fullName" className="block text-sm font-medium text-[#0F172A]">Full name</label>
+        <input
+          id="fullName"
+          type="text"
+          value={fields.fullName}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ fullName: e.target.value })}
+          placeholder="e.g. Priya Sharma"
+          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+        />
+      </div>
+
+      {/* Date of birth */}
+      <div className="space-y-1">
+        <label htmlFor="dob" className="block text-sm font-medium text-[#0F172A]">Date of birth</label>
+        <input
+          id="dob"
+          type="date"
+          value={fields.dob}
+          max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ dob: e.target.value })}
+          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+        />
+      </div>
+
+      {/* Gender */}
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-[#0F172A]">Gender</label>
+        <div className="grid grid-cols-3 gap-2">
+          {genderOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange({ gender: opt.value })}
+              className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
+                fields.gender === opt.value
+                  ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
+                  : 'border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#0E7C7B]/40'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Marital status */}
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-[#0F172A]">Marital status</label>
+        <div className="grid grid-cols-2 gap-2">
+          {maritalOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange({ maritalStatus: opt.value })}
+              className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
+                fields.maritalStatus === opt.value
+                  ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
+                  : 'border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#0E7C7B]/40'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* City (optional) */}
+      <div className="space-y-1">
+        <label htmlFor="city" className="block text-sm font-medium text-[#0F172A]">
+          City <span className="text-[#64748B] font-normal">(optional)</span>
+        </label>
+        <input
+          id="city"
+          type="text"
+          value={fields.city}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ city: e.target.value })}
+          placeholder="e.g. Mumbai"
+          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+        />
+      </div>
+
+      {/* Religion (optional) */}
+      <div className="space-y-1">
+        <label htmlFor="religion" className="block text-sm font-medium text-[#0F172A]">
+          Religion <span className="text-[#64748B] font-normal">(optional)</span>
+        </label>
+        <input
+          id="religion"
+          type="text"
+          value={fields.religion}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ religion: e.target.value })}
+          placeholder="e.g. Hindu"
+          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+        />
+      </div>
+
+      {error && <p className="text-xs text-red-600">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+      >
+        {loading ? (
+          <>
+            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            Saving…
+          </>
+        ) : (
+          'Continue'
+        )}
+      </button>
+    </form>
+  );
+}
+
+// ── Step 2 — Living preferences ───────────────────────────────────────────────
+
+function Step2({
+  fields,
+  onChange,
+  onNext,
+}: {
+  fields: PreferenceFields;
+  onChange: (f: Partial<PreferenceFields>) => void;
   onNext: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -79,14 +300,14 @@ function Step1({
     e.preventDefault();
     setError(null);
 
-    const familyScore  = parseInt(fields.familyInclinationScore,  10);
+    const familyScore   = parseInt(fields.familyInclinationScore,  10);
     const functionScore = parseInt(fields.functionAttendanceScore, 10);
 
     if (fields.stayQuotient === '') {
       setError('Please select a living arrangement preference');
       return;
     }
-    if (isNaN(familyScore)  || familyScore  < 0 || familyScore  > 100) {
+    if (isNaN(familyScore) || familyScore < 0 || familyScore > 100) {
       setError('Family inclination score must be between 0 and 100');
       return;
     }
@@ -112,7 +333,7 @@ function Step1({
       );
       const json = (await res.json()) as { success: boolean; error?: { message?: string } };
       if (!json.success) {
-        setError(json.error?.message ?? 'Failed to save profile');
+        setError(json.error?.message ?? 'Failed to save preferences');
         setLoading(false);
         return;
       }
@@ -142,7 +363,6 @@ function Step1({
         <p className="text-sm text-[#64748B] mt-1">Help us find your best match</p>
       </div>
 
-      {/* Stay preference */}
       <div className="space-y-1">
         <label className="block text-sm font-medium text-[#0F172A]">Living arrangement</label>
         <div className="grid grid-cols-2 gap-2">
@@ -163,7 +383,6 @@ function Step1({
         </div>
       </div>
 
-      {/* Family inclination */}
       <div className="space-y-1">
         <label htmlFor="familyScore" className="block text-sm font-medium text-[#0F172A]">
           Family inclination
@@ -187,7 +406,6 @@ function Step1({
         </div>
       </div>
 
-      {/* Function attendance */}
       <div className="space-y-1">
         <label htmlFor="functionScore" className="block text-sm font-medium text-[#0F172A]">
           Function attendance
@@ -231,9 +449,9 @@ function Step1({
   );
 }
 
-// ── Step 2 — Safety Mode info ─────────────────────────────────────────────────
+// ── Step 3 — Safety Mode info ─────────────────────────────────────────────────
 
-function Step2({ onNext }: { onNext: () => void }) {
+function Step3({ onNext }: { onNext: () => void }) {
   return (
     <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5">
       <div>
@@ -276,14 +494,14 @@ function Step2({ onNext }: { onNext: () => void }) {
   );
 }
 
-// ── Step 3 — Photo upload ─────────────────────────────────────────────────────
+// ── Step 4 — Photo upload (bug-fixed) ─────────────────────────────────────────
 
-function Step3({ onDone }: { onDone: () => void }) {
-  const [file,          setFile]          = useState<File | null>(null);
-  const [preview,       setPreview]       = useState<string | null>(null);
-  const [uploading,     setUploading]     = useState(false);
-  const [uploadDone,    setUploadDone]    = useState(false);
-  const [error,         setError]         = useState<string | null>(null);
+function Step4({ onDone }: { onDone: () => void }) {
+  const [file,       setFile]       = useState<File | null>(null);
+  const [preview,    setPreview]    = useState<string | null>(null);
+  const [uploading,  setUploading]  = useState(false);
+  const [uploadDone, setUploadDone] = useState(false);
+  const [error,      setError]      = useState<string | null>(null);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
@@ -298,26 +516,20 @@ function Step3({ onDone }: { onDone: () => void }) {
     setUploading(true);
 
     try {
-      // 1 — Get pre-signed URL from API
-      const presignRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/storage/presign`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            fileName:    file.name,
-            contentType: file.type,
-            folder:      'profiles',
-          }),
-        },
-      );
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+
+      // 1 — Get pre-signed URL
+      const presignRes = await fetch(`${apiBase}/api/v1/storage/presign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ fileName: file.name, contentType: file.type, folder: 'profiles' }),
+      });
       const presignJson = (await presignRes.json()) as {
         success: boolean;
         data?: { uploadUrl: string; r2Key: string };
         error?: { message?: string };
       };
-
       if (!presignJson.success || !presignJson.data) {
         setError(presignJson.error?.message ?? 'Failed to get upload URL');
         setUploading(false);
@@ -330,9 +542,22 @@ function Step3({ onDone }: { onDone: () => void }) {
         headers: { 'Content-Type': file.type },
         body: file,
       });
-
       if (!r2Res.ok) {
         setError('Upload failed — please try again');
+        setUploading(false);
+        return;
+      }
+
+      // 3 — Register the photo in the database (bug fix)
+      const registerRes = await fetch(`${apiBase}/api/v1/profiles/me/photos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ r2Key: presignJson.data.r2Key, isPrimary: true, displayOrder: 0 }),
+      });
+      const registerJson = (await registerRes.json()) as { success: boolean; error?: { message?: string } };
+      if (!registerJson.success) {
+        setError(registerJson.error?.message ?? 'Photo uploaded but failed to register');
         setUploading(false);
         return;
       }
@@ -354,7 +579,6 @@ function Step3({ onDone }: { onDone: () => void }) {
         <p className="text-sm text-[#64748B] mt-1">Add a clear photo to improve match quality</p>
       </div>
 
-      {/* File picker */}
       <label
         htmlFor="photo-upload"
         className={`flex flex-col items-center justify-center w-full rounded-xl border-2 border-dashed cursor-pointer transition-colors min-h-[160px] ${
@@ -365,11 +589,7 @@ function Step3({ onDone }: { onDone: () => void }) {
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-40 object-cover rounded-xl"
-          />
+          <img src={preview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
         ) : (
           <div className="flex flex-col items-center gap-2 py-6">
             <span className="text-3xl">&#128247;</span>
@@ -433,18 +653,28 @@ function Step3({ onDone }: { onDone: () => void }) {
 export default function CreateProfilePage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
-  const [fields, setFields] = useState<ProfileFields>({
+
+  const [personal, setPersonal] = useState<PersonalFields>({
+    fullName:      '',
+    dob:           '',
+    gender:        '',
+    maritalStatus: '',
+    city:          '',
+    religion:      '',
+  });
+
+  const [preferences, setPreferences] = useState<PreferenceFields>({
     stayQuotient:            '',
     familyInclinationScore:  '50',
     functionAttendanceScore: '50',
   });
 
-  function updateFields(partial: Partial<ProfileFields>) {
-    setFields((prev) => ({ ...prev, ...partial }));
+  function updatePersonal(partial: Partial<PersonalFields>) {
+    setPersonal((prev) => ({ ...prev, ...partial }));
   }
 
-  function handleDone() {
-    router.push('/');
+  function updatePreferences(partial: Partial<PreferenceFields>) {
+    setPreferences((prev) => ({ ...prev, ...partial }));
   }
 
   return (
@@ -452,13 +682,16 @@ export default function CreateProfilePage() {
       <StepIndicator current={step} />
 
       {step === 1 && (
-        <Step1 fields={fields} onChange={updateFields} onNext={() => setStep(2)} />
+        <Step1 fields={personal} onChange={updatePersonal} onNext={() => setStep(2)} />
       )}
       {step === 2 && (
-        <Step2 onNext={() => setStep(3)} />
+        <Step2 fields={preferences} onChange={updatePreferences} onNext={() => setStep(3)} />
       )}
       {step === 3 && (
-        <Step3 onDone={handleDone} />
+        <Step3 onNext={() => setStep(4)} />
+      )}
+      {step === 4 && (
+        <Step4 onDone={() => router.push('/')} />
       )}
     </div>
   );
