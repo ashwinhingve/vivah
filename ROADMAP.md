@@ -71,6 +71,11 @@ Last updated: 2026-04-13
 - [x] App-level .env.example files ✅
 - [x] AI service health tests ✅
 - [x] Next.js profile creation page (3-step form) ✅
+- [x] Profile schemas (`packages/schemas`) — complete ✅
+- [x] Profile TypeScript types (`packages/types`) — complete ✅
+- [x] Profile content sub-endpoints (`/me/content/*`) — complete ✅
+- [x] Profile wizard extended to 4 steps — complete ✅
+- [x] Photo registration bug fixed — complete ✅
 
 ### Week 2
 
