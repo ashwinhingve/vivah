@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { phoneNumber } from 'better-auth/plugins';
+import { sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 
@@ -21,22 +22,24 @@ export const auth = betterAuth({
 
   plugins: [
     phoneNumber({
-      sendOTP: ({ phoneNumber: phone, code }) => {
-        if (env.USE_MOCK_SERVICES === 'true') {
-          console.info(`[MOCK OTP] ${phone}: ${code}`);
+      sendOTP: async ({ phoneNumber: phone, code }) => {
+        if (env.USE_MOCK_SERVICES) {
+          console.info(`[MOCK OTP] ${phone}: ${code} → overriding with 123456`);
+          // Better Auth already stored the random OTP; replace with 123456 so
+          // the fixed mock code always works during development.
+          await db.execute(
+            sql`UPDATE verification SET value = '123456:0' WHERE identifier = ${phone}`,
+          );
           return;
         }
         // TODO: real MSG91 integration when USE_MOCK_SERVICES=false
         // await msg91.sendOTP(phone, code);
       },
-      verifyOTP: ({ code }) => {
-        // In mock mode, always accept 123456 regardless of what was sent.
-        // Return undefined (not false) to let Better Auth do DB verification in prod.
-        if (env.USE_MOCK_SERVICES === 'true') {
-          return Promise.resolve(code === '123456');
-        }
-        // Return undefined to fall through to Better Auth's built-in DB check
-        return Promise.resolve(undefined as unknown as boolean);
+      // Auto-create user on first OTP verify (phone-first signup flow).
+      // Temp email is derived from phone — user sets real email in profile later.
+      signUpOnVerification: {
+        getTempEmail: (phone) => `${phone.replace('+', '')}@phone.smartshaadi.co.in`,
+        getTempName: (phone) => phone,
       },
       expiresIn: 600, // 10 minutes
       otpLength: 6,

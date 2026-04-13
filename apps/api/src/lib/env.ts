@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 // Load root .env before validation.
 // env.ts lives at apps/api/src/lib/ — root is 4 levels up.
-config({ path: resolve(__dirname, '../../../../.env') });
+config({ path: resolve(__dirname, '../../../../.env'), override: true });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -17,8 +17,12 @@ const envSchema = z.object({
     .string()
     .min(32, 'JWT_SECRET must be at least 32 characters for HS256 security'),
 
-  MSG91_API_KEY: z.string().min(1, 'MSG91_API_KEY is required'),
-  MSG91_TEMPLATE_ID: z.string().min(1, 'MSG91_TEMPLATE_ID is required'),
+  // Mock flag: set USE_MOCK_SERVICES=true in dev/test to skip real external calls.
+  // Swap to real by removing this var (or setting to false) — no code change needed.
+  USE_MOCK_SERVICES: z.string().default('false').transform(v => v === 'true'),
+
+  MSG91_API_KEY:      z.string().default(''),
+  MSG91_TEMPLATE_ID:  z.string().default(''),
 
   API_BASE_URL: z.string().url('API_BASE_URL must be a valid URL').default('http://localhost:4000'),
   WEB_URL: z.string().url('WEB_URL must be a valid URL').default('http://localhost:3000'),
@@ -27,18 +31,14 @@ const envSchema = z.object({
     .string()
     .min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
 
-  USE_MOCK_SERVICES: z.string().default('true'),
+  // R2 credentials — only required in production (USE_MOCK_SERVICES=false).
+  // In dev/test mode the upload paths short-circuit before these are used.
+  CLOUDFLARE_R2_ACCOUNT_ID: z.string().default(''),
+  CLOUDFLARE_R2_ACCESS_KEY: z.string().default(''),
+  CLOUDFLARE_R2_SECRET_KEY: z.string().default(''),
+  CLOUDFLARE_R2_BUCKET:     z.string().default('smart-shaadi-dev'),
 
-  CLOUDFLARE_R2_ACCOUNT_ID: z.string().min(1, 'CLOUDFLARE_R2_ACCOUNT_ID is required'),
-  CLOUDFLARE_R2_ACCESS_KEY: z.string().min(1, 'CLOUDFLARE_R2_ACCESS_KEY is required'),
-  CLOUDFLARE_R2_SECRET_KEY: z.string().min(1, 'CLOUDFLARE_R2_SECRET_KEY is required'),
-  CLOUDFLARE_R2_BUCKET:     z.string().min(1, 'CLOUDFLARE_R2_BUCKET is required'),
-
-  AWS_REKOGNITION_REGION: z.string().min(1).default('ap-south-1'),
-
-  // Mock flag: set USE_MOCK_SERVICES=true in dev/test to skip real external calls.
-  // Swap to real by removing this var (or setting to false) — no code change needed.
-  USE_MOCK_SERVICES: z.string().optional().default('false').transform(v => v === 'true'),
+  AWS_REKOGNITION_REGION: z.string().default('ap-south-1'),
 });
 
 const parsed = envSchema.safeParse(process.env);
