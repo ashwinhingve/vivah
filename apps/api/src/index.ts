@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/router.js';
 import { kycRouter, adminKycRouter } from './kyc/router.js';
 import { usersRouter } from './users/router.js';
+import { profilesRouter } from './profiles/router.js';
+import { storageRouter } from './storage/router.js';
 import { env } from './lib/env.js';
 
 const app = express();
@@ -38,6 +40,8 @@ app.use('/api/v1/auth/kyc', kycRouter);      // POST /api/v1/auth/kyc/initiate (
 app.use('/api/v1/kyc', kycRouter);            // GET /api/v1/kyc/status, POST /api/v1/kyc/photo
 app.use('/api/v1/admin/kyc', adminKycRouter); // Admin review queue
 app.use('/api/v1/users', usersRouter);        // PATCH /api/v1/users/me/role
+app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
+app.use('/api/v1/storage', storageRouter);   // POST /presign
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 

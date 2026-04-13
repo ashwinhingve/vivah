@@ -12,17 +12,32 @@ Phase:    1 — Core Platform
 Week:     2 of 5
 Target:   Profile module (personal details, photos, preferences, horoscope)
 Blocker:  None
+Last updated: 2026-04-13
 ```
 
 ---
 
 ## ✅ Completed
 
-### Week 1 — Partial (KYC done; infra setup in progress)
+### Week 1 — Complete ✅
+- [x] Monorepo setup (pnpm workspaces + Turborepo)
+- [x] Docker Compose (PostgreSQL, MongoDB, Redis, Adminer)
+- [x] GitHub Actions CI pipeline (quality → test → build → e2e → release)
+- [x] PostgreSQL schema via Drizzle ORM (all tables + enums)
+- [x] Better Auth setup (phone OTP, mock OTP, email+pw, JWT, 6 roles)
+- [x] Auth middleware + auth router
+- [x] Auth integration tests
+- [x] Next.js auth pages (login, register, verify-otp, role picker)
 - [x] KYC module: Aadhaar verification flow
 - [x] KYC module: Photo fraud detection (AWS Rekognition)
 - [x] KYC module: Duplicate account detection
 - [x] Verified badge system
+- [x] Profile API module (GET/PUT /me, GET /:id, safety masking)
+- [x] Storage router (R2 pre-signed PUT URLs, mock mode)
+- [x] DB seed (3 test users: INDIVIDUAL, VENDOR, ADMIN)
+- [x] App-level .env.example files (api, web, ai-service)
+- [x] AI service health test
+- [x] Next.js profile creation page (3-step: details → safety → photos)
 
 ---
 
@@ -30,12 +45,12 @@ Blocker:  None
 
 **End goal: Platform live, first revenue flowing**
 
-### Week 1
+### Week 1 ✅
 
-- [ ] Monorepo setup (pnpm workspaces + Turborepo)
-- [ ] Docker Compose (PostgreSQL, MongoDB, Redis, Adminer)
+- [x] Monorepo setup (pnpm workspaces + Turborepo)
+- [x] Docker Compose (PostgreSQL, MongoDB, Redis, Adminer)
 - [ ] GitHub repo + branch protection rules
-- [ ] GitHub Actions CI pipeline (lint → type-check → test → deploy preview)
+- [x] GitHub Actions CI pipeline (lint → type-check → test → deploy preview)
 - [ ] Railway project (API service + AI service + Redis + PostgreSQL)
 - [ ] Vercel project (web app)
 - [ ] Cloudflare R2 bucket `smart-shaadi-media`
@@ -43,13 +58,19 @@ Blocker:  None
 - [ ] **SUBMIT:** Razorpay merchant account (3–5 day activation)
 - [ ] **SUBMIT:** Digilocker KYC API application (5–10 day approval)
 - [ ] **SUBMIT:** MSG91 DLT sender registration (5–10 days)
-- [ ] Better Auth setup (phone OTP + email + JWT + 6 roles)
-- [ ] PostgreSQL schema via Drizzle (users, sessions, otp_verifications)
+- [x] Better Auth setup (phone OTP + email + JWT + 6 roles)
+- [x] PostgreSQL schema via Drizzle (users, sessions, profiles, photos, kyc, safety…)
 - [ ] MongoDB connection (profiles_content collection)
 - [x] KYC module: Aadhaar verification flow ✅
 - [x] KYC module: Photo fraud detection (AWS Rekognition) ✅
 - [x] KYC module: Duplicate account detection ✅
 - [x] Verified badge system ✅
+- [x] Profile API module (GET/PUT /me, GET /:id, safety masking) ✅
+- [x] Storage router (R2 pre-signed PUT URLs, mock mode) ✅
+- [x] DB seed (3 test users: INDIVIDUAL, VENDOR, ADMIN) ✅
+- [x] App-level .env.example files ✅
+- [x] AI service health tests ✅
+- [x] Next.js profile creation page (3-step form) ✅
 
 ### Week 2
 
