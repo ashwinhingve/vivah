@@ -1,5 +1,5 @@
 /**
- * VivahOS Infinity — PostgreSQL Schema (Drizzle ORM)
+ * Smart Shaadi — PostgreSQL Schema (Drizzle ORM)
  * packages/db/schema/index.ts
  *
  * This is the complete Phase 1 schema.
@@ -8,10 +8,11 @@
 
 import {
   pgTable, pgEnum, uuid, varchar, text, boolean,
-  timestamp, date, integer, decimal, jsonb, inet,
+  timestamp, date, integer, decimal, jsonb,
   uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { user } from './auth';
 
 // ── ENUMS ────────────────────────────────────────────────────────────────────
 
@@ -44,13 +45,7 @@ export const premiumTierEnum = pgEnum('premium_tier', [
   'PREMIUM',
 ]);
 
-export const otpPurposeEnum = pgEnum('otp_purpose', [
-  'LOGIN',
-  'REGISTRATION',
-  'KYC',
-  'CONTACT_UNLOCK',
-  'PASSWORD_RESET',
-]);
+// otpPurposeEnum removed — OTP is now handled by Better Auth's verification table
 
 export const matchStatusEnum = pgEnum('match_status', [
   'PENDING',
@@ -188,53 +183,16 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
 
 // ── TABLES ───────────────────────────────────────────────────────────────────
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-export const users = pgTable('users', {
-  id:           uuid('id').primaryKey().defaultRandom(),
-  phone:        varchar('phone', { length: 15 }).unique().notNull(),
-  email:        varchar('email', { length: 255 }).unique(),
-  role:         userRoleEnum('role').notNull().default('INDIVIDUAL'),
-  status:       userStatusEnum('status').notNull().default('ACTIVE'),
-  verifiedAt:   timestamp('verified_at'),
-  createdAt:    timestamp('created_at').defaultNow().notNull(),
-  updatedAt:    timestamp('updated_at').defaultNow().notNull(),
-}, (t) => ({
-  phoneIdx: index('users_phone_idx').on(t.phone),
-  emailIdx: index('users_email_idx').on(t.email),
-}));
-
-export const sessions = pgTable('sessions', {
-  id:           uuid('id').primaryKey().defaultRandom(),
-  userId:       uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  tokenHash:    varchar('token_hash', { length: 64 }).unique().notNull(),
-  device:       varchar('device', { length: 255 }),
-  ipAddress:    inet('ip_address'),
-  expiresAt:    timestamp('expires_at').notNull(),
-  createdAt:    timestamp('created_at').defaultNow().notNull(),
-}, (t) => ({
-  userIdx: index('sessions_user_idx').on(t.userId),
-  tokenIdx: index('sessions_token_idx').on(t.tokenHash),
-}));
-
-export const otpVerifications = pgTable('otp_verifications', {
-  id:         uuid('id').primaryKey().defaultRandom(),
-  phone:      varchar('phone', { length: 15 }).notNull(),
-  otpHash:    varchar('otp_hash', { length: 64 }).notNull(),
-  purpose:    otpPurposeEnum('purpose').notNull(),
-  attempts:   integer('attempts').default(0),
-  expiresAt:  timestamp('expires_at').notNull(),
-  usedAt:     timestamp('used_at'),
-  createdAt:  timestamp('created_at').defaultNow().notNull(),
-}, (t) => ({
-  phoneIdx: index('otp_phone_idx').on(t.phone),
-}));
+// ── Auth — managed by Better Auth (see schema/auth.ts) ───────────────────────
+// user, session, account, verification tables are in auth.ts.
+// Re-export `user` here so other tables can reference it.
+export { user, session, account, verification } from './auth';
 
 // ── Profiles ──────────────────────────────────────────────────────────────────
 
 export const profiles = pgTable('profiles', {
   id:                   uuid('id').primaryKey().defaultRandom(),
-  userId:               uuid('user_id').unique().notNull().references(() => users.id),
+  userId:               text('user_id').unique().notNull().references(() => user.id),
   mongoProfileId:       varchar('mongo_profile_id', { length: 24 }),
   verificationStatus:   verificationStatusEnum('verification_status').default('PENDING').notNull(),
   premiumTier:          premiumTierEnum('premium_tier').default('FREE').notNull(),
@@ -281,7 +239,7 @@ export const kycVerifications = pgTable('kyc_verifications', {
   duplicateFlag:    boolean('duplicate_flag').default(false).notNull(),
   duplicateReason:  text('duplicate_reason'),
   adminNote:        text('admin_note'),
-  reviewedBy:       uuid('reviewed_by').references(() => users.id),
+  reviewedBy:       text('reviewed_by').references(() => user.id),
   reviewedAt:       timestamp('reviewed_at'),
   createdAt:        timestamp('created_at').defaultNow().notNull(),
   updatedAt:        timestamp('updated_at').defaultNow().notNull(),
@@ -330,7 +288,7 @@ export const blockedUsers = pgTable('blocked_users', {
 
 export const vendors = pgTable('vendors', {
   id:             uuid('id').primaryKey().defaultRandom(),
-  userId:         uuid('user_id').unique().notNull().references(() => users.id),
+  userId:         text('user_id').unique().notNull().references(() => user.id),
   mongoPortfolioId: varchar('mongo_portfolio_id', { length: 24 }),
   businessName:   varchar('business_name', { length: 255 }).notNull(),
   category:       vendorCategoryEnum('category').notNull(),
@@ -372,7 +330,7 @@ export const vendorEventTypes = pgTable('vendor_event_types', {
 
 export const bookings = pgTable('bookings', {
   id:             uuid('id').primaryKey().defaultRandom(),
-  customerId:     uuid('customer_id').notNull().references(() => users.id),
+  customerId:     text('customer_id').notNull().references(() => user.id),
   vendorId:       uuid('vendor_id').notNull().references(() => vendors.id),
   serviceId:      uuid('service_id').references(() => vendorServices.id),
   eventDate:      date('event_date').notNull(),
@@ -425,7 +383,7 @@ export const auditLogs = pgTable('audit_logs', {
   eventType:    auditEventTypeEnum('event_type').notNull(),
   entityType:   varchar('entity_type', { length: 50 }).notNull(),
   entityId:     uuid('entity_id').notNull(),
-  actorId:      uuid('actor_id').references(() => users.id),
+  actorId:      text('actor_id').references(() => user.id),
   payload:      jsonb('payload'),
   contentHash:  varchar('content_hash', { length: 64 }).notNull(),
   prevHash:     varchar('prev_hash', { length: 64 }),
@@ -456,7 +414,7 @@ export const weddings = pgTable('weddings', {
 export const weddingMembers = pgTable('wedding_members', {
   id:           uuid('id').primaryKey().defaultRandom(),
   weddingId:    uuid('wedding_id').notNull().references(() => weddings.id, { onDelete: 'cascade' }),
-  userId:       uuid('user_id').notNull().references(() => users.id),
+  userId:       text('user_id').notNull().references(() => user.id),
   role:         varchar('role', { length: 50 }).default('VIEWER').notNull(),  // VIEWER | EDITOR | OWNER
   invitedAt:    timestamp('invited_at').defaultNow().notNull(),
   acceptedAt:   timestamp('accepted_at'),
@@ -472,7 +430,7 @@ export const weddingTasks = pgTable('wedding_tasks', {
   dueDate:      date('due_date'),
   status:       varchar('status', { length: 20 }).default('TODO').notNull(), // TODO | IN_PROGRESS | DONE
   priority:     varchar('priority', { length: 10 }).default('MEDIUM').notNull(), // LOW | MEDIUM | HIGH
-  assignedTo:   uuid('assigned_to').references(() => users.id),
+  assignedTo:   text('assigned_to').references(() => user.id),
   category:     varchar('category', { length: 50 }),  // Venue | Catering | etc.
   createdAt:    timestamp('created_at').defaultNow().notNull(),
   updatedAt:    timestamp('updated_at').defaultNow().notNull(),
@@ -486,7 +444,7 @@ export const weddingTasks = pgTable('wedding_tasks', {
 export const guestLists = pgTable('guest_lists', {
   id:         uuid('id').primaryKey().defaultRandom(),
   weddingId:  uuid('wedding_id').unique().notNull().references(() => weddings.id, { onDelete: 'cascade' }),
-  createdBy:  uuid('created_by').notNull().references(() => users.id),
+  createdBy:  text('created_by').notNull().references(() => user.id),
   createdAt:  timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -522,7 +480,7 @@ export const invitations = pgTable('invitations', {
 
 export const notifications = pgTable('notifications', {
   id:         uuid('id').primaryKey().defaultRandom(),
-  userId:     uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId:     text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   type:       notificationTypeEnum('type').notNull(),
   title:      varchar('title', { length: 255 }).notNull(),
   body:       text('body').notNull(),
@@ -537,7 +495,7 @@ export const notifications = pgTable('notifications', {
 
 export const notificationPreferences = pgTable('notification_preferences', {
   id:         uuid('id').primaryKey().defaultRandom(),
-  userId:     uuid('user_id').unique().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId:     text('user_id').unique().notNull().references(() => user.id, { onDelete: 'cascade' }),
   push:       boolean('push').default(true).notNull(),
   sms:        boolean('sms').default(true).notNull(),
   email:      boolean('email').default(true).notNull(),
@@ -581,7 +539,7 @@ export const products = pgTable('products', {
 
 export const orders = pgTable('orders', {
   id:                   uuid('id').primaryKey().defaultRandom(),
-  customerId:           uuid('customer_id').notNull().references(() => users.id),
+  customerId:           text('customer_id').notNull().references(() => user.id),
   status:               orderStatusEnum('status').default('PLACED').notNull(),
   subtotal:             decimal('subtotal', { precision: 12, scale: 2 }).notNull(),
   shippingFee:          decimal('shipping_fee', { precision: 12, scale: 2 }).default('0').notNull(),
@@ -615,15 +573,14 @@ export const orderItems = pgTable('order_items', {
 
 // ── RELATIONS ─────────────────────────────────────────────────────────────────
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-  profile:    one(profiles, { fields: [users.id], references: [profiles.userId] }),
-  vendor:     one(vendors,  { fields: [users.id], references: [vendors.userId] }),
-  sessions:   many(sessions),
+export const userRelations = relations(user, ({ one, many }) => ({
+  profile:       one(profiles,       { fields: [user.id], references: [profiles.userId] }),
+  vendor:        one(vendors,        { fields: [user.id], references: [vendors.userId] }),
   notifications: many(notifications),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
-  user:             one(users,        { fields: [profiles.userId], references: [users.id] }),
+  user:             one(user,         { fields: [profiles.userId], references: [user.id] }),
   photos:           many(profilePhotos),
   communityZone:    one(communityZones, { fields: [profiles.id], references: [communityZones.profileId] }),
   kycVerification:  one(kycVerifications, { fields: [profiles.id], references: [kycVerifications.profileId] }),
@@ -634,18 +591,18 @@ export const profilesRelations = relations(profiles, ({ one, many }) => ({
 
 export const kycVerificationsRelations = relations(kycVerifications, ({ one }) => ({
   profile:  one(profiles,  { fields: [kycVerifications.profileId],  references: [profiles.id] }),
-  reviewer: one(users,     { fields: [kycVerifications.reviewedBy], references: [users.id] }),
+  reviewer: one(user,      { fields: [kycVerifications.reviewedBy], references: [user.id] }),
 }));
 
 export const vendorsRelations = relations(vendors, ({ one, many }) => ({
-  user:       one(users,         { fields: [vendors.userId], references: [users.id] }),
+  user:       one(user,          { fields: [vendors.userId], references: [user.id] }),
   services:   many(vendorServices),
   eventTypes: many(vendorEventTypes),
   bookings:   many(bookings),
 }));
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
-  customer:   one(users,    { fields: [bookings.customerId], references: [users.id] }),
+  customer:   one(user,     { fields: [bookings.customerId], references: [user.id] }),
   vendor:     one(vendors,  { fields: [bookings.vendorId],   references: [vendors.id] }),
   service:    one(vendorServices, { fields: [bookings.serviceId], references: [vendorServices.id] }),
   payment:    one(payments, { fields: [bookings.id], references: [payments.bookingId] }),

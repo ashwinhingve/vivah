@@ -1,5 +1,5 @@
 {
-  "name": "vivah-os-infinity",
+  "name": "smart-shaadi",
   "private": true,
   "version": "0.1.0",
   "description": "National Smart Marriage-Centric Event Ecosystem",
@@ -10,10 +10,10 @@
     "e2e": "turbo e2e",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "db:push": "turbo db:push --filter=@vivah/db",
-    "db:generate": "turbo db:generate --filter=@vivah/db",
-    "db:seed": "turbo db:seed --filter=@vivah/db",
-    "db:studio": "turbo db:studio --filter=@vivah/db",
+    "db:push": "turbo db:push --filter=@smartshaadi/db",
+    "db:generate": "turbo db:generate --filter=@smartshaadi/db",
+    "db:seed": "turbo db:seed --filter=@smartshaadi/db",
+    "db:studio": "turbo db:studio --filter=@smartshaadi/db",
     "clean": "turbo clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
   },
@@ -26,5 +26,10 @@
     "node": ">=20.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": ["jose", "zod"]
+    }
+  }
 }

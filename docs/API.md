@@ -1,6 +1,6 @@
 # API Design Guide
 
-**Base URL:** `http://localhost:4000/api/v1` (dev) · `https://api.vivahOS.in/v1` (prod)
+**Base URL:** `http://localhost:4000/api/v1` (dev) · `https://api.smart_shaadi.in/v1` (prod)
 
 ---
 

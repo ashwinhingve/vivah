@@ -1,4 +1,4 @@
-# VivahOS: Build UI Component — $ARGUMENTS
+# Smart Shaadi: Build UI Component — $ARGUMENTS
 # Usage: /ui-component [component name + context]
 # Example: /ui-component profile match card with compatibility score, accept/decline buttons
 
@@ -20,7 +20,7 @@ Before generating any code, state:
 
 ---
 
-## Step 2 — VivahOS Design System
+## Step 2 — Smart Shaadi Design System
 
 All components must follow these values. Do NOT deviate.
 
@@ -66,7 +66,7 @@ Mobile-first:
 After defining intent and confirming design system alignment:
 
 ```
-"Using the VivahOS design system above, generate a [component name] component.
+"Using the Smart Shaadi design system above, generate a [component name] component.
  Use shadcn/ui primitives where available.
  Use Tailwind CSS v4 utility classes only — no inline styles.
  The component must be a Server Component unless it needs:
@@ -83,11 +83,11 @@ For complex interactive patterns — sliders, carousels, animated cards, charts 
 /ui [describe what you need]
 ```
 21st.dev MCP gives Claude Code access to a library of polished Tailwind + React components.
-Ask for the component, then adapt it to the VivahOS design system (colours, radius, typography).
+Ask for the component, then adapt it to the Smart Shaadi design system (colours, radius, typography).
 
 ---
 
-## VivahOS Core Screens — Reference
+## Smart Shaadi Core Screens — Reference
 
 These are the screens that matter most. Build them well.
 
@@ -112,7 +112,7 @@ Ask Claude Code:
 "Review this component against these checks:
  1. Does it work on a 375px mobile screen without horizontal scroll?
  2. Are all touch targets at least 44×44px?
- 3. Does it follow the VivahOS design system (navy/blue/green palette, rounded-xl cards)?
+ 3. Does it follow the Smart Shaadi design system (navy/blue/green palette, rounded-xl cards)?
  4. Is there a loading state if data might take > 200ms?
  5. Is there an empty state if the list could be empty?
  6. Are error states handled visually?
@@ -148,6 +148,6 @@ npx skills add anthropics/claude-code --skill frontend-design
 After installing, use it at the start of any major UI planning session:
 ```
 /frontend-design create a design philosophy and component architecture
-for the VivahOS matchmaking feed. The platform is an Indian matrimonial
+for the Smart Shaadi matchmaking feed. The platform is an Indian matrimonial
 service — warm, trustworthy, not dating-app flashy. Avoid generic AI layouts.
 ```

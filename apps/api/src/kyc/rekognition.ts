@@ -1,7 +1,7 @@
 import { RekognitionClient, DetectFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../lib/env.js';
-import type { PhotoAnalysis } from '@vivah/types';
+import type { PhotoAnalysis } from '@smartshaadi/types';
 
 // Clients are created lazily so test mocks applied in beforeEach are active
 // at instantiation time — module-level singletons would capture the unmocked

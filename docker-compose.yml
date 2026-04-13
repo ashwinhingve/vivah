@@ -4,17 +4,17 @@ services:
   # ── PostgreSQL ────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: vivah-postgres
+    container_name: smart-shaadi-postgres
     environment:
       POSTGRES_USER: vivah
       POSTGRES_PASSWORD: vivah
-      POSTGRES_DB: vivahOS
+      POSTGRES_DB: smart_shaadi
     ports:
       - "5432:5432"
     volumes:
-      - vivah-postgres-data:/var/lib/postgresql/data
+      - smart-shaadi-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vivah -d vivahOS"]
+      test: ["CMD-SHELL", "pg_isready -U vivah -d smart_shaadi"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,17 +22,17 @@ services:
   # ── MongoDB ──────────────────────────────────────────────────────────────
   mongo:
     image: mongo:7-jammy
-    container_name: vivah-mongo
+    container_name: smart-shaadi-mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: vivah
       MONGO_INITDB_ROOT_PASSWORD: vivah
-      MONGO_INITDB_DATABASE: vivahOS
+      MONGO_INITDB_DATABASE: smart_shaadi
     ports:
       - "27017:27017"
     volumes:
-      - vivah-mongo-data:/data/db
+      - smart-shaadi-mongo-data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/vivahOS --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/smart_shaadi --quiet
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,12 +40,12 @@ services:
   # ── Redis ────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: vivah-redis
+    container_name: smart-shaadi-redis
     command: redis-server --appendonly yes
     ports:
       - "6379:6379"
     volumes:
-      - vivah-redis-data:/data
+      - smart-shaadi-redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -55,7 +55,7 @@ services:
   # ── Adminer (DB Browser) ─────────────────────────────────────────────────
   adminer:
     image: adminer:latest
-    container_name: vivah-adminer
+    container_name: smart-shaadi-adminer
     ports:
       - "8080:8080"
     depends_on:
@@ -64,6 +64,6 @@ services:
       ADMINER_DEFAULT_SERVER: postgres
 
 volumes:
-  vivah-postgres-data:
-  vivah-mongo-data:
-  vivah-redis-data:
+  smart-shaadi-postgres-data:
+  smart-shaadi-mongo-data:
+  smart-shaadi-redis-data:

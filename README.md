@@ -1,4 +1,4 @@
-# VivahOS Infinity
+# Smart Shaadi
 
 **National Smart Marriage-Centric Event Ecosystem**
 
@@ -8,7 +8,7 @@
 
 ## What This Is
 
-VivahOS Infinity is a full-lifecycle digital platform that manages the complete marriage journey — from the moment a person begins searching for a life partner to the last payment made after the wedding reception. It is not a matrimonial website. It is a **Marriage Operating System** that connects individuals, families, vendors, and financial institutions into a single, technology-enabled national infrastructure.
+Smart Shaadi is a full-lifecycle digital platform that manages the complete marriage journey — from the moment a person begins searching for a life partner to the last payment made after the wedding reception. It is not a matrimonial website. It is a **Marriage Operating System** that connects individuals, families, vendors, and financial institutions into a single, technology-enabled national infrastructure.
 
 **The core cycle:**
 ```
@@ -20,7 +20,7 @@ Matchmaking → Marriage → Events → Vendor Utilization → Continuous Revenu
 ## Monorepo Structure
 
 ```
-vivahOS-infinity/
+smart_shaadi-infinity/
 ├── apps/
 │   ├── web/                     # Next.js 15 App Router (web frontend)
 │   ├── api/                     # Node.js + TypeScript (core REST API)

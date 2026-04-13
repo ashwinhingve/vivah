@@ -49,7 +49,7 @@ jobs:
         env:
           POSTGRES_USER: vivah
           POSTGRES_PASSWORD: vivah
-          POSTGRES_DB: vivahOS_test
+          POSTGRES_DB: smart_shaadi_test
         ports:
           - 5432:5432
         options: >-
@@ -86,12 +86,12 @@ jobs:
       - name: Run database migrations (test DB)
         run: pnpm db:push
         env:
-          DATABASE_URL: postgresql://vivah:vivah@localhost:5432/vivahOS_test
+          DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
 
       - name: Run unit tests
         run: pnpm test
         env:
-          DATABASE_URL: postgresql://vivah:vivah@localhost:5432/vivahOS_test
+          DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
           REDIS_URL: redis://localhost:6379
           JWT_ACCESS_SECRET: test-secret-do-not-use-in-prod
           JWT_REFRESH_SECRET: test-refresh-secret-do-not-use
@@ -121,7 +121,7 @@ jobs:
       - name: Build all apps
         run: pnpm build
         env:
-          NEXT_PUBLIC_API_URL: https://api.vivahOS.in
+          NEXT_PUBLIC_API_URL: https://api.smart_shaadi.in
 
   # ── E2E Tests (on PR only) ───────────────────────────────────────────────────
   e2e:

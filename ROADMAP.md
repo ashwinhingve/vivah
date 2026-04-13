@@ -1,4 +1,4 @@
-# VivahOS Infinity — Roadmap
+# Smart Shaadi — Roadmap
 
 > **Update this file at the end of every development session.**
 > Claude Code reads this to understand current progress and next targets.
@@ -34,7 +34,7 @@ _Nothing yet — project starts here._
 - [ ] GitHub Actions CI pipeline (lint → type-check → test → deploy preview)
 - [ ] Railway project (API service + AI service + Redis + PostgreSQL)
 - [ ] Vercel project (web app)
-- [ ] Cloudflare R2 bucket `vivah-os-media`
+- [ ] Cloudflare R2 bucket `smart-shaadi-media`
 - [ ] AWS SES domain verification
 - [ ] **SUBMIT:** Razorpay merchant account (3–5 day activation)
 - [ ] **SUBMIT:** Digilocker KYC API application (5–10 day approval)

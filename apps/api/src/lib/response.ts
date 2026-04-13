@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import type { ApiSuccess, ApiError } from '@vivah/types';
+import type { ApiSuccess, ApiError } from '@smartshaadi/types';
 
 function meta() {
   return { timestamp: new Date().toISOString() };

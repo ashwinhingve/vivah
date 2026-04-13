@@ -1,7 +1,7 @@
 [project]
-name = "vivah-ai-service"
+name = "smart-shaadi-ai-service"
 version = "0.1.0"
-description = "VivahOS AI Service — ML scoring, matchmaking, fraud detection"
+description = "Smart Shaadi AI Service — ML scoring, matchmaking, fraud detection"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

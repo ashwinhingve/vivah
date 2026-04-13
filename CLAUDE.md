@@ -1,4 +1,4 @@
-# VivahOS Infinity — Claude Code Context
+# Smart Shaadi — Claude Code Context
 
 > **Read this before every session. Update it when anything changes.**
 > This file is auto-read by Claude Code at session start.
@@ -7,7 +7,7 @@
 
 ## Project Identity
 
-- **Name:** VivahOS Infinity
+- **Name:** Smart Shaadi
 - **Type:** National Smart Marriage-Centric Event Ecosystem
 - **Client:** Colonel Deepak
 - **Developer:** Ashwin Hingve (sole execution owner)
@@ -185,7 +185,7 @@ BETTER_AUTH_SECRET=...
 CLOUDFLARE_R2_ACCOUNT_ID=...
 CLOUDFLARE_R2_ACCESS_KEY=...
 CLOUDFLARE_R2_SECRET_KEY=...
-CLOUDFLARE_R2_BUCKET=vivah-os-media
+CLOUDFLARE_R2_BUCKET=smart-shaadi-media
 
 # Payments
 RAZORPAY_KEY_ID=...
@@ -252,7 +252,7 @@ AI_SERVICE_URL=http://localhost:8000
 
 ## UI Design System
 
-All frontend work follows the VivahOS design system. Do NOT deviate.
+All frontend work follows the Smart Shaadi design system. Do NOT deviate.
 
 ```
 Primary:    #0A1F4D (navy)   — headings, key actions

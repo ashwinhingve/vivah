@@ -1,5 +1,5 @@
 {
-  "name": "@vivah/schemas",
+  "name": "@smartshaadi/schemas",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "zod": "^3.24.0",
-    "@vivah/types": "workspace:*"
+    "@smartshaadi/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

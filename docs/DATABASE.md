@@ -1,6 +1,6 @@
 # Database Schema Reference
 
-VivahOS uses three databases, each serving a distinct purpose.
+Smart Shaadi uses three databases, each serving a distinct purpose.
 
 ---
 

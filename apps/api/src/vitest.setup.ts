@@ -11,5 +11,5 @@ process.env['FRONTEND_URL'] = 'http://localhost:3000';
 process.env['CLOUDFLARE_R2_ACCOUNT_ID'] = 'test-account-id';
 process.env['CLOUDFLARE_R2_ACCESS_KEY'] = 'test-access-key';
 process.env['CLOUDFLARE_R2_SECRET_KEY'] = 'test-secret-key';
-process.env['CLOUDFLARE_R2_BUCKET']     = 'vivah-os-media';
+process.env['CLOUDFLARE_R2_BUCKET']     = 'smart-shaadi-media';
 process.env['AWS_REKOGNITION_REGION']   = 'ap-south-1';

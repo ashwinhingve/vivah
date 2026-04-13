@@ -1,0 +1,98 @@
+'use server';
+
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import type { UserRole } from '@smartshaadi/types';
+
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+/**
+ * Sends an OTP to the given phone number via Better Auth.
+ * On success, redirects to /verify-otp?phone=... so the user can enter the code.
+ * Phone must be E.164 format: +91XXXXXXXXXX
+ */
+export async function requestOTP(
+  phone: string,
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(`${API_URL}/api/auth/phone-number/send-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phoneNumber: phone }),
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { message?: string };
+    return { success: false, error: body.message ?? 'Failed to send OTP' };
+  }
+
+  redirect(`/verify-otp?phone=${encodeURIComponent(phone)}`);
+}
+
+/**
+ * Verifies an OTP code with Better Auth.
+ * On success, forwards the session cookie to the browser and redirects to /.
+ */
+export async function verifyOTP(
+  phone: string,
+  code: string,
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(`${API_URL}/api/auth/phone-number/verify-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phoneNumber: phone, code }),
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { message?: string };
+    return { success: false, error: body.message ?? 'Invalid OTP' };
+  }
+
+  // Forward the session cookie set by Better Auth to the browser.
+  const setCookieHeader = res.headers.get('set-cookie');
+  if (setCookieHeader) {
+    const cookieStore = await cookies();
+    const tokenMatch = /better-auth\.session_token=([^;]+)/.exec(setCookieHeader);
+    if (tokenMatch) {
+      cookieStore.set('better-auth.session_token', tokenMatch[1]!, {
+        httpOnly: true,
+        secure: process.env['NODE_ENV'] === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+      });
+    }
+  }
+
+  redirect('/');
+}
+
+/**
+ * Sets the user's role after registration.
+ * Reads the Better Auth session cookie and calls PATCH /api/v1/users/me/role.
+ */
+export async function setRoleAction(
+  role: UserRole,
+): Promise<{ success: boolean; error?: string }> {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('better-auth.session_token')?.value;
+
+  if (!sessionToken) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  const res = await fetch(`${API_URL}/api/v1/users/me/role`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: `better-auth.session_token=${sessionToken}`,
+    },
+    body: JSON.stringify({ role }),
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    return { success: false, error: body.error ?? 'Failed to set role' };
+  }
+
+  return { success: true };
+}

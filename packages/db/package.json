@@ -1,5 +1,5 @@
 {
-  "name": "@vivah/db",
+  "name": "@smartshaadi/db",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -20,7 +20,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "drizzle-orm": "^0.38.0",
+    "drizzle-orm": "^0.41.0",
     "pg": "^8.13.0"
   },
   "devDependencies": {

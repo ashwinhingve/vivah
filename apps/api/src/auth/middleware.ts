@@ -1,45 +1,52 @@
 import type { Request, Response, NextFunction } from 'express';
-import { verifyAccess } from './jwt.js';
-import type { UserRole, JwtPayload } from '@vivah/types';
-import { AuthErrorCode } from '@vivah/types';
+import { fromNodeHeaders } from 'better-auth/node';
+import { auth } from './config.js';
+import type { UserRole } from '@smartshaadi/types';
+import { AuthErrorCode } from '@smartshaadi/types';
 import { err } from '../lib/response.js';
 
-// Augment Express Request so TypeScript knows about req.user
+// Augment Express Request with Better Auth session data
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: {
+        id: string;
+        role: string;
+        status: string;
+        phoneNumber?: string | null;
+        name: string;
+        email?: string | null;
+      };
     }
   }
 }
 
-/** Validates Bearer token and attaches req.user. Returns 401 on failure. */
+/** Validates Better Auth session cookie and attaches req.user. Returns 401 on failure. */
 export async function authenticate(
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  const header = req.headers['authorization'];
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
 
-  if (!header?.startsWith('Bearer ')) {
-    err(res, AuthErrorCode.UNAUTHORIZED, 'Missing or malformed Authorization header', 401);
+  if (!session?.user) {
+    err(res, AuthErrorCode.UNAUTHORIZED, 'Not authenticated', 401);
     return;
   }
 
-  const token = header.slice(7);
+  req.user = {
+    id:          session.user.id,
+    role:        (session.user as { role?: string }).role ?? 'INDIVIDUAL',
+    status:      (session.user as { status?: string }).status ?? 'PENDING_VERIFICATION',
+    phoneNumber: (session.user as { phoneNumber?: string | null }).phoneNumber ?? null,
+    name:        session.user.name,
+    email:       session.user.email,
+  };
 
-  try {
-    req.user = await verifyAccess(token);
-    next();
-  } catch (e) {
-    const name = e instanceof Error ? e.name : '';
-    if (name === 'TOKEN_EXPIRED') {
-      err(res, AuthErrorCode.TOKEN_EXPIRED, 'Access token has expired', 401);
-    } else {
-      err(res, AuthErrorCode.TOKEN_INVALID, 'Invalid access token', 401);
-    }
-  }
+  next();
 }
 
 /**
@@ -52,7 +59,7 @@ export function authorize(roles: UserRole[]) {
       err(res, AuthErrorCode.UNAUTHORIZED, 'Not authenticated', 401);
       return;
     }
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role as UserRole)) {
       err(res, AuthErrorCode.FORBIDDEN, 'Insufficient permissions', 403);
       return;
     }
