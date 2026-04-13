@@ -20,7 +20,7 @@ Matchmaking → Marriage → Events → Vendor Utilization → Continuous Revenu
 ## Monorepo Structure
 
 ```
-smart-shaadi/
+smart_shaadi-infinity/
 ├── apps/
 │   ├── web/                     # Next.js 15 App Router (web frontend)
 │   ├── api/                     # Node.js + TypeScript (core REST API)

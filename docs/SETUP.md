@@ -21,8 +21,8 @@ npm install -g pnpm
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/ashwinhingve/smart-shaadi-infinity.git
-cd smart-shaadi-infinity
+git clone https://github.com/ashwinhingve/smart-shaadi.git
+cd smart-shaadi
 pnpm install
 ```
 
@@ -227,12 +227,7 @@ pnpm test apps/api/modules/matchmaking/guna-milan.test.ts
 
 ## MCP Configuration (Claude Code)
 
-> **Environment:** This project uses Claude Code via WSL (Windows Subsystem for Linux).
-> The `npx` commands below are correct for WSL/Linux. If you are running Claude Code
-> natively on Windows (not WSL), wrap each entry as:
-> `"command": "cmd", "args": ["/c", "npx", ...]`
-
-Create or update `~/.claude/claude_desktop_config.json` (inside WSL home, i.e. `~`):
+Create or update `~/.claude/claude_desktop_config.json`:
 
 ```json
 {

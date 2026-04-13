@@ -611,7 +611,7 @@ git commit -m "chore: scaffold @smartshaadi/web (Next.js 15 + Tailwind v4 + shad
 
 ```toml
 [project]
-name = "vivah-ai-service"
+name = "smart-shaadi-ai-service"
 version = "0.1.0"
 description = "Smart Shaadi AI Service — ML scoring, matchmaking, fraud detection"
 requires-python = ">=3.11"
@@ -683,7 +683,7 @@ def health() -> dict[str, object]:
 
 ```bash
 git add apps/ai-service
-git commit -m "chore: scaffold vivah-ai-service (FastAPI + pyproject.toml)"
+git commit -m "chore: scaffold smart-shaadi-ai-service (FastAPI + pyproject.toml)"
 ```
 
 ---

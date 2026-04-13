@@ -19,7 +19,8 @@
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.460.0",
     "@smartshaadi/types": "workspace:*",
-    "@smartshaadi/schemas": "workspace:*"
+    "@smartshaadi/schemas": "workspace:*",
+    "better-auth": "^1.6.2"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

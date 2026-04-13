@@ -1,6 +1,6 @@
 import { eq, and, ne } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { profiles, sessions, kycVerifications } from '@smartshaadi/db';
+import { profiles, session as sessionTable, kycVerifications } from '@smartshaadi/db';
 import { KycErrorCode } from '@smartshaadi/types';
 import type { PhotoAnalysis } from '@smartshaadi/types';
 import { analyzePhoto } from './rekognition.js';
@@ -36,14 +36,14 @@ export async function completeAadhaarVerification(
   if (profile.verificationStatus === 'REJECTED')      kycErr(KycErrorCode.KYC_REJECTED);
   if (profile.verificationStatus === 'MANUAL_REVIEW') kycErr(KycErrorCode.KYC_IN_REVIEW);
 
-  // Soft duplicate detection: same IP + device used by a different user
+  // Soft duplicate detection: same IP + userAgent used by a different user
   const otherSessions = await db
-    .select({ userId: sessions.userId })
-    .from(sessions)
+    .select({ userId: sessionTable.userId })
+    .from(sessionTable)
     .where(and(
-      eq(sessions.ipAddress, ipAddress),
-      eq(sessions.device, device),
-      ne(sessions.userId, userId),
+      eq(sessionTable.ipAddress, ipAddress),
+      eq(sessionTable.userAgent, device),
+      ne(sessionTable.userId, userId),
     ))
     .limit(5);
 

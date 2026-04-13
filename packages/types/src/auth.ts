@@ -21,7 +21,14 @@ export type OtpPurpose =
   | 'CONTACT_UNLOCK'
   | 'PASSWORD_RESET';
 
-// ── JWT ───────────────────────────────────────────────────────────────────────
+// ── Session / JWT ─────────────────────────────────────────────────────────────
+
+/** Better Auth session payload attached to req.user by the authenticate middleware. */
+export interface SessionPayload {
+  sub: string;       // userId (Better Auth user.id)
+  role: UserRole;
+  sessionId: string; // Better Auth session.id
+}
 
 export interface JwtPayload {
   sub: string;       // userId

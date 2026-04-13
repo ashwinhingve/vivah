@@ -18,7 +18,7 @@ kycRouter.post('/initiate', authenticate, async (req, res) => {
     return;
   }
   try {
-    const result = await service.initiateAadhaarVerification(req.user!.sub, parsed.data.redirectUri);
+    const result = await service.initiateAadhaarVerification(req.user!.id, parsed.data.redirectUri);
     ok(res, result);
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
@@ -41,7 +41,7 @@ kycRouter.get('/callback', authenticate, async (req, res) => {
   const ipAddress = (req.ip ?? '').replace('::ffff:', '');
   const device    = req.headers['user-agent'] ?? 'unknown';
   try {
-    const result = await service.completeAadhaarVerification(req.user!.sub, digiCode, ipAddress, device);
+    const result = await service.completeAadhaarVerification(req.user!.id, digiCode, ipAddress, device);
     ok(res, {
       message:       'Aadhaar verification submitted for review.',
       duplicateFlag: result.duplicateFlag,
@@ -66,7 +66,7 @@ kycRouter.post('/photo', authenticate, async (req, res) => {
     return;
   }
   try {
-    const result = await service.analyzeProfilePhoto(req.user!.sub, parsed.data.r2Key);
+    const result = await service.analyzeProfilePhoto(req.user!.id, parsed.data.r2Key);
     ok(res, { status: result.status, photoAnalysis: result.photoAnalysis });
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
@@ -81,7 +81,7 @@ kycRouter.post('/photo', authenticate, async (req, res) => {
 // GET /api/v1/kyc/status
 kycRouter.get('/status', authenticate, async (req, res) => {
   try {
-    const result = await service.getKycStatus(req.user!.sub);
+    const result = await service.getKycStatus(req.user!.id);
     ok(res, result);
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
@@ -117,7 +117,7 @@ adminKycRouter.put('/:profileId/approve', authenticate, authorize(['ADMIN']), as
     return;
   }
   try {
-    await service.approveKyc(profileId, req.user!.sub, parsed.data.note);
+    await service.approveKyc(profileId, req.user!.id, parsed.data.note);
     ok(res, { message: 'KYC approved' });
   } catch (e) {
     const code = e instanceof Error ? e.name : '';
@@ -142,7 +142,7 @@ adminKycRouter.put('/:profileId/reject', authenticate, authorize(['ADMIN']), asy
     return;
   }
   try {
-    await service.rejectKyc(profileId, req.user!.sub, parsed.data.note);
+    await service.rejectKyc(profileId, req.user!.id, parsed.data.note);
     ok(res, { message: 'KYC rejected' });
   } catch (e) {
     const code = e instanceof Error ? e.name : '';

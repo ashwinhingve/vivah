@@ -20,7 +20,14 @@ const envSchema = z.object({
   MSG91_API_KEY: z.string().min(1, 'MSG91_API_KEY is required'),
   MSG91_TEMPLATE_ID: z.string().min(1, 'MSG91_TEMPLATE_ID is required'),
 
-  FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL').default('http://localhost:3000'),
+  API_BASE_URL: z.string().url('API_BASE_URL must be a valid URL').default('http://localhost:4000'),
+  WEB_URL: z.string().url('WEB_URL must be a valid URL').default('http://localhost:3000'),
+
+  BETTER_AUTH_SECRET: z
+    .string()
+    .min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
+
+  USE_MOCK_SERVICES: z.string().default('true'),
 
   CLOUDFLARE_R2_ACCOUNT_ID: z.string().min(1, 'CLOUDFLARE_R2_ACCOUNT_ID is required'),
   CLOUDFLARE_R2_ACCESS_KEY: z.string().min(1, 'CLOUDFLARE_R2_ACCESS_KEY is required'),
