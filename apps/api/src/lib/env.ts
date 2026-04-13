@@ -11,6 +11,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
 
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  MONGODB_URI:  z.string().default('mongodb://localhost:27017/smartshaadi'),
   REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
 
   JWT_SECRET: z

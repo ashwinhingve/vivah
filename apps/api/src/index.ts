@@ -1,6 +1,7 @@
 // env.ts loads root .env and validates all required vars on first import
 import './lib/env.js';
 import express, { type Request, type Response } from 'express';
+import { connectMongo } from './lib/mongo.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/router.js';
@@ -44,6 +45,14 @@ app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
 app.use('/api/v1/storage', storageRouter);   // POST /presign
 
 // ── Start ──────────────────────────────────────────────────────────────────────
+
+connectMongo().catch((err) => {
+  console.error('Failed to connect to MongoDB:', err);
+  // Non-fatal in mock mode; fatal in production (process exits)
+  if (!process.env['USE_MOCK_SERVICES'] || process.env['USE_MOCK_SERVICES'] !== 'true') {
+    process.exit(1);
+  }
+});
 
 app.listen(env.PORT, () => {
   console.info(`API server running on port ${env.PORT}`);

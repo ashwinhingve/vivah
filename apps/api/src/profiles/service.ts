@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { profiles, profilePhotos, user } from '@smartshaadi/db';
 
@@ -30,6 +30,20 @@ export interface UpdateProfileInput {
   familyInclinationScore?: number;
   functionAttendanceScore?: number;
   isActive?:               boolean;
+}
+
+export interface AddPhotoInput {
+  r2Key:         string;
+  isPrimary?:    boolean;
+  displayOrder?: number;
+}
+
+export interface PhotoResponse {
+  id:           string;
+  r2Key:        string;
+  isPrimary:    boolean;
+  displayOrder: number;
+  uploadedAt:   Date;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -145,6 +159,48 @@ export async function updateMyProfile(
     .where(eq(profilePhotos.profileId, updated.id));
 
   return buildProfileResponse(updated, userRow, photos, true);
+}
+
+/** Add a photo record after the file has been uploaded to R2 via pre-signed URL. */
+export async function addProfilePhoto(
+  userId: string,
+  input: AddPhotoInput,
+): Promise<PhotoResponse | null> {
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+  if (!profile) return null;
+
+  const isPrimary    = input.isPrimary    ?? false;
+  const displayOrder = input.displayOrder ?? 0;
+
+  const rows = await db
+    .insert(profilePhotos)
+    .values({ profileId: profile.id, r2Key: input.r2Key, isPrimary, displayOrder })
+    .returning();
+  const photo = rows[0];
+  if (!photo) return null;
+
+  return {
+    id:           photo.id,
+    r2Key:        photo.r2Key,
+    isPrimary:    photo.isPrimary,
+    displayOrder: photo.displayOrder,
+    uploadedAt:   photo.uploadedAt,
+  };
+}
+
+/** Delete a photo record by photo UUID, verifying it belongs to this user's profile. */
+export async function deleteProfilePhoto(
+  userId: string,
+  photoId: string,
+): Promise<boolean> {
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+  if (!profile) return false;
+
+  const { rowCount } = await db
+    .delete(profilePhotos)
+    .where(and(eq(profilePhotos.id, photoId), eq(profilePhotos.profileId, profile.id)));
+
+  return (rowCount ?? 0) > 0;
 }
 
 /** Fetch another user's profile by profile UUID. Masks contact details (not self). */
