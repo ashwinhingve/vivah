@@ -9,6 +9,7 @@ import {
   addProfilePhoto,
   deleteProfilePhoto,
 } from './service.js';
+import { profileContentRouter } from './content.router.js';
 
 export const profilesRouter = Router();
 
@@ -103,6 +104,9 @@ profilesRouter.delete('/me/photos/:photoId', authenticate, async (req: Request, 
   }
   ok(res, { deleted: true });
 });
+
+// Mount content sub-router — MUST be before /:id to prevent route conflict
+profilesRouter.use('/me/content', profileContentRouter);
 
 /**
  * GET /api/v1/profiles/:id
