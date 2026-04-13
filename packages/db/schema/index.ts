@@ -243,6 +243,9 @@ export const profiles = pgTable('profiles', {
   lastActiveAt:         timestamp('last_active_at'),
   createdAt:            timestamp('created_at').defaultNow().notNull(),
   updatedAt:            timestamp('updated_at').defaultNow().notNull(),
+  familyInclinationScore:   integer('family_inclination_score'),   // 0–100, null until user fills
+  functionAttendanceScore:  integer('function_attendance_score'),  // 0–100, null until user fills
+  stayQuotient:             varchar('stay_quotient', { length: 20 }), // INDEPENDENT | WITH_PARENTS | WITH_INLAWS | FLEXIBLE
 }, (t) => ({
   userIdx: index('profiles_user_idx').on(t.userId),
   statusIdx: index('profiles_status_idx').on(t.verificationStatus),

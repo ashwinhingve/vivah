@@ -154,6 +154,7 @@ Blocker:  None
 - [ ] Divorcee & Widow Support Mode (dedicated filters, private flag)
 - [ ] Behaviour-Based Matching signal layer (view time, browse patterns)
 - [ ] Predictive Churn Detection (risk classifier, automated win-back)
+- [ ] Divorce Probability Indicator (private risk signal, 10-factor model, shown to user only — not public)
 - [ ] Matrimony AI Assistant (unified conversational guide)
 - [ ] Vendor Utilization Engine Foundation (off-season routing begins)
 - [ ] End-to-end QA — Phase 3
