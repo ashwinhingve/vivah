@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm --filter @smartshaadi/web build",
+  "buildCommand": "cd ../.. && pnpm --filter @smartshaadi/types build && pnpm --filter @smartshaadi/schemas build && pnpm --filter @smartshaadi/web build",
   "outputDirectory": ".next"
 }
