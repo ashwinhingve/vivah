@@ -39,7 +39,7 @@ Last updated: 2026-04-14
 - [x] AI service health test
 - [x] Next.js profile creation page (3-step: details → safety → photos)
 - [ ] Landing page (smartshaadi.com) — hero, features, how it works, CTA
-- [ ] Deploy to Vercel production URL
+- [x] Deploy to Vercel production URL ✅
 - [ ] Share with Colonel Deepak for feedback
 
 ---
@@ -92,7 +92,7 @@ Last updated: 2026-04-14
 - [x] Type-check clean across all workspaces ✅
 - [x] Lint clean across all workspaces ✅
 - [ ] Landing page (smartshaadi.com) — hero, features, how it works, CTA
-- [ ] Deploy to Vercel production URL
+- [x] Deploy to Vercel production URL ✅
 - [ ] Share with Colonel Deepak for feedback
 
 ### Week 2
