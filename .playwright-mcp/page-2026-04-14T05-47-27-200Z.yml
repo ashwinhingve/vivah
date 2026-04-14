@@ -1,0 +1,381 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - navigation "Primary" [ref=e4]:
+      - generic [ref=e5]:
+        - link "Smart Shaadi home" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - img "Smart Shaadi" [ref=e8]
+            - generic [ref=e18]: Smart Shaadi
+        - generic [ref=e19]: Beta
+      - list [ref=e20]:
+        - listitem [ref=e21]:
+          - link "How it Works" [ref=e22] [cursor=pointer]:
+            - /url: "#how-it-works"
+        - listitem [ref=e23]:
+          - link "For Families" [ref=e24] [cursor=pointer]:
+            - /url: "#for-families"
+        - listitem [ref=e25]:
+          - link "Features" [ref=e26] [cursor=pointer]:
+            - /url: "#features"
+        - listitem [ref=e27]:
+          - link "Pricing" [ref=e28] [cursor=pointer]:
+            - /url: "#pricing"
+        - listitem [ref=e29]: Vendors
+      - generic [ref=e30]:
+        - link "Login" [ref=e31] [cursor=pointer]:
+          - /url: /login
+        - link "Register Free" [ref=e32] [cursor=pointer]:
+          - /url: /register
+  - main [ref=e33]:
+    - generic [ref=e34]:
+      - img "Indian bride and groom in traditional wedding attire touching foreheads, with soft pink and gold backdrop" [ref=e36]
+      - generic [ref=e40]:
+        - paragraph [ref=e41]: India's Most Trusted AI Matrimonial Platform
+        - heading "Find Your Perfect Life Partner With Your Family" [level=1] [ref=e42]:
+          - text: Find Your Perfect
+          - text: Life Partner
+          - text: With Your Family
+        - paragraph [ref=e43]: Smart Shaadi combines AI-powered compatibility matching with traditional family values. Guna Milan, horoscope matching, and verified profiles — all in one trusted platform.
+        - list [ref=e44]:
+          - listitem [ref=e45]:
+            - img [ref=e46]
+            - text: Aadhaar Verified Profiles
+          - listitem [ref=e49]:
+            - img [ref=e50]
+            - text: Safety Mode Enabled
+          - listitem [ref=e53]:
+            - img [ref=e54]
+            - text: 36-Point Guna Milan AI
+        - generic [ref=e56]:
+          - link "Find Your Match →" [ref=e57] [cursor=pointer]:
+            - /url: /register
+          - link "For Parents & Families" [ref=e58] [cursor=pointer]:
+            - /url: /register?mode=family
+        - paragraph [ref=e59]: Free to join · No credit card · 2 min setup
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]: RS
+            - generic [ref=e63]: KP
+            - generic [ref=e64]: AM
+            - generic [ref=e65]: VP
+            - generic [ref=e66]: NS
+          - paragraph [ref=e67]: Growing community of verified families
+      - link "Scroll to next section" [ref=e68] [cursor=pointer]:
+        - /url: "#stats"
+        - img [ref=e69]
+    - generic [ref=e73]:
+      - generic [ref=e74]:
+        - term [ref=e75]: Community of Verified Families
+        - definition [ref=e76]: Growing
+        - paragraph [ref=e77]: Community of Verified Families
+      - generic [ref=e78]:
+        - term [ref=e79]: Match Satisfaction in Beta
+        - definition [ref=e80]: 94%
+        - paragraph [ref=e81]: Match Satisfaction in Beta
+      - generic [ref=e82]:
+        - term [ref=e83]: Guna Milan AI Score
+        - definition [ref=e84]: 36-Point
+        - paragraph [ref=e85]: Guna Milan AI Score
+      - generic [ref=e86]:
+        - term [ref=e87]: Average Profile Setup Time
+        - definition [ref=e88]: 2 Min
+        - paragraph [ref=e89]: Average Profile Setup Time
+    - generic [ref=e91]:
+      - paragraph [ref=e92]: How it Works
+      - heading "From Profile to Partnership in Three Simple Steps" [level=2] [ref=e93]
+      - paragraph [ref=e94]: Designed for both individuals and families. Start together, find together.
+      - generic [ref=e95]:
+        - generic [ref=e97]:
+          - paragraph [ref=e98]: "01"
+          - img [ref=e100]
+          - heading "Create Your Profile" [level=3] [ref=e103]
+          - paragraph [ref=e104]: Set up in 2 minutes. Add horoscope details, family background, lifestyle preferences and photos. Family members can co-create.
+          - generic [ref=e105]:
+            - generic [ref=e106]: Aadhaar Verified
+            - generic [ref=e107]: Family Mode
+            - generic [ref=e108]: Kundli Upload
+        - generic [ref=e109]:
+          - paragraph [ref=e110]: "02"
+          - img [ref=e112]
+          - heading "AI Finds Your Matches" [level=3] [ref=e114]
+          - paragraph [ref=e115]: Our AI analyses 50+ compatibility factors including Guna Milan scores, lifestyle alignment, and family values to surface your most compatible matches daily.
+          - generic [ref=e116]:
+            - generic [ref=e117]: Guna Milan Score
+            - generic [ref=e118]: 36-Point Match
+            - generic [ref=e119]: Daily Suggestions
+        - generic [ref=e120]:
+          - paragraph [ref=e121]: "03"
+          - img [ref=e123]
+          - heading "Your Families Connect" [level=3] [ref=e128]
+          - paragraph [ref=e129]: Once both sides show interest, contact details unlock. Chat, video call, and let families interact — all within Smart Shaadi's safe, private ecosystem.
+          - generic [ref=e130]:
+            - generic [ref=e131]: Safe Chat
+            - generic [ref=e132]: Video Calls
+            - generic [ref=e133]: Family Chat Mode
+    - generic [ref=e135]:
+      - paragraph [ref=e136]: Everything You Need
+      - heading "Everything Your Family Needs in One Platform" [level=2] [ref=e137]
+      - paragraph [ref=e138]: Built for Indian families. Not a dating app. Never will be.
+      - generic [ref=e139]:
+        - article [ref=e140]:
+          - img [ref=e143]
+          - heading "AI Guna Milan Calculator" [level=3] [ref=e145]
+          - paragraph [ref=e146]: Full 8-factor Ashtakoot analysis with Mangal Dosha detection. Real Vedic calculations, not guesswork.
+          - generic [ref=e147]: Most Used Feature
+        - article [ref=e148]:
+          - img [ref=e150]
+          - heading "Safety Mode & Privacy" [level=3] [ref=e152]
+          - paragraph [ref=e153]: Photos and contact details stay hidden until mutual interest. Aadhaar-verified profiles only. One-tap block and report.
+          - generic [ref=e154]: Parent Approved
+        - article [ref=e155]:
+          - img [ref=e157]
+          - heading "Wedding Planning Suite" [level=3] [ref=e159]
+          - paragraph [ref=e160]: Budget tracker, vendor booking, guest list, and RSVP management. From proposal to mandap, in one platform.
+          - generic [ref=e161]: Coming in Phase 2
+        - article [ref=e162]:
+          - img [ref=e164]
+          - heading "Family Compatibility Mode" [level=3] [ref=e169]
+          - paragraph [ref=e170]: Parents co-browse profiles and send family interest requests. Designed for how Indian families actually work.
+          - generic [ref=e171]: Unique to Smart Shaadi
+        - article [ref=e172]:
+          - img [ref=e174]
+          - heading "AI Conversation Coach" [level=3] [ref=e176]
+          - paragraph [ref=e177]: AI suggests personalised ice-breakers based on shared interests. Hindi + English support built in.
+          - generic [ref=e178]: AI Powered
+        - article [ref=e179]:
+          - img [ref=e181]
+          - heading "Vendor Marketplace" [level=3] [ref=e184]
+          - paragraph [ref=e185]: Book verified photographers, caterers, and decorators. Escrow payments protect you. One platform, complete journey.
+          - generic [ref=e186]: Coming in Phase 2
+    - generic [ref=e187]:
+      - generic [ref=e189]:
+        - paragraph [ref=e190]: For Individuals
+        - heading "Your Privacy. Your Timeline. Your Choice." [level=2] [ref=e191]
+        - paragraph [ref=e192]: You control everything. Photos stay blurred until you choose to reveal them. Contact details unlock only after mutual interest. Block anyone with one tap.
+        - list [ref=e193]:
+          - listitem [ref=e194]:
+            - img [ref=e196]
+            - generic [ref=e198]: Aadhaar-verified profiles — no fake accounts
+          - listitem [ref=e199]:
+            - img [ref=e201]
+            - generic [ref=e203]: Safety Mode — photos hidden until you choose
+          - listitem [ref=e204]:
+            - img [ref=e206]
+            - generic [ref=e208]: Silent decline — they'll never know you passed
+          - listitem [ref=e209]:
+            - img [ref=e211]
+            - generic [ref=e213]: 24/7 human support team
+        - link "Create Free Profile →" [ref=e214] [cursor=pointer]:
+          - /url: /register
+      - generic [ref=e216]:
+        - paragraph [ref=e217]: For Families
+        - heading "Finally, a Platform Built for How Families Actually Work." [level=2] [ref=e218]
+        - paragraph [ref=e219]: Indian matrimony has always been a family decision. Smart Shaadi is built for that reality. Parents co-browse profiles. Both families verify each other. Trust is built before any meeting.
+        - list [ref=e220]:
+          - listitem [ref=e221]:
+            - img [ref=e223]
+            - generic [ref=e225]: Family-created profiles welcomed and respected
+          - listitem [ref=e226]:
+            - img [ref=e228]
+            - generic [ref=e230]: Parent Mode — separate family dashboard
+          - listitem [ref=e231]:
+            - img [ref=e233]
+            - generic [ref=e235]: Family Verified badge — 4-tier verification system
+          - listitem [ref=e236]:
+            - img [ref=e238]
+            - generic [ref=e240]: Respects community and cultural preferences
+        - link "Explore Family Mode →" [ref=e241] [cursor=pointer]:
+          - /url: /register?mode=family
+    - generic [ref=e243]:
+      - paragraph [ref=e244]: Early Access Feedback
+      - heading "Real Families. Real Matches." [level=2] [ref=e245]
+      - paragraph [ref=e246]: What our early access members are saying
+      - generic [ref=e247]:
+        - figure [ref=e248]:
+          - generic: “
+          - generic [ref=e249]:
+            - paragraph [ref=e250]: ★★★★★
+            - generic [ref=e251]: Rated 5 out of 5 stars.
+            - blockquote [ref=e252]: The Guna Milan calculator showed 34/36 — my mother was convinced before I even met her. Smart Shaadi understood what our family needed.
+            - generic [ref=e253]:
+              - generic [ref=e254]: RS
+              - generic [ref=e255]:
+                - paragraph [ref=e256]: Rahul Sharma
+                - paragraph [ref=e257]: Mumbai · Software Engineer, 28
+        - figure [ref=e258]:
+          - generic: “
+          - generic [ref=e259]:
+            - paragraph [ref=e260]: ★★★★★
+            - generic [ref=e261]: Rated 5 out of 5 stars.
+            - blockquote [ref=e262]: As a parent, I was sceptical of apps. Smart Shaadi's Family Mode let me browse alongside my daughter. The profiles felt genuine. We found the right match in 3 weeks.
+            - generic [ref=e263]:
+              - generic [ref=e264]: KP
+              - generic [ref=e265]:
+                - paragraph [ref=e266]: Mrs. Kavita Patel
+                - paragraph [ref=e267]: Ahmedabad · Parent
+                - generic [ref=e268]: Profile by Parent ✓
+        - figure [ref=e269]:
+          - generic: “
+          - generic [ref=e270]:
+            - paragraph [ref=e271]: ★★★★★
+            - generic [ref=e272]: Rated 5 out of 5 stars.
+            - blockquote [ref=e273]: Matched and engaged within months. The AI matched us on Gunas AND shared hobbies. The compatibility breakdown helped both families understand the match immediately.
+            - generic [ref=e274]:
+              - generic [ref=e275]: AV
+              - generic [ref=e276]:
+                - paragraph [ref=e277]:
+                  - text: Ananya & Vikram
+                  - img [ref=e278]
+                - paragraph [ref=e280]: Bangalore · Engaged via Smart Shaadi
+    - generic [ref=e282]:
+      - paragraph [ref=e283]: Pricing
+      - heading "Start Free. Upgrade When Ready." [level=2] [ref=e284]
+      - paragraph [ref=e285]: No credit card. No auto-charges. Cancel anytime.
+      - generic [ref=e286]:
+        - article [ref=e287]:
+          - paragraph [ref=e288]: Free Forever
+          - paragraph [ref=e289]: ₹0
+          - paragraph [ref=e290]: No credit card required
+          - list [ref=e291]:
+            - listitem [ref=e292]:
+              - img [ref=e293]
+              - text: Create complete profile
+            - listitem [ref=e295]:
+              - img [ref=e296]
+              - text: View 5 matches per day
+            - listitem [ref=e298]:
+              - img [ref=e299]
+              - text: Basic Guna Milan score
+            - listitem [ref=e301]:
+              - img [ref=e302]
+              - text: Send 3 interests per week
+            - listitem [ref=e304]:
+              - img [ref=e305]
+              - text: Safety Mode included
+          - link "Get Started Free" [ref=e307] [cursor=pointer]:
+            - /url: /register
+        - article [ref=e308]:
+          - generic [ref=e309]: Most Popular
+          - paragraph [ref=e310]: Smart Shaadi Premium
+          - paragraph [ref=e311]: ₹999/month
+          - paragraph [ref=e312]: ₹2,499 for 3 months (save 17%)
+          - list [ref=e313]:
+            - listitem [ref=e314]:
+              - img [ref=e315]
+              - text: Unlimited daily matches
+            - listitem [ref=e317]:
+              - img [ref=e318]
+              - text: Full 8-factor Guna Milan breakdown
+            - listitem [ref=e320]:
+              - img [ref=e321]
+              - text: Send unlimited interests
+            - listitem [ref=e323]:
+              - img [ref=e324]
+              - text: AI Conversation Coach
+            - listitem [ref=e326]:
+              - img [ref=e327]
+              - text: Family Compatibility Mode
+            - listitem [ref=e329]:
+              - img [ref=e330]
+              - text: Video calls & private chat
+            - listitem [ref=e332]:
+              - img [ref=e333]
+              - text: Priority support
+            - listitem [ref=e335]:
+              - img [ref=e336]
+              - text: Wedding planning suite (coming soon)
+          - link "Start 7-Day Free Trial →" [ref=e338] [cursor=pointer]:
+            - /url: /register?plan=premium
+    - generic [ref=e340]:
+      - paragraph [ref=e341]: India's Smartest Matrimonial Platform
+      - heading "Your Perfect Match is Waiting." [level=2] [ref=e342]
+      - paragraph [ref=e343]: Join our growing community of verified families. Free to join, private by default, family-first by design.
+      - generic [ref=e344]:
+        - link "Create Free Profile" [ref=e345] [cursor=pointer]:
+          - /url: /register
+        - link "Learn More" [ref=e346] [cursor=pointer]:
+          - /url: "#how-it-works"
+      - paragraph [ref=e347]: No credit card · Free forever · 2-minute setup
+  - contentinfo [ref=e348]:
+    - generic [ref=e349]:
+      - generic [ref=e350]:
+        - generic [ref=e351]:
+          - generic [ref=e352]:
+            - img "Smart Shaadi" [ref=e353]
+            - generic [ref=e363]: Smart Shaadi
+          - paragraph [ref=e364]: India's AI-Powered Matrimonial Platform
+          - generic [ref=e365]:
+            - link "Instagram" [ref=e366] [cursor=pointer]:
+              - img [ref=e367]
+            - link "Twitter" [ref=e370] [cursor=pointer]:
+              - img [ref=e371]
+            - link "Facebook" [ref=e373] [cursor=pointer]:
+              - img [ref=e374]
+            - link "YouTube" [ref=e376] [cursor=pointer]:
+              - img [ref=e377]
+        - generic [ref=e380]:
+          - heading "Platform" [level=3] [ref=e381]
+          - list [ref=e382]:
+            - listitem [ref=e383]:
+              - link "How it Works" [ref=e384] [cursor=pointer]:
+                - /url: "#how-it-works"
+            - listitem [ref=e385]:
+              - link "For Individuals" [ref=e386] [cursor=pointer]:
+                - /url: /register
+            - listitem [ref=e387]:
+              - link "For Families" [ref=e388] [cursor=pointer]:
+                - /url: /register?mode=family
+            - listitem [ref=e389]:
+              - link "Pricing" [ref=e390] [cursor=pointer]:
+                - /url: "#pricing"
+            - listitem [ref=e391]:
+              - generic [ref=e392]: Success Stories
+        - generic [ref=e393]:
+          - heading "Features" [level=3] [ref=e394]
+          - list [ref=e395]:
+            - listitem [ref=e396]:
+              - link "AI Matchmaking" [ref=e397] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e398]:
+              - link "Guna Milan Calculator" [ref=e399] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e400]:
+              - link "Safety Mode" [ref=e401] [cursor=pointer]:
+                - /url: "#for-families"
+            - listitem [ref=e402]:
+              - link "Wedding Planning" [ref=e403] [cursor=pointer]:
+                - /url: "#features"
+            - listitem [ref=e404]:
+              - link "Vendor Marketplace" [ref=e405] [cursor=pointer]:
+                - /url: "#features"
+        - generic [ref=e406]:
+          - heading "Company" [level=3] [ref=e407]
+          - list [ref=e408]:
+            - listitem [ref=e409]:
+              - generic [ref=e410]: About Us
+            - listitem [ref=e411]:
+              - generic [ref=e412]: Privacy Policy
+            - listitem [ref=e413]:
+              - generic [ref=e414]: Terms of Service
+            - listitem [ref=e415]:
+              - generic [ref=e416]: Contact
+            - listitem [ref=e417]:
+              - generic [ref=e418]: Careers
+          - generic [ref=e419]: App Coming Soon
+      - generic [ref=e420]:
+        - paragraph [ref=e421]: © 2026 Smart Shaadi. All rights reserved.
+        - paragraph [ref=e422]:
+          - text: Made with
+          - img [ref=e423]
+          - text: for Indian families
+  - status [ref=e425]:
+    - generic [ref=e426]:
+      - img [ref=e428]
+      - generic [ref=e430]:
+        - text: Static route
+        - button "Hide static indicator" [ref=e431] [cursor=pointer]:
+          - img [ref=e432]
+  - alert [ref=e435]
