@@ -10,14 +10,14 @@ let connected = false;
 export async function connectMongo(): Promise<void> {
   if (connected) return;
   if (env.USE_MOCK_SERVICES) {
-    console.log('ℹ️  MongoDB skipped (USE_MOCK_SERVICES=true)');
+    console.info('ℹ️  MongoDB skipped (USE_MOCK_SERVICES=true)');
     return;
   }
 
   try {
     await mongoose.connect(env.MONGODB_URI);
     connected = true;
-    console.log('✅ MongoDB connected');
+    console.info('✅ MongoDB connected');
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err);
     throw err;

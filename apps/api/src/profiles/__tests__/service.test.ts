@@ -1,0 +1,33 @@
+import { describe, it, expect, vi } from 'vitest';
+
+// Stub tests — full coverage added in Phase 2 when DB fixtures are available.
+// These ensure the module imports cleanly and key exports exist.
+
+vi.mock('../../lib/db.js', () => ({ db: {} }));
+vi.mock('@smartshaadi/db', () => ({
+  profiles: {},
+  profilePhotos: {},
+  user: {},
+}));
+
+describe('profiles/service', () => {
+  it('exports getMyProfile', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.getMyProfile).toBe('function');
+  });
+
+  it('exports updateMyProfile', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.updateMyProfile).toBe('function');
+  });
+
+  it('exports addProfilePhoto', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.addProfilePhoto).toBe('function');
+  });
+
+  it('exports getProfileById', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.getProfileById).toBe('function');
+  });
+});

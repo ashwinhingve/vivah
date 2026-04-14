@@ -173,7 +173,7 @@ export default function VerifyOtpForm() {
         type="button"
         onClick={() => { void submitOtp(digits.join('')); }}
         disabled={loading || digits.some((d) => !d)}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>

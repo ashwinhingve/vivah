@@ -12,7 +12,7 @@ Phase:    1 — Core Platform
 Week:     2 of 5
 Target:   Profile module (personal details, photos, preferences, horoscope)
 Blocker:  None
-Last updated: 2026-04-13
+Last updated: 2026-04-14
 ```
 
 ---
@@ -38,6 +38,9 @@ Last updated: 2026-04-13
 - [x] App-level .env.example files (api, web, ai-service)
 - [x] AI service health test
 - [x] Next.js profile creation page (3-step: details → safety → photos)
+- [ ] Landing page (smartshaadi.com) — hero, features, how it works, CTA
+- [ ] Deploy to Vercel production URL
+- [ ] Share with Colonel Deepak for feedback
 
 ---
 
@@ -76,6 +79,21 @@ Last updated: 2026-04-13
 - [x] Profile content sub-endpoints (`/me/content/*`) — complete ✅
 - [x] Profile wizard extended to 4 steps — complete ✅
 - [x] Photo registration bug fixed — complete ✅
+- [x] Root layout metadata (SEO, Open Graph, fonts) ✅
+- [x] Design system tokens in globals.css (`@theme` block, full palette) ✅
+- [x] Design system audit — all off-palette colors fixed across web ✅
+- [x] Form input & CTA button consistency pass (font-semibold, correct colors) ✅
+- [x] Route group loading/error boundaries `(auth)` + `(profile)` ✅
+- [x] `lib/env.ts` client/server env utility ✅
+- [x] Dashboard stub page ✅
+- [x] Security hardening: helmet, CORS allowedHeaders, body-parser 50kb limit ✅
+- [x] Test stubs for profiles/service, profiles/content.service, storage, users ✅
+- [x] All tests passing (57 total) ✅
+- [x] Type-check clean across all workspaces ✅
+- [x] Lint clean across all workspaces ✅
+- [ ] Landing page (smartshaadi.com) — hero, features, how it works, CTA
+- [ ] Deploy to Vercel production URL
+- [ ] Share with Colonel Deepak for feedback
 
 ### Week 2
 

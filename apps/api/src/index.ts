@@ -3,6 +3,7 @@ import './lib/env.js';
 import express, { type Request, type Response } from 'express';
 import { connectMongo } from './lib/mongo.js';
 import cors from 'cors';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/router.js';
 import { kycRouter, adminKycRouter } from './kyc/router.js';
@@ -15,11 +16,15 @@ const app = express();
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
 
+// Security headers — disable CSP (handled by Next.js) and COEP (not needed for REST API)
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+
 app.use(
   cors({
     origin: env.WEB_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 
@@ -29,7 +34,7 @@ app.use(cookieParser());
 // authRouter registers GET /me first, then ALL /* for Better Auth's handler.
 app.use('/api/auth', authRouter);
 
-app.use(express.json());
+app.use(express.json({ limit: '50kb' }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
 

@@ -1,14 +1,86 @@
 @import "tailwindcss";
 
+@theme {
+  /* Brand */
+  --color-primary:       #7B2D42;
+  --color-primary-hover: #5C2032;
+  --color-primary-light: #A04460;
+
+  /* Trust signals */
+  --color-gold:       #C5A47E;
+  --color-gold-muted: #9E7F5A;
+  --color-gold-light: #D4B896;
+
+  /* Actions */
+  --color-teal:        #0E7C7B;
+  --color-teal-hover:  #149998;
+  --color-teal-bright: #10A3A0;
+
+  /* Backgrounds */
+  --color-background:    #FEFAF6;
+  --color-surface:       #FFFFFF;
+  --color-surface-muted: #F8F5F0;
+
+  /* Dark mode backgrounds */
+  --color-dark-bg:       #1A1A24;
+  --color-dark-surface:  #2D2D3A;
+  --color-dark-elevated: #363645;
+
+  /* Text */
+  --color-text-primary: #2E2E38;
+  --color-text-muted:   #6B6B76;
+  --color-text-on-dark: #F0EBE4;
+
+  /* Borders */
+  --color-border:       #E8E0D8;
+  --color-border-light: #F0EBE4;
+  --color-border-dark:  #404050;
+
+  /* Semantic */
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-error:   #DC2626;
+
+  /* Typography */
+  --font-heading: "Playfair Display", Georgia, "Noto Serif Devanagari", serif;
+  --font-body:    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hindi:   "Noto Serif Devanagari", "Noto Sans Devanagari", serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* Radius */
+  --radius-card:  12px;
+  --radius-photo: 16px;
+}
+
 @layer base {
-  :root {
-    --color-primary:    #7B2D42;
-    --color-gold:       #C5A47E;
-    --color-teal:       #0E7C7B;
-    --color-background: #FEFAF6;
-    --color-surface:    #FFFFFF;
-    --color-dark:       #2D2D3A;
-    --color-text:       #2E2E38;
-    --color-muted:      #6B6B76;
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Sections targeted by the sticky/fixed navbar's anchor links must offset
+     so the section heading isn't tucked under the 64px navbar after scroll. */
+  section[id] {
+    scroll-margin-top: 4rem;
+  }
+
+  /* Thin custom scrollbar on desktop */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #E8E0D8; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #D3CBC2; }
+  * { scrollbar-width: thin; scrollbar-color: #E8E0D8 transparent; }
+
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar { display: none; }
+    * { scrollbar-width: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

@@ -47,14 +47,14 @@ function StepIndicator({ current }: { current: Step }) {
                   ? 'bg-[#0E7C7B] text-white'
                   : current > s.n
                   ? 'bg-[#059669] text-white'
-                  : 'bg-white border-2 border-[#CBD5E1] text-[#64748B]'
+                  : 'bg-white border-2 border-[#E8E0D8] text-[#6B6B76]'
               }`}
             >
               {current > s.n ? '✓' : s.n}
             </div>
             <span
               className={`text-xs mt-1 ${
-                current >= s.n ? 'text-[#0A1F4D] font-medium' : 'text-[#64748B]'
+                current >= s.n ? 'text-[#7B2D42] font-medium' : 'text-[#6B6B76]'
               }`}
             >
               {s.label}
@@ -155,44 +155,44 @@ function Step1({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5"
+      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#0A1F4D]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
           About you
         </h2>
-        <p className="text-sm text-[#64748B] mt-1">Tell us a little about yourself</p>
+        <p className="text-sm text-[#6B6B76] mt-1">Tell us a little about yourself</p>
       </div>
 
       {/* Full name */}
       <div className="space-y-1">
-        <label htmlFor="fullName" className="block text-sm font-medium text-[#0F172A]">Full name</label>
+        <label htmlFor="fullName" className="block text-sm font-medium text-[#2E2E38]">Full name</label>
         <input
           id="fullName"
           type="text"
           value={fields.fullName}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ fullName: e.target.value })}
           placeholder="e.g. Priya Sharma"
-          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
         />
       </div>
 
       {/* Date of birth */}
       <div className="space-y-1">
-        <label htmlFor="dob" className="block text-sm font-medium text-[#0F172A]">Date of birth</label>
+        <label htmlFor="dob" className="block text-sm font-medium text-[#2E2E38]">Date of birth</label>
         <input
           id="dob"
           type="date"
           value={fields.dob}
           max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ dob: e.target.value })}
-          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
         />
       </div>
 
       {/* Gender */}
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#0F172A]">Gender</label>
+        <label className="block text-sm font-medium text-[#2E2E38]">Gender</label>
         <div className="grid grid-cols-3 gap-2">
           {genderOptions.map((opt) => (
             <button
@@ -202,7 +202,7 @@ function Step1({
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.gender === opt.value
                   ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#0E7C7B]/40'
+                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
               }`}
             >
               {opt.label}
@@ -213,7 +213,7 @@ function Step1({
 
       {/* Marital status */}
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#0F172A]">Marital status</label>
+        <label className="block text-sm font-medium text-[#2E2E38]">Marital status</label>
         <div className="grid grid-cols-2 gap-2">
           {maritalOptions.map((opt) => (
             <button
@@ -223,7 +223,7 @@ function Step1({
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.maritalStatus === opt.value
                   ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#0E7C7B]/40'
+                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
               }`}
             >
               {opt.label}
@@ -234,8 +234,8 @@ function Step1({
 
       {/* City (optional) */}
       <div className="space-y-1">
-        <label htmlFor="city" className="block text-sm font-medium text-[#0F172A]">
-          City <span className="text-[#64748B] font-normal">(optional)</span>
+        <label htmlFor="city" className="block text-sm font-medium text-[#2E2E38]">
+          City <span className="text-[#6B6B76] font-normal">(optional)</span>
         </label>
         <input
           id="city"
@@ -243,14 +243,14 @@ function Step1({
           value={fields.city}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ city: e.target.value })}
           placeholder="e.g. Mumbai"
-          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
         />
       </div>
 
       {/* Religion (optional) */}
       <div className="space-y-1">
-        <label htmlFor="religion" className="block text-sm font-medium text-[#0F172A]">
-          Religion <span className="text-[#64748B] font-normal">(optional)</span>
+        <label htmlFor="religion" className="block text-sm font-medium text-[#2E2E38]">
+          Religion <span className="text-[#6B6B76] font-normal">(optional)</span>
         </label>
         <input
           id="religion"
@@ -258,7 +258,7 @@ function Step1({
           value={fields.religion}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ religion: e.target.value })}
           placeholder="e.g. Hindu"
-          className="w-full min-h-[44px] rounded-lg border border-[#E2E8F0] px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
         />
       </div>
 
@@ -267,7 +267,7 @@ function Step1({
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -354,17 +354,17 @@ function Step2({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5"
+      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#0A1F4D]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
           Your preferences
         </h2>
-        <p className="text-sm text-[#64748B] mt-1">Help us find your best match</p>
+        <p className="text-sm text-[#6B6B76] mt-1">Help us find your best match</p>
       </div>
 
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#0F172A]">Living arrangement</label>
+        <label className="block text-sm font-medium text-[#2E2E38]">Living arrangement</label>
         <div className="grid grid-cols-2 gap-2">
           {stayOptions.map((opt) => (
             <button
@@ -374,7 +374,7 @@ function Step2({
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.stayQuotient === opt.value
                   ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E2E8F0] bg-white text-[#0F172A] hover:border-[#0E7C7B]/40'
+                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
               }`}
             >
               {opt.label}
@@ -384,9 +384,9 @@ function Step2({
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="familyScore" className="block text-sm font-medium text-[#0F172A]">
+        <label htmlFor="familyScore" className="block text-sm font-medium text-[#2E2E38]">
           Family inclination
-          <span className="ml-2 text-xs text-[#64748B]">({fields.familyInclinationScore || '—'}/100)</span>
+          <span className="ml-2 text-xs text-[#6B6B76]">({fields.familyInclinationScore || '—'}/100)</span>
         </label>
         <input
           id="familyScore"
@@ -400,16 +400,16 @@ function Step2({
           }
           className="w-full accent-[#0E7C7B]"
         />
-        <div className="flex justify-between text-xs text-[#64748B]">
+        <div className="flex justify-between text-xs text-[#6B6B76]">
           <span>Independent</span>
           <span>Family-oriented</span>
         </div>
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="functionScore" className="block text-sm font-medium text-[#0F172A]">
+        <label htmlFor="functionScore" className="block text-sm font-medium text-[#2E2E38]">
           Function attendance
-          <span className="ml-2 text-xs text-[#64748B]">({fields.functionAttendanceScore || '—'}/100)</span>
+          <span className="ml-2 text-xs text-[#6B6B76]">({fields.functionAttendanceScore || '—'}/100)</span>
         </label>
         <input
           id="functionScore"
@@ -423,7 +423,7 @@ function Step2({
           }
           className="w-full accent-[#0E7C7B]"
         />
-        <div className="flex justify-between text-xs text-[#64748B]">
+        <div className="flex justify-between text-xs text-[#6B6B76]">
           <span>Rarely attend</span>
           <span>Always attend</span>
         </div>
@@ -434,7 +434,7 @@ function Step2({
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -453,20 +453,20 @@ function Step2({
 
 function Step3({ onNext }: { onNext: () => void }) {
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5">
+    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#0A1F4D]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
           Safety Mode
         </h2>
-        <p className="text-sm text-[#64748B] mt-1">Your privacy, your control</p>
+        <p className="text-sm text-[#6B6B76] mt-1">Your privacy, your control</p>
       </div>
 
       <div className="rounded-lg bg-[#0E7C7B]/8 border border-[#0E7C7B]/20 p-4 space-y-3">
         <div className="flex items-start gap-3">
           <span className="text-[#0E7C7B] text-lg mt-0.5">&#128274;</span>
           <div>
-            <p className="text-sm font-medium text-[#0A1F4D]">Contact details protected</p>
-            <p className="text-xs text-[#64748B] mt-0.5">
+            <p className="text-sm font-medium text-[#7B2D42]">Contact details protected</p>
+            <p className="text-xs text-[#6B6B76] mt-0.5">
               Your phone number and email are hidden from other users by default. Only share contact
               details when you choose to unlock them for a specific match.
             </p>
@@ -475,8 +475,8 @@ function Step3({ onNext }: { onNext: () => void }) {
         <div className="flex items-start gap-3">
           <span className="text-[#059669] text-lg mt-0.5">&#9989;</span>
           <div>
-            <p className="text-sm font-medium text-[#0A1F4D]">Safety Mode is always active</p>
-            <p className="text-xs text-[#64748B] mt-0.5">
+            <p className="text-sm font-medium text-[#7B2D42]">Safety Mode is always active</p>
+            <p className="text-xs text-[#6B6B76] mt-0.5">
               Contact unlock controls will be available once your profile is verified by our KYC team.
             </p>
           </div>
@@ -486,7 +486,7 @@ function Step3({ onNext }: { onNext: () => void }) {
       <button
         type="button"
         onClick={onNext}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium transition-colors"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-semibold transition-colors"
       >
         Understood, continue
       </button>
@@ -571,12 +571,12 @@ function Step4({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 space-y-5">
+    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#0A1F4D]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
           Profile photo
         </h2>
-        <p className="text-sm text-[#64748B] mt-1">Add a clear photo to improve match quality</p>
+        <p className="text-sm text-[#6B6B76] mt-1">Add a clear photo to improve match quality</p>
       </div>
 
       <label
@@ -584,16 +584,16 @@ function Step4({ onDone }: { onDone: () => void }) {
         className={`flex flex-col items-center justify-center w-full rounded-xl border-2 border-dashed cursor-pointer transition-colors min-h-[160px] ${
           preview
             ? 'border-[#0E7C7B] bg-[#0E7C7B]/5'
-            : 'border-[#CBD5E1] bg-[#F8F9FC] hover:border-[#0E7C7B]/40'
+            : 'border-[#E8E0D8] bg-[#FEFAF6] hover:border-[#0E7C7B]/40'
         }`}
       >
         {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+          // blob: URLs from FileReader aren't compatible with next/image — <img> is intentional here
+          <img src={preview} alt="Photo preview" className="w-full h-40 object-cover rounded-xl" />
         ) : (
           <div className="flex flex-col items-center gap-2 py-6">
             <span className="text-3xl">&#128247;</span>
-            <p className="text-sm text-[#64748B] text-center">
+            <p className="text-sm text-[#6B6B76] text-center">
               Tap to select a photo
               <br />
               <span className="text-xs">JPEG · PNG · WebP</span>
@@ -620,7 +620,7 @@ function Step4({ onDone }: { onDone: () => void }) {
           type="button"
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
         >
           {uploading ? (
             <>
@@ -638,8 +638,8 @@ function Step4({ onDone }: { onDone: () => void }) {
         onClick={onDone}
         className={`w-full min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
           uploadDone
-            ? 'border-[#0E7C7B] bg-[#0E7C7B] text-white hover:bg-[#149998]'
-            : 'border-[#E2E8F0] text-[#64748B] hover:border-[#0E7C7B]/40'
+            ? 'border-[#0E7C7B] bg-[#0E7C7B] text-white font-semibold hover:bg-[#149998]'
+            : 'border-[#E8E0D8] text-[#6B6B76] hover:border-[#0E7C7B]/40'
         }`}
       >
         {uploadDone ? 'View my profile' : 'Skip for now'}

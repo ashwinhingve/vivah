@@ -20,9 +20,14 @@
 
 ```
 Phase:     1
-Week:      1
-Focus:     Infrastructure & Authentication
+Week:      2
+Focus:     Profile Module — personal details, photos, preferences, horoscope
 Status:    In Progress
+Last session: 2026-04-14
+  - Design system tokens (@theme in globals.css), full palette audit, button/input fixes
+  - Route group loading/error boundaries, env.ts utility, dashboard stub
+  - Security: helmet, CORS allowedHeaders, body-parser 50kb limit
+  - 57 tests passing, type-check clean, lint clean
 ```
 
 > **Update this block at the start of every session.**

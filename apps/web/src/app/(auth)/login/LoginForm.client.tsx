@@ -42,7 +42,7 @@ export default function LoginForm() {
     >
       <div>
         <h2
-          className="text-2xl font-semibold text-[#2E2E38]"
+          className="text-2xl font-semibold text-[#7B2D42]"
           style={{ fontFamily: 'Playfair Display, serif' }}
         >
           Sign in
@@ -76,7 +76,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
