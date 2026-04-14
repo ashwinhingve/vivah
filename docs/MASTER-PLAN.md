@@ -113,8 +113,7 @@ Afternoon: Better Auth setup — phone OTP + email + JWT
 Evening:  /week-end check. Commit: "feat(auth): phone OTP auth complete"
 ```
 
-**Day 3–4:
- & Identity**
+**Day 3–4: KYC & Identity**
 ```
 Morning:  Digilocker KYC flow (if API approved) OR manual upload fallback
           AWS Rekognition photo fraud detection endpoint
