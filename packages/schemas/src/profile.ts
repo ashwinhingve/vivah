@@ -38,6 +38,11 @@ export const UpdateEducationSchema = z.object({
   college:      z.string().max(255).optional(),
   fieldOfStudy: z.string().max(255).optional(),
   year:         z.number().int().min(1950).max(2030).optional(),
+  additionalDegrees: z.array(z.object({
+    degree:  z.string().max(100).optional(),
+    college: z.string().max(200).optional(),
+    year:    z.number().int().min(1950).max(2030).optional(),
+  })).max(5).optional(),
 });
 
 export const UpdateProfessionSchema = z.object({
@@ -46,6 +51,9 @@ export const UpdateProfessionSchema = z.object({
   incomeRange:   z.string().max(50).optional(),
   workLocation:  z.string().max(255).optional(),
   workingAbroad: z.boolean().optional(),
+  employerType:  z.enum(['PRIVATE', 'GOVERNMENT', 'BUSINESS', 'SELF_EMPLOYED', 'NOT_WORKING']).optional(),
+  designation:   z.string().max(100).optional(),
+  abroadCountry: z.string().max(100).optional(),
 });
 
 const siblingSchema = z.object({
@@ -59,10 +67,12 @@ export const UpdateFamilySchema = z.object({
   fatherOccupation: z.string().max(255).optional(),
   motherName:       z.string().max(255).optional(),
   motherOccupation: z.string().max(255).optional(),
-  siblings:         z.array(siblingSchema).optional(),
+  siblings:         z.array(siblingSchema).max(10).optional(),
   familyType:       z.enum(['JOINT', 'NUCLEAR', 'EXTENDED']).optional(),
   familyValues:     z.enum(['TRADITIONAL', 'MODERATE', 'LIBERAL']).optional(),
   familyStatus:     z.enum(['MIDDLE_CLASS', 'UPPER_MIDDLE', 'AFFLUENT']).optional(),
+  nativePlace:      z.string().max(100).optional(),
+  familyAbout:      z.string().max(500).optional(),
 });
 
 export const UpdateLocationSchema = z.object({
@@ -72,13 +82,25 @@ export const UpdateLocationSchema = z.object({
   pincode: z.string().max(10).optional(),
 });
 
+export const HYPER_NICHE_TAGS = [
+  'career-first', 'entrepreneur', 'spiritual', 'environmentalist',
+  'fitness-enthusiast', 'foodie', 'traveller', 'artist', 'social-worker',
+  'NRI', 'manglik', 'divorcee-friendly', 'differently-abled-friendly',
+  'joint-family', 'nuclear-family', 'pet-lover', 'minimalist',
+] as const;
+
 export const UpdateLifestyleSchema = z.object({
-  diet:           z.enum(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN']).optional(),
-  smoking:        z.enum(['NEVER', 'OCCASIONALLY', 'REGULARLY']).optional(),
-  drinking:       z.enum(['NEVER', 'OCCASIONALLY', 'REGULARLY']).optional(),
-  hobbies:        z.array(z.string().max(100)).optional(),
-  interests:      z.array(z.string().max(100)).optional(),
-  hyperNicheTags: z.array(z.string().max(100)).optional(),
+  diet:               z.enum(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN']).optional(),
+  smoking:            z.enum(['NEVER', 'OCCASIONALLY', 'REGULARLY']).optional(),
+  drinking:           z.enum(['NEVER', 'OCCASIONALLY', 'REGULARLY']).optional(),
+  hobbies:            z.array(z.string().max(100)).optional(),
+  interests:          z.array(z.string().max(100)).optional(),
+  hyperNicheTags:     z.array(z.enum(HYPER_NICHE_TAGS)).optional(),
+  languagesSpoken:    z.array(z.string().max(30)).max(10).optional(),
+  ownHouse:           z.boolean().optional(),
+  ownCar:             z.boolean().optional(),
+  fitnessLevel:       z.enum(['ACTIVE', 'MODERATE', 'SEDENTARY']).nullable().optional(),
+  sunSign:            z.string().max(20).optional(),
 });
 
 export const UpdateHoroscopeSchema = z.object({
@@ -112,13 +134,25 @@ export const UpdatePartnerPreferencesSchema = z.object({
 
 // ── Inferred input types ──────────────────────────────────────────────────────
 
-export type UpdateProfileMetaInput      = z.infer<typeof UpdateProfileMetaSchema>;
-export type AddPhotoInput               = z.infer<typeof AddPhotoSchema>;
-export type UpdatePersonalInput         = z.infer<typeof UpdatePersonalSchema>;
-export type UpdateEducationInput        = z.infer<typeof UpdateEducationSchema>;
-export type UpdateProfessionInput       = z.infer<typeof UpdateProfessionSchema>;
-export type UpdateFamilyInput           = z.infer<typeof UpdateFamilySchema>;
-export type UpdateLocationInput         = z.infer<typeof UpdateLocationSchema>;
-export type UpdateLifestyleInput        = z.infer<typeof UpdateLifestyleSchema>;
-export type UpdateHoroscopeInput        = z.infer<typeof UpdateHoroscopeSchema>;
+export const ProfileBulkUpdateSchema = z.object({
+  family:     UpdateFamilySchema.optional(),
+  education:  UpdateEducationSchema.optional(),
+  profession: UpdateProfessionSchema.optional(),
+  lifestyle:  UpdateLifestyleSchema.optional(),
+}).refine(data => Object.keys(data).filter(k => data[k as keyof typeof data] !== undefined).length > 0, {
+  message: 'At least one section is required',
+});
+
+// ── Inferred input types ──────────────────────────────────────────────────────
+
+export type UpdateProfileMetaInput        = z.infer<typeof UpdateProfileMetaSchema>;
+export type AddPhotoInput                 = z.infer<typeof AddPhotoSchema>;
+export type UpdatePersonalInput           = z.infer<typeof UpdatePersonalSchema>;
+export type UpdateEducationInput          = z.infer<typeof UpdateEducationSchema>;
+export type UpdateProfessionInput         = z.infer<typeof UpdateProfessionSchema>;
+export type UpdateFamilyInput             = z.infer<typeof UpdateFamilySchema>;
+export type UpdateLocationInput           = z.infer<typeof UpdateLocationSchema>;
+export type UpdateLifestyleInput          = z.infer<typeof UpdateLifestyleSchema>;
+export type UpdateHoroscopeInput          = z.infer<typeof UpdateHoroscopeSchema>;
 export type UpdatePartnerPreferencesInput = z.infer<typeof UpdatePartnerPreferencesSchema>;
+export type ProfileBulkUpdateInput        = z.infer<typeof ProfileBulkUpdateSchema>;

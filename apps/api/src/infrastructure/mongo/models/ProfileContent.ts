@@ -34,6 +34,13 @@ const profileContentSchema = new Schema(
       college:      String,
       fieldOfStudy: String,
       year:         Number,
+      additionalDegrees: [
+        {
+          degree:  String,
+          college: String,
+          year:    Number,
+        },
+      ],
     },
 
     profession: {
@@ -42,6 +49,9 @@ const profileContentSchema = new Schema(
       incomeRange:   String,    // e.g. "5-10 LPA"
       workLocation:  String,
       workingAbroad: Boolean,
+      employerType:  String,    // PRIVATE | GOVERNMENT | BUSINESS | SELF_EMPLOYED | NOT_WORKING
+      designation:   String,
+      abroadCountry: String,
     },
 
     family: {
@@ -59,6 +69,8 @@ const profileContentSchema = new Schema(
       familyType:   String,   // JOINT | NUCLEAR | EXTENDED
       familyValues: String,   // TRADITIONAL | MODERATE | LIBERAL
       familyStatus: String,   // MIDDLE_CLASS | UPPER_MIDDLE | AFFLUENT
+      nativePlace:  String,
+      familyAbout:  String,
     },
 
     location: {
@@ -79,6 +91,11 @@ const profileContentSchema = new Schema(
       hobbies:         [String],
       interests:       [String],
       hyperNicheTags:  [String],     // career-first | environmentalist | spiritual | etc.
+      languagesSpoken: [String],
+      ownHouse:        Boolean,
+      ownCar:          Boolean,
+      fitnessLevel:    String,       // ACTIVE | MODERATE | SEDENTARY
+      sunSign:         String,
     },
 
     horoscope: {

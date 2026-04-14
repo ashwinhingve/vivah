@@ -9,6 +9,7 @@ import {
   UpdateHoroscopeSchema,
   UpdatePartnerPreferencesSchema,
   AddPhotoSchema,
+  ProfileBulkUpdateSchema,
 } from '../profile.js';
 
 describe('UpdatePersonalSchema', () => {
@@ -168,5 +169,220 @@ describe('AddPhotoSchema', () => {
 
   it('rejects empty r2Key', () => {
     expect(AddPhotoSchema.safeParse({ r2Key: '' }).success).toBe(false);
+  });
+});
+
+describe('UpdateFamilySchema (enhanced)', () => {
+  it('accepts valid family data', () => {
+    const result = UpdateFamilySchema.safeParse({
+      fatherName: 'Ramesh Kumar',
+      familyType: 'JOINT',
+      familyValues: 'TRADITIONAL',
+      familyStatus: 'MIDDLE_CLASS',
+      nativePlace: 'Pune',
+      familyAbout: 'Close-knit family from Maharashtra.',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid familyType', () => {
+    const result = UpdateFamilySchema.safeParse({ familyType: 'CHAOS' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects siblings array exceeding 10 entries', () => {
+    const siblings = Array.from({ length: 11 }, (_, i) => ({ name: `Sibling ${i}` }));
+    const result = UpdateFamilySchema.safeParse({ siblings });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts exactly 10 siblings', () => {
+    const siblings = Array.from({ length: 10 }, (_, i) => ({ name: `Sibling ${i}` }));
+    const result = UpdateFamilySchema.safeParse({ siblings });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid familyValues', () => {
+    const result = UpdateFamilySchema.safeParse({ familyValues: 'ANARCHIST' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects invalid familyStatus', () => {
+    const result = UpdateFamilySchema.safeParse({ familyStatus: 'RICH' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts all valid familyType values', () => {
+    expect(UpdateFamilySchema.safeParse({ familyType: 'JOINT' }).success).toBe(true);
+    expect(UpdateFamilySchema.safeParse({ familyType: 'NUCLEAR' }).success).toBe(true);
+    expect(UpdateFamilySchema.safeParse({ familyType: 'EXTENDED' }).success).toBe(true);
+  });
+});
+
+describe('UpdateLifestyleSchema (enhanced)', () => {
+  it('accepts valid lifestyle data', () => {
+    const result = UpdateLifestyleSchema.safeParse({
+      diet: 'VEG',
+      smoking: 'NEVER',
+      drinking: 'NEVER',
+      hobbies: ['Reading', 'Cooking'],
+      fitnessLevel: 'ACTIVE',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid diet value', () => {
+    const result = UpdateLifestyleSchema.safeParse({ diet: 'PALEO' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts all valid diet values', () => {
+    expect(UpdateLifestyleSchema.safeParse({ diet: 'VEG' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ diet: 'NON_VEG' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ diet: 'JAIN' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ diet: 'VEGAN' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ diet: 'EGGETARIAN' }).success).toBe(true);
+  });
+
+  it('rejects unknown hyperNicheTags', () => {
+    const result = UpdateLifestyleSchema.safeParse({
+      hyperNicheTags: ['unknown-tag-xyz'],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts valid hyperNicheTags', () => {
+    const result = UpdateLifestyleSchema.safeParse({
+      hyperNicheTags: ['career-first', 'entrepreneur', 'spiritual'],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts null fitnessLevel', () => {
+    const result = UpdateLifestyleSchema.safeParse({ fitnessLevel: null });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid fitnessLevel', () => {
+    const result = UpdateLifestyleSchema.safeParse({ fitnessLevel: 'SUPER_ACTIVE' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts all valid fitnessLevel values', () => {
+    expect(UpdateLifestyleSchema.safeParse({ fitnessLevel: 'ACTIVE' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ fitnessLevel: 'MODERATE' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ fitnessLevel: 'SEDENTARY' }).success).toBe(true);
+  });
+
+  it('accepts valid smoking and drinking values', () => {
+    expect(UpdateLifestyleSchema.safeParse({ smoking: 'NEVER' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ smoking: 'OCCASIONALLY' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ smoking: 'REGULARLY' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ drinking: 'NEVER' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ drinking: 'OCCASIONALLY' }).success).toBe(true);
+    expect(UpdateLifestyleSchema.safeParse({ drinking: 'REGULARLY' }).success).toBe(true);
+  });
+
+  it('rejects invalid smoking value', () => {
+    const result = UpdateLifestyleSchema.safeParse({ smoking: 'SOMETIMES' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts hobbies and interests arrays', () => {
+    const result = UpdateLifestyleSchema.safeParse({
+      hobbies: ['Reading', 'Cooking', 'Painting'],
+      interests: ['Travel', 'Photography'],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts languagesSpoken up to 10', () => {
+    const langs = Array.from({ length: 10 }, (_, i) => `Language${i}`);
+    const result = UpdateLifestyleSchema.safeParse({ languagesSpoken: langs });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects languagesSpoken exceeding 10', () => {
+    const langs = Array.from({ length: 11 }, (_, i) => `Language${i}`);
+    const result = UpdateLifestyleSchema.safeParse({ languagesSpoken: langs });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts boolean properties for ownHouse and ownCar', () => {
+    const result = UpdateLifestyleSchema.safeParse({
+      ownHouse: true,
+      ownCar: false,
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('ProfileBulkUpdateSchema', () => {
+  it('rejects empty object', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts partial update with only lifestyle', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'NEVER' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts partial update with only family', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      family: { familyType: 'NUCLEAR' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts partial update with only education', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      education: { degree: 'B.Tech', college: 'IIT Bombay' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts partial update with only profession', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      profession: { occupation: 'Engineer', incomeRange: '10-15 LPA' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts update with multiple sections', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      family: { familyType: 'NUCLEAR' },
+      lifestyle: { diet: 'JAIN' },
+      education: { degree: 'MBA', college: 'XLRI' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts update with all four sections', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      family: { familyType: 'JOINT', familyValues: 'TRADITIONAL' },
+      lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'NEVER' },
+      education: { degree: 'B.Tech', college: 'IIT Bombay', year: 2020 },
+      profession: { occupation: 'Engineer', incomeRange: '15-20 LPA' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('maintains schema validation within each section', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      family: { familyType: 'INVALID_TYPE' },
+      lifestyle: { diet: 'VEG' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects update with only undefined/null values', () => {
+    const result = ProfileBulkUpdateSchema.safeParse({
+      family: undefined,
+      lifestyle: undefined,
+    });
+    expect(result.success).toBe(false);
   });
 });

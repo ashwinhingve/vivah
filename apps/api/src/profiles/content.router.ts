@@ -22,6 +22,7 @@ import {
   UpdateLifestyleSchema,
   UpdateHoroscopeSchema,
   UpdatePartnerPreferencesSchema,
+  ProfileBulkUpdateSchema,
 } from '@smartshaadi/schemas';
 import {
   getMyProfileContent,
@@ -33,6 +34,7 @@ import {
   updateLifestyle,
   updateHoroscope,
   updatePartnerPreferences,
+  bulkUpdateContent,
 } from './content.service.js';
 
 export const profileContentRouter = Router();
@@ -103,6 +105,15 @@ profileContentRouter.put(
     if (parsed.data.college != null) input.college = parsed.data.college;
     if (parsed.data.fieldOfStudy != null) input.fieldOfStudy = parsed.data.fieldOfStudy;
     if (parsed.data.year != null) input.year = parsed.data.year;
+    if (parsed.data.additionalDegrees != null) {
+      input.additionalDegrees = parsed.data.additionalDegrees.map((d) => {
+        const cleanDeg: import('@smartshaadi/types').AdditionalDegreeEntry = {};
+        if (d.degree != null) cleanDeg.degree = d.degree;
+        if (d.college != null) cleanDeg.college = d.college;
+        if (d.year != null) cleanDeg.year = d.year;
+        return cleanDeg;
+      });
+    }
 
     const content = await updateEducation(req.user!.id, input);
     ok(res, content);
@@ -129,6 +140,9 @@ profileContentRouter.put(
     if (parsed.data.incomeRange != null) input.incomeRange = parsed.data.incomeRange;
     if (parsed.data.workLocation != null) input.workLocation = parsed.data.workLocation;
     if (parsed.data.workingAbroad != null) input.workingAbroad = parsed.data.workingAbroad;
+    if (parsed.data.employerType != null) input.employerType = parsed.data.employerType;
+    if (parsed.data.designation != null) input.designation = parsed.data.designation;
+    if (parsed.data.abroadCountry != null) input.abroadCountry = parsed.data.abroadCountry;
 
     const content = await updateProfession(req.user!.id, input);
     ok(res, content);
@@ -166,6 +180,8 @@ profileContentRouter.put(
     if (parsed.data.familyType != null) input.familyType = parsed.data.familyType;
     if (parsed.data.familyValues != null) input.familyValues = parsed.data.familyValues;
     if (parsed.data.familyStatus != null) input.familyStatus = parsed.data.familyStatus;
+    if (parsed.data.nativePlace != null) input.nativePlace = parsed.data.nativePlace;
+    if (parsed.data.familyAbout != null) input.familyAbout = parsed.data.familyAbout;
 
     const content = await updateFamily(req.user!.id, input);
     ok(res, content);
@@ -217,7 +233,12 @@ profileContentRouter.put(
     if (parsed.data.drinking != null) input.drinking = parsed.data.drinking;
     if (parsed.data.hobbies != null) input.hobbies = parsed.data.hobbies;
     if (parsed.data.interests != null) input.interests = parsed.data.interests;
-    if (parsed.data.hyperNicheTags != null) input.hyperNicheTags = parsed.data.hyperNicheTags;
+    if (parsed.data.hyperNicheTags != null) input.hyperNicheTags = [...parsed.data.hyperNicheTags];
+    if (parsed.data.languagesSpoken != null) input.languagesSpoken = parsed.data.languagesSpoken;
+    if (parsed.data.ownHouse != null) input.ownHouse = parsed.data.ownHouse;
+    if (parsed.data.ownCar != null) input.ownCar = parsed.data.ownCar;
+    if (parsed.data.fitnessLevel != null) input.fitnessLevel = parsed.data.fitnessLevel;
+    if (parsed.data.sunSign != null) input.sunSign = parsed.data.sunSign;
 
     const content = await updateLifestyle(req.user!.id, input);
     ok(res, content);
@@ -280,5 +301,25 @@ profileContentRouter.put(
 
     const content = await updatePartnerPreferences(req.user!.id, input);
     ok(res, content);
+  },
+);
+
+/**
+ * PUT /api/v1/profiles/me/content/bulk
+ * Bulk update multiple sections and recompute profile completeness.
+ * Returns the full ProfileContentResponse plus completenessScore.
+ */
+profileContentRouter.put(
+  '/bulk',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = ProfileBulkUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+
+    const result = await bulkUpdateContent(req.user!.id, parsed.data);
+    ok(res, result);
   },
 );

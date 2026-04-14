@@ -43,11 +43,18 @@ export interface PersonalSection {
   gotra?: string;
 }
 
+export interface AdditionalDegreeEntry {
+  degree?: string;
+  college?: string;
+  year?: number;
+}
+
 export interface EducationSection {
   degree?: string;
   college?: string;
   fieldOfStudy?: string;
   year?: number;
+  additionalDegrees?: AdditionalDegreeEntry[];
 }
 
 export interface ProfessionSection {
@@ -56,6 +63,9 @@ export interface ProfessionSection {
   incomeRange?: string;
   workLocation?: string;
   workingAbroad?: boolean;
+  employerType?: 'PRIVATE' | 'GOVERNMENT' | 'BUSINESS' | 'SELF_EMPLOYED' | 'NOT_WORKING';
+  designation?: string;
+  abroadCountry?: string;
 }
 
 export interface SiblingEntry {
@@ -73,6 +83,8 @@ export interface FamilySection {
   familyType?: 'JOINT' | 'NUCLEAR' | 'EXTENDED';
   familyValues?: 'TRADITIONAL' | 'MODERATE' | 'LIBERAL';
   familyStatus?: 'MIDDLE_CLASS' | 'UPPER_MIDDLE' | 'AFFLUENT';
+  nativePlace?: string;
+  familyAbout?: string;
 }
 
 export interface LocationSection {
@@ -89,6 +101,11 @@ export interface LifestyleSection {
   hobbies?: string[];
   interests?: string[];
   hyperNicheTags?: string[];
+  languagesSpoken?: string[];
+  ownHouse?: boolean;
+  ownCar?: boolean;
+  fitnessLevel?: 'ACTIVE' | 'MODERATE' | 'SEDENTARY';
+  sunSign?: string;
 }
 
 export interface HoroscopeSection {
@@ -114,6 +131,17 @@ export interface PartnerPreferencesSection {
   diet?: string[];
   openToInterfaith?: boolean;
   openToInterCaste?: boolean;
+}
+
+export interface ProfileSectionCompletion {
+  personal: boolean;
+  family: boolean;
+  career: boolean;
+  lifestyle: boolean;
+  horoscope: boolean;
+  photos: boolean;
+  preferences: boolean;
+  score: number; // 0-100
 }
 
 export interface SafetyModeSection {

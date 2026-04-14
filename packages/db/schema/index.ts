@@ -181,6 +181,47 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'PROFILE_BLOCKED',
 ]);
 
+export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER']);
+
+export const maritalStatusEnum = pgEnum('marital_status', [
+  'NEVER_MARRIED',
+  'DIVORCED',
+  'WIDOWED',
+  'SEPARATED',
+]);
+
+export const dietEnum = pgEnum('diet', [
+  'VEG',
+  'NON_VEG',
+  'JAIN',
+  'VEGAN',
+  'EGGETARIAN',
+]);
+
+export const smokingDrinkingEnum = pgEnum('smoking_drinking', [
+  'NEVER',
+  'OCCASIONALLY',
+  'REGULARLY',
+]);
+
+export const familyTypeEnum = pgEnum('family_type', [
+  'JOINT',
+  'NUCLEAR',
+  'EXTENDED',
+]);
+
+export const familyValuesEnum = pgEnum('family_values', [
+  'TRADITIONAL',
+  'MODERATE',
+  'LIBERAL',
+]);
+
+export const familyStatusEnum = pgEnum('family_status', [
+  'MIDDLE_CLASS',
+  'UPPER_MIDDLE',
+  'AFFLUENT',
+]);
+
 // ── TABLES ───────────────────────────────────────────────────────────────────
 
 // ── Auth — managed by Better Auth (see schema/auth.ts) ───────────────────────
@@ -228,6 +269,19 @@ export const communityZones = pgTable('community_zones', {
   language:       varchar('language', { length: 50 }),        // primary language preference
   lgbtqProfile:   boolean('lgbtq_profile').default(false),
   createdAt:      timestamp('created_at').defaultNow().notNull(),
+});
+
+export const profileSections = pgTable('profile_sections', {
+  id:          uuid('id').primaryKey().defaultRandom(),
+  profileId:   uuid('profile_id').unique().notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  personal:    boolean('personal').notNull().default(false),
+  family:      boolean('family').notNull().default(false),
+  career:      boolean('career').notNull().default(false),
+  lifestyle:   boolean('lifestyle').notNull().default(false),
+  horoscope:   boolean('horoscope').notNull().default(false),
+  photos:      boolean('photos').notNull().default(false),
+  preferences: boolean('preferences').notNull().default(false),
+  updatedAt:   timestamp('updated_at').defaultNow().notNull(),
 });
 
 // ── KYC ─────────────────────────────────────────────────────────────────────
@@ -587,6 +641,7 @@ export const profilesRelations = relations(profiles, ({ one, many }) => ({
   photos:           many(profilePhotos),
   communityZone:    one(communityZones, { fields: [profiles.id], references: [communityZones.profileId] }),
   kycVerification:  one(kycVerifications, { fields: [profiles.id], references: [kycVerifications.profileId] }),
+  sections:         one(profileSections, { fields: [profiles.id], references: [profileSections.profileId] }),
   sentRequests:     many(matchRequests, { relationName: 'sender' }),
   receivedRequests: many(matchRequests, { relationName: 'receiver' }),
   weddings:         many(weddings),
@@ -595,6 +650,10 @@ export const profilesRelations = relations(profiles, ({ one, many }) => ({
 export const kycVerificationsRelations = relations(kycVerifications, ({ one }) => ({
   profile:  one(profiles,  { fields: [kycVerifications.profileId],  references: [profiles.id] }),
   reviewer: one(user,      { fields: [kycVerifications.reviewedBy], references: [user.id] }),
+}));
+
+export const profileSectionsRelations = relations(profileSections, ({ one }) => ({
+  profile: one(profiles, { fields: [profileSections.profileId], references: [profiles.id] }),
 }));
 
 export const vendorsRelations = relations(vendors, ({ one, many }) => ({
