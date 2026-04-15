@@ -21,6 +21,14 @@ const TEST_USERS = [
     status: 'ACTIVE',
   },
   {
+    id: 'seed-individual-002',
+    name: 'Test Individual 2',
+    email: 'individual2@test.smartshaadi.co.in',
+    phoneNumber: '+919999999004',
+    role: 'INDIVIDUAL',
+    status: 'ACTIVE',
+  },
+  {
     id: 'seed-vendor-001',
     name: 'Test Vendor',
     email: 'vendor@test.smartshaadi.co.in',

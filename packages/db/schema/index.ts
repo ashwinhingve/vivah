@@ -341,6 +341,7 @@ export const matchRequests = pgTable('match_requests', {
   respondedAt:  timestamp('responded_at'),
   expiresAt:    timestamp('expires_at'),
   createdAt:    timestamp('created_at').defaultNow().notNull(),
+  updatedAt:    timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   senderIdx:    index('match_sender_idx').on(t.senderId),
   receiverIdx:  index('match_receiver_idx').on(t.receiverId),
@@ -355,6 +356,7 @@ export const matchScores = pgTable('match_scores', {
   breakdown:      jsonb('breakdown'),                  // per-dimension scores
   gunaMilanScore: integer('guna_milan_score'),         // 0-36
   computedAt:     timestamp('computed_at').defaultNow().notNull(),
+  updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   pairIdx: uniqueIndex('score_pair_idx').on(t.profileA, t.profileB),
 }));
@@ -531,6 +533,7 @@ export const guestLists = pgTable('guest_lists', {
   weddingId:  uuid('wedding_id').unique().notNull().references(() => weddings.id, { onDelete: 'cascade' }),
   createdBy:  text('created_by').notNull().references(() => user.id),
   createdAt:  timestamp('created_at').defaultNow().notNull(),
+  updatedAt:  timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const guests = pgTable('guests', {
@@ -547,6 +550,7 @@ export const guests = pgTable('guests', {
   plusOnes:         integer('plus_ones').default(0).notNull(),
   notes:            text('notes'),
   createdAt:        timestamp('created_at').defaultNow().notNull(),
+  updatedAt:        timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   listIdx: index('guest_list_idx').on(t.guestListId),
 }));
@@ -651,6 +655,7 @@ export const orderItems = pgTable('order_items', {
   fulfilmentStatus:   varchar('fulfilment_status', { length: 20 }).default('PENDING').notNull(),
   trackingNumber:     varchar('tracking_number', { length: 255 }),
   createdAt:          timestamp('created_at').defaultNow().notNull(),
+  updatedAt:          timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   orderIdx:   index('order_item_order_idx').on(t.orderId),
   vendorIdx:  index('order_item_vendor_idx').on(t.vendorId),

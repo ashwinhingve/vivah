@@ -4,6 +4,7 @@ import { profiles, profilePhotos, profileSections, user } from '@smartshaadi/db'
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
 import { getPhotoUrls } from '../storage/service.js';
+import { computeAndUpdateCompleteness } from './content.service.js';
 import type {
   ProfileDetailResponse,
   PersonalSection,
@@ -61,15 +62,6 @@ export interface PhotoResponse {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function calculateCompleteness(input: UpdateProfileInput): number {
-  let filled = 0;
-  const total = 3;
-  if (input.stayQuotient           != null) filled++;
-  if (input.familyInclinationScore != null) filled++;
-  if (input.functionAttendanceScore != null) filled++;
-  return Math.round((filled / total) * 100);
-}
 
 function buildProfileResponse(
   profile: typeof profiles.$inferSelect,
@@ -140,15 +132,6 @@ export async function updateMyProfile(
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
   if (!profile) return null;
 
-  const resolvedStay = (input.stayQuotient ?? profile.stayQuotient) as UpdateProfileInput['stayQuotient'];
-  const resolvedFamily   = input.familyInclinationScore  ?? profile.familyInclinationScore  ?? undefined;
-  const resolvedFunction = input.functionAttendanceScore ?? profile.functionAttendanceScore ?? undefined;
-  const completenessInput: UpdateProfileInput = {};
-  if (resolvedStay    != null) completenessInput.stayQuotient            = resolvedStay;
-  if (resolvedFamily  != null) completenessInput.familyInclinationScore  = resolvedFamily;
-  if (resolvedFunction != null) completenessInput.functionAttendanceScore = resolvedFunction;
-  const completeness = calculateCompleteness(completenessInput);
-
   const [updated] = await db
     .update(profiles)
     .set({
@@ -156,11 +139,14 @@ export async function updateMyProfile(
       ...(input.familyInclinationScore  != null && { familyInclinationScore: input.familyInclinationScore }),
       ...(input.functionAttendanceScore != null && { functionAttendanceScore: input.functionAttendanceScore }),
       ...(input.isActive                != null && { isActive: input.isActive }),
-      profileCompleteness: completeness,
       updatedAt: new Date(),
     })
     .where(eq(profiles.userId, userId))
     .returning();
+
+  // Recompute completeness from all MongoDB sections + photos (authoritative scoring)
+  const completeness = await computeAndUpdateCompleteness(userId);
+  if (updated) updated.profileCompleteness = completeness;
 
   if (!updated) return null;
 
