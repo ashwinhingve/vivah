@@ -333,11 +333,11 @@ export function ProfilePhotoUploader({
     <div className="space-y-4">
       {/* Error banner */}
       {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3 flex items-center justify-between">
-          <span className="text-sm text-red-700">{error}</span>
+        <div className="rounded-xl bg-[#DC2626]/5 border border-[#DC2626]/20 p-3 flex items-center justify-between">
+          <span className="text-sm text-[#DC2626]">{error}</span>
           <button
             onClick={() => setError(null)}
-            className="p-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-red-700 hover:bg-red-100 rounded transition"
+            className="p-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#DC2626] hover:bg-[#DC2626]/10 rounded transition"
             aria-label="Dismiss error"
           >
             ✕
@@ -433,7 +433,7 @@ export function ProfilePhotoUploader({
                       e.stopPropagation();
                       handleDelete(photo.id);
                     }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-white text-sm hover:bg-red-500/80 transition"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-white text-sm hover:bg-[#DC2626]/70 transition"
                     title="Delete photo"
                     aria-label="Delete photo"
                   >
