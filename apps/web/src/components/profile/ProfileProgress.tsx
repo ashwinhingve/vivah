@@ -20,15 +20,15 @@ export function ProfileProgress({ steps }: ProfileProgressProps) {
                   ? 'bg-[#0E7C7B] text-white'
                   : step.active
                     ? 'bg-[#7B2D42] text-white'
-                    : 'bg-gray-200 text-gray-500'
+                    : 'bg-[#E8E0D8] text-[#6B6B76]'
               }`}
             >
               {step.done ? '✓' : i + 1}
             </div>
-            <span className="text-xs mt-1 text-center text-gray-500 hidden sm:block">{step.label}</span>
+            <span className="text-xs mt-1 text-center text-[#6B6B76] hidden sm:block">{step.label}</span>
           </div>
           {i < steps.length - 1 && (
-            <div className={`h-0.5 flex-1 mx-1 ${step.done ? 'bg-[#0E7C7B]' : 'bg-gray-200'}`} />
+            <div className={`h-0.5 flex-1 mx-1 ${step.done ? 'bg-[#0E7C7B]' : 'bg-[#E8E0D8]'}`} />
           )}
         </div>
       ))}

@@ -32,74 +32,74 @@ export default function FamilyPage() {
         <form action={updateFamily} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Father's Name</label>
               <input
                 name="fatherName"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
                 placeholder="Father's full name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Father's Occupation</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Father's Occupation</label>
               <input
                 name="fatherOccupation"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
                 placeholder="e.g. Retired Government Officer"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Mother's Name</label>
               <input
                 name="motherName"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
                 placeholder="Mother's full name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mother's Occupation</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Mother's Occupation</label>
               <input
                 name="motherOccupation"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
                 placeholder="e.g. Homemaker"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Native Place</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-1">Native Place</label>
             <input
               name="nativePlace"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+              className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
               placeholder="e.g. Pune, Maharashtra"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Family Type</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Type</label>
             <div className="flex gap-3 flex-wrap">
               {(['JOINT', 'NUCLEAR', 'EXTENDED'] as const).map((type) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="familyType" value={type} className="accent-[#0E7C7B]" />
-                  <span className="text-sm text-gray-700">{type.charAt(0) + type.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-[#2E2E38]">{type.charAt(0) + type.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Family Values</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Values</label>
             <div className="flex gap-3 flex-wrap">
               {(['TRADITIONAL', 'MODERATE', 'LIBERAL'] as const).map((v) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="familyValues" value={v} className="accent-[#0E7C7B]" />
-                  <span className="text-sm text-gray-700">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Family Status</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Status</label>
             <div className="flex gap-3 flex-wrap">
               {[
                 ['MIDDLE_CLASS', 'Middle Class'],
@@ -108,25 +108,25 @@ export default function FamilyPage() {
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="familyStatus" value={v} className="accent-[#0E7C7B]" />
-                  <span className="text-sm text-gray-700">{label}</span>
+                  <span className="text-sm text-[#2E2E38]">{label}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">About Your Family</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-1">About Your Family</label>
             <textarea
               name="familyAbout"
               rows={3}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none resize-none"
+              className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none resize-none"
               placeholder="Share a bit about your family background…"
             />
           </div>
 
           <div className="pt-2 space-y-3">
             <SubmitButton />
-            <a href="/dashboard" className="block text-center text-sm text-gray-500 hover:text-gray-700">
+            <a href="/dashboard" className="block text-center text-sm text-[#6B6B76] hover:text-[#2E2E38]">
               Skip for now
             </a>
           </div>

@@ -262,7 +262,7 @@ function Step1({
         />
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
 
       <button
         type="submit"
@@ -429,7 +429,7 @@ function Step2({
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
 
       <button
         type="submit"
@@ -609,7 +609,7 @@ function Step4({ onDone }: { onDone: () => void }) {
         />
       </label>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
 
       {uploadDone ? (
         <div className="rounded-lg bg-[#059669]/10 border border-[#059669]/20 p-3 text-center">

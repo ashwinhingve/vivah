@@ -292,7 +292,7 @@ export default async function ProfileViewPage({ params }: Props) {
                     <dt className="text-xs text-[#6B6B76] uppercase tracking-wide">Manglik</dt>
                     <dd>
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                        profile.horoscope.manglik === 'YES' ? 'bg-red-100 text-red-700' :
+                        profile.horoscope.manglik === 'YES' ? 'bg-[#DC2626]/10 text-[#DC2626]' :
                         profile.horoscope.manglik === 'NO' ? 'bg-[#059669]/10 text-[#059669]' :
                         'bg-amber-100 text-amber-700'
                       }`}>

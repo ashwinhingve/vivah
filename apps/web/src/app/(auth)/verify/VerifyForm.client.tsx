@@ -169,7 +169,7 @@ export default function VerifyForm() {
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
 
       {/* Submit button (manual fallback) */}
       <button

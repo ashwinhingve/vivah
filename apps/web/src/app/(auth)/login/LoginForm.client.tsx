@@ -70,7 +70,7 @@ export default function LoginForm() {
             required
           />
         </div>
-        {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+        {error && <p className="text-xs text-[#DC2626] mt-1">{error}</p>}
       </div>
 
       <button

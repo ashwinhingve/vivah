@@ -75,12 +75,12 @@ export default function LifestylePage() {
           ))}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Diet Preference</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Diet Preference</label>
             <div className="flex gap-3 flex-wrap">
               {(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN'] as const).map((d) => (
                 <label key={d} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="diet" value={d} className="accent-[#0E7C7B]" />
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-[#2E2E38]">
                     {d.replace('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
                   </span>
                 </label>
@@ -90,23 +90,23 @@ export default function LifestylePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Smoking</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-2">Smoking</label>
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="smoking" value={v} className="accent-[#0E7C7B]" />
-                    <span className="text-sm text-gray-700">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
+                    <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                   </label>
                 ))}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Drinking</label>
+              <label className="block text-sm font-medium text-[#2E2E38] mb-2">Drinking</label>
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="drinking" value={v} className="accent-[#0E7C7B]" />
-                    <span className="text-sm text-gray-700">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
+                    <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                   </label>
                 ))}
               </div>
@@ -114,7 +114,7 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Hobbies (select all that apply)</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Hobbies (select all that apply)</label>
             <div className="flex flex-wrap gap-2">
               {HOBBIES.map((h) => (
                 <button
@@ -124,7 +124,7 @@ export default function LifestylePage() {
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     selectedHobbies.includes(h)
                       ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-[#0E7C7B]'
+                      : 'bg-white text-[#6B6B76] border-[#E8E0D8] hover:border-[#0E7C7B]'
                   }`}
                 >
                   {h}
@@ -134,8 +134,8 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Your Personality Tags</label>
-            <p className="text-xs text-gray-500 mb-2">These help surface you to compatible matches</p>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Your Personality Tags</label>
+            <p className="text-xs text-[#6B6B76] mb-2">These help surface you to compatible matches</p>
             <div className="flex flex-wrap gap-2">
               {HYPER_NICHE_TAGS.map((t) => (
                 <button
@@ -145,7 +145,7 @@ export default function LifestylePage() {
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     selectedTags.includes(t)
                       ? 'bg-[#7B2D42] text-white border-[#7B2D42]'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-[#7B2D42]'
+                      : 'bg-white text-[#6B6B76] border-[#E8E0D8] hover:border-[#7B2D42]'
                   }`}
                 >
                   {t}
@@ -155,12 +155,12 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Fitness Level</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Fitness Level</label>
             <div className="flex gap-3 flex-wrap">
               {(['ACTIVE', 'MODERATE', 'SEDENTARY'] as const).map((f) => (
                 <label key={f} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="fitnessLevel" value={f} className="accent-[#0E7C7B]" />
-                  <span className="text-sm text-gray-700">{f.charAt(0) + f.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-[#2E2E38]">{f.charAt(0) + f.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
@@ -168,7 +168,7 @@ export default function LifestylePage() {
 
           <div className="pt-2 space-y-3">
             <SubmitButton />
-            <a href="/dashboard" className="block text-center text-sm text-gray-500 hover:text-gray-700">
+            <a href="/dashboard" className="block text-center text-sm text-[#6B6B76] hover:text-[#2E2E38]">
               Skip for now
             </a>
           </div>

@@ -47,10 +47,10 @@ export default function PreferencesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-[#0A1F4D] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+      <h1 className="text-2xl font-bold text-[#7B2D42] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
         Partner Preferences
       </h1>
-      <p className="text-[#64748B] text-sm mb-6">What are you looking for in a partner?</p>
+      <p className="text-[#6B6B76] text-sm mb-6">What are you looking for in a partner?</p>
 
       <form action={updatePreferences} className="space-y-6">
         {/* Hidden inputs carry the stateful slider/chip values */}
@@ -72,59 +72,59 @@ export default function PreferencesPage() {
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-2">
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">
               Age Range: {ageMin} – {ageMax} years
             </label>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#64748B] w-6">18</span>
+                <span className="text-xs text-[#6B6B76] w-6">18</span>
                 <input
                   type="range" min={18} max={ageMax} value={ageMin}
                   onChange={e => setAgeMin(Number(e.target.value))}
                   className="flex-1 accent-[#0E7C7B]"
                 />
-                <span className="text-xs text-[#64748B] w-4">{ageMin}</span>
+                <span className="text-xs text-[#6B6B76] w-4">{ageMin}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#64748B] w-6">{ageMin}</span>
+                <span className="text-xs text-[#6B6B76] w-6">{ageMin}</span>
                 <input
                   type="range" min={ageMin} max={75} value={ageMax}
                   onChange={e => setAgeMax(Number(e.target.value))}
                   className="flex-1 accent-[#0E7C7B]"
                 />
-                <span className="text-xs text-[#64748B] w-4">75</span>
+                <span className="text-xs text-[#6B6B76] w-4">75</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-2">
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">
               Height Range: {heightMin}cm – {heightMax}cm
             </label>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#64748B] w-10">140cm</span>
+                <span className="text-xs text-[#6B6B76] w-10">140cm</span>
                 <input
                   type="range" min={140} max={heightMax} value={heightMin}
                   onChange={e => setHeightMin(Number(e.target.value))}
                   className="flex-1 accent-[#0E7C7B]"
                 />
-                <span className="text-xs text-[#64748B] w-10 text-right">{heightMin}cm</span>
+                <span className="text-xs text-[#6B6B76] w-10 text-right">{heightMin}cm</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#64748B] w-10">{heightMin}cm</span>
+                <span className="text-xs text-[#6B6B76] w-10">{heightMin}cm</span>
                 <input
                   type="range" min={heightMin} max={210} value={heightMax}
                   onChange={e => setHeightMax(Number(e.target.value))}
                   className="flex-1 accent-[#0E7C7B]"
                 />
-                <span className="text-xs text-[#64748B] w-10 text-right">210cm</span>
+                <span className="text-xs text-[#6B6B76] w-10 text-right">210cm</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-2">Marital Status</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Marital Status</label>
             <div className="flex flex-wrap gap-2">
               {MARITAL_STATUS_OPTIONS.map(({ value, label }) => (
                 <button
@@ -133,7 +133,7 @@ export default function PreferencesPage() {
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                     selectedMarital.includes(value)
                       ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                      : 'bg-white text-[#0F172A] border-gray-200 hover:border-[#0E7C7B]'
+                      : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
                   }`}
                 >
                   {label}
@@ -143,7 +143,7 @@ export default function PreferencesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-2">Religion Preference</label>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Religion Preference</label>
             <div className="flex flex-wrap gap-2">
               {RELIGION_OPTIONS.map(r => (
                 <button
@@ -152,7 +152,7 @@ export default function PreferencesPage() {
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                     selectedReligion.includes(r)
                       ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                      : 'bg-white text-[#0F172A] border-gray-200 hover:border-[#0E7C7B]'
+                      : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
                   }`}
                 >
                   {r}
@@ -176,13 +176,13 @@ export default function PreferencesPage() {
             <h2 className="text-lg font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
               Advanced Filters
             </h2>
-            <span className="text-[#64748B] text-sm">{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
+            <span className="text-[#6B6B76] text-sm">{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
           </button>
 
           {showAdvanced && (
-            <div className="px-6 pb-6 space-y-4 border-t border-gray-100">
+            <div className="px-6 pb-6 space-y-4 border-t border-[#F0EBE4]">
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">Manglik Preference</label>
+                <label className="block text-sm font-medium text-[#2E2E38] mb-2">Manglik Preference</label>
                 <div className="flex gap-4">
                   {(['ANY','ONLY_MANGLIK','NON_MANGLIK'] as const).map(m => (
                     <label key={m} className="flex items-center gap-2 cursor-pointer">
@@ -192,7 +192,7 @@ export default function PreferencesPage() {
                         onChange={() => setManglik(m)}
                         className="text-[#0E7C7B] focus:ring-[#0E7C7B]"
                       />
-                      <span className="text-sm text-[#0F172A]">
+                      <span className="text-sm text-[#2E2E38]">
                         {m === 'ANY' ? 'Any' : m === 'ONLY_MANGLIK' ? 'Only Manglik' : 'Non-Manglik'}
                       </span>
                     </label>
@@ -201,7 +201,7 @@ export default function PreferencesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-2">Diet Preference</label>
+                <label className="block text-sm font-medium text-[#2E2E38] mb-2">Diet Preference</label>
                 <div className="flex flex-wrap gap-2">
                   {DIET_OPTIONS.map(d => (
                     <button key={d} type="button"
@@ -209,7 +209,7 @@ export default function PreferencesPage() {
                       className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                         selectedDiet.includes(d)
                           ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                          : 'bg-white text-[#0F172A] border-gray-200 hover:border-[#0E7C7B]'
+                          : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
                       }`}
                     >
                       {d}
@@ -226,7 +226,7 @@ export default function PreferencesPage() {
                     onChange={e => setOpenToInterfaith(e.target.checked)}
                     className="w-5 h-5 rounded text-[#0E7C7B] focus:ring-[#0E7C7B]"
                   />
-                  <span className="text-sm text-[#0F172A]">Open to Interfaith Marriage</span>
+                  <span className="text-sm text-[#2E2E38]">Open to Interfaith Marriage</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -235,7 +235,7 @@ export default function PreferencesPage() {
                     onChange={e => setOpenToInterCaste(e.target.checked)}
                     className="w-5 h-5 rounded text-[#0E7C7B] focus:ring-[#0E7C7B]"
                   />
-                  <span className="text-sm text-[#0F172A]">Open to Inter-Caste Marriage</span>
+                  <span className="text-sm text-[#2E2E38]">Open to Inter-Caste Marriage</span>
                 </label>
               </div>
             </div>
@@ -254,16 +254,16 @@ export default function PreferencesPage() {
             maxLength={1000}
             rows={4}
             placeholder="Describe qualities you're looking for in a life partner..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent resize-none"
+            className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent resize-none"
           />
-          <p className="text-xs text-[#64748B] text-right mt-1">{partnerDescription.length}/1000</p>
+          <p className="text-xs text-[#6B6B76] text-right mt-1">{partnerDescription.length}/1000</p>
         </div>
 
         <div className="flex gap-3">
           <SubmitButton />
           <a
             href="/dashboard"
-            className="px-6 py-3 text-[#64748B] hover:text-[#0F172A] text-sm min-h-[44px] flex items-center"
+            className="px-6 py-3 text-[#6B6B76] hover:text-[#2E2E38] text-sm min-h-[44px] flex items-center"
           >
             Skip
           </a>

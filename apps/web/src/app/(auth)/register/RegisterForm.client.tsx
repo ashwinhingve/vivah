@@ -138,7 +138,7 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
 
       <button
         type="submit"
