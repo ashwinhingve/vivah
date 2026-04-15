@@ -97,14 +97,17 @@ Last updated: 2026-04-14
 
 ### Week 2
 
-- [ ] Profile module: personal details form
-- [ ] Profile module: Safety Mode (contact gating)
-- [ ] Profile module: family, education, profession fields
-- [ ] Profile module: lifestyle + hyper-niche tags
-- [ ] Profile module: partner preferences
-- [ ] Profile module: horoscope data (Rashi, Nakshatra, DOB/TOB/POB)
-- [ ] Profile photos: R2 upload via pre-signed URLs
-- [ ] Community Match Zones: zone assignment + language preference
+- [x] Profile module: personal details form ✅ Day 6
+- [x] Profile module: Safety Mode (contact gating) ✅ Day 8
+- [x] Profile module: family, education, profession fields ✅ Day 6–7
+- [x] Profile module: lifestyle + hyper-niche tags ✅ Day 7
+- [x] Profile module: partner preferences ✅ Day 8
+- [x] Profile module: horoscope data (Rashi, Nakshatra, DOB/TOB/POB) ✅ Day 8
+- [x] Profile photos: R2 upload via pre-signed URLs ✅ Day 10
+- [x] Profile photos: multi-upload, drag-to-reorder, set-primary, delete ✅ Day 10
+- [x] Community Match Zones: zone assignment + language preference ✅ Day 8
+- [x] Profile view page: luxury redesign with all sections ✅ Day 10
+- [x] Photo onboarding flow: /profile/photos → /profile/complete ✅ Day 10
 
 ### Week 3
 

@@ -20,20 +20,18 @@
 
 ```
 Phase:     1
-Week:      2
-Focus:     Profile Module — personal details, photos, preferences, horoscope
-Status:    Day 10 Complete
+Week:      2 (COMPLETE)
+Focus:     Profile Module — photos management + profile view polish
+Status:    Week 2 Complete — advancing to Week 3 (Matching Engine)
 Last session: 2026-04-15
-  - Day 8-9: Horoscope, community zones, partner prefs, profile view (Day 8-9 complete commit)
-  - Day 10 Completed:
-    * Task 1-2: DB schema migration + validation schemas for photos
-    * Task 3: photos.service.ts (355 lines) — upload, reorder, setPrimary, delete, completeness scoring
-    * Task 6: ProfilePhotoUploader.client.tsx — drag-to-reorder, presign→R2→register flow
-    * Task 7: VerifiedBadge, ContactSection, PhotoGallery.client.tsx support components
-    * Task 8: Full luxury redesign of /profiles/[profileId]/page.tsx (240 lines) — Playfair Display, warm palette (#FEFAF6/#7B2D42), sticky action bar
-    * Task 9: /profile/photos onboarding page (59 lines) — ProfilePhotoUploader integration
-    * Task 10: /profile/complete onboarding page (103 lines) — completeness score + section summary
-    * All 82 API tests passing, type-check clean, lint clean, 0 errors
+  - Day 10 Final: router.ts — GET /me/photos, POST /me/photos (PhotoUploadSchema with fileSize/mimeType),
+    PUT /me/photos/reorder, PUT /me/photos/primary, DELETE /me/photos/:photoId (all via photosService)
+  - photos.service.ts: addProfilePhoto (8-limit, auto-primary, section tracking), getProfilePhotos,
+    deleteProfilePhoto (promotes next primary), reorderPhotos (transaction), setPrimaryPhoto (transaction)
+  - Section completeness weights: personal:20, photos:20, family:15, career:15, lifestyle:10, horoscope:10, preferences:10
+  - 102 API tests passing (20 new photo service tests), type-check clean, lint clean
+  - All Day 10 deliverables complete: DB schema, Zod schemas, service, router, frontend components,
+    profile view luxury redesign, photo onboarding flow (/profile/photos → /profile/complete)
 ```
 
 > **Update this block at the start of every session.**

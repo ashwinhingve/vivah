@@ -6,9 +6,9 @@ import {
   getMyProfile,
   updateMyProfile,
   getProfileById,
-  addProfilePhoto,
-  deleteProfilePhoto,
 } from './service.js';
+import * as photosService from './photos.service.js';
+import { PhotoUploadSchema, PhotoReorderSchema, SetPrimaryPhotoSchema } from '@smartshaadi/schemas';
 import { profileContentRouter } from './content.router.js';
 import { horoscopeRouter } from './horoscope.router.js';
 import { preferencesRouter } from './preferences.router.js';
@@ -66,31 +66,36 @@ profilesRouter.put('/me', authenticate, async (req: Request, res: Response): Pro
 /**
  * POST /api/v1/profiles/me/photos
  * Records a photo that was already uploaded directly to R2 via pre-signed URL.
- * Body: { r2Key, isPrimary?, displayOrder? }
+ * Body: { r2Key, fileSize, mimeType, isPrimary?, displayOrder? }
  */
-const AddPhotoSchema = z.object({
-  r2Key:        z.string().min(1),
-  isPrimary:    z.boolean().optional(),
-  displayOrder: z.number().int().min(0).optional(),
-});
-
 profilesRouter.post('/me/photos', authenticate, async (req: Request, res: Response): Promise<void> => {
-  const parsed = AddPhotoSchema.safeParse(req.body);
+  const parsed = PhotoUploadSchema.safeParse(req.body);
   if (!parsed.success) {
     err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
     return;
   }
 
-  const input: import('./service.js').AddPhotoInput = { r2Key: parsed.data.r2Key };
+  const input: import('@smartshaadi/schemas').PhotoUploadInput = {
+    r2Key: parsed.data.r2Key,
+    fileSize: parsed.data.fileSize,
+    mimeType: parsed.data.mimeType,
+  };
   if (parsed.data.isPrimary    != null) input.isPrimary    = parsed.data.isPrimary;
   if (parsed.data.displayOrder != null) input.displayOrder = parsed.data.displayOrder;
 
-  const photo = await addProfilePhoto(req.user!.id, input);
-  if (!photo) {
-    err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
-    return;
+  try {
+    const photo = await photosService.addProfilePhoto(req.user!.id, input);
+    ok(res, photo, 201);
+  } catch (e) {
+    const name = (e as { name?: string }).name;
+    if (name === 'PHOTO_LIMIT_REACHED') {
+      err(res, 'PHOTO_LIMIT_REACHED', 'Maximum 8 photos allowed', 422);
+    } else if (name === 'PROFILE_NOT_FOUND') {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    } else {
+      throw e;
+    }
   }
-  ok(res, photo, 201);
 });
 
 /**
@@ -100,12 +105,89 @@ profilesRouter.post('/me/photos', authenticate, async (req: Request, res: Respon
 profilesRouter.delete('/me/photos/:photoId', authenticate, async (req: Request, res: Response): Promise<void> => {
   const photoId = req.params['photoId'] ?? '';
 
-  const deleted = await deleteProfilePhoto(req.user!.id, photoId);
-  if (!deleted) {
-    err(res, 'PHOTO_NOT_FOUND', 'Photo not found or not owned by this user', 404);
+  try {
+    await photosService.deleteProfilePhoto(req.user!.id, photoId);
+    ok(res, { deleted: true });
+  } catch (e) {
+    const name = (e as { name?: string }).name;
+    if (name === 'PHOTO_NOT_FOUND') {
+      err(res, 'PHOTO_NOT_FOUND', 'Photo not found or not owned by this user', 404);
+    } else if (name === 'PROFILE_NOT_FOUND') {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    } else {
+      throw e;
+    }
+  }
+});
+
+/**
+ * GET /api/v1/profiles/me/photos
+ * Returns all photos for the authenticated user's profile with presigned URLs.
+ */
+profilesRouter.get('/me/photos', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const photos = await photosService.getProfilePhotos(req.user!.id);
+    ok(res, photos);
+  } catch (e) {
+    const name = (e as { name?: string }).name;
+    if (name === 'PROFILE_NOT_FOUND') {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    } else {
+      throw e;
+    }
+  }
+});
+
+/**
+ * PUT /api/v1/profiles/me/photos/reorder
+ * Reorders photos by updating displayOrder for each photo in the provided list.
+ */
+profilesRouter.put('/me/photos/reorder', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const parsed = PhotoReorderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
     return;
   }
-  ok(res, { deleted: true });
+
+  try {
+    await photosService.reorderPhotos(req.user!.id, parsed.data);
+    ok(res, { reordered: true });
+  } catch (e) {
+    const name = (e as { name?: string }).name;
+    if (name === 'PHOTO_NOT_FOUND') {
+      err(res, 'PHOTO_NOT_FOUND', 'One or more photos not found', 404);
+    } else if (name === 'PROFILE_NOT_FOUND') {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    } else {
+      throw e;
+    }
+  }
+});
+
+/**
+ * PUT /api/v1/profiles/me/photos/primary
+ * Sets a photo as the primary (main) profile photo.
+ */
+profilesRouter.put('/me/photos/primary', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const parsed = SetPrimaryPhotoSchema.safeParse(req.body);
+  if (!parsed.success) {
+    err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+    return;
+  }
+
+  try {
+    await photosService.setPrimaryPhoto(req.user!.id, { photoId: parsed.data.photoId });
+    ok(res, { updated: true });
+  } catch (e) {
+    const name = (e as { name?: string }).name;
+    if (name === 'PHOTO_NOT_FOUND') {
+      err(res, 'PHOTO_NOT_FOUND', 'Photo not found or not owned by this user', 404);
+    } else if (name === 'PROFILE_NOT_FOUND') {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    } else {
+      throw e;
+    }
+  }
 });
 
 // Mount content sub-router — MUST be before /:id to prevent route conflict
