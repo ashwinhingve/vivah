@@ -34,6 +34,7 @@ import {
   updateLifestyle,
   updateHoroscope,
   updatePartnerPreferences,
+  updateAboutMe,
   bulkUpdateContent,
 } from './content.service.js';
 
@@ -321,5 +322,34 @@ profileContentRouter.put(
 
     const result = await bulkUpdateContent(req.user!.id, parsed.data);
     ok(res, result);
+  },
+);
+
+/**
+ * PUT /api/v1/profiles/me/content/about
+ * Update the free-text "About Me" field.
+ * Body: { aboutMe: string }
+ */
+profileContentRouter.put(
+  '/about',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const body = req.body as unknown;
+    if (
+      typeof body !== 'object' ||
+      body === null ||
+      typeof (body as Record<string, unknown>)['aboutMe'] !== 'string'
+    ) {
+      err(res, 'VALIDATION_ERROR', 'aboutMe must be a string', 400);
+      return;
+    }
+    const aboutMe = ((body as Record<string, unknown>)['aboutMe'] as string).trim();
+    if (aboutMe.length === 0 || aboutMe.length > 1000) {
+      err(res, 'VALIDATION_ERROR', 'aboutMe must be 1–1000 characters', 400);
+      return;
+    }
+
+    const content = await updateAboutMe(req.user!.id, aboutMe);
+    ok(res, content);
   },
 );

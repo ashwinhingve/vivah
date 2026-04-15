@@ -199,4 +199,4 @@ pnpm db:studio        # Open Drizzle Studio (visual DB browser)
 **Ashwin Hingve** — sole development execution owner
 
 *Client: Colonel Deepak · Strategic Support: Marksman Team*
-# vivah
+# Smart Shaadi

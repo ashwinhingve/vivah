@@ -115,6 +115,19 @@ export async function updatePartnerPreferences(
   return upsertSection(userId, 'partnerPreferences', data);
 }
 
+export async function updateAboutMe(
+  userId: string,
+  aboutMe: string,
+): Promise<ProfileContentResponse> {
+  const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
+  const doc = await model.findOneAndUpdate(
+    { userId },
+    { $set: { aboutMe } },
+    { new: true, upsert: true, lean: true },
+  );
+  return doc as unknown as ProfileContentResponse;
+}
+
 /**
  * Compute profile completeness by analyzing MongoDB ProfileContent document
  * and updating both profileSections (PostgreSQL) and profiles.profileCompleteness.
