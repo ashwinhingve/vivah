@@ -7,6 +7,7 @@ import { updateLifestyle } from '../actions';
 import { HYPER_NICHE_TAGS } from '@smartshaadi/schemas';
 
 const STEPS = [
+  { label: 'Personal', done: true, active: false },
   { label: 'Family', done: true, active: false },
   { label: 'Career', done: true, active: false },
   { label: 'Lifestyle', done: false, active: true },

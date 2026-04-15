@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import type { UserRole } from '@smartshaadi/types';
 
-const ROLES: { value: UserRole; label: string; description: string }[] = [
-  { value: 'INDIVIDUAL',        label: 'Individual',        description: 'Looking for a life partner'         },
-  { value: 'FAMILY_MEMBER',     label: 'Family Member',     description: 'Searching on behalf of family'      },
-  { value: 'VENDOR',            label: 'Vendor',            description: 'Photographer, caterer & more'       },
-  { value: 'EVENT_COORDINATOR', label: 'Event Coordinator', description: 'Managing multiple wedding events'   },
+const ROLES: { value: UserRole; label: string; description: string; icon: string }[] = [
+  { value: 'INDIVIDUAL',        label: 'Individual',        description: 'Looking for a life partner',        icon: '👤' },
+  { value: 'FAMILY_MEMBER',     label: 'Family Member',     description: 'Searching on behalf of family',     icon: '👨‍👩‍👧' },
+  { value: 'VENDOR',            label: 'Vendor',            description: 'Photographer, caterer & more',      icon: '🎪' },
+  { value: 'EVENT_COORDINATOR', label: 'Event Coordinator', description: 'Managing multiple wedding events',  icon: '📋' },
 ];
 
 export default function RegisterForm() {
@@ -58,7 +58,7 @@ export default function RegisterForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-5"
+      className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#C5A47E]/20 p-8 space-y-5"
     >
       <div>
         <h2
@@ -122,12 +122,13 @@ export default function RegisterForm() {
                 type="button"
                 onClick={() => setRole(r.value)}
                 className={[
-                  'flex flex-col gap-0.5 rounded-xl border p-3 text-left transition-all',
+                  'flex flex-col gap-1 rounded-xl border p-3 text-left transition-all',
                   isSelected
                     ? 'border-[#0E7C7B] bg-[#0E7C7B]/5 ring-2 ring-[#0E7C7B]/20'
                     : 'border-[#C5A47E]/40 hover:border-[#C5A47E]/70 bg-white',
                 ].join(' ')}
               >
+                <span className="text-lg leading-none">{r.icon}</span>
                 <span className={`text-sm font-semibold ${isSelected ? 'text-[#0E7C7B]' : 'text-[#2E2E38]'}`}>
                   {r.label}
                 </span>

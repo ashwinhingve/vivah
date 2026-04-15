@@ -23,6 +23,35 @@ async function apiPut(path: string, body: unknown, token: string | undefined) {
   return res;
 }
 
+export async function updatePersonal(formData: FormData) {
+  const token = await getAuthToken();
+  const payload: Record<string, unknown> = {};
+
+  const fullName = formData.get('fullName');
+  if (fullName) payload.fullName = fullName;
+  const dob = formData.get('dob');
+  if (dob) payload.dob = dob;
+  const gender = formData.get('gender');
+  if (gender) payload.gender = gender;
+  const heightFt = formData.get('heightFt');
+  const heightIn = formData.get('heightIn');
+  if (heightFt) payload.heightCm = Math.round(Number(heightFt) * 30.48 + Number(heightIn ?? 0) * 2.54);
+  const religion = formData.get('religion');
+  if (religion) payload.religion = religion;
+  const motherTongue = formData.get('motherTongue');
+  if (motherTongue) payload.motherTongue = motherTongue;
+  const currentCity = formData.get('currentCity');
+  if (currentCity) payload.currentCity = currentCity;
+  const aboutMe = formData.get('aboutMe');
+  if (aboutMe) payload.aboutMe = aboutMe;
+  const maritalStatus = formData.get('maritalStatus');
+  if (maritalStatus) payload.maritalStatus = maritalStatus;
+
+  await apiPut('/api/v1/profiles/me/content/personal', payload, token);
+  revalidatePath('/profile');
+  redirect('/profile/family');
+}
+
 export async function updateFamily(formData: FormData) {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};

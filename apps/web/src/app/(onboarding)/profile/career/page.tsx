@@ -5,9 +5,9 @@ import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateCareer } from '../actions';
 
 const STEPS = [
+  { label: 'Personal', done: true, active: false },
   { label: 'Family', done: true, active: false },
   { label: 'Career', done: false, active: true },
-  { label: 'Lifestyle', done: false, active: false },
 ];
 
 function SubmitButton() {

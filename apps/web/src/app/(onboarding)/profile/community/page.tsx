@@ -7,11 +7,12 @@ import { updateCommunity } from '../actions';
 import { INDIAN_LANGUAGES } from '@smartshaadi/schemas';
 
 const STEPS = [
-  { label: 'Family',      done: true,  active: false },
-  { label: 'Career',      done: true,  active: false },
-  { label: 'Lifestyle',   done: true,  active: false },
-  { label: 'Horoscope',   done: true,  active: false },
-  { label: 'Community',   done: false, active: true  },
+  { label: 'Personal',   done: true,  active: false },
+  { label: 'Family',     done: true,  active: false },
+  { label: 'Career',     done: true,  active: false },
+  { label: 'Lifestyle',  done: true,  active: false },
+  { label: 'Horoscope',  done: true,  active: false },
+  { label: 'Community',  done: false, active: true  },
 ];
 
 const LANGUAGE_LABELS: Record<string, string> = {

@@ -2,7 +2,18 @@
 
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updatePreferences } from '../actions';
+
+const STEPS = [
+  { label: 'Personal',    done: true,  active: false },
+  { label: 'Family',      done: true,  active: false },
+  { label: 'Career',      done: true,  active: false },
+  { label: 'Lifestyle',   done: true,  active: false },
+  { label: 'Horoscope',   done: true,  active: false },
+  { label: 'Community',   done: true,  active: false },
+  { label: 'Preferences', done: false, active: true  },
+];
 
 const MARITAL_STATUS_OPTIONS = [
   { value: 'NEVER_MARRIED', label: 'Never Married' },
@@ -47,6 +58,7 @@ export default function PreferencesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <ProfileProgress steps={STEPS} />
       <h1 className="text-2xl font-bold text-[#7B2D42] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
         Partner Preferences
       </h1>

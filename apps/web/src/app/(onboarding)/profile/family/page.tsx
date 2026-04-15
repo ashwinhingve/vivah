@@ -5,9 +5,8 @@ import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateFamily } from '../actions';
 
 const STEPS = [
+  { label: 'Personal', done: true, active: false },
   { label: 'Family', done: false, active: true },
-  { label: 'Career', done: false, active: false },
-  { label: 'Lifestyle', done: false, active: false },
 ];
 
 function SubmitButton() {
@@ -28,7 +27,12 @@ export default function FamilyPage() {
     <div>
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-        <h1 className="text-lg font-semibold text-[#7B2D42] font-playfair mb-6">Family Background</h1>
+        <h1
+          className="text-lg font-semibold text-[#7B2D42] mb-6"
+          style={{ fontFamily: 'Playfair Display, serif' }}
+        >
+          Family Background
+        </h1>
         <form action={updateFamily} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

@@ -38,7 +38,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-5"
+      className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#C5A47E]/20 p-8 space-y-5"
     >
       <div>
         <h2
@@ -76,7 +76,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
       >
         {loading ? (
           <>
@@ -87,6 +87,13 @@ export default function LoginForm() {
           'Send OTP'
         )}
       </button>
+
+      <p className="text-center text-xs text-[#6B6B76]">
+        New to Smart Shaadi?{' '}
+        <a href="/register" className="text-[#0E7C7B] hover:text-[#149998] font-medium">
+          Create account
+        </a>
+      </p>
     </form>
   );
 }

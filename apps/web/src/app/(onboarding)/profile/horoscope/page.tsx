@@ -7,10 +7,11 @@ import { updateHoroscope } from '../actions';
 import { RASHI_LABELS, NAKSHATRA_LABELS } from '@smartshaadi/types';
 
 const STEPS = [
-  { label: 'Family',      done: true,  active: false },
-  { label: 'Career',      done: true,  active: false },
-  { label: 'Lifestyle',   done: true,  active: false },
-  { label: 'Horoscope',   done: false, active: true  },
+  { label: 'Personal',  done: true,  active: false },
+  { label: 'Family',    done: true,  active: false },
+  { label: 'Career',    done: true,  active: false },
+  { label: 'Lifestyle', done: true,  active: false },
+  { label: 'Horoscope', done: false, active: true  },
 ];
 
 const RASHI_OPTIONS = Object.entries(RASHI_LABELS) as [string, string][];
