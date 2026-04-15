@@ -22,17 +22,18 @@
 Phase:     1
 Week:      2
 Focus:     Profile Module — personal details, photos, preferences, horoscope
-Status:    In Progress
-Last session: 2026-04-14
-  - Horoscope: typed rashi/nakshatra enums (12/27), manglikStatusEnum, service, router, onboarding page
-  - Community zones: schema migration (language → motherTongue, added preferredLang), service, router, page
-  - Partner preferences: validated schema (ageRange/heightRange min≤max refinements), service, router, page with dual sliders
-  - Profile view: R2 presigned GET URLs (storage/service.ts), enriched getProfileById with MongoDB content + safety mode masking, public profile page (/profiles/[profileId])
-  - CompletenessBar component (7 sections with teal fill)
-  - safetyModeUnlocks table added to PostgreSQL schema
-  - INDIAN_LANGUAGES constant exported from @smartshaadi/schemas
-  - pnpm db:push applied for all Day 7 schema changes
-  - 173 tests passing (82 API + 91 schemas), type-check clean, lint clean
+Status:    Day 10 Complete
+Last session: 2026-04-15
+  - Day 8-9: Horoscope, community zones, partner prefs, profile view (Day 8-9 complete commit)
+  - Day 10 Completed:
+    * Task 1-2: DB schema migration + validation schemas for photos
+    * Task 3: photos.service.ts (355 lines) — upload, reorder, setPrimary, delete, completeness scoring
+    * Task 6: ProfilePhotoUploader.client.tsx — drag-to-reorder, presign→R2→register flow
+    * Task 7: VerifiedBadge, ContactSection, PhotoGallery.client.tsx support components
+    * Task 8: Full luxury redesign of /profiles/[profileId]/page.tsx (240 lines) — Playfair Display, warm palette (#FEFAF6/#7B2D42), sticky action bar
+    * Task 9: /profile/photos onboarding page (59 lines) — ProfilePhotoUploader integration
+    * Task 10: /profile/complete onboarding page (103 lines) — completeness score + section summary
+    * All 82 API tests passing, type-check clean, lint clean, 0 errors
 ```
 
 > **Update this block at the start of every session.**

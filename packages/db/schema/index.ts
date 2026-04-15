@@ -272,8 +272,11 @@ export const profilePhotos = pgTable('profile_photos', {
   isPrimary:    boolean('is_primary').default(false).notNull(),
   displayOrder: integer('display_order').default(0).notNull(),
   uploadedAt:   timestamp('uploaded_at').defaultNow().notNull(),
+  fileSize:     integer('file_size'),
+  mimeType:     varchar('mime_type', { length: 50 }),
 }, (t) => ({
   profileIdx: index('photos_profile_idx').on(t.profileId),
+  orderIdx:   index('photos_order_idx').on(t.profileId, t.displayOrder),
 }));
 
 export const communityZones = pgTable('community_zones', {

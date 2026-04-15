@@ -16,6 +16,25 @@ export const AddPhotoSchema = z.object({
   displayOrder: z.number().int().min(0).optional(),
 });
 
+export const PhotoUploadSchema = z.object({
+  r2Key:        z.string().min(1),
+  fileSize:     z.number().int().min(1).max(10 * 1024 * 1024), // max 10MB in bytes
+  mimeType:     z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  isPrimary:    z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
+
+export const PhotoReorderSchema = z.array(
+  z.object({
+    id:           z.string().uuid(),
+    displayOrder: z.number().int().min(0).max(20),
+  })
+).min(1).max(20);
+
+export const SetPrimaryPhotoSchema = z.object({
+  photoId: z.string().uuid(),
+});
+
 // ── Content sections (MongoDB ProfileContent) ─────────────────────────────────
 
 export const UpdatePersonalSchema = z.object({
@@ -178,6 +197,9 @@ export const ProfileBulkUpdateSchema = z.object({
 
 export type UpdateProfileMetaInput        = z.infer<typeof UpdateProfileMetaSchema>;
 export type AddPhotoInput                 = z.infer<typeof AddPhotoSchema>;
+export type PhotoUploadInput              = z.infer<typeof PhotoUploadSchema>;
+export type PhotoReorderInput             = z.infer<typeof PhotoReorderSchema>;
+export type SetPrimaryPhotoInput          = z.infer<typeof SetPrimaryPhotoSchema>;
 export type UpdatePersonalInput           = z.infer<typeof UpdatePersonalSchema>;
 export type UpdateEducationInput          = z.infer<typeof UpdateEducationSchema>;
 export type UpdateProfessionInput         = z.infer<typeof UpdateProfessionSchema>;
