@@ -10,6 +10,9 @@ import {
   deleteProfilePhoto,
 } from './service.js';
 import { profileContentRouter } from './content.router.js';
+import { horoscopeRouter } from './horoscope.router.js';
+import { preferencesRouter } from './preferences.router.js';
+import { communityRouter } from './community.router.js';
 
 export const profilesRouter = Router();
 
@@ -107,6 +110,15 @@ profilesRouter.delete('/me/photos/:photoId', authenticate, async (req: Request, 
 
 // Mount content sub-router — MUST be before /:id to prevent route conflict
 profilesRouter.use('/me/content', profileContentRouter);
+
+// Mount horoscope sub-router
+profilesRouter.use('/me/horoscope', horoscopeRouter);
+
+// Mount preferences sub-router — MUST be before /:id to prevent route conflict
+profilesRouter.use('/me/preferences', preferencesRouter);
+
+// Mount community sub-router
+profilesRouter.use('/me/community', communityRouter);
 
 /**
  * GET /api/v1/profiles/:id

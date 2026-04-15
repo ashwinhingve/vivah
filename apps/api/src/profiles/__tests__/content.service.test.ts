@@ -81,11 +81,14 @@ function setupSelectReturns(...results: unknown[][]) {
   vi.mocked(db.select).mockImplementation(() => {
     const returnValue = results[call] ?? [];
     call++;
-    const c = {
-      from:     vi.fn().mockReturnThis(),
-      where:    vi.fn().mockReturnThis(),
-      limit:    vi.fn().mockResolvedValue(returnValue),
-      select:   vi.fn().mockReturnThis(),
+    // Chain is thenable so `await db.select().from().where()` resolves even without .limit()
+    const c: Record<string, unknown> = {
+      from:   vi.fn().mockReturnThis(),
+      where:  vi.fn().mockReturnThis(),
+      limit:  vi.fn().mockResolvedValue(returnValue),
+      select: vi.fn().mockReturnThis(),
+      then: (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) =>
+        Promise.resolve(returnValue).then(resolve, reject),
     };
     return c as unknown as ReturnType<typeof db.select>;
   });
@@ -294,7 +297,7 @@ describe('computeAndUpdateCompleteness', () => {
 
   it('returns 0 when no PostgreSQL profile row found', async () => {
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([], []);  // profileSections select returns empty, then profiles select returns empty
+    setupSelectReturns([]);  // profiles select returns empty → early return 0
     const score = await computeAndUpdateCompleteness(mockUserId);
     expect(score).toBe(0);
   });
@@ -309,7 +312,7 @@ describe('computeAndUpdateCompleteness', () => {
       },
     };
     setupProfileContentFindOne(doc);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);  // profileSections, profiles
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);  // profiles, profilePhotos count
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
@@ -325,7 +328,7 @@ describe('computeAndUpdateCompleteness', () => {
       profession: { occupation: 'Engineer' },
     };
     setupProfileContentFindOne(doc);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
@@ -344,7 +347,7 @@ describe('computeAndUpdateCompleteness', () => {
       partnerPreferences: { ageRange: { min: 25, max: 30 } },
     };
     setupProfileContentFindOne(doc);
-    setupSelectReturns([{ photos: true }], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 1 }]);
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
@@ -357,7 +360,7 @@ describe('computeAndUpdateCompleteness', () => {
       personal: { fullName: 'Test', dob: new Date(), gender: 'MALE' },
     };
     setupProfileContentFindOne(doc);
-    setupSelectReturns([{ photos: true }], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 1 }]);
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
@@ -366,7 +369,7 @@ describe('computeAndUpdateCompleteness', () => {
 
   it('updates both profileSections and profiles table', async () => {
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     await computeAndUpdateCompleteness(mockUserId);
@@ -381,7 +384,7 @@ describe('bulkUpdateContent', () => {
   it('updates family section and recomputes completeness', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -394,7 +397,7 @@ describe('bulkUpdateContent', () => {
   it('updates education section and recomputes completeness', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -406,7 +409,7 @@ describe('bulkUpdateContent', () => {
   it('updates profession section and recomputes completeness', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -418,7 +421,7 @@ describe('bulkUpdateContent', () => {
   it('updates lifestyle section and recomputes completeness', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -430,7 +433,7 @@ describe('bulkUpdateContent', () => {
   it('updates multiple sections at once', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -445,7 +448,7 @@ describe('bulkUpdateContent', () => {
   it('handles nested objects in family (siblings, additionalDegrees)', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -471,7 +474,7 @@ describe('bulkUpdateContent', () => {
     const updatedContent = { ...mockProfileContent, updatedAt: new Date() };
     setupProfileContentFindOneAndUpdate(updatedContent);
     setupProfileContentFindOne(updatedContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -483,7 +486,7 @@ describe('bulkUpdateContent', () => {
 
   it('fetches content from database if no updates return content', async () => {
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -496,7 +499,7 @@ describe('bulkUpdateContent', () => {
   it('handles optional fields correctly (skips null/undefined values)', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -512,7 +515,7 @@ describe('bulkUpdateContent', () => {
   it('applies all family fields when provided', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -532,7 +535,7 @@ describe('bulkUpdateContent', () => {
   it('applies all lifestyle fields when provided', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {
@@ -555,7 +558,7 @@ describe('bulkUpdateContent', () => {
   it('applies all profession fields when provided', async () => {
     setupProfileContentFindOneAndUpdate(mockProfileContent);
     setupProfileContentFindOne(mockProfileContent);
-    setupSelectReturns([{}], [{ id: mockProfileId }]);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
     setupInsertOk();
     setupUpdateOk();
     const result = await bulkUpdateContent(mockUserId, {

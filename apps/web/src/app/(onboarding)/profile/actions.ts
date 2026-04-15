@@ -106,5 +106,81 @@ export async function updateLifestyle(formData: FormData) {
 
   await apiPut('/api/v1/profiles/me/content/lifestyle', payload, token);
   revalidatePath('/profile');
+  redirect('/profile/horoscope');
+}
+
+export async function updateHoroscope(formData: FormData) {
+  const token = await getAuthToken();
+  const payload: Record<string, unknown> = {};
+
+  const rashi = formData.get('rashi');
+  if (rashi) payload.rashi = rashi;
+  const nakshatra = formData.get('nakshatra');
+  if (nakshatra) payload.nakshatra = nakshatra;
+  const manglik = formData.get('manglik');
+  if (manglik) payload.manglik = manglik;
+  const dob = formData.get('dob');
+  if (dob) payload.dob = new Date(dob as string).toISOString();
+  const tob = formData.get('tob');
+  if (tob) payload.tob = tob;
+  const pob = formData.get('pob');
+  if (pob) payload.pob = pob;
+
+  await apiPut('/api/v1/profiles/me/horoscope', payload, token);
+  revalidatePath('/profile');
+  redirect('/profile/community');
+}
+
+export async function updateCommunity(formData: FormData) {
+  const token = await getAuthToken();
+  const payload: Record<string, unknown> = {};
+
+  const community = formData.get('community');
+  if (community) payload.community = community;
+  const subCommunity = formData.get('subCommunity');
+  if (subCommunity) payload.subCommunity = subCommunity;
+  const motherTongue = formData.get('motherTongue');
+  if (motherTongue) payload.motherTongue = motherTongue;
+  const preferredLang = formData.get('preferredLang');
+  if (preferredLang) payload.preferredLang = preferredLang;
+  const lgbtqProfile = formData.get('lgbtqProfile');
+  payload.lgbtqProfile = lgbtqProfile === 'on';
+
+  await apiPut('/api/v1/profiles/me/community', payload, token);
+  revalidatePath('/profile');
+  redirect('/profile/preferences');
+}
+
+export async function updatePreferences(formData: FormData) {
+  const token = await getAuthToken();
+  const payload: Record<string, unknown> = {};
+
+  const ageMin = formData.get('ageMin');
+  const ageMax = formData.get('ageMax');
+  if (ageMin && ageMax) payload.ageRange = { min: Number(ageMin), max: Number(ageMax) };
+
+  const heightMin = formData.get('heightMin');
+  const heightMax = formData.get('heightMax');
+  if (heightMin && heightMax) payload.heightRange = { min: Number(heightMin), max: Number(heightMax) };
+
+  const manglik = formData.get('manglik');
+  if (manglik) payload.manglik = manglik;
+  const openToInterfaith = formData.get('openToInterfaith');
+  payload.openToInterfaith = openToInterfaith === 'on';
+  const openToInterCaste = formData.get('openToInterCaste');
+  payload.openToInterCaste = openToInterCaste === 'on';
+
+  const diet = formData.getAll('diet');
+  if (diet.length > 0) payload.diet = diet;
+  const maritalStatus = formData.getAll('maritalStatus');
+  if (maritalStatus.length > 0) payload.maritalStatus = maritalStatus;
+  const religion = formData.getAll('religion');
+  if (religion.length > 0) payload.religion = religion;
+
+  const partnerDescription = formData.get('partnerDescription');
+  if (partnerDescription) payload.partnerDescription = partnerDescription;
+
+  await apiPut('/api/v1/profiles/me/preferences', payload, token);
+  revalidatePath('/profile');
   redirect('/dashboard');
 }

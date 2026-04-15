@@ -2,8 +2,8 @@
 
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
-import { profiles, profileSections } from '@smartshaadi/db';
-import { eq } from 'drizzle-orm';
+import { profiles, profilePhotos, profileSections } from '@smartshaadi/db';
+import { eq, count } from 'drizzle-orm';
 import type {
   ProfileContentResponse,
   PersonalSection,
@@ -153,17 +153,7 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
   const preferences =
     (doc?.partnerPreferences as Record<string, unknown> | undefined)?.ageRange != null;
 
-  // photos: check profile_photos table via PostgreSQL — for now derive from profileSections
-  // We don't have direct access to photos count here, keep existing value from DB
-  const existingSections = await db
-    .select()
-    .from(profileSections)
-    .where(eq(profileSections.profileId, userId))
-    .limit(1);
-  const photos = existingSections[0]?.photos ?? false;
-
-  // 3. Upsert profileSections row in PostgreSQL
-  // We need the profileId (uuid) from the profiles table
+  // 3. Get the profileId (uuid) from the profiles table — needed for photos count + upsert
   const profileRows = await db
     .select({ id: profiles.id })
     .from(profiles)
@@ -172,6 +162,13 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
 
   if (profileRows.length === 0) return 0;
   const profileId = profileRows[0]!.id;
+
+  // Count actual uploaded photos for this profile
+  const [photoCountRow] = await db
+    .select({ value: count() })
+    .from(profilePhotos)
+    .where(eq(profilePhotos.profileId, profileId));
+  const photos = (photoCountRow?.value ?? 0) > 0;
 
   await db
     .insert(profileSections)

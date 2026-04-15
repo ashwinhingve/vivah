@@ -9,6 +9,13 @@ vi.mock('@smartshaadi/db', () => ({
   profilePhotos: {},
   user: {},
 }));
+vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
+  ProfileContent: { findOne: vi.fn(), findOneAndUpdate: vi.fn() },
+}));
+vi.mock('../../storage/service.js', () => ({
+  getPhotoUrl: vi.fn().mockResolvedValue('https://mock.r2/photo.jpg'),
+  getPhotoUrls: vi.fn().mockResolvedValue([]),
+}));
 
 describe('profiles/service', () => {
   it('exports getMyProfile', async () => {

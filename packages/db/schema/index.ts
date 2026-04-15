@@ -222,6 +222,21 @@ export const familyStatusEnum = pgEnum('family_status', [
   'AFFLUENT',
 ]);
 
+export const rashiEnum = pgEnum('rashi', [
+  'MESH','VRISHABHA','MITHUN','KARK','SINGH','KANYA',
+  'TULA','VRISHCHIK','DHANU','MAKAR','KUMBH','MEEN',
+]);
+
+export const nakshatraEnum = pgEnum('nakshatra', [
+  'ASHWINI','BHARANI','KRITTIKA','ROHINI','MRIGASHIRA','ARDRA',
+  'PUNARVASU','PUSHYA','ASHLESHA','MAGHA','PURVA_PHALGUNI','UTTARA_PHALGUNI',
+  'HASTA','CHITRA','SWATI','VISHAKHA','ANURADHA','JYESHTHA',
+  'MULA','PURVA_ASHADHA','UTTARA_ASHADHA','SHRAVANA','DHANISHTA',
+  'SHATABHISHA','PURVA_BHADRAPADA','UTTARA_BHADRAPADA','REVATI',
+]);
+
+export const manglikStatusEnum = pgEnum('manglik_status', ['YES','NO','PARTIAL']);
+
 // ── TABLES ───────────────────────────────────────────────────────────────────
 
 // ── Auth — managed by Better Auth (see schema/auth.ts) ───────────────────────
@@ -262,13 +277,14 @@ export const profilePhotos = pgTable('profile_photos', {
 }));
 
 export const communityZones = pgTable('community_zones', {
-  id:             uuid('id').primaryKey().defaultRandom(),
-  profileId:      uuid('profile_id').unique().notNull().references(() => profiles.id, { onDelete: 'cascade' }),
-  community:      varchar('community', { length: 100 }),      // e.g., 'Rajput', 'Brahmin', 'Jain'
-  subCommunity:   varchar('sub_community', { length: 100 }),
-  language:       varchar('language', { length: 50 }),        // primary language preference
-  lgbtqProfile:   boolean('lgbtq_profile').default(false),
-  createdAt:      timestamp('created_at').defaultNow().notNull(),
+  id:            uuid('id').primaryKey().defaultRandom(),
+  profileId:     uuid('profile_id').unique().notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  community:     varchar('community', { length: 100 }),      // e.g., 'Rajput', 'Brahmin', 'Jain'
+  subCommunity:  varchar('sub_community', { length: 100 }),
+  motherTongue:  varchar('mother_tongue', { length: 50 }),   // primary mother tongue
+  preferredLang: varchar('preferred_lang', { length: 10 }).default('hi'), // preferred UI/comm language
+  lgbtqProfile:  boolean('lgbtq_profile').default(false),
+  updatedAt:     timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const profileSections = pgTable('profile_sections', {
@@ -283,6 +299,15 @@ export const profileSections = pgTable('profile_sections', {
   preferences: boolean('preferences').notNull().default(false),
   updatedAt:   timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const safetyModeUnlocks = pgTable('safety_mode_unlocks', {
+  id:          uuid('id').primaryKey().defaultRandom(),
+  profileId:   uuid('profile_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  unlockedFor: uuid('unlocked_for').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
+  createdAt:   timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  pairIdx: uniqueIndex('safety_unlock_pair_idx').on(t.profileId, t.unlockedFor),
+}));
 
 // ── KYC ─────────────────────────────────────────────────────────────────────
 

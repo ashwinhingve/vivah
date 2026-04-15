@@ -1,6 +1,20 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { profiles, profilePhotos, user } from '@smartshaadi/db';
+import { profiles, profilePhotos, profileSections, user } from '@smartshaadi/db';
+import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import type { Model } from 'mongoose';
+import { getPhotoUrls } from '../storage/service.js';
+import type {
+  ProfileDetailResponse,
+  PersonalSection,
+  EducationSection,
+  ProfessionSection,
+  FamilySection,
+  LocationSection,
+  LifestyleSection,
+  HoroscopeSection,
+  PartnerPreferencesSection,
+} from '@smartshaadi/types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -203,11 +217,11 @@ export async function deleteProfilePhoto(
   return (rowCount ?? 0) > 0;
 }
 
-/** Fetch another user's profile by profile UUID. Masks contact details (not self). */
+/** Fetch another user's profile by profile UUID. Enriched with MongoDB content + presigned photo URLs. */
 export async function getProfileById(
   profileId: string,
   requestingUserId: string,
-): Promise<ProfileResponse | null> {
+): Promise<ProfileDetailResponse | null> {
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId));
   if (!profile || !profile.isActive) return null;
 
@@ -216,10 +230,70 @@ export async function getProfileById(
 
   const isSelf = profile.userId === requestingUserId;
 
-  const photos = await db
+  const photoRows = await db
     .select()
     .from(profilePhotos)
     .where(eq(profilePhotos.profileId, profile.id));
 
-  return buildProfileResponse(profile, userRow, photos, isSelf);
+  // Generate presigned GET URLs for all photos
+  const urls = await getPhotoUrls(photoRows.map(p => p.r2Key));
+  const photosWithUrls = photoRows.map((p, i) => ({
+    id:           p.id,
+    r2Key:        p.r2Key,
+    isPrimary:    p.isPrimary,
+    displayOrder: p.displayOrder,
+    ...(urls[i] != null ? { url: urls[i] as string } : {}),
+  }));
+
+  // Fetch MongoDB content
+  type MongoDoc = { userId: string; [key: string]: unknown };
+  const contentModel = ProfileContent as unknown as Model<MongoDoc>;
+  const contentDoc = await contentModel.findOne({ userId: profile.userId }).lean() as MongoDoc | null;
+
+  // Safety mode: mask contact if enabled and viewer is not owner
+  let phoneNumber: string | null = isSelf ? (userRow.phoneNumber ?? null) : null;
+  let email: string | null = isSelf ? (userRow.email ?? null) : null;
+  if (!isSelf && contentDoc) {
+    const safetyMode = contentDoc.safetyMode as { contactHidden?: boolean } | undefined;
+    if (safetyMode?.contactHidden === true) {
+      phoneNumber = null;
+      email = null;
+    }
+  }
+
+  // Fetch profileSections row to populate sectionCompletion
+  const [sectionsRow] = await db
+    .select()
+    .from(profileSections)
+    .where(eq(profileSections.profileId, profile.id));
+
+  const base = buildProfileResponse(profile, userRow, photoRows, isSelf);
+
+  return {
+    ...base,
+    phoneNumber,
+    email,
+    photos: photosWithUrls,
+    ...(contentDoc?.personal    != null && { personal:           contentDoc.personal    as PersonalSection }),
+    ...(contentDoc?.education   != null && { education:          contentDoc.education   as EducationSection }),
+    ...(contentDoc?.profession  != null && { profession:         contentDoc.profession  as ProfessionSection }),
+    ...(contentDoc?.family      != null && { family:             contentDoc.family      as FamilySection }),
+    ...(contentDoc?.location    != null && { location:           contentDoc.location    as LocationSection }),
+    ...(contentDoc?.lifestyle   != null && { lifestyle:          contentDoc.lifestyle   as LifestyleSection }),
+    ...(contentDoc?.horoscope   != null && { horoscope:          contentDoc.horoscope   as HoroscopeSection }),
+    ...(contentDoc?.partnerPreferences != null && { partnerPreferences: contentDoc.partnerPreferences as PartnerPreferencesSection }),
+    ...(typeof contentDoc?.aboutMe === 'string' && { aboutMe: contentDoc.aboutMe }),
+    ...(sectionsRow != null && {
+      sectionCompletion: {
+        personal:    sectionsRow.personal,
+        family:      sectionsRow.family,
+        career:      sectionsRow.career,
+        lifestyle:   sectionsRow.lifestyle,
+        horoscope:   sectionsRow.horoscope,
+        photos:      sectionsRow.photos,
+        preferences: sectionsRow.preferences,
+        score:       profile.profileCompleteness ?? 0,
+      },
+    }),
+  };
 }

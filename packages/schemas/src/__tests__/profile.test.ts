@@ -126,8 +126,8 @@ describe('UpdateLifestyleSchema', () => {
 describe('UpdateHoroscopeSchema', () => {
   it('accepts valid horoscope', () => {
     expect(UpdateHoroscopeSchema.safeParse({
-      rashi: 'Vrishabha',
-      nakshatra: 'Rohini',
+      rashi: 'VRISHABHA',
+      nakshatra: 'ROHINI',
       tob: '06:30',
       pob: 'Pune',
     }).success).toBe(true);

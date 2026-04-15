@@ -136,20 +136,24 @@ Evening:  Commit.
 
 ### Week 2 — Profiles & Community
 
-**Day 6–7: Profile (Family, Career, Lifestyle)**
+**Day 6–7: Profile (Family, Career, Lifestyle)** ✅
 ```
 Family details, education, profession, income
 Lifestyle fields + hyper-niche tag system
 Partner preferences form
+profileSections completeness table
 ```
 
-**Day 8–9: Profile (Horoscope + Community Zones)**
+**Day 7 (cont): Profile (Horoscope + Community Zones + Preferences + Profile View)** ✅
 ```
-Horoscope data entry (Rashi, Nakshatra, DOB/TOB/POB)
-Community zone assignment
-Language preference field
-LGBTQ+ configurable flag (admin-level toggle)
-Profile completeness percentage calculator
+Horoscope: typed rashi/nakshatra pg enums, service, router, onboarding page
+Community zones: motherTongue/preferredLang migration, service, router, page
+Partner preferences: validated schema (min≤max refinements), service, router, page with dual sliders
+R2 presigned GET URLs (storage/service.ts)
+enriched getProfileById with MongoDB content + safety mode masking
+Public profile view page (/profiles/[profileId]) + CompletenessBar component
+safetyModeUnlocks table
+173 tests passing
 ```
 
 **Day 10: Profile Photos & Profile View**

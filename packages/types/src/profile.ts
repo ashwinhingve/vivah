@@ -1,10 +1,69 @@
 // packages/types/src/profile.ts
 
+export type Rashi =
+  | 'MESH' | 'VRISHABHA' | 'MITHUN' | 'KARK' | 'SINGH' | 'KANYA'
+  | 'TULA' | 'VRISHCHIK' | 'DHANU' | 'MAKAR' | 'KUMBH' | 'MEEN'
+
+export type Nakshatra =
+  | 'ASHWINI' | 'BHARANI' | 'KRITTIKA' | 'ROHINI' | 'MRIGASHIRA' | 'ARDRA'
+  | 'PUNARVASU' | 'PUSHYA' | 'ASHLESHA' | 'MAGHA' | 'PURVA_PHALGUNI' | 'UTTARA_PHALGUNI'
+  | 'HASTA' | 'CHITRA' | 'SWATI' | 'VISHAKHA' | 'ANURADHA' | 'JYESHTHA'
+  | 'MULA' | 'PURVA_ASHADHA' | 'UTTARA_ASHADHA' | 'SHRAVANA' | 'DHANISHTA'
+  | 'SHATABHISHA' | 'PURVA_BHADRAPADA' | 'UTTARA_BHADRAPADA' | 'REVATI'
+
+export type ManglikStatus = 'YES' | 'NO' | 'PARTIAL'
+
+export const RASHI_LABELS: Record<Rashi, string> = {
+  MESH: 'Mesh (Aries)',
+  VRISHABHA: 'Vrishabha (Taurus)',
+  MITHUN: 'Mithun (Gemini)',
+  KARK: 'Kark (Cancer)',
+  SINGH: 'Singh (Leo)',
+  KANYA: 'Kanya (Virgo)',
+  TULA: 'Tula (Libra)',
+  VRISHCHIK: 'Vrishchik (Scorpio)',
+  DHANU: 'Dhanu (Sagittarius)',
+  MAKAR: 'Makar (Capricorn)',
+  KUMBH: 'Kumbh (Aquarius)',
+  MEEN: 'Meen (Pisces)',
+}
+
+export const NAKSHATRA_LABELS: Record<Nakshatra, string> = {
+  ASHWINI: 'Ashwini',
+  BHARANI: 'Bharani',
+  KRITTIKA: 'Krittika',
+  ROHINI: 'Rohini',
+  MRIGASHIRA: 'Mrigashira',
+  ARDRA: 'Ardra',
+  PUNARVASU: 'Punarvasu',
+  PUSHYA: 'Pushya',
+  ASHLESHA: 'Ashlesha',
+  MAGHA: 'Magha',
+  PURVA_PHALGUNI: 'Purva Phalguni',
+  UTTARA_PHALGUNI: 'Uttara Phalguni',
+  HASTA: 'Hasta',
+  CHITRA: 'Chitra',
+  SWATI: 'Swati',
+  VISHAKHA: 'Vishakha',
+  ANURADHA: 'Anuradha',
+  JYESHTHA: 'Jyeshtha',
+  MULA: 'Mula',
+  PURVA_ASHADHA: 'Purva Ashadha',
+  UTTARA_ASHADHA: 'Uttara Ashadha',
+  SHRAVANA: 'Shravana',
+  DHANISHTA: 'Dhanishta',
+  SHATABHISHA: 'Shatabhisha',
+  PURVA_BHADRAPADA: 'Purva Bhadrapada',
+  UTTARA_BHADRAPADA: 'Uttara Bhadrapada',
+  REVATI: 'Revati',
+}
+
 export interface ProfilePhotoItem {
   id: string;
   r2Key: string;
   isPrimary: boolean;
   displayOrder: number;
+  url?: string;         // presigned R2 URL, populated on read
 }
 
 /** Returned by GET /api/v1/profiles/me and GET /api/v1/profiles/:id */
@@ -109,12 +168,12 @@ export interface LifestyleSection {
 }
 
 export interface HoroscopeSection {
-  rashi?: string;
-  nakshatra?: string;
+  rashi?: Rashi;
+  nakshatra?: Nakshatra;
   dob?: string;           // ISO-8601 date string
   tob?: string;           // HH:MM
   pob?: string;
-  manglik?: boolean;
+  manglik?: ManglikStatus;
   gunaScore?: number;
   chartImageKey?: string;
 }
@@ -131,6 +190,8 @@ export interface PartnerPreferencesSection {
   diet?: string[];
   openToInterfaith?: boolean;
   openToInterCaste?: boolean;
+  maritalStatus?: ('NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED')[];
+  partnerDescription?: string;
 }
 
 export interface ProfileSectionCompletion {
@@ -147,6 +208,28 @@ export interface ProfileSectionCompletion {
 export interface SafetyModeSection {
   contactHidden: boolean;
   unlockedWith: string[];
+}
+
+export interface CommunityZoneData {
+  community?: string;
+  subCommunity?: string;
+  motherTongue?: string;
+  preferredLang?: string;
+  lgbtqProfile?: boolean;
+}
+
+/** Enriched profile returned by GET /api/v1/profiles/:id — includes MongoDB content sections */
+export interface ProfileDetailResponse extends ProfileMetaResponse {
+  personal?: PersonalSection;
+  education?: EducationSection;
+  profession?: ProfessionSection;
+  family?: FamilySection;
+  location?: LocationSection;
+  lifestyle?: LifestyleSection;
+  horoscope?: HoroscopeSection;
+  partnerPreferences?: PartnerPreferencesSection;
+  aboutMe?: string;
+  sectionCompletion?: ProfileSectionCompletion;
 }
 
 /** Returned by GET /api/v1/profiles/me/content */

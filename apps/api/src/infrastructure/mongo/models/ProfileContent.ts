@@ -121,6 +121,8 @@ const profileContentSchema = new Schema(
       diet:             [String],
       openToInterfaith: Boolean,
       openToInterCaste: Boolean,
+      maritalStatus:    [String],    // NEVER_MARRIED | DIVORCED | WIDOWED | SEPARATED
+      partnerDescription: String,
     },
 
     // Safety Mode — contact visibility

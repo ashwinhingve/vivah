@@ -24,10 +24,15 @@ Week:      2
 Focus:     Profile Module — personal details, photos, preferences, horoscope
 Status:    In Progress
 Last session: 2026-04-14
-  - Design system tokens (@theme in globals.css), full palette audit, button/input fixes
-  - Route group loading/error boundaries, env.ts utility, dashboard stub
-  - Security: helmet, CORS allowedHeaders, body-parser 50kb limit
-  - 57 tests passing, type-check clean, lint clean
+  - Horoscope: typed rashi/nakshatra enums (12/27), manglikStatusEnum, service, router, onboarding page
+  - Community zones: schema migration (language → motherTongue, added preferredLang), service, router, page
+  - Partner preferences: validated schema (ageRange/heightRange min≤max refinements), service, router, page with dual sliders
+  - Profile view: R2 presigned GET URLs (storage/service.ts), enriched getProfileById with MongoDB content + safety mode masking, public profile page (/profiles/[profileId])
+  - CompletenessBar component (7 sections with teal fill)
+  - safetyModeUnlocks table added to PostgreSQL schema
+  - INDIAN_LANGUAGES constant exported from @smartshaadi/schemas
+  - pnpm db:push applied for all Day 7 schema changes
+  - 173 tests passing (82 API + 91 schemas), type-check clean, lint clean
 ```
 
 > **Update this block at the start of every session.**

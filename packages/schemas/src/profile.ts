@@ -103,13 +103,26 @@ export const UpdateLifestyleSchema = z.object({
   sunSign:            z.string().max(20).optional(),
 });
 
+const RASHI_VALUES = [
+  'MESH','VRISHABHA','MITHUN','KARK','SINGH','KANYA',
+  'TULA','VRISHCHIK','DHANU','MAKAR','KUMBH','MEEN',
+] as const
+
+const NAKSHATRA_VALUES = [
+  'ASHWINI','BHARANI','KRITTIKA','ROHINI','MRIGASHIRA','ARDRA',
+  'PUNARVASU','PUSHYA','ASHLESHA','MAGHA','PURVA_PHALGUNI','UTTARA_PHALGUNI',
+  'HASTA','CHITRA','SWATI','VISHAKHA','ANURADHA','JYESHTHA',
+  'MULA','PURVA_ASHADHA','UTTARA_ASHADHA','SHRAVANA','DHANISHTA',
+  'SHATABHISHA','PURVA_BHADRAPADA','UTTARA_BHADRAPADA','REVATI',
+] as const
+
 export const UpdateHoroscopeSchema = z.object({
-  rashi:     z.string().max(50).optional(),
-  nakshatra: z.string().max(50).optional(),
+  rashi:     z.enum(RASHI_VALUES).optional(),
+  nakshatra: z.enum(NAKSHATRA_VALUES).optional(),
   dob:       z.string().datetime({ offset: true }).optional(),
   tob:       z.string().regex(/^\d{2}:\d{2}$/, 'Time must be HH:MM').optional(),
   pob:       z.string().max(255).optional(),
-  manglik:   z.boolean().optional(),
+  manglik:   z.enum(['YES','NO','PARTIAL']).optional(),
 });
 
 const rangeSchema = (min: number, max: number) =>
@@ -119,17 +132,35 @@ const rangeSchema = (min: number, max: number) =>
   });
 
 export const UpdatePartnerPreferencesSchema = z.object({
-  ageRange:         rangeSchema(18, 100).optional(),
-  heightRange:      rangeSchema(100, 250).optional(),
-  incomeRange:      z.string().max(50).optional(),
-  education:        z.array(z.string().max(255)).optional(),
-  religion:         z.array(z.string().max(100)).optional(),
-  caste:            z.array(z.string().max(100)).optional(),
-  location:         z.array(z.string().max(100)).optional(),
-  manglik:          z.enum(['ANY', 'ONLY_MANGLIK', 'NON_MANGLIK']).optional(),
-  diet:             z.array(z.string().max(50)).optional(),
-  openToInterfaith: z.boolean().optional(),
-  openToInterCaste: z.boolean().optional(),
+  ageRange:           rangeSchema(18, 100).optional(),
+  heightRange:        rangeSchema(100, 250).optional(),
+  incomeRange:        z.string().max(50).optional(),
+  education:          z.array(z.string().max(255)).optional(),
+  religion:           z.array(z.string().max(100)).optional(),
+  caste:              z.array(z.string().max(100)).optional(),
+  location:           z.array(z.string().max(100)).optional(),
+  manglik:            z.enum(['ANY', 'ONLY_MANGLIK', 'NON_MANGLIK']).optional(),
+  diet:               z.array(z.string().max(50)).optional(),
+  openToInterfaith:   z.boolean().optional(),
+  openToInterCaste:   z.boolean().optional(),
+  maritalStatus:      z.array(z.enum(['NEVER_MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED'])).optional(),
+  partnerDescription: z.string().max(1000).optional(),
+}).refine(
+  d => d.ageRange == null || d.ageRange.min <= d.ageRange.max,
+  { message: 'ageRange.min must be ≤ ageRange.max', path: ['ageRange'] },
+).refine(
+  d => d.heightRange == null || d.heightRange.min <= d.heightRange.max,
+  { message: 'heightRange.min must be ≤ heightRange.max', path: ['heightRange'] },
+);
+
+export const INDIAN_LANGUAGES = ['hi','en','mr','gu','ta','te','kn','ml','pa','bn','or','as'] as const
+
+export const UpdateCommunityZoneSchema = z.object({
+  community:    z.string().max(100).optional(),
+  subCommunity: z.string().max(100).optional(),
+  motherTongue: z.string().max(50).optional(),
+  preferredLang: z.enum(INDIAN_LANGUAGES).optional(),
+  lgbtqProfile: z.boolean().optional(),
 });
 
 // ── Inferred input types ──────────────────────────────────────────────────────
@@ -156,3 +187,4 @@ export type UpdateLifestyleInput          = z.infer<typeof UpdateLifestyleSchema
 export type UpdateHoroscopeInput          = z.infer<typeof UpdateHoroscopeSchema>;
 export type UpdatePartnerPreferencesInput = z.infer<typeof UpdatePartnerPreferencesSchema>;
 export type ProfileBulkUpdateInput        = z.infer<typeof ProfileBulkUpdateSchema>;
+export type UpdateCommunityZoneInput      = z.infer<typeof UpdateCommunityZoneSchema>;
