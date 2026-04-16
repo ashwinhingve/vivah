@@ -11,6 +11,7 @@ import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
+import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
 import { env } from './lib/env.js';
 
 const app = express();
@@ -64,3 +65,7 @@ connectMongo().catch((err) => {
 app.listen(env.PORT, () => {
   console.info(`API server running on port ${env.PORT}`);
 });
+
+if (!process.env['USE_MOCK_SERVICES'] || process.env['USE_MOCK_SERVICES'] !== 'true') {
+  void startGunaRecalcWorker();
+}

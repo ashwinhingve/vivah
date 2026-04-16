@@ -15,6 +15,7 @@ import type { MatchFeedItem } from '@smartshaadi/types';
 import type Redis from 'ioredis';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
+import { matchComputeQueue } from '../infrastructure/redis/queues.js';
 
 // ── Feed cache key ────────────────────────────────────────────────────────────
 
@@ -334,7 +335,23 @@ export async function computeAndCacheFeed(
     name: nameMap.get(item.profileId) ?? 'Unknown',
   }));
 
-  // 8. Cache result
+  // 8. Fire-and-forget: enqueue guna recalc for any pairs missing a score
+  const pendingPairs = feed
+    .filter((item) => item.compatibility.flags.includes('guna_pending'))
+    .map((item) => {
+      const sorted = [userProfileId, item.profileId].sort();
+      return { profileAId: sorted[0] as string, profileBId: sorted[1] as string };
+    });
+
+  if (pendingPairs.length > 0) {
+    void matchComputeQueue
+      .addBulk(pendingPairs.map((data) => ({ name: 'guna-recalc', data })))
+      .catch((err: unknown) => {
+        console.error('Failed to enqueue guna recalc jobs:', err);
+      });
+  }
+
+  // 9. Cache result
   await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify(feed));
 
   return feed;

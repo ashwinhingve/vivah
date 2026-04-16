@@ -11,6 +11,10 @@ vi.mock('@smartshaadi/db', () => ({
 }));
 
 // Mock the scorer so we get deterministic scores in engine tests
+vi.mock('../../infrastructure/redis/queues.js', () => ({
+  matchComputeQueue: { addBulk: vi.fn().mockResolvedValue([]) },
+}));
+
 vi.mock('../scorer.js', () => ({
   scoreCandidate: vi.fn().mockResolvedValue({
     totalScore: 72,
@@ -37,6 +41,8 @@ vi.mock('../filters.js', () => ({
 import type Redis from 'ioredis';
 import { getCachedFeed, computeAndCacheFeed } from '../engine.js';
 import { applyHardFilters } from '../filters.js';
+import { scoreCandidate } from '../scorer.js';
+import { matchComputeQueue } from '../../infrastructure/redis/queues.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -99,13 +105,18 @@ function makeDb(options: {
   };
 
   // limit() is a terminal call — returns data depending on call order
+  // Real engine DB call sequence:
+  //   1 → user's own profile row
+  //   2 → blocked outbound (blockerId = userProfileId)
+  //   3 → blocked inbound  (blockedId = userProfileId)
+  //   4 → active candidate profiles
+  //   5+ → primary photo per filtered candidate (one call each)
   chain.limit.mockImplementation(() => {
     callCount++;
-    // 1st call: user's own profile row
     if (callCount === 1) return Promise.resolve(userProfile ? [userProfile] : []);
-    // 2nd call: candidates
-    if (callCount === 2) return Promise.resolve(candidates);
-    // 3rd+ call: primary photo
+    if (callCount === 2) return Promise.resolve([]); // blocked outbound — empty by default
+    if (callCount === 3) return Promise.resolve([]); // blocked inbound — empty by default
+    if (callCount === 4) return Promise.resolve(candidates);
     return Promise.resolve(primaryPhoto ? [primaryPhoto] : []);
   });
 
@@ -180,5 +191,36 @@ describe('computeAndCacheFeed', () => {
 
     const result = await computeAndCacheFeed(USER_ID, db as never, redis);
     expect(result).toHaveLength(0);
+  });
+
+  it('enqueues a Bull job for each guna_pending pair', async () => {
+    vi.mocked(scoreCandidate).mockResolvedValueOnce({
+      totalScore: 72,
+      breakdown: {
+        demographicAlignment:   { score: 18, max: 25 },
+        lifestyleCompatibility: { score: 16, max: 20 },
+        careerEducation:        { score: 12, max: 15 },
+        familyValues:           { score: 16, max: 20 },
+        preferenceOverlap:      { score: 10, max: 20 },
+      },
+      gunaScore: 18,
+      tier: 'good',
+      flags: ['guna_pending'],
+    });
+
+    const redis = makeRedis(null);
+    await computeAndCacheFeed(USER_ID, makeDb() as never, redis);
+
+    expect(matchComputeQueue.addBulk).toHaveBeenCalledOnce();
+
+    const jobs = vi.mocked(matchComputeQueue.addBulk).mock.calls[0]![0];
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0]!.name).toBe('guna-recalc');
+
+    const { profileAId, profileBId } = jobs[0]!.data;
+    expect(typeof profileAId).toBe('string');
+    expect(typeof profileBId).toBe('string');
+    // IDs must be sorted alphabetically
+    expect(profileAId <= profileBId).toBe(true);
   });
 });
