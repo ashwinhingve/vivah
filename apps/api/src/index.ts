@@ -10,6 +10,7 @@ import { kycRouter, adminKycRouter } from './kyc/router.js';
 import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
+import { matchmakingRouter } from './matchmaking/router.js';
 import { env } from './lib/env.js';
 
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/v1/admin/kyc', adminKycRouter); // Admin review queue
 app.use('/api/v1/users', usersRouter);        // PATCH /api/v1/users/me/role
 app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
 app.use('/api/v1/storage', storageRouter);   // POST /presign
+app.use('/api/v1/matchmaking', matchmakingRouter); // GET /feed, GET /score/:id, POST|PUT /requests
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 
