@@ -83,7 +83,7 @@ describe('applyHardFilters', () => {
     // cand age=30, user.prefs.ageMin=28, user.prefs.ageMax=38 → 30 is in [28,38] ✓
     const result = applyHardFilters(baseUser, [baseCandidate]);
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('cand-1');
+    expect(result[0]!.id).toBe('cand-1');
   });
 
   // Test 3: religion block
@@ -146,6 +146,6 @@ describe('applyHardFilters', () => {
   it('retains candidate when all filters pass', () => {
     const result = applyHardFilters(baseUser, [baseCandidate]);
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('cand-1');
+    expect(result[0]!.id).toBe('cand-1');
   });
 });
