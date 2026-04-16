@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateLifestyle } from '../actions';
@@ -50,6 +50,7 @@ function SubmitButton() {
 }
 
 export default function LifestylePage() {
+  const [state, formAction] = useActionState(updateLifestyle, undefined);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -66,7 +67,12 @@ export default function LifestylePage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
         <h1 className="text-lg font-semibold text-[#7B2D42] font-playfair mb-6">Lifestyle & Interests</h1>
-        <form action={updateLifestyle} className="space-y-6">
+        <form action={formAction} className="space-y-6">
+          {state?.error && (
+            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+              {state.error}
+            </div>
+          )}
           {/* Hidden inputs for multi-select values */}
           {selectedHobbies.map((h) => (
             <input key={h} type="hidden" name="hobbies" value={h} />

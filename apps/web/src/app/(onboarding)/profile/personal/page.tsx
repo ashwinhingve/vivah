@@ -1,5 +1,6 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updatePersonal } from '../actions';
@@ -32,6 +33,8 @@ function SubmitButton() {
 }
 
 export default function PersonalPage() {
+  const [state, formAction] = useActionState(updatePersonal, undefined);
+
   return (
     <div>
       <ProfileProgress steps={STEPS} />
@@ -51,7 +54,12 @@ export default function PersonalPage() {
         </div>
 
         <div className="p-5">
-          <form action={updatePersonal} className="space-y-4">
+          <form action={formAction} className="space-y-4">
+            {state?.error && (
+              <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+                {state.error}
+              </div>
+            )}
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-[#2E2E38] mb-1">Full Name</label>

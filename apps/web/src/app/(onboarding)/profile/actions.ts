@@ -23,7 +23,7 @@ async function apiPut(path: string, body: unknown, token: string | undefined) {
   return res;
 }
 
-export async function updatePersonal(formData: FormData) {
+export async function updatePersonal(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -47,12 +47,21 @@ export async function updatePersonal(formData: FormData) {
   const maritalStatus = formData.get('maritalStatus');
   if (maritalStatus) payload.maritalStatus = maritalStatus;
 
-  await apiPut('/api/v1/profiles/me/content/personal', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/content/personal', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save personal details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/family');
 }
 
-export async function updateFamily(formData: FormData) {
+export async function updateFamily(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -75,12 +84,21 @@ export async function updateFamily(formData: FormData) {
   const familyAbout = formData.get('familyAbout');
   if (familyAbout) payload.familyAbout = familyAbout;
 
-  await apiPut('/api/v1/profiles/me/content/family', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/content/family', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save family details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/career');
 }
 
-export async function updateCareer(formData: FormData) {
+export async function updateCareer(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
 
   const eduPayload: Record<string, unknown> = {};
@@ -93,7 +111,15 @@ export async function updateCareer(formData: FormData) {
   const year = formData.get('year');
   if (year) eduPayload.year = Number(year);
 
-  await apiPut('/api/v1/profiles/me/content/education', eduPayload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/content/education', eduPayload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save education details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
 
   const profPayload: Record<string, unknown> = {};
   const occupation = formData.get('occupation');
@@ -109,12 +135,21 @@ export async function updateCareer(formData: FormData) {
   const workLocation = formData.get('workLocation');
   if (workLocation) profPayload.workLocation = workLocation;
 
-  await apiPut('/api/v1/profiles/me/content/profession', profPayload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/content/profession', profPayload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save career details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/lifestyle');
 }
 
-export async function updateLifestyle(formData: FormData) {
+export async function updateLifestyle(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -133,12 +168,21 @@ export async function updateLifestyle(formData: FormData) {
   const fitnessLevel = formData.get('fitnessLevel');
   if (fitnessLevel) payload.fitnessLevel = fitnessLevel;
 
-  await apiPut('/api/v1/profiles/me/content/lifestyle', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/content/lifestyle', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save lifestyle details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/horoscope');
 }
 
-export async function updateHoroscope(formData: FormData) {
+export async function updateHoroscope(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -155,12 +199,21 @@ export async function updateHoroscope(formData: FormData) {
   const pob = formData.get('pob');
   if (pob) payload.pob = pob;
 
-  await apiPut('/api/v1/profiles/me/horoscope', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/horoscope', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save horoscope details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/community');
 }
 
-export async function updateCommunity(formData: FormData) {
+export async function updateCommunity(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -175,7 +228,16 @@ export async function updateCommunity(formData: FormData) {
   const lgbtqProfile = formData.get('lgbtqProfile');
   payload.lgbtqProfile = lgbtqProfile === 'on';
 
-  await apiPut('/api/v1/profiles/me/community', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/community', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save community details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/profile/preferences');
 }
@@ -200,7 +262,7 @@ export async function initiateKyc(): Promise<{ authUrl?: string; error?: string 
   }
 }
 
-export async function updatePreferences(formData: FormData) {
+export async function updatePreferences(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
 
@@ -229,7 +291,16 @@ export async function updatePreferences(formData: FormData) {
   const partnerDescription = formData.get('partnerDescription');
   if (partnerDescription) payload.partnerDescription = partnerDescription;
 
-  await apiPut('/api/v1/profiles/me/preferences', payload, token);
+  try {
+    const res = await apiPut('/api/v1/profiles/me/preferences', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save preferences. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
   revalidatePath('/profile');
   redirect('/dashboard');
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateFamily } from '../actions';
@@ -23,6 +24,8 @@ function SubmitButton() {
 }
 
 export default function FamilyPage() {
+  const [state, formAction] = useActionState(updateFamily, undefined);
+
   return (
     <div>
       <ProfileProgress steps={STEPS} />
@@ -33,7 +36,12 @@ export default function FamilyPage() {
         >
           Family Background
         </h1>
-        <form action={updateFamily} className="space-y-4">
+        <form action={formAction} className="space-y-4">
+          {state?.error && (
+            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+              {state.error}
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#2E2E38] mb-1">Father's Name</label>

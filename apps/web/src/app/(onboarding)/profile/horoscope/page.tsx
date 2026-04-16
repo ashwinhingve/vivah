@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateHoroscope } from '../actions';
@@ -31,6 +31,7 @@ function SubmitButton() {
 }
 
 export default function HoroscopePage() {
+  const [state, formAction] = useActionState(updateHoroscope, undefined);
   const [manglik, setManglik] = useState<'YES' | 'NO' | 'PARTIAL'>('NO');
 
   return (
@@ -43,7 +44,12 @@ export default function HoroscopePage() {
           Help us find your most compatible match.
         </p>
 
-        <form action={updateHoroscope} className="mt-6 space-y-5">
+        <form action={formAction} className="mt-6 space-y-5">
+          {state?.error && (
+            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+              {state.error}
+            </div>
+          )}
           {/* Rashi */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">

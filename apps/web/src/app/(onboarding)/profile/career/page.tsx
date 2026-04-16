@@ -1,5 +1,6 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updateCareer } from '../actions';
@@ -24,12 +25,19 @@ function SubmitButton() {
 }
 
 export default function CareerPage() {
+  const [state, formAction] = useActionState(updateCareer, undefined);
+
   return (
     <div>
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
         <h1 className="text-lg font-semibold text-[#7B2D42] font-playfair mb-6">Education & Career</h1>
-        <form action={updateCareer} className="space-y-4">
+        <form action={formAction} className="space-y-4">
+          {state?.error && (
+            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+              {state.error}
+            </div>
+          )}
           <fieldset>
             <legend className="text-sm font-semibold text-[#6B6B76] mb-3">Education</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

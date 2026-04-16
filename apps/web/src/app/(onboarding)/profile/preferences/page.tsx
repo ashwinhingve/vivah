@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updatePreferences } from '../actions';
@@ -39,6 +39,7 @@ function SubmitButton() {
 }
 
 export default function PreferencesPage() {
+  const [state, formAction] = useActionState(updatePreferences, undefined);
   const [ageMin, setAgeMin] = useState(22);
   const [ageMax, setAgeMax] = useState(35);
   const [heightMin, setHeightMin] = useState(150);
@@ -64,7 +65,12 @@ export default function PreferencesPage() {
       </h1>
       <p className="text-[#6B6B76] text-sm mb-6">What are you looking for in a partner?</p>
 
-      <form action={updatePreferences} className="space-y-6">
+      <form action={formAction} className="space-y-6">
+        {state?.error && (
+          <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+            {state.error}
+          </div>
+        )}
         {/* Hidden inputs carry the stateful slider/chip values */}
         <input type="hidden" name="ageMin" value={ageMin} />
         <input type="hidden" name="ageMax" value={ageMax} />
