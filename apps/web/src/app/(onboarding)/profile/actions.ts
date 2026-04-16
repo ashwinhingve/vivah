@@ -180,6 +180,26 @@ export async function updateCommunity(formData: FormData) {
   redirect('/profile/preferences');
 }
 
+export async function initiateKyc(): Promise<{ authUrl?: string; error?: string }> {
+  const token = await getAuthToken();
+  const callbackUri = `${API_URL}/api/v1/kyc/callback`;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/kyc/initiate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ redirectUri: callbackUri }),
+    });
+    const json = (await res.json()) as { success: boolean; data?: { authUrl: string }; error?: { message: string } };
+    if (json.success && json.data?.authUrl) return { authUrl: json.data.authUrl };
+    return { error: json.error?.message ?? 'Verification could not be started' };
+  } catch {
+    return { error: 'Network error. Please try again.' };
+  }
+}
+
 export async function updatePreferences(formData: FormData) {
   const token = await getAuthToken();
   const payload: Record<string, unknown> = {};
