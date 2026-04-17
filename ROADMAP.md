@@ -9,10 +9,11 @@
 
 ```
 Phase:    1 — Core Platform
-Week:     3 of 5
-Target:   Reciprocal Matching engine + Guna Milan (all 8 Ashtakoot factors)
+Week:     4 of 5
+Target:   Match Requests + Chat
 Blocker:  None
-Last updated: 2026-04-15
+Mocks:    USE_MOCK_SERVICES=true
+Last updated: 2026-04-17
 ```
 
 ---
@@ -112,17 +113,10 @@ Last updated: 2026-04-15
 
 ### Week 3
 
-- [ ] Reciprocal Matching engine (bilateral compatibility pre-check)
-- [ ] Guna Milan calculator: Varna factor
-- [ ] Guna Milan calculator: Vashya factor
-- [ ] Guna Milan calculator: Tara factor
-- [ ] Guna Milan calculator: Yoni factor
-- [ ] Guna Milan calculator: Graha Maitri factor
-- [ ] Guna Milan calculator: Gana factor
-- [ ] Guna Milan calculator: Bhakoot factor
-- [ ] Guna Milan calculator: Nadi factor
-- [ ] Compatibility score display on profile cards
-- [ ] Match feed with reciprocal filtering
+- ✅ Reciprocal Matching engine (bilateral compatibility pre-check)
+- ✅ Guna Milan calculator: all 8 factors (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, Nadi)
+- ✅ Compatibility score display on profile cards
+- ✅ Match feed with reciprocal filtering
 
 ### Week 4
 

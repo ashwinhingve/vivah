@@ -20,10 +20,11 @@
 
 ```
 Phase:     1
-Week:      2 (COMPLETE)
-Focus:     Profile Module — photos management + profile view polish
-Status:    Week 2 Complete — advancing to Week 3 (Matching Engine)
-Last session: 2026-04-15
+Week:      4 (STARTING)
+Focus:     Match Requests + Chat
+Status:    Week 3 Complete — advancing to Week 4 (Match Requests + Chat)
+Mocks:     USE_MOCK_SERVICES=true
+Last session: 2026-04-17
   - Day 10 Final: router.ts — GET /me/photos, POST /me/photos (PhotoUploadSchema with fileSize/mimeType),
     PUT /me/photos/reorder, PUT /me/photos/primary, DELETE /me/photos/:photoId (all via photosService)
   - photos.service.ts: addProfilePhoto (8-limit, auto-primary, section tracking), getProfilePhotos,
@@ -299,3 +300,4 @@ Mobile-first: everything works at 375px width
 8. **Sonnet for 95% of tasks, Opus only for complex architecture decisions**
 9. **Update this file** when stack or architecture changes
 10. **Update ROADMAP.md** at the end of every session
+11. **WSL Agent Teams: never use plan approval mode** — teammates block indefinitely waiting for approval signal that never arrives. Each teammate plans in first message then implements immediately.
