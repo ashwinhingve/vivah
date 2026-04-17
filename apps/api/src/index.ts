@@ -1,6 +1,8 @@
 // env.ts loads root .env and validates all required vars on first import
 import './lib/env.js';
+import { createServer } from 'http';
 import express, { type Request, type Response } from 'express';
+import { initSocket } from './chat/socket/index.js';
 import { connectMongo } from './lib/mongo.js';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -62,7 +64,9 @@ connectMongo().catch((err) => {
   }
 });
 
-app.listen(env.PORT, () => {
+const server = createServer(app)
+initSocket(server)
+server.listen(env.PORT, () => {
   console.info(`API server running on port ${env.PORT}`);
 });
 
