@@ -21,6 +21,7 @@ import {
   MatchRequestSchema,
 } from '@smartshaadi/schemas';
 import { profiles, matchRequests } from '@smartshaadi/db';
+import { matchRequestsRouter } from './requests/router.js';
 
 export const matchmakingRouter = Router();
 
@@ -312,3 +313,6 @@ matchmakingRouter.put(
     }
   },
 );
+
+// ── Mount sub-routers ─────────────────────────────────────────────────────────
+matchmakingRouter.use('/', matchRequestsRouter);
