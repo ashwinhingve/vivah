@@ -2,15 +2,13 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import MessageBubble from '@/components/chat/MessageBubble'
-import ChatInput from '@/components/chat/ChatInput.client'
+import ChatView from '@/components/chat/ChatView.client'
 import type { ChatMessage } from '@smartshaadi/types'
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+// Base server URL — no /api/v1 suffix (used for /api/auth/* and /api/v1/* paths)
+const BASE_URL = process.env['NEXT_PUBLIC_SOCKET_URL'] ?? 'http://localhost:4000'
 
-export const metadata: Metadata = {
-  title: 'Chat',
-}
+export const metadata: Metadata = { title: 'Chat — Smart Shaadi' }
 
 interface ConversationData {
   messages: ChatMessage[]
@@ -23,15 +21,12 @@ async function getConversation(
   token: string,
 ): Promise<{ data: ConversationData | null; error: boolean }> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/chat/conversations/${matchId}`, {
+    const res = await fetch(`${BASE_URL}/api/v1/chat/conversations/${matchId}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     })
     if (!res.ok) return { data: null, error: true }
-    const json = (await res.json()) as {
-      success: boolean
-      data: ConversationData
-    }
+    const json = (await res.json()) as { success: boolean; data: ConversationData }
     return {
       data: json.success ? json.data : null,
       error: !json.success,
@@ -50,14 +45,12 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const cookieStore = await cookies()
   const token = cookieStore.get('better-auth.session_token')?.value
 
-  if (!token) {
-    redirect('/login')
-  }
+  if (!token) redirect('/login')
 
-  // Fetch user session to get userId
+  // Resolve userId via Better Auth session endpoint
   let userId = ''
   try {
-    const meRes = await fetch(`${API_URL}/api/auth/get-session`, {
+    const meRes = await fetch(`${BASE_URL}/api/auth/session`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     })
@@ -66,11 +59,13 @@ export default async function ChatPage({ params }: ChatPageProps) {
       userId = meJson.user?.id ?? ''
     }
   } catch {
-    // Non-fatal — we still show the chat UI
+    // Non-fatal — userId stays empty, ChatView won't render
   }
 
+  if (!userId) redirect('/login')
+
   const { data: conversation, error } = await getConversation(matchId, token)
-  const messages: ChatMessage[] = conversation?.messages ?? []
+  const initialMessages: ChatMessage[] = conversation?.messages ?? []
 
   return (
     <main className="min-h-screen bg-[#FEFAF6] flex flex-col">
@@ -94,9 +89,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </Link>
-
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          {/* Avatar placeholder */}
           <div className="w-10 h-10 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center shrink-0 text-[#0E7C7B] font-semibold text-sm">
             {conversation?.participantName?.[0]?.toUpperCase() ?? '?'}
           </div>
@@ -109,7 +102,6 @@ export default async function ChatPage({ params }: ChatPageProps) {
         </div>
       </header>
 
-      {/* Error banner */}
       {error && (
         <div
           role="alert"
@@ -119,35 +111,12 @@ export default async function ChatPage({ params }: ChatPageProps) {
         </div>
       )}
 
-      {/* Message area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.length === 0 && !error ? (
-          <div className="flex flex-col items-center justify-center h-full py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center mb-4 text-3xl">
-              💬
-            </div>
-            <p className="text-base font-semibold text-[#0F172A] font-heading">
-              Start the conversation
-            </p>
-            <p className="text-sm text-[#6B6B76] mt-1 max-w-xs">
-              Say hello and begin your journey together
-            </p>
-          </div>
-        ) : (
-          messages.map((msg) => (
-            <MessageBubble key={msg._id} message={msg} currentUserId={userId} />
-          ))
-        )}
-      </div>
-
-      {/* Chat input */}
-      {userId && (
-        <ChatInput
-          matchId={matchId}
-          currentUserId={userId}
-          authToken={token}
-        />
-      )}
+      <ChatView
+        matchId={matchId}
+        currentUserId={userId}
+        authToken={token}
+        initialMessages={initialMessages}
+      />
     </main>
   )
 }

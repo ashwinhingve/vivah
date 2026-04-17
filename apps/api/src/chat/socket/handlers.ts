@@ -129,10 +129,8 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
         await Chat.updateOne(
           { matchRequestId },
           {
-            $set: {
-              'messages.$[msg].readAt': new Date(),
-              'messages.$[msg].readBy': userId,
-            },
+            $set: { 'messages.$[msg].readAt': new Date() },
+            $addToSet: { 'messages.$[msg].readBy': userId },
           },
           { arrayFilters: [{ 'msg._id': { $in: messageIds } }] },
         )

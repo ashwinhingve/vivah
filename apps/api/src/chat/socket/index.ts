@@ -1,13 +1,8 @@
 import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'http'
-import jwt from 'jsonwebtoken'
+import { auth } from '../../auth/config.js'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
-
-interface JwtPayload {
-  userId: string
-  profileId?: string
-}
 
 export function initSocket(server: HttpServer): Server {
   const io = new Server(server, {
@@ -16,13 +11,16 @@ export function initSocket(server: HttpServer): Server {
 
   const chat = io.of('/chat')
 
-  chat.use((socket, next) => {
+  // Verify Better Auth session cookie passed from client handshake
+  chat.use(async (socket, next) => {
     const token = socket.handshake.auth['token'] as string | undefined
     if (!token) return next(new Error('Unauthorized'))
     try {
-      const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload
-      socket.data['userId'] = payload.userId
-      socket.data['profileId'] = payload.profileId ?? null
+      const session = await auth.api.getSession({
+        headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
+      })
+      if (!session?.user) return next(new Error('Unauthorized'))
+      socket.data['userId'] = session.user.id
       next()
     } catch {
       next(new Error('Unauthorized'))
