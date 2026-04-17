@@ -1,6 +1,16 @@
 import type { Namespace, Socket } from 'socket.io'
+import { Queue } from 'bullmq'
 import { Chat } from '../../infrastructure/mongo/models/Chat.js'
 import { env } from '../../lib/env.js'
+import { mockGet } from '../../lib/mockStore.js'
+
+const notificationsQueue = new Queue('notifications', {
+  connection: {
+    url: env.REDIS_URL,
+    enableOfflineQueue: false,
+    maxRetriesPerRequest: null as unknown as number,
+  },
+})
 
 export function registerChatHandlers(io: Namespace, socket: Socket): void {
   const userId = socket.data['userId'] as string
@@ -77,7 +87,33 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       contentHi: null,
       contentEn: null,
     })
-    // TODO: enqueue Bull notification job if receiver is not in room (Phase 2)
+
+    // Notify receiver if they are not currently in the room
+    try {
+      let participants: string[] = []
+      if (env.USE_MOCK_SERVICES) {
+        const stored = mockGet(matchRequestId)
+        const chat = stored?.['chat'] as { participants?: string[] } | undefined
+        participants = chat?.participants ?? []
+      } else {
+        const chat = await Chat.findOne({ matchRequestId }).select('participants').lean()
+        participants = (chat?.participants as string[] | undefined) ?? []
+      }
+      const receiverId = participants.find((p) => p !== userId)
+      if (receiverId) {
+        const socketsInRoom = await io.in(matchRequestId).fetchSockets()
+        const receiverInRoom = socketsInRoom.some((s) => s.data['userId'] === receiverId)
+        if (!receiverInRoom) {
+          void notificationsQueue.add(
+            'NEW_CHAT_MESSAGE',
+            { type: 'push', userId: receiverId, data: { matchRequestId } },
+            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+          )
+        }
+      }
+    } catch (notifyErr) {
+      console.error('[socket] send_message notification error:', notifyErr)
+    }
   })
 
   // ── mark_read ────────────────────────────────────────────────────────────────

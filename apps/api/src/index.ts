@@ -13,6 +13,7 @@ import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
+import { chatRouter } from './chat/router.js';
 import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
 import { env } from './lib/env.js';
 
@@ -53,6 +54,7 @@ app.use('/api/v1/users', usersRouter);        // PATCH /api/v1/users/me/role
 app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
 app.use('/api/v1/storage', storageRouter);   // POST /presign
 app.use('/api/v1/matchmaking', matchmakingRouter); // GET /feed, GET /score/:id, POST|PUT /requests
+app.use('/api/v1/chat', chatRouter);              // GET /conversations, GET /conversations/:id, POST photos
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 
