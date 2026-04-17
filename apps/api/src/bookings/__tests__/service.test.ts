@@ -1,0 +1,348 @@
+/**
+ * Booking service unit tests.
+ * All DB calls and BullMQ are mocked — no real I/O.
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// ── Static mocks (hoisted before imports) ─────────────────────────────────────
+
+const mockSelect = vi.fn();
+const mockInsert = vi.fn();
+const mockUpdate = vi.fn();
+
+vi.mock('../../lib/db.js', () => ({
+  db: { select: mockSelect, insert: mockInsert, update: mockUpdate },
+}));
+
+vi.mock('@smartshaadi/db', () => ({
+  bookings:       {},
+  payments:       {},
+  escrowAccounts: {},
+  vendors:        {},
+}));
+
+vi.mock('drizzle-orm', () => ({
+  eq:  vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and: vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+}));
+
+const mockQueueAdd = vi.fn().mockResolvedValue({ id: 'job-1' });
+vi.mock('bullmq', () => ({
+  Queue: vi.fn().mockImplementation(() => ({ add: mockQueueAdd })),
+}));
+
+vi.mock('../../lib/env.js', () => ({
+  env: {
+    REDIS_URL:         'redis://localhost:6379',
+    USE_MOCK_SERVICES: true,
+  },
+}));
+
+const mockCreateRefund = vi.fn().mockResolvedValue({ id: 'mock_refund_1', amount: 5000, status: 'processed' });
+vi.mock('../../lib/razorpay.js', () => ({
+  createRefund: (...args: unknown[]) => mockCreateRefund(...args),
+}));
+
+// ── DB query builder mock ────────────────────────────────────────────────────
+
+type SelectResult = Record<string, unknown>[];
+
+function makeQueryChain(rows: SelectResult) {
+  const chain = {
+    from:   vi.fn().mockReturnThis(),
+    where:  vi.fn().mockReturnThis(),
+    limit:  vi.fn().mockResolvedValue(rows),
+    offset: vi.fn().mockReturnThis(),
+  };
+  return chain;
+}
+
+function makeInsertChain(row: Record<string, unknown>) {
+  return {
+    values:     vi.fn().mockReturnThis(),
+    returning:  vi.fn().mockResolvedValue([row]),
+  };
+}
+
+function makeUpdateChain(row: Record<string, unknown>) {
+  return {
+    set:       vi.fn().mockReturnThis(),
+    where:     vi.fn().mockReturnThis(),
+    returning: vi.fn().mockResolvedValue([row]),
+  };
+}
+
+// ── Fixtures ──────────────────────────────────────────────────────────────────
+
+const CUSTOMER_ID  = 'user-customer-1';
+const VENDOR_USER_ID = 'user-vendor-1';
+const VENDOR_ID    = 'vendor-uuid-1';
+const BOOKING_ID   = 'booking-uuid-1';
+const SERVICE_ID   = 'service-uuid-1';
+const EVENT_DATE   = '2026-06-15';
+
+const baseBooking = {
+  id:           BOOKING_ID,
+  customerId:   CUSTOMER_ID,
+  vendorId:     VENDOR_ID,
+  serviceId:    SERVICE_ID,
+  eventDate:    EVENT_DATE,
+  ceremonyType: 'WEDDING',
+  status:       'PENDING',
+  totalAmount:  '50000',
+  notes:        null,
+  createdAt:    new Date('2026-04-17T00:00:00Z'),
+  updatedAt:    new Date('2026-04-17T00:00:00Z'),
+};
+
+const baseVendor = {
+  id:           VENDOR_ID,
+  userId:       VENDOR_USER_ID,
+  businessName: 'Raj Photography',
+};
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+describe('bookings/service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // ── createBooking: conflict detection ──────────────────────────────────────
+
+  describe('createBooking', () => {
+    it('throws BOOKING_CONFLICT when vendor is already CONFIRMED for that date', async () => {
+      // Arrange — conflict query returns a row (existing confirmed booking)
+      mockSelect.mockImplementation(() =>
+        makeQueryChain([{ id: 'existing-booking' }]),
+      );
+
+      const { createBooking } = await import('../service.js');
+
+      // Act & Assert
+      await expect(
+        createBooking(CUSTOMER_ID, {
+          vendorId:    VENDOR_ID,
+          eventDate:   EVENT_DATE,
+          totalAmount: 50000,
+        }),
+      ).rejects.toMatchObject({
+        code:    'BOOKING_CONFLICT',
+        message: expect.stringContaining('already booked'),
+      });
+    });
+
+    it('creates booking and returns summary when no conflict', async () => {
+      const calls: SelectResult[] = [
+        [],             // conflict check → no conflict
+        [baseVendor],   // notify vendor — get vendor userId
+        [baseVendor],   // toBookingSummary — get vendor name
+        [],             // toBookingSummary — no escrow yet
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+
+      mockInsert.mockImplementation(() =>
+        makeInsertChain(baseBooking),
+      );
+
+      const { createBooking } = await import('../service.js');
+
+      const result = await createBooking(CUSTOMER_ID, {
+        vendorId:    VENDOR_ID,
+        eventDate:   EVENT_DATE,
+        totalAmount: 50000,
+      });
+
+      expect(result.id).toBe(BOOKING_ID);
+      expect(result.status).toBe('PENDING');
+      expect(result.totalAmount).toBe(50000);
+    });
+  });
+
+  // ── confirmBooking: wrong vendor ───────────────────────────────────────────
+
+  describe('confirmBooking', () => {
+    it('throws FORBIDDEN when userId does not match booking vendor', async () => {
+      const calls: SelectResult[] = [
+        [{ id: 'other-vendor-id', userId: 'other-user' }], // vendor record for the caller
+        [{ ...baseBooking, vendorId: VENDOR_ID }],          // the booking has different vendorId
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+
+      const { confirmBooking } = await import('../service.js');
+
+      await expect(
+        confirmBooking('some-other-user-id', BOOKING_ID),
+      ).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+      });
+    });
+
+    it('throws FORBIDDEN when no vendor account found for userId', async () => {
+      mockSelect.mockImplementation(() =>
+        makeQueryChain([]), // no vendor found
+      );
+
+      const { confirmBooking } = await import('../service.js');
+
+      await expect(
+        confirmBooking('unknown-user', BOOKING_ID),
+      ).rejects.toMatchObject({
+        code:    'FORBIDDEN',
+        message: expect.stringContaining('No vendor account'),
+      });
+    });
+  });
+
+  // ── completeBooking: Bull job with 48h delay ───────────────────────────────
+
+  describe('completeBooking', () => {
+    it('enqueues escrow-release Bull job with 48h delay and correct payload', async () => {
+      const confirmedBooking = { ...baseBooking, status: 'CONFIRMED' };
+      const escrowRow = {
+        id:        'escrow-uuid-1',
+        totalHeld: '25000', // 50% of 50000
+      };
+
+      const calls: SelectResult[] = [
+        [confirmedBooking], // booking lookup
+        [escrowRow],        // escrow lookup
+        [baseVendor],       // toBookingSummary — vendor name
+        [],                 // toBookingSummary — escrow for summary
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+
+      mockUpdate.mockImplementation(() =>
+        makeUpdateChain({ ...confirmedBooking, status: 'COMPLETED' }),
+      );
+
+      const { completeBooking } = await import('../service.js');
+      await completeBooking(BOOKING_ID);
+
+      // Verify Bull job was enqueued
+      expect(mockQueueAdd).toHaveBeenCalledWith(
+        'release-escrow',
+        expect.objectContaining({
+          escrowId:  'escrow-uuid-1',
+          bookingId: BOOKING_ID,
+          vendorId:  VENDOR_ID,
+          amount:    25000,
+        }),
+        expect.objectContaining({
+          delay: 48 * 60 * 60 * 1000,
+        }),
+      );
+    });
+
+    it('uses 50% of totalAmount when no escrow record exists', async () => {
+      const confirmedBooking = { ...baseBooking, status: 'CONFIRMED', totalAmount: '100000' };
+
+      const calls: SelectResult[] = [
+        [confirmedBooking], // booking
+        [],                 // no escrow yet
+        [baseVendor],       // toBookingSummary
+        [],                 // summary escrow
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+      mockUpdate.mockImplementation(() =>
+        makeUpdateChain({ ...confirmedBooking, status: 'COMPLETED' }),
+      );
+
+      const { completeBooking } = await import('../service.js');
+      await completeBooking(BOOKING_ID);
+
+      expect(mockQueueAdd).toHaveBeenCalledWith(
+        'release-escrow',
+        expect.objectContaining({
+          escrowId: null,
+          amount:   50000, // 50% of 100000
+        }),
+        expect.objectContaining({ delay: 48 * 60 * 60 * 1000 }),
+      );
+    });
+  });
+
+  // ── cancelBooking: refund when escrow HELD ────────────────────────────────
+
+  describe('cancelBooking', () => {
+    it('calls createRefund when escrow status is HELD', async () => {
+      const confirmedBooking = { ...baseBooking, status: 'CONFIRMED' };
+      const escrowRow = { id: 'escrow-1', totalHeld: '25000', status: 'HELD' };
+      const paymentRow = { id: 'payment-1', razorpayPaymentId: 'pay_test123' };
+
+      const calls: SelectResult[] = [
+        [confirmedBooking],                   // booking lookup
+        [{ id: VENDOR_ID, userId: VENDOR_USER_ID }], // vendor lookup for auth check
+        [escrowRow],                          // escrow lookup
+        [paymentRow],                         // payment lookup for razorpayPaymentId
+        [baseVendor],                         // toBookingSummary vendor
+        [],                                   // toBookingSummary escrow
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+      mockUpdate.mockImplementation(() =>
+        makeUpdateChain({ ...confirmedBooking, status: 'CANCELLED' }),
+      );
+
+      const { cancelBooking } = await import('../service.js');
+      await cancelBooking(CUSTOMER_ID, BOOKING_ID, 'Changed plans');
+
+      expect(mockCreateRefund).toHaveBeenCalledWith('pay_test123', 25000);
+    });
+
+    it('does NOT call createRefund when no escrow is HELD', async () => {
+      const calls: SelectResult[] = [
+        [baseBooking],                              // booking
+        [{ id: VENDOR_ID, userId: VENDOR_USER_ID }], // vendor
+        [],                                          // no escrow
+        [baseVendor],                                // toBookingSummary
+        [],                                          // summary escrow
+      ];
+      let callIndex = 0;
+
+      mockSelect.mockImplementation(() =>
+        makeQueryChain(calls[callIndex++] ?? []),
+      );
+      mockUpdate.mockImplementation(() =>
+        makeUpdateChain({ ...baseBooking, status: 'CANCELLED' }),
+      );
+
+      const { cancelBooking } = await import('../service.js');
+      await cancelBooking(CUSTOMER_ID, BOOKING_ID);
+
+      expect(mockCreateRefund).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── Export surface ─────────────────────────────────────────────────────────
+
+  it('exports all required functions', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.createBooking).toBe('function');
+    expect(typeof mod.confirmBooking).toBe('function');
+    expect(typeof mod.cancelBooking).toBe('function');
+    expect(typeof mod.completeBooking).toBe('function');
+    expect(typeof mod.getBookings).toBe('function');
+    expect(typeof mod.getBooking).toBe('function');
+  });
+});

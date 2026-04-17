@@ -1,14 +1,6 @@
-import { Schema, model, models } from 'mongoose';
+import { mongoose } from '../index.js'
 
-/**
- * VendorPortfolio — MongoDB collection for rich vendor content.
- * Linked to PostgreSQL vendors table via vendorId (UUID).
- *
- * Stores media-heavy, variable-structure vendor data: portfolio galleries,
- * packages, FAQs, awards. The PostgreSQL vendors table stores indexed metadata.
- */
-
-const vendorPortfolioSchema = new Schema(
+const vendorPortfolioSchema = new mongoose.Schema(
   {
     vendorId: { type: String, required: true, unique: true, index: true },
 
@@ -21,8 +13,8 @@ const vendorPortfolioSchema = new Schema(
         description: String,
         eventType:   String,
         eventDate:   Date,
-        photoKeys:   [String],   // R2 object keys
-        videoKey:    String,     // R2 object key
+        photoKeys:   [String],
+        videoKey:    String,
       },
     ],
 
@@ -30,16 +22,14 @@ const vendorPortfolioSchema = new Schema(
       {
         name:        String,
         price:       Number,
-        priceUnit:   String,     // PER_EVENT | PER_HOUR | PER_PERSON
+        priceUnit:   String,
         inclusions:  [String],
         exclusions:  [String],
-        photoKeys:   [String],   // R2 object keys
+        photoKeys:   [String],
       },
     ],
 
-    // Event types this vendor accepts (used by Vendor Utilization Engine)
-    eventTypes: [String],
-
+    eventTypes:     [String],
     faqs:           [{ question: String, answer: String }],
     awards:         [String],
     certifications: [String],
@@ -48,8 +38,6 @@ const vendorPortfolioSchema = new Schema(
     collection: 'vendor_portfolios',
     timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
   },
-);
+)
 
-export const VendorPortfolio =
-  (models['VendorPortfolio'] as ReturnType<typeof model> | undefined) ??
-  model('VendorPortfolio', vendorPortfolioSchema);
+export const VendorPortfolio = mongoose.models['VendorPortfolio'] ?? mongoose.model('VendorPortfolio', vendorPortfolioSchema)
