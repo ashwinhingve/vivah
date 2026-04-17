@@ -26,7 +26,7 @@ async function getKycStatus(): Promise<KycStatusData> {
 
   try {
     const res = await fetch(`${API_URL}/api/v1/kyc/status`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     });
     if (!res.ok) return { status: 'PENDING' };

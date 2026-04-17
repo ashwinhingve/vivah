@@ -10,7 +10,7 @@ async function getPhotos() {
   if (!token) return [];
 
   const res = await fetch(`${API_URL}/api/v1/profiles/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Cookie: `better-auth.session_token=${token}` },
     cache: 'no-store',
   });
 

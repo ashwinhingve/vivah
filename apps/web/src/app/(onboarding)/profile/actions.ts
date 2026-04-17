@@ -16,7 +16,7 @@ async function apiPut(path: string, body: unknown, token: string | undefined) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { Cookie: `better-auth.session_token=${token}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -250,7 +250,7 @@ export async function initiateKyc(): Promise<{ authUrl?: string; error?: string 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(token ? { Cookie: `better-auth.session_token=${token}` } : {}),
       },
       body: JSON.stringify({ redirectUri: callbackUri }),
     });

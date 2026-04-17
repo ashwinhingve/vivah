@@ -13,7 +13,7 @@ async function getProfile(profileId: string): Promise<ProfileDetailResponse | nu
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
   const res = await fetch(`${API_URL}/api/v1/profiles/${profileId}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: token ? { Cookie: `better-auth.session_token=${token}` } : {},
     next: { revalidate: 60 },
   });
   if (!res.ok) return null;
