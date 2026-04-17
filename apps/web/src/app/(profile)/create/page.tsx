@@ -158,7 +158,7 @@ function Step1({
       className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
           About you
         </h2>
         <p className="text-sm text-[#6B6B76] mt-1">Tell us a little about yourself</p>
@@ -357,7 +357,7 @@ function Step2({
       className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
           Your preferences
         </h2>
         <p className="text-sm text-[#6B6B76] mt-1">Help us find your best match</p>
@@ -455,7 +455,7 @@ function Step3({ onNext }: { onNext: () => void }) {
   return (
     <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
           Safety Mode
         </h2>
         <p className="text-sm text-[#6B6B76] mt-1">Your privacy, your control</p>
@@ -573,7 +573,7 @@ function Step4({ onDone }: { onDone: () => void }) {
   return (
     <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
           Profile photo
         </h2>
         <p className="text-sm text-[#6B6B76] mt-1">Add a clear photo to improve match quality</p>

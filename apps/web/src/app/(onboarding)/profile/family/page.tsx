@@ -31,8 +31,7 @@ export default function FamilyPage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
         <h1
-          className="text-lg font-semibold text-[#7B2D42] mb-6"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-lg font-semibold text-[#7B2D42] mb-6 font-heading"
         >
           Family Background
         </h1>

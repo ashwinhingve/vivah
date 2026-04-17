@@ -42,8 +42,7 @@ export default function LoginForm() {
     >
       <div>
         <h2
-          className="text-2xl font-semibold text-[#7B2D42]"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-2xl font-semibold text-[#7B2D42] font-heading"
         >
           Sign in
         </h2>

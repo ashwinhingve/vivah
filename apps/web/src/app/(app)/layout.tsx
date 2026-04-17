@@ -8,8 +8,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
             href="/dashboard"
-            className="font-bold text-[#7B2D42] text-lg"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            className="font-bold text-[#7B2D42] text-lg font-heading"
           >
             Smart Shaadi
           </Link>

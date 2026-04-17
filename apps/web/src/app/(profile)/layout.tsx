@@ -5,8 +5,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-[#FEFAF6] flex flex-col items-center justify-start px-4 py-8">
       <div className="mb-6 text-center">
         <h1
-          className="text-2xl font-bold text-[#7B2D42]"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-2xl font-bold text-[#7B2D42] font-heading"
         >
           Smart Shaadi
         </h1>

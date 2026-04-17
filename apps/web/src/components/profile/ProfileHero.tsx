@@ -63,8 +63,7 @@ export function ProfileHero({
             style={{ background: 'linear-gradient(135deg, #7B2D42 0%, #C5A47E 100%)' }}
           >
             <span
-              className="text-4xl font-semibold text-white"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-4xl font-semibold text-white font-heading"
             >
               {initials}
             </span>
@@ -80,8 +79,7 @@ export function ProfileHero({
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)' }}
         >
           <p
-            className="text-white text-lg font-semibold leading-tight truncate"
-            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-white text-lg font-semibold leading-tight truncate font-heading"
           >
             {name}
           </p>

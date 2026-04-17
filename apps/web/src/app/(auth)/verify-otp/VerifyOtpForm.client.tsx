@@ -130,8 +130,7 @@ export default function VerifyOtpForm() {
     <div className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#C5A47E]/20 p-8 space-y-6">
       <div>
         <h2
-          className="text-2xl font-semibold text-[#7B2D42]"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-2xl font-semibold text-[#7B2D42] font-heading"
         >
           Enter OTP
         </h2>

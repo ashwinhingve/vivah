@@ -105,8 +105,7 @@ export default async function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2
-              className="text-lg font-semibold text-[#7B2D42]"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              className="text-lg font-semibold text-[#7B2D42] font-heading"
             >
               Recommended for You
             </h2>
@@ -118,8 +117,7 @@ export default async function DashboardPage() {
                 💍
               </div>
               <p
-                className="text-base font-semibold text-[#7B2D42]"
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                className="text-base font-semibold text-[#7B2D42] font-heading"
               >
                 Your perfect match is out there
               </p>

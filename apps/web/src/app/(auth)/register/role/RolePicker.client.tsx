@@ -58,8 +58,7 @@ export default function RolePicker() {
     <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-5">
       <div>
         <h2
-          className="text-2xl font-semibold text-[#2E2E38]"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-2xl font-semibold text-[#2E2E38] font-heading"
         >
           I am a…
         </h2>

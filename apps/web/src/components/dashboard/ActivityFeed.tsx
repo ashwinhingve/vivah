@@ -5,7 +5,7 @@ export function ActivityFeed() {
         Recent Activity
       </h2>
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-[#F0F4FF] flex items-center justify-center mb-3">
+        <div className="w-12 h-12 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center mb-3">
           <span className="text-2xl">🔔</span>
         </div>
         <p className="text-sm font-medium text-[#7B2D42]">No activity yet</p>

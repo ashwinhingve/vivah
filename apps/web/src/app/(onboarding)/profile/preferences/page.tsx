@@ -60,7 +60,7 @@ export default function PreferencesPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <ProfileProgress steps={STEPS} />
-      <h1 className="text-2xl font-bold text-[#7B2D42] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+      <h1 className="text-2xl font-bold text-[#7B2D42] mb-2 font-heading">
         Partner Preferences
       </h1>
       <p className="text-[#6B6B76] text-sm mb-6">What are you looking for in a partner?</p>
@@ -85,7 +85,7 @@ export default function PreferencesPage() {
 
         {/* Age Range */}
         <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">
             Basic Preferences
           </h2>
 
@@ -191,7 +191,7 @@ export default function PreferencesPage() {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="w-full flex items-center justify-between p-6 text-left"
           >
-            <h2 className="text-lg font-semibold text-[#7B2D42]" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">
               Advanced Filters
             </h2>
             <span className="text-[#6B6B76] text-sm">{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
@@ -262,7 +262,7 @@ export default function PreferencesPage() {
 
         {/* Partner Description */}
         <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-          <h2 className="text-lg font-semibold text-[#7B2D42] mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-lg font-semibold text-[#7B2D42] mb-3 font-heading">
             Describe Your Ideal Partner
           </h2>
           <textarea

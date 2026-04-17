@@ -18,7 +18,7 @@ export function QuickActions() {
           <Link
             key={href}
             href={href}
-            className="rounded-lg border border-[#E8E0D8] p-3 hover:border-[#1848C8] hover:bg-[#F0F4FF] transition-colors group min-h-[44px] flex flex-col justify-center"
+            className="rounded-lg border border-[#E8E0D8] p-3 hover:border-[#0E7C7B] hover:bg-[#0E7C7B]/5 transition-colors group min-h-[44px] flex flex-col justify-center"
           >
             <p className="text-sm font-semibold text-[#7B2D42] group-hover:text-[#0E7C7B]">
               {label}

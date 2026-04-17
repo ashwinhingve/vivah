@@ -49,7 +49,7 @@ function PendingState() {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-[#2E2E38]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-lg font-semibold text-[#2E2E38] font-heading">
             Verify Your Identity
           </h2>
           <p className="mt-1 text-sm text-[#6B6B76]">
@@ -140,7 +140,7 @@ function InReviewState() {
             {/* Pulse ring */}
             <span className="absolute inset-0 rounded-full bg-[#D97706]/20 animate-ping" aria-hidden="true" />
           </div>
-          <h2 className="text-lg font-semibold text-[#2E2E38]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-lg font-semibold text-[#2E2E38] font-heading">
             Verification In Progress
           </h2>
           <p className="mt-1 text-sm text-[#6B6B76]">
@@ -221,7 +221,7 @@ function VerifiedState({ verifiedAt }: { verifiedAt?: string }) {
               <polyline points="9 12 11 14 15 10" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-[#059669]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-xl font-semibold text-[#059669] font-heading">
             Identity Verified
           </h2>
           <p className="mt-1 text-sm text-[#6B6B76]">
@@ -289,7 +289,7 @@ function RejectedState({ note }: { note?: string }) {
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-[#2E2E38]" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="text-lg font-semibold text-[#2E2E38] font-heading">
             Verification Unsuccessful
           </h2>
           <p className="mt-1 text-sm text-[#6B6B76]">
@@ -354,9 +354,8 @@ export default async function KycPage() {
         {/* Page heading */}
         <div className="mb-6">
           <h1
-            className="text-2xl font-semibold text-[#7B2D42]"
-            style={{ fontFamily: 'Playfair Display, serif' }}
-          >
+            className="text-2xl font-semibold text-[#7B2D42] font-heading"
+                     >
             Identity Verification
           </h1>
           <p className="mt-1 text-sm text-[#6B6B76]">

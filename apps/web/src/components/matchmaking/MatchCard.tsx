@@ -5,10 +5,10 @@
  * Props: { match: MatchFeedItem }
  *
  * Design tokens:
- *   Navy   #0A1F4D — name / headings
- *   Teal   #0E7C7B — compatibility badge bg
- *   Gold   #C5A47E — guna score text, "New" badge bg
- *   Muted  #64748B — secondary text
+ *   Burgundy #7B2D42 — name / headings
+ *   Teal     #0E7C7B — compatibility badge bg
+ *   Gold     #C5A47E — guna score text, "New" badge bg
+ *   Muted    #6B6B76 — secondary text
  */
 
 import Link from 'next/link';

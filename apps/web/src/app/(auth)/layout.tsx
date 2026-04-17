@@ -53,8 +53,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
       <div className="mb-8 text-center relative z-10">
         <h1
-          className="text-4xl font-bold text-[#7B2D42] tracking-tight"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-4xl font-bold text-[#7B2D42] tracking-tight font-heading"
         >
           Smart Shaadi
         </h1>
