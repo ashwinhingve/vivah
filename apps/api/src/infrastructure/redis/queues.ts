@@ -22,6 +22,6 @@ const connection = {
 };
 
 export const matchComputeQueue = new Queue<MatchComputeJob>(
-  'queue:match-compute',
+  'match-compute',
   { connection },
 );

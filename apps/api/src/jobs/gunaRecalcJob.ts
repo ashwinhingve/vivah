@@ -12,7 +12,7 @@ interface GunaApiResponse {
 
 export function startGunaRecalcWorker(): Worker<MatchComputeJob> {
   return new Worker<MatchComputeJob>(
-    'queue:match-compute',
+    'match-compute',
     async (job) => {
       // Sort IDs alphabetically — must match scorer.ts key convention
       const [idA, idB] = [job.data.profileAId, job.data.profileBId].sort();
