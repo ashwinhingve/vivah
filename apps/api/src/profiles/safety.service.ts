@@ -1,5 +1,7 @@
 import { eq, or, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { env } from '../lib/env.js';
+import { mockGet } from '../lib/mockStore.js';
 import { profiles, matchRequests, safetyModeUnlocks, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
@@ -111,10 +113,16 @@ export async function getContactIfVisible(
 
   if (!targetProfile) return null;
 
-  // Rule 2: safetyMode.contactHidden flag in MongoDB
-  const model = ProfileContent as unknown as Model<{ userId: string; safetyMode?: { contactHidden?: boolean } }>;
-  const contentDoc = await model.findOne({ userId: targetUserId }).select('safetyMode').lean();
-  const contactHidden = contentDoc?.safetyMode?.contactHidden ?? true;
+  // Rule 2: safetyMode.contactHidden flag
+  let contactHidden = true;
+  if (env.USE_MOCK_SERVICES) {
+    const doc = mockGet(targetUserId);
+    contactHidden = (doc?.['safetyMode'] as { contactHidden?: boolean } | undefined)?.contactHidden ?? true;
+  } else {
+    const model = ProfileContent as unknown as Model<{ userId: string; safetyMode?: { contactHidden?: boolean } }>;
+    const contentDoc = await model.findOne({ userId: targetUserId }).select('safetyMode').lean();
+    contactHidden = contentDoc?.safetyMode?.contactHidden ?? true;
+  }
 
   if (!contactHidden) {
     return { phoneNumber: targetUser.phoneNumber ?? null, email: targetUser.email ?? null };

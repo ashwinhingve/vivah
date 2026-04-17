@@ -115,6 +115,8 @@ CI/CD:       GitHub Actions → Vercel (web) + Railway (API + AI service)
 
 10. **Reciprocal Matching engine checks both sides before surfacing any profile.** No one-sided recommendations ever appear in the match feed.
 
+11. **Every service that calls MongoDB MUST guard with `if (env.USE_MOCK_SERVICES)`** and fall back to `mockGet`/`mockUpsertField`/`mockUpsertDotFields` from `apps/api/src/lib/mockStore.ts`. `connectMongo()` skips the connection when mock mode is on, so any unguarded Mongoose call will buffer for 10s then crash. Affected services: `content.service.ts`, `horoscope.service.ts`, `preferences.service.ts`, `safety.service.ts`, `service.ts` — and any new service you add that touches `ProfileContent`.
+
 ---
 
 ## Code Conventions

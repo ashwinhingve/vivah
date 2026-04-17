@@ -1,5 +1,7 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { env } from '../lib/env.js';
+import { mockGet } from '../lib/mockStore.js';
 import { profiles, profilePhotos, profileSections, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
@@ -231,10 +233,15 @@ export async function getProfileById(
     ...(urls[i] != null ? { url: urls[i] as string } : {}),
   }));
 
-  // Fetch MongoDB content
+  // Fetch MongoDB content (or mock store in dev)
   type MongoDoc = { userId: string; [key: string]: unknown };
-  const contentModel = ProfileContent as unknown as Model<MongoDoc>;
-  const contentDoc = await contentModel.findOne({ userId: profile.userId }).lean() as MongoDoc | null;
+  let contentDoc: MongoDoc | null;
+  if (env.USE_MOCK_SERVICES) {
+    contentDoc = mockGet(profile.userId) as MongoDoc | null;
+  } else {
+    const contentModel = ProfileContent as unknown as Model<MongoDoc>;
+    contentDoc = await contentModel.findOne({ userId: profile.userId }).lean() as MongoDoc | null;
+  }
 
   // Safety mode: mask contact if enabled and viewer is not owner
   let phoneNumber: string | null = isSelf ? (userRow.phoneNumber ?? null) : null;

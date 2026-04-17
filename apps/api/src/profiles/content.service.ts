@@ -1,7 +1,13 @@
 // apps/api/src/profiles/content.service.ts
 
+import { env } from '../lib/env.js';
+import { mockUpsertField, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
+
+function mockUpsert(userId: string, section: string, data: object): Record<string, unknown> {
+  return mockUpsertField(userId, section, data);
+}
 import { profiles, profilePhotos, profileSections } from '@smartshaadi/db';
 import { eq, count } from 'drizzle-orm';
 import type {
@@ -40,6 +46,9 @@ async function upsertSection(
   section: ContentSection,
   data: object,
 ): Promise<ProfileContentResponse> {
+  if (env.USE_MOCK_SERVICES) {
+    return mockUpsert(userId, section, data) as unknown as ProfileContentResponse;
+  }
   const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
   const doc = await model.findOneAndUpdate(
     { userId },
@@ -54,6 +63,9 @@ async function upsertSection(
 export async function getMyProfileContent(
   userId: string,
 ): Promise<ProfileContentResponse | null> {
+  if (env.USE_MOCK_SERVICES) {
+    return mockGet(userId) as unknown as ProfileContentResponse | null;
+  }
   const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
   const doc = await model.findOne({ userId }).lean();
   return doc ? (doc as unknown as ProfileContentResponse) : null;
@@ -119,6 +131,9 @@ export async function updateAboutMe(
   userId: string,
   aboutMe: string,
 ): Promise<ProfileContentResponse> {
+  if (env.USE_MOCK_SERVICES) {
+    return mockUpsert(userId, 'aboutMe', { aboutMe }) as unknown as ProfileContentResponse;
+  }
   const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
   const doc = await model.findOneAndUpdate(
     { userId },
@@ -134,9 +149,14 @@ export async function updateAboutMe(
  * Returns the computed score (0–100).
  */
 export async function computeAndUpdateCompleteness(userId: string): Promise<number> {
-  // 1. Fetch ProfileContent from MongoDB
-  const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
-  const doc = await model.findOne({ userId }).lean() as Record<string, unknown> | null;
+  // 1. Fetch ProfileContent (mock store or MongoDB)
+  let doc: Record<string, unknown> | null;
+  if (env.USE_MOCK_SERVICES) {
+    doc = mockGet(userId);
+  } else {
+    const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
+    doc = await model.findOne({ userId }).lean() as Record<string, unknown> | null;
+  }
 
   // 2. Determine section completion (minimum-field heuristics)
   const personal =

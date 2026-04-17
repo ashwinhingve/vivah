@@ -30,7 +30,7 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   const fullName = formData.get('fullName');
   if (fullName) payload.fullName = fullName;
   const dob = formData.get('dob');
-  if (dob) payload.dob = dob;
+  if (dob) payload.dob = new Date(dob as string).toISOString();
   const gender = formData.get('gender');
   if (gender) payload.gender = gender;
   const heightFt = formData.get('heightFt');
