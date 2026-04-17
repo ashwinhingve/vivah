@@ -53,7 +53,7 @@ export default async function ProfileCompletePage() {
         {/* Score celebration */}
         <div className="text-center">
           <div className="text-5xl mb-3">{isGreat ? '🎉' : '✨'}</div>
-          <h1 className="font-['Playfair_Display'] text-2xl font-semibold text-[#7B2D42]">
+          <h1 className="font-heading text-2xl font-semibold text-[#7B2D42]">
             {isGreat ? 'Your profile is looking great!' : 'Almost there!'}
           </h1>
           <p className="mt-1 text-sm text-[#6B6B76]">
@@ -63,7 +63,7 @@ export default async function ProfileCompletePage() {
           </p>
           {/* Big score circle */}
           <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-[#0E7C7B] flex flex-col items-center justify-center bg-white shadow-sm">
-            <span className="font-['Playfair_Display'] text-2xl font-bold text-[#0E7C7B]">
+            <span className="font-heading text-2xl font-bold text-[#0E7C7B]">
               {score}%
             </span>
             <span className="text-xs text-[#6B6B76]">complete</span>
@@ -76,7 +76,7 @@ export default async function ProfileCompletePage() {
         {/* Incomplete sections list */}
         {incomplete.length > 0 && (
           <div className="bg-white rounded-xl border border-[#E8E0D8] p-4">
-            <h2 className="font-['Playfair_Display'] text-base font-semibold text-[#7B2D42] mb-3">
+            <h2 className="font-heading text-base font-semibold text-[#7B2D42] mb-3">
               Complete these sections
             </h2>
             <ul className="space-y-2">

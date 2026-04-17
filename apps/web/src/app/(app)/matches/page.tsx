@@ -16,10 +16,7 @@ export default function MatchesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1
-              className="text-2xl font-bold text-[#7B2D42]"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            >
+            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">
               Recommended for You
             </h1>
             <p className="text-sm text-[#6B6B76] mt-0.5">
@@ -55,10 +52,7 @@ export default function MatchesPage() {
             >
               💍
             </div>
-            <h2
-              className="text-xl font-semibold text-[#7B2D42] mb-2"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            >
+            <h2 className="text-xl font-semibold text-[#7B2D42] mb-2 font-heading">
               Your perfect match is out there
             </h2>
             <p className="text-sm text-[#6B6B76] max-w-xs mx-auto mb-6">

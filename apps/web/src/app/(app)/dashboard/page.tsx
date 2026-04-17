@@ -54,10 +54,7 @@ export default async function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1
-              className="text-2xl font-bold text-[#0A1F4D]"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            >
+            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">
               Dashboard
             </h1>
             <p className="text-sm text-[#6B6B76] mt-0.5">Welcome back to Smart Shaadi</p>

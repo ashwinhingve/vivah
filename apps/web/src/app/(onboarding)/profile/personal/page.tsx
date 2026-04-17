@@ -45,10 +45,7 @@ export default function PersonalPage() {
           <div className="w-8 h-8 rounded-full bg-[#7B2D42]/10 flex items-center justify-center text-base">
             👤
           </div>
-          <h1
-            className="font-semibold text-[#7B2D42] text-lg"
-            style={{ fontFamily: 'Playfair Display, serif' }}
-          >
+          <h1 className="font-semibold text-[#7B2D42] text-lg font-heading">
             Personal Details
           </h1>
         </div>

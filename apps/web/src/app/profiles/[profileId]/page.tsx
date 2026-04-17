@@ -100,10 +100,7 @@ export default async function ProfileViewPage({ params }: Props) {
           {/* ── About Me ──────────────────────────────────── */}
           {profile.aboutMe && (
             <div className="bg-white rounded-xl border border-[#E8E0D8] shadow-sm p-4">
-              <h2
-                className="text-lg font-semibold text-[#7B2D42] mb-2"
-                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-              >
+              <h2 className="text-lg font-semibold text-[#7B2D42] mb-2 font-heading">
                 About
               </h2>
               <p className="text-sm text-[#6B6B76] italic leading-relaxed">

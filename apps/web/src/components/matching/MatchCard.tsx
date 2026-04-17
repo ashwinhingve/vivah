@@ -70,27 +70,21 @@ export function MatchCard(props: Props) {
             className="w-full h-full flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #7B2D42 0%, #C5A47E 100%)' }}
           >
-            <span
-              className="text-3xl font-semibold text-white"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            >
+            <span className="text-3xl font-semibold text-white font-heading">
               {initials}
             </span>
           </div>
         )}
 
         {/* Gold frame */}
-        <div className="absolute inset-0 border-2 border-[#C5A47E]/50 pointer-events-none" />
+        <div className="absolute inset-0 border-2 border-[#C5A47E] pointer-events-none" />
 
         {/* Bottom gradient + info */}
         <div
           className="absolute bottom-0 left-0 right-0 px-3 pt-6 pb-2"
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)' }}
         >
-          <p
-            className="text-white text-sm font-semibold leading-tight truncate"
-            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-          >
+          <p className="text-white text-sm font-semibold leading-tight truncate font-heading">
             {name}, {age}
           </p>
           <p className="text-white/75 text-xs truncate">{city}</p>
@@ -125,7 +119,7 @@ export function MatchCard(props: Props) {
           <button
             type="button"
             onClick={() => onSendInterest?.(id)}
-            className="flex-1 bg-[#0E7C7B] hover:bg-[#149998] active:scale-[0.97] text-white text-sm font-semibold rounded-lg py-2 min-h-[36px] transition-colors"
+            className="flex-1 bg-[#0E7C7B] hover:bg-[#149998] active:scale-[0.97] text-white text-sm font-semibold rounded-lg py-2 min-h-[44px] transition-colors"
           >
             Send Interest
           </button>
@@ -133,7 +127,7 @@ export function MatchCard(props: Props) {
             type="button"
             onClick={() => onBookmark?.(id)}
             aria-label="Bookmark profile"
-            className="w-9 h-9 rounded-lg border border-[#E8E0D8] flex items-center justify-center text-[#6B6B76] hover:border-[#C5A47E] hover:text-[#C5A47E] transition-colors"
+            className="w-11 h-11 rounded-lg border border-[#E8E0D8] flex items-center justify-center text-[#6B6B76] hover:border-[#C5A47E] hover:text-[#C5A47E] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />

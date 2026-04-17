@@ -91,13 +91,10 @@ function EmptyState() {
         </svg>
       </div>
 
-      <h2
-        className="text-xl font-bold text-[#0A1F4D] mb-2"
-        style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-      >
+      <h2 className="text-xl font-bold text-[#7B2D42] mb-2 font-heading">
         No matches yet
       </h2>
-      <p className="text-sm text-[#64748B] max-w-xs mb-6">
+      <p className="text-sm text-[#6B6B76] max-w-xs mb-6">
         Complete your profile to unlock your matches — a fuller profile gets 3× more results.
       </p>
       <Link
@@ -121,13 +118,10 @@ export default function MatchFeedPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1
-              className="text-2xl font-bold text-[#0A1F4D]"
-              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            >
+            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">
               Your Matches
             </h1>
-            <p className="text-sm text-[#64748B] mt-0.5">
+            <p className="text-sm text-[#6B6B76] mt-0.5">
               {feed.length > 0
                 ? `${feed.length} compatible profile${feed.length !== 1 ? 's' : ''} found`
                 : 'Complete your profile to see matches'}

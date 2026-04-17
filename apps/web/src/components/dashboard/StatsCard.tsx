@@ -10,7 +10,7 @@ export function StatsCard({ label, value, sub, accent = false }: StatsCardProps)
     <div className="rounded-xl border border-[#E8E0D8] bg-white p-4 flex flex-col gap-1">
       <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">{label}</p>
       <p
-        className={`text-2xl font-bold font-['Playfair_Display'] ${accent ? 'text-[#059669]' : 'text-[#0A1F4D]'}`}
+        className={`text-2xl font-bold font-heading ${accent ? 'text-[#059669]' : 'text-[#2E2E38]'}`}
       >
         {value}
       </p>
