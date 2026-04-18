@@ -259,7 +259,7 @@ export default async function PaymentsPage() {
                 },
                 {
                   label: 'Completed',
-                  value: payments.filter((p) => p.status === 'RELEASED').length,
+                  value: payments.filter((p) => escrowMap.get(p.bookingId)?.status === 'RELEASED').length,
                 },
               ] as const
             ).map(({ label, value }) => (

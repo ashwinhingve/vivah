@@ -25,7 +25,7 @@ const QUEUE_NAME = 'queue:escrow-release';
 
 /** Shape of each escrow release job's data. */
 export interface EscrowReleaseJobData {
-  escrowId:  string;
+  escrowId:  string | null;
   bookingId: string;
   vendorId:  string;
   amount:    number;
@@ -71,20 +71,22 @@ export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
       await transferToVendor(vendorId, amount);
 
       // 3. Update escrowAccounts: status → RELEASED, releasedAmount = amount
-      await db
-        .update(schema.escrowAccounts)
-        .set({
-          status:      'RELEASED',
-          released:    String(amount),
-          releasedAt:  new Date(),
-        })
-        .where(eq(schema.escrowAccounts.id, escrowId));
+      if (escrowId) {
+        await db
+          .update(schema.escrowAccounts)
+          .set({
+            status:      'RELEASED',
+            released:    String(amount),
+            releasedAt:  new Date(),
+          })
+          .where(eq(schema.escrowAccounts.id, escrowId));
+      }
 
       // 4. Append audit log — NEVER update, always insert new row
       await appendAuditLog({
         eventType:  'ESCROW_RELEASED',
         entityType: 'escrow',
-        entityId:   escrowId,
+        entityId:   escrowId ?? bookingId,  // fallback to bookingId when no escrow record
         actorId:    'system',
         payload:    { escrowId, bookingId, vendorId, amount },
       });

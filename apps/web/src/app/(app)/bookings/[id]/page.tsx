@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { BookingStatus } from '@smartshaadi/types';
+import { CancelBookingButton } from '@/components/bookings/CancelBookingButton.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -100,6 +101,8 @@ export default async function BookingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const booking = await fetchBooking(id);
 
   if (!booking) {
@@ -204,18 +207,11 @@ export default async function BookingDetailPage({
 
           {/* Cancel — available while PENDING or CONFIRMED */}
           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-            <form
-              action={`${API_URL}/api/v1/bookings/${booking.id}/cancel`}
-              method="POST"
-              className="inline"
-            >
-              <button
-                type="submit"
-                className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                Cancel Booking
-              </button>
-            </form>
+            <CancelBookingButton
+              bookingId={booking.id}
+              apiUrl={API_URL}
+              authToken={token}
+            />
           )}
 
           {/* Back */}

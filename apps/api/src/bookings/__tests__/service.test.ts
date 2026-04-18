@@ -53,7 +53,7 @@ function makeQueryChain(rows: SelectResult) {
     from:   vi.fn().mockReturnThis(),
     where:  vi.fn().mockReturnThis(),
     limit:  vi.fn().mockResolvedValue(rows),
-    offset: vi.fn().mockReturnThis(),
+    offset: vi.fn().mockResolvedValue(rows),
   };
   return chain;
 }
@@ -214,10 +214,11 @@ describe('bookings/service', () => {
       };
 
       const calls: SelectResult[] = [
-        [confirmedBooking], // booking lookup
-        [escrowRow],        // escrow lookup
-        [baseVendor],       // toBookingSummary — vendor name
-        [],                 // toBookingSummary — escrow for summary
+        [confirmedBooking],                          // booking lookup
+        [{ userId: VENDOR_USER_ID }],                // vendor auth check
+        [escrowRow],                                 // escrow lookup
+        [baseVendor],                                // toBookingSummary — vendor name
+        [],                                          // toBookingSummary — escrow for summary
       ];
       let callIndex = 0;
 
@@ -230,7 +231,7 @@ describe('bookings/service', () => {
       );
 
       const { completeBooking } = await import('../service.js');
-      await completeBooking(BOOKING_ID);
+      await completeBooking(VENDOR_USER_ID, BOOKING_ID);
 
       // Verify Bull job was enqueued
       expect(mockQueueAdd).toHaveBeenCalledWith(
@@ -251,10 +252,11 @@ describe('bookings/service', () => {
       const confirmedBooking = { ...baseBooking, status: 'CONFIRMED', totalAmount: '100000' };
 
       const calls: SelectResult[] = [
-        [confirmedBooking], // booking
-        [],                 // no escrow yet
-        [baseVendor],       // toBookingSummary
-        [],                 // summary escrow
+        [confirmedBooking],               // booking
+        [{ userId: VENDOR_USER_ID }],     // vendor auth check
+        [],                               // no escrow yet
+        [baseVendor],                     // toBookingSummary
+        [],                               // summary escrow
       ];
       let callIndex = 0;
 
@@ -266,7 +268,7 @@ describe('bookings/service', () => {
       );
 
       const { completeBooking } = await import('../service.js');
-      await completeBooking(BOOKING_ID);
+      await completeBooking(VENDOR_USER_ID, BOOKING_ID);
 
       expect(mockQueueAdd).toHaveBeenCalledWith(
         'release-escrow',

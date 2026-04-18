@@ -35,7 +35,7 @@ vendorsRouter.get(
 
     try {
       const result = await listVendors(parsed.data);
-      ok(res, result.vendors, 200);
+      ok(res, result, 200);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to list vendors';
       err(res, 'VENDOR_LIST_ERROR', message, 500);
@@ -48,11 +48,8 @@ vendorsRouter.get(
 vendorsRouter.get(
   '/:id',
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400);
-      return;
-    }
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing vendor id', 400); return; }
 
     try {
       const vendor = await getVendor(id);

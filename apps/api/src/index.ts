@@ -15,6 +15,11 @@ import { storageRouter } from './storage/router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
 import { chatRouter } from './chat/router.js';
 import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
+import { vendorsRouter } from './vendors/router.js';
+import { bookingsRouter } from './bookings/router.js';
+import { paymentsRouter } from './payments/router.js';
+import { webhookHandler } from './payments/webhook.js';
+import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { env } from './lib/env.js';
 
 const app = express();
@@ -39,6 +44,14 @@ app.use(cookieParser());
 // authRouter registers GET /me first, then ALL /* for Better Auth's handler.
 app.use('/api/auth', authRouter);
 
+// Razorpay webhook — raw body MUST be parsed before global express.json()
+app.post('/api/v1/payments/webhook', express.raw({ type: '*/*' }), (req, res) => {
+  webhookHandler(req, res).catch((error: unknown) => {
+    console.error('[payments/webhook] unhandled error:', error);
+    if (!res.headersSent) res.status(500).json({ success: false });
+  });
+});
+
 app.use(express.json({ limit: '50kb' }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
@@ -55,15 +68,16 @@ app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
 app.use('/api/v1/storage', storageRouter);   // POST /presign
 app.use('/api/v1/matchmaking', matchmakingRouter); // GET /feed, GET /score/:id, POST|PUT /requests
 app.use('/api/v1/chat', chatRouter);              // GET /conversations, GET /conversations/:id, POST photos
+app.use('/api/v1/vendors', vendorsRouter);        // GET /vendors, GET /vendors/:id, POST /vendors
+app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookings/:id, PATCH status
+app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 
 connectMongo().catch((err) => {
   console.error('Failed to connect to MongoDB:', err);
   // Non-fatal in mock mode; fatal in production (process exits)
-  if (!process.env['USE_MOCK_SERVICES'] || process.env['USE_MOCK_SERVICES'] !== 'true') {
-    process.exit(1);
-  }
+  if (!env.USE_MOCK_SERVICES) { process.exit(1); }
 });
 
 const server = createServer(app)
@@ -72,6 +86,7 @@ server.listen(env.PORT, () => {
   console.info(`API server running on port ${env.PORT}`);
 });
 
-if (!process.env['USE_MOCK_SERVICES'] || process.env['USE_MOCK_SERVICES'] !== 'true') {
-  void startGunaRecalcWorker();
-}
+if (!env.USE_MOCK_SERVICES) { void startGunaRecalcWorker(); }
+
+// Start escrow release worker — processes 48h delayed payouts
+registerEscrowReleaseWorker();

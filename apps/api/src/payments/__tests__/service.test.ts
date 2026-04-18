@@ -6,14 +6,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-vi.mock('../../lib/db.js', () => ({ db: {} }));
+const mockDbSelect = vi.fn();
+const mockDbInsert = vi.fn();
+const mockDbUpdate = vi.fn();
+
+vi.mock('../../lib/db.js', () => ({
+  db: { select: mockDbSelect, insert: mockDbInsert, update: mockDbUpdate },
+}));
 
 vi.mock('@smartshaadi/db', () => ({
   payments:       { id: 'payments.id', bookingId: 'payments.bookingId', status: 'payments.status', razorpayOrderId: 'payments.razorpayOrderId', razorpayPaymentId: 'payments.razorpayPaymentId', amount: 'payments.amount', currency: 'payments.currency', createdAt: 'payments.createdAt' },
   bookings:       { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId' },
   escrowAccounts: { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', totalHeld: 'escrowAccounts.totalHeld', status: 'escrowAccounts.status', released: 'escrowAccounts.released' },
   auditLogs:      { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash' },
-  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_HELD', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED'] },
+  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'CONTRACT_SIGNED', 'VENDOR_APPROVED', 'PROFILE_BLOCKED', 'USER_REGISTERED', 'USER_VERIFIED', 'USER_SUSPENDED', 'KYC_SUBMITTED', 'KYC_VERIFIED', 'KYC_REJECTED', 'MATCH_ACCEPTED'] },
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -43,14 +49,20 @@ vi.mock('../../lib/razorpay.js', () => ({
 type AnyRecord = Record<string, unknown>;
 
 function makeSelect(resolveWith: unknown[]) {
-  return vi.fn().mockReturnValue({
-    from:    vi.fn().mockReturnThis(),
-    where:   vi.fn().mockResolvedValue(resolveWith),
-    orderBy: vi.fn().mockReturnThis(),
-    limit:   vi.fn().mockReturnThis(),
-    offset:  vi.fn().mockResolvedValue(resolveWith),
-    innerJoin: vi.fn().mockReturnThis(),
-  });
+  // Thenable chain — every method returns `this`, awaiting the chain resolves to resolveWith.
+  // This supports any terminal call: .where(), .limit(), .offset(), etc.
+  const chain: Record<string, unknown> = {
+    then(onfulfilled: ((v: unknown) => unknown) | null | undefined) {
+      return Promise.resolve(resolveWith).then(onfulfilled ?? undefined);
+    },
+  };
+  chain['from']      = vi.fn().mockReturnValue(chain);
+  chain['where']     = vi.fn().mockReturnValue(chain);
+  chain['orderBy']   = vi.fn().mockReturnValue(chain);
+  chain['limit']     = vi.fn().mockReturnValue(chain);
+  chain['offset']    = vi.fn().mockReturnValue(chain);
+  chain['innerJoin'] = vi.fn().mockReturnValue(chain);
+  return vi.fn().mockReturnValue(chain);
 }
 
 function makeInsert() {
@@ -80,11 +92,10 @@ describe('createPaymentOrder', () => {
   it('throws if booking does not belong to the requesting user', async () => {
     const { createPaymentOrder } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
     // Booking found but owned by a different user
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([{
+    mockDbSelect.mockImplementation(makeSelect([{
       id: 'booking-1', customerId: 'other-user', status: 'CONFIRMED', totalAmount: '10000',
-    }]);
+    }]));
 
     await expect(
       createPaymentOrder('user-abc', { bookingId: 'booking-1' }),
@@ -94,10 +105,9 @@ describe('createPaymentOrder', () => {
   it('throws if booking status is not CONFIRMED', async () => {
     const { createPaymentOrder } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([{
+    mockDbSelect.mockImplementation(makeSelect([{
       id: 'booking-2', customerId: 'user-abc', status: 'PENDING', totalAmount: '10000',
-    }]);
+    }]));
 
     await expect(
       createPaymentOrder('user-abc', { bookingId: 'booking-2' }),
@@ -107,8 +117,7 @@ describe('createPaymentOrder', () => {
   it('throws if booking is not found', async () => {
     const { createPaymentOrder } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([]);
+    mockDbSelect.mockImplementation(makeSelect([]));
 
     await expect(
       createPaymentOrder('user-abc', { bookingId: 'booking-missing' }),
@@ -118,11 +127,10 @@ describe('createPaymentOrder', () => {
   it('creates order with escrow = exactly 50% of totalAmount (Math.round)', async () => {
     const { createPaymentOrder } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([{
+    mockDbSelect.mockImplementation(makeSelect([{
       id: 'booking-3', customerId: 'user-abc', status: 'CONFIRMED', totalAmount: '10001',
-    }]);
-    (dbMod.db as unknown as AnyRecord)['insert'] = makeInsert();
+    }]));
+    mockDbInsert.mockImplementation(makeInsert());
 
     const result = await createPaymentOrder('user-abc', { bookingId: 'booking-3' });
 
@@ -137,11 +145,10 @@ describe('createPaymentOrder', () => {
   it('returns PaymentOrder shape', async () => {
     const { createPaymentOrder } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([{
+    mockDbSelect.mockImplementation(makeSelect([{
       id: 'booking-4', customerId: 'user-abc', status: 'CONFIRMED', totalAmount: '20000',
-    }]);
-    (dbMod.db as unknown as AnyRecord)['insert'] = makeInsert();
+    }]));
+    mockDbInsert.mockImplementation(makeInsert());
 
     const result = await createPaymentOrder('user-abc', { bookingId: 'booking-4' });
 
@@ -160,48 +167,41 @@ describe('handlePaymentSuccess', () => {
   it('creates escrow record with HELD status after payment captured', async () => {
     const { handlePaymentSuccess } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
+    let selectCall = 0;
+    mockDbSelect.mockImplementation(() => {
+      selectCall++;
+      const data =
+        selectCall === 1
+          ? [{ id: 'pay-1', bookingId: 'booking-3', amount: '5000', razorpayOrderId: 'order_abc', razorpayPaymentId: null }]
+          : selectCall === 2
+          ? [{ id: 'booking-3', customerId: 'user-abc', totalAmount: '10000' }]
+          : [];
+      return makeSelect(data)();
+    });
 
-    let selectCallCount = 0;
-    // First call: find payment; second call: find booking
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => ({
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockImplementation(() => {
-        selectCallCount++;
-        if (selectCallCount === 1) {
-          // Payment found
-          return Promise.resolve([{ id: 'pay-1', bookingId: 'booking-3', amount: '5000', razorpayOrderId: 'order_abc', razorpayPaymentId: null }]);
-        }
-        // Booking found
-        return Promise.resolve([{ id: 'booking-3', customerId: 'user-abc', totalAmount: '10000' }]);
-      }),
-    }));
-
-    (dbMod.db as unknown as AnyRecord)['update'] = makeUpdate();
-
-    const insertMock = makeInsert();
-    (dbMod.db as unknown as AnyRecord)['insert'] = insertMock;
+    mockDbUpdate.mockImplementation(makeUpdate());
+    mockDbInsert.mockReturnValue({
+      values:    vi.fn().mockReturnThis(),
+      returning: vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+    });
 
     await handlePaymentSuccess('order_abc', 'pay_xyz');
 
     // insert should have been called for escrowAccounts and auditLogs
-    expect(insertMock).toHaveBeenCalledTimes(2);
+    expect(mockDbInsert).toHaveBeenCalledTimes(2);
 
     // First insert = escrowAccounts
-    const firstInsertArgs = (insertMock.mock.calls[0] as unknown[])[0] as AnyRecord;
-    // The first arg to insert() is the table — check it's the escrowAccounts table shape
+    const firstInsertArgs = (mockDbInsert.mock.calls[0] as unknown[])[0] as AnyRecord;
     expect(firstInsertArgs).toBeDefined();
 
     // Verify update was called to set status=CAPTURED
-    const updateMock = (dbMod.db as unknown as AnyRecord)['update'] as ReturnType<typeof vi.fn>;
-    expect(updateMock).toHaveBeenCalled();
+    expect(mockDbUpdate).toHaveBeenCalled();
   });
 
   it('throws if payment not found', async () => {
     const { handlePaymentSuccess } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = makeSelect([]);
+    mockDbSelect.mockImplementation(makeSelect([]));
 
     await expect(handlePaymentSuccess('nonexistent_order', 'pay_x')).rejects.toThrow();
   });
@@ -213,15 +213,7 @@ describe('requestRefund', () => {
   it('throws if payment does not belong to the requesting user', async () => {
     const { requestRefund } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    // innerJoin query returns empty — meaning no matching payment for this user
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
-      from:      vi.fn().mockReturnThis(),
-      innerJoin: vi.fn().mockReturnThis(),
-      where:     vi.fn().mockResolvedValue([]),
-      orderBy:   vi.fn().mockReturnThis(),
-      limit:     vi.fn().mockReturnThis(),
-    });
+    mockDbSelect.mockImplementation(makeSelect([]));
 
     await expect(
       requestRefund('wrong-user', 'pay-1', { reason: 'test' }),
@@ -231,17 +223,10 @@ describe('requestRefund', () => {
   it('throws if payment has no razorpayPaymentId', async () => {
     const { requestRefund } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
-      from:      vi.fn().mockReturnThis(),
-      innerJoin: vi.fn().mockReturnThis(),
-      where:     vi.fn().mockResolvedValue([{
-        payment: { id: 'pay-1', bookingId: 'booking-1', amount: '5000', razorpayPaymentId: null },
-        booking: { id: 'booking-1', customerId: 'user-abc' },
-      }]),
-      orderBy:   vi.fn().mockReturnThis(),
-      limit:     vi.fn().mockReturnThis(),
-    });
+    mockDbSelect.mockImplementation(makeSelect([{
+      payment: { id: 'pay-1', bookingId: 'booking-1', amount: '5000', razorpayPaymentId: null },
+      booking: { id: 'booking-1', customerId: 'user-abc' },
+    }]));
 
     await expect(
       requestRefund('user-abc', 'pay-1', {}),
@@ -251,26 +236,30 @@ describe('requestRefund', () => {
   it('calls createRefund and updates status to REFUNDED for valid request', async () => {
     const { requestRefund } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
-      from:      vi.fn().mockReturnThis(),
-      innerJoin: vi.fn().mockReturnThis(),
-      where:     vi.fn().mockResolvedValue([{
-        payment: { id: 'pay-2', bookingId: 'booking-2', amount: '5000', razorpayPaymentId: 'pay_real_xyz' },
-        booking: { id: 'booking-2', customerId: 'user-abc' },
-      }]),
+    let selectCall = 0;
+    mockDbSelect.mockImplementation(() => {
+      selectCall++;
+      const data =
+        selectCall === 1
+          ? [{ payment: { id: 'pay-2', bookingId: 'booking-2', amount: '5000', razorpayPaymentId: 'pay_real_xyz' }, booking: { id: 'booking-2', customerId: 'user-abc' } }]
+          : [];
+      return makeSelect(data)();
     });
 
-    const updateMock = makeUpdate();
-    (dbMod.db as unknown as AnyRecord)['update'] = updateMock;
-    (dbMod.db as unknown as AnyRecord)['insert'] = makeInsert();
+    mockDbUpdate.mockImplementation(makeUpdate());
+    mockDbInsert.mockReturnValue({
+      values:    vi.fn().mockReturnThis(),
+      returning: vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+    });
 
     await requestRefund('user-abc', 'pay-2', { reason: 'Event cancelled' });
 
     expect(mockCreateRefund).toHaveBeenCalledWith('pay_real_xyz', 5000);
-    expect(updateMock).toHaveBeenCalled();
+    expect(mockDbUpdate).toHaveBeenCalled();
   });
 });
+
+
 
 // ── getPaymentHistory tests ───────────────────────────────────────────────────
 
@@ -278,20 +267,12 @@ describe('getPaymentHistory', () => {
   it('returns paginated payment list for user', async () => {
     const { getPaymentHistory } = await import('../service.js');
 
-    const dbMod = await import('../../lib/db.js');
     const fakePayments = [
       { id: 'p1', bookingId: 'b1', amount: '5000', currency: 'INR', status: 'CAPTURED', razorpayOrderId: 'o1', razorpayPaymentId: 'pay1', createdAt: new Date() },
       { id: 'p2', bookingId: 'b2', amount: '7500', currency: 'INR', status: 'PENDING',  razorpayOrderId: 'o2', razorpayPaymentId: null,   createdAt: new Date() },
     ];
 
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
-      from:      vi.fn().mockReturnThis(),
-      innerJoin: vi.fn().mockReturnThis(),
-      where:     vi.fn().mockReturnThis(),
-      orderBy:   vi.fn().mockReturnThis(),
-      limit:     vi.fn().mockReturnThis(),
-      offset:    vi.fn().mockResolvedValue(fakePayments),
-    });
+    mockDbSelect.mockImplementation(makeSelect(fakePayments));
 
     const result = await getPaymentHistory('user-abc', 1, 10);
 

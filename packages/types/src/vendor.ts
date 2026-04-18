@@ -22,11 +22,11 @@ export const BookingStatus = {
 export type BookingStatus = typeof BookingStatus[keyof typeof BookingStatus]
 
 export const PaymentStatus = {
-  PENDING:     'PENDING',
-  ESCROW_HELD: 'ESCROW_HELD',
-  RELEASED:    'RELEASED',
-  REFUNDED:    'REFUNDED',
-  FAILED:      'FAILED',
+  PENDING:            'PENDING',
+  CAPTURED:           'CAPTURED',
+  REFUNDED:           'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED',
+  FAILED:             'FAILED',
 } as const
 export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus]
 

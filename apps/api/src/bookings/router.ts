@@ -193,7 +193,7 @@ bookingsRouter.put(
     }
 
     try {
-      const booking = await completeBooking(bookingId);
+      const booking = await completeBooking(req.user!.id, bookingId);
       ok(res, { booking });
     } catch (error) {
       handleError(res, error);
@@ -257,7 +257,7 @@ bookingsRouter.get(
 
       const pdfBuffer = await generateInvoice({
         bookingId:    rawBooking.id,
-        customerName: req.user!.name ?? 'Valued Customer',
+        customerName: req.user!.name || 'Valued Customer',
         vendorName:   vendor?.businessName ?? bookingDetail.vendorName,
         serviceNames,
         eventDate:    rawBooking.eventDate,

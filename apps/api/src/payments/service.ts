@@ -43,7 +43,15 @@ async function appendAuditLog({
   actorId: string;
   payload: Record<string, unknown>;
 }): Promise<void> {
-  const contentHash = computeHash(payload, null);
+  // Fetch previous hash for this entity to form the chain
+  const [lastLog] = await db
+    .select({ contentHash: schema.auditLogs.contentHash })
+    .from(schema.auditLogs)
+    .where(eq(schema.auditLogs.entityId, entityId))
+    .orderBy(desc(schema.auditLogs.createdAt))
+    .limit(1);
+  const prevHash = lastLog?.contentHash ?? null;
+  const contentHash = computeHash(payload, prevHash);
   await db.insert(schema.auditLogs).values({
     eventType,
     entityType,
@@ -51,7 +59,7 @@ async function appendAuditLog({
     actorId,
     payload,
     contentHash,
-    prevHash: null,
+    prevHash,
   });
 }
 
@@ -66,7 +74,8 @@ export async function createPaymentOrder(
   const [booking] = await db
     .select()
     .from(schema.bookings)
-    .where(eq(schema.bookings.id, input.bookingId));
+    .where(eq(schema.bookings.id, input.bookingId))
+    .limit(1);
 
   if (!booking) {
     throw new Error('Booking not found');
@@ -83,7 +92,7 @@ export async function createPaymentOrder(
   }
 
   // 4. Escrow = exactly 50%
-  const totalAmount = parseFloat(booking.totalAmount as unknown as string);
+  const totalAmount = parseFloat(booking.totalAmount);
   const escrowAmount = Math.round(totalAmount * 0.5);
 
   // 5. Create Razorpay order
@@ -118,7 +127,8 @@ export async function handlePaymentSuccess(
   const [payment] = await db
     .select()
     .from(schema.payments)
-    .where(eq(schema.payments.razorpayOrderId, razorpayOrderId));
+    .where(eq(schema.payments.razorpayOrderId, razorpayOrderId))
+    .limit(1);
 
   if (!payment) {
     throw new Error(`Payment not found for order: ${razorpayOrderId}`);
@@ -188,7 +198,7 @@ export async function requestRefund(
   }
 
   // 2. Call Razorpay refund
-  await createRefund(payment.razorpayPaymentId, parseFloat(payment.amount as unknown as string));
+  await createRefund(payment.razorpayPaymentId, parseFloat(payment.amount));
 
   // 3. Update payment status → REFUNDED
   await db

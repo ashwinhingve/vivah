@@ -277,10 +277,10 @@ export async function cancelBooking(
       .where(eq(payments.bookingId, bookingId))
       .limit(1);
 
-    await createRefund(
-      payment?.razorpayPaymentId ?? payment?.id ?? bookingId,
-      parseAmount(escrow.totalHeld),
-    );
+    if (!payment?.razorpayPaymentId) {
+      throw new BookingError('REFUND_FAILED', 'Payment has not been captured — cannot issue refund.');
+    }
+    await createRefund(payment.razorpayPaymentId, parseAmount(escrow.totalHeld));
   }
 
   const [updated] = await db
@@ -303,7 +303,7 @@ export async function cancelBooking(
 /**
  * Mark a booking as COMPLETED and schedule escrow release in 48 hours.
  */
-export async function completeBooking(bookingId: string): Promise<BookingSummary> {
+export async function completeBooking(userId: string, bookingId: string): Promise<BookingSummary> {
   const [booking] = await db
     .select()
     .from(bookings)
@@ -319,6 +319,16 @@ export async function completeBooking(bookingId: string): Promise<BookingSummary
       'INVALID_STATE',
       `Cannot complete a booking in ${booking.status} state. Must be CONFIRMED.`,
     );
+  }
+
+  const [vendor] = await db
+    .select({ userId: vendors.userId })
+    .from(vendors)
+    .where(eq(vendors.id, booking.vendorId))
+    .limit(1);
+
+  if (vendor?.userId !== userId) {
+    throw new BookingError('FORBIDDEN', 'Only the booking vendor can mark a booking as complete.');
   }
 
   const [updated] = await db

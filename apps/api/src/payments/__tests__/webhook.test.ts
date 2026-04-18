@@ -14,7 +14,7 @@ vi.mock('@smartshaadi/db', () => ({
   bookings:       { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId' },
   escrowAccounts: { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', totalHeld: 'escrowAccounts.totalHeld', status: 'escrowAccounts.status', released: 'escrowAccounts.released' },
   auditLogs:      { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash' },
-  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_HELD', 'ESCROW_RELEASED', 'ESCROW_DISPUTED'] },
+  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED'] },
 }));
 
 vi.mock('drizzle-orm', () => ({

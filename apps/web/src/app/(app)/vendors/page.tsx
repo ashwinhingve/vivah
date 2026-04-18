@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import { VendorFilterBar } from '@/components/vendor/VendorFilterBar.client';
@@ -8,7 +9,10 @@ const PAGE_SIZE = 12;
 
 interface VendorsApiResponse {
   success: boolean;
-  data: VendorProfile[];
+  data: {
+    vendors: VendorProfile[];
+    meta: { page: number; total: number; limit: number };
+  };
   meta: { timestamp: string };
 }
 
@@ -43,8 +47,8 @@ async function fetchVendors(params: {
 
     const json = (await res.json()) as VendorsApiResponse;
     return {
-      vendors: json.success ? json.data : [],
-      total:   0, // total from meta not in list response; derive from data length
+      vendors: json.success ? (json.data?.vendors ?? []) : [],
+      total:   json.success ? (json.data?.meta?.total ?? 0) : 0,
       error:   !json.success,
     };
   } catch {
@@ -86,7 +90,9 @@ export default async function VendorsPage({ searchParams }: PageProps) {
 
         {/* Filter bar */}
         <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 shadow-sm">
-          <VendorFilterBar />
+          <Suspense fallback={<div className="h-10 animate-pulse bg-slate-100 rounded-lg" />}>
+            <VendorFilterBar />
+          </Suspense>
         </div>
 
         {/* Error state */}

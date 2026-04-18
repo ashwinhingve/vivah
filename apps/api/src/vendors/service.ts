@@ -165,8 +165,13 @@ export async function getVendor(vendorId: string): Promise<
       portfolio: [],
     };
   } else {
-    const doc = await VendorPortfolio.findOne({ vendorId }).lean();
-    portfolio = doc as PortfolioDoc | null;
+    try {
+      const doc = await VendorPortfolio.findOne({ vendorId }).lean();
+      portfolio = doc as PortfolioDoc | null;
+    } catch (mongoErr) {
+      console.error('[vendors/getVendor] MongoDB error:', mongoErr);
+      portfolio = null;
+    }
   }
 
   const base = mapVendorRow(vendor, serviceRows, vendor.mongoPortfolioId);
