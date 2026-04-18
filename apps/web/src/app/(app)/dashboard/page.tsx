@@ -1,13 +1,12 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { StatsCard } from '@/components/dashboard/StatsCard';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
-import type { ProfileSectionCompletion } from '@smartshaadi/types';
+import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface ProfileData {
   profileCompleteness: number;
@@ -15,48 +14,53 @@ interface ProfileData {
   premiumTier: string;
 }
 
-async function getProfileData(): Promise<{ data: ProfileData | null; error: boolean }> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) return { data: null, error: false };
-
+async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/profiles/me`, {
+    const res = await fetch(`${API_BASE}${path}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     });
-
-    if (!res.ok) return { data: null, error: true };
-    const json = (await res.json()) as { success: boolean; data: ProfileData };
-    return { data: json.success ? json.data : null, error: !json.success };
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success: boolean; data: T };
+    return json.success ? json.data : null;
   } catch {
-    return { data: null, error: true };
+    return null;
   }
 }
 
 export default async function DashboardPage() {
-  const { data: profile, error: profileError } = await getProfileData();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value ?? '';
+
+  const [profile, bookingsData, requestsData] = await Promise.all([
+    fetchAuth<ProfileData>('/api/v1/profiles/me', token),
+    fetchAuth<{ bookings: BookingSummary[]; total: number }>(
+      '/api/v1/bookings?role=customer&limit=50',
+      token,
+    ),
+    fetchAuth<{ requests: Array<{ status: string }>; total: number }>(
+      '/api/v1/matchmaking/requests/received?limit=50',
+      token,
+    ),
+  ]);
+
   const completeness = profile?.profileCompleteness ?? 0;
   const sections = profile?.sectionCompletion;
   const tier = profile?.premiumTier ?? 'FREE';
+
+  const allBookings = bookingsData?.bookings ?? [];
+  const upcomingBookings = allBookings.filter((b) => b.status === 'CONFIRMED').length;
+  const pendingBookings = allBookings.filter((b) => b.status === 'PENDING').length;
+  const pendingRequests = requestsData?.total ?? 0;
 
   return (
     <main className="min-h-screen bg-[#FEFAF6]">
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
 
-        {/* API error banner */}
-        {profileError && (
-          <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
-            Could not load your profile data. Please refresh the page or check your connection.
-          </div>
-        )}
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">
-              Dashboard
-            </h1>
+            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Dashboard</h1>
             <p className="text-sm text-[#6B6B76] mt-0.5">Welcome back to Smart Shaadi</p>
           </div>
           {tier !== 'FREE' && (
@@ -66,16 +70,30 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          <StatsCard
-            label="Profile"
-            value={`${completeness}%`}
-            sub="complete"
-            accent={completeness >= 70}
-          />
-          <StatsCard label="Matches" value="—" sub="coming soon" />
-          <StatsCard label="Bookings" value="—" sub="no bookings yet" />
+        {/* 4-card stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
+            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Active Matches</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{upcomingBookings}</p>
+            <p className="text-xs text-[#6B6B76]">confirmed</p>
+          </div>
+          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
+            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Bookings</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{pendingBookings}</p>
+            <p className="text-xs text-[#6B6B76]">pending</p>
+          </div>
+          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
+            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Requests</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{pendingRequests}</p>
+            <p className="text-xs text-[#6B6B76]">received</p>
+          </div>
+          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
+            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Profile</p>
+            <p className={`text-2xl font-bold font-heading ${completeness >= 70 ? 'text-[#059669]' : 'text-[#0E7C7B]'}`}>
+              {completeness}%
+            </p>
+            <p className="text-xs text-[#6B6B76]">complete</p>
+          </div>
         </div>
 
         {/* Completeness bar + CTA */}
@@ -104,21 +122,14 @@ export default async function DashboardPage() {
         {/* Recommended Matches */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2
-              className="text-lg font-semibold text-[#7B2D42] font-heading"
-            >
-              Recommended for You
-            </h2>
+            <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">Recommended for You</h2>
           </div>
           {completeness < 40 ? (
-            /* Empty state — profile too incomplete for matches */
             <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#7B2D42]/8 flex items-center justify-center mx-auto mb-4 text-2xl">
+              <div className="w-14 h-14 rounded-full bg-[#7B2D42]/10 flex items-center justify-center mx-auto mb-4 text-2xl">
                 💍
               </div>
-              <p
-                className="text-base font-semibold text-[#7B2D42] font-heading"
-              >
+              <p className="text-base font-semibold text-[#7B2D42] font-heading">
                 Your perfect match is out there
               </p>
               <p className="text-sm text-[#6B6B76] mt-1 mb-4">
@@ -132,7 +143,6 @@ export default async function DashboardPage() {
               </Link>
             </div>
           ) : (
-            /* Skeleton cards — matching engine coming Week 3 */
             <>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[1, 2, 3].map((i) => (
@@ -140,7 +150,7 @@ export default async function DashboardPage() {
                 ))}
               </div>
               <p className="text-center text-xs text-[#6B6B76] mt-3">
-                Matching engine launches in Week 3 — you&apos;re all set
+                Matching engine launches in Week 4 — you&apos;re all set
               </p>
             </>
           )}
