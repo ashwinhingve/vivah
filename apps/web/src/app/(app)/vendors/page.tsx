@@ -63,9 +63,9 @@ export default async function VendorsPage({ searchParams }: PageProps) {
   const city     = params.city;
   const state    = params.state;
 
-  const { vendors, error } = await fetchVendors({ category, city, state, page });
+  const { vendors, total, error } = await fetchVendors({ category, city, state, page });
 
-  const hasNext = vendors.length === PAGE_SIZE;
+  const hasNext = total > page * PAGE_SIZE;
   const hasPrev = page > 1;
 
   function buildPageHref(p: number) {

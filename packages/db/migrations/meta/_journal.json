@@ -15,6 +15,13 @@
       "when": 1776253965602,
       "tag": "0001_aspiring_blacklash",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776499430991,
+      "tag": "0002_crazy_metal_master",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,13 @@
 import { z } from 'zod'
 
+const VENDOR_CATEGORIES = [
+  'PHOTOGRAPHY', 'VIDEOGRAPHY', 'CATERING', 'DECORATION', 'VENUE',
+  'MAKEUP', 'JEWELLERY', 'CLOTHING', 'MUSIC', 'LIGHTING', 'SECURITY',
+  'TRANSPORT', 'PRIEST', 'SOUND', 'EVENT_HOSTING', 'RENTAL', 'OTHER',
+] as const
+
 export const VendorListQuerySchema = z.object({
-  category: z.string().optional(),
+  category: z.enum(VENDOR_CATEGORIES).optional(),
   city:     z.string().optional(),
   state:    z.string().optional(),
   page:     z.coerce.number().int().min(1).default(1),
@@ -10,7 +16,7 @@ export const VendorListQuerySchema = z.object({
 
 export const CreateVendorSchema = z.object({
   businessName: z.string().min(2).max(255),
-  category:     z.string(),
+  category:     z.enum(VENDOR_CATEGORIES),
   city:         z.string().min(2).max(100),
   state:        z.string().min(2).max(100),
 })

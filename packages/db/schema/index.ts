@@ -171,6 +171,7 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'MATCH_ACCEPTED',
   'PAYMENT_RECEIVED',
   'PAYMENT_FAILED',
+  'REFUND_ISSUED',
   'ESCROW_HELD',
   'ESCROW_RELEASED',
   'ESCROW_DISPUTED',

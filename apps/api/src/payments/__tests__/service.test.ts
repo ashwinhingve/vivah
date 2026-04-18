@@ -19,7 +19,7 @@ vi.mock('@smartshaadi/db', () => ({
   bookings:       { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId' },
   escrowAccounts: { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', totalHeld: 'escrowAccounts.totalHeld', status: 'escrowAccounts.status', released: 'escrowAccounts.released' },
   auditLogs:      { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash' },
-  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'CONTRACT_SIGNED', 'VENDOR_APPROVED', 'PROFILE_BLOCKED', 'USER_REGISTERED', 'USER_VERIFIED', 'USER_SUSPENDED', 'KYC_SUBMITTED', 'KYC_VERIFIED', 'KYC_REJECTED', 'MATCH_ACCEPTED'] },
+  auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'REFUND_ISSUED', 'ESCROW_HELD', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'CONTRACT_SIGNED', 'VENDOR_APPROVED', 'PROFILE_BLOCKED', 'USER_REGISTERED', 'USER_VERIFIED', 'USER_SUSPENDED', 'KYC_SUBMITTED', 'KYC_VERIFIED', 'KYC_REJECTED', 'MATCH_ACCEPTED'] },
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -62,6 +62,7 @@ function makeSelect(resolveWith: unknown[]) {
   chain['limit']     = vi.fn().mockReturnValue(chain);
   chain['offset']    = vi.fn().mockReturnValue(chain);
   chain['innerJoin'] = vi.fn().mockReturnValue(chain);
+  chain['leftJoin']  = vi.fn().mockReturnValue(chain);
   return vi.fn().mockReturnValue(chain);
 }
 
@@ -187,8 +188,8 @@ describe('handlePaymentSuccess', () => {
 
     await handlePaymentSuccess('order_abc', 'pay_xyz');
 
-    // insert should have been called for escrowAccounts and auditLogs
-    expect(mockDbInsert).toHaveBeenCalledTimes(2);
+    // insert called 3 times: escrowAccounts + PAYMENT_RECEIVED audit + ESCROW_HELD audit
+    expect(mockDbInsert).toHaveBeenCalledTimes(3);
 
     // First insert = escrowAccounts
     const firstInsertArgs = (mockDbInsert.mock.calls[0] as unknown[])[0] as AnyRecord;

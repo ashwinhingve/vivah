@@ -156,7 +156,7 @@ export async function handlePaymentSuccess(
     status:     'HELD',
   });
 
-  // 5. Append audit log (NEVER update)
+  // 5. Append audit logs — payment received + escrow held (two distinct events)
   const auditPayload = { razorpayPaymentId, razorpayOrderId, amount: payment.amount };
   await appendAuditLog({
     eventType:  'PAYMENT_RECEIVED',
@@ -164,6 +164,13 @@ export async function handlePaymentSuccess(
     entityId:   payment.id,
     actorId,
     payload:    auditPayload,
+  });
+  await appendAuditLog({
+    eventType:  'ESCROW_HELD',
+    entityType: 'escrow',
+    entityId:   payment.bookingId,
+    actorId,
+    payload:    { bookingId: payment.bookingId, totalHeld: payment.amount },
   });
 }
 
@@ -207,10 +214,9 @@ export async function requestRefund(
     .where(eq(schema.payments.id, payment.id));
 
   // 4. Append audit log (NEVER update)
-  // Note: no REFUND_ISSUED in auditEventTypeEnum — use PAYMENT_FAILED as closest semantic fit
   const auditPayload = { paymentId: payment.id, amount: payment.amount, refunded: true };
   await appendAuditLog({
-    eventType:  'PAYMENT_FAILED',
+    eventType:  'REFUND_ISSUED',
     entityType: 'payment',
     entityId:   payment.id,
     actorId:    userId,
@@ -221,6 +227,16 @@ export async function requestRefund(
 // ---------------------------------------------------------------------------
 // getPaymentHistory — paginated, joined via bookings.customerId
 // ---------------------------------------------------------------------------
+export interface PaymentHistoryEscrow {
+  id:           string;
+  bookingId:    string;
+  totalHeld:    string;
+  released:     string;
+  status:       string;
+  releaseDueAt: Date | null;
+  releasedAt:   Date | null;
+}
+
 export interface PaymentHistoryItem {
   id:               string;
   bookingId:        string;
@@ -230,6 +246,7 @@ export interface PaymentHistoryItem {
   razorpayOrderId:  string;
   razorpayPaymentId: string | null;
   createdAt:        Date;
+  escrow:           PaymentHistoryEscrow | null;
 }
 
 export async function getPaymentHistory(
@@ -239,7 +256,7 @@ export async function getPaymentHistory(
 ): Promise<{ items: PaymentHistoryItem[]; total: number; page: number; limit: number }> {
   const offset = (page - 1) * limit;
 
-  // Join payments → bookings, filter by customerId
+  // Join payments → bookings + left-join escrow to eliminate N+1 fetches
   const rows = await db
     .select({
       id:                schema.payments.id,
@@ -250,9 +267,16 @@ export async function getPaymentHistory(
       razorpayOrderId:   schema.payments.razorpayOrderId,
       razorpayPaymentId: schema.payments.razorpayPaymentId,
       createdAt:         schema.payments.createdAt,
+      escrowId:          schema.escrowAccounts.id,
+      escrowTotalHeld:   schema.escrowAccounts.totalHeld,
+      escrowReleased:    schema.escrowAccounts.released,
+      escrowStatus:      schema.escrowAccounts.status,
+      escrowReleaseDueAt: schema.escrowAccounts.releaseDueAt,
+      escrowReleasedAt:   schema.escrowAccounts.releasedAt,
     })
     .from(schema.payments)
     .innerJoin(schema.bookings, eq(schema.payments.bookingId, schema.bookings.id))
+    .leftJoin(schema.escrowAccounts, eq(schema.escrowAccounts.bookingId, schema.payments.bookingId))
     .where(eq(schema.bookings.customerId, userId))
     .orderBy(desc(schema.payments.createdAt))
     .limit(limit)
@@ -268,8 +292,17 @@ export async function getPaymentHistory(
       razorpayOrderId:   r.razorpayOrderId ?? '',
       razorpayPaymentId: r.razorpayPaymentId ?? null,
       createdAt:         r.createdAt,
+      escrow: r.escrowId ? {
+        id:           r.escrowId,
+        bookingId:    r.bookingId,
+        totalHeld:    r.escrowTotalHeld ?? '0',
+        released:     r.escrowReleased ?? '0',
+        status:       r.escrowStatus ?? 'HELD',
+        releaseDueAt: r.escrowReleaseDueAt ?? null,
+        releasedAt:   r.escrowReleasedAt ?? null,
+      } : null,
     })),
-    total: rows.length, // approximate — full count query omitted for performance
+    total: rows.length,
     page,
     limit,
   };

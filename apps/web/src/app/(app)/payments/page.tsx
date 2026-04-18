@@ -10,6 +10,16 @@ const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+interface EscrowAccount {
+  id:           string;
+  bookingId:    string;
+  totalHeld:    string;
+  released:     string;
+  status:       'HELD' | 'RELEASED' | 'DISPUTED' | 'REFUNDED';
+  releaseDueAt: string | null;
+  releasedAt:   string | null;
+}
+
 interface PaymentHistoryItem {
   id:                string;
   bookingId:         string;
@@ -19,6 +29,7 @@ interface PaymentHistoryItem {
   razorpayOrderId:   string;
   razorpayPaymentId: string | null;
   createdAt:         string;
+  escrow:            EscrowAccount | null;
 }
 
 interface PaymentHistoryResponse {
@@ -29,17 +40,6 @@ interface PaymentHistoryResponse {
     page:  number;
     limit: number;
   } | null;
-}
-
-interface EscrowAccount {
-  id:           string;
-  bookingId:    string;
-  totalHeld:    string;
-  released:     string;
-  status:       'HELD' | 'RELEASED' | 'DISPUTED' | 'REFUNDED';
-  releaseDueAt: string | null;
-  releasedAt:   string | null;
-  createdAt:    string;
 }
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
@@ -56,24 +56,6 @@ async function fetchPaymentHistory(): Promise<PaymentHistoryResponse['data']> {
     });
     if (!res.ok) return null;
     const json = (await res.json()) as PaymentHistoryResponse;
-    return json.data ?? null;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchEscrowStatus(bookingId: string): Promise<EscrowAccount | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) return null;
-
-  try {
-    const res = await fetch(`${API_URL}/api/v1/payments/escrow/${bookingId}`, {
-      headers: { Cookie: `better-auth.session_token=${token}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { success: boolean; data: EscrowAccount | null };
     return json.data ?? null;
   } catch {
     return null;
@@ -220,18 +202,6 @@ function PaymentCard({ payment, escrow }: PaymentCardProps) {
 
 export default async function PaymentsPage() {
   const historyData = await fetchPaymentHistory();
-
-  // Fetch escrow status for each payment in parallel
-  const escrowMap = new Map<string, EscrowAccount | null>();
-  if (historyData?.items) {
-    const escrowResults = await Promise.all(
-      historyData.items.map((p) => fetchEscrowStatus(p.bookingId)),
-    );
-    historyData.items.forEach((p, i) => {
-      escrowMap.set(p.bookingId, escrowResults[i] ?? null);
-    });
-  }
-
   const payments = historyData?.items ?? [];
 
   return (
@@ -259,7 +229,7 @@ export default async function PaymentsPage() {
                 },
                 {
                   label: 'Completed',
-                  value: payments.filter((p) => escrowMap.get(p.bookingId)?.status === 'RELEASED').length,
+                  value: payments.filter((p) => p.escrow?.status === 'RELEASED').length,
                 },
               ] as const
             ).map(({ label, value }) => (
@@ -295,7 +265,7 @@ export default async function PaymentsPage() {
               <PaymentCard
                 key={payment.id}
                 payment={payment}
-                escrow={escrowMap.get(payment.bookingId) ?? null}
+                escrow={payment.escrow ?? null}
               />
             ))}
           </div>
