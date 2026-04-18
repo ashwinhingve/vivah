@@ -35,15 +35,11 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   if (gender) payload.gender = gender;
   const heightFt = formData.get('heightFt');
   const heightIn = formData.get('heightIn');
-  if (heightFt) payload.heightCm = Math.round(Number(heightFt) * 30.48 + Number(heightIn ?? 0) * 2.54);
+  if (heightFt) payload.height = Math.round(Number(heightFt) * 30.48 + Number(heightIn ?? 0) * 2.54);
   const religion = formData.get('religion');
   if (religion) payload.religion = religion;
   const motherTongue = formData.get('motherTongue');
   if (motherTongue) payload.motherTongue = motherTongue;
-  const currentCity = formData.get('currentCity');
-  if (currentCity) payload.currentCity = currentCity;
-  const aboutMe = formData.get('aboutMe');
-  if (aboutMe) payload.aboutMe = aboutMe;
   const maritalStatus = formData.get('maritalStatus');
   if (maritalStatus) payload.maritalStatus = maritalStatus;
 
@@ -55,6 +51,32 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
     }
   } catch {
     return { error: 'Network error. Please check your connection and try again.' };
+  }
+
+  const currentCity = formData.get('currentCity');
+  if (currentCity) {
+    try {
+      const locRes = await apiPut('/api/v1/profiles/me/content/location', { city: currentCity }, token);
+      if (!locRes.ok) {
+        const json = (await locRes.json().catch(() => ({}))) as { error?: { message?: string } };
+        return { error: json.error?.message ?? 'Could not save location. Please try again.' };
+      }
+    } catch {
+      return { error: 'Network error. Please check your connection and try again.' };
+    }
+  }
+
+  const aboutMe = formData.get('aboutMe');
+  if (aboutMe) {
+    try {
+      const aboutRes = await apiPut('/api/v1/profiles/me/content/about', { aboutMe }, token);
+      if (!aboutRes.ok) {
+        const json = (await aboutRes.json().catch(() => ({}))) as { error?: { message?: string } };
+        return { error: json.error?.message ?? 'Could not save About Me. Please try again.' };
+      }
+    } catch {
+      return { error: 'Network error. Please check your connection and try again.' };
+    }
   }
 
   revalidatePath('/profile');
