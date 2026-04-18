@@ -31,7 +31,7 @@ export class BookingError extends Error {
 
 // ── BullMQ queue for escrow release (48h delayed) ────────────────────────────
 
-const escrowReleaseQueue = new Queue<EscrowReleaseJob>('queue:escrow-release', {
+const escrowReleaseQueue = new Queue<EscrowReleaseJob>('escrow-release', {
   connection: {
     url: env.REDIS_URL,
     enableOfflineQueue: false,
@@ -39,7 +39,7 @@ const escrowReleaseQueue = new Queue<EscrowReleaseJob>('queue:escrow-release', {
   },
 });
 
-const notificationsQueue = new Queue<NotificationJob>('queue:notifications', {
+const notificationsQueue = new Queue<NotificationJob>('notifications', {
   connection: {
     url: env.REDIS_URL,
     enableOfflineQueue: false,

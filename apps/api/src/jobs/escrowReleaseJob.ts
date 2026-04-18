@@ -21,7 +21,7 @@ import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
 import { appendAuditLog } from '../payments/service.js';
 
-const QUEUE_NAME = 'queue:escrow-release';
+const QUEUE_NAME = 'escrow-release';
 
 /** Shape of each escrow release job's data. */
 export interface EscrowReleaseJobData {
