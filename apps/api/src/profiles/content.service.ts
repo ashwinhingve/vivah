@@ -132,7 +132,7 @@ export async function updateAboutMe(
   aboutMe: string,
 ): Promise<ProfileContentResponse> {
   if (env.USE_MOCK_SERVICES) {
-    return mockUpsert(userId, 'aboutMe', { aboutMe }) as unknown as ProfileContentResponse;
+    return mockUpsertField(userId, 'aboutMe', aboutMe) as unknown as ProfileContentResponse;
   }
   const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
   const doc = await model.findOneAndUpdate(

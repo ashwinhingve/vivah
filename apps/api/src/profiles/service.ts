@@ -17,6 +17,7 @@ import type {
   LifestyleSection,
   HoroscopeSection,
   PartnerPreferencesSection,
+  ProfileSectionCompletion,
 } from '@smartshaadi/types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -40,6 +41,16 @@ export interface ProfileResponse {
   photos:               { id: string; r2Key: string; isPrimary: boolean; displayOrder: number }[];
   createdAt:            Date;
   updatedAt:            Date;
+  sectionCompletion?:   ProfileSectionCompletion;
+  personal?:            PersonalSection;
+  education?:           EducationSection;
+  profession?:          ProfessionSection;
+  family?:              FamilySection;
+  location?:            LocationSection;
+  lifestyle?:           LifestyleSection;
+  horoscope?:           HoroscopeSection;
+  partnerPreferences?:  PartnerPreferencesSection;
+  aboutMe?:             string;
 }
 
 export interface UpdateProfileInput {
@@ -123,7 +134,52 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
     .from(profilePhotos)
     .where(eq(profilePhotos.profileId, profile.id));
 
-  return buildProfileResponse(profile, userRow, photos, true);
+  // Compute fresh completeness — writes to profileSections + profiles.profileCompleteness
+  const completeness = await computeAndUpdateCompleteness(userId);
+  profile.profileCompleteness = completeness;
+
+  // Fetch updated profileSections row
+  const [sectionsRow] = await db
+    .select()
+    .from(profileSections)
+    .where(eq(profileSections.profileId, profile.id));
+
+  // Fetch MongoDB content (or mock store in dev)
+  type MongoDoc = { userId: string; [key: string]: unknown };
+  let contentDoc: MongoDoc | null;
+  if (env.USE_MOCK_SERVICES) {
+    contentDoc = mockGet(profile.userId) as MongoDoc | null;
+  } else {
+    const contentModel = ProfileContent as unknown as Model<MongoDoc>;
+    contentDoc = await contentModel.findOne({ userId: profile.userId }).lean() as MongoDoc | null;
+  }
+
+  const base = buildProfileResponse(profile, userRow, photos, true);
+
+  return {
+    ...base,
+    ...(contentDoc?.personal           != null && { personal:           contentDoc.personal           as PersonalSection }),
+    ...(contentDoc?.education          != null && { education:          contentDoc.education          as EducationSection }),
+    ...(contentDoc?.profession         != null && { profession:         contentDoc.profession         as ProfessionSection }),
+    ...(contentDoc?.family             != null && { family:             contentDoc.family             as FamilySection }),
+    ...(contentDoc?.location           != null && { location:           contentDoc.location           as LocationSection }),
+    ...(contentDoc?.lifestyle          != null && { lifestyle:          contentDoc.lifestyle          as LifestyleSection }),
+    ...(contentDoc?.horoscope          != null && { horoscope:          contentDoc.horoscope          as HoroscopeSection }),
+    ...(contentDoc?.partnerPreferences != null && { partnerPreferences: contentDoc.partnerPreferences as PartnerPreferencesSection }),
+    ...(typeof contentDoc?.aboutMe === 'string' && { aboutMe: contentDoc.aboutMe }),
+    ...(sectionsRow != null && {
+      sectionCompletion: {
+        personal:    sectionsRow.personal,
+        family:      sectionsRow.family,
+        career:      sectionsRow.career,
+        lifestyle:   sectionsRow.lifestyle,
+        horoscope:   sectionsRow.horoscope,
+        photos:      sectionsRow.photos,
+        preferences: sectionsRow.preferences,
+        score:       completeness,
+      },
+    }),
+  };
 }
 
 /** Update mutable fields on the authenticated user's profile. */
