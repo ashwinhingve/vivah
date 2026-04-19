@@ -53,3 +53,28 @@ export interface MatchFeedItem {
   photoKey:      string | null
   isNew:         boolean
 }
+
+export type MatchRequestStatus =
+  | 'PENDING'
+  | 'ACCEPTED'
+  | 'DECLINED'
+  | 'WITHDRAWN'
+  | 'BLOCKED'
+  | 'EXPIRED';
+
+export interface MatchRequest {
+  id:           string;
+  senderId:     string;
+  receiverId:   string;
+  status:       MatchRequestStatus;
+  message:      string | null;
+  respondedAt:  string | null;
+  expiresAt:    string | null;
+  createdAt:    string;
+  updatedAt:    string;
+}
+
+export interface MatchRequestsResponse {
+  requests: MatchRequest[];
+  total:    number;
+}

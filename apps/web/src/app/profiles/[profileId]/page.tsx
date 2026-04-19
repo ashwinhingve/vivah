@@ -5,6 +5,7 @@ import { CompatibilityDisplay } from '@/components/profile/CompatibilityDisplay'
 import { ProfileTabs } from '@/components/profile/ProfileTabs.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ContactSection } from '@/components/profile/ContactSection';
+import { SendInterestButton } from '@/components/matching/SendInterestButton.client';
 import type { ProfileDetailResponse } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -176,12 +177,7 @@ export default async function ProfileViewPage({ params }: Props) {
       {!isSelf && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E8E0D8] px-4 py-3 shadow-2xl">
           <div className="mx-auto max-w-lg flex items-center gap-3">
-            <button
-              type="button"
-              className="flex-1 bg-[#0E7C7B] hover:bg-[#149998] active:scale-[0.97] text-white font-semibold rounded-lg py-3 text-sm min-h-[48px] transition-colors"
-            >
-              Send Interest
-            </button>
+            <SendInterestButton profileId={profileId} />
             <button
               type="button"
               aria-label="Bookmark profile"

@@ -15,6 +15,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </Link>
           <div className="flex items-center gap-3">
             <Link
+              href="/requests"
+              className="text-xs font-medium text-[#6B6B76] hover:text-[#2E2E38] transition-colors"
+            >
+              Requests
+            </Link>
+            <Link
               href="/profile/personal"
               className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998] transition-colors"
             >
