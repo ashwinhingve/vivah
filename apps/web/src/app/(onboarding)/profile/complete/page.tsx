@@ -9,15 +9,18 @@ async function getProfileData() {
   const token = cookieStore.get('better-auth.session_token')?.value;
   if (!token) return null;
 
-  const res = await fetch(`${API_URL}/api/v1/profiles/me`, {
-    headers: { Cookie: `better-auth.session_token=${token}` },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) return null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const json = await res.json() as any;
-  return json.success ? json.data : null;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/profiles/me`, {
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json = await res.json() as any;
+    return json.success ? json.data : null;
+  } catch {
+    return null;
+  }
 }
 
 const SECTION_LABELS: Record<string, string> = {

@@ -12,13 +12,17 @@ const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 async function getProfile(profileId: string): Promise<ProfileDetailResponse | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
-  const res = await fetch(`${API_URL}/api/v1/profiles/${profileId}`, {
-    headers: token ? { Cookie: `better-auth.session_token=${token}` } : {},
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) return null;
-  const json = (await res.json()) as { success: boolean; data: ProfileDetailResponse };
-  return json.success ? json.data : null;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/profiles/${profileId}`, {
+      headers: token ? { Cookie: `better-auth.session_token=${token}` } : {},
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success: boolean; data: ProfileDetailResponse };
+    return json.success ? json.data : null;
+  } catch {
+    return null;
+  }
 }
 
 function calculateAge(dob: string): number {
