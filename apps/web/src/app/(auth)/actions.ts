@@ -29,44 +29,6 @@ export async function requestOTP(
 }
 
 /**
- * Verifies an OTP code with Better Auth.
- * On success, forwards the session cookie to the browser and redirects to /.
- */
-export async function verifyOTP(
-  phone: string,
-  code: string,
-): Promise<{ success: boolean; error?: string }> {
-  const res = await fetch(`${API_URL}/api/auth/phone-number/verify-otp`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phoneNumber: phone, code }),
-  });
-
-  if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { message?: string };
-    return { success: false, error: body.message ?? 'Invalid OTP' };
-  }
-
-  // Forward the session cookie set by Better Auth to the browser.
-  const setCookieHeader = res.headers.get('set-cookie');
-  if (setCookieHeader) {
-    const cookieStore = await cookies();
-    const tokenMatch = /better-auth\.session_token=([^;]+)/.exec(setCookieHeader);
-    if (tokenMatch) {
-      cookieStore.set('better-auth.session_token', tokenMatch[1]!, {
-        httpOnly: true,
-        secure: process.env['NODE_ENV'] === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30,
-      });
-    }
-  }
-
-  redirect('/');
-}
-
-/**
  * Sets the user's role after registration.
  * Reads the Better Auth session cookie and calls PATCH /api/v1/users/me/role.
  */

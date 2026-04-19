@@ -7,6 +7,8 @@ vi.mock('../../lib/db.js', () => ({ db: {} }));
 vi.mock('@smartshaadi/db', () => ({
   profiles: {},
   profilePhotos: {},
+  profileSections: {},
+  communityZones: {},
   user: {},
 }));
 vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({

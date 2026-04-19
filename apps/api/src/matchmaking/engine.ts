@@ -13,6 +13,7 @@
 
 import type { MatchFeedItem } from '@smartshaadi/types';
 import type Redis from 'ioredis';
+import { eq, and } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
@@ -243,7 +244,7 @@ export async function computeAndCacheFeed(
   const userRows = await db
     .select()
     .from(profiles)
-    .where({ userId } as unknown)
+    .where(eq(profiles.userId, userId))
     .limit(1) as unknown[];
 
   if (userRows.length === 0) {
@@ -258,13 +259,13 @@ export async function computeAndCacheFeed(
   const blockedRows = await db
     .select()
     .from(blockedUsers)
-    .where({ blockerId: userProfileId } as unknown)
+    .where(eq(blockedUsers.blockerId, userProfileId))
     .limit(1000) as unknown[];
 
   const blockedByRows = await db
     .select()
     .from(blockedUsers)
-    .where({ blockedId: userProfileId } as unknown)
+    .where(eq(blockedUsers.blockedId, userProfileId))
     .limit(1000) as unknown[];
 
   const blockedSet = new Set<string>([
@@ -277,7 +278,7 @@ export async function computeAndCacheFeed(
   const candidateRows = await db
     .select()
     .from(profiles)
-    .where({ isActive: true } as unknown)
+    .where(eq(profiles.isActive, true))
     .limit(500) as unknown[];
 
   // Filter out blocked / self
@@ -313,7 +314,7 @@ export async function computeAndCacheFeed(
     const photoRows = await db
       .select()
       .from(profilePhotos)
-      .where({ profileId: profile.id, isPrimary: true } as unknown)
+      .where(and(eq(profilePhotos.profileId, profile.id), eq(profilePhotos.isPrimary, true)))
       .limit(1) as unknown[];
     const photoRow = (photoRows[0] ?? null) as { r2Key?: string } | null;
     photoMap.set(profile.id, photoRow?.r2Key ?? null);

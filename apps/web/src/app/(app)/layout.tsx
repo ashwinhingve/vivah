@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { UserMenu } from '@/components/ui/UserMenu.client';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -12,12 +13,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           >
             Smart Shaadi
           </Link>
-          <Link
-            href="/profile/personal"
-            className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998] transition-colors"
-          >
-            My Profile
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/profile/personal"
+              className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998] transition-colors"
+            >
+              My Profile
+            </Link>
+            <UserMenu />
+          </div>
         </div>
       </header>
       {children}

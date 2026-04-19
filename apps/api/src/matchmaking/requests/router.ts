@@ -15,7 +15,10 @@
 
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { profiles } from '@smartshaadi/db';
 import { authenticate } from '../../auth/middleware.js';
+import { db } from '../../lib/db.js';
 import { ok, err } from '../../lib/response.js';
 import {
   sendRequest,
@@ -69,6 +72,13 @@ function handleServiceError(res: Response, error: unknown): void {
   err(res, 'INTERNAL_ERROR', 'An unexpected error occurred', 500);
 }
 
+// ── Profile ID resolver — Better Auth user ID → profile UUID ──────────────────
+
+async function resolveProfileId(userId: string): Promise<string | null> {
+  const [row] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
+  return row?.id ?? null;
+}
+
 // ── POST /requests ─────────────────────────────────────────────────────────────
 
 matchRequestsRouter.post(
@@ -81,11 +91,13 @@ matchRequestsRouter.post(
       return;
     }
 
-    const senderId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+
     const { receiverId, message } = parsed.data;
 
     try {
-      const request = await sendRequest(senderId, receiverId, message);
+      const request = await sendRequest(profileId, receiverId, message);
       ok(res, { request }, 201);
     } catch (error) {
       handleServiceError(res, error);
@@ -106,11 +118,13 @@ matchRequestsRouter.get(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+
     const { page, limit } = parsed.data;
 
     try {
-      const result = await getReceivedRequests(userId, page, limit);
+      const result = await getReceivedRequests(profileId, page, limit);
       ok(res, result);
     } catch (error) {
       handleServiceError(res, error);
@@ -130,11 +144,13 @@ matchRequestsRouter.get(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+
     const { page, limit } = parsed.data;
 
     try {
-      const result = await getSentRequests(userId, page, limit);
+      const result = await getSentRequests(profileId, page, limit);
       ok(res, result);
     } catch (error) {
       handleServiceError(res, error);
@@ -154,10 +170,11 @@ matchRequestsRouter.put(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
 
     try {
-      const request = await acceptRequest(userId, requestId);
+      const request = await acceptRequest(profileId, requestId);
       ok(res, { request });
     } catch (error) {
       handleServiceError(res, error);
@@ -177,10 +194,11 @@ matchRequestsRouter.put(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
 
     try {
-      const request = await declineRequest(userId, requestId);
+      const request = await declineRequest(profileId, requestId);
       ok(res, { request });
     } catch (error) {
       handleServiceError(res, error);
@@ -200,10 +218,11 @@ matchRequestsRouter.delete(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
 
     try {
-      const request = await withdrawRequest(userId, requestId);
+      const request = await withdrawRequest(profileId, requestId);
       ok(res, { request });
     } catch (error) {
       handleServiceError(res, error);
@@ -223,10 +242,11 @@ matchRequestsRouter.post(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
 
     try {
-      await blockUser(userId, targetProfileId);
+      await blockUser(profileId, targetProfileId);
       ok(res, { blocked: true });
     } catch (error) {
       handleServiceError(res, error);
@@ -252,11 +272,13 @@ matchRequestsRouter.post(
       return;
     }
 
-    const userId = req.user!.id;
+    const profileId = await resolveProfileId(req.user!.id);
+    if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+
     const { reason } = parsed.data;
 
     try {
-      await reportUser(userId, targetProfileId, reason);
+      await reportUser(profileId, targetProfileId, reason);
       ok(res, { reported: true });
     } catch (error) {
       handleServiceError(res, error);

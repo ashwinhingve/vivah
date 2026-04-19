@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import type { ChatMessage } from '@smartshaadi/types'
 
 interface MessageBubbleProps {
@@ -27,10 +28,11 @@ export default function MessageBubble({ message, currentUserId }: MessageBubbleP
                 : 'bg-white border-[#C5A47E]/20'
             }`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={message.photoKey}
               alt="Shared photo"
+              width={300}
+              height={200}
               className="rounded-lg max-w-full block"
             />
           </div>

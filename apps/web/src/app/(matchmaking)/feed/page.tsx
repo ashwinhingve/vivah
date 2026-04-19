@@ -1,80 +1,33 @@
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchCard } from '@/components/matchmaking/MatchCard';
 
-// ── Mock data (replaced by real API in Phase B) ────────────────────────────────
-const mockFeed: MatchFeedItem[] = [
-  {
-    profileId: '1',
-    name: 'Priya Sharma',
-    age: 27,
-    city: 'Pune',
-    compatibility: {
-      totalScore: 87,
-      breakdown: {
-        demographicAlignment:   { score: 22, max: 25 },
-        lifestyleCompatibility: { score: 17, max: 20 },
-        careerEducation:        { score: 13, max: 15 },
-        familyValues:           { score: 19, max: 20 },
-        preferenceOverlap:      { score: 14, max: 20 },
-      },
-      gunaScore: 28,
-      tier: 'excellent',
-      flags: [],
-    },
-    photoKey: null,
-    isNew: true,
-  },
-  {
-    profileId: '2',
-    name: 'Ananya Kulkarni',
-    age: 25,
-    city: 'Nashik',
-    compatibility: {
-      totalScore: 74,
-      breakdown: {
-        demographicAlignment:   { score: 18, max: 25 },
-        lifestyleCompatibility: { score: 15, max: 20 },
-        careerEducation:        { score: 12, max: 15 },
-        familyValues:           { score: 16, max: 20 },
-        preferenceOverlap:      { score: 13, max: 20 },
-      },
-      gunaScore: 22,
-      tier: 'good',
-      flags: [],
-    },
-    photoKey: null,
-    isNew: false,
-  },
-  {
-    profileId: '3',
-    name: 'Sneha Patil',
-    age: 29,
-    city: 'Mumbai',
-    compatibility: {
-      totalScore: 61,
-      breakdown: {
-        demographicAlignment:   { score: 15, max: 25 },
-        lifestyleCompatibility: { score: 12, max: 20 },
-        careerEducation:        { score: 10, max: 15 },
-        familyValues:           { score: 14, max: 20 },
-        preferenceOverlap:      { score: 10, max: 20 },
-      },
-      gunaScore: 18,
-      tier: 'average',
-      flags: [],
-    },
-    photoKey: null,
-    isNew: false,
-  },
-];
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+async function getFeed(): Promise<MatchFeedItem[]> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value;
+  if (!token) return [];
+
+  try {
+    const res = await fetch(`${API_URL}/api/v1/matchmaking/feed`, {
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    const json = (await res.json()) as { success: boolean; data: MatchFeedItem[] };
+    return json.success ? json.data : [];
+  } catch {
+    return [];
+  }
+}
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-20 px-6">
-      {/* Illustration */}
       <div className="w-20 h-20 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center mb-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -90,10 +43,7 @@ function EmptyState() {
           <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
       </div>
-
-      <h2 className="text-xl font-bold text-[#7B2D42] mb-2 font-heading">
-        No matches yet
-      </h2>
+      <h2 className="text-xl font-bold text-[#7B2D42] mb-2 font-heading">No matches yet</h2>
       <p className="text-sm text-[#6B6B76] max-w-xs mb-6">
         Complete your profile to unlock your matches — a fuller profile gets 3× more results.
       </p>
@@ -109,18 +59,15 @@ function EmptyState() {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
-export default function MatchFeedPage() {
-  const feed = mockFeed;
+export default async function MatchFeedPage() {
+  const feed = await getFeed();
 
   return (
     <main className="min-h-screen bg-[#FEFAF6]">
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">
-              Your Matches
-            </h1>
+            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Your Matches</h1>
             <p className="text-sm text-[#6B6B76] mt-0.5">
               {feed.length > 0
                 ? `${feed.length} compatible profile${feed.length !== 1 ? 's' : ''} found`
@@ -129,7 +76,6 @@ export default function MatchFeedPage() {
           </div>
         </div>
 
-        {/* Match grid or empty state */}
         {feed.length === 0 ? (
           <EmptyState />
         ) : (

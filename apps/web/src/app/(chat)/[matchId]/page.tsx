@@ -50,7 +50,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   // Resolve userId via Better Auth session endpoint
   let userId = ''
   try {
-    const meRes = await fetch(`${BASE_URL}/api/auth/session`, {
+    const meRes = await fetch(`${BASE_URL}/api/auth/get-session`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     })

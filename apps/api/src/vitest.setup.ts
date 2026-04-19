@@ -1,6 +1,7 @@
 // Pre-populate all required env vars before any module loads.
 // This file is run before every test file via vitest.config.ts > setupFiles.
 process.env['NODE_ENV'] = 'test';
+process.env['USE_MOCK_SERVICES'] = 'true';
 process.env['JWT_SECRET'] = 'test-secret-that-is-at-least-32-characters-long!!';
 process.env['DATABASE_URL'] = 'postgresql://localhost:5432/vivah_test';
 process.env['REDIS_URL'] = 'redis://localhost:6379';
