@@ -299,6 +299,8 @@ profileContentRouter.put(
     if (parsed.data.diet != null) input.diet = parsed.data.diet;
     if (parsed.data.openToInterfaith != null) input.openToInterfaith = parsed.data.openToInterfaith;
     if (parsed.data.openToInterCaste != null) input.openToInterCaste = parsed.data.openToInterCaste;
+    if (parsed.data.maritalStatus != null) input.maritalStatus = parsed.data.maritalStatus;
+    if (parsed.data.partnerDescription != null) input.partnerDescription = parsed.data.partnerDescription;
 
     const content = await updatePartnerPreferences(req.user!.id, input);
     ok(res, content);

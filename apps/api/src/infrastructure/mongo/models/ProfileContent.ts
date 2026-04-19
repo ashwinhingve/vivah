@@ -25,7 +25,7 @@ const profileContentSchema = new Schema(
       religion:      String,
       caste:         String,
       subCaste:      String,
-      manglik:       Boolean,
+      manglik:       String,         // YES | NO | PARTIAL
       gotra:         String,
     },
 
@@ -104,7 +104,7 @@ const profileContentSchema = new Schema(
       dob:            Date,
       tob:            String,        // Time of birth HH:MM
       pob:            String,        // Place of birth
-      manglik:        Boolean,
+      manglik:        String,         // YES | NO | PARTIAL
       gunaScore:      Number,        // Cached from last Guna Milan calculation
       chartImageKey:  String,        // R2 key for kundli chart image
     },

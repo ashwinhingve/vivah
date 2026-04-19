@@ -2,7 +2,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
-import { profiles, profilePhotos, profileSections, user } from '@smartshaadi/db';
+import { profiles, profilePhotos, profileSections, communityZones, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
 import { getPhotoUrls } from '../storage/service.js';
@@ -51,6 +51,11 @@ export interface ProfileResponse {
   horoscope?:           HoroscopeSection;
   partnerPreferences?:  PartnerPreferencesSection;
   aboutMe?:             string;
+  community?:           string | null;
+  subCommunity?:        string | null;
+  motherTongue?:        string | null;
+  preferredLang?:       string | null;
+  lgbtqProfile?:        boolean | null;
 }
 
 export interface UpdateProfileInput {
@@ -144,6 +149,12 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
     .from(profileSections)
     .where(eq(profileSections.profileId, profile.id));
 
+  // Fetch community zone data (SQL-only, not in MongoDB)
+  const [communityRow] = await db
+    .select()
+    .from(communityZones)
+    .where(eq(communityZones.profileId, profile.id));
+
   // Fetch MongoDB content (or mock store in dev)
   type MongoDoc = { userId: string; [key: string]: unknown };
   let contentDoc: MongoDoc | null;
@@ -167,6 +178,13 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
     ...(contentDoc?.horoscope          != null && { horoscope:          contentDoc.horoscope          as HoroscopeSection }),
     ...(contentDoc?.partnerPreferences != null && { partnerPreferences: contentDoc.partnerPreferences as PartnerPreferencesSection }),
     ...(typeof contentDoc?.aboutMe === 'string' && { aboutMe: contentDoc.aboutMe }),
+    ...(communityRow != null && {
+      community:     communityRow.community,
+      subCommunity:  communityRow.subCommunity,
+      motherTongue:  communityRow.motherTongue,
+      preferredLang: communityRow.preferredLang,
+      lgbtqProfile:  communityRow.lgbtqProfile,
+    }),
     ...(sectionsRow != null && {
       sectionCompletion: {
         personal:    sectionsRow.personal,

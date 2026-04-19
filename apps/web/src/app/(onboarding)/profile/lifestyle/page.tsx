@@ -13,6 +13,12 @@ const STEPS = [
   { label: 'Lifestyle', done: false, active: true },
 ];
 
+const LANGUAGES = [
+  'Hindi', 'English', 'Marathi', 'Bengali', 'Telugu',
+  'Tamil', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi',
+  'Odia', 'Urdu', 'Rajasthani', 'Bhojpuri', 'Maithili',
+];
+
 const HOBBIES = [
   'Reading',
   'Cooking',
@@ -53,6 +59,7 @@ export default function LifestylePage() {
   const [state, formAction] = useActionState(updateLifestyle, undefined);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
   function toggleHobby(h: string) {
     setSelectedHobbies((prev) => (prev.includes(h) ? prev.filter((x) => x !== h) : [...prev, h]));
@@ -60,6 +67,10 @@ export default function LifestylePage() {
 
   function toggleTag(t: string) {
     setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  }
+
+  function toggleLanguage(lang: string) {
+    setSelectedLanguages((prev) => (prev.includes(lang) ? prev.filter((x) => x !== lang) : [...prev, lang]));
   }
 
   return (
@@ -79,6 +90,9 @@ export default function LifestylePage() {
           ))}
           {selectedTags.map((t) => (
             <input key={t} type="hidden" name="hyperNicheTags" value={t} />
+          ))}
+          {selectedLanguages.map((lang) => (
+            <input key={lang} type="hidden" name="languagesSpoken" value={lang} />
           ))}
 
           <div>
@@ -135,6 +149,26 @@ export default function LifestylePage() {
                   }`}
                 >
                   {h}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Languages Spoken</label>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => toggleLanguage(lang)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    selectedLanguages.includes(lang)
+                      ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
+                      : 'bg-white text-[#6B6B76] border-[#E8E0D8] hover:border-[#0E7C7B]'
+                  }`}
+                >
+                  {lang}
                 </button>
               ))}
             </div>

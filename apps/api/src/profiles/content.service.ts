@@ -223,6 +223,7 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
         career,
         lifestyle,
         horoscope,
+        photos,
         preferences,
         updatedAt: new Date(),
       },
