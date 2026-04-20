@@ -65,6 +65,10 @@ export const auth = betterAuth({
     enabled: true,
     window: 600, // 10-minute window
     max: 3,      // 3 OTP requests per window per identifier
+    customRules: {
+      '/get-session': { window: 10, max: 200 },
+      '/sign-out':    { window: 60, max: 20 },
+    },
   },
 
   trustedOrigins: [env.WEB_URL],
