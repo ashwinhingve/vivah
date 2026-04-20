@@ -15,28 +15,37 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/profile') ||
     pathname.startsWith('/wedding')
   ) {
-    const sessionRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/api/auth/get-session`,
-      {
-        headers: {
-          cookie: request.headers.get('cookie') ?? '',
+    let role = 'INDIVIDUAL';
+    let sessionOk = false;
+
+    try {
+      const sessionRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/api/auth/get-session`,
+        {
+          headers: { cookie: request.headers.get('cookie') ?? '' },
+          cache: 'no-store',
         },
-        cache: 'no-store',
-      },
-    );
+      );
 
-    if (!sessionRes.ok) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      if (sessionRes.ok) {
+        const body = (await sessionRes.json()) as { user?: { role?: string } };
+        if (body?.user) {
+          role = body.user.role ?? 'INDIVIDUAL';
+          sessionOk = true;
+        }
+      }
+    } catch {
+      // API unreachable — fall back to cookie check so users aren't kicked out
     }
 
-    const body = (await sessionRes.json()) as { user?: { role?: string } };
-    const user = body?.user;
-
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url));
+    if (!sessionOk) {
+      const hasCookie = request.cookies.has('better-auth.session_token');
+      if (!hasCookie) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+      // API down but cookie exists — let request through, page will handle auth
+      return NextResponse.next();
     }
-
-    const role = user.role ?? 'INDIVIDUAL';
 
     // Guard role-specific dashboards against wrong roles
     if (pathname.startsWith('/vendor-dashboard') && role !== 'VENDOR') {
