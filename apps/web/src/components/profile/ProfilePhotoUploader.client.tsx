@@ -103,23 +103,23 @@ export function ProfilePhotoUploader({
         )
       );
 
-      const presignRes = await fetch(`${API_BASE}/api/v1/storage/presign`, {
+      const presignRes = await fetch(`${API_BASE}/api/v1/storage/upload-url`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fileName: file.name,
-          contentType: file.type,
-          folder: 'profiles',
+          mimeType: file.type,
+          folder: 'photos',
         }),
       });
 
-      if (!presignRes.ok) {
-        const data = await presignRes.json();
-        throw new Error(data.error?.message || 'Failed to get presigned URL');
+      const presignJson = await presignRes.json();
+      if (!presignRes.ok || !presignJson?.success) {
+        throw new Error(presignJson?.error?.message || 'Failed to get presigned URL');
       }
 
-      const { uploadUrl, r2Key } = await presignRes.json();
+      const { uploadUrl, r2Key } = presignJson.data as { uploadUrl: string; r2Key: string };
 
       // Step 2: PUT file to presigned URL
       setPhotos((prev) =>
@@ -158,12 +158,10 @@ export function ProfilePhotoUploader({
         }),
       });
 
-      if (!registerRes.ok) {
-        const data = await registerRes.json();
-        throw new Error(data.error?.message || 'Failed to register photo');
-      }
-
       const photoData = await registerRes.json();
+      if (!registerRes.ok || !photoData?.success) {
+        throw new Error(photoData?.error?.message || 'Failed to register photo');
+      }
 
       setPhotos((prev) =>
         prev.map((p) =>
