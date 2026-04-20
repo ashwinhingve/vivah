@@ -1,33 +1,67 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Routes that require an active session
-const PROTECTED_PREFIXES = ['/dashboard', '/profile', '/matches', '/bookings', '/wedding'];
-// Routes only for unauthenticated users
-const AUTH_ROUTES = ['/login', '/verify', '/register'];
-
-// Better Auth session cookie name (default)
-const SESSION_COOKIE = 'better-auth.session_token';
-
-export function middleware(request: NextRequest): NextResponse {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasSession = request.cookies.has(SESSION_COOKIE);
 
-  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
-  const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
+  if (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/vendor-dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/feed') ||
+    pathname.startsWith('/vendors') ||
+    pathname.startsWith('/bookings') ||
+    pathname.startsWith('/chat') ||
+    pathname.startsWith('/matches') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/wedding')
+  ) {
+    const sessionRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/api/auth/get-session`,
+      {
+        headers: {
+          cookie: request.headers.get('cookie') ?? '',
+        },
+        cache: 'no-store',
+      },
+    );
 
-  // No session + trying to access protected route → redirect to login
-  if (isProtected && !hasSession) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
-  }
+    if (!sessionRes.ok) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
 
-  // Has session + trying to access auth route → redirect to dashboard
-  if (isAuthRoute && hasSession) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+    const body = (await sessionRes.json()) as { user?: { role?: string } };
+    const user = body?.user;
+
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    const role = user.role ?? 'INDIVIDUAL';
+
+    // Guard role-specific dashboards against wrong roles
+    if (pathname.startsWith('/vendor-dashboard') && role !== 'VENDOR') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (pathname.startsWith('/admin') && role !== 'ADMIN' && role !== 'SUPPORT') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // Redirect /dashboard to the correct role dashboard
+    if (pathname === '/dashboard' && role === 'VENDOR') {
+      return NextResponse.redirect(new URL('/vendor-dashboard', request.url));
+    }
+    if (pathname === '/dashboard' && (role === 'ADMIN' || role === 'SUPPORT')) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+  } else if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/verify') ||
+    pathname.startsWith('/register')
+  ) {
+    const hasCookie = request.cookies.has('better-auth.session_token');
+    if (hasCookie) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
   return NextResponse.next();
@@ -35,7 +69,18 @@ export function middleware(request: NextRequest): NextResponse {
 
 export const config = {
   matcher: [
-    // Run on all routes except Next.js internals and static files
-    '/((?!_next/static|_next/image|favicon.ico|api/).*)',
+    '/dashboard/:path*',
+    '/vendor-dashboard/:path*',
+    '/admin/:path*',
+    '/feed/:path*',
+    '/vendors/:path*',
+    '/bookings/:path*',
+    '/chat/:path*',
+    '/matches/:path*',
+    '/profile/:path*',
+    '/wedding/:path*',
+    '/login',
+    '/verify',
+    '/register',
   ],
 };

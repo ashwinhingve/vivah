@@ -1,14 +1,10 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
 import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -35,22 +31,6 @@ async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
-
-  // Role-based routing — redirect non-INDIVIDUAL users to their dashboard
-  try {
-    const sessionRes = await fetch(`${API_BASE}/api/auth/get-session`, {
-      headers: { Cookie: `better-auth.session_token=${token}` },
-      cache: 'no-store',
-    });
-    if (sessionRes.ok) {
-      const sessionJson = (await sessionRes.json()) as { user?: { role?: string } };
-      const role = sessionJson?.user?.role ?? 'INDIVIDUAL';
-      if (role === 'VENDOR') redirect('/vendor-dashboard');
-      if (role === 'ADMIN' || role === 'SUPPORT') redirect('/admin');
-    }
-  } catch {
-    // Non-fatal — continue to render individual dashboard
-  }
 
   const [profile, bookingsData, requestsData] = await Promise.all([
     fetchAuth<ProfileData>('/api/v1/profiles/me', token),

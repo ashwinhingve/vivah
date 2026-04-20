@@ -9,6 +9,14 @@ export const devRouter = Router();
 
 const VALID_ROLES = ['INDIVIDUAL', 'FAMILY_MEMBER', 'VENDOR', 'EVENT_COORDINATOR', 'ADMIN', 'SUPPORT'];
 
+devRouter.get('/session-debug', authenticate, (req: Request, res: Response): void => {
+  ok(res, {
+    userId: req.user!.id,
+    role: req.user!.role,
+    rawSession: JSON.stringify(req.user),
+  });
+});
+
 devRouter.post('/switch-role', authenticate, async (req: Request, res: Response): Promise<void> => {
   const { role } = req.body as { role?: string };
   if (!role || !VALID_ROLES.includes(role)) {
