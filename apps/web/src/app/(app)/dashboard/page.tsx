@@ -7,6 +7,9 @@ import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
 import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface ProfileData {

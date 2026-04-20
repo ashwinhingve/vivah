@@ -29,7 +29,7 @@ export function RoleSwitcher() {
         setLoading(false);
         return;
       }
-      window.location.replace('/dashboard');
+      window.location.replace('/dashboard?t=' + Date.now());
     } catch (err) {
       console.error('Role switch error:', err);
       setLoading(false);

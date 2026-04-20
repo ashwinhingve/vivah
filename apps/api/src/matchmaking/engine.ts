@@ -17,6 +17,9 @@ import { eq, and } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
+import { env } from '../lib/env.js';
+import { mockGet } from '../lib/mockStore.js';
+import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 
 // ── Feed cache key ────────────────────────────────────────────────────────────
 
@@ -322,19 +325,46 @@ export async function computeAndCacheFeed(
 
   // 7. Score and rank
   const nameMap = new Map<string, string>(
-    eligibleRows.map((r) => [
-      r.id,
-      r.personal?.fullName ?? 'Unknown',
-    ]),
+    eligibleRows.map((r) => [r.id, r.personal?.fullName ?? 'Unknown']),
+  );
+  const userIdMap = new Map<string, string>(
+    eligibleRows.map((r) => [r.id, r.userId]),
   );
 
   const ranked = await scoreAndRank(userId, filteredProfiles, userProfileData, redis, photoMap);
 
-  // Attach names to feed items
-  const feed: MatchFeedItem[] = ranked.map((item) => ({
-    ...item,
-    name: nameMap.get(item.profileId) ?? 'Unknown',
-  }));
+  // Attach names/ages/cities enriched from MongoDB ProfileContent
+  const feed: MatchFeedItem[] = await Promise.all(
+    ranked.map(async (item) => {
+      const uid = userIdMap.get(item.profileId);
+      let name = nameMap.get(item.profileId) ?? 'Unknown';
+      let age = item.age;
+      let city = item.city;
+
+      if (uid) {
+        if (env.USE_MOCK_SERVICES) {
+          const mockDoc = mockGet(uid);
+          const mock = mockDoc?.['personal'] as { fullName?: string; dob?: string } | undefined;
+          const mockLoc = mockDoc?.['location'] as { city?: string } | undefined;
+          if (mock?.fullName) name = mock.fullName;
+          if (mock?.dob) age = Math.floor((Date.now() - new Date(mock.dob).getTime()) / 31557600000);
+          if (mockLoc?.city) city = mockLoc.city;
+        } else {
+          type ContentLean = { personal?: { fullName?: string; dob?: Date | string }; location?: { city?: string } };
+          const model = ProfileContent as unknown as { findOne: (filter: object, proj: object) => { lean: () => Promise<ContentLean | null> } };
+          const content = await model.findOne(
+            { userId: uid },
+            { 'personal.fullName': 1, 'personal.dob': 1, 'location.city': 1 },
+          ).lean();
+          if (content?.personal?.fullName) name = content.personal.fullName;
+          if (content?.personal?.dob) age = Math.floor((Date.now() - new Date(content.personal.dob).getTime()) / 31557600000);
+          if (content?.location?.city) city = content.location.city;
+        }
+      }
+
+      return { ...item, name, age, city };
+    }),
+  );
 
   // 8. Fire-and-forget: enqueue guna recalc for any pairs missing a score
   const pendingPairs = feed

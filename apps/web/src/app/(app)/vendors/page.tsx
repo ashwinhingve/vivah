@@ -78,19 +78,19 @@ export default async function VendorsPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FC]">
+    <div className="min-h-screen bg-[#FEFAF6]">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Page header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[#0A1F4D]">Find Wedding Vendors</h1>
-          <p className="text-slate-500 mt-1 text-sm">
+          <h1 className="text-2xl font-bold text-[#7B2D42]">Find Wedding Vendors</h1>
+          <p className="text-[#6B6B76] mt-1 text-sm">
             Discover photographers, caterers, decorators and more for your special day.
           </p>
         </div>
 
         {/* Filter bar */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 shadow-sm">
-          <Suspense fallback={<div className="h-10 animate-pulse bg-slate-100 rounded-lg" />}>
+        <div className="bg-white border border-[#E8E0D8] rounded-xl p-4 mb-6 shadow-sm">
+          <Suspense fallback={<div className="h-10 animate-pulse bg-[#F5EFE8] rounded-lg" />}>
             <VendorFilterBar />
           </Suspense>
         </div>
@@ -104,9 +104,9 @@ export default async function VendorsPage({ searchParams }: PageProps) {
 
         {/* Empty state */}
         {!error && vendors.length === 0 && (
-          <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-            <p className="text-slate-500 text-lg">No vendors found.</p>
-            <p className="text-slate-400 text-sm mt-1">Try adjusting your filters.</p>
+          <div className="bg-white border border-[#E8E0D8] rounded-xl p-12 text-center">
+            <p className="text-[#6B6B76] text-lg">No vendors found.</p>
+            <p className="text-[#6B6B76] text-sm mt-1">Try adjusting your filters.</p>
           </div>
         )}
 
@@ -125,16 +125,16 @@ export default async function VendorsPage({ searchParams }: PageProps) {
             {hasPrev && (
               <Link
                 href={buildPageHref(page - 1)}
-                className="min-h-[44px] px-5 py-2.5 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors flex items-center"
+                className="min-h-[44px] px-5 py-2.5 border border-[#C5A47E]/40 text-[#2E2E38] text-sm font-medium rounded-lg hover:bg-[#FEFAF6] transition-colors flex items-center"
               >
                 ← Previous
               </Link>
             )}
-            <span className="text-slate-500 text-sm">Page {page}</span>
+            <span className="text-[#6B6B76] text-sm">Page {page}</span>
             {hasNext && (
               <Link
                 href={buildPageHref(page + 1)}
-                className="min-h-[44px] px-5 py-2.5 bg-[#1848C8] hover:bg-[#0A1F4D] text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+                className="min-h-[44px] px-5 py-2.5 bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium rounded-lg transition-colors flex items-center"
               >
                 Next →
               </Link>

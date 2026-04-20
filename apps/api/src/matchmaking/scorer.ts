@@ -150,9 +150,6 @@ function scoreLifestyleCompatibility(
   // Drinking (max 5)
   if (user.drink === candidate.drink) score += 5;
 
-  // Remaining lifestyle points (max 2) — placeholder
-  score += 2;
-
   return Math.min(score, 20);
 }
 
@@ -203,9 +200,6 @@ function scoreFamilyValues(
     if (uIdx !== -1 && cIdx !== -1 && Math.abs(uIdx - cIdx) === 1) score += 4;
   }
 
-  // Remaining family compatibility (max 4)
-  score += 4;
-
   return Math.min(score, 20);
 }
 
@@ -219,20 +213,17 @@ function scorePreferenceOverlap(
 
   // Religion preference
   total++;
-  if (
-    user.preferences.openToInterfaith ||
-    user.preferences.religion.length === 0 ||
-    user.preferences.religion.includes(candidate.religion)
-  ) {
+  if (user.preferences.religion.length === 0) {
+    met += 0.5;
+  } else if (user.preferences.openToInterfaith || user.preferences.religion.includes(candidate.religion)) {
     met++;
   }
 
   // Education preference
   total++;
-  if (
-    user.preferences.education.length === 0 ||
-    user.preferences.education.includes(candidate.education)
-  ) {
+  if (user.preferences.education.length === 0) {
+    met += 0.5;
+  } else if (user.preferences.education.includes(candidate.education)) {
     met++;
   }
 
@@ -245,19 +236,17 @@ function scorePreferenceOverlap(
 
   // Family type preference
   total++;
-  if (
-    user.preferences.familyType.length === 0 ||
-    user.preferences.familyType.includes(candidate.familyType)
-  ) {
+  if (user.preferences.familyType.length === 0) {
+    met += 0.5;
+  } else if (user.preferences.familyType.includes(candidate.familyType)) {
     met++;
   }
 
   // Diet preference
   total++;
-  if (
-    user.preferences.diet.length === 0 ||
-    user.preferences.diet.includes(candidate.diet)
-  ) {
+  if (user.preferences.diet.length === 0) {
+    met += 0.5;
+  } else if (user.preferences.diet.includes(candidate.diet)) {
     met++;
   }
 

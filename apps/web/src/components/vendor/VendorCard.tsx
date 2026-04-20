@@ -43,7 +43,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
           <h3 className="font-semibold text-[#7B2D42] text-base leading-snug truncate">
             {vendor.businessName}
           </h3>
-          <p className="text-slate-500 text-xs mt-0.5">
+          <p className="text-[#6B6B76] text-xs mt-0.5">
             {vendor.city}, {vendor.state}
           </p>
         </div>
@@ -68,7 +68,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
       {/* Rating */}
       <div className="flex items-center gap-2">
         <StarRating rating={vendor.rating} />
-        <span className="text-slate-500 text-xs">
+        <span className="text-[#6B6B76] text-xs">
           {vendor.rating.toFixed(1)} ({vendor.totalReviews} reviews)
         </span>
       </div>
@@ -81,7 +81,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
       {/* CTA */}
       <Link
         href={`/vendors/${vendor.id}`}
-        className="mt-auto block text-center bg-[#1848C8] hover:bg-[#0A1F4D] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors min-h-[44px] flex items-center justify-center"
+        className="mt-auto block text-center bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors min-h-[44px] flex items-center justify-center"
       >
         View Profile
       </Link>
