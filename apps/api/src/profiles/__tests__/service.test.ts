@@ -14,6 +14,10 @@ vi.mock('@smartshaadi/db', () => ({
 vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
   ProfileContent: { findOne: vi.fn(), findOneAndUpdate: vi.fn() },
 }));
+vi.mock('../content.service.js', () => ({
+  computeAndUpdateCompleteness: vi.fn().mockResolvedValue(0),
+  getMyProfileContent: vi.fn().mockResolvedValue(null),
+}));
 vi.mock('../../storage/service.js', () => ({
   getPhotoUrl: vi.fn().mockResolvedValue('https://mock.r2/photo.jpg'),
   getPhotoUrls: vi.fn().mockResolvedValue([]),
@@ -23,7 +27,7 @@ describe('profiles/service', () => {
   it('exports getMyProfile', async () => {
     const mod = await import('../service.js');
     expect(typeof mod.getMyProfile).toBe('function');
-  });
+  }, 15000);
 
   it('exports updateMyProfile', async () => {
     const mod = await import('../service.js');

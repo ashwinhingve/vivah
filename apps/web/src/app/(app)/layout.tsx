@@ -1,10 +1,18 @@
 import type { ReactNode } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { UserMenu } from '@/components/ui/UserMenu.client';
+import { AppNav } from '@/components/layout/AppNav.client';
+import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value;
+  if (!token) redirect('/login');
+
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-[#FEFAF6] pb-20">
       <header className="sticky top-0 z-30 border-b border-[#C5A47E]/20 bg-white/90 backdrop-blur-sm px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link
@@ -14,23 +22,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             Smart Shaadi
           </Link>
           <div className="flex items-center gap-3">
-            <Link
-              href="/requests"
-              className="text-xs font-medium text-[#6B6B76] hover:text-[#2E2E38] transition-colors"
-            >
-              Requests
-            </Link>
-            <Link
-              href="/profile/personal"
-              className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998] transition-colors"
-            >
-              My Profile
-            </Link>
+            <RoleSwitcher />
             <UserMenu />
           </div>
         </div>
       </header>
       {children}
+      <AppNav />
     </div>
   );
 }

@@ -72,6 +72,13 @@ app.use('/api/v1/vendors', vendorsRouter);        // GET /vendors, GET /vendors/
 app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookings/:id, PATCH status
 app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
 
+if (env.NODE_ENV === 'development') {
+  void import('./dev/router.js').then(({ devRouter }) => {
+    app.use('/api/v1/dev', devRouter);
+    console.info('🔧 Dev router mounted at /api/v1/dev');
+  });
+}
+
 // ── Start ──────────────────────────────────────────────────────────────────────
 
 connectMongo().catch((err) => {
