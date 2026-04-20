@@ -27,7 +27,11 @@ export function UserMenu() {
 
   async function handleLogout() {
     setLoading(true);
-    await authClient.signOut();
+    try {
+      await authClient.signOut();
+    } catch {
+      // ignore network errors — still redirect
+    }
     router.push('/login');
   }
 
