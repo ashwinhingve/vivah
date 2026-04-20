@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
 const ROLES = [
   { value: 'INDIVIDUAL', label: 'Individual' },
   { value: 'VENDOR', label: 'Vendor' },
@@ -16,19 +14,24 @@ const ROLES = [
 export function RoleSwitcher() {
   const [loading, setLoading] = useState(false);
 
-  if (process.env['NODE_ENV'] !== 'development') return null;
-
   async function handleSwitch(role: string) {
     setLoading(true);
     try {
-      await fetch(`${API_URL}/api/v1/dev/switch-role`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/api/v1/dev/switch-role`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role }),
       });
-      window.location.href = '/dashboard';
-    } catch {
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as unknown;
+        console.error('Role switch failed:', res.status, body);
+        setLoading(false);
+        return;
+      }
+      window.location.replace('/dashboard');
+    } catch (err) {
+      console.error('Role switch error:', err);
       setLoading(false);
     }
   }

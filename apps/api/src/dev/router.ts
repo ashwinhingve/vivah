@@ -16,5 +16,10 @@ devRouter.post('/switch-role', authenticate, async (req: Request, res: Response)
     return;
   }
   await db.update(user).set({ role, updatedAt: new Date() }).where(eq(user.id, req.user!.id));
+  // Expire the 5-min session cache cookie so the next request reads the new role from DB
+  res.setHeader('Set-Cookie', [
+    'better-auth.session_data=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax',
+    'better-auth.session_data.sig=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax',
+  ]);
   ok(res, { success: true, newRole: role });
 });

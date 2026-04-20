@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             Smart Shaadi
           </Link>
           <div className="flex items-center gap-3">
-            <RoleSwitcher />
+            {process.env.NODE_ENV === 'development' && <RoleSwitcher />}
             <UserMenu />
           </div>
         </div>

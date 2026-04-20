@@ -72,28 +72,30 @@ app.use('/api/v1/vendors', vendorsRouter);        // GET /vendors, GET /vendors/
 app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookings/:id, PATCH status
 app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
 
-if (env.NODE_ENV === 'development') {
-  void import('./dev/router.js').then(({ devRouter }) => {
-    app.use('/api/v1/dev', devRouter);
-    console.info('🔧 Dev router mounted at /api/v1/dev');
-  });
-}
-
 // ── Start ──────────────────────────────────────────────────────────────────────
 
-connectMongo().catch((err) => {
-  console.error('Failed to connect to MongoDB:', err);
-  // Non-fatal in mock mode; fatal in production (process exits)
-  if (!env.USE_MOCK_SERVICES) { process.exit(1); }
-});
+async function bootstrap(): Promise<void> {
+  if (env.NODE_ENV === 'development') {
+    const { devRouter } = await import('./dev/router.js');
+    app.use('/api/v1/dev', devRouter);
+    console.info('🔧 Dev router mounted at /api/v1/dev');
+  }
 
-const server = createServer(app)
-initSocket(server)
-server.listen(env.PORT, () => {
-  console.info(`API server running on port ${env.PORT}`);
-});
+  connectMongo().catch((err) => {
+    console.error('Failed to connect to MongoDB:', err);
+    if (!env.USE_MOCK_SERVICES) { process.exit(1); }
+  });
 
-if (!env.USE_MOCK_SERVICES) { void startGunaRecalcWorker(); }
+  const server = createServer(app);
+  initSocket(server);
+  server.listen(env.PORT, () => {
+    console.info(`API server running on port ${env.PORT}`);
+  });
 
-// Start escrow release worker — processes 48h delayed payouts
-registerEscrowReleaseWorker();
+  if (!env.USE_MOCK_SERVICES) { void startGunaRecalcWorker(); }
+
+  // Start escrow release worker — processes 48h delayed payouts
+  registerEscrowReleaseWorker();
+}
+
+void bootstrap();
