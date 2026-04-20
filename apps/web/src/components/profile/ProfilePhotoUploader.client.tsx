@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
 interface Photo {
   id: string;
   r2Key: string;
@@ -101,8 +103,9 @@ export function ProfilePhotoUploader({
         )
       );
 
-      const presignRes = await fetch('/api/v1/storage/presign', {
+      const presignRes = await fetch(`${API_BASE}/api/v1/storage/presign`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fileName: file.name,
@@ -143,8 +146,9 @@ export function ProfilePhotoUploader({
 
       // Step 3: POST /api/v1/profiles/me/photos
       const isPrimaryPhoto = photos.length === 0;
-      const registerRes = await fetch('/api/v1/profiles/me/photos', {
+      const registerRes = await fetch(`${API_BASE}/api/v1/profiles/me/photos`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           r2Key,
@@ -188,8 +192,9 @@ export function ProfilePhotoUploader({
    */
   const handleDelete = async (photoId: string) => {
     try {
-      const res = await fetch(`/api/v1/profiles/me/photos/${photoId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/profiles/me/photos/${photoId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!res.ok) {
@@ -214,8 +219,9 @@ export function ProfilePhotoUploader({
    */
   const handleSetPrimary = async (photoId: string) => {
     try {
-      const res = await fetch('/api/v1/profiles/me/photos/primary', {
+      const res = await fetch(`${API_BASE}/api/v1/profiles/me/photos/primary`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photoId }),
       });
@@ -275,8 +281,9 @@ export function ProfilePhotoUploader({
     }));
 
     try {
-      const res = await fetch('/api/v1/profiles/me/photos/reorder', {
+      const res = await fetch(`${API_BASE}/api/v1/profiles/me/photos/reorder`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
           reorderedPhotos.map((p) => ({
