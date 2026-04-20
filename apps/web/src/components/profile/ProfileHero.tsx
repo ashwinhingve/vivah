@@ -1,6 +1,6 @@
 interface ProfileHeroProps {
   name: string;
-  age: number;
+  age: number | null;
   city: string;
   occupation?: string;
   primaryPhotoUrl?: string;
@@ -84,7 +84,7 @@ export function ProfileHero({
             {name}
           </p>
           <p className="text-white/80 text-sm mt-0.5 truncate">
-            {age} yrs · {city}
+            {age != null ? `${age} yrs` : 'Age not set'}{city ? ` · ${city}` : ''}
           </p>
         </div>
 

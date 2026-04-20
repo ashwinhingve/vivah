@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useState } from 'react';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
+import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateHoroscope } from '../actions';
 import { RASHI_LABELS, NAKSHATRA_LABELS } from '@smartshaadi/types';
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const STEPS = [
   { label: 'Personal',  done: true,  active: false },
@@ -17,22 +19,45 @@ const STEPS = [
 const RASHI_OPTIONS = Object.entries(RASHI_LABELS) as [string, string][];
 const NAKSHATRA_OPTIONS = Object.entries(NAKSHATRA_LABELS) as [string, string][];
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full rounded-lg bg-[#0E7C7B] py-3 text-sm font-semibold text-white disabled:opacity-60 active:scale-95 transition-transform"
-    >
-      {pending ? 'Saving…' : 'Continue'}
-    </button>
-  );
+interface ProfileSnapshot {
+  horoscope?: {
+    rashi?: string;
+    nakshatra?: string;
+    manglik?: 'YES' | 'NO' | 'PARTIAL';
+    dob?: string;
+    tob?: string;
+    pob?: string;
+  };
+}
+
+function dobString(v?: string): string {
+  if (!v) return '';
+  return new Date(v).toISOString().slice(0, 10);
 }
 
 export default function HoroscopePage() {
   const [state, formAction] = useActionState(updateHoroscope, undefined);
+  const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [manglik, setManglik] = useState<'YES' | 'NO' | 'PARTIAL'>('NO');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE}/api/v1/profiles/me`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json: { success?: boolean; data?: ProfileSnapshot } | null) => {
+        if (cancelled) return;
+        if (json?.success && json.data) {
+          setProfile(json.data);
+          if (json.data.horoscope?.manglik) setManglik(json.data.horoscope.manglik);
+        }
+        setLoaded(true);
+      })
+      .catch(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const h = profile?.horoscope;
 
   return (
     <div className="min-h-screen bg-[#FEFAF6]">
@@ -44,19 +69,19 @@ export default function HoroscopePage() {
           Help us find your most compatible match.
         </p>
 
-        <form action={formAction} className="mt-6 space-y-5">
+        <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
               {state.error}
             </div>
           )}
-          {/* Rashi */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">
               Rashi (Moon Sign)
             </label>
             <select
               name="rashi"
+              defaultValue={h?.rashi ?? ''}
               className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             >
               <option value="">Select Rashi</option>
@@ -66,13 +91,13 @@ export default function HoroscopePage() {
             </select>
           </div>
 
-          {/* Nakshatra */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">
               Nakshatra (Birth Star)
             </label>
             <select
               name="nakshatra"
+              defaultValue={h?.nakshatra ?? ''}
               className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             >
               <option value="">Select Nakshatra</option>
@@ -82,7 +107,6 @@ export default function HoroscopePage() {
             </select>
           </div>
 
-          {/* Manglik */}
           <div>
             <p className="block text-sm font-medium text-[#2E2E38] mb-2">Manglik Status</p>
             <div className="flex gap-3">
@@ -109,7 +133,6 @@ export default function HoroscopePage() {
             </div>
           </div>
 
-          {/* DOB */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">
               Date of Birth
@@ -117,11 +140,11 @@ export default function HoroscopePage() {
             <input
               type="date"
               name="dob"
+              defaultValue={dobString(h?.dob)}
               className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             />
           </div>
 
-          {/* TOB */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">
               Time of Birth <span className="text-[#6B6B76] font-normal">(HH:MM)</span>
@@ -129,11 +152,11 @@ export default function HoroscopePage() {
             <input
               type="time"
               name="tob"
+              defaultValue={h?.tob ?? ''}
               className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             />
           </div>
 
-          {/* POB */}
           <div>
             <label className="block text-sm font-medium text-[#2E2E38] mb-1">
               Place of Birth
@@ -141,18 +164,17 @@ export default function HoroscopePage() {
             <input
               type="text"
               name="pob"
+              defaultValue={h?.pob ?? ''}
               placeholder="e.g. Pune, Maharashtra"
               className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] placeholder:text-[#6B6B76] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             />
           </div>
 
-          {/* Kundli chart placeholder */}
           <div className="rounded-xl border border-dashed border-[#E8E0D8] bg-white p-5 text-center">
             <p className="text-sm font-medium text-[#7B2D42]">Kundli Chart Upload</p>
             <p className="mt-1 text-xs text-[#6B6B76]">Coming soon — upload your birth chart PDF or image</p>
           </div>
 
-          {/* Guna Milan placeholder */}
           <div className="rounded-xl border border-[#0E7C7B]/20 bg-[#0E7C7B]/5 p-5 text-center">
             <p className="text-sm font-medium text-[#0E7C7B]">Guna Milan Score</p>
             <p className="mt-1 text-xs text-[#6B6B76]">
@@ -160,13 +182,7 @@ export default function HoroscopePage() {
             </p>
           </div>
 
-          <SubmitButton />
-
-          <div className="text-center">
-            <a href="/profile/community" className="text-sm text-[#6B6B76] underline-offset-2 hover:underline">
-              Skip for now
-            </a>
-          </div>
+          <OnboardingNav currentStep={5} backHref="/profile/lifestyle" skipHref="/profile/community" />
         </form>
       </div>
     </div>

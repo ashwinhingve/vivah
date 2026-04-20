@@ -80,6 +80,8 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/personal');
   redirect('/profile/family');
 }
 
@@ -117,6 +119,8 @@ export async function updateFamily(_prev: unknown, formData: FormData): Promise<
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/family');
   redirect('/profile/career');
 }
 
@@ -168,6 +172,8 @@ export async function updateCareer(_prev: unknown, formData: FormData): Promise<
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/career');
   redirect('/profile/lifestyle');
 }
 
@@ -201,6 +207,8 @@ export async function updateLifestyle(_prev: unknown, formData: FormData): Promi
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/lifestyle');
   redirect('/profile/horoscope');
 }
 
@@ -232,6 +240,8 @@ export async function updateHoroscope(_prev: unknown, formData: FormData): Promi
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/horoscope');
   redirect('/profile/community');
 }
 
@@ -261,6 +271,8 @@ export async function updateCommunity(_prev: unknown, formData: FormData): Promi
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/community');
   redirect('/profile/preferences');
 }
 
@@ -324,5 +336,7 @@ export async function updatePreferences(_prev: unknown, formData: FormData): Pro
   }
 
   revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/preferences');
   redirect('/dashboard');
 }

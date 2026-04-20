@@ -102,7 +102,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
             <div className="shrink-0">
               <Link
                 href={`/bookings/new?vendorId=${vendor.id}`}
-                className="block text-center bg-[#1848C8] hover:bg-[#0A1F4D] text-white font-semibold px-6 py-3 rounded-xl transition-colors min-h-[44px] min-w-[140px] flex items-center justify-center shadow-sm"
+                className="block text-center bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold px-6 py-3 rounded-xl transition-colors min-h-[44px] min-w-[140px] flex items-center justify-center shadow-sm"
               >
                 Book Now
               </Link>

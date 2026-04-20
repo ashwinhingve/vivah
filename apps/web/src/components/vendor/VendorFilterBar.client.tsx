@@ -44,7 +44,7 @@ export function VendorFilterBar() {
           id="vendor-category"
           name="category"
           defaultValue={currentCategory}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#1848C8]"
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
         >
           <option value="">All Categories</option>
           {CATEGORIES.map((cat) => (
@@ -65,14 +65,14 @@ export function VendorFilterBar() {
           type="text"
           placeholder="e.g. Mumbai, Delhi"
           defaultValue={currentCity}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#1848C8]"
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="min-h-[44px] px-5 py-2 bg-[#1848C8] hover:bg-[#0A1F4D] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
+        className="min-h-[44px] px-5 py-2 bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
       >
         {isPending ? 'Searching…' : 'Search'}
       </button>

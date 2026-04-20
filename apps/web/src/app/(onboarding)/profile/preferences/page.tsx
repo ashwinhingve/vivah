@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useState } from 'react';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
+import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updatePreferences } from '../actions';
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const STEPS = [
   { label: 'Personal',    done: true,  active: false },
@@ -25,17 +27,18 @@ const MARITAL_STATUS_OPTIONS = [
 const RELIGION_OPTIONS = ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Jain', 'Buddhist', 'Any'];
 const DIET_OPTIONS = ['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN'];
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="flex-1 bg-[#0E7C7B] hover:bg-[#149998] text-white rounded-lg px-6 py-3 min-h-[44px] font-medium transition-colors disabled:opacity-50"
-    >
-      {pending ? 'Saving...' : 'Save Preferences'}
-    </button>
-  );
+interface ProfileSnapshot {
+  partnerPreferences?: {
+    ageRange?: { min?: number; max?: number };
+    heightRange?: { min?: number; max?: number };
+    manglik?: 'ANY' | 'ONLY_MANGLIK' | 'NON_MANGLIK';
+    openToInterfaith?: boolean;
+    openToInterCaste?: boolean;
+    diet?: string[];
+    maritalStatus?: string[];
+    religion?: string[];
+    partnerDescription?: string;
+  };
 }
 
 export default function PreferencesPage() {
@@ -52,6 +55,30 @@ export default function PreferencesPage() {
   const [openToInterCaste, setOpenToInterCaste] = useState(false);
   const [partnerDescription, setPartnerDescription] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE}/api/v1/profiles/me`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json: { success?: boolean; data?: ProfileSnapshot } | null) => {
+        if (cancelled) return;
+        const p = json?.data?.partnerPreferences;
+        if (!p) return;
+        if (p.ageRange?.min != null) setAgeMin(p.ageRange.min);
+        if (p.ageRange?.max != null) setAgeMax(p.ageRange.max);
+        if (p.heightRange?.min != null) setHeightMin(p.heightRange.min);
+        if (p.heightRange?.max != null) setHeightMax(p.heightRange.max);
+        if (p.maritalStatus) setSelectedMarital(p.maritalStatus);
+        if (p.religion) setSelectedReligion(p.religion);
+        if (p.diet) setSelectedDiet(p.diet);
+        if (p.manglik) setManglik(p.manglik);
+        if (typeof p.openToInterfaith === 'boolean') setOpenToInterfaith(p.openToInterfaith);
+        if (typeof p.openToInterCaste === 'boolean') setOpenToInterCaste(p.openToInterCaste);
+        if (p.partnerDescription) setPartnerDescription(p.partnerDescription);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   function toggleChip(arr: string[], setArr: (v: string[]) => void, val: string) {
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
@@ -71,7 +98,6 @@ export default function PreferencesPage() {
             {state.error}
           </div>
         )}
-        {/* Hidden inputs carry the stateful slider/chip values */}
         <input type="hidden" name="ageMin" value={ageMin} />
         <input type="hidden" name="ageMax" value={ageMax} />
         <input type="hidden" name="heightMin" value={heightMin} />
@@ -83,7 +109,6 @@ export default function PreferencesPage() {
           <input key={v} type="hidden" name="diet" value={v} />
         ))}
 
-        {/* Age Range */}
         <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-4">
           <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">
             Basic Preferences
@@ -176,7 +201,6 @@ export default function PreferencesPage() {
                   {r}
                 </button>
               ))}
-              {/* religion uses getAll in action — pass as hidden inputs */}
               {selectedReligion.map(v => (
                 <input key={v} type="hidden" name="religion" value={v} />
               ))}
@@ -184,7 +208,6 @@ export default function PreferencesPage() {
           </div>
         </div>
 
-        {/* Advanced Filters (accordion) */}
         <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 overflow-hidden">
           <button
             type="button"
@@ -260,7 +283,6 @@ export default function PreferencesPage() {
           )}
         </div>
 
-        {/* Partner Description */}
         <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
           <h2 className="text-lg font-semibold text-[#7B2D42] mb-3 font-heading">
             Describe Your Ideal Partner
@@ -277,15 +299,7 @@ export default function PreferencesPage() {
           <p className="text-xs text-[#6B6B76] text-right mt-1">{partnerDescription.length}/1000</p>
         </div>
 
-        <div className="flex gap-3">
-          <SubmitButton />
-          <a
-            href="/dashboard"
-            className="px-6 py-3 text-[#6B6B76] hover:text-[#2E2E38] text-sm min-h-[44px] flex items-center"
-          >
-            Skip
-          </a>
-        </div>
+        <OnboardingNav currentStep={7} backHref="/profile/community" skipHref="/profile/photos" saveLabel="Save Preferences" />
       </form>
     </div>
   );

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useState } from 'react';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
+import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateLifestyle } from '../actions';
 import { HYPER_NICHE_TAGS } from '@smartshaadi/schemas';
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const STEPS = [
   { label: 'Personal', done: true, active: false },
@@ -20,55 +22,59 @@ const LANGUAGES = [
 ];
 
 const HOBBIES = [
-  'Reading',
-  'Cooking',
-  'Travelling',
-  'Music',
-  'Movies',
-  'Sports',
-  'Yoga',
-  'Dancing',
-  'Painting',
-  'Photography',
-  'Gaming',
-  'Gardening',
-  'Cycling',
-  'Swimming',
-  'Writing',
-  'Meditation',
-  'Trekking',
-  'Socialising',
-  'Volunteering',
-  'Fitness',
+  'Reading', 'Cooking', 'Travelling', 'Music', 'Movies',
+  'Sports', 'Yoga', 'Dancing', 'Painting', 'Photography',
+  'Gaming', 'Gardening', 'Cycling', 'Swimming', 'Writing',
+  'Meditation', 'Trekking', 'Socialising', 'Volunteering', 'Fitness',
 ];
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="bg-[#0E7C7B] hover:bg-[#149998] text-white rounded-lg px-6 py-3 min-h-[44px] w-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-    >
-      {pending ? 'Saving…' : 'Save & Finish'}
-    </button>
-  );
+interface ProfileSnapshot {
+  lifestyle?: {
+    diet?: string;
+    smoking?: string;
+    drinking?: string;
+    hobbies?: string[];
+    hyperNicheTags?: string[];
+    languagesSpoken?: string[];
+    fitnessLevel?: string;
+  };
 }
 
 export default function LifestylePage() {
   const [state, formAction] = useActionState(updateLifestyle, undefined);
+  const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE}/api/v1/profiles/me`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json: { success?: boolean; data?: ProfileSnapshot } | null) => {
+        if (cancelled) return;
+        if (json?.success && json.data) {
+          setProfile(json.data);
+          const l = json.data.lifestyle;
+          if (l?.hobbies) setSelectedHobbies(l.hobbies);
+          if (l?.hyperNicheTags) setSelectedTags(l.hyperNicheTags);
+          if (l?.languagesSpoken) setSelectedLanguages(l.languagesSpoken);
+        }
+        setLoaded(true);
+      })
+      .catch(() => { if (!cancelled) setLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const l = profile?.lifestyle;
+
   function toggleHobby(h: string) {
     setSelectedHobbies((prev) => (prev.includes(h) ? prev.filter((x) => x !== h) : [...prev, h]));
   }
-
   function toggleTag(t: string) {
     setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
   }
-
   function toggleLanguage(lang: string) {
     setSelectedLanguages((prev) => (prev.includes(lang) ? prev.filter((x) => x !== lang) : [...prev, lang]));
   }
@@ -78,13 +84,12 @@ export default function LifestylePage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
         <h1 className="text-lg font-semibold text-[#7B2D42] font-playfair mb-6">Lifestyle & Interests</h1>
-        <form action={formAction} className="space-y-6">
+        <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-6">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
               {state.error}
             </div>
           )}
-          {/* Hidden inputs for multi-select values */}
           {selectedHobbies.map((h) => (
             <input key={h} type="hidden" name="hobbies" value={h} />
           ))}
@@ -100,7 +105,13 @@ export default function LifestylePage() {
             <div className="flex gap-3 flex-wrap">
               {(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN'] as const).map((d) => (
                 <label key={d} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="diet" value={d} className="accent-[#0E7C7B]" />
+                  <input
+                    type="radio"
+                    name="diet"
+                    value={d}
+                    defaultChecked={l?.diet === d}
+                    className="accent-[#0E7C7B]"
+                  />
                   <span className="text-sm text-[#2E2E38]">
                     {d.replace('_', ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
                   </span>
@@ -115,7 +126,13 @@ export default function LifestylePage() {
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="smoking" value={v} className="accent-[#0E7C7B]" />
+                    <input
+                      type="radio"
+                      name="smoking"
+                      value={v}
+                      defaultChecked={l?.smoking === v}
+                      className="accent-[#0E7C7B]"
+                    />
                     <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                   </label>
                 ))}
@@ -126,7 +143,13 @@ export default function LifestylePage() {
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="drinking" value={v} className="accent-[#0E7C7B]" />
+                    <input
+                      type="radio"
+                      name="drinking"
+                      value={v}
+                      defaultChecked={l?.drinking === v}
+                      className="accent-[#0E7C7B]"
+                    />
                     <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                   </label>
                 ))}
@@ -200,19 +223,20 @@ export default function LifestylePage() {
             <div className="flex gap-3 flex-wrap">
               {(['ACTIVE', 'MODERATE', 'SEDENTARY'] as const).map((f) => (
                 <label key={f} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="fitnessLevel" value={f} className="accent-[#0E7C7B]" />
+                  <input
+                    type="radio"
+                    name="fitnessLevel"
+                    value={f}
+                    defaultChecked={l?.fitnessLevel === f}
+                    className="accent-[#0E7C7B]"
+                  />
                   <span className="text-sm text-[#2E2E38]">{f.charAt(0) + f.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="pt-2 space-y-3">
-            <SubmitButton />
-            <a href="/dashboard" className="block text-center text-sm text-[#6B6B76] hover:text-[#2E2E38]">
-              Skip for now
-            </a>
-          </div>
+          <OnboardingNav currentStep={4} backHref="/profile/career" skipHref="/profile/horoscope" />
         </form>
       </div>
     </div>

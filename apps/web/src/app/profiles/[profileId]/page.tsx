@@ -53,8 +53,12 @@ export default async function ProfileViewPage({ params }: Props) {
   // isSelf: API only exposes phone/email when viewing your own profile
   const isSelf = profile.phoneNumber != null || profile.email != null;
 
-  // Guna score — own horoscope field until Week 3 matching engine provides pairwise score
-  const gunaScore = profile.horoscope?.gunaScore ?? 0;
+  // Name: prefer MongoDB personal.fullName — profile.name is the raw phone from OTP signup
+  const displayName = profile.personal?.fullName ?? 'Complete your profile';
+
+  // Guna score — only show ring when horoscope data exists
+  const hasHoroscope = Boolean(profile.horoscope?.rashi ?? profile.horoscope?.nakshatra);
+  const gunaScore = profile.horoscope?.gunaScore ?? null;
 
   return (
     <div className="min-h-screen bg-[#FEFAF6] pb-28">
@@ -62,8 +66,8 @@ export default async function ProfileViewPage({ params }: Props) {
 
         {/* ── Profile Hero ────────────────────────────────── */}
         <ProfileHero
-          name={profile.name}
-          age={age ?? 0}
+          name={displayName}
+          age={age}
           city={city}
           occupation={profile.profession?.occupation}
           primaryPhotoUrl={primaryPhoto?.url}
@@ -76,15 +80,25 @@ export default async function ProfileViewPage({ params }: Props) {
 
           {/* ── Photo gallery — additional photos strip ─────── */}
           {profile.photos.length > 1 && (
-            <PhotoGallery photos={profile.photos} name={profile.name} />
+            <PhotoGallery photos={profile.photos} name={displayName} />
           )}
 
           {/* ── Compatibility (non-self only, Week 3 will wire real scores) ── */}
-          {!isSelf && (
+          {!isSelf && hasHoroscope && gunaScore != null && (
             <CompatibilityDisplay
               gunaScore={gunaScore}
               isLoading={false}
             />
+          )}
+          {!isSelf && !hasHoroscope && (
+            <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-5 text-center">
+              <p className="text-sm font-medium text-[#7B2D42] font-heading">
+                Guna compatibility not available
+              </p>
+              <p className="text-xs text-[#6B6B76] mt-1">
+                Add horoscope data to see Guna score
+              </p>
+            </div>
           )}
 
           {/* ── Safety Mode badge (non-self, contact hidden) ── */}

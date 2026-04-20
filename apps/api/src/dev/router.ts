@@ -4,6 +4,7 @@ import { user } from '@smartshaadi/db';
 import { authenticate } from '../auth/middleware.js';
 import { db } from '../lib/db.js';
 import { ok, err } from '../lib/response.js';
+import { seedProfileContent } from './seedProfiles.js';
 
 export const devRouter = Router();
 
@@ -30,4 +31,13 @@ devRouter.post('/switch-role', authenticate, async (req: Request, res: Response)
     'better-auth.session_data.sig=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax',
   ]);
   ok(res, { success: true, newRole: role });
+});
+
+devRouter.post('/seed-profiles', authenticate, async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await seedProfileContent();
+    ok(res, result);
+  } catch (e) {
+    err(res, 'SEED_FAILED', e instanceof Error ? e.message : 'seed failed', 500);
+  }
 });
