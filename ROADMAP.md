@@ -8,13 +8,29 @@
 ## Current Sprint
 
 ```
-Phase:    1 — Core Platform
-Week:     4 of 5
-Target:   Match Requests + Chat
+Phase:    1 — Core Platform — PRODUCTION AUDIT COMPLETE ✅
+Week:     5 of 5 — Ready for Colonel Deepak Loom demo
+Target:   Phase 2 — Wedding Planning (Week 6)
 Blocker:  None
 Mocks:    USE_MOCK_SERVICES=true
-Last updated: 2026-04-17
+Last updated: 2026-04-20
 ```
+
+### Phase 1 audit fixes (2026-04-20)
+
+- Privacy rule #5 now enforced: `GET /api/v1/profiles/:id` masks phone/email for all non-self viewers; only `GET /api/v1/profiles/:targetUserId/contact` exposes contact after ACCEPTED match
+- New endpoint `PUT /api/v1/profiles/me/safety-mode` — updates user safetyMode settings in ProfileContent
+- New endpoint `GET /api/v1/admin/stats` — returns totalUsers, activeVendors, bookingsThisMonth
+- Dashboard wired to `/api/v1/matchmaking/feed?limit=3` — real Recommended cards replace skeleton placeholders
+- CompletenessBar chips link to `/profile/[section]` — click any chip to resume onboarding
+- Match age now `number | null` end-to-end; MatchCard omits age when missing instead of showing 0 or 28
+- Match card gets `gunaPending` overlay prompting horoscope entry when score is not yet computed
+- VendorPortfolio + VendorCard + vendor detail page + payments page: remaining `#0A1F4D`/`#1848C8`/`bg-blue-*` replaced with Teal/Burgundy tokens
+- Undefined `font-playfair` utility replaced with `font-heading` on career, lifestyle, horoscope, community, photos, error.tsx
+- Touch-target 44px minimum applied to all remaining CTAs on dashboard, matches, requests
+- Razorpay webhook deduplicated — sole registration in `apps/api/src/index.ts`
+- Admin page forces dynamic rendering; dashboard forces dynamic rendering
+- Vendor service returns `portfolio: null` in mock mode instead of placeholder "Mock portfolio — enable real services" copy
 
 ---
 

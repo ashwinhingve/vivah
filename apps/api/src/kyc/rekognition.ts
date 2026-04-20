@@ -52,6 +52,10 @@ async function fetchImageBytes(r2Key: string): Promise<Uint8Array> {
 
 export async function analyzePhoto(r2Key: string): Promise<PhotoAnalysis> {
   // Read from process.env directly (not cached env) so tests can override per-block.
+  // NOTE: raw process.env read (not env.*) because the test suite toggles this
+  // at runtime via process.env mutations in beforeEach. The validated `env`
+  // object is frozen at module-load, so reading `env.USE_MOCK_SERVICES` here
+  // would lose test-time flexibility.
   if (process.env['USE_MOCK_SERVICES'] === 'true') {
     return { ...MOCK_ANALYSIS, analyzedAt: new Date().toISOString() };
   }

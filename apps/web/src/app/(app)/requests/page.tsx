@@ -166,7 +166,7 @@ export default function RequestsPage() {
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
-                className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[40px] ${
+                className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[44px] ${
                   tab === t
                     ? 'bg-[#7B2D42] text-white shadow-sm'
                     : 'text-[#6B6B76] hover:text-[#2E2E38]'
@@ -315,7 +315,7 @@ export default function RequestsPage() {
                   type="button"
                   onClick={() => void handleWithdraw(r.id)}
                   disabled={pending.has(r.id)}
-                  className="w-full border border-[#E8E0D8] text-[#6B6B76] text-sm font-medium rounded-lg py-2 min-h-[40px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
+                  className="w-full border border-[#E8E0D8] text-[#6B6B76] text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
                 >
                   Withdraw
                 </button>

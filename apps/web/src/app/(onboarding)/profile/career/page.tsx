@@ -70,7 +70,7 @@ export default function CareerPage() {
     <div>
       <ProfileProgress steps={STEPS} />
       <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-        <h1 className="text-lg font-semibold text-[#7B2D42] font-playfair mb-6">Education & Career</h1>
+        <h1 className="text-lg font-semibold text-[#7B2D42] font-heading mb-6">Education & Career</h1>
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">

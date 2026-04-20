@@ -47,7 +47,7 @@ export interface CompatibilityScore {
 export interface MatchFeedItem {
   profileId:     string
   name:          string
-  age:           number
+  age:           number | null
   city:          string
   compatibility: CompatibilityScore
   photoKey:      string | null

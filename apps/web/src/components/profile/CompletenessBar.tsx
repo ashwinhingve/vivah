@@ -1,19 +1,20 @@
 // apps/web/src/components/profile/CompletenessBar.tsx
 
+import Link from 'next/link';
 import type { ProfileSectionCompletion } from '@smartshaadi/types';
 
 interface Props {
   sections: ProfileSectionCompletion;
 }
 
-const SEGMENTS: { key: keyof Omit<ProfileSectionCompletion, 'score'>; label: string }[] = [
-  { key: 'personal',    label: 'Personal'    },
-  { key: 'photos',      label: 'Photos'      },
-  { key: 'family',      label: 'Family'      },
-  { key: 'career',      label: 'Career'      },
-  { key: 'lifestyle',   label: 'Lifestyle'   },
-  { key: 'horoscope',   label: 'Horoscope'   },
-  { key: 'preferences', label: 'Preferences' },
+const SEGMENTS: { key: keyof Omit<ProfileSectionCompletion, 'score'>; label: string; href: string }[] = [
+  { key: 'personal',    label: 'Personal',    href: '/profile/personal'    },
+  { key: 'photos',      label: 'Photos',      href: '/profile/photos'      },
+  { key: 'family',      label: 'Family',      href: '/profile/family'      },
+  { key: 'career',      label: 'Career',      href: '/profile/career'      },
+  { key: 'lifestyle',   label: 'Lifestyle',   href: '/profile/lifestyle'   },
+  { key: 'horoscope',   label: 'Horoscope',   href: '/profile/horoscope'   },
+  { key: 'preferences', label: 'Preferences', href: '/profile/preferences' },
 ];
 
 export function CompletenessBar({ sections }: Props) {
@@ -32,22 +33,23 @@ export function CompletenessBar({ sections }: Props) {
         />
       </div>
 
-      {/* Per-section chips */}
+      {/* Per-section chips — each links to its onboarding step */}
       <div className="flex flex-wrap gap-2">
-        {SEGMENTS.map(({ key, label }) => (
-          <div
+        {SEGMENTS.map(({ key, label, href }) => (
+          <Link
             key={key}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+            href={href}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               sections[key]
-                ? 'bg-[#ECFDF5] text-[#059669]'
-                : 'bg-[#E8E0D8] text-[#6B6B76]'
+                ? 'bg-[#ECFDF5] text-[#059669] hover:bg-[#D1FAE5]'
+                : 'bg-[#E8E0D8] text-[#6B6B76] hover:bg-[#D9CFC0]'
             }`}
           >
             <span className={sections[key] ? 'text-[#059669]' : 'text-[#6B6B76]'}>
               {sections[key] ? '✓' : '○'}
             </span>
             {label}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

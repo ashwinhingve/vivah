@@ -114,7 +114,10 @@ function assertDrizzleDB(db: unknown): asserts db is DrizzleDB {
 
 function rowToProfileData(row: ProfileRow): ProfileData {
   const dob      = row.personal?.dob;
-  const age      = dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000)) : 28;
+  // Scorer needs a numeric age. Use 0 when dob is missing; this makes the user
+  // fail any realistic age-range filter, so they naturally stay out of feeds
+  // until they complete their profile. The feed output shape masks this to null.
+  const age      = dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000)) : 0;
   const income   = parseIncomeRange(row.profession?.incomeRange);
   const prefIncome = parseIncomeRange(row.partnerPreferences?.incomeRange);
   const prefAgeMin = row.partnerPreferences?.ageRange?.min ?? 18;
@@ -338,7 +341,7 @@ export async function computeAndCacheFeed(
     ranked.map(async (item) => {
       const uid = userIdMap.get(item.profileId);
       let name = nameMap.get(item.profileId) ?? 'Unknown';
-      let age = item.age;
+      let age: number | null = item.age != null && item.age > 0 ? item.age : null;
       let city = item.city;
 
       if (uid) {

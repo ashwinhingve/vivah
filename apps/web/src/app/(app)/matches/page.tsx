@@ -75,7 +75,7 @@ export default async function MatchesPage() {
           </div>
           <Link
             href="/requests"
-            className="flex items-center gap-1.5 rounded-lg border border-[#E8E0D8] bg-white px-3.5 py-2 text-sm font-medium text-[#2E2E38] shadow-sm hover:border-[#C5A47E] transition-colors min-h-[40px]"
+            className="flex items-center gap-1.5 rounded-lg border border-[#E8E0D8] bg-white px-3.5 py-2 text-sm font-medium text-[#2E2E38] shadow-sm hover:border-[#C5A47E] transition-colors min-h-[44px]"
           >
             Requests inbox
           </Link>

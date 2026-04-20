@@ -32,9 +32,9 @@ function PackageCard({ pkg }: { pkg: PortfolioPackage }) {
   return (
     <div className="border border-[#C5A47E]/40 rounded-xl p-4 bg-white">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h4 className="font-semibold text-[#0A1F4D] text-sm">{pkg.name ?? 'Package'}</h4>
+        <h4 className="font-semibold text-[#2E2E38] text-sm">{pkg.name ?? 'Package'}</h4>
         {pkg.price != null && (
-          <span className="text-[#1848C8] font-bold text-sm shrink-0">
+          <span className="text-[#0E7C7B] font-bold text-sm shrink-0">
             ₹{pkg.price.toLocaleString('en-IN')}
             {pkg.priceUnit && (
               <span className="text-slate-500 font-normal text-xs"> / {pkg.priceUnit.replace(/_/g, ' ').toLowerCase()}</span>
@@ -67,7 +67,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* About */}
       {portfolio?.about && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">About</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">About</h2>
           <p className="text-slate-600 leading-relaxed">{portfolio.about}</p>
         </section>
       )}
@@ -75,7 +75,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* Photo gallery */}
       {portfolio?.portfolio && portfolio.portfolio.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">Portfolio</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">Portfolio</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {portfolio.portfolio.map((item, i) => (
               <div key={i} className="border border-[#C5A47E]/30 rounded-xl p-3 bg-white">
@@ -83,7 +83,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
                   <p className="font-medium text-[#7B2D42] text-sm mb-1">{item.title}</p>
                 )}
                 {item.eventType && (
-                  <span className="inline-block bg-[#0A1F4D]/8 text-[#0A1F4D] text-xs px-2 py-0.5 rounded-full mb-2">
+                  <span className="inline-block bg-[#7B2D42]/10 text-[#7B2D42] text-xs px-2 py-0.5 rounded-full mb-2">
                     {item.eventType}
                   </span>
                 )}
@@ -104,7 +104,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* Packages */}
       {portfolio?.packages && portfolio.packages.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">Packages</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">Packages</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {portfolio.packages.map((pkg, i) => (
               <PackageCard key={i} pkg={pkg} />
@@ -116,15 +116,15 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* Services from PG */}
       {vendor.services.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">Services</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {vendor.services.map((svc) => (
               <div key={svc.id} className="border border-[#C5A47E]/30 rounded-xl p-3 bg-white">
-                <p className="font-medium text-[#0A1F4D] text-sm">{svc.name}</p>
+                <p className="font-medium text-[#2E2E38] text-sm">{svc.name}</p>
                 {svc.description && (
                   <p className="text-slate-500 text-xs mt-1">{svc.description}</p>
                 )}
-                <p className="text-[#1848C8] font-semibold text-sm mt-2">
+                <p className="text-[#0E7C7B] font-semibold text-sm mt-2">
                   ₹{svc.priceFrom.toLocaleString('en-IN')}
                   {svc.priceTo && svc.priceTo !== svc.priceFrom
                     ? ` – ₹${svc.priceTo.toLocaleString('en-IN')}`
@@ -140,12 +140,12 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* FAQs */}
       {portfolio?.faqs && portfolio.faqs.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">FAQs</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">FAQs</h2>
           <div className="space-y-3">
             {portfolio.faqs.map((faq, i) => (
               <div key={i} className="border border-[#C5A47E]/30 rounded-xl p-4 bg-white">
                 {faq.question && (
-                  <p className="font-medium text-[#0A1F4D] text-sm mb-1">{faq.question}</p>
+                  <p className="font-medium text-[#2E2E38] text-sm mb-1">{faq.question}</p>
                 )}
                 {faq.answer && (
                   <p className="text-slate-600 text-sm">{faq.answer}</p>
@@ -159,7 +159,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
       {/* Awards */}
       {portfolio?.awards && portfolio.awards.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-[#0A1F4D] mb-3">Awards & Recognition</h2>
+          <h2 className="text-lg font-semibold font-heading text-[#7B2D42] mb-3">Awards & Recognition</h2>
           <ul className="flex flex-wrap gap-2">
             {portfolio.awards.map((award, i) => (
               <li key={i} className="bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium px-3 py-1 rounded-full">

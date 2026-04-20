@@ -60,7 +60,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
 
       {/* Category badge */}
       <div>
-        <span className="inline-block bg-[#0A1F4D]/10 text-[#0A1F4D] text-xs font-medium px-2.5 py-0.5 rounded-full">
+        <span className="inline-block bg-[#7B2D42]/10 text-[#7B2D42] text-xs font-medium px-2.5 py-0.5 rounded-full">
           {vendor.category.replace(/_/g, ' ')}
         </span>
       </div>
@@ -75,7 +75,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
 
       {/* Price range */}
       {price && (
-        <p className="text-[#0A1F4D] text-sm font-medium">{price}</p>
+        <p className="text-[#2E2E38] text-sm font-medium">{price}</p>
       )}
 
       {/* CTA */}

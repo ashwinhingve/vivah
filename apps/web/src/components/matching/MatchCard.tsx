@@ -1,12 +1,15 @@
+'use client';
+
 interface MatchCardProps {
   id: string;
   name: string;
-  age: number;
+  age: number | null;
   city: string;
   occupation?: string;
   primaryPhotoUrl?: string;
   compatibilityPct?: number;
   isVerified?: boolean;
+  gunaPending?: boolean;
   onSendInterest?: (id: string) => void;
   onBookmark?: (id: string) => void;
   skeleton?: false;
@@ -51,7 +54,8 @@ export function MatchCard(props: Props) {
     );
   }
 
-  const { id, name, age, city, occupation, primaryPhotoUrl, compatibilityPct, isVerified, onSendInterest, onBookmark } = props;
+  const { id, name, age, city, occupation, primaryPhotoUrl, compatibilityPct, isVerified, gunaPending, onSendInterest, onBookmark } = props;
+  const ageLabel = age != null && age > 0 ? `, ${age}` : '';
   const initials = getInitials(name);
   const compatColor = compatibilityPct != null ? getCompatibilityColor(compatibilityPct) : undefined;
 
@@ -85,7 +89,7 @@ export function MatchCard(props: Props) {
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)' }}
         >
           <p className="text-white text-sm font-semibold leading-tight truncate font-heading">
-            {name}, {age}
+            {name}{ageLabel}
           </p>
           <p className="text-white/75 text-xs truncate">{city}</p>
         </div>
@@ -106,6 +110,13 @@ export function MatchCard(props: Props) {
             style={{ background: `${compatColor}22`, color: compatColor, border: `1px solid ${compatColor}44` }}
           >
             {compatibilityPct}% match
+          </div>
+        )}
+
+        {/* Guna pending — horoscope still computing */}
+        {gunaPending && (
+          <div className="absolute bottom-12 left-2 right-2 rounded-md bg-black/50 text-white text-[10px] px-2 py-1 text-center">
+            Add horoscope to see Guna score
           </div>
         )}
       </a>

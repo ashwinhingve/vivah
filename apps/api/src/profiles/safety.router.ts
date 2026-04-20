@@ -1,9 +1,34 @@
 import { Router, type Request, type Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import { requestContactUnlock, getContactIfVisible } from './safety.service.js';
+import { requestContactUnlock, getContactIfVisible, updateSafetyMode } from './safety.service.js';
 
 export const safetyRouter = Router();
+
+const SafetyModeSchema = z.object({
+  contactHidden: z.boolean().optional(),
+  photoHidden:   z.boolean().optional(),
+  incognito:     z.boolean().optional(),
+});
+
+/**
+ * PUT /api/v1/profiles/me/safety-mode
+ * Update the authenticated user's own safety-mode preferences in MongoDB ProfileContent.
+ */
+safetyRouter.put(
+  '/me/safety-mode',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = SafetyModeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+    const updated = await updateSafetyMode(req.user!.id, parsed.data);
+    ok(res, updated);
+  },
+);
 
 /**
  * POST /api/v1/profiles/:targetUserId/safety-unlock

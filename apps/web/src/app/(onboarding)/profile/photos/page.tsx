@@ -42,7 +42,7 @@ export default async function PhotosPage() {
           >
             ← Back
           </Link>
-          <h1 className="font-['Playfair_Display'] text-2xl font-semibold text-[#7B2D42]">
+          <h1 className="font-heading text-2xl font-semibold text-[#7B2D42]">
             Add Your Photos
           </h1>
           <p className="mt-1 text-sm text-[#6B6B76]">

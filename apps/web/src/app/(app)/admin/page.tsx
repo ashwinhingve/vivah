@@ -2,12 +2,20 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
 
+export const dynamic = 'force-dynamic';
+
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface AuthMe {
   id: string;
   role: string;
   status: string;
+}
+
+interface AdminStats {
+  totalUsers:        number;
+  activeVendors:     number;
+  bookingsThisMonth: number;
 }
 
 interface KycRow {
@@ -44,8 +52,14 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  const kycData = await fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token);
+  const [kycData, stats] = await Promise.all([
+    fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),
+    fetchAuth<AdminStats>('/api/v1/admin/stats', token),
+  ]);
   const kycQueue = kycData?.profiles ?? [];
+  const totalUsers = stats?.totalUsers ?? 0;
+  const activeVendors = stats?.activeVendors ?? 0;
+  const bookingsThisMonth = stats?.bookingsThisMonth ?? 0;
 
   return (
     <main className="min-h-screen bg-[#FEFAF6]">
@@ -61,7 +75,7 @@ export default async function AdminPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
             <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Total Users</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">—</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{totalUsers}</p>
             <p className="text-xs text-[#6B6B76]">registered</p>
           </div>
           <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
@@ -71,12 +85,12 @@ export default async function AdminPage() {
           </div>
           <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
             <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Active Vendors</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">—</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{activeVendors}</p>
             <p className="text-xs text-[#6B6B76]">on platform</p>
           </div>
           <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
             <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Bookings</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">—</p>
+            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{bookingsThisMonth}</p>
             <p className="text-xs text-[#6B6B76]">this month</p>
           </div>
         </div>

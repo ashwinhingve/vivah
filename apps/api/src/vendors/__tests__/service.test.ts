@@ -204,9 +204,9 @@ describe('vendors/service — getVendor', () => {
     expect(result).not.toBeNull();
     expect(result?.businessName).toBe('Rajan Photography');
     expect(result?.services).toHaveLength(1);
-    // Mock portfolio should be returned (USE_MOCK_SERVICES=true)
-    expect(result?.portfolio).toBeDefined();
-    expect(result?.portfolio?.about).toContain('Mock');
+    // In mock mode, portfolio is null so the frontend renders the empty state
+    // instead of placeholder copy. See service.ts:160.
+    expect(result?.portfolio).toBeNull();
   });
 
   it('returns null when vendor not found', async () => {

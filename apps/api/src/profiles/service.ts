@@ -317,16 +317,11 @@ export async function getProfileById(
     contentDoc = await contentModel.findOne({ userId: profile.userId }).lean() as MongoDoc | null;
   }
 
-  // Safety mode: mask contact if enabled and viewer is not owner
-  let phoneNumber: string | null = isSelf ? (userRow.phoneNumber ?? null) : null;
-  let email: string | null = isSelf ? (userRow.email ?? null) : null;
-  if (!isSelf && contentDoc) {
-    const safetyMode = contentDoc.safetyMode as { contactHidden?: boolean } | undefined;
-    if (safetyMode?.contactHidden === true) {
-      phoneNumber = null;
-      email = null;
-    }
-  }
+  // Privacy: phone/email always masked for non-self viewers. To retrieve contact,
+  // the viewer must call GET /api/v1/profiles/:targetUserId/contact which requires
+  // an ACCEPTED match (see safety.service.ts:getContactIfVisible).
+  const phoneNumber: string | null = isSelf ? (userRow.phoneNumber ?? null) : null;
+  const email: string | null = isSelf ? (userRow.email ?? null) : null;
 
   // Fetch profileSections row to populate sectionCompletion
   const [sectionsRow] = await db

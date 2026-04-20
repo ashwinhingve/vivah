@@ -58,11 +58,11 @@ export default async function VendorDetailPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/vendors" className="hover:text-[#1848C8] transition-colors">
+          <Link href="/vendors" className="hover:text-[#0E7C7B] transition-colors">
             Vendors
           </Link>
           <span>›</span>
-          <span className="text-[#0A1F4D] font-medium truncate">{vendor.businessName}</span>
+          <span className="text-[#2E2E38] font-medium truncate">{vendor.businessName}</span>
         </nav>
 
         {/* Vendor header */}
@@ -86,7 +86,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 {vendor.city}, {vendor.state}
               </p>
 
-              <span className="inline-block bg-[#0A1F4D]/10 text-[#0A1F4D] text-xs font-medium px-3 py-1 rounded-full mb-4">
+              <span className="inline-block bg-[#7B2D42]/10 text-[#7B2D42] text-xs font-medium px-3 py-1 rounded-full mb-4">
                 {vendor.category.replace(/_/g, ' ')}
               </span>
 

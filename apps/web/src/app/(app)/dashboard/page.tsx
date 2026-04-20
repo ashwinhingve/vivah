@@ -6,12 +6,23 @@ import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
 import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
 
+export const dynamic = 'force-dynamic';
+
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface ProfileData {
   profileCompleteness: number;
   sectionCompletion: ProfileSectionCompletion;
   premiumTier: string;
+}
+
+interface FeedItem {
+  profileId: string;
+  name: string;
+  age: number | null;
+  city: string;
+  photoKey: string | null;
+  compatibility: { totalScore: number; flags: string[] };
 }
 
 async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
@@ -32,7 +43,7 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  const [profile, bookingsData, requestsData] = await Promise.all([
+  const [profile, bookingsData, requestsData, feedData] = await Promise.all([
     fetchAuth<ProfileData>('/api/v1/profiles/me', token),
     fetchAuth<{ bookings: BookingSummary[]; total: number }>(
       '/api/v1/bookings?role=customer&limit=50',
@@ -42,6 +53,7 @@ export default async function DashboardPage() {
       '/api/v1/matchmaking/requests/received?limit=50',
       token,
     ),
+    fetchAuth<{ items: FeedItem[] }>('/api/v1/matchmaking/feed?limit=3', token),
   ]);
 
   const completeness = profile?.profileCompleteness ?? 0;
@@ -52,6 +64,7 @@ export default async function DashboardPage() {
   const upcomingBookings = allBookings.filter((b) => b.status === 'CONFIRMED').length;
   const pendingBookings = allBookings.filter((b) => b.status === 'PENDING').length;
   const pendingRequests = requestsData?.total ?? 0;
+  const feed = feedData?.items ?? [];
 
   return (
     <main className="min-h-screen bg-[#FEFAF6]">
@@ -110,7 +123,7 @@ export default async function DashboardPage() {
                 <p className="text-xs text-[#6B6B76] mt-0.5">A complete profile gets 3× more matches</p>
                 <Link
                   href="/profile/personal"
-                  className="mt-3 inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-4 py-2 min-h-[40px] hover:bg-[#149998] transition-colors"
+                  className="mt-3 inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-4 py-2 min-h-[44px] hover:bg-[#149998] transition-colors"
                 >
                   Start Profile →
                 </Link>
@@ -123,6 +136,11 @@ export default async function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">Recommended for You</h2>
+            {feed.length > 0 && (
+              <Link href="/matches" className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998]">
+                See all →
+              </Link>
+            )}
           </div>
           {completeness < 40 ? (
             <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
@@ -137,22 +155,31 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/profile/personal"
-                className="inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-5 py-2.5 min-h-[40px] hover:bg-[#149998] transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-5 py-2.5 min-h-[44px] hover:bg-[#149998] transition-colors"
               >
                 Complete Profile →
               </Link>
             </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[1, 2, 3].map((i) => (
-                  <MatchCard key={i} skeleton />
-                ))}
-              </div>
-              <p className="text-center text-xs text-[#6B6B76] mt-3">
-                Matching engine launches in Week 4 — you&apos;re all set
+          ) : feed.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
+              <p className="text-sm text-[#6B6B76]">
+                No matches yet. We&apos;re warming up your recommendations — check back shortly.
               </p>
-            </>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {feed.slice(0, 3).map((item) => (
+                <MatchCard
+                  key={item.profileId}
+                  id={item.profileId}
+                  name={item.name || 'Member'}
+                  age={item.age}
+                  city={item.city}
+                  compatibilityPct={item.compatibility?.totalScore}
+                  gunaPending={item.compatibility?.flags?.includes('guna_pending')}
+                />
+              ))}
+            </div>
           )}
         </div>
 

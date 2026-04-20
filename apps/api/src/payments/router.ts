@@ -3,13 +3,14 @@
  *
  * Routes:
  *   POST /payments/order             → createPaymentOrder  (authenticated)
- *   POST /payments/webhook           → webhookHandler      (NO auth — raw body)
  *   GET  /payments/history           → getPaymentHistory   (authenticated)
  *   POST /payments/refund/:id        → requestRefund       (authenticated)
  *   GET  /payments/escrow/:bookingId → getEscrowStatus     (authenticated)
+ *
+ * POST /payments/webhook is registered directly in index.ts so it runs
+ * before express.json() (needs raw body for HMAC verification).
  */
 import { Router, type Request, type Response } from 'express';
-import express from 'express';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { CreatePaymentOrderSchema, RefundSchema } from '@smartshaadi/schemas';
@@ -19,26 +20,8 @@ import {
   requestRefund,
   getEscrowStatus,
 } from './service.js';
-import { webhookHandler } from './webhook.js';
 
 export const paymentsRouter = Router();
-
-// ---------------------------------------------------------------------------
-// POST /payments/webhook
-// MUST be registered before express.json() is applied — uses raw body.
-// express.raw({ type: '*/*' }) ensures the body is available as Buffer.
-// NO authenticate() — verified by Razorpay HMAC signature.
-// ---------------------------------------------------------------------------
-paymentsRouter.post(
-  '/webhook',
-  express.raw({ type: '*/*' }),
-  (req: Request, res: Response): void => {
-    webhookHandler(req, res).catch((error: unknown) => {
-      console.error('[payments/webhook] unhandled error:', error);
-      res.status(500).json({ success: false, error: 'Server error' });
-    });
-  },
-);
 
 // ---------------------------------------------------------------------------
 // POST /payments/order — create Razorpay order for confirmed booking

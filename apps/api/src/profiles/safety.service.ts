@@ -1,10 +1,16 @@
 import { eq, or, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
-import { mockGet } from '../lib/mockStore.js';
+import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import { profiles, matchRequests, safetyModeUnlocks, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
+
+export interface SafetyModeInput {
+  contactHidden?: boolean | undefined;
+  photoHidden?:   boolean | undefined;
+  incognito?:     boolean | undefined;
+}
 
 export interface ContactResponse {
   phoneNumber: string | null;
@@ -153,4 +159,30 @@ export async function getContactIfVisible(
   }
 
   return null;
+}
+
+/**
+ * Update the caller's own safetyMode settings in MongoDB ProfileContent.
+ * Merges provided fields with existing settings.
+ */
+export async function updateSafetyMode(
+  userId: string,
+  input: SafetyModeInput,
+): Promise<{ safetyMode: SafetyModeInput }> {
+  if (env.USE_MOCK_SERVICES) {
+    const existing = (mockGet(userId)?.['safetyMode'] as SafetyModeInput | undefined) ?? {};
+    const merged = { ...existing, ...input };
+    mockUpsertField(userId, 'safetyMode', merged);
+    return { safetyMode: merged };
+  }
+
+  const model = ProfileContent as unknown as Model<{ userId: string; safetyMode?: SafetyModeInput }>;
+  const existing = (await model.findOne({ userId }).select('safetyMode').lean())?.safetyMode ?? {};
+  const merged = { ...existing, ...input };
+  await model.updateOne(
+    { userId },
+    { $set: { safetyMode: merged }, $setOnInsert: { userId } },
+    { upsert: true },
+  );
+  return { safetyMode: merged };
 }

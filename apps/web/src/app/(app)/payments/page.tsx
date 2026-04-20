@@ -90,7 +90,7 @@ interface StatusBadgeProps {
 function PaymentStatusBadge({ status }: StatusBadgeProps) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
     PENDING:  { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
-    CAPTURED: { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'Held in Escrow' },
+    CAPTURED: { bg: 'bg-[#0E7C7B]/10',   text: 'text-[#0E7C7B]',   label: 'Held in Escrow' },
     RELEASED: { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Released' },
     REFUNDED: { bg: 'bg-slate-100',  text: 'text-slate-700',  label: 'Refunded' },
     FAILED:   { bg: 'bg-red-100',    text: 'text-red-800',    label: 'Failed' },
@@ -110,7 +110,7 @@ function PaymentStatusBadge({ status }: StatusBadgeProps) {
 
 function EscrowStatusBadge({ status }: { status: EscrowAccount['status'] }) {
   const map: Record<EscrowAccount['status'], { bg: string; text: string; label: string }> = {
-    HELD:     { bg: 'bg-blue-50',   text: 'text-blue-700',   label: 'Escrow Held' },
+    HELD:     { bg: 'bg-[#0E7C7B]/10',   text: 'text-[#0E7C7B]',   label: 'Escrow Held' },
     RELEASED: { bg: 'bg-green-50',  text: 'text-green-700',  label: 'Released to Vendor' },
     DISPUTED: { bg: 'bg-red-50',    text: 'text-red-700',    label: 'Disputed' },
     REFUNDED: { bg: 'bg-slate-50',  text: 'text-slate-600',  label: 'Escrow Refunded' },

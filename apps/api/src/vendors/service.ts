@@ -158,12 +158,8 @@ export async function getVendor(vendorId: string): Promise<
   let portfolio: PortfolioDoc | null = null;
 
   if (env.USE_MOCK_SERVICES) {
-    // Return a minimal mock portfolio in dev mode
-    portfolio = {
-      about: 'Mock portfolio — enable real services for live data.',
-      packages: [],
-      portfolio: [],
-    };
+    // Dev mode: return null so the frontend shows the empty state rather than mock copy
+    portfolio = null;
   } else {
     try {
       const doc = await VendorPortfolio.findOne({ vendorId }).lean();

@@ -64,7 +64,7 @@ export default function CommunityPage() {
       <div className="mx-auto max-w-lg px-4 py-8">
         <ProfileProgress steps={STEPS} />
 
-        <h1 className="mt-6 text-2xl font-bold text-[#7B2D42]">Community & Language</h1>
+        <h1 className="mt-6 text-2xl font-bold font-heading text-[#7B2D42]">Community & Language</h1>
         <p className="mt-1 text-sm text-[#6B6B76]">
           Help us match you within your community.
         </p>

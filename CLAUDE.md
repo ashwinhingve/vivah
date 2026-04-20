@@ -19,20 +19,20 @@
 ## Current Status
 
 ```
-Phase:     1
-Week:      4 (STARTING)
-Focus:     Match Requests + Chat
-Status:    Week 3 Complete — advancing to Week 4 (Match Requests + Chat)
+Phase:     1 — COMPLETE ✅
+Week:      5 of 5 — DONE
+Focus:     Phase 2 — Wedding Planning (starting Week 6)
+Status:    Production audit complete — ready for Colonel Deepak Loom demo
 Mocks:     USE_MOCK_SERVICES=true
-Last session: 2026-04-17
-  - Day 10 Final: router.ts — GET /me/photos, POST /me/photos (PhotoUploadSchema with fileSize/mimeType),
-    PUT /me/photos/reorder, PUT /me/photos/primary, DELETE /me/photos/:photoId (all via photosService)
-  - photos.service.ts: addProfilePhoto (8-limit, auto-primary, section tracking), getProfilePhotos,
-    deleteProfilePhoto (promotes next primary), reorderPhotos (transaction), setPrimaryPhoto (transaction)
-  - Section completeness weights: personal:20, photos:20, family:15, career:15, lifestyle:10, horoscope:10, preferences:10
-  - 102 API tests passing (20 new photo service tests), type-check clean, lint clean
-  - All Day 10 deliverables complete: DB schema, Zod schemas, service, router, frontend components,
-    profile view luxury redesign, photo onboarding flow (/profile/photos → /profile/complete)
+Last session: 2026-04-20 — Phase 1 production-readiness audit
+  - Build: web + api both green, type-check clean (8/8), tests 182/182 green
+  - Privacy: getProfileById always masks phone/email for non-self; contact only via safety-unlock flow
+  - New endpoints: PUT /me/safety-mode, GET /api/v1/admin/stats
+  - Dashboard wired to /matchmaking/feed top-3; CompletenessBar chips link to /profile/[section]
+  - MatchFeedItem.age is now number|null — MatchCard hides age when missing, shows gunaPending overlay
+  - Razorpay webhook deduplicated (sole registration in index.ts)
+  - Design tokens swept: remaining blue/navy → Teal/Burgundy; font-playfair → font-heading; 40px → 44px
+  - Vendor mock portfolio placeholder copy removed — returns null in dev mode so empty state renders
 ```
 
 > **Update this block at the start of every session.**

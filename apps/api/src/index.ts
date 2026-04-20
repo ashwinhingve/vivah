@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/router.js';
 import { kycRouter, adminKycRouter } from './kyc/router.js';
+import { adminStatsRouter } from './admin/stats.router.js';
 import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
@@ -63,6 +64,7 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/v1/auth/kyc', kycRouter);      // POST /api/v1/auth/kyc/initiate (spec alias)
 app.use('/api/v1/kyc', kycRouter);            // GET /api/v1/kyc/status, POST /api/v1/kyc/photo
 app.use('/api/v1/admin/kyc', adminKycRouter); // Admin review queue
+app.use('/api/v1/admin', adminStatsRouter);   // GET /api/v1/admin/stats
 app.use('/api/v1/users', usersRouter);        // PATCH /api/v1/users/me/role
 app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
 app.use('/api/v1/storage', storageRouter);   // POST /presign
