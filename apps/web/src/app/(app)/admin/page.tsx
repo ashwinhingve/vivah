@@ -44,8 +44,8 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
-  const kycData = await fetchAuth<KycRow[]>('/api/v1/admin/kyc/pending', token);
-  const kycQueue = kycData ?? [];
+  const kycData = await fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token);
+  const kycQueue = kycData?.profiles ?? [];
 
   return (
     <main className="min-h-screen bg-[#FEFAF6]">
