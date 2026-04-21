@@ -22,6 +22,10 @@ import { bookingsRouter } from './bookings/router.js';
 import { paymentsRouter } from './payments/router.js';
 import { weddingRouter } from './weddings/router.js';
 import { guestRouter } from './guests/router.js';
+import { videoRouter } from './video/router.js';
+import { disputeRouter } from './payments/disputeRouter.js';
+import { rentalRouter } from './rentals/router.js';
+import { escrowAdminRouter } from './admin/escrow.js';
 import { webhookHandler } from './payments/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { env } from './lib/env.js';
@@ -84,6 +88,10 @@ app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookin
 app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
 app.use('/api/v1/weddings', weddingRouter);       // POST|GET|PUT /weddings, tasks, budget, checklist
 app.use('/api/v1', guestRouter);                  // /weddings/:id/guests/*, /invitations/send, public /rsvp/:token
+app.use('/api/v1/video', videoRouter);            // POST /rooms, POST|PUT|GET /meetings
+app.use('/api/v1/payments', disputeRouter);       // POST /:bookingId/dispute (extends paymentsRouter mount)
+app.use('/api/v1/rentals', rentalRouter);         // GET|POST /, GET /:id, POST /:id/book, /bookings/mine
+app.use('/api/v1/admin', escrowAdminRouter);      // GET /disputes, PUT /disputes/:bookingId/resolve
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 

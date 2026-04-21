@@ -73,6 +73,14 @@ vi.mock('../../infrastructure/mongo/models/Chat.js', () => ({
   },
 }));
 
+vi.mock('../../chat/socket/index.js', () => ({
+  getIO: vi.fn(() => null),
+}));
+
+vi.mock('../../infrastructure/redis/queues.js', () => ({
+  queueNotification: vi.fn().mockResolvedValue(undefined),
+}));
+
 // ── DB chain helpers ──────────────────────────────────────────────────────────
 
 type Row = Record<string, unknown>;

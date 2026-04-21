@@ -25,3 +25,19 @@ export const matchComputeQueue = new Queue<MatchComputeJob>(
   'match-compute',
   { connection },
 );
+
+/** Payload for a notification delivery job (SMS / email / push). */
+export interface NotificationJob {
+  userId:  string;
+  type:    string;
+  payload: Record<string, unknown>;
+}
+
+export const notificationsQueue = new Queue<NotificationJob>(
+  'notifications',
+  { connection },
+);
+
+export async function queueNotification(job: NotificationJob): Promise<void> {
+  await notificationsQueue.add(job.type, job);
+}

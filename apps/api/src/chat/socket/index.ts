@@ -4,10 +4,18 @@ import { auth } from '../../auth/config.js'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
 
+let ioInstance: Server | null = null
+
+export function getIO(): Server | null {
+  return ioInstance
+}
+
 export function initSocket(server: HttpServer): Server {
   const io = new Server(server, {
     cors: { origin: env.WEB_URL, credentials: true },
   })
+
+  ioInstance = io
 
   const chat = io.of('/chat')
 

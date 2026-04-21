@@ -9,6 +9,8 @@ import { db }              from '../lib/db.js';
 import { redis }           from '../lib/redis.js';
 import { createRoom, deleteRoom } from '../lib/dailyco.js';
 import { Chat }            from '../infrastructure/mongo/models/Chat.js';
+import { getIO }           from '../chat/socket/index.js';
+import { queueNotification } from '../infrastructure/redis/queues.js';
 import { profiles, matchRequests } from '@smartshaadi/db';
 import { eq, or, and }     from 'drizzle-orm';
 import type { VideoRoom, MeetingSchedule } from '@smartshaadi/types';
@@ -44,6 +46,37 @@ async function resolveProfileId(userId: string): Promise<string> {
   const row = rows[0];
   if (!row) throw makeError('FORBIDDEN', 'Profile not found', 403);
   return row.id;
+}
+
+/** Resolve the OTHER participant's Better Auth userId for a match. Best-effort. */
+async function resolveOtherUserId(myProfileId: string, matchId: string): Promise<string | null> {
+  try {
+    const rows = await db
+      .select({ senderId: matchRequests.senderId, receiverId: matchRequests.receiverId })
+      .from(matchRequests)
+      .where(eq(matchRequests.id, matchId))
+      .limit(1);
+    const match = rows[0];
+    if (!match) return null;
+    const otherProfileId = match.senderId === myProfileId ? match.receiverId : match.senderId;
+    return await resolveUserIdFromProfileId(otherProfileId);
+  } catch {
+    return null;
+  }
+}
+
+/** Resolve profiles.id → users.id (Better Auth). Best-effort. */
+async function resolveUserIdFromProfileId(profileId: string): Promise<string | null> {
+  try {
+    const rows = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.id, profileId))
+      .limit(1);
+    return rows[0]?.userId ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -121,9 +154,13 @@ export async function createVideoRoom(
     `Video call started — join: ${room.url}`,
   );
 
-  // TODO (Phase 2): emit Socket.io event to `match:{matchId}` room
-  // { type: 'VIDEO_CALL_STARTED', roomUrl: room.url }
-  // Requires: import { getIO } from '../infrastructure/socket/index.js' once wired
+  const io = getIO();
+  if (io) {
+    io.of('/chat').to(input.matchId).emit('video_call_started', {
+      matchId: input.matchId,
+      roomUrl: room.url,
+    });
+  }
 
   return {
     roomId:    room.id,
@@ -181,9 +218,21 @@ export async function scheduleMeeting(
     MEETING_TTL,
   );
 
-  // TODO (Phase 2): push Bull job to queue:notifications
-  // { type: 'MEETING_PROPOSED', matchId: input.matchId, otherUserId: ..., scheduledAt: input.scheduledAt }
-  // Requires: import { notificationsQueue } from '../lib/queue.js' once wired
+  const otherUserId = await resolveOtherUserId(profileId, input.matchId);
+  if (otherUserId) {
+    await queueNotification({
+      userId:  otherUserId,
+      type:    'MEETING_PROPOSED',
+      payload: {
+        matchId:     input.matchId,
+        meetingId,
+        scheduledAt: input.scheduledAt,
+        durationMin: input.durationMin,
+      },
+    }).catch(() => {
+      // Non-fatal — scheduling succeeds even if notification enqueue fails.
+    });
+  }
 
   return meeting;
 }
@@ -222,7 +271,16 @@ export async function respondMeeting(
     MEETING_TTL,
   );
 
-  // TODO (Phase 2): push notification to proposer if status === 'CONFIRMED'
+  if (input.status === 'CONFIRMED') {
+    const proposerUserId = await resolveUserIdFromProfileId(meeting.proposedBy);
+    if (proposerUserId) {
+      await queueNotification({
+        userId:  proposerUserId,
+        type:    'MEETING_CONFIRMED',
+        payload: { matchId, meetingId, scheduledAt: meeting.scheduledAt },
+      }).catch(() => { /* non-fatal */ });
+    }
+  }
 
   return updated;
 }
