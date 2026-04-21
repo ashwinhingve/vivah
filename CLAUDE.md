@@ -117,6 +117,8 @@ CI/CD:       GitHub Actions → Vercel (web) + Railway (API + AI service)
 
 11. **Every service that calls MongoDB MUST guard with `if (env.USE_MOCK_SERVICES)`** and fall back to `mockGet`/`mockUpsertField`/`mockUpsertDotFields` from `apps/api/src/lib/mockStore.ts`. `connectMongo()` skips the connection when mock mode is on, so any unguarded Mongoose call will buffer for 10s then crash. Affected services: `content.service.ts`, `horoscope.service.ts`, `preferences.service.ts`, `safety.service.ts`, `service.ts` — and any new service you add that touches `ProfileContent`.
 
+12. **Always resolve `userId` → `profileId` before any query that touches tables referencing `profiles.id`** — never pass the Better Auth `userId` directly to profile-keyed columns (`weddings.profileId`, `profile_photos.profileId`, `match_requests.fromProfileId`, etc.). `userId` (Better Auth) and `profileId` (profiles.id UUID) are **different values**. Resolve via `db.select({id: profiles.id}).from(profiles).where(eq(profiles.userId, userId))`, or JOIN `profiles` in the same query. Skipping this check silently falls through as 403 Forbidden in every request.
+
 ---
 
 ## Code Conventions
