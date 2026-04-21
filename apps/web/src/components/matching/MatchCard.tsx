@@ -1,5 +1,13 @@
 'use client';
 
+import Image from 'next/image';
+import { Bookmark, Send, CheckCircle2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { PhotoFallback } from '@/components/shared';
+import { resolvePhotoUrl } from '@/lib/photo';
+
 interface MatchCardProps {
   id: string;
   name: string;
@@ -21,131 +29,112 @@ interface MatchCardSkeletonProps {
 
 type Props = MatchCardProps | MatchCardSkeletonProps;
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
-function getCompatibilityColor(pct: number): string {
-  if (pct >= 90) return '#059669';
-  if (pct >= 70) return '#0E7C7B';
-  if (pct >= 50) return '#D97706';
-  return '#6B6B76';
+function getCompatBadgeClasses(pct: number): string {
+  if (pct >= 90) return 'bg-success text-white';
+  if (pct >= 70) return 'bg-teal text-white';
+  if (pct >= 50) return 'bg-warning text-white';
+  return 'bg-muted text-muted-foreground';
 }
 
 export function MatchCard(props: Props) {
   if ('skeleton' in props && props.skeleton) {
     return (
-      <div className="rounded-xl border border-[#E8E0D8] bg-white overflow-hidden">
-        <div className="aspect-[4/3] bg-gradient-to-br from-[#E8E0D8] to-[#F0EBE4] animate-pulse" />
-        <div className="p-3 space-y-2">
-          <div className="h-4 w-2/3 rounded bg-[#E8E0D8] animate-pulse" />
-          <div className="h-3 w-1/2 rounded bg-[#F0EBE4] animate-pulse" />
-          <div className="flex gap-2 mt-2">
-            <div className="h-9 flex-1 rounded-lg bg-[#F0EBE4] animate-pulse" />
-            <div className="h-9 w-9 rounded-lg bg-[#F0EBE4] animate-pulse" />
+      <Card className="overflow-hidden">
+        <Skeleton className="aspect-[4/3] rounded-none" />
+        <div className="space-y-2 p-3">
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-3 w-1/2" />
+          <div className="mt-2 flex gap-2">
+            <Skeleton className="h-11 flex-1 rounded-lg" />
+            <Skeleton className="h-11 w-11 rounded-lg" />
           </div>
         </div>
-      </div>
+      </Card>
     );
   }
 
-  const { id, name, age, city, occupation, primaryPhotoUrl, compatibilityPct, isVerified, gunaPending, onSendInterest, onBookmark } = props;
+  const {
+    id,
+    name,
+    age,
+    city,
+    occupation,
+    primaryPhotoUrl,
+    compatibilityPct,
+    isVerified,
+    gunaPending,
+    onSendInterest,
+    onBookmark,
+  } = props;
   const ageLabel = age != null && age > 0 ? `, ${age}` : '';
-  const initials = getInitials(name);
-  const compatColor = compatibilityPct != null ? getCompatibilityColor(compatibilityPct) : undefined;
+  const photoUrl = resolvePhotoUrl(primaryPhotoUrl);
 
   return (
-    <div className="rounded-xl border border-[#E8E0D8] bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      {/* Photo */}
-      <a href={`/profiles/${id}`} className="block relative aspect-[4/3]">
-        {primaryPhotoUrl ? (
-          <img
-            src={primaryPhotoUrl}
+    <Card className="group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
+      <a href={`/profiles/${id}`} className="relative block aspect-[4/3]">
+        {photoUrl ? (
+          <Image
+            src={photoUrl}
             alt={`${name}'s profile photo`}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7B2D42 0%, #C5A47E 100%)' }}
-          >
-            <span className="text-3xl font-semibold text-white font-heading">
-              {initials}
-            </span>
-          </div>
+          <PhotoFallback name={name} />
         )}
 
-        {/* Gold frame */}
-        <div className="absolute inset-0 border-2 border-[#C5A47E] pointer-events-none" />
+        {/* Gold inner frame */}
+        <div className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70" aria-hidden="true" />
 
-        {/* Bottom gradient + info */}
-        <div
-          className="absolute bottom-0 left-0 right-0 px-3 pt-6 pb-2"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)' }}
-        >
-          <p className="text-white text-sm font-semibold leading-tight truncate font-heading">
-            {name}{ageLabel}
+        {/* Name overlay */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent px-3 pb-2 pt-8">
+          <p className="truncate font-heading text-sm font-semibold leading-tight text-white drop-shadow-sm">
+            {name}
+            {ageLabel ? <span className="font-normal text-white/90">{ageLabel}</span> : null}
           </p>
-          <p className="text-white/75 text-xs truncate">{city}</p>
+          <p className="truncate text-xs text-white/80">{city}</p>
         </div>
 
-        {/* Verified badge */}
-        {isVerified && (
-          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#059669] flex items-center justify-center shadow">
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
+        {isVerified ? (
+          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-success shadow-md ring-2 ring-surface/60">
+            <CheckCircle2 className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+          </span>
+        ) : null}
 
-        {/* Compatibility chip */}
-        {compatibilityPct != null && (
-          <div
-            className="absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-semibold shadow"
-            style={{ background: `${compatColor}22`, color: compatColor, border: `1px solid ${compatColor}44` }}
+        {compatibilityPct != null ? (
+          <span
+            className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-bold shadow-sm ${getCompatBadgeClasses(compatibilityPct)}`}
           >
             {compatibilityPct}% match
-          </div>
-        )}
+          </span>
+        ) : null}
 
-        {/* Guna pending — horoscope still computing */}
-        {gunaPending && (
-          <div className="absolute bottom-12 left-2 right-2 rounded-md bg-black/50 text-white text-[10px] px-2 py-1 text-center">
+        {gunaPending ? (
+          <div className="absolute inset-x-2 bottom-14 rounded-md bg-surface/90 px-2 py-1 text-center text-[10px] font-medium text-primary shadow-sm backdrop-blur-sm">
             Add horoscope to see Guna score
           </div>
-        )}
+        ) : null}
       </a>
 
-      {/* Card body */}
       <div className="p-3">
-        {occupation && (
-          <p className="text-xs text-[#6B6B76] truncate mb-2">{occupation}</p>
-        )}
+        {occupation ? <p className="mb-2 truncate text-xs text-muted-foreground">{occupation}</p> : null}
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => onSendInterest?.(id)}
-            className="flex-1 bg-[#0E7C7B] hover:bg-[#149998] active:scale-[0.97] text-white text-sm font-semibold rounded-lg py-2 min-h-[44px] transition-colors"
-          >
+          <Button type="button" className="flex-1" onClick={() => onSendInterest?.(id)}>
+            <Send className="h-4 w-4" aria-hidden="true" />
             Send Interest
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            onClick={() => onBookmark?.(id)}
+            variant="outline"
+            size="icon"
             aria-label="Bookmark profile"
-            className="w-11 h-11 rounded-lg border border-[#E8E0D8] flex items-center justify-center text-[#6B6B76] hover:border-[#C5A47E] hover:text-[#C5A47E] transition-colors"
+            onClick={() => onBookmark?.(id)}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </button>
+            <Bookmark className="h-4 w-4" aria-hidden="true" />
+          </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

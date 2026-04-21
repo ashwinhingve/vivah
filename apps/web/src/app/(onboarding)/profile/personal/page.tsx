@@ -71,12 +71,12 @@ export default function PersonalPage() {
     <div>
       <ProfileProgress steps={STEPS} />
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 overflow-hidden">
-        <div className="bg-gradient-to-r from-[#7B2D42]/5 to-transparent px-5 py-4 border-b border-[#C5A47E]/10 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#7B2D42]/10 flex items-center justify-center text-base">
+      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/5 to-transparent px-5 py-4 border-b border-gold/10 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
             👤
           </div>
-          <h1 className="font-semibold text-[#7B2D42] text-lg font-heading">
+          <h1 className="font-semibold text-primary text-lg font-heading">
             Personal Details
           </h1>
         </div>
@@ -84,41 +84,41 @@ export default function PersonalPage() {
         <div className="p-5">
           <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
             {state?.error && (
-              <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+              <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
                 {state.error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Full Name</label>
               <input
                 name="fullName"
                 type="text"
                 autoComplete="name"
                 required
                 defaultValue={p?.fullName ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="Your full name"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Date of Birth</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Date of Birth</label>
                 <input
                   name="dob"
                   type="date"
                   required
                   defaultValue={dobString(p?.dob)}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Marital Status</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Marital Status</label>
                 <select
                   name="maritalStatus"
                   defaultValue={p?.maritalStatus ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="" disabled>Select status</option>
                   <option value="NEVER_MARRIED">Never Married</option>
@@ -130,7 +130,7 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-2">Gender</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
               <div className="flex gap-3 flex-wrap">
                 {(['MALE', 'FEMALE', 'OTHER'] as const).map((g) => (
                   <label key={g} className="flex items-center gap-2 cursor-pointer">
@@ -139,10 +139,10 @@ export default function PersonalPage() {
                       name="gender"
                       value={g}
                       defaultChecked={p?.gender === g}
-                      className="accent-[#0E7C7B]"
+                      className="accent-teal"
                       required
                     />
-                    <span className="text-sm text-[#2E2E38]">
+                    <span className="text-sm text-foreground">
                       {g.charAt(0) + g.slice(1).toLowerCase()}
                     </span>
                   </label>
@@ -151,13 +151,13 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Height</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Height</label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <select
                     name="heightFt"
                     defaultValue={String(ft)}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                   >
                     {HEIGHTS_FT.map((v) => (
                       <option key={v} value={v}>{v} ft</option>
@@ -168,7 +168,7 @@ export default function PersonalPage() {
                   <select
                     name="heightIn"
                     defaultValue={String(inches)}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                   >
                     {HEIGHTS_IN.map((v) => (
                       <option key={v} value={v}>{v} in</option>
@@ -180,11 +180,11 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Religion</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Religion</label>
                 <select
                   name="religion"
                   defaultValue={p?.religion ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="" disabled>Select religion</option>
                   {RELIGIONS.map((r) => (
@@ -193,11 +193,11 @@ export default function PersonalPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Mother Tongue</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Mother Tongue</label>
                 <select
                   name="motherTongue"
                   defaultValue={p?.motherTongue ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="" disabled>Select language</option>
                   {MOTHER_TONGUES.map((l) => (
@@ -208,24 +208,24 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Current City</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Current City</label>
               <input
                 name="currentCity"
                 type="text"
                 defaultValue={profile?.location?.city ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="e.g. Pune, Maharashtra"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">About Me</label>
+              <label className="block text-sm font-medium text-foreground mb-1">About Me</label>
               <textarea
                 name="aboutMe"
                 rows={3}
                 maxLength={500}
                 defaultValue={profile?.aboutMe ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none resize-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none resize-none"
                 placeholder="Share a little about yourself, your interests, and what you're looking for…"
               />
             </div>

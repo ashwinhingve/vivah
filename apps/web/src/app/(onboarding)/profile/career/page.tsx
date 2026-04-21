@@ -69,23 +69,23 @@ export default function CareerPage() {
   return (
     <div>
       <ProfileProgress steps={STEPS} />
-      <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-        <h1 className="text-lg font-semibold text-[#7B2D42] font-heading mb-6">Education & Career</h1>
+      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
+        <h1 className="text-lg font-semibold text-primary font-heading mb-6">Education & Career</h1>
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (
-            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+            <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {state.error}
             </div>
           )}
           <fieldset>
-            <legend className="text-sm font-semibold text-[#6B6B76] mb-3">Education</legend>
+            <legend className="text-sm font-semibold text-muted-foreground mb-3">Education</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Highest Degree</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Highest Degree</label>
                 <select
                   name="degree"
                   defaultValue={e?.degree ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="">Select degree</option>
                   {DEGREES.map((d) => (
@@ -94,32 +94,32 @@ export default function CareerPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Field of Study</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Field of Study</label>
                 <input
                   name="fieldOfStudy"
                   defaultValue={e?.fieldOfStudy ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="e.g. Computer Science"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">College / University</label>
+                <label className="block text-sm font-medium text-foreground mb-1">College / University</label>
                 <input
                   name="college"
                   defaultValue={e?.college ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="Institution name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Graduation Year</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Graduation Year</label>
                 <input
                   name="year"
                   type="number"
                   min={1950}
                   max={2030}
                   defaultValue={e?.year ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="e.g. 2020"
                 />
               </div>
@@ -127,23 +127,23 @@ export default function CareerPage() {
           </fieldset>
 
           <fieldset>
-            <legend className="text-sm font-semibold text-[#6B6B76] mb-3">Profession</legend>
+            <legend className="text-sm font-semibold text-muted-foreground mb-3">Profession</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Occupation</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Occupation</label>
                 <input
                   name="occupation"
                   defaultValue={pr?.occupation ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="e.g. Software Engineer"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Employer Type</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Employer Type</label>
                 <select
                   name="employerType"
                   defaultValue={pr?.employerType ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="">Select type</option>
                   {EMPLOYER_TYPES.map(([v, label]) => (
@@ -152,29 +152,29 @@ export default function CareerPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Employer / Company</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Employer / Company</label>
                 <input
                   name="employer"
                   defaultValue={pr?.employer ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="Company name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Designation</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Designation</label>
                 <input
                   name="designation"
                   defaultValue={pr?.designation ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="e.g. Senior Developer"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Annual Income</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Annual Income</label>
                 <select
                   name="incomeRange"
                   defaultValue={pr?.incomeRange ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
                   <option value="">Select range</option>
                   {INCOME_RANGES.map((r) => (
@@ -183,11 +183,11 @@ export default function CareerPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-1">Work Location</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Work Location</label>
                 <input
                   name="workLocation"
                   defaultValue={pr?.workLocation ?? ''}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                   placeholder="e.g. Pune"
                 />
               </div>

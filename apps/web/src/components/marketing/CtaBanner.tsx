@@ -17,16 +17,16 @@ export default function CtaBanner() {
       {/* Teal-tinted overlay so brand color reads through the photo */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0E7C7B]/95 via-[#0E7C7B]/85 to-[#0E7C7B]/70"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-teal/95 via-teal/85 to-teal/70"
       />
       {/* Decorative circles */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -top-20 -left-20 w-64 h-64 rounded-full bg-white/10"
+        className="pointer-events-none absolute -top-20 -left-20 w-64 h-64 rounded-full bg-surface/10"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-white/10"
+        className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-surface/10"
       />
 
       <div className="relative max-w-2xl mx-auto px-4 text-center">
@@ -39,7 +39,7 @@ export default function CtaBanner() {
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white font-[family-name:var(--font-heading)] [text-shadow:_0_2px_24px_rgba(0,0,0,0.4)]">
           Your Perfect Match
           <br />
-          <span className="italic text-[#F4D9C2]">is Waiting.</span>
+          <span className="italic text-peach">is Waiting.</span>
         </h2>
         <p className="text-white/90 mt-6 leading-relaxed text-base md:text-lg [text-shadow:_0_1px_12px_rgba(0,0,0,0.4)]">
           Join our growing community of verified families. Free to join,
@@ -49,13 +49,13 @@ export default function CtaBanner() {
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/register"
-            className="inline-flex items-center justify-center bg-white text-[#0E7C7B] font-semibold rounded-lg px-8 py-4 min-h-[52px] hover:bg-white/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center bg-surface text-teal font-semibold rounded-lg px-8 py-4 min-h-[52px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
           >
             Create Free Profile
           </Link>
           <a
             href="#how-it-works"
-            className="inline-flex items-center justify-center border-2 border-white/60 text-white rounded-lg px-8 py-4 min-h-[52px] hover:border-white hover:bg-white/10 transition-all duration-200 backdrop-blur-sm"
+            className="inline-flex items-center justify-center border-2 border-surface/60 text-white rounded-lg px-8 py-4 min-h-[52px] hover:border-surface hover:bg-surface/10 transition-all duration-200 backdrop-blur-sm"
           >
             Learn More
           </a>

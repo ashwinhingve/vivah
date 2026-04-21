@@ -52,26 +52,26 @@ export default function Navbar() {
   }, []);
 
   const headerClass = scrolled
-    ? 'bg-white/90 backdrop-blur-md border-b border-[#E8E0D8] shadow-sm'
+    ? 'bg-surface/90 backdrop-blur-md border-b border-border shadow-sm'
     : 'bg-transparent border-b border-transparent';
 
   const linkClass = scrolled
-    ? 'text-sm text-[#2E2E38] hover:text-[#7B2D42] transition-colors'
+    ? 'text-sm text-foreground hover:text-primary transition-colors'
     : 'text-sm text-white/90 hover:text-white transition-colors [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]';
 
   const loginClass = scrolled
-    ? 'text-sm text-[#6B6B76] hover:text-[#2E2E38] transition-colors'
+    ? 'text-sm text-muted-foreground hover:text-foreground transition-colors'
     : 'text-sm text-white/90 hover:text-white transition-colors [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]';
 
   const vendorsClass = scrolled
-    ? 'text-sm text-[#2E2E38] opacity-50 cursor-default'
+    ? 'text-sm text-foreground opacity-50 cursor-default'
     : 'text-sm text-white/60 cursor-default [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]';
 
-  const hamburgerClass = scrolled ? 'text-[#2E2E38]' : 'text-white drop-shadow-md';
+  const hamburgerClass = scrolled ? 'text-foreground' : 'text-white drop-shadow-md';
 
   const betaPillClass = scrolled
-    ? 'ml-2 text-[8px] font-bold tracking-widest bg-[#C5A47E]/20 text-[#9E7F5A] rounded-full px-2 py-0.5 uppercase'
-    : 'ml-2 text-[8px] font-bold tracking-widest bg-white/20 backdrop-blur-sm text-white rounded-full px-2 py-0.5 uppercase border border-white/30';
+    ? 'ml-2 text-[8px] font-bold tracking-widest bg-gold/20 text-gold-muted rounded-full px-2 py-0.5 uppercase'
+    : 'ml-2 text-[8px] font-bold tracking-widest bg-surface/20 backdrop-blur-sm text-white rounded-full px-2 py-0.5 uppercase border border-surface/30';
 
   return (
     <>
@@ -117,7 +117,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/register"
-              className="bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold text-sm rounded-lg px-4 py-2 min-h-[44px] flex items-center transition-all duration-200 shadow-md shadow-[#0E7C7B]/30 hover:shadow-lg hover:shadow-[#0E7C7B]/40"
+              className="bg-teal hover:bg-teal-hover text-white font-semibold text-sm rounded-lg px-4 py-2 min-h-[44px] flex items-center transition-all duration-200 shadow-md shadow-teal/30 hover:shadow-lg hover:shadow-teal/40"
             >
               Register Free
             </Link>
@@ -142,15 +142,15 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="Navigation menu"
-          className="fixed inset-0 z-50 bg-white flex flex-col md:hidden"
+          className="fixed inset-0 z-50 bg-surface flex flex-col md:hidden"
         >
-          <div className="h-16 px-4 border-b border-[#E8E0D8] flex items-center justify-between">
+          <div className="h-16 px-4 border-b border-border flex items-center justify-between">
             <LogoFull />
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label="Close navigation menu"
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#2E2E38]"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground"
             >
               <X className="w-6 h-6" aria-hidden="true" />
             </button>
@@ -162,7 +162,7 @@ export default function Navbar() {
                 <a
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="py-5 border-b border-[#E8E0D8] text-2xl font-semibold text-[#7B2D42] block w-full font-[family-name:var(--font-heading)]"
+                  className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-[family-name:var(--font-heading)]"
                 >
                   {link.label}
                 </a>
@@ -174,14 +174,14 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center text-center text-[#6B6B76] mb-4 min-h-[44px]"
+              className="flex items-center justify-center text-center text-muted-foreground mb-4 min-h-[44px]"
             >
               Login
             </Link>
             <Link
               href="/register"
               onClick={() => setIsOpen(false)}
-              className="flex w-full items-center justify-center text-center bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold text-lg rounded-lg py-4 min-h-[44px] transition-colors duration-200"
+              className="flex w-full items-center justify-center text-center bg-teal hover:bg-teal-hover text-white font-semibold text-lg rounded-lg py-4 min-h-[44px] transition-colors duration-200"
             >
               Register Free →
             </Link>

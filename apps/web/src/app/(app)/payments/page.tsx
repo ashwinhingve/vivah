@@ -90,14 +90,14 @@ interface StatusBadgeProps {
 function PaymentStatusBadge({ status }: StatusBadgeProps) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
     PENDING:  { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
-    CAPTURED: { bg: 'bg-[#0E7C7B]/10',   text: 'text-[#0E7C7B]',   label: 'Held in Escrow' },
+    CAPTURED: { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Held in Escrow' },
     RELEASED: { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Released' },
-    REFUNDED: { bg: 'bg-slate-100',  text: 'text-slate-700',  label: 'Refunded' },
+    REFUNDED: { bg: 'bg-surface-muted',  text: 'text-foreground',  label: 'Refunded' },
     FAILED:   { bg: 'bg-red-100',    text: 'text-red-800',    label: 'Failed' },
     PARTIALLY_REFUNDED: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partially Refunded' },
   };
 
-  const style = map[status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: status };
+  const style = map[status] ?? { bg: 'bg-surface-muted', text: 'text-muted-foreground', label: status };
 
   return (
     <span
@@ -110,10 +110,10 @@ function PaymentStatusBadge({ status }: StatusBadgeProps) {
 
 function EscrowStatusBadge({ status }: { status: EscrowAccount['status'] }) {
   const map: Record<EscrowAccount['status'], { bg: string; text: string; label: string }> = {
-    HELD:     { bg: 'bg-[#0E7C7B]/10',   text: 'text-[#0E7C7B]',   label: 'Escrow Held' },
+    HELD:     { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Escrow Held' },
     RELEASED: { bg: 'bg-green-50',  text: 'text-green-700',  label: 'Released to Vendor' },
     DISPUTED: { bg: 'bg-red-50',    text: 'text-red-700',    label: 'Disputed' },
-    REFUNDED: { bg: 'bg-slate-50',  text: 'text-slate-600',  label: 'Escrow Refunded' },
+    REFUNDED: { bg: 'bg-surface-muted',  text: 'text-muted-foreground',  label: 'Escrow Refunded' },
   };
 
   const style = map[status];
@@ -137,16 +137,16 @@ interface PaymentCardProps {
 function PaymentCard({ payment, escrow }: PaymentCardProps) {
   return (
     <div
-      className="rounded-xl bg-white shadow-sm border p-5"
+      className="rounded-xl bg-surface shadow-sm border p-5"
       style={{ borderColor: '#C5A47E' }}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs text-slate-500 font-mono truncate">
+          <p className="text-xs text-muted-foreground font-mono truncate">
             Order: {payment.razorpayOrderId || '—'}
           </p>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Booking: {payment.bookingId.slice(0, 8)}…
           </p>
         </div>
@@ -158,7 +158,7 @@ function PaymentCard({ payment, escrow }: PaymentCardProps) {
           >
             {formatINR(payment.amount)}
           </p>
-          <p className="text-xs text-slate-400">{payment.currency}</p>
+          <p className="text-xs text-muted-foreground">{payment.currency}</p>
         </div>
       </div>
 
@@ -174,13 +174,13 @@ function PaymentCard({ payment, escrow }: PaymentCardProps) {
           className="mt-3 rounded-lg px-3 py-2 text-xs"
           style={{ background: '#FEF9F0', borderLeft: '3px solid #C5A47E' }}
         >
-          <span className="font-medium text-slate-700">Escrow: </span>
-          <span className="text-slate-600">{formatINR(escrow.totalHeld)} held</span>
+          <span className="font-medium text-foreground">Escrow: </span>
+          <span className="text-muted-foreground">{formatINR(escrow.totalHeld)} held</span>
           {escrow.status === 'RELEASED' && (
             <span className="ml-2 text-green-700">· {formatINR(escrow.released)} released</span>
           )}
           {escrow.releaseDueAt && escrow.status === 'HELD' && (
-            <span className="ml-2 text-slate-500">
+            <span className="ml-2 text-muted-foreground">
               · Release due {formatDate(escrow.releaseDueAt)}
             </span>
           )}
@@ -188,7 +188,7 @@ function PaymentCard({ payment, escrow }: PaymentCardProps) {
       )}
 
       {/* Footer */}
-      <p className="mt-3 text-xs text-slate-400">
+      <p className="mt-3 text-xs text-muted-foreground">
         Created {formatDate(payment.createdAt)}
         {payment.razorpayPaymentId && (
           <span className="ml-2 font-mono">· {payment.razorpayPaymentId}</span>
@@ -212,7 +212,7 @@ export default async function PaymentsPage() {
           <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>
             Payment History
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Your bookings, escrow holdings, and payment records
           </p>
         </div>
@@ -235,13 +235,13 @@ export default async function PaymentsPage() {
             ).map(({ label, value }) => (
               <div
                 key={label}
-                className="rounded-xl bg-white shadow-sm border px-4 py-3 text-center"
+                className="rounded-xl bg-surface shadow-sm border px-4 py-3 text-center"
                 style={{ borderColor: '#C5A47E' }}
               >
                 <p className="text-xl font-bold" style={{ color: '#7B2D42' }}>
                   {value}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500">{label}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>
@@ -255,7 +255,7 @@ export default async function PaymentsPage() {
             <p className="mt-3 font-medium" style={{ color: '#7B2D42' }}>
               No payments yet
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Confirm a booking and make a payment to see it here.
             </p>
           </div>
@@ -279,7 +279,7 @@ export default async function PaymentsPage() {
           <p className="font-semibold" style={{ color: '#7B2D42' }}>
             How Smart Shaadi Escrow Works
           </p>
-          <ul className="mt-2 space-y-1 text-slate-600 list-disc list-inside">
+          <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">
             <li>50% of your booking amount is held securely in escrow on payment.</li>
             <li>Funds are released to the vendor 48 hours after your event is completed.</li>
             <li>If there is a dispute, funds are held until resolved by our support team.</li>

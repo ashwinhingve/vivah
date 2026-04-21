@@ -129,16 +129,16 @@ export default function VerifyForm() {
     : '';
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-6">
+    <div className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-gold/20 p-6 space-y-6">
       <div>
         <h2
-          className="text-2xl font-semibold text-[#2E2E38] font-heading"
+          className="text-2xl font-semibold text-foreground font-heading"
         >
           Enter OTP
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           We sent a 6-digit code to{' '}
-          <span className="font-medium text-[#2E2E38]">{maskedPhone}</span>
+          <span className="font-medium text-foreground">{maskedPhone}</span>
         </p>
       </div>
 
@@ -158,28 +158,28 @@ export default function VerifyForm() {
             disabled={loading}
             className={[
               'w-11 h-12 text-center text-lg font-semibold rounded-lg border',
-              'focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40',
-              'disabled:opacity-60 bg-white transition-colors',
+              'focus:outline-none focus:ring-2 focus:ring-teal/40',
+              'disabled:opacity-60 bg-surface transition-colors',
               digit
-                ? 'border-[#0E7C7B] text-[#2E2E38]'
-                : 'border-[#C5A47E]/40 text-[#2E2E38]',
+                ? 'border-teal text-foreground'
+                : 'border-gold/40 text-foreground',
             ].join(' ')}
           />
         ))}
       </div>
 
-      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       {/* Submit button (manual fallback) */}
       <button
         type="button"
         onClick={() => { void submitOtp(digits.join('')); }}
         disabled={loading || digits.some((d) => !d)}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-teal hover:bg-teal-hover disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
-            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <span className="h-4 w-4 rounded-full border-2 border-surface/30 border-t-white animate-spin" />
             Verifying…
           </>
         ) : (
@@ -188,15 +188,15 @@ export default function VerifyForm() {
       </button>
 
       {/* Resend */}
-      <p className="text-center text-sm text-[#6B6B76]">
+      <p className="text-center text-sm text-muted-foreground">
         {secondsLeft > 0 ? (
-          <>Resend OTP in <span className="font-medium text-[#2E2E38]">{secondsLeft}s</span></>
+          <>Resend OTP in <span className="font-medium text-foreground">{secondsLeft}s</span></>
         ) : (
           <button
             type="button"
             onClick={() => { void handleResend(); }}
             disabled={resending}
-            className="font-medium text-[#0E7C7B] hover:text-[#149998] disabled:opacity-60 transition-colors"
+            className="font-medium text-teal hover:text-teal-hover disabled:opacity-60 transition-colors"
           >
             {resending ? 'Sending…' : 'Resend OTP'}
           </button>

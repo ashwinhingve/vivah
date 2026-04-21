@@ -1,9 +1,13 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import { Heart, Calendar, MailOpen, Gauge, Sparkles, Plus } from 'lucide-react';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
+import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/shared';
 import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
@@ -67,66 +71,78 @@ export default async function DashboardPage() {
   const feed = feedData?.items ?? [];
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Dashboard</h1>
-            <p className="text-sm text-[#6B6B76] mt-0.5">Welcome back to Smart Shaadi</p>
+            <h1 className="text-2xl font-bold text-primary font-heading">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Welcome back to Smart Shaadi</p>
           </div>
           {tier !== 'FREE' && (
-            <span className="rounded-full bg-[#FFF3E0] text-[#D97706] text-xs font-semibold px-3 py-1 border border-[#FDE68A]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-muted shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               {tier}
             </span>
           )}
         </div>
 
         {/* 4-card stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Active Matches</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{upcomingBookings}</p>
-            <p className="text-xs text-[#6B6B76]">confirmed</p>
-          </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Bookings</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{pendingBookings}</p>
-            <p className="text-xs text-[#6B6B76]">pending</p>
-          </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Requests</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{pendingRequests}</p>
-            <p className="text-xs text-[#6B6B76]">received</p>
-          </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Profile</p>
-            <p className={`text-2xl font-bold font-heading ${completeness >= 70 ? 'text-[#059669]' : 'text-[#0E7C7B]'}`}>
-              {completeness}%
-            </p>
-            <p className="text-xs text-[#6B6B76]">complete</p>
-          </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatsCard
+            label="Active Matches"
+            value={upcomingBookings}
+            sub="confirmed"
+            icon={Heart}
+            variant="teal"
+          />
+          <StatsCard
+            label="Bookings"
+            value={pendingBookings}
+            sub="pending"
+            icon={Calendar}
+            variant="warning"
+          />
+          <StatsCard
+            label="Requests"
+            value={pendingRequests}
+            sub="received"
+            icon={MailOpen}
+            variant="gold"
+          />
+          <StatsCard
+            label="Profile"
+            value={`${completeness}%`}
+            sub="complete"
+            icon={Gauge}
+            variant={completeness >= 70 ? 'success' : 'teal'}
+          />
         </div>
 
         {/* Completeness bar + CTA */}
         {sections ? (
           <CompletenessBar sections={sections} />
         ) : (
-          <div className="rounded-xl border border-[#E8E0D8] bg-white p-5">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-[#7B2D42]/10 flex items-center justify-center shrink-0 text-lg">
-                📋
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#2E2E38]">Complete your profile</p>
-                <p className="text-xs text-[#6B6B76] mt-0.5">A complete profile gets 3× more matches</p>
-                <Link
-                  href="/profile/personal"
-                  className="mt-3 inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-4 py-2 min-h-[44px] hover:bg-[#149998] transition-colors"
-                >
-                  Start Profile →
-                </Link>
+          <div className="relative overflow-hidden rounded-xl border border-gold/30 bg-gradient-to-br from-surface via-surface to-gold/10 p-5 shadow-card">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gold/20 blur-2xl"
+            />
+            <div className="relative flex items-start gap-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Sparkles className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-heading text-base font-semibold text-primary">
+                  Complete your profile
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  A complete profile gets 3× more matches
+                </p>
+                <Button asChild size="sm" className="mt-3">
+                  <Link href="/profile/personal">Start Profile →</Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -135,37 +151,30 @@ export default async function DashboardPage() {
         {/* Recommended Matches */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">Recommended for You</h2>
+            <h2 className="text-lg font-semibold text-primary font-heading">Recommended for You</h2>
             {feed.length > 0 && (
-              <Link href="/matches" className="text-xs font-medium text-[#0E7C7B] hover:text-[#149998]">
+              <Link href="/matches" className="text-xs font-medium text-teal hover:text-teal-hover">
                 See all →
               </Link>
             )}
           </div>
           {completeness < 40 ? (
-            <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#7B2D42]/10 flex items-center justify-center mx-auto mb-4 text-2xl">
-                💍
-              </div>
-              <p className="text-base font-semibold text-[#7B2D42] font-heading">
-                Your perfect match is out there
-              </p>
-              <p className="text-sm text-[#6B6B76] mt-1 mb-4">
-                Complete your profile to at least 40% to start seeing matches
-              </p>
-              <Link
-                href="/profile/personal"
-                className="inline-flex items-center gap-1.5 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg px-5 py-2.5 min-h-[44px] hover:bg-[#149998] transition-colors"
-              >
-                Complete Profile →
-              </Link>
-            </div>
+            <EmptyState
+              icon={Heart}
+              title="Your perfect match is out there"
+              description="Complete your profile to at least 40% to start seeing matches."
+              action={
+                <Button asChild>
+                  <Link href="/profile/personal">Complete Profile →</Link>
+                </Button>
+              }
+            />
           ) : feed.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
-              <p className="text-sm text-[#6B6B76]">
-                No matches yet. We&apos;re warming up your recommendations — check back shortly.
-              </p>
-            </div>
+            <EmptyState
+              icon={Heart}
+              title="Warming up your recommendations"
+              description="No matches yet — we're tuning your feed and will have suggestions shortly."
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {feed.slice(0, 3).map((item) => (
@@ -194,9 +203,9 @@ export default async function DashboardPage() {
       <Link
         href="/profile/personal"
         aria-label="Complete profile"
-        className="fixed bottom-6 right-4 z-40 sm:hidden w-14 h-14 rounded-full bg-[#0E7C7B] shadow-lg flex items-center justify-center text-white text-2xl hover:bg-[#149998] transition-colors active:scale-95"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
       >
-        +
+        <Plus className="h-6 w-6" aria-hidden="true" />
       </Link>
     </main>
   );

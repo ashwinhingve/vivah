@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Loader2, Heart, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -39,8 +41,9 @@ export function SendInterestButton({ profileId }: { profileId: string }) {
       }
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({})) as Record<string, unknown>;
-        const msg = typeof body['error'] === 'string' ? body['error'] : 'Could not send interest';
+        const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+        const msg =
+          typeof body['error'] === 'string' ? body['error'] : 'Could not send interest';
         setErrorMsg(msg);
         setStatus('error');
         return;
@@ -55,41 +58,44 @@ export function SendInterestButton({ profileId }: { profileId: string }) {
 
   if (status === 'sent') {
     return (
-      <button
-        type="button"
-        disabled
-        className="flex-1 bg-[#059669] text-white font-semibold rounded-lg py-3 text-sm min-h-[48px] transition-colors opacity-90 cursor-not-allowed"
-      >
-        Interest Sent ✓
-      </button>
+      <Button disabled variant="ghost" size="lg" className="flex-1 bg-success/10 text-success hover:bg-success/10">
+        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+        Interest Sent
+      </Button>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-1">
-      <button
-        type="button"
+    <div className="flex flex-1 flex-col gap-1">
+      <Button
         onClick={handleClick}
         disabled={status === 'loading'}
-        className={`w-full font-semibold rounded-lg py-3 text-sm min-h-[48px] transition-colors ${
-          status === 'error'
-            ? 'bg-white border-2 border-red-400 text-red-600 hover:bg-red-50'
-            : 'bg-[#0E7C7B] hover:bg-[#149998] active:scale-[0.97] text-white'
-        } disabled:opacity-70 disabled:cursor-not-allowed`}
+        variant={status === 'error' ? 'outline' : 'default'}
+        size="lg"
+        className="w-full"
       >
         {status === 'loading' ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-            </svg>
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             Sending…
-          </span>
-        ) : status === 'error' ? 'Try Again' : 'Send Interest'}
-      </button>
-      {errorMsg && (
-        <p className="text-xs text-red-500 text-center">{errorMsg}</p>
-      )}
+          </>
+        ) : status === 'error' ? (
+          <>
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            Try Again
+          </>
+        ) : (
+          <>
+            <Heart className="h-4 w-4" aria-hidden="true" />
+            Send Interest
+          </>
+        )}
+      </Button>
+      {errorMsg ? (
+        <p role="alert" className="text-center text-xs text-destructive">
+          {errorMsg}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -2,7 +2,12 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2, Phone } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -14,7 +19,6 @@ export default function LoginForm() {
     e.preventDefault();
     setError(null);
 
-    // Normalise: strip spaces, ensure +91 prefix
     const normalised = phone.replace(/\s/g, '');
     const e164 = normalised.startsWith('+') ? normalised : `+91${normalised}`;
 
@@ -38,58 +42,68 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#C5A47E]/20 p-8 space-y-5"
+      className="relative w-full max-w-sm space-y-6 rounded-2xl border border-gold/25 bg-surface/92 p-8 shadow-xl shadow-primary/5 backdrop-blur-md"
     >
-      <div>
-        <h2
-          className="text-2xl font-semibold text-[#7B2D42] font-heading"
-        >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 h-24 w-48 rounded-full bg-gold/20 blur-3xl"
+      />
+
+      <div className="relative">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+          <Phone className="h-3 w-3" aria-hidden="true" />
           Sign in
+        </span>
+        <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
+          Welcome back
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">Enter your mobile number to receive an OTP</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Enter your mobile number to receive an OTP.
+        </p>
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="phone" className="block text-sm font-medium text-[#2E2E38]">
+      <div className="space-y-1.5">
+        <Label htmlFor="phone" className="text-sm">
           Mobile number
-        </label>
+        </Label>
         <div className="flex">
-          <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-[#C5A47E]/40 bg-[#FEFAF6] text-[#6B6B76] text-sm">
+          <span className="inline-flex select-none items-center rounded-l-lg border border-r-0 border-border bg-surface-muted px-3 text-sm font-semibold text-muted-foreground">
             +91
           </span>
-          <input
+          <Input
             id="phone"
             type="tel"
             inputMode="numeric"
             maxLength={10}
-            placeholder="9876543210"
+            placeholder="98765 43210"
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-            className="flex-1 min-h-[44px] rounded-r-lg border border-[#C5A47E]/40 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40 bg-white"
             required
+            aria-invalid={error ? 'true' : 'false'}
+            className={cn('rounded-l-none', error ? 'border-destructive' : '')}
           />
         </div>
-        {error && <p className="text-xs text-[#DC2626] mt-1">{error}</p>}
+        {error ? (
+          <p role="alert" className="mt-1 text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
-      >
+      <Button type="submit" disabled={loading} size="lg" className="w-full">
         {loading ? (
           <>
-            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             Sending OTP…
           </>
         ) : (
           'Send OTP'
         )}
-      </button>
+      </Button>
 
-      <p className="text-center text-xs text-[#6B6B76]">
+      <p className="text-center text-xs text-muted-foreground">
         New to Smart Shaadi?{' '}
-        <a href="/register" className="text-[#0E7C7B] hover:text-[#149998] font-medium">
+        <a href="/register" className="font-semibold text-teal underline-offset-4 hover:underline">
           Create account
         </a>
       </p>

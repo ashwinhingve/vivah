@@ -150,15 +150,15 @@ export default function RequestsPage() {
   const pastSent        = sent.filter((r) => r.status !== 'PENDING');
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8 space-y-5">
         <div>
-          <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Requests</h1>
-          <p className="text-sm text-[#6B6B76] mt-0.5">Manage your match interests</p>
+          <h1 className="text-2xl font-bold text-primary font-heading">Requests</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage your match interests</p>
         </div>
 
         {/* Tab bar */}
-        <div className="flex rounded-lg bg-white border border-[#E8E0D8] p-1 gap-1">
+        <div className="flex rounded-lg bg-surface border border-border p-1 gap-1">
           {(['received', 'sent'] as const).map((t) => {
             const count = t === 'received' ? pendingReceived.length : pendingSent.length;
             return (
@@ -168,13 +168,13 @@ export default function RequestsPage() {
                 onClick={() => setTab(t)}
                 className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[44px] ${
                   tab === t
-                    ? 'bg-[#7B2D42] text-white shadow-sm'
-                    : 'text-[#6B6B76] hover:text-[#2E2E38]'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {t === 'received' ? 'Received' : 'Sent'}
                 {count > 0 && (
-                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === t ? 'bg-white/20' : 'bg-[#7B2D42]/10 text-[#7B2D42]'}`}>
+                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === t ? 'bg-surface/20' : 'bg-primary/10 text-primary'}`}>
                     {count}
                   </span>
                 )}
@@ -195,7 +195,7 @@ export default function RequestsPage() {
         {loading && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-xl bg-white border border-[#E8E0D8] animate-pulse" />
+              <div key={i} className="h-20 rounded-xl bg-surface border border-border animate-pulse" />
             ))}
           </div>
         )}
@@ -204,26 +204,26 @@ export default function RequestsPage() {
         {!loading && tab === 'received' && (
           <div className="space-y-3">
             {pendingReceived.length === 0 && pastReceived.length === 0 && (
-              <div className="text-center py-12 text-[#6B6B76] text-sm">
+              <div className="text-center py-12 text-muted-foreground text-sm">
                 No requests received yet. Explore profiles to get noticed!
               </div>
             )}
 
             {pendingReceived.map((r) => (
-              <div key={r.id} className="bg-white rounded-xl border border-[#E8E0D8] p-4 space-y-3">
+              <div key={r.id} className="bg-surface rounded-xl border border-border p-4 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#7B2D42]/10 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-[#7B2D42]">{shortId(r.senderId).slice(0, 2)}</span>
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-primary">{shortId(r.senderId).slice(0, 2)}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/profiles/${r.senderId}`} className="text-sm font-semibold text-[#2E2E38] hover:text-[#0E7C7B] transition-colors">
+                    <Link href={`/profiles/${r.senderId}`} className="text-sm font-semibold text-foreground hover:text-teal transition-colors">
                       Profile #{shortId(r.senderId)}
                     </Link>
-                    <p className="text-xs text-[#6B6B76]">{timeAgo(r.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">{timeAgo(r.createdAt)}</p>
                   </div>
                 </div>
                 {r.message && (
-                  <p className="text-xs text-[#6B6B76] italic border-l-2 border-[#C5A47E] pl-2 line-clamp-2">
+                  <p className="text-xs text-muted-foreground italic border-l-2 border-gold pl-2 line-clamp-2">
                     &ldquo;{r.message}&rdquo;
                   </p>
                 )}
@@ -235,7 +235,7 @@ export default function RequestsPage() {
                     type="button"
                     onClick={() => void handleAccept(r.id)}
                     disabled={pending.has(r.id)}
-                    className="flex-1 bg-[#0E7C7B] text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-[#149998] transition-colors disabled:opacity-50"
+                    className="flex-1 bg-teal text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-teal-hover transition-colors disabled:opacity-50"
                   >
                     Accept
                   </button>
@@ -243,7 +243,7 @@ export default function RequestsPage() {
                     type="button"
                     onClick={() => void handleDecline(r.id)}
                     disabled={pending.has(r.id)}
-                    className="flex-1 border border-[#E8E0D8] text-[#6B6B76] text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
+                    className="flex-1 border border-border text-muted-foreground text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
                   >
                     Decline
                   </button>
@@ -253,7 +253,7 @@ export default function RequestsPage() {
 
             {pastReceived.length > 0 && (
               <details className="group">
-                <summary className="text-xs font-medium text-[#6B6B76] cursor-pointer py-2 list-none flex items-center gap-1">
+                <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
                   <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
                   Past requests ({pastReceived.length})
                 </summary>
@@ -261,8 +261,8 @@ export default function RequestsPage() {
                   {pastReceived.map((r) => {
                     const badge = STATUS_BADGE[r.status] ?? STATUS_BADGE['EXPIRED']!;
                     return (
-                      <div key={r.id} className="bg-white rounded-xl border border-[#E8E0D8] px-4 py-3 flex items-center gap-3 opacity-70">
-                        <Link href={`/profiles/${r.senderId}`} className="text-sm text-[#2E2E38] hover:text-[#0E7C7B] flex-1 min-w-0 truncate">
+                      <div key={r.id} className="bg-surface rounded-xl border border-border px-4 py-3 flex items-center gap-3 opacity-70">
+                        <Link href={`/profiles/${r.senderId}`} className="text-sm text-foreground hover:text-teal flex-1 min-w-0 truncate">
                           Profile #{shortId(r.senderId)}
                         </Link>
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}>
@@ -281,30 +281,30 @@ export default function RequestsPage() {
         {!loading && tab === 'sent' && (
           <div className="space-y-3">
             {pendingSent.length === 0 && pastSent.length === 0 && (
-              <div className="text-center py-12 text-[#6B6B76] text-sm">
+              <div className="text-center py-12 text-muted-foreground text-sm">
                 You haven&apos;t sent any interests yet.{' '}
-                <Link href="/feed" className="text-[#0E7C7B] font-semibold">Browse profiles →</Link>
+                <Link href="/feed" className="text-teal font-semibold">Browse profiles →</Link>
               </div>
             )}
 
             {pendingSent.map((r) => (
-              <div key={r.id} className="bg-white rounded-xl border border-[#E8E0D8] p-4 space-y-3">
+              <div key={r.id} className="bg-surface rounded-xl border border-border p-4 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-[#0E7C7B]">{shortId(r.receiverId).slice(0, 2)}</span>
+                  <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-teal">{shortId(r.receiverId).slice(0, 2)}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/profiles/${r.receiverId}`} className="text-sm font-semibold text-[#2E2E38] hover:text-[#0E7C7B] transition-colors">
+                    <Link href={`/profiles/${r.receiverId}`} className="text-sm font-semibold text-foreground hover:text-teal transition-colors">
                       Profile #{shortId(r.receiverId)}
                     </Link>
-                    <p className="text-xs text-[#6B6B76]">Sent {timeAgo(r.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">Sent {timeAgo(r.createdAt)}</p>
                   </div>
                   <span className="rounded-full bg-amber-50 text-amber-700 px-2 py-0.5 text-xs font-medium shrink-0">
                     Awaiting response
                   </span>
                 </div>
                 {r.message && (
-                  <p className="text-xs text-[#6B6B76] italic border-l-2 border-[#C5A47E] pl-2 line-clamp-2">
+                  <p className="text-xs text-muted-foreground italic border-l-2 border-gold pl-2 line-clamp-2">
                     &ldquo;{r.message}&rdquo;
                   </p>
                 )}
@@ -315,7 +315,7 @@ export default function RequestsPage() {
                   type="button"
                   onClick={() => void handleWithdraw(r.id)}
                   disabled={pending.has(r.id)}
-                  className="w-full border border-[#E8E0D8] text-[#6B6B76] text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
+                  className="w-full border border-border text-muted-foreground text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50"
                 >
                   Withdraw
                 </button>
@@ -324,7 +324,7 @@ export default function RequestsPage() {
 
             {pastSent.length > 0 && (
               <details className="group">
-                <summary className="text-xs font-medium text-[#6B6B76] cursor-pointer py-2 list-none flex items-center gap-1">
+                <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
                   <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
                   Past requests ({pastSent.length})
                 </summary>
@@ -332,8 +332,8 @@ export default function RequestsPage() {
                   {pastSent.map((r) => {
                     const badge = STATUS_BADGE[r.status] ?? STATUS_BADGE['EXPIRED']!;
                     return (
-                      <div key={r.id} className="bg-white rounded-xl border border-[#E8E0D8] px-4 py-3 flex items-center gap-3 opacity-70">
-                        <Link href={`/profiles/${r.receiverId}`} className="text-sm text-[#2E2E38] hover:text-[#0E7C7B] flex-1 min-w-0 truncate">
+                      <div key={r.id} className="bg-surface rounded-xl border border-border px-4 py-3 flex items-center gap-3 opacity-70">
+                        <Link href={`/profiles/${r.receiverId}`} className="text-sm text-foreground hover:text-teal flex-1 min-w-0 truncate">
                           Profile #{shortId(r.receiverId)}
                         </Link>
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}>

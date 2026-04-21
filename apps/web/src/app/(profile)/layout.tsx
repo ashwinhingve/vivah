@@ -2,14 +2,14 @@ import type { ReactNode } from 'react';
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#FEFAF6] flex flex-col items-center justify-start px-4 py-8">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start px-4 py-8">
       <div className="mb-6 text-center">
         <h1
-          className="text-2xl font-bold text-[#7B2D42] font-heading"
+          className="text-2xl font-bold text-primary font-heading"
         >
           Smart Shaadi
         </h1>
-        <p className="text-xs text-[#6B6B76] mt-1">National Smart Marriage Ecosystem</p>
+        <p className="text-xs text-muted-foreground mt-1">National Smart Marriage Ecosystem</p>
       </div>
       {children}
     </div>

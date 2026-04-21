@@ -2,7 +2,7 @@
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] overflow-hidden flex flex-col animate-pulse">
+    <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col animate-pulse">
       {/* Photo placeholder */}
       <div className="aspect-square w-full bg-gray-200 rounded-t-xl" />
 
@@ -29,7 +29,7 @@ function SkeletonCard() {
 
 export default function FeedLoading() {
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
         {/* Header skeleton */}
         <div className="space-y-2 animate-pulse">

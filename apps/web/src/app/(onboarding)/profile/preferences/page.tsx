@@ -87,14 +87,14 @@ export default function PreferencesPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <ProfileProgress steps={STEPS} />
-      <h1 className="text-2xl font-bold text-[#7B2D42] mb-2 font-heading">
+      <h1 className="text-2xl font-bold text-primary mb-2 font-heading">
         Partner Preferences
       </h1>
-      <p className="text-[#6B6B76] text-sm mb-6">What are you looking for in a partner?</p>
+      <p className="text-muted-foreground text-sm mb-6">What are you looking for in a partner?</p>
 
       <form action={formAction} className="space-y-6">
         {state?.error && (
-          <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+          <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
             {state.error}
           </div>
         )}
@@ -109,65 +109,65 @@ export default function PreferencesPage() {
           <input key={v} type="hidden" name="diet" value={v} />
         ))}
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">
+        <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-primary font-heading">
             Basic Preferences
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Age Range: {ageMin} – {ageMax} years
             </label>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#6B6B76] w-6">18</span>
+                <span className="text-xs text-muted-foreground w-6">18</span>
                 <input
                   type="range" min={18} max={ageMax} value={ageMin}
                   onChange={e => setAgeMin(Number(e.target.value))}
-                  className="flex-1 accent-[#0E7C7B]"
+                  className="flex-1 accent-teal"
                 />
-                <span className="text-xs text-[#6B6B76] w-4">{ageMin}</span>
+                <span className="text-xs text-muted-foreground w-4">{ageMin}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#6B6B76] w-6">{ageMin}</span>
+                <span className="text-xs text-muted-foreground w-6">{ageMin}</span>
                 <input
                   type="range" min={ageMin} max={75} value={ageMax}
                   onChange={e => setAgeMax(Number(e.target.value))}
-                  className="flex-1 accent-[#0E7C7B]"
+                  className="flex-1 accent-teal"
                 />
-                <span className="text-xs text-[#6B6B76] w-4">75</span>
+                <span className="text-xs text-muted-foreground w-4">75</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Height Range: {heightMin}cm – {heightMax}cm
             </label>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#6B6B76] w-10">140cm</span>
+                <span className="text-xs text-muted-foreground w-10">140cm</span>
                 <input
                   type="range" min={140} max={heightMax} value={heightMin}
                   onChange={e => setHeightMin(Number(e.target.value))}
-                  className="flex-1 accent-[#0E7C7B]"
+                  className="flex-1 accent-teal"
                 />
-                <span className="text-xs text-[#6B6B76] w-10 text-right">{heightMin}cm</span>
+                <span className="text-xs text-muted-foreground w-10 text-right">{heightMin}cm</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#6B6B76] w-10">{heightMin}cm</span>
+                <span className="text-xs text-muted-foreground w-10">{heightMin}cm</span>
                 <input
                   type="range" min={heightMin} max={210} value={heightMax}
                   onChange={e => setHeightMax(Number(e.target.value))}
-                  className="flex-1 accent-[#0E7C7B]"
+                  className="flex-1 accent-teal"
                 />
-                <span className="text-xs text-[#6B6B76] w-10 text-right">210cm</span>
+                <span className="text-xs text-muted-foreground w-10 text-right">210cm</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Marital Status</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Marital Status</label>
             <div className="flex flex-wrap gap-2">
               {MARITAL_STATUS_OPTIONS.map(({ value, label }) => (
                 <button
@@ -175,8 +175,8 @@ export default function PreferencesPage() {
                   onClick={() => toggleChip(selectedMarital, setSelectedMarital, value)}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                     selectedMarital.includes(value)
-                      ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                      : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
+                      ? 'bg-teal text-white border-teal'
+                      : 'bg-surface text-foreground border-border hover:border-teal'
                   }`}
                 >
                   {label}
@@ -186,7 +186,7 @@ export default function PreferencesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Religion Preference</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Religion Preference</label>
             <div className="flex flex-wrap gap-2">
               {RELIGION_OPTIONS.map(r => (
                 <button
@@ -194,8 +194,8 @@ export default function PreferencesPage() {
                   onClick={() => toggleChip(selectedReligion, setSelectedReligion, r)}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                     selectedReligion.includes(r)
-                      ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                      : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
+                      ? 'bg-teal text-white border-teal'
+                      : 'bg-surface text-foreground border-border hover:border-teal'
                   }`}
                 >
                   {r}
@@ -208,22 +208,22 @@ export default function PreferencesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-gold/20 overflow-hidden">
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="w-full flex items-center justify-between p-6 text-left"
           >
-            <h2 className="text-lg font-semibold text-[#7B2D42] font-heading">
+            <h2 className="text-lg font-semibold text-primary font-heading">
               Advanced Filters
             </h2>
-            <span className="text-[#6B6B76] text-sm">{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
+            <span className="text-muted-foreground text-sm">{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
           </button>
 
           {showAdvanced && (
-            <div className="px-6 pb-6 space-y-4 border-t border-[#F0EBE4]">
+            <div className="px-6 pb-6 space-y-4 border-t border-border-light">
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-2">Manglik Preference</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Manglik Preference</label>
                 <div className="flex gap-4">
                   {(['ANY','ONLY_MANGLIK','NON_MANGLIK'] as const).map(m => (
                     <label key={m} className="flex items-center gap-2 cursor-pointer">
@@ -231,9 +231,9 @@ export default function PreferencesPage() {
                         type="radio" name="manglik" value={m}
                         checked={manglik === m}
                         onChange={() => setManglik(m)}
-                        className="text-[#0E7C7B] focus:ring-[#0E7C7B]"
+                        className="text-teal focus:ring-teal"
                       />
-                      <span className="text-sm text-[#2E2E38]">
+                      <span className="text-sm text-foreground">
                         {m === 'ANY' ? 'Any' : m === 'ONLY_MANGLIK' ? 'Only Manglik' : 'Non-Manglik'}
                       </span>
                     </label>
@@ -242,15 +242,15 @@ export default function PreferencesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#2E2E38] mb-2">Diet Preference</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Diet Preference</label>
                 <div className="flex flex-wrap gap-2">
                   {DIET_OPTIONS.map(d => (
                     <button key={d} type="button"
                       onClick={() => toggleChip(selectedDiet, setSelectedDiet, d)}
                       className={`px-3 py-1.5 rounded-full text-sm border transition-colors min-h-[36px] ${
                         selectedDiet.includes(d)
-                          ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]'
-                          : 'bg-white text-[#2E2E38] border-[#E8E0D8] hover:border-[#0E7C7B]'
+                          ? 'bg-teal text-white border-teal'
+                          : 'bg-surface text-foreground border-border hover:border-teal'
                       }`}
                     >
                       {d}
@@ -265,26 +265,26 @@ export default function PreferencesPage() {
                     type="checkbox" name="openToInterfaith"
                     checked={openToInterfaith}
                     onChange={e => setOpenToInterfaith(e.target.checked)}
-                    className="w-5 h-5 rounded text-[#0E7C7B] focus:ring-[#0E7C7B]"
+                    className="w-5 h-5 rounded text-teal focus:ring-teal"
                   />
-                  <span className="text-sm text-[#2E2E38]">Open to Interfaith Marriage</span>
+                  <span className="text-sm text-foreground">Open to Interfaith Marriage</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox" name="openToInterCaste"
                     checked={openToInterCaste}
                     onChange={e => setOpenToInterCaste(e.target.checked)}
-                    className="w-5 h-5 rounded text-[#0E7C7B] focus:ring-[#0E7C7B]"
+                    className="w-5 h-5 rounded text-teal focus:ring-teal"
                   />
-                  <span className="text-sm text-[#2E2E38]">Open to Inter-Caste Marriage</span>
+                  <span className="text-sm text-foreground">Open to Inter-Caste Marriage</span>
                 </label>
               </div>
             </div>
           )}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-          <h2 className="text-lg font-semibold text-[#7B2D42] mb-3 font-heading">
+        <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
+          <h2 className="text-lg font-semibold text-primary mb-3 font-heading">
             Describe Your Ideal Partner
           </h2>
           <textarea
@@ -294,9 +294,9 @@ export default function PreferencesPage() {
             maxLength={1000}
             rows={4}
             placeholder="Describe qualities you're looking for in a life partner..."
-            className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent resize-none"
+            className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent resize-none"
           />
-          <p className="text-xs text-[#6B6B76] text-right mt-1">{partnerDescription.length}/1000</p>
+          <p className="text-xs text-muted-foreground text-right mt-1">{partnerDescription.length}/1000</p>
         </div>
 
         <OnboardingNav currentStep={7} backHref="/profile/community" skipHref="/profile/photos" saveLabel="Save Preferences" />

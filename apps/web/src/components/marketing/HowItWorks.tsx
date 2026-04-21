@@ -26,7 +26,7 @@ const steps: Step[] = [
     description:
       'Set up in 2 minutes. Add horoscope details, family background, lifestyle preferences and photos. Family members can co-create.',
     icon: User,
-    iconBg: 'bg-[#7B2D42]',
+    iconBg: 'bg-primary',
     iconColor: 'text-white',
     tags: ['Aadhaar Verified', 'Family Mode', 'Kundli Upload'],
     photo: HOW_STEP_PROFILE,
@@ -37,7 +37,7 @@ const steps: Step[] = [
     description:
       'Our AI analyses 50+ compatibility factors including Guna Milan scores, lifestyle alignment, and family values to surface your most compatible matches daily.',
     icon: Sparkles,
-    iconBg: 'bg-[#0E7C7B]',
+    iconBg: 'bg-teal',
     iconColor: 'text-white',
     tags: ['Guna Milan Score', '36-Point Match', 'Daily Suggestions'],
     photo: HOW_STEP_MATCHES,
@@ -48,7 +48,7 @@ const steps: Step[] = [
     description:
       "Once both sides show interest, contact details unlock. Chat, video call, and let families interact — all within Smart Shaadi's safe, private ecosystem.",
     icon: Users,
-    iconBg: 'bg-[#7B2D42]',
+    iconBg: 'bg-primary',
     iconColor: 'text-white',
     tags: ['Safe Chat', 'Video Calls', 'Family Chat Mode'],
     photo: HOW_STEP_FAMILY,
@@ -57,19 +57,19 @@ const steps: Step[] = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="bg-white py-24 md:py-28">
+    <section id="how-it-works" className="bg-surface py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
         <p
           aria-hidden="true"
-          className="text-xs font-semibold uppercase tracking-widest text-[#7B2D42]/70 text-center mb-3"
+          className="text-xs font-semibold uppercase tracking-widest text-primary/70 text-center mb-3"
         >
           How it Works
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-[#2E2E38] mb-4 font-[family-name:var(--font-heading)]">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
           From Profile to Partnership in{' '}
-          <span className="italic text-[#7B2D42]">Three Simple Steps</span>
+          <span className="italic text-primary">Three Simple Steps</span>
         </h2>
-        <p className="text-center text-[#6B6B76] max-w-xl mx-auto leading-relaxed">
+        <p className="text-center text-muted-foreground max-w-xl mx-auto leading-relaxed">
           Designed for both individuals and families. Start together, find
           together.
         </p>
@@ -87,7 +87,7 @@ export default function HowItWorks() {
               >
                 {/* Photo column */}
                 <div className="relative">
-                  <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-[#C5A47E]/30">
+                  <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-gold/30">
                     <Image
                       src={step.photo.src}
                       alt={step.photo.alt}
@@ -100,11 +100,11 @@ export default function HowItWorks() {
                   {/* Decorative gold corner ornament */}
                   <span
                     aria-hidden="true"
-                    className="absolute -top-3 -right-3 w-16 h-16 rounded-full bg-[#C5A47E]/15 ring-1 ring-[#C5A47E]/30 backdrop-blur-sm"
+                    className="absolute -top-3 -right-3 w-16 h-16 rounded-full bg-gold/15 ring-1 ring-gold/30 backdrop-blur-sm"
                   />
                   <span
                     aria-hidden="true"
-                    className="absolute -bottom-4 -left-4 w-24 h-24 rounded-full bg-[#7B2D42]/8 ring-1 ring-[#7B2D42]/15"
+                    className="absolute -bottom-4 -left-4 w-24 h-24 rounded-full bg-primary/8 ring-1 ring-primary/15"
                   />
                 </div>
 
@@ -113,13 +113,13 @@ export default function HowItWorks() {
                   {/* Faded huge step number background */}
                   <span
                     aria-hidden="true"
-                    className="absolute -top-16 -left-4 text-[180px] md:text-[220px] leading-none font-bold text-[#7B2D42]/[0.04] font-[family-name:var(--font-heading)] pointer-events-none select-none"
+                    className="absolute -top-16 -left-4 text-[180px] md:text-[220px] leading-none font-bold text-primary/[0.04] font-[family-name:var(--font-heading)] pointer-events-none select-none"
                   >
                     {step.number}
                   </span>
 
                   <div className="relative">
-                    <p className="text-xs font-bold text-[#C5A47E] tracking-widest mb-3 uppercase">
+                    <p className="text-xs font-bold text-gold tracking-widest mb-3 uppercase">
                       Step {step.number}
                     </p>
                     <div className="flex items-center gap-4 mb-4">
@@ -133,12 +133,12 @@ export default function HowItWorks() {
                           aria-hidden="true"
                         />
                       </div>
-                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-medium text-[#7B2D42] font-[family-name:var(--font-heading)]">
+                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-medium text-primary font-[family-name:var(--font-heading)]">
                         {step.title}
                       </h3>
                     </div>
 
-                    <p className="text-base md:text-lg text-[#6B6B76] leading-relaxed">
+                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                       {step.description}
                     </p>
 
@@ -146,7 +146,7 @@ export default function HowItWorks() {
                       {step.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="text-xs bg-[#FEFAF6] border border-[#E8E0D8] rounded-full px-3 py-1.5 text-[#6B6B76]"
+                          className="text-xs bg-background border border-border rounded-full px-3 py-1.5 text-muted-foreground"
                         >
                           {tag}
                         </span>

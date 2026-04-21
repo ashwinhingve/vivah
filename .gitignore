@@ -21,6 +21,9 @@ next-env.d.ts
 coverage/
 .nyc_output/
 
+# ── Dev mock store (USE_MOCK_SERVICES=true persistence) ───────────────────────
+apps/api/.data/
+
 # ── Environment ───────────────────────────────────────────────────────────────
 .env
 .env.local

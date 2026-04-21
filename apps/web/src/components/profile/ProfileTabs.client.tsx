@@ -33,9 +33,9 @@ function cmToFtIn(cm: number): string {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-[#F0EBE4] last:border-0">
-      <span className="text-xs text-[#6B6B76] uppercase tracking-wide shrink-0 pt-0.5">{label}</span>
-      <span className="text-sm font-medium text-[#2E2E38] text-right">{value}</span>
+    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border-light last:border-0">
+      <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">{label}</span>
+      <span className="text-sm font-medium text-foreground text-right">{value}</span>
     </div>
   );
 }
@@ -45,8 +45,8 @@ function Chip({ label, teal }: { label: string; teal?: boolean }) {
     <span
       className={`rounded-full px-3 py-1 text-xs font-medium border ${
         teal
-          ? 'bg-[#0E7C7B]/10 border-[#0E7C7B]/20 text-[#0E7C7B]'
-          : 'bg-[#FEFAF6] border-[#C5A47E]/40 text-[#2E2E38]'
+          ? 'bg-teal/10 border-teal/20 text-teal'
+          : 'bg-background border-gold/40 text-foreground'
       }`}
     >
       {label}
@@ -56,7 +56,7 @@ function Chip({ label, teal }: { label: string; teal?: boolean }) {
 
 function PersonalTab({ personal }: { personal?: PersonalSection }) {
   if (!personal) {
-    return <p className="text-sm text-[#6B6B76] py-4 text-center">No personal details added yet.</p>;
+    return <p className="text-sm text-muted-foreground py-4 text-center">No personal details added yet.</p>;
   }
   return (
     <div>
@@ -78,7 +78,7 @@ function PersonalTab({ personal }: { personal?: PersonalSection }) {
 
 function FamilyTab({ family }: { family?: FamilySection }) {
   if (!family) {
-    return <p className="text-sm text-[#6B6B76] py-4 text-center">No family details added yet.</p>;
+    return <p className="text-sm text-muted-foreground py-4 text-center">No family details added yet.</p>;
   }
   return (
     <div>
@@ -98,7 +98,7 @@ function FamilyTab({ family }: { family?: FamilySection }) {
         <DetailRow label="Siblings" value={`${family.siblings.length} sibling${family.siblings.length > 1 ? 's' : ''}`} />
       )}
       {family.familyAbout && (
-        <p className="mt-3 text-sm text-[#6B6B76] italic leading-relaxed border-t border-[#F0EBE4] pt-3">
+        <p className="mt-3 text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
           &ldquo;{family.familyAbout}&rdquo;
         </p>
       )}
@@ -114,7 +114,7 @@ function CareerTab({
   profession?: ProfessionSection;
 }) {
   if (!education && !profession) {
-    return <p className="text-sm text-[#6B6B76] py-4 text-center">No career details added yet.</p>;
+    return <p className="text-sm text-muted-foreground py-4 text-center">No career details added yet.</p>;
   }
   return (
     <div>
@@ -147,14 +147,14 @@ function LifestyleTab({
   partnerPreferences?: PartnerPreferencesSection;
 }) {
   if (!lifestyle && !horoscope && !partnerPreferences) {
-    return <p className="text-sm text-[#6B6B76] py-4 text-center">No lifestyle details added yet.</p>;
+    return <p className="text-sm text-muted-foreground py-4 text-center">No lifestyle details added yet.</p>;
   }
   return (
     <div className="space-y-5">
       {/* Lifestyle chips */}
       {lifestyle && (
         <div>
-          <p className="text-xs text-[#6B6B76] uppercase tracking-wide mb-2">Lifestyle</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Lifestyle</p>
           <div className="flex flex-wrap gap-2">
             {lifestyle.diet && <Chip label={lifestyle.diet} teal />}
             {lifestyle.smoking && lifestyle.smoking !== 'NEVER' && (
@@ -174,22 +174,22 @@ function LifestyleTab({
 
       {/* Horoscope */}
       {horoscope && (
-        <div className="border-t border-[#F0EBE4] pt-4">
-          <p className="text-xs text-[#6B6B76] uppercase tracking-wide mb-2">Horoscope</p>
+        <div className="border-t border-border-light pt-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Horoscope</p>
           <div>
             {horoscope.rashi && <DetailRow label="Rashi" value={horoscope.rashi} />}
             {horoscope.nakshatra && <DetailRow label="Nakshatra" value={horoscope.nakshatra} />}
             {horoscope.pob && <DetailRow label="Place of Birth" value={horoscope.pob} />}
             {horoscope.tob && <DetailRow label="Time of Birth" value={horoscope.tob} />}
             {horoscope.manglik && (
-              <div className="flex items-start justify-between gap-3 py-2.5 border-b border-[#F0EBE4] last:border-0">
-                <span className="text-xs text-[#6B6B76] uppercase tracking-wide shrink-0 pt-0.5">Manglik</span>
+              <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border-light last:border-0">
+                <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">Manglik</span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                     horoscope.manglik === 'YES'
-                      ? 'bg-[#DC2626]/10 text-[#DC2626]'
+                      ? 'bg-destructive/10 text-destructive'
                       : horoscope.manglik === 'NO'
-                      ? 'bg-[#059669]/10 text-[#059669]'
+                      ? 'bg-success/10 text-success'
                       : 'bg-amber-100 text-amber-700'
                   }`}
                 >
@@ -203,8 +203,8 @@ function LifestyleTab({
 
       {/* Partner preferences */}
       {partnerPreferences && (
-        <div className="border-t border-[#F0EBE4] pt-4">
-          <p className="text-xs text-[#6B6B76] uppercase tracking-wide mb-2">Partner Expectations</p>
+        <div className="border-t border-border-light pt-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Partner Expectations</p>
           <div>
             {partnerPreferences.ageRange && (
               <DetailRow
@@ -225,7 +225,7 @@ function LifestyleTab({
               />
             )}
             {partnerPreferences.partnerDescription && (
-              <p className="mt-3 text-sm text-[#6B6B76] italic leading-relaxed border-t border-[#F0EBE4] pt-3">
+              <p className="mt-3 text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
                 &ldquo;{partnerPreferences.partnerDescription}&rdquo;
               </p>
             )}
@@ -248,9 +248,9 @@ export function ProfileTabs({
   const [active, setActive] = useState<Tab>('Personal');
 
   return (
-    <div className="bg-white rounded-xl border border-[#E8E0D8] shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Tab bar */}
-      <div className="flex border-b border-[#E8E0D8] overflow-x-auto scrollbar-hide">
+      <div className="flex border-b border-border overflow-x-auto scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -258,8 +258,8 @@ export function ProfileTabs({
             onClick={() => setActive(tab)}
             className={`flex-1 min-w-[80px] py-3 text-sm font-medium whitespace-nowrap transition-colors ${
               active === tab
-                ? 'text-[#7B2D42] border-b-2 border-[#7B2D42] bg-[#FEFAF6]'
-                : 'text-[#6B6B76] hover:text-[#2E2E38] hover:bg-[#FEFAF6]'
+                ? 'text-primary border-b-2 border-primary bg-background'
+                : 'text-muted-foreground hover:text-foreground hover:bg-background'
             }`}
           >
             {tab}

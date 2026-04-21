@@ -49,13 +49,13 @@ export function CompatibilityDisplay({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-5">
+      <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
         <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full bg-[#E8E0D8] animate-pulse shrink-0" />
+          <div className="w-24 h-24 rounded-full bg-border animate-pulse shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-5 w-32 rounded bg-[#E8E0D8] animate-pulse" />
-            <div className="h-4 w-24 rounded bg-[#F0EBE4] animate-pulse" />
-            <div className="h-3 w-20 rounded bg-[#F0EBE4] animate-pulse" />
+            <div className="h-5 w-32 rounded bg-border animate-pulse" />
+            <div className="h-4 w-24 rounded bg-border-light animate-pulse" />
+            <div className="h-3 w-20 rounded bg-border-light animate-pulse" />
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@ export function CompatibilityDisplay({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-5">
+    <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
       {/* Header row: ring + label */}
       <div className="flex items-center gap-5">
         {/* SVG circular progress */}
@@ -93,19 +93,19 @@ export function CompatibilityDisplay({
             <span className="text-2xl font-bold leading-none" style={{ color }}>
               {gunaScore}
             </span>
-            <span className="text-xs text-[#6B6B76]">/36</span>
+            <span className="text-xs text-muted-foreground">/36</span>
           </div>
         </div>
 
         {/* Labels */}
         <div className="flex-1 min-w-0">
           <p
-            className="text-xl font-semibold text-[#7B2D42]"
+            className="text-xl font-semibold text-primary"
             style={{ fontFamily: '"Noto Serif Devanagari", "Playfair Display", serif' }}
           >
             गुण मिलान
           </p>
-          <p className="text-sm text-[#6B6B76]">Guna Milan Compatibility</p>
+          <p className="text-sm text-muted-foreground">Guna Milan Compatibility</p>
           <span
             className="inline-block mt-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
             style={{ background: `${color}18`, color }}
@@ -119,7 +119,7 @@ export function CompatibilityDisplay({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="mt-4 w-full flex items-center justify-between text-sm font-medium text-[#0E7C7B] hover:text-[#149998] transition-colors"
+        className="mt-4 w-full flex items-center justify-between text-sm font-medium text-teal hover:text-teal-hover transition-colors"
       >
         <span>View 8 Ashtakoot Factors</span>
         <svg
@@ -131,19 +131,19 @@ export function CompatibilityDisplay({
       </button>
 
       {expanded && (
-        <div className="mt-3 space-y-2.5 border-t border-[#F0EBE4] pt-3">
+        <div className="mt-3 space-y-2.5 border-t border-border-light pt-3">
           {resolvedFactors.map((f) => (
             <div key={f.name} className="flex items-center gap-3">
               <div className="w-28 shrink-0">
-                <p className="text-xs font-medium text-[#2E2E38] leading-tight">{f.name}</p>
+                <p className="text-xs font-medium text-foreground leading-tight">{f.name}</p>
                 <p
-                  className="text-xs text-[#6B6B76]"
+                  className="text-xs text-muted-foreground"
                   style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}
                 >
                   {f.nameHindi}
                 </p>
               </div>
-              <div className="flex-1 h-1.5 rounded-full bg-[#F0EBE4] overflow-hidden">
+              <div className="flex-1 h-1.5 rounded-full bg-border-light overflow-hidden">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -153,7 +153,7 @@ export function CompatibilityDisplay({
                   }}
                 />
               </div>
-              <span className="text-xs text-[#6B6B76] shrink-0 w-8 text-right">
+              <span className="text-xs text-muted-foreground shrink-0 w-8 text-right">
                 {f.scored}/{f.max}
               </span>
             </div>

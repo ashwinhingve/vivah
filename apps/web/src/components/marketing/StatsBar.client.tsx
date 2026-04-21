@@ -63,7 +63,7 @@ export default function StatsBar() {
   return (
     <section
       id="stats"
-      className="relative isolate bg-gradient-to-br from-[#7B2D42] via-[#5C2032] to-[#7B2D42] py-14 md:py-16 overflow-hidden"
+      className="relative isolate bg-gradient-to-br from-primary via-primary-hover to-primary py-14 md:py-16 overflow-hidden"
     >
       {/* Decorative paisley/mandala SVG pattern */}
       <svg
@@ -117,7 +117,7 @@ export default function StatsBar() {
               }}
               className={
                 i < stats.length - 1
-                  ? 'md:border-r md:border-white/15 md:pr-6 text-center md:text-left'
+                  ? 'md:border-r md:border-surface/15 md:pr-6 text-center md:text-left'
                   : 'text-center md:text-left'
               }
             >
@@ -130,7 +130,7 @@ export default function StatsBar() {
                 )}
               </dd>
               <p
-                className="text-xs md:text-sm text-[#C5A47E] mt-2 tracking-wide"
+                className="text-xs md:text-sm text-gold mt-2 tracking-wide"
                 aria-hidden="true"
               >
                 {s.label}

@@ -32,13 +32,13 @@ export default function ChatView({
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center mb-4 text-3xl">
+            <div className="w-16 h-16 rounded-full bg-teal/10 flex items-center justify-center mb-4 text-3xl">
               💬
             </div>
             <p className="text-base font-semibold text-[#0F172A] font-heading">
               Start the conversation
             </p>
-            <p className="text-sm text-[#6B6B76] mt-1 max-w-xs">
+            <p className="text-sm text-muted-foreground mt-1 max-w-xs">
               Say hello and begin your journey together
             </p>
           </div>

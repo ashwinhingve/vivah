@@ -13,6 +13,7 @@ import { adminStatsRouter } from './admin/stats.router.js';
 import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
+import { mockR2Router } from './storage/mockR2.router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
 import { chatRouter } from './chat/router.js';
 import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
@@ -44,6 +45,12 @@ app.use(cookieParser());
 // Better Auth MUST be mounted before express.json() — it reads the raw body itself.
 // authRouter registers GET /me first, then ALL /* for Better Auth's handler.
 app.use('/api/auth', authRouter);
+
+// Dev-only R2 stub (USE_MOCK_SERVICES=true). Mounted before express.json so
+// raw binary PUTs are handled by the router's own raw parser.
+if (env.USE_MOCK_SERVICES) {
+  app.use('/__mock-r2', mockR2Router);
+}
 
 // Razorpay webhook — raw body MUST be parsed before global express.json()
 app.post('/api/v1/payments/webhook', express.raw({ type: '*/*' }), (req, res) => {

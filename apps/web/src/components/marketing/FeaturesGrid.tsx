@@ -32,87 +32,87 @@ type Feature = {
 const features: Feature[] = [
   {
     icon: Star,
-    iconBg: 'bg-[#0E7C7B]',
+    iconBg: 'bg-teal',
     iconColor: 'text-white',
     title: 'AI Guna Milan Calculator',
     description:
       'Full 8-factor Ashtakoot analysis with Mangal Dosha detection. Real Vedic calculations, not guesswork.',
     badge: 'Most Used Feature',
-    badgeClass: 'bg-[#C5A47E]/15 text-[#9E7F5A]',
+    badgeClass: 'bg-gold/15 text-gold-muted',
     photo: FEATURE_GUNA_MILAN,
   },
   {
     icon: Shield,
-    iconBg: 'bg-[#7B2D42]',
+    iconBg: 'bg-primary',
     iconColor: 'text-white',
     title: 'Safety Mode & Privacy',
     description:
       'Photos and contact details stay hidden until mutual interest. Aadhaar-verified profiles only. One-tap block and report.',
     badge: 'Parent Approved',
-    badgeClass: 'bg-[#059669]/10 text-[#059669]',
+    badgeClass: 'bg-success/10 text-success',
     photo: FEATURE_SAFETY,
   },
   {
     icon: Calendar,
-    iconBg: 'bg-[#0E7C7B]',
+    iconBg: 'bg-teal',
     iconColor: 'text-white',
     title: 'Wedding Planning Suite',
     description:
       'Budget tracker, vendor booking, guest list, and RSVP management. From proposal to mandap, in one platform.',
     badge: 'Coming in Phase 2',
-    badgeClass: 'bg-[#6B6B76]/10 text-[#6B6B76]',
+    badgeClass: 'bg-muted-foreground/10 text-muted-foreground',
     photo: FEATURE_PLANNING,
   },
   {
     icon: Users,
-    iconBg: 'bg-[#7B2D42]',
+    iconBg: 'bg-primary',
     iconColor: 'text-white',
     title: 'Family Compatibility Mode',
     description:
       'Parents co-browse profiles and send family interest requests. Designed for how Indian families actually work.',
     badge: 'Unique to Smart Shaadi',
-    badgeClass: 'bg-[#7B2D42]/10 text-[#7B2D42]',
+    badgeClass: 'bg-primary/10 text-primary',
     photo: FEATURE_FAMILY_MODE,
   },
   {
     icon: MessageCircle,
-    iconBg: 'bg-[#0E7C7B]',
+    iconBg: 'bg-teal',
     iconColor: 'text-white',
     title: 'AI Conversation Coach',
     description:
       'AI suggests personalised ice-breakers based on shared interests. Hindi + English support built in.',
     badge: 'AI Powered',
-    badgeClass: 'bg-[#0E7C7B]/10 text-[#0E7C7B]',
+    badgeClass: 'bg-teal/10 text-teal',
     photo: FEATURE_AI_COACH,
   },
   {
     icon: ShoppingBag,
-    iconBg: 'bg-[#7B2D42]',
+    iconBg: 'bg-primary',
     iconColor: 'text-white',
     title: 'Vendor Marketplace',
     description:
       'Book verified photographers, caterers, and decorators. Escrow payments protect you. One platform, complete journey.',
     badge: 'Coming in Phase 2',
-    badgeClass: 'bg-[#6B6B76]/10 text-[#6B6B76]',
+    badgeClass: 'bg-muted-foreground/10 text-muted-foreground',
     photo: FEATURE_VENDOR,
   },
 ];
 
 export default function FeaturesGrid() {
   return (
-    <section id="features" className="bg-[#FEFAF6] py-24 md:py-28">
+    <section id="features" className="bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
         <p
           aria-hidden="true"
-          className="text-xs font-semibold uppercase tracking-widest text-[#7B2D42]/70 text-center mb-3"
+          className="text-xs font-semibold uppercase tracking-widest text-primary/70 text-center mb-3"
         >
           Everything You Need
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-[#2E2E38] mb-4 font-[family-name:var(--font-heading)]">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
           Everything Your Family Needs{' '}
-          <span className="italic text-[#7B2D42]">in One Platform</span>
+          <span className="italic text-primary">in One Platform</span>
         </h2>
-        <p className="text-[#6B6B76] max-w-xl mx-auto text-center leading-relaxed">
+        <p className="text-muted-foreground max-w-xl mx-auto text-center leading-relaxed">
           Built for Indian families. Not a dating app. Never will be.
         </p>
 
@@ -122,7 +122,7 @@ export default function FeaturesGrid() {
             return (
               <article
                 key={feature.title}
-                className="group relative overflow-hidden rounded-2xl bg-white border border-[#E8E0D8] shadow-sm hover:shadow-xl hover:border-[#C5A47E]/40 transition-all duration-300 hover:-translate-y-1"
+                className="group relative overflow-hidden rounded-2xl bg-surface border border-border shadow-sm hover:shadow-xl hover:border-gold/40 transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Photo header */}
                 <div className="relative h-40 overflow-hidden">
@@ -154,10 +154,10 @@ export default function FeaturesGrid() {
                     />
                   </div>
 
-                  <h3 className="text-lg md:text-xl font-medium text-[#2E2E38] font-[family-name:var(--font-heading)] mt-2">
+                  <h3 className="text-lg md:text-xl font-medium text-foreground font-[family-name:var(--font-heading)] mt-2">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-[#6B6B76] leading-relaxed mt-2">
+                  <p className="text-sm text-muted-foreground leading-relaxed mt-2">
                     {feature.description}
                   </p>
                   <span

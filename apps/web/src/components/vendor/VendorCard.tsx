@@ -1,5 +1,9 @@
 import Link from 'next/link';
+import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface VendorCardProps {
   vendor: VendorProfile;
@@ -9,15 +13,14 @@ function StarRating({ rating }: { rating: number }) {
   const full  = Math.floor(rating);
   const half  = rating - full >= 0.5;
   const empty = 5 - full - (half ? 1 : 0);
-
   return (
     <span className="inline-flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: full }).map((_, i) => (
-        <span key={`f${i}`} className="text-amber-400 text-sm">★</span>
+        <Star key={`f${i}`} className="h-3.5 w-3.5 fill-gold text-gold" aria-hidden="true" />
       ))}
-      {half && <span className="text-amber-400 text-sm">½</span>}
+      {half ? <StarHalf className="h-3.5 w-3.5 fill-gold text-gold" aria-hidden="true" /> : null}
       {Array.from({ length: empty }).map((_, i) => (
-        <span key={`e${i}`} className="text-slate-300 text-sm">★</span>
+        <Star key={`e${i}`} className="h-3.5 w-3.5 text-border" aria-hidden="true" />
       ))}
     </span>
   );
@@ -36,55 +39,51 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const price = priceRange(vendor.services);
 
   return (
-    <article className="bg-[#FEFAF6] border border-[#C5A47E]/30 rounded-xl shadow-sm p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
-      {/* Header */}
+    <Card className="group flex flex-col gap-3 border-gold/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[#7B2D42] text-base leading-snug truncate">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-heading text-base font-semibold leading-snug text-primary">
             {vendor.businessName}
           </h3>
-          <p className="text-[#6B6B76] text-xs mt-0.5">
+          <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" aria-hidden="true" />
             {vendor.city}, {vendor.state}
           </p>
         </div>
-
-        {vendor.verified && (
-          <span className="shrink-0 inline-flex items-center gap-1 bg-[#0E7C7B]/10 text-[#0E7C7B] text-xs font-medium px-2 py-0.5 rounded-full">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
+        {vendor.verified ? (
+          <Badge variant="tealSoft" className="shrink-0">
+            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
             Verified
-          </span>
-        )}
+          </Badge>
+        ) : null}
       </div>
 
-      {/* Category badge */}
-      <div>
-        <span className="inline-block bg-[#7B2D42]/10 text-[#7B2D42] text-xs font-medium px-2.5 py-0.5 rounded-full">
-          {vendor.category.replace(/_/g, ' ')}
-        </span>
-      </div>
+      <Badge variant="default" className="self-start capitalize">
+        {vendor.category.replace(/_/g, ' ').toLowerCase()}
+      </Badge>
 
-      {/* Rating */}
       <div className="flex items-center gap-2">
         <StarRating rating={vendor.rating} />
-        <span className="text-[#6B6B76] text-xs">
-          {vendor.rating.toFixed(1)} ({vendor.totalReviews} reviews)
+        <span className="text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{vendor.rating.toFixed(1)}</span>
+          {' · '}
+          {vendor.totalReviews} review{vendor.totalReviews === 1 ? '' : 's'}
         </span>
       </div>
 
-      {/* Price range */}
-      {price && (
-        <p className="text-[#2E2E38] text-sm font-medium">{price}</p>
-      )}
+      {price ? (
+        <p className="text-sm">
+          <span className="font-semibold text-primary">{price}</span>
+          <span className="text-muted-foreground"> starting</span>
+        </p>
+      ) : null}
 
-      {/* CTA */}
-      <Link
-        href={`/vendors/${vendor.id}`}
-        className="mt-auto block text-center bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors min-h-[44px] flex items-center justify-center"
-      >
-        View Profile
-      </Link>
-    </article>
+      <Button asChild className="mt-auto w-full">
+        <Link href={`/vendors/${vendor.id}`}>
+          View Profile
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        </Link>
+      </Button>
+    </Card>
   );
 }

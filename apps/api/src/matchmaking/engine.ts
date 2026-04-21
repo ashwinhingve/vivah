@@ -110,6 +110,57 @@ function assertDrizzleDB(db: unknown): asserts db is DrizzleDB {
   }
 }
 
+// ── Row enrichment ────────────────────────────────────────────────────────────
+//
+// Postgres `profiles` table stores only metadata (status, completeness, flags).
+// The JSON sections referenced by ProfileRow — personal, location, profession,
+// etc. — live in MongoDB (`profiles_content`) or, in mock mode, in mockStore.
+// Without this merge, every row has empty sections, which makes age default to
+// 0 in rowToProfileData and then fails applyHardFilters' age/religion/location
+// checks — the feed ends up empty even for complete profiles.
+
+type ContentDoc = {
+  personal?:           ProfileRow['personal']
+  location?:           ProfileRow['location']
+  profession?:         ProfileRow['profession']
+  education?:          ProfileRow['education']
+  lifestyle?:          ProfileRow['lifestyle']
+  family?:             ProfileRow['family']
+  partnerPreferences?: ProfileRow['partnerPreferences']
+};
+
+async function loadContentForUser(uid: string): Promise<ContentDoc | null> {
+  if (env.USE_MOCK_SERVICES) {
+    const doc = mockGet(uid) as ContentDoc | null;
+    return doc ?? null;
+  }
+  const model = ProfileContent as unknown as {
+    findOne: (filter: object) => { lean: () => Promise<ContentDoc | null> }
+  };
+  return (await model.findOne({ userId: uid }).lean()) ?? null;
+}
+
+async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
+  const doc = await loadContentForUser(row.userId);
+  if (!doc) return row;
+  const enriched: ProfileRow = { id: row.id, userId: row.userId, isActive: row.isActive };
+  const personal           = doc.personal           ?? row.personal;
+  const location           = doc.location           ?? row.location;
+  const profession         = doc.profession         ?? row.profession;
+  const education          = doc.education          ?? row.education;
+  const lifestyle          = doc.lifestyle          ?? row.lifestyle;
+  const family             = doc.family             ?? row.family;
+  const partnerPreferences = doc.partnerPreferences ?? row.partnerPreferences;
+  if (personal           !== undefined) enriched.personal           = personal;
+  if (location           !== undefined) enriched.location           = location;
+  if (profession         !== undefined) enriched.profession         = profession;
+  if (education          !== undefined) enriched.education          = education;
+  if (lifestyle          !== undefined) enriched.lifestyle          = lifestyle;
+  if (family             !== undefined) enriched.family             = family;
+  if (partnerPreferences !== undefined) enriched.partnerPreferences = partnerPreferences;
+  return enriched;
+}
+
 // ── Row → ProfileData converter ───────────────────────────────────────────────
 
 function rowToProfileData(row: ProfileRow): ProfileData {
@@ -258,7 +309,8 @@ export async function computeAndCacheFeed(
     return [];
   }
 
-  const userRow = userRows[0] as ProfileRow;
+  const userRowRaw = userRows[0] as ProfileRow;
+  const userRow = await enrichRow(userRowRaw);
   const userProfileId = userRow.id;
 
   // 2. Get blocked profile IDs (both directions)
@@ -288,14 +340,18 @@ export async function computeAndCacheFeed(
     .limit(500) as unknown[];
 
   // Filter out blocked / self
-  const eligibleRows = (candidateRows as ProfileRow[]).filter(
+  const eligibleRowsRaw = (candidateRows as ProfileRow[]).filter(
     (r) => !blockedSet.has(r.id),
   );
 
-  if (eligibleRows.length === 0) {
+  if (eligibleRowsRaw.length === 0) {
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
+
+  // Enrich candidates from MongoDB (or mockStore) so downstream filters see
+  // real age / religion / location / preferences, not schema defaults.
+  const eligibleRows = await Promise.all(eligibleRowsRaw.map(enrichRow));
 
   // 4. Convert rows to ProfileData
   const userProfileData  = rowToProfileData(userRow);

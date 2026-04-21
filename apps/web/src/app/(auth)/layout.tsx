@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen bg-[#FEFAF6] flex flex-col items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden">
       {/* Mandala decoration — top right */}
       <svg
         aria-hidden="true"
@@ -53,12 +53,12 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
       <div className="mb-8 text-center relative z-10">
         <h1
-          className="text-4xl font-bold text-[#7B2D42] tracking-tight font-heading"
+          className="text-4xl font-bold text-primary tracking-tight font-heading"
         >
           Smart Shaadi
         </h1>
-        <p className="text-sm text-[#C5A47E] mt-1 font-medium tracking-wide">Find your perfect match</p>
-        <p className="text-xs text-[#6B6B76] mt-0.5">National Smart Marriage Ecosystem</p>
+        <p className="text-sm text-gold-muted mt-1 font-semibold tracking-[0.08em]">Find your perfect match</p>
+        <p className="text-xs text-muted-foreground mt-0.5">National Smart Marriage Ecosystem</p>
       </div>
       <div className="relative z-10 w-full flex flex-col items-center">
         {children}

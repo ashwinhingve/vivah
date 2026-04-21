@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${notoDevanagari.variable}`}>
-      <body className="bg-[#FEFAF6] text-[#2E2E38] antialiased overflow-x-clip">{children}</body>
+      <body className="bg-background text-foreground antialiased overflow-x-clip font-body">{children}</body>
     </html>
   );
 }

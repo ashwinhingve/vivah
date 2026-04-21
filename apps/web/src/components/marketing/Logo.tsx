@@ -74,7 +74,7 @@ export function LogoFull({ size = 32, className }: LogoProps) {
   return (
     <span className={`inline-flex items-center ${className ?? ''}`}>
       <LogoMark size={size} />
-      <span className="ml-2.5 text-xl font-semibold text-[#7B2D42] font-[family-name:var(--font-heading)]">
+      <span className="ml-2.5 text-xl font-semibold text-primary font-[family-name:var(--font-heading)]">
         Smart Shaadi
       </span>
     </span>

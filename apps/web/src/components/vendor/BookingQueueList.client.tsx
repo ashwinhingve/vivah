@@ -47,9 +47,9 @@ export function BookingQueueList({ initialBookings }: Props) {
 
   if (pending.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
-        <p className="text-sm font-semibold text-[#7B2D42]">No pending bookings</p>
-        <p className="text-xs text-[#6B6B76] mt-1">New requests will appear here</p>
+      <div className="rounded-xl border border-dashed border-gold/40 bg-surface p-8 text-center">
+        <p className="text-sm font-semibold text-primary">No pending bookings</p>
+        <p className="text-xs text-muted-foreground mt-1">New requests will appear here</p>
       </div>
     );
   }
@@ -64,11 +64,11 @@ export function BookingQueueList({ initialBookings }: Props) {
       {pending.map((booking) => (
         <div
           key={booking.id}
-          className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex items-center justify-between gap-3"
+          className="rounded-xl border border-gold/40 bg-surface p-4 flex items-center justify-between gap-3"
         >
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#2E2E38] truncate">{booking.vendorName}</p>
-            <p className="text-xs text-[#6B6B76] mt-0.5">
+            <p className="text-sm font-semibold text-foreground truncate">{booking.vendorName}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
               {new Date(booking.eventDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -81,14 +81,14 @@ export function BookingQueueList({ initialBookings }: Props) {
             <button
               onClick={() => void updateBooking(booking.id, 'confirm')}
               disabled={loading === booking.id}
-              className="px-3 py-1.5 rounded-lg bg-[#0E7C7B] text-white text-xs font-semibold min-h-[36px] hover:bg-[#149998] transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg bg-teal text-white text-xs font-semibold min-h-[36px] hover:bg-teal-hover transition-colors disabled:opacity-50"
             >
               {loading === booking.id ? '…' : 'Confirm'}
             </button>
             <button
               onClick={() => void updateBooking(booking.id, 'cancel')}
               disabled={loading === booking.id}
-              className="px-3 py-1.5 rounded-lg border border-[#DC2626]/30 text-[#DC2626] text-xs font-semibold min-h-[36px] hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg border border-destructive/30 text-destructive text-xs font-semibold min-h-[36px] hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               Decline
             </button>

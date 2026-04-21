@@ -46,9 +46,11 @@ export default async function AdminPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  // Role guard — redirect non-admins
+  // Role guard — middleware already verified ADMIN/SUPPORT; redirect only if
+  // /api/auth/me positively identifies a non-admin role (prevents a loop when
+  // the API is unreachable and fetchAuth returns null).
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
-  if (!me || me.role !== 'ADMIN') {
+  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') {
     redirect('/dashboard');
   }
 
@@ -62,45 +64,45 @@ export default async function AdminPage() {
   const bookingsThisMonth = stats?.bookingsThisMonth ?? 0;
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Admin Dashboard</h1>
-          <p className="text-sm text-[#6B6B76] mt-0.5">Platform overview and moderation</p>
+          <h1 className="text-2xl font-bold text-primary font-heading">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Platform overview and moderation</p>
         </div>
 
         {/* 4 stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Total Users</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{totalUsers}</p>
-            <p className="text-xs text-[#6B6B76]">registered</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Total Users</p>
+            <p className="text-2xl font-bold font-heading text-teal">{totalUsers}</p>
+            <p className="text-xs text-muted-foreground">registered</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Pending KYC</p>
-            <p className="text-2xl font-bold font-heading text-[#D97706]">{kycQueue.length}</p>
-            <p className="text-xs text-[#6B6B76]">need review</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pending KYC</p>
+            <p className="text-2xl font-bold font-heading text-warning">{kycQueue.length}</p>
+            <p className="text-xs text-muted-foreground">need review</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Active Vendors</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{activeVendors}</p>
-            <p className="text-xs text-[#6B6B76]">on platform</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Active Vendors</p>
+            <p className="text-2xl font-bold font-heading text-teal">{activeVendors}</p>
+            <p className="text-xs text-muted-foreground">on platform</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Bookings</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{bookingsThisMonth}</p>
-            <p className="text-xs text-[#6B6B76]">this month</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Bookings</p>
+            <p className="text-2xl font-bold font-heading text-teal">{bookingsThisMonth}</p>
+            <p className="text-xs text-muted-foreground">this month</p>
           </div>
         </div>
 
         {/* KYC pending queue */}
         <div>
-          <h2 className="text-lg font-semibold text-[#7B2D42] font-heading mb-3">
+          <h2 className="text-lg font-semibold text-primary font-heading mb-3">
             KYC Pending Review
             {kycQueue.length > 0 && (
-              <span className="ml-2 text-xs font-semibold text-[#D97706] bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              <span className="ml-2 text-xs font-semibold text-warning bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                 {kycQueue.length}
               </span>
             )}
@@ -110,27 +112,27 @@ export default async function AdminPage() {
 
         {/* Recent audit logs placeholder */}
         <div>
-          <h2 className="text-lg font-semibold text-[#7B2D42] font-heading mb-3">
+          <h2 className="text-lg font-semibold text-primary font-heading mb-3">
             Recent Audit Logs
           </h2>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white overflow-hidden">
+          <div className="rounded-xl border border-gold/30 bg-surface overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#E8E0D8] bg-[#FEFAF6]">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide">
+                <tr className="border-b border-border bg-background">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">
                     Event
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide hidden sm:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide hidden sm:table-cell">
                     Entity
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">
                     Time
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-xs text-[#6B6B76]">
+                  <td colSpan={3} className="px-4 py-8 text-center text-xs text-muted-foreground">
                     Audit log endpoint coming in Phase 2 — Week 6
                   </td>
                 </tr>

@@ -35,10 +35,10 @@ export function ProfileProgress({ steps }: ProfileProgressProps) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
                   step.done
-                    ? 'bg-[#0E7C7B] text-white'
+                    ? 'bg-teal text-white'
                     : step.active
-                      ? 'bg-[#7B2D42] text-white ring-2 ring-[#7B2D42]/30'
-                      : 'bg-[#E8E0D8] text-[#6B6B76]'
+                      ? 'bg-primary text-white ring-2 ring-primary/30'
+                      : 'bg-border text-muted-foreground'
                 }`}
               >
                 {step.done ? (
@@ -51,7 +51,7 @@ export function ProfileProgress({ steps }: ProfileProgressProps) {
               </div>
               <span
                 className={`text-[10px] mt-1 text-center leading-tight w-full ${
-                  step.active ? 'text-[#7B2D42] font-semibold' : 'text-[#6B6B76]'
+                  step.active ? 'text-primary font-semibold' : 'text-muted-foreground'
                 }`}
               >
                 {step.label}
@@ -60,7 +60,7 @@ export function ProfileProgress({ steps }: ProfileProgressProps) {
             {i < normalized.length - 1 && (
               <div
                 className={`h-0.5 w-4 shrink-0 ${
-                  step.done ? 'bg-[#0E7C7B]' : 'bg-[#E8E0D8]'
+                  step.done ? 'bg-teal' : 'bg-border'
                 }`}
               />
             )}

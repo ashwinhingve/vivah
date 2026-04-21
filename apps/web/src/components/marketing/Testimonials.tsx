@@ -51,7 +51,7 @@ const testimonials: Testimonial[] = [
 
 export default function Testimonials() {
   return (
-    <section id="testimonials" className="relative isolate bg-white py-24 md:py-28 overflow-hidden">
+    <section id="testimonials" className="relative isolate bg-surface py-24 md:py-28 overflow-hidden">
       {/* Decorative paisley/mandala SVG ornament */}
       <svg
         aria-hidden="true"
@@ -77,15 +77,15 @@ export default function Testimonials() {
       <div className="relative max-w-screen-xl mx-auto px-4 md:px-6">
         <p
           aria-hidden="true"
-          className="text-xs font-semibold uppercase tracking-widest text-[#7B2D42]/70 text-center mb-3"
+          className="text-xs font-semibold uppercase tracking-widest text-primary/70 text-center mb-3"
         >
           Early Access Feedback
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-[#2E2E38] mb-4 font-[family-name:var(--font-heading)]">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
           Real Families.{' '}
-          <span className="italic text-[#7B2D42]">Real Matches.</span>
+          <span className="italic text-primary">Real Matches.</span>
         </h2>
-        <p className="text-[#6B6B76] text-center mb-16 leading-relaxed">
+        <p className="text-muted-foreground text-center mb-16 leading-relaxed">
           What our early access members are saying
         </p>
 
@@ -93,27 +93,27 @@ export default function Testimonials() {
           {testimonials.map((t) => (
             <figure
               key={t.name}
-              className="relative bg-[#FEFAF6] rounded-2xl p-6 md:p-7 border border-[#E8E0D8] shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="relative bg-background rounded-2xl p-6 md:p-7 border border-border shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               <span
                 aria-hidden="true"
-                className="absolute top-3 right-5 text-7xl leading-none text-[#C5A47E]/25 pointer-events-none select-none font-[family-name:var(--font-heading)]"
+                className="absolute top-3 right-5 text-7xl leading-none text-gold/25 pointer-events-none select-none font-[family-name:var(--font-heading)]"
               >
                 &ldquo;
               </span>
               <div className="relative">
                 <p
                   aria-hidden="true"
-                  className="text-[#C5A47E] text-sm mb-3 tracking-wider"
+                  className="text-gold text-sm mb-3 tracking-wider"
                 >
                   ★★★★★
                 </p>
                 <span className="sr-only">Rated 5 out of 5 stars.</span>
-                <blockquote className="border-l-4 border-[#C5A47E] pl-4 text-[#2E2E38] text-sm md:text-base leading-relaxed italic">
+                <blockquote className="border-l-4 border-gold pl-4 text-foreground text-sm md:text-base leading-relaxed italic">
                   {t.quote}
                 </blockquote>
                 <figcaption className="flex items-center gap-3 mt-6">
-                  <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-[#C5A47E] flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gold flex-shrink-0">
                     <Image
                       src={t.avatar.src}
                       alt={t.avatar.alt}
@@ -124,18 +124,18 @@ export default function Testimonials() {
                     />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[#2E2E38] flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                       {t.name}
                       {t.engaged ? (
                         <Heart
-                          className="inline w-3.5 h-3.5 text-[#7B2D42]"
+                          className="inline w-3.5 h-3.5 text-primary"
                           aria-hidden="true"
                         />
                       ) : null}
                     </p>
-                    <p className="text-xs text-[#6B6B76]">{t.detail}</p>
+                    <p className="text-xs text-muted-foreground">{t.detail}</p>
                     {t.extraBadge ? (
-                      <span className="inline-block mt-1 text-xs bg-[#7B2D42]/10 text-[#7B2D42] rounded-full px-2.5 py-1">
+                      <span className="inline-block mt-1 text-xs bg-primary/10 text-primary rounded-full px-2.5 py-1">
                         {t.extraBadge}
                       </span>
                     ) : null}

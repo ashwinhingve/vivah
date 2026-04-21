@@ -11,20 +11,38 @@ config({ path: resolve(__dirname, '../../../.env') });
 const pool = new pg.Pool({ connectionString: process.env['DATABASE_URL'] });
 const db = drizzle(pool);
 
+// Seed phone range: +9188888800xx (distinct from any real test registrations
+// in the +919999999xxx range the auth flow uses).
 const TEST_USERS = [
   {
     id: 'seed-individual-001',
-    name: 'Test Individual',
-    email: 'individual@test.smartshaadi.co.in',
-    phoneNumber: '+919999999001',
+    name: 'Priya Sharma',
+    email: 'priya@test.smartshaadi.co.in',
+    phoneNumber: '+918888880001',
     role: 'INDIVIDUAL',
     status: 'ACTIVE',
   },
   {
     id: 'seed-individual-002',
-    name: 'Test Individual 2',
-    email: 'individual2@test.smartshaadi.co.in',
-    phoneNumber: '+919999999004',
+    name: 'Rahul Verma',
+    email: 'rahul@test.smartshaadi.co.in',
+    phoneNumber: '+918888880002',
+    role: 'INDIVIDUAL',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'seed-individual-003',
+    name: 'Ananya Iyer',
+    email: 'ananya@test.smartshaadi.co.in',
+    phoneNumber: '+918888880003',
+    role: 'INDIVIDUAL',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'seed-individual-004',
+    name: 'Vikram Patel',
+    email: 'vikram@test.smartshaadi.co.in',
+    phoneNumber: '+918888880004',
     role: 'INDIVIDUAL',
     status: 'ACTIVE',
   },
@@ -32,7 +50,7 @@ const TEST_USERS = [
     id: 'seed-vendor-001',
     name: 'Test Vendor',
     email: 'vendor@test.smartshaadi.co.in',
-    phoneNumber: '+919999999002',
+    phoneNumber: '+918888880005',
     role: 'VENDOR',
     status: 'ACTIVE',
   },
@@ -40,7 +58,7 @@ const TEST_USERS = [
     id: 'seed-admin-001',
     name: 'Test Admin',
     email: 'admin@test.smartshaadi.co.in',
-    phoneNumber: '+919999999003',
+    phoneNumber: '+918888880006',
     role: 'ADMIN',
     status: 'ACTIVE',
   },

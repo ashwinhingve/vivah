@@ -1,3 +1,11 @@
+import Image from 'next/image';
+import { Users, User, UserPlus, CheckCircle2, Sparkles } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { PhotoFallback } from '@/components/shared';
+import { resolvePhotoUrl } from '@/lib/photo';
+import { cn } from '@/lib/utils';
+
 interface ProfileHeroProps {
   name: string;
   age: number | null;
@@ -10,26 +18,20 @@ interface ProfileHeroProps {
   premiumTier?: string;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  SELF: 'Profile by Self',
-  PARENT: 'Profile by Parent',
-  SIBLING: 'Profile by Sibling',
-  RELATIVE: 'Profile by Relative',
+const ROLE_CONFIG: Record<
+  NonNullable<ProfileHeroProps['createdByRole']>,
+  { label: string; icon: typeof Users; classes: string }
+> = {
+  SELF:     { label: 'Profile by Self',     icon: User,     classes: 'bg-muted text-muted-foreground' },
+  PARENT:   { label: 'Profile by Parent',   icon: Users,    classes: 'bg-primary/10 text-primary' },
+  SIBLING:  { label: 'Profile by Sibling',  icon: Users,    classes: 'bg-primary/10 text-primary' },
+  RELATIVE: { label: 'Profile by Relative', icon: UserPlus, classes: 'bg-primary/10 text-primary' },
 };
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
-function getCompletenessColor(pct: number): string {
-  if (pct < 30) return '#DC2626';
-  if (pct < 60) return '#D97706';
-  return '#0E7C7B';
+function getCompletenessTone(pct: number): { bar: string; text: string } {
+  if (pct < 30) return { bar: 'from-destructive to-warning', text: 'text-destructive' };
+  if (pct < 60) return { bar: 'from-warning to-gold',        text: 'text-warning' };
+  return { bar: 'from-gold to-teal', text: 'text-teal' };
 }
 
 export function ProfileHero({
@@ -43,105 +45,93 @@ export function ProfileHero({
   createdByRole = 'SELF',
   premiumTier,
 }: ProfileHeroProps) {
-  const initials = getInitials(name);
-  const roleLabel = ROLE_LABELS[createdByRole] ?? 'Profile by Self';
-  const completenessColor = getCompletenessColor(completeness);
+  const role = ROLE_CONFIG[createdByRole];
+  const RoleIcon = role.icon;
+  const tone = getCompletenessTone(completeness);
+  const photoUrl = resolvePhotoUrl(primaryPhotoUrl);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] overflow-hidden">
-      {/* Photo */}
-      <div className="relative aspect-[4/3]">
-        {primaryPhotoUrl ? (
-          <img
-            src={primaryPhotoUrl}
+    <Card className="overflow-hidden">
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
+        {photoUrl ? (
+          <Image
+            src={photoUrl}
             alt={`${name}'s profile photo`}
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
+            className="object-cover"
           />
         ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7B2D42 0%, #C5A47E 100%)' }}
-          >
-            <span
-              className="text-4xl font-semibold text-white font-heading"
-            >
-              {initials}
-            </span>
-          </div>
+          <PhotoFallback name={name} />
         )}
 
-        {/* Gold frame overlay */}
-        <div className="absolute inset-0 rounded-t-xl border-2 border-[#C5A47E] pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70" aria-hidden="true" />
 
-        {/* Bottom gradient + name overlay */}
-        <div
-          className="absolute bottom-0 left-0 right-0 px-4 pt-8 pb-3"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)' }}
-        >
-          <p
-            className="text-white text-lg font-semibold leading-tight truncate font-heading"
-          >
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent px-4 pb-4 pt-12">
+          <h1 className="truncate font-heading text-2xl font-semibold leading-tight text-white drop-shadow-sm">
             {name}
-          </p>
-          <p className="text-white/80 text-sm mt-0.5 truncate">
-            {age != null ? `${age} yrs` : 'Age not set'}{city ? ` · ${city}` : ''}
+          </h1>
+          <p className="mt-0.5 truncate text-sm text-white/85">
+            {age != null ? `${age} yrs` : 'Age not set'}
+            {city ? ` · ${city}` : ''}
           </p>
         </div>
 
-        {/* Verified badge — top right */}
-        {isVerified && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-[#059669] px-2.5 py-1 shadow">
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 12c0 4.97 3.03 9.254 7.5 11.25A11.955 11.955 0 0021 12c0-2.196-.608-4.25-1.663-5.974A11.96 11.96 0 0012 2.964z" />
-            </svg>
-            <span className="text-white text-xs font-semibold">Verified</span>
-          </div>
-        )}
+        {isVerified ? (
+          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-xs font-semibold text-white shadow-md ring-2 ring-surface/40">
+            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+            Verified
+          </span>
+        ) : null}
 
-        {/* Premium tier badge — top left */}
-        {premiumTier && premiumTier !== 'FREE' && (
-          <div className="absolute top-3 left-3 rounded-full bg-[#FFF3E0] border border-[#FDE68A] px-2.5 py-1">
-            <span className="text-[#D97706] text-xs font-semibold">{premiumTier}</span>
-          </div>
-        )}
+        {premiumTier && premiumTier !== 'FREE' ? (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold-muted shadow-sm backdrop-blur-sm">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            {premiumTier}
+          </span>
+        ) : null}
       </div>
 
-      {/* Card body */}
-      <div className="px-4 py-3 space-y-3">
-        {/* Occupation + trust badge row */}
+      <div className="space-y-3 px-4 py-4">
         <div className="flex items-center justify-between gap-2">
-          {occupation && (
-            <p className="text-sm text-[#6B6B76] truncate">{occupation}</p>
+          {occupation ? (
+            <p className="truncate text-sm text-muted-foreground">{occupation}</p>
+          ) : (
+            <span className="text-sm italic text-muted-foreground/70">No occupation set</span>
           )}
-          <span
-            className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
-            style={{ background: 'rgba(123,45,66,0.08)', color: '#7B2D42' }}
-          >
-            {roleLabel}
-          </span>
+          <Badge variant="default" className={cn('shrink-0 gap-1', role.classes)}>
+            <RoleIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {role.label}
+          </Badge>
         </div>
 
-        {/* Completeness bar */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-[#6B6B76]">Profile {completeness}% complete</span>
-            {completeness < 60 && (
-              <span className="text-xs font-medium" style={{ color: completenessColor }}>
-                Add more details →
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Profile <span className="font-bold text-foreground">{completeness}%</span> complete
+            </span>
+            {completeness < 60 ? (
+              <span className={cn('text-xs font-semibold', tone.text)}>Add more details →</span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
+                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                Looking great
               </span>
             )}
           </div>
-          <div className="h-1.5 rounded-full bg-[#F0EBE4] overflow-hidden">
+          <div className="relative h-2 overflow-hidden rounded-full bg-border-light">
             <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${completeness}%`,
-                background: `linear-gradient(to right, #C5A47E, ${completenessColor})`,
-              }}
-            />
+              className={cn('relative h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out', tone.bar)}
+              style={{ width: `${Math.max(2, completeness)}%` }}
+            >
+              {completeness > 0 && completeness < 100 ? (
+                <span className="stripe-progress absolute inset-0" aria-hidden="true" />
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

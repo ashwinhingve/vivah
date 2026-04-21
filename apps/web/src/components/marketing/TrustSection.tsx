@@ -32,13 +32,13 @@ export default function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-br from-[#7B2D42]/95 via-[#7B2D42]/88 to-[#5C2032]/85"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/95 via-primary/88 to-primary-hover/85"
         />
 
         <div className="relative w-full max-w-[640px] ml-auto px-8 md:px-12 py-20 md:py-24">
           <p
             aria-hidden="true"
-            className="text-xs uppercase tracking-widest text-[#C5A47E] mb-3 font-semibold border-l-2 border-[#C5A47E] pl-3"
+            className="text-xs uppercase tracking-widest text-gold mb-3 font-semibold border-l-2 border-gold pl-3"
           >
             For Individuals
           </p>
@@ -47,7 +47,7 @@ export default function TrustSection() {
             <br />
             Your Timeline.
             <br />
-            <span className="italic text-[#F4D9C2]">Your Choice.</span>
+            <span className="italic text-peach">Your Choice.</span>
           </h2>
           <p className="text-white/85 mt-6 leading-relaxed text-base [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]">
             You control everything. Photos stay blurred until you choose to
@@ -58,9 +58,9 @@ export default function TrustSection() {
           <ul className="mt-8 space-y-4">
             {individualPoints.map((point) => (
               <li key={point} className="flex items-start gap-3">
-                <span className="w-7 h-7 rounded-full bg-[#C5A47E]/30 ring-1 ring-[#C5A47E]/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="w-7 h-7 rounded-full bg-gold/30 ring-1 ring-gold/50 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check
-                    className="w-4 h-4 text-[#F4D9C2]"
+                    className="w-4 h-4 text-peach"
                     aria-hidden="true"
                   />
                 </span>
@@ -73,7 +73,7 @@ export default function TrustSection() {
 
           <Link
             href="/register"
-            className="inline-flex items-center justify-center bg-white text-[#7B2D42] font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] hover:bg-white/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center bg-surface text-primary font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
           >
             Create Free Profile →
           </Link>
@@ -92,22 +92,22 @@ export default function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-bl from-[#FEFAF6]/96 via-[#FEFAF6]/92 to-[#FFFFFF]/88"
+          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/96 via-background/92 to-[#FFFFFF]/88"
         />
 
         <div className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24">
           <p
             aria-hidden="true"
-            className="text-xs uppercase tracking-widest text-[#7B2D42]/70 mb-3 font-semibold border-l-2 border-[#7B2D42]/40 pl-3"
+            className="text-xs uppercase tracking-widest text-primary/70 mb-3 font-semibold border-l-2 border-primary/40 pl-3"
           >
             For Families
           </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#7B2D42] font-[family-name:var(--font-heading)] leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-[family-name:var(--font-heading)] leading-tight">
             A Platform Built for{' '}
-            <span className="italic text-[#0E7C7B]">How Families</span>{' '}
+            <span className="italic text-teal">How Families</span>{' '}
             Actually Work.
           </h2>
-          <p className="text-[#2E2E38] mt-6 leading-relaxed text-base">
+          <p className="text-foreground mt-6 leading-relaxed text-base">
             Indian matrimony has always been a family decision. Smart Shaadi is
             built for that reality. Parents co-browse profiles. Both families
             verify each other. Trust is built before any meeting.
@@ -116,13 +116,13 @@ export default function TrustSection() {
           <ul className="mt-8 space-y-4">
             {familyPoints.map((point) => (
               <li key={point} className="flex items-start gap-3">
-                <span className="w-7 h-7 rounded-full bg-[#0E7C7B]/15 ring-1 ring-[#0E7C7B]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="w-7 h-7 rounded-full bg-teal/15 ring-1 ring-teal/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check
-                    className="w-4 h-4 text-[#0E7C7B]"
+                    className="w-4 h-4 text-teal"
                     aria-hidden="true"
                   />
                 </span>
-                <span className="text-[#2E2E38] text-sm md:text-base">
+                <span className="text-foreground text-sm md:text-base">
                   {point}
                 </span>
               </li>
@@ -131,7 +131,7 @@ export default function TrustSection() {
 
           <Link
             href="/register?mode=family"
-            className="inline-flex items-center justify-center bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] transition-all duration-200 shadow-lg shadow-[#0E7C7B]/30 hover:shadow-xl hover:shadow-[#0E7C7B]/40 hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
           >
             Explore Family Mode →
           </Link>

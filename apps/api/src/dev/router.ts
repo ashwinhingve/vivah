@@ -5,6 +5,8 @@ import { authenticate } from '../auth/middleware.js';
 import { db } from '../lib/db.js';
 import { ok, err } from '../lib/response.js';
 import { seedProfileContent } from './seedProfiles.js';
+import { createDevMatch } from './createMatch.js';
+import { seedCompatibleMatch } from './seedCompatibleMatch.js';
 
 export const devRouter = Router();
 
@@ -39,5 +41,33 @@ devRouter.post('/seed-profiles', authenticate, async (_req: Request, res: Respon
     ok(res, result);
   } catch (e) {
     err(res, 'SEED_FAILED', e instanceof Error ? e.message : 'seed failed', 500);
+  }
+});
+
+/**
+ * POST /dev/create-match — fabricate an opposite-gender profile wired to match
+ * the current user bilaterally, then warm the feed cache. Dev-only shortcut.
+ */
+devRouter.post('/create-match', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await createDevMatch(req.user!.id);
+    ok(res, { success: true, ...result });
+  } catch (e) {
+    err(res, 'CREATE_MATCH_FAILED', e instanceof Error ? e.message : 'create match failed', 500);
+  }
+});
+
+/**
+ * POST /dev/seed-compatible-match — idempotent seed of a single fixed user
+ * (phone +919999999002) engineered to match the current caller bilaterally.
+ * Safe to call repeatedly — upserts Postgres rows and rewrites mockStore/Mongo
+ * content on every invocation.
+ */
+devRouter.post('/seed-compatible-match', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await seedCompatibleMatch(req.user!.id);
+    ok(res, { success: true, ...result });
+  } catch (e) {
+    err(res, 'SEED_COMPATIBLE_MATCH_FAILED', e instanceof Error ? e.message : 'seed compatible match failed', 500);
   }
 });

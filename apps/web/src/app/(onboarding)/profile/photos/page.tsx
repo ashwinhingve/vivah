@@ -23,29 +23,29 @@ export default async function PhotosPage() {
   const photos = await getPhotos();
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-6">
         <div className="mb-6">
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-medium text-[#6B6B76]">Step 8 of 8</span>
-              <span className="text-xs text-[#6B6B76]">100%</span>
+              <span className="text-xs font-medium text-muted-foreground">Step 8 of 8</span>
+              <span className="text-xs text-muted-foreground">100%</span>
             </div>
-            <div className="h-1.5 bg-[#E8E0D8] rounded-full overflow-hidden">
-              <div className="h-full bg-[#0E7C7B] rounded-full" style={{ width: '100%' }} />
+            <div className="h-1.5 bg-border rounded-full overflow-hidden">
+              <div className="h-full bg-teal rounded-full" style={{ width: '100%' }} />
             </div>
           </div>
 
           <Link
             href="/profile/preferences"
-            className="inline-flex items-center text-sm font-medium text-[#7B2D42] hover:text-[#5C2031] mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm font-medium text-primary hover:text-[#5C2031] mb-4 min-h-[44px]"
           >
             ← Back
           </Link>
-          <h1 className="font-heading text-2xl font-semibold text-[#7B2D42]">
+          <h1 className="font-heading text-2xl font-semibold text-primary">
             Add Your Photos
           </h1>
-          <p className="mt-1 text-sm text-[#6B6B76]">
+          <p className="mt-1 text-sm text-muted-foreground">
             Your main photo is the first thing a potential match sees
           </p>
         </div>
@@ -55,7 +55,7 @@ export default async function PhotosPage() {
         <div className="mt-6">
           <Link
             href="/profile/complete"
-            className="block w-full bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center transition-colors"
+            className="block w-full bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center transition-colors"
           >
             Continue →
           </Link>

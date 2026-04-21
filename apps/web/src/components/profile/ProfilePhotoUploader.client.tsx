@@ -338,11 +338,11 @@ export function ProfilePhotoUploader({
     <div className="space-y-4">
       {/* Error banner */}
       {error && (
-        <div className="rounded-xl bg-[#DC2626]/5 border border-[#DC2626]/20 p-3 flex items-center justify-between">
-          <span className="text-sm text-[#DC2626]">{error}</span>
+        <div className="rounded-xl bg-destructive/5 border border-destructive/20 p-3 flex items-center justify-between">
+          <span className="text-sm text-destructive">{error}</span>
           <button
             onClick={() => setError(null)}
-            className="p-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#DC2626] hover:bg-[#DC2626]/10 rounded transition"
+            className="p-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-destructive hover:bg-destructive/10 rounded transition"
             aria-label="Dismiss error"
           >
             ✕
@@ -362,15 +362,15 @@ export function ProfilePhotoUploader({
           onClick={triggerFileInput}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${
             isDraggingOver
-              ? 'border-[#0E7C7B] bg-[#0E7C7B]/5'
-              : 'border-[#C5A47E] bg-[#FEFAF6]'
+              ? 'border-teal bg-teal/5'
+              : 'border-gold bg-background'
           } min-h-[200px] flex flex-col items-center justify-center gap-3`}
         >
           <div className="text-4xl">📷</div>
-          <p className="font-['Playfair_Display'] text-lg text-[#7B2D42]">
+          <p className="font-['Playfair_Display'] text-lg text-primary">
             Add Your Best Photo First
           </p>
-          <p className="text-sm text-[#6B6B76]">
+          <p className="text-sm text-muted-foreground">
             Drag & drop or tap to select · Max {maxPhotos} photos · 10MB each
           </p>
         </div>
@@ -387,7 +387,7 @@ export function ProfilePhotoUploader({
               onDrop={() => handleDrop(photo.id)}
               onDragOver={(e) => e.preventDefault()}
               className={`relative aspect-square rounded-xl overflow-hidden cursor-grab active:cursor-grabbing transition border-2 ${
-                photo.isPrimary ? 'border-[#C5A47E]' : 'border-[#E8E0D8]'
+                photo.isPrimary ? 'border-gold' : 'border-border'
               }`}
             >
               {/* Photo image or skeleton */}
@@ -398,7 +398,7 @@ export function ProfilePhotoUploader({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-[#E8E0D8] animate-pulse" />
+                <div className="w-full h-full bg-border animate-pulse" />
               )}
 
               {/* Progress overlay */}
@@ -412,7 +412,7 @@ export function ProfilePhotoUploader({
 
               {/* Primary badge */}
               {photo.isPrimary && (
-                <div className="absolute top-1 left-1 bg-[#C5A47E] text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                <div className="absolute top-1 left-1 bg-gold text-white text-xs font-semibold rounded-full px-2 py-0.5">
                   ★ Main
                 </div>
               )}
@@ -438,7 +438,7 @@ export function ProfilePhotoUploader({
                       e.stopPropagation();
                       handleDelete(photo.id);
                     }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-white text-sm hover:bg-[#DC2626]/70 transition"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-white text-sm hover:bg-destructive/70 transition"
                     title="Delete photo"
                     aria-label="Delete photo"
                   >
@@ -453,18 +453,18 @@ export function ProfilePhotoUploader({
           {photos.length < maxPhotos && (
             <div
               onClick={triggerFileInput}
-              className="aspect-square rounded-xl border-2 border-dashed border-[#C5A47E] flex items-center justify-center cursor-pointer hover:bg-[#C5A47E]/5 transition min-h-[44px]"
+              className="aspect-square rounded-xl border-2 border-dashed border-gold flex items-center justify-center cursor-pointer hover:bg-gold/5 transition min-h-[44px]"
             >
-              <span className="text-[#C5A47E] text-2xl">+</span>
+              <span className="text-gold text-2xl">+</span>
             </div>
           )}
         </div>
       )}
 
       {/* Tips card */}
-      <div className="rounded-xl bg-[#7B2D42]/5 border border-[#7B2D42]/10 p-4">
-        <p className="text-xs font-semibold text-[#7B2D42] mb-2">Photo Tips</p>
-        <ul className="text-xs text-[#6B6B76] space-y-1">
+      <div className="rounded-xl bg-primary/5 border border-primary/10 p-4">
+        <p className="text-xs font-semibold text-primary mb-2">Photo Tips</p>
+        <ul className="text-xs text-muted-foreground space-y-1">
           <li>• Use a recent, clear photo of just yourself</li>
           <li>• Natural lighting gives the best results</li>
           <li>• Avoid sunglasses, filters, or group photos as your main photo</li>

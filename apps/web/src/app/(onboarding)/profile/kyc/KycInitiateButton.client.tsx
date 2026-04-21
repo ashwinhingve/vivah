@@ -29,11 +29,11 @@ export function KycInitiateButton() {
       <button
         onClick={handleClick}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-3 bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white font-semibold rounded-lg px-6 py-3.5 min-h-[52px] transition-colors active:scale-[0.98] transition-transform"
+        className="w-full flex items-center justify-center gap-3 bg-teal hover:bg-teal-hover disabled:opacity-60 text-white font-semibold rounded-lg px-6 py-3.5 min-h-[52px] transition-colors active:scale-[0.98] transition-transform"
       >
         {loading ? (
           <>
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-surface/30 border-t-white rounded-full animate-spin" />
             Connecting to DigiLocker…
           </>
         ) : (
@@ -49,7 +49,7 @@ export function KycInitiateButton() {
       </button>
 
       {error && (
-        <p className="text-sm text-[#DC2626] text-center" role="alert">
+        <p className="text-sm text-destructive text-center" role="alert">
           {error}
         </p>
       )}

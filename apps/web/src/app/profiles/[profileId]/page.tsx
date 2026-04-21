@@ -61,7 +61,7 @@ export default async function ProfileViewPage({ params }: Props) {
   const gunaScore = profile.horoscope?.gunaScore ?? null;
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6] pb-28">
+    <div className="min-h-screen bg-background pb-28">
       <div className="mx-auto max-w-lg">
 
         {/* ── Profile Hero ────────────────────────────────── */}
@@ -91,11 +91,11 @@ export default async function ProfileViewPage({ params }: Props) {
             />
           )}
           {!isSelf && !hasHoroscope && (
-            <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-5 text-center">
-              <p className="text-sm font-medium text-[#7B2D42] font-heading">
+            <div className="bg-surface rounded-xl shadow-sm border border-border p-5 text-center">
+              <p className="text-sm font-medium text-primary font-heading">
                 Guna compatibility not available
               </p>
-              <p className="text-xs text-[#6B6B76] mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Add horoscope data to see Guna score
               </p>
             </div>
@@ -103,26 +103,26 @@ export default async function ProfileViewPage({ params }: Props) {
 
           {/* ── Safety Mode badge (non-self, contact hidden) ── */}
           {!isSelf && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-white border border-[#E8E0D8] px-4 py-3 shadow-sm">
-              <div className="w-8 h-8 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-[#0E7C7B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex items-center gap-2.5 rounded-xl bg-surface border border-border px-4 py-3 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-medium text-[#2E2E38]">Contact details hidden</p>
-                <p className="text-xs text-[#6B6B76]">Visible after mutual interest</p>
+                <p className="text-sm font-medium text-foreground">Contact details hidden</p>
+                <p className="text-xs text-muted-foreground">Visible after mutual interest</p>
               </div>
             </div>
           )}
 
           {/* ── About Me ──────────────────────────────────── */}
           {profile.aboutMe && (
-            <div className="bg-white rounded-xl border border-[#E8E0D8] shadow-sm p-4">
-              <h2 className="text-lg font-semibold text-[#7B2D42] mb-2 font-heading">
+            <div className="bg-surface rounded-xl border border-border shadow-sm p-4">
+              <h2 className="text-lg font-semibold text-primary mb-2 font-heading">
                 About
               </h2>
-              <p className="text-sm text-[#6B6B76] italic leading-relaxed">
+              <p className="text-sm text-muted-foreground italic leading-relaxed">
                 &ldquo;{profile.aboutMe}&rdquo;
               </p>
             </div>
@@ -132,17 +132,17 @@ export default async function ProfileViewPage({ params }: Props) {
           {(profile.personal || profile.education) && (
             <div className="flex flex-wrap gap-2">
               {profile.personal?.religion && (
-                <span className="rounded-full bg-white border border-[#C5A47E]/50 px-3 py-1 text-xs text-[#2E2E38]">
+                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
                   {profile.personal.religion}
                 </span>
               )}
               {profile.personal?.caste && (
-                <span className="rounded-full bg-white border border-[#C5A47E]/50 px-3 py-1 text-xs text-[#2E2E38]">
+                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
                   {profile.personal.caste}
                 </span>
               )}
               {profile.personal?.height && (
-                <span className="rounded-full bg-white border border-[#C5A47E]/50 px-3 py-1 text-xs text-[#2E2E38]">
+                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
                   {(() => {
                     const totalInches = Math.round((profile.personal.height ?? 0) / 2.54);
                     const ft = Math.floor(totalInches / 12);
@@ -152,12 +152,12 @@ export default async function ProfileViewPage({ params }: Props) {
                 </span>
               )}
               {profile.education?.degree && (
-                <span className="rounded-full bg-white border border-[#C5A47E]/50 px-3 py-1 text-xs text-[#2E2E38]">
+                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
                   {profile.education.degree}
                 </span>
               )}
               {profile.family?.familyType && (
-                <span className="rounded-full bg-white border border-[#C5A47E]/50 px-3 py-1 text-xs text-[#2E2E38]">
+                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
                   {profile.family.familyType.replace('_', ' ')} Family
                 </span>
               )}
@@ -189,13 +189,13 @@ export default async function ProfileViewPage({ params }: Props) {
 
       {/* ── Sticky Bottom Action Bar (non-self only) ────── */}
       {!isSelf && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E8E0D8] px-4 py-3 shadow-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-border px-4 py-3 shadow-2xl">
           <div className="mx-auto max-w-lg flex items-center gap-3">
             <SendInterestButton profileId={profileId} />
             <button
               type="button"
               aria-label="Bookmark profile"
-              className="w-12 h-12 rounded-lg border border-[#E8E0D8] flex items-center justify-center text-[#6B6B76] hover:border-[#C5A47E] hover:text-[#C5A47E] transition-colors"
+              className="w-12 h-12 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:border-gold hover:text-gold transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />

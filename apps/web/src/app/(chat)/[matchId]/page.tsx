@@ -68,13 +68,13 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const initialMessages: ChatMessage[] = conversation?.messages ?? []
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] flex flex-col">
+    <main className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-[#C5A47E]/20 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
+      <header className="bg-surface border-b border-gold/20 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
         <Link
           href="/matches"
           aria-label="Back to matches"
-          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[#6B6B76] hover:bg-[#FEFAF6] transition-colors shrink-0 -ml-2"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:bg-background transition-colors shrink-0 -ml-2"
         >
           <svg
             width="20"
@@ -90,14 +90,14 @@ export default async function ChatPage({ params }: ChatPageProps) {
           </svg>
         </Link>
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center shrink-0 text-[#0E7C7B] font-semibold text-sm">
+          <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center shrink-0 text-teal font-semibold text-sm">
             {conversation?.participantName?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[#0F172A] truncate font-heading">
               {conversation?.participantName ?? 'Chat'}
             </p>
-            <p className="text-xs text-[#6B6B76]">Match conversation</p>
+            <p className="text-xs text-muted-foreground">Match conversation</p>
           </div>
         </div>
       </header>
@@ -105,7 +105,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
       {error && (
         <div
           role="alert"
-          className="mx-4 mt-3 rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]"
+          className="mx-4 mt-3 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
         >
           Could not load conversation. Please refresh.
         </div>

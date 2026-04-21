@@ -62,12 +62,12 @@ export default async function MatchesPage() {
   const matches = token ? await getAcceptedMatches(token) : [];
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-screen-lg px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Your Matches</h1>
-            <p className="text-sm text-[#6B6B76] mt-0.5">
+            <h1 className="text-2xl font-bold text-primary font-heading">Your Matches</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
               {matches.length > 0
                 ? `${matches.length} accepted match${matches.length !== 1 ? 'es' : ''}`
                 : 'Accepted matches appear here'}
@@ -75,26 +75,26 @@ export default async function MatchesPage() {
           </div>
           <Link
             href="/requests"
-            className="flex items-center gap-1.5 rounded-lg border border-[#E8E0D8] bg-white px-3.5 py-2 text-sm font-medium text-[#2E2E38] shadow-sm hover:border-[#C5A47E] transition-colors min-h-[44px]"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-medium text-foreground shadow-sm hover:border-gold transition-colors min-h-[44px]"
           >
             Requests inbox
           </Link>
         </div>
 
         {matches.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[#7B2D42]/7">
+          <div className="rounded-xl border border-dashed border-gold/40 bg-surface py-16 px-6 text-center">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-primary/7">
               <span className="text-3xl">💍</span>
             </div>
-            <h2 className="text-xl font-semibold text-[#7B2D42] mb-2 font-heading">
+            <h2 className="text-xl font-semibold text-primary mb-2 font-heading">
               No accepted matches yet
             </h2>
-            <p className="text-sm text-[#6B6B76] max-w-xs mx-auto mb-6">
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
               When someone accepts your interest (or you accept theirs), they appear here.
             </p>
             <Link
               href="/requests"
-              className="inline-flex items-center gap-2 bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-semibold rounded-lg px-6 py-2.5 min-h-[44px] transition-colors"
+              className="inline-flex items-center gap-2 bg-teal hover:bg-teal-hover text-white text-sm font-semibold rounded-lg px-6 py-2.5 min-h-[44px] transition-colors"
             >
               Check Requests Inbox →
             </Link>

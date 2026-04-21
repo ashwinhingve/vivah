@@ -7,11 +7,11 @@ import { ShieldCheck, Lock, Star, ChevronDown } from 'lucide-react';
 import { HERO_BG } from '@/lib/marketing-images';
 
 const avatars = [
-  { initials: 'RS', bg: 'bg-[#7B2D42]/40', text: 'text-white' },
-  { initials: 'KP', bg: 'bg-[#0E7C7B]/40', text: 'text-white' },
-  { initials: 'AM', bg: 'bg-[#C5A47E]/40', text: 'text-white' },
-  { initials: 'VP', bg: 'bg-[#7B2D42]/40', text: 'text-white' },
-  { initials: 'NS', bg: 'bg-[#0E7C7B]/40', text: 'text-white' },
+  { initials: 'RS', bg: 'bg-primary/40', text: 'text-white' },
+  { initials: 'KP', bg: 'bg-teal/40', text: 'text-white' },
+  { initials: 'AM', bg: 'bg-gold/40', text: 'text-white' },
+  { initials: 'VP', bg: 'bg-primary/40', text: 'text-white' },
+  { initials: 'NS', bg: 'bg-teal/40', text: 'text-white' },
 ];
 
 const containerVariants = {
@@ -68,7 +68,7 @@ export default function Hero() {
       {/* Warm burgundy bottom tint to bleed brand color */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-[#7B2D42]/35 via-transparent to-transparent"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-primary/35 via-transparent to-transparent"
       />
 
       {/* Foreground content */}
@@ -82,7 +82,7 @@ export default function Hero() {
           <motion.p
             variants={itemVariants}
             aria-hidden="true"
-            className="text-xs font-semibold uppercase tracking-widest text-white/80 border-l-2 border-[#C5A47E] pl-3 mb-6"
+            className="text-xs font-semibold uppercase tracking-widest text-white/80 border-l-2 border-gold pl-3 mb-6"
           >
             India&apos;s Most Trusted AI Matrimonial Platform
           </motion.p>
@@ -93,7 +93,7 @@ export default function Hero() {
           >
             Find Your Perfect
             <br />
-            <span className="italic text-[#F4D9C2]">Life Partner</span>
+            <span className="italic text-peach">Life Partner</span>
             <br />
             With Your Family
           </motion.h1>
@@ -112,15 +112,15 @@ export default function Hero() {
             className="mt-6 flex flex-wrap gap-x-5 gap-y-2"
           >
             <li className="text-xs text-white/85 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#C5A47E]" aria-hidden="true" />
+              <ShieldCheck className="w-4 h-4 text-gold" aria-hidden="true" />
               Aadhaar Verified Profiles
             </li>
             <li className="text-xs text-white/85 flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-[#C5A47E]" aria-hidden="true" />
+              <Lock className="w-4 h-4 text-gold" aria-hidden="true" />
               Safety Mode Enabled
             </li>
             <li className="text-xs text-white/85 flex items-center gap-1.5">
-              <Star className="w-4 h-4 text-[#C5A47E]" aria-hidden="true" />
+              <Star className="w-4 h-4 text-gold" aria-hidden="true" />
               36-Point Guna Milan AI
             </li>
           </motion.ul>
@@ -131,13 +131,13 @@ export default function Hero() {
           >
             <Link
               href="/register"
-              className="inline-flex items-center justify-center w-full sm:w-auto bg-[#0E7C7B] hover:bg-[#149998] text-white font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 shadow-lg shadow-[#0E7C7B]/30 hover:shadow-xl hover:shadow-[#0E7C7B]/40 hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center w-full sm:w-auto bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
             >
               Find Your Match →
             </Link>
             <Link
               href="/register?mode=family"
-              className="inline-flex items-center justify-center w-full sm:w-auto border-2 border-white/70 text-white hover:bg-white/10 hover:border-white font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 backdrop-blur-sm"
+              className="inline-flex items-center justify-center w-full sm:w-auto border-2 border-surface/70 text-white hover:bg-surface/10 hover:border-surface font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 backdrop-blur-sm"
             >
               For Parents &amp; Families
             </Link>
@@ -159,7 +159,7 @@ export default function Hero() {
                 <span
                   key={a.initials}
                   aria-hidden="true"
-                  className={`w-11 h-11 rounded-full border-2 border-[#C5A47E] backdrop-blur-md flex items-center justify-center text-xs font-semibold ${a.bg} ${a.text}`}
+                  className={`w-11 h-11 rounded-full border-2 border-gold backdrop-blur-md flex items-center justify-center text-xs font-semibold ${a.bg} ${a.text}`}
                 >
                   {a.initials}
                 </span>

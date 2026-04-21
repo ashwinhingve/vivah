@@ -19,7 +19,7 @@ const r2 = new S3Client({
  */
 export async function getPhotoUrl(r2Key: string, expiresIn = 900): Promise<string> {
   if (env.USE_MOCK_SERVICES) {
-    return `https://mock-r2.smartshaadi.co.in/${r2Key}`;
+    return `${env.API_BASE_URL}/__mock-r2/${r2Key}`;
   }
   const command = new GetObjectCommand({ Bucket: env.CLOUDFLARE_R2_BUCKET, Key: r2Key });
   return getSignedUrl(r2, command, { expiresIn });
@@ -45,7 +45,7 @@ export async function getPresignedUploadUrl(
 
   if (env.USE_MOCK_SERVICES) {
     return {
-      uploadUrl: `https://mock-r2.smartshaadi.co.in/upload/${r2Key}`,
+      uploadUrl: `${env.API_BASE_URL}/__mock-r2/upload/${r2Key}`,
       r2Key,
     };
   }

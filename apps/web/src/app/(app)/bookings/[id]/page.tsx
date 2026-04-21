@@ -115,13 +115,13 @@ export default async function BookingDetailPage({
       : 0;
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
 
         {/* Back link */}
         <Link
           href="/bookings"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#7B2D42] transition-colors"
+          className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors"
         >
           ← Back to Bookings
         </Link>
@@ -141,9 +141,9 @@ export default async function BookingDetailPage({
         </div>
 
         {/* Main card */}
-        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-gray-100 bg-surface p-6 shadow-sm">
 
-          <h1 className="mb-1 text-xl font-bold text-[#7B2D42]">{booking.vendorName}</h1>
+          <h1 className="mb-1 text-xl font-bold text-primary">{booking.vendorName}</h1>
           <p className="text-sm text-gray-400">Booking ID: {booking.id}</p>
 
           <div className="mt-5 divide-y divide-gray-100">
@@ -217,7 +217,7 @@ export default async function BookingDetailPage({
           {/* Back */}
           <Link
             href="/bookings"
-            className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-gray-200 bg-surface px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
           >
             Back to list
           </Link>

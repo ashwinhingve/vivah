@@ -51,25 +51,25 @@ export default async function ProfileCompletePage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
         {/* Score celebration */}
         <div className="text-center">
           <div className="text-5xl mb-3">{isGreat ? '🎉' : '✨'}</div>
-          <h1 className="font-heading text-2xl font-semibold text-[#7B2D42]">
+          <h1 className="font-heading text-2xl font-semibold text-primary">
             {isGreat ? 'Your profile is looking great!' : 'Almost there!'}
           </h1>
-          <p className="mt-1 text-sm text-[#6B6B76]">
+          <p className="mt-1 text-sm text-muted-foreground">
             {isGreat
               ? 'Complete profiles get 3× more responses'
               : 'Complete a few more sections to attract better matches'}
           </p>
           {/* Big score circle */}
-          <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-[#0E7C7B] flex flex-col items-center justify-center bg-white shadow-sm">
-            <span className="font-heading text-2xl font-bold text-[#0E7C7B]">
+          <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-teal flex flex-col items-center justify-center bg-surface shadow-sm">
+            <span className="font-heading text-2xl font-bold text-teal">
               {score}%
             </span>
-            <span className="text-xs text-[#6B6B76]">complete</span>
+            <span className="text-xs text-muted-foreground">complete</span>
           </div>
         </div>
 
@@ -78,14 +78,14 @@ export default async function ProfileCompletePage() {
 
         {/* Incomplete sections list */}
         {incomplete.length > 0 && (
-          <div className="bg-white rounded-xl border border-[#E8E0D8] p-4">
-            <h2 className="font-heading text-base font-semibold text-[#7B2D42] mb-3">
+          <div className="bg-surface rounded-xl border border-border p-4">
+            <h2 className="font-heading text-base font-semibold text-primary mb-3">
               Complete these sections
             </h2>
             <ul className="space-y-2">
               {incomplete.map(([key, label]) => (
-                <li key={key} className="flex items-center gap-2 text-sm text-[#6B6B76]">
-                  <span className="w-4 h-4 rounded-full border-2 border-[#E8E0D8] flex-shrink-0" />
+                <li key={key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0" />
                   {label}
                 </li>
               ))}
@@ -96,7 +96,7 @@ export default async function ProfileCompletePage() {
         {/* CTA */}
         <Link
           href="/dashboard"
-          className="block w-full bg-[#0E7C7B] text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-[#0D6B6A]"
+          className="block w-full bg-teal text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-[#0D6B6A]"
         >
           Go to Dashboard →
         </Link>

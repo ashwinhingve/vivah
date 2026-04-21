@@ -68,13 +68,13 @@ export default async function BookingsPage({
   const bookingList = await fetchBookings(role);
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
 
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] sm:text-3xl">My Bookings</h1>
+            <h1 className="text-2xl font-bold text-primary sm:text-3xl">My Bookings</h1>
             <p className="mt-1 text-sm text-gray-500">
               Track your vendor bookings and download invoices.
             </p>
@@ -86,8 +86,8 @@ export default async function BookingsPage({
               href="/bookings?role=customer"
               className={`rounded-lg px-3 py-1.5 font-medium transition-colors ${
                 role === 'customer'
-                  ? 'bg-[#7B2D42] text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface text-gray-600 hover:bg-gray-50 border border-gray-200'
               }`}
             >
               As Customer
@@ -96,8 +96,8 @@ export default async function BookingsPage({
               href="/bookings?role=vendor"
               className={`rounded-lg px-3 py-1.5 font-medium transition-colors ${
                 role === 'vendor'
-                  ? 'bg-[#7B2D42] text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface text-gray-600 hover:bg-gray-50 border border-gray-200'
               }`}
             >
               As Vendor
@@ -107,9 +107,9 @@ export default async function BookingsPage({
 
         {/* Empty state */}
         {bookingList.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#7B2D42]/10">
-              <svg className="h-6 w-6 text-[#7B2D42]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-surface p-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -119,7 +119,7 @@ export default async function BookingsPage({
             </p>
             <Link
               href="/vendors"
-              className="mt-4 inline-flex items-center rounded-lg bg-[#7B2D42] px-4 py-2 text-sm font-medium text-white hover:bg-[#6a2538] transition-colors"
+              className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#6a2538] transition-colors"
             >
               Explore Vendors
             </Link>
@@ -132,14 +132,14 @@ export default async function BookingsPage({
             {bookingList.map((booking) => (
               <div
                 key={booking.id}
-                className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-xl border border-gray-100 bg-surface p-5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/bookings/${booking.id}`}
-                        className="truncate text-base font-semibold text-gray-900 hover:text-[#7B2D42] transition-colors"
+                        className="truncate text-base font-semibold text-gray-900 hover:text-primary transition-colors"
                       >
                         {booking.vendorName}
                       </Link>
@@ -168,7 +168,7 @@ export default async function BookingsPage({
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <Link
                       href={`/bookings/${booking.id}`}
-                      className="text-sm font-medium text-[#7B2D42] hover:underline"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       View details →
                     </Link>

@@ -44,17 +44,17 @@ function StepIndicator({ current }: { current: Step }) {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                 current === s.n
-                  ? 'bg-[#0E7C7B] text-white'
+                  ? 'bg-teal text-white'
                   : current > s.n
-                  ? 'bg-[#059669] text-white'
-                  : 'bg-white border-2 border-[#E8E0D8] text-[#6B6B76]'
+                  ? 'bg-success text-white'
+                  : 'bg-surface border-2 border-border text-muted-foreground'
               }`}
             >
               {current > s.n ? '✓' : s.n}
             </div>
             <span
               className={`text-xs mt-1 ${
-                current >= s.n ? 'text-[#7B2D42] font-medium' : 'text-[#6B6B76]'
+                current >= s.n ? 'text-primary font-medium' : 'text-muted-foreground'
               }`}
             >
               {s.label}
@@ -63,7 +63,7 @@ function StepIndicator({ current }: { current: Step }) {
           {i < steps.length - 1 && (
             <div
               className={`h-0.5 flex-1 mb-4 transition-colors ${
-                current > s.n ? 'bg-[#059669]' : 'bg-[#CBD5E1]'
+                current > s.n ? 'bg-success' : 'bg-[#CBD5E1]'
               }`}
             />
           )}
@@ -155,44 +155,44 @@ function Step1({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
+      className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-border p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
+        <h2 className="text-xl font-semibold text-primary font-heading">
           About you
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">Tell us a little about yourself</p>
+        <p className="text-sm text-muted-foreground mt-1">Tell us a little about yourself</p>
       </div>
 
       {/* Full name */}
       <div className="space-y-1">
-        <label htmlFor="fullName" className="block text-sm font-medium text-[#2E2E38]">Full name</label>
+        <label htmlFor="fullName" className="block text-sm font-medium text-foreground">Full name</label>
         <input
           id="fullName"
           type="text"
           value={fields.fullName}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ fullName: e.target.value })}
           placeholder="e.g. Priya Sharma"
-          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
       </div>
 
       {/* Date of birth */}
       <div className="space-y-1">
-        <label htmlFor="dob" className="block text-sm font-medium text-[#2E2E38]">Date of birth</label>
+        <label htmlFor="dob" className="block text-sm font-medium text-foreground">Date of birth</label>
         <input
           id="dob"
           type="date"
           value={fields.dob}
           max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ dob: e.target.value })}
-          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
       </div>
 
       {/* Gender */}
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#2E2E38]">Gender</label>
+        <label className="block text-sm font-medium text-foreground">Gender</label>
         <div className="grid grid-cols-3 gap-2">
           {genderOptions.map((opt) => (
             <button
@@ -201,8 +201,8 @@ function Step1({
               onClick={() => onChange({ gender: opt.value })}
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.gender === opt.value
-                  ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
+                  ? 'border-teal bg-teal/10 text-teal'
+                  : 'border-border bg-surface text-foreground hover:border-teal/40'
               }`}
             >
               {opt.label}
@@ -213,7 +213,7 @@ function Step1({
 
       {/* Marital status */}
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#2E2E38]">Marital status</label>
+        <label className="block text-sm font-medium text-foreground">Marital status</label>
         <div className="grid grid-cols-2 gap-2">
           {maritalOptions.map((opt) => (
             <button
@@ -222,8 +222,8 @@ function Step1({
               onClick={() => onChange({ maritalStatus: opt.value })}
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.maritalStatus === opt.value
-                  ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
+                  ? 'border-teal bg-teal/10 text-teal'
+                  : 'border-border bg-surface text-foreground hover:border-teal/40'
               }`}
             >
               {opt.label}
@@ -234,8 +234,8 @@ function Step1({
 
       {/* City (optional) */}
       <div className="space-y-1">
-        <label htmlFor="city" className="block text-sm font-medium text-[#2E2E38]">
-          City <span className="text-[#6B6B76] font-normal">(optional)</span>
+        <label htmlFor="city" className="block text-sm font-medium text-foreground">
+          City <span className="text-muted-foreground font-normal">(optional)</span>
         </label>
         <input
           id="city"
@@ -243,14 +243,14 @@ function Step1({
           value={fields.city}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ city: e.target.value })}
           placeholder="e.g. Mumbai"
-          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
       </div>
 
       {/* Religion (optional) */}
       <div className="space-y-1">
-        <label htmlFor="religion" className="block text-sm font-medium text-[#2E2E38]">
-          Religion <span className="text-[#6B6B76] font-normal">(optional)</span>
+        <label htmlFor="religion" className="block text-sm font-medium text-foreground">
+          Religion <span className="text-muted-foreground font-normal">(optional)</span>
         </label>
         <input
           id="religion"
@@ -258,20 +258,20 @@ function Step1({
           value={fields.religion}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({ religion: e.target.value })}
           placeholder="e.g. Hindu"
-          className="w-full min-h-[44px] rounded-lg border border-[#E8E0D8] px-3 py-2 text-sm text-[#2E2E38] placeholder:text-[#6B6B76]/60 focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="w-full min-h-[44px] rounded-lg border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
       </div>
 
-      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-teal hover:bg-teal-hover disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
-            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <span className="h-4 w-4 rounded-full border-2 border-surface/30 border-t-white animate-spin" />
             Saving…
           </>
         ) : (
@@ -354,17 +354,17 @@ function Step2({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5"
+      className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-border p-6 space-y-5"
     >
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
+        <h2 className="text-xl font-semibold text-primary font-heading">
           Your preferences
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">Help us find your best match</p>
+        <p className="text-sm text-muted-foreground mt-1">Help us find your best match</p>
       </div>
 
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-[#2E2E38]">Living arrangement</label>
+        <label className="block text-sm font-medium text-foreground">Living arrangement</label>
         <div className="grid grid-cols-2 gap-2">
           {stayOptions.map((opt) => (
             <button
@@ -373,8 +373,8 @@ function Step2({
               onClick={() => onChange({ stayQuotient: opt.value })}
               className={`min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
                 fields.stayQuotient === opt.value
-                  ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'border-[#E8E0D8] bg-white text-[#2E2E38] hover:border-[#0E7C7B]/40'
+                  ? 'border-teal bg-teal/10 text-teal'
+                  : 'border-border bg-surface text-foreground hover:border-teal/40'
               }`}
             >
               {opt.label}
@@ -384,9 +384,9 @@ function Step2({
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="familyScore" className="block text-sm font-medium text-[#2E2E38]">
+        <label htmlFor="familyScore" className="block text-sm font-medium text-foreground">
           Family inclination
-          <span className="ml-2 text-xs text-[#6B6B76]">({fields.familyInclinationScore || '—'}/100)</span>
+          <span className="ml-2 text-xs text-muted-foreground">({fields.familyInclinationScore || '—'}/100)</span>
         </label>
         <input
           id="familyScore"
@@ -398,18 +398,18 @@ function Step2({
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onChange({ familyInclinationScore: e.target.value })
           }
-          className="w-full accent-[#0E7C7B]"
+          className="w-full accent-teal"
         />
-        <div className="flex justify-between text-xs text-[#6B6B76]">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>Independent</span>
           <span>Family-oriented</span>
         </div>
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="functionScore" className="block text-sm font-medium text-[#2E2E38]">
+        <label htmlFor="functionScore" className="block text-sm font-medium text-foreground">
           Function attendance
-          <span className="ml-2 text-xs text-[#6B6B76]">({fields.functionAttendanceScore || '—'}/100)</span>
+          <span className="ml-2 text-xs text-muted-foreground">({fields.functionAttendanceScore || '—'}/100)</span>
         </label>
         <input
           id="functionScore"
@@ -421,24 +421,24 @@ function Step2({
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onChange({ functionAttendanceScore: e.target.value })
           }
-          className="w-full accent-[#0E7C7B]"
+          className="w-full accent-teal"
         />
-        <div className="flex justify-between text-xs text-[#6B6B76]">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>Rarely attend</span>
           <span>Always attend</span>
         </div>
       </div>
 
-      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-[44px] rounded-lg bg-teal hover:bg-teal-hover disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
-            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <span className="h-4 w-4 rounded-full border-2 border-surface/30 border-t-white animate-spin" />
             Saving…
           </>
         ) : (
@@ -453,30 +453,30 @@ function Step2({
 
 function Step3({ onNext }: { onNext: () => void }) {
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
+    <div className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-border p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
+        <h2 className="text-xl font-semibold text-primary font-heading">
           Safety Mode
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">Your privacy, your control</p>
+        <p className="text-sm text-muted-foreground mt-1">Your privacy, your control</p>
       </div>
 
-      <div className="rounded-lg bg-[#0E7C7B]/8 border border-[#0E7C7B]/20 p-4 space-y-3">
+      <div className="rounded-lg bg-teal/8 border border-teal/20 p-4 space-y-3">
         <div className="flex items-start gap-3">
-          <span className="text-[#0E7C7B] text-lg mt-0.5">&#128274;</span>
+          <span className="text-teal text-lg mt-0.5">&#128274;</span>
           <div>
-            <p className="text-sm font-medium text-[#7B2D42]">Contact details protected</p>
-            <p className="text-xs text-[#6B6B76] mt-0.5">
+            <p className="text-sm font-medium text-primary">Contact details protected</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Your phone number and email are hidden from other users by default. Only share contact
               details when you choose to unlock them for a specific match.
             </p>
           </div>
         </div>
         <div className="flex items-start gap-3">
-          <span className="text-[#059669] text-lg mt-0.5">&#9989;</span>
+          <span className="text-success text-lg mt-0.5">&#9989;</span>
           <div>
-            <p className="text-sm font-medium text-[#7B2D42]">Safety Mode is always active</p>
-            <p className="text-xs text-[#6B6B76] mt-0.5">
+            <p className="text-sm font-medium text-primary">Safety Mode is always active</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Contact unlock controls will be available once your profile is verified by our KYC team.
             </p>
           </div>
@@ -486,7 +486,7 @@ function Step3({ onNext }: { onNext: () => void }) {
       <button
         type="button"
         onClick={onNext}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-semibold transition-colors"
+        className="w-full min-h-[44px] rounded-lg bg-teal hover:bg-teal-hover text-white text-sm font-semibold transition-colors"
       >
         Understood, continue
       </button>
@@ -571,20 +571,20 @@ function Step4({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-6 space-y-5">
+    <div className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-border p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-[#7B2D42] font-heading">
+        <h2 className="text-xl font-semibold text-primary font-heading">
           Profile photo
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">Add a clear photo to improve match quality</p>
+        <p className="text-sm text-muted-foreground mt-1">Add a clear photo to improve match quality</p>
       </div>
 
       <label
         htmlFor="photo-upload"
         className={`flex flex-col items-center justify-center w-full rounded-xl border-2 border-dashed cursor-pointer transition-colors min-h-[160px] ${
           preview
-            ? 'border-[#0E7C7B] bg-[#0E7C7B]/5'
-            : 'border-[#E8E0D8] bg-[#FEFAF6] hover:border-[#0E7C7B]/40'
+            ? 'border-teal bg-teal/5'
+            : 'border-border bg-background hover:border-teal/40'
         }`}
       >
         {preview ? (
@@ -593,7 +593,7 @@ function Step4({ onDone }: { onDone: () => void }) {
         ) : (
           <div className="flex flex-col items-center gap-2 py-6">
             <span className="text-3xl">&#128247;</span>
-            <p className="text-sm text-[#6B6B76] text-center">
+            <p className="text-sm text-muted-foreground text-center">
               Tap to select a photo
               <br />
               <span className="text-xs">JPEG · PNG · WebP</span>
@@ -609,22 +609,22 @@ function Step4({ onDone }: { onDone: () => void }) {
         />
       </label>
 
-      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       {uploadDone ? (
-        <div className="rounded-lg bg-[#059669]/10 border border-[#059669]/20 p-3 text-center">
-          <p className="text-sm font-medium text-[#059669]">Photo uploaded successfully!</p>
+        <div className="rounded-lg bg-success/10 border border-success/20 p-3 text-center">
+          <p className="text-sm font-medium text-success">Photo uploaded successfully!</p>
         </div>
       ) : (
         <button
           type="button"
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+          className="w-full min-h-[44px] rounded-lg bg-teal hover:bg-teal-hover disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
         >
           {uploading ? (
             <>
-              <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              <span className="h-4 w-4 rounded-full border-2 border-surface/30 border-t-white animate-spin" />
               Uploading…
             </>
           ) : (
@@ -638,8 +638,8 @@ function Step4({ onDone }: { onDone: () => void }) {
         onClick={onDone}
         className={`w-full min-h-[44px] rounded-lg border text-sm font-medium transition-colors ${
           uploadDone
-            ? 'border-[#0E7C7B] bg-[#0E7C7B] text-white font-semibold hover:bg-[#149998]'
-            : 'border-[#E8E0D8] text-[#6B6B76] hover:border-[#0E7C7B]/40'
+            ? 'border-teal bg-teal text-white font-semibold hover:bg-teal-hover'
+            : 'border-border text-muted-foreground hover:border-teal/40'
         }`}
       >
         {uploadDone ? 'View my profile' : 'Skip for now'}

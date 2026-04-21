@@ -1,86 +1,104 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import { Heart, Sparkles, ArrowRight } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchCard } from '@/components/matchmaking/MatchCard';
+import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/shared';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-async function getFeed(): Promise<MatchFeedItem[]> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) return [];
+interface MeResponse {
+  profileCompleteness: number;
+}
 
+async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/matchmaking/feed`, {
+    const res = await fetch(`${API_URL}${path}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     });
-    if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: MatchFeedItem[] };
-    return json.success ? json.data : [];
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success: boolean; data: T };
+    return json.success ? json.data : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center text-center py-20 px-6">
-      <div className="w-20 h-20 rounded-full bg-[#0E7C7B]/10 flex items-center justify-center mb-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#0E7C7B"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-10 h-10"
-          aria-hidden="true"
-        >
-          <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-        </svg>
-      </div>
-      <h2 className="text-xl font-bold text-[#7B2D42] mb-2 font-heading">No matches yet</h2>
-      <p className="text-sm text-[#6B6B76] max-w-xs mb-6">
-        Complete your profile to unlock your matches — a fuller profile gets 3× more results.
-      </p>
-      <Link
-        href="/profile"
-        className="inline-flex items-center gap-2 bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-semibold rounded-lg px-6 min-h-[44px] transition-colors"
-      >
-        Complete Profile →
-      </Link>
-    </div>
-  );
-}
-
-// ── Page ───────────────────────────────────────────────────────────────────────
-
 export default async function MatchFeedPage() {
-  const feed = await getFeed();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value ?? '';
+
+  const [feed, me] = await Promise.all([
+    fetchAuth<MatchFeedItem[]>('/api/v1/matchmaking/feed', token),
+    fetchAuth<MeResponse>('/api/v1/profiles/me', token),
+  ]);
+
+  const items = feed ?? [];
+  const completeness = me?.profileCompleteness ?? 0;
+  const profileReady = completeness >= 40;
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
-      <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Your Matches</h1>
-            <p className="text-sm text-[#6B6B76] mt-0.5">
-              {feed.length > 0
-                ? `${feed.length} compatible profile${feed.length !== 1 ? 's' : ''} found`
-                : 'Complete your profile to see matches'}
+            <h1 className="font-heading text-2xl font-bold text-primary">Your Matches</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {items.length > 0
+                ? `${items.length} compatible profile${items.length !== 1 ? 's' : ''} found`
+                : profileReady
+                  ? 'Warming up your recommendations'
+                  : 'Complete your profile to see matches'}
             </p>
           </div>
+          {profileReady ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              {completeness}% profile
+            </span>
+          ) : null}
         </div>
 
-        {feed.length === 0 ? (
-          <EmptyState />
+        {items.length === 0 ? (
+          profileReady ? (
+            <EmptyState
+              icon={Heart}
+              title="No matches yet — we're tuning your feed"
+              description="Your profile looks great. We're matching you against fresh profiles as they join. New recommendations appear weekly. Meanwhile, you can browse vendors or review match requests."
+              action={
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button asChild>
+                    <Link href="/requests">
+                      Check Requests
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/vendors">Browse Vendors</Link>
+                  </Button>
+                </div>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={Sparkles}
+              title="Complete your profile to unlock matches"
+              description={`Your profile is ${completeness}% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.`}
+              action={
+                <Button asChild>
+                  <Link href="/profile/personal">
+                    Complete Profile
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              }
+            />
+          )
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {feed.map((item) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
               <MatchCard key={item.profileId} match={item} />
             ))}
           </div>

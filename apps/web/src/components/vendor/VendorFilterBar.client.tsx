@@ -37,14 +37,14 @@ export function VendorFilterBar() {
       }}
     >
       <div className="flex-1">
-        <label htmlFor="vendor-category" className="block text-xs font-medium text-slate-600 mb-1">
+        <label htmlFor="vendor-category" className="block text-xs font-medium text-muted-foreground mb-1">
           Category
         </label>
         <select
           id="vendor-category"
           name="category"
           defaultValue={currentCategory}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+          className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-surface focus:outline-none focus:ring-2 focus:ring-teal"
         >
           <option value="">All Categories</option>
           {CATEGORIES.map((cat) => (
@@ -56,7 +56,7 @@ export function VendorFilterBar() {
       </div>
 
       <div className="flex-1">
-        <label htmlFor="vendor-city" className="block text-xs font-medium text-slate-600 mb-1">
+        <label htmlFor="vendor-city" className="block text-xs font-medium text-muted-foreground mb-1">
           City
         </label>
         <input
@@ -65,14 +65,14 @@ export function VendorFilterBar() {
           type="text"
           placeholder="e.g. Mumbai, Delhi"
           defaultValue={currentCity}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+          className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-surface focus:outline-none focus:ring-2 focus:ring-teal"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="min-h-[44px] px-5 py-2 bg-[#0E7C7B] hover:bg-[#149998] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
+        className="min-h-[44px] px-5 py-2 bg-teal hover:bg-teal-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
       >
         {isPending ? 'Searching…' : 'Search'}
       </button>
@@ -81,7 +81,7 @@ export function VendorFilterBar() {
         <button
           type="button"
           onClick={() => apply('', '')}
-          className="min-h-[44px] px-4 py-2 border border-slate-300 text-slate-600 text-sm rounded-lg hover:bg-slate-50 transition-colors"
+          className="min-h-[44px] px-4 py-2 border border-border text-muted-foreground text-sm rounded-lg hover:bg-surface-muted transition-colors"
         >
           Clear
         </button>

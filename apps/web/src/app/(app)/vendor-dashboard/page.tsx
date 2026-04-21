@@ -41,44 +41,44 @@ export default async function VendorDashboardPage() {
     .reduce((sum, b) => sum + b.totalAmount, 0);
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6]">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-[#7B2D42] font-heading">Vendor Dashboard</h1>
-          <p className="text-sm text-[#6B6B76] mt-0.5">Manage your bookings and earnings</p>
+          <h1 className="text-2xl font-bold text-primary font-heading">Vendor Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage your bookings and earnings</p>
         </div>
 
         {/* 4 stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Pending</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{pendingCount}</p>
-            <p className="text-xs text-[#6B6B76]">bookings</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pending</p>
+            <p className="text-2xl font-bold font-heading text-teal">{pendingCount}</p>
+            <p className="text-xs text-muted-foreground">bookings</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Confirmed</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{confirmedThisMonth}</p>
-            <p className="text-xs text-[#6B6B76]">this month</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Confirmed</p>
+            <p className="text-2xl font-bold font-heading text-teal">{confirmedThisMonth}</p>
+            <p className="text-xs text-muted-foreground">this month</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Revenue</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Revenue</p>
+            <p className="text-2xl font-bold font-heading text-teal">
               ₹{(totalRevenue / 1000).toFixed(1)}k
             </p>
-            <p className="text-xs text-[#6B6B76]">total earned</p>
+            <p className="text-xs text-muted-foreground">total earned</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/40 bg-white p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#6B6B76] font-medium uppercase tracking-wide">Rating</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">—</p>
-            <p className="text-xs text-[#6B6B76]">reviews coming</p>
+          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Rating</p>
+            <p className="text-2xl font-bold font-heading text-teal">—</p>
+            <p className="text-xs text-muted-foreground">reviews coming</p>
           </div>
         </div>
 
         {/* Booking queue */}
         <div>
-          <h2 className="text-lg font-semibold text-[#7B2D42] font-heading mb-3">
+          <h2 className="text-lg font-semibold text-primary font-heading mb-3">
             Pending Requests
           </h2>
           <BookingQueueList initialBookings={allBookings} />
@@ -87,7 +87,7 @@ export default async function VendorDashboardPage() {
         {/* Recent confirmed bookings */}
         {allBookings.filter((b) => b.status === 'CONFIRMED').length > 0 && (
           <div>
-            <h2 className="text-lg font-semibold text-[#7B2D42] font-heading mb-3">
+            <h2 className="text-lg font-semibold text-primary font-heading mb-3">
               Upcoming Events
             </h2>
             <div className="space-y-2">
@@ -97,19 +97,19 @@ export default async function VendorDashboardPage() {
                 .map((b) => (
                   <div
                     key={b.id}
-                    className="rounded-xl border border-[#C5A47E]/30 bg-white px-4 py-3 flex items-center justify-between"
+                    className="rounded-xl border border-gold/30 bg-surface px-4 py-3 flex items-center justify-between"
                   >
                     <div>
-                      <p className="text-sm font-medium text-[#2E2E38]">
+                      <p className="text-sm font-medium text-foreground">
                         {new Date(b.eventDate).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric',
                         })}
                       </p>
-                      <p className="text-xs text-[#6B6B76]">₹{b.totalAmount.toLocaleString('en-IN')}</p>
+                      <p className="text-xs text-muted-foreground">₹{b.totalAmount.toLocaleString('en-IN')}</p>
                     </div>
-                    <span className="text-xs font-semibold text-[#059669] bg-green-50 px-2 py-1 rounded-full">
+                    <span className="text-xs font-semibold text-success bg-green-50 px-2 py-1 rounded-full">
                       Confirmed
                     </span>
                   </div>

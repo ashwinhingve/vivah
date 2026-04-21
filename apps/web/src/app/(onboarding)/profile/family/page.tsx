@@ -49,67 +49,67 @@ export default function FamilyPage() {
   return (
     <div>
       <ProfileProgress steps={STEPS} />
-      <div className="bg-white rounded-xl shadow-sm border border-[#C5A47E]/20 p-6">
-        <h1 className="text-lg font-semibold text-[#7B2D42] mb-6 font-heading">
+      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
+        <h1 className="text-lg font-semibold text-primary mb-6 font-heading">
           Family Background
         </h1>
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (
-            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+            <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {state.error}
             </div>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Father&apos;s Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Father&apos;s Name</label>
               <input
                 name="fatherName"
                 defaultValue={f?.fatherName ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="Father's full name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Father&apos;s Occupation</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Father&apos;s Occupation</label>
               <input
                 name="fatherOccupation"
                 defaultValue={f?.fatherOccupation ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="e.g. Retired Government Officer"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Mother&apos;s Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Mother&apos;s Name</label>
               <input
                 name="motherName"
                 defaultValue={f?.motherName ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="Mother's full name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#2E2E38] mb-1">Mother&apos;s Occupation</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Mother&apos;s Occupation</label>
               <input
                 name="motherOccupation"
                 defaultValue={f?.motherOccupation ?? ''}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
                 placeholder="e.g. Homemaker"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">Native Place</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Native Place</label>
             <input
               name="nativePlace"
               defaultValue={f?.nativePlace ?? ''}
-              className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none"
+              className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
               placeholder="e.g. Pune, Maharashtra"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Type</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Family Type</label>
             <div className="flex gap-3 flex-wrap">
               {(['JOINT', 'NUCLEAR', 'EXTENDED'] as const).map((type) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer">
@@ -118,16 +118,16 @@ export default function FamilyPage() {
                     name="familyType"
                     value={type}
                     defaultChecked={f?.familyType === type}
-                    className="accent-[#0E7C7B]"
+                    className="accent-teal"
                   />
-                  <span className="text-sm text-[#2E2E38]">{type.charAt(0) + type.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-foreground">{type.charAt(0) + type.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Values</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Family Values</label>
             <div className="flex gap-3 flex-wrap">
               {(['TRADITIONAL', 'MODERATE', 'LIBERAL'] as const).map((v) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -136,16 +136,16 @@ export default function FamilyPage() {
                     name="familyValues"
                     value={v}
                     defaultChecked={f?.familyValues === v}
-                    className="accent-[#0E7C7B]"
+                    className="accent-teal"
                   />
-                  <span className="text-sm text-[#2E2E38]">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-foreground">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-2">Family Status</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Family Status</label>
             <div className="flex gap-3 flex-wrap">
               {[
                 ['MIDDLE_CLASS', 'Middle Class'],
@@ -158,21 +158,21 @@ export default function FamilyPage() {
                     name="familyStatus"
                     value={v}
                     defaultChecked={f?.familyStatus === v}
-                    className="accent-[#0E7C7B]"
+                    className="accent-teal"
                   />
-                  <span className="text-sm text-[#2E2E38]">{label}</span>
+                  <span className="text-sm text-foreground">{label}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">About Your Family</label>
+            <label className="block text-sm font-medium text-foreground mb-1">About Your Family</label>
             <textarea
               name="familyAbout"
               rows={3}
               defaultValue={f?.familyAbout ?? ''}
-              className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0E7C7B] focus:border-transparent outline-none resize-none"
+              className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none resize-none"
               placeholder="Share a bit about your family background…"
             />
           </div>

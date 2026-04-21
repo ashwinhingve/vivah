@@ -45,14 +45,14 @@ export function CancelBookingButton({ bookingId, apiUrl, authToken }: Props) {
         value={reason}
         onChange={e => setReason(e.target.value)}
         placeholder="Cancellation reason (optional)"
-        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+        className="w-full border border-border rounded-lg px-3 py-2 text-sm"
         maxLength={500}
       />
       {error && <p className="text-red-600 text-sm">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#7B2D42] text-white font-medium py-2 rounded-lg text-sm hover:bg-[#631f33] disabled:opacity-50"
+        className="w-full bg-primary text-white font-medium py-2 rounded-lg text-sm hover:bg-[#631f33] disabled:opacity-50"
       >
         {loading ? 'Cancelling...' : 'Cancel Booking'}
       </button>

@@ -60,23 +60,23 @@ export default function CommunityPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8">
         <ProfileProgress steps={STEPS} />
 
-        <h1 className="mt-6 text-2xl font-bold font-heading text-[#7B2D42]">Community & Language</h1>
-        <p className="mt-1 text-sm text-[#6B6B76]">
+        <h1 className="mt-6 text-2xl font-bold font-heading text-primary">Community & Language</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Help us match you within your community.
         </p>
 
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
           {state?.error && (
-            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+            <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {state.error}
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Community / Caste
             </label>
             <input
@@ -85,7 +85,7 @@ export default function CommunityPage() {
               defaultValue={profile?.community ?? ''}
               list="community-suggestions"
               placeholder="e.g. Brahmin, Maratha, Rajput"
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] placeholder:text-[#6B6B76] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
             <datalist id="community-suggestions">
               {COMMUNITY_SUGGESTIONS.map((c) => (
@@ -95,20 +95,20 @@ export default function CommunityPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
-              Sub-community / Gotra <span className="text-[#6B6B76] font-normal">(optional)</span>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Sub-community / Gotra <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <input
               type="text"
               name="subCommunity"
               defaultValue={profile?.subCommunity ?? ''}
               placeholder="e.g. Deshastha, Karhade"
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] placeholder:text-[#6B6B76] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Mother Tongue
             </label>
             <input
@@ -117,7 +117,7 @@ export default function CommunityPage() {
               defaultValue={profile?.motherTongue ?? ''}
               list="language-suggestions"
               placeholder="e.g. Marathi, Hindi, Tamil"
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] placeholder:text-[#6B6B76] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
             <datalist id="language-suggestions">
               {Object.values(LANGUAGE_LABELS).map((l) => (
@@ -127,7 +127,7 @@ export default function CommunityPage() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium text-[#2E2E38] mb-2">Preferred App Language</p>
+            <p className="block text-sm font-medium text-foreground mb-2">Preferred App Language</p>
             <input type="hidden" name="preferredLang" value={preferredLang} />
             <div className="grid grid-cols-3 gap-2">
               {INDIAN_LANGUAGES.map((code) => (
@@ -137,8 +137,8 @@ export default function CommunityPage() {
                   onClick={() => setPreferredLang(code)}
                   className={`rounded-lg border px-2 py-2 text-xs font-medium transition-colors ${
                     preferredLang === code
-                      ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                      : 'border-[#E8E0D8] bg-white text-[#6B6B76]'
+                      ? 'border-teal bg-teal/10 text-teal'
+                      : 'border-border bg-surface text-muted-foreground'
                   }`}
                 >
                   {LANGUAGE_LABELS[code]}
@@ -147,19 +147,19 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-[#E8E0D8] bg-white p-4">
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
             <input
               type="checkbox"
               id="lgbtqProfile"
               name="lgbtqProfile"
               defaultChecked={profile?.lgbtqProfile ?? false}
-              className="mt-0.5 h-4 w-4 rounded border-[#E8E0D8] text-[#0E7C7B] focus:ring-[#0E7C7B]"
+              className="mt-0.5 h-4 w-4 rounded border-border text-teal focus:ring-teal"
             />
             <div>
-              <label htmlFor="lgbtqProfile" className="text-sm font-medium text-[#2E2E38] cursor-pointer">
+              <label htmlFor="lgbtqProfile" className="text-sm font-medium text-foreground cursor-pointer">
                 I identify as LGBTQ+
               </label>
-              <p className="mt-0.5 text-xs text-[#6B6B76]">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 Your identity is safe with us. This helps us show you relevant matches.
               </p>
             </div>

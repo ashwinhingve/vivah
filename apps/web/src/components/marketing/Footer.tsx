@@ -67,11 +67,11 @@ function renderLink(link: FooterLink) {
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#2E2E38] pt-16 pb-8">
+    <footer className="relative bg-foreground pt-16 pb-8">
       {/* Thin gold gradient line at the very top */}
       <div
         aria-hidden="true"
-        className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#C5A47E]/60 to-transparent"
+        className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent"
       />
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
@@ -88,7 +88,7 @@ export default function Footer() {
                   role="link"
                   tabIndex={0}
                   aria-label={label}
-                  className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-11 h-11 rounded-full bg-surface/10 hover:bg-surface/20 flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <Icon
                     className="w-4 h-4 text-white/60"
@@ -133,20 +133,20 @@ export default function Footer() {
                 <li key={l.label}>{renderLink(l)}</li>
               ))}
             </ul>
-            <span className="inline-block mt-6 bg-white/10 text-white/50 text-xs rounded-full px-3 py-1.5">
+            <span className="inline-block mt-6 bg-surface/10 text-white/50 text-xs rounded-full px-3 py-1.5">
               App Coming Soon
             </span>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-[#6B6B76] text-xs">
+        <div className="border-t border-surface/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-muted-foreground text-xs">
             © 2026 Smart Shaadi. All rights reserved.
           </p>
-          <p className="text-[#6B6B76] text-xs flex items-center">
+          <p className="text-muted-foreground text-xs flex items-center">
             Made with
             <Heart
-              className="inline w-3 h-3 text-[#C5A47E] mx-1"
+              className="inline w-3 h-3 text-gold mx-1"
               aria-hidden="true"
             />
             for Indian families

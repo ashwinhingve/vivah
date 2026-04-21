@@ -1,130 +1,120 @@
-/**
- * Smart Shaadi — MatchCard (Server Component)
- *
- * Renders a single match feed item card.
- * Props: { match: MatchFeedItem }
- *
- * Design tokens:
- *   Burgundy #7B2D42 — name / headings
- *   Teal     #0E7C7B — compatibility badge bg
- *   Gold     #C5A47E — guna score text, "New" badge bg
- *   Muted    #6B6B76 — secondary text
- */
-
 import Link from 'next/link';
+import Image from 'next/image';
+import { Sparkles, Star, CheckCircle2, Heart, X } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { PhotoFallback } from '@/components/shared';
+import { resolvePhotoUrl } from '@/lib/photo';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+type Tier = MatchFeedItem['compatibility']['tier'];
 
-function tierLabel(tier: MatchFeedItem['compatibility']['tier']): string {
-  switch (tier) {
-    case 'excellent': return 'Excellent';
-    case 'good':      return 'Good';
-    case 'average':   return 'Average';
-    case 'low':       return 'Low';
-  }
-}
-
-function tierBadgeClasses(tier: MatchFeedItem['compatibility']['tier']): string {
-  switch (tier) {
-    case 'excellent': return 'bg-[#0E7C7B] text-white';
-    case 'good':      return 'bg-[#059669] text-white';
-    case 'average':   return 'bg-[#D97706] text-white';
-    case 'low':       return 'bg-[#6B6B76] text-white';
-  }
-}
-
-// ── Component ─────────────────────────────────────────────────────────────────
+const TIER_CONFIG: Record<
+  Tier,
+  { label: string; icon: typeof Sparkles; classes: string }
+> = {
+  excellent: { label: 'Excellent', icon: Sparkles,     classes: 'bg-teal text-white shadow-sm ring-1 ring-teal/30' },
+  good:      { label: 'Good',      icon: CheckCircle2, classes: 'bg-success text-white shadow-sm ring-1 ring-success/30' },
+  average:   { label: 'Average',   icon: Star,         classes: 'bg-warning text-white shadow-sm' },
+  low:       { label: 'Low',       icon: Star,         classes: 'bg-muted text-muted-foreground' },
+};
 
 interface MatchCardProps {
   match: MatchFeedItem;
 }
 
 export function MatchCard({ match }: MatchCardProps) {
+  const tier = TIER_CONFIG[match.compatibility.tier];
+  const TierIcon = tier.icon;
+  const photoUrl = resolvePhotoUrl(match.photoKey);
+
   return (
-    <article className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] overflow-hidden flex flex-col">
-      {/* Photo area */}
-      <div className="relative aspect-square w-full rounded-t-xl overflow-hidden border-x-2 border-t-2 border-[#C5A47E]">
-        {match.photoKey ? (
-          <img
-            src={match.photoKey}
-            alt={`Photo of ${match.name}`}
-            className="w-full h-full object-cover"
+    <Card className="group relative flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] focus-within:-translate-y-0.5 focus-within:shadow-[var(--shadow-card-hover)]">
+      {/* Photo area — aspect 4/5 for editorial feel, gold frame, gradient overlay */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden">
+        {photoUrl ? (
+          <Image
+            src={photoUrl}
+            alt={`${match.name}'s profile photo`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7B2D42 0%, #C5A47E 100%)' }}
-          >
-            <span className="text-4xl font-semibold text-white font-heading" aria-hidden="true">
-              {match.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()}
-            </span>
-          </div>
+          <PhotoFallback name={match.name} />
         )}
 
-        {/* "New" badge */}
-        {match.isNew && (
-          <span className="absolute top-2 left-2 bg-[#C5A47E] text-white text-[10px] font-bold rounded-full px-2 py-0.5 uppercase tracking-wide">
+        {/* Gold inner frame */}
+        <div
+          className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70"
+          aria-hidden="true"
+        />
+
+        {/* Bottom gradient + name overlay (ui-component.md Step 4) */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-4 pb-3 pt-12"
+        >
+          <h3 className="font-heading text-lg font-semibold leading-tight text-white drop-shadow-sm">
+            {match.name}
+            {match.age != null ? <span className="font-normal text-white/90">, {match.age}</span> : null}
+          </h3>
+          <p className="text-xs text-white/80">{match.city}</p>
+        </div>
+
+        {/* "New" chip — top left */}
+        {match.isNew ? (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-md">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
             New
           </span>
-        )}
+        ) : null}
 
-        {/* Compatibility score badge */}
-        <span className="absolute top-2 right-2 bg-[#0E7C7B] text-white text-xs font-bold rounded-full px-2.5 py-1 shadow">
-          {match.compatibility.totalScore}% Match
+        {/* Compat score pill — top right */}
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-surface/95 px-2.5 py-1 text-xs font-bold text-primary shadow-md backdrop-blur-sm">
+          <Heart className="h-3 w-3 fill-current text-teal" aria-hidden="true" />
+          {match.compatibility.totalScore}%
         </span>
       </div>
 
       {/* Card body */}
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        {/* Name, age, city */}
-        <div>
-          <h2 className="text-base font-bold text-[#7B2D42] leading-snug font-heading">
-            {match.name}, {match.age}
-          </h2>
-          <p className="text-xs text-[#6B6B76] mt-0.5">{match.city}</p>
-        </div>
-
-        {/* Guna score + tier badge */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-[#9E7F5A] bg-[#C5A47E]/15 rounded-full px-2.5 py-0.5">
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        {/* Tier + Guna chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.classes}`}>
+            <TierIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {tier.label}
+          </span>
+          <Badge variant="gold" aria-label={`${match.compatibility.gunaScore} of 36 Guna matched`}>
             {match.compatibility.gunaScore}/36 Guna
-          </span>
-          <span
-            className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${tierBadgeClasses(match.compatibility.tier)}`}
-          >
-            {tierLabel(match.compatibility.tier)}
-          </span>
+          </Badge>
         </div>
 
-        {/* Actions — form wrappers with placeholder actions (no onClick, Server Component) */}
-        <div className="mt-auto flex gap-2">
+        {/* Actions */}
+        <div className="mt-auto flex gap-2 pt-1">
           <form action="#" className="flex-1">
-            <button
-              type="submit"
-              className="w-full inline-flex items-center justify-center gap-1.5 bg-[#0E7C7B] hover:bg-[#149998] active:scale-95 text-white text-sm font-semibold rounded-lg px-4 min-h-[44px] transition-colors"
-            >
+            <Button type="submit" className="w-full" size="default">
+              <Heart className="h-4 w-4" aria-hidden="true" />
               Accept
-            </button>
+            </Button>
           </form>
           <form action="#" className="flex-1">
-            <button
-              type="submit"
-              className="w-full inline-flex items-center justify-center gap-1.5 border border-[#E8E0D8] hover:border-[#7B2D42] text-[#2E2E38] text-sm font-semibold rounded-lg px-4 min-h-[44px] transition-colors"
-            >
+            <Button type="submit" variant="outline" className="w-full" size="default">
+              <X className="h-4 w-4" aria-hidden="true" />
               Decline
-            </button>
+            </Button>
           </form>
         </div>
 
         {/* View profile link */}
         <Link
           href={`/profiles/${match.profileId}`}
-          className="inline-flex items-center justify-center gap-1.5 text-[#0E7C7B] text-xs font-medium hover:underline"
+          className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-teal underline-offset-4 transition-colors hover:text-teal-hover hover:underline"
         >
-          View full profile →
+          View full profile
+          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
         </Link>
       </div>
-    </article>
+    </Card>
   );
 }

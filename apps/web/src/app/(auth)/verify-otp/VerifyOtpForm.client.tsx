@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent, type ClipboardEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
@@ -127,16 +130,22 @@ export default function VerifyOtpForm() {
     : '';
 
   return (
-    <div className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#C5A47E]/20 p-8 space-y-6">
-      <div>
-        <h2
-          className="text-2xl font-semibold text-[#7B2D42] font-heading"
-        >
+    <div className="relative w-full max-w-sm space-y-6 rounded-2xl border border-gold/25 bg-surface/92 p-8 shadow-xl shadow-primary/5 backdrop-blur-md">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 h-24 w-48 rounded-full bg-teal/15 blur-3xl"
+      />
+      <div className="relative">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-teal">
+          <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+          Verify
+        </span>
+        <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
           Enter OTP
         </h2>
-        <p className="text-sm text-[#6B6B76] mt-1">
+        <p className="mt-1 text-sm text-muted-foreground">
           We sent a 6-digit code to{' '}
-          <span className="font-medium text-[#2E2E38]">{maskedPhone}</span>
+          <span className="font-semibold text-foreground">{maskedPhone}</span>
         </p>
       </div>
 
@@ -154,45 +163,46 @@ export default function VerifyOtpForm() {
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
             disabled={loading}
-            className={[
-              'w-11 h-12 text-center text-lg font-semibold rounded-lg border',
-              'focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40',
-              'disabled:opacity-60 bg-white transition-colors',
-              digit
-                ? 'border-[#0E7C7B] text-[#2E2E38]'
-                : 'border-[#C5A47E]/40 text-[#2E2E38]',
-            ].join(' ')}
+            className={cn(
+              'h-14 w-11 rounded-lg border-2 bg-surface text-center font-heading text-xl font-bold text-foreground shadow-sm transition-all',
+              'focus:outline-none focus:ring-2 focus:ring-teal/30 focus:-translate-y-0.5',
+              'disabled:opacity-60',
+              digit ? 'border-teal bg-teal/5 shadow-md shadow-teal/10' : 'border-border'
+            )}
           />
         ))}
       </div>
 
-      {error && <p className="text-xs text-[#DC2626]">{error}</p>}
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">{error}</p>
+      ) : null}
 
-      <button
+      <Button
         type="button"
         onClick={() => { void submitOtp(digits.join('')); }}
         disabled={loading || digits.some((d) => !d)}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] hover:bg-[#149998] disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+        size="lg"
+        className="w-full"
       >
         {loading ? (
           <>
-            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             Verifying…
           </>
         ) : (
           'Verify OTP'
         )}
-      </button>
+      </Button>
 
-      <p className="text-center text-sm text-[#6B6B76]">
+      <p className="text-center text-sm text-muted-foreground">
         {secondsLeft > 0 ? (
-          <>Resend OTP in <span className="font-medium text-[#2E2E38]">{secondsLeft}s</span></>
+          <>Resend OTP in <span className="font-medium text-foreground">{secondsLeft}s</span></>
         ) : (
           <button
             type="button"
             onClick={() => { void handleResend(); }}
             disabled={resending}
-            className="font-medium text-[#0E7C7B] hover:text-[#149998] disabled:opacity-60 transition-colors"
+            className="font-medium text-teal hover:text-teal-hover disabled:opacity-60 transition-colors"
           >
             {resending ? 'Sending…' : 'Resend OTP'}
           </button>

@@ -48,9 +48,9 @@ export function KycQueueTable({ initialRows }: Props) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-white p-8 text-center">
-        <p className="text-sm font-semibold text-[#7B2D42]">KYC queue empty</p>
-        <p className="text-xs text-[#6B6B76] mt-1">All profiles reviewed</p>
+      <div className="rounded-xl border border-dashed border-gold/40 bg-surface p-8 text-center">
+        <p className="text-sm font-semibold text-primary">KYC queue empty</p>
+        <p className="text-xs text-muted-foreground mt-1">All profiles reviewed</p>
       </div>
     );
   }
@@ -62,48 +62,48 @@ export function KycQueueTable({ initialRows }: Props) {
           {error}
         </div>
       )}
-      <div className="rounded-xl border border-[#C5A47E]/30 bg-white overflow-hidden">
+      <div className="rounded-xl border border-gold/30 bg-surface overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#E8E0D8] bg-[#FEFAF6]">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide">
+            <tr className="border-b border-border bg-background">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">
                 Profile
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide hidden sm:table-cell">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide hidden sm:table-cell">
                 Aadhaar
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide hidden sm:table-cell">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide hidden sm:table-cell">
                 Duplicate
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#7B2D42] uppercase tracking-wide hidden sm:table-cell">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide hidden sm:table-cell">
                 Submitted
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-[#7B2D42] uppercase tracking-wide">
+              <th className="px-4 py-3 text-right text-xs font-semibold text-primary uppercase tracking-wide">
                 Action
               </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.profileId} className="border-b border-[#E8E0D8] last:border-0">
-                <td className="px-4 py-3 text-[#2E2E38] font-mono text-xs">
+              <tr key={row.profileId} className="border-b border-border last:border-0">
+                <td className="px-4 py-3 text-foreground font-mono text-xs">
                   {row.profileId.slice(0, 8)}…
                 </td>
                 <td className="px-4 py-3 hidden sm:table-cell">
                   {row.aadhaarVerified ? (
-                    <span className="text-[#059669] text-xs font-semibold">Yes</span>
+                    <span className="text-success text-xs font-semibold">Yes</span>
                   ) : (
-                    <span className="text-[#D97706] text-xs font-semibold">No</span>
+                    <span className="text-warning text-xs font-semibold">No</span>
                   )}
                 </td>
                 <td className="px-4 py-3 hidden sm:table-cell">
                   {row.duplicateFlag ? (
                     <span className="text-red-600 text-xs font-semibold">Flagged</span>
                   ) : (
-                    <span className="text-[#6B6B76] text-xs">Clear</span>
+                    <span className="text-muted-foreground text-xs">Clear</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-xs text-[#6B6B76] hidden sm:table-cell">
+                <td className="px-4 py-3 text-xs text-muted-foreground hidden sm:table-cell">
                   {row.submittedAt
                     ? new Date(row.submittedAt).toLocaleDateString('en-IN', {
                         day: 'numeric',
@@ -116,14 +116,14 @@ export function KycQueueTable({ initialRows }: Props) {
                     <button
                       onClick={() => void reviewKyc(row.profileId, 'approve')}
                       disabled={loading === row.profileId}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#0E7C7B] text-white text-xs font-semibold min-h-[32px] hover:bg-[#149998] transition-colors disabled:opacity-50"
+                      className="px-2.5 py-1.5 rounded-lg bg-teal text-white text-xs font-semibold min-h-[32px] hover:bg-teal-hover transition-colors disabled:opacity-50"
                     >
                       {loading === row.profileId ? '…' : 'Approve'}
                     </button>
                     <button
                       onClick={() => void reviewKyc(row.profileId, 'reject')}
                       disabled={loading === row.profileId}
-                      className="px-2.5 py-1.5 rounded-lg border border-[#DC2626]/30 text-[#DC2626] text-xs font-semibold min-h-[32px] hover:bg-red-50 transition-colors disabled:opacity-50"
+                      className="px-2.5 py-1.5 rounded-lg border border-destructive/30 text-destructive text-xs font-semibold min-h-[32px] hover:bg-red-50 transition-colors disabled:opacity-50"
                     >
                       Reject
                     </button>

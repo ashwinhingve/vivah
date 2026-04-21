@@ -60,29 +60,29 @@ export default function HoroscopePage() {
   const h = profile?.horoscope;
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8">
         <ProfileProgress steps={STEPS} />
 
-        <h1 className="mt-6 text-2xl font-bold font-heading text-[#7B2D42]">Horoscope Details</h1>
-        <p className="mt-1 text-sm text-[#6B6B76]">
+        <h1 className="mt-6 text-2xl font-bold font-heading text-primary">Horoscope Details</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Help us find your most compatible match.
         </p>
 
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
           {state?.error && (
-            <div role="alert" className="rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/20 px-4 py-3 text-sm text-[#DC2626]">
+            <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {state.error}
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Rashi (Moon Sign)
             </label>
             <select
               name="rashi"
               defaultValue={h?.rashi ?? ''}
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             >
               <option value="">Select Rashi</option>
               {RASHI_OPTIONS.map(([value, label]) => (
@@ -92,13 +92,13 @@ export default function HoroscopePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Nakshatra (Birth Star)
             </label>
             <select
               name="nakshatra"
               defaultValue={h?.nakshatra ?? ''}
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             >
               <option value="">Select Nakshatra</option>
               {NAKSHATRA_OPTIONS.map(([value, label]) => (
@@ -108,15 +108,15 @@ export default function HoroscopePage() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium text-[#2E2E38] mb-2">Manglik Status</p>
+            <p className="block text-sm font-medium text-foreground mb-2">Manglik Status</p>
             <div className="flex gap-3">
               {(['NO', 'PARTIAL', 'YES'] as const).map((val) => (
                 <label
                   key={val}
                   className={`flex-1 cursor-pointer rounded-lg border px-3 py-2.5 text-center text-sm font-medium transition-colors ${
                     manglik === val
-                      ? 'border-[#0E7C7B] bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                      : 'border-[#E8E0D8] bg-white text-[#6B6B76]'
+                      ? 'border-teal bg-teal/10 text-teal'
+                      : 'border-border bg-surface text-muted-foreground'
                   }`}
                 >
                   <input
@@ -134,31 +134,31 @@ export default function HoroscopePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Date of Birth
             </label>
             <input
               type="date"
               name="dob"
               defaultValue={dobString(h?.dob)}
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
-              Time of Birth <span className="text-[#6B6B76] font-normal">(HH:MM)</span>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Time of Birth <span className="text-muted-foreground font-normal">(HH:MM)</span>
             </label>
             <input
               type="time"
               name="tob"
               defaultValue={h?.tob ?? ''}
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#2E2E38] mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Place of Birth
             </label>
             <input
@@ -166,18 +166,18 @@ export default function HoroscopePage() {
               name="pob"
               defaultValue={h?.pob ?? ''}
               placeholder="e.g. Pune, Maharashtra"
-              className="w-full rounded-lg border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm text-[#2E2E38] placeholder:text-[#6B6B76] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
           </div>
 
-          <div className="rounded-xl border border-dashed border-[#E8E0D8] bg-white p-5 text-center">
-            <p className="text-sm font-medium text-[#7B2D42]">Kundli Chart Upload</p>
-            <p className="mt-1 text-xs text-[#6B6B76]">Coming soon — upload your birth chart PDF or image</p>
+          <div className="rounded-xl border border-dashed border-border bg-surface p-5 text-center">
+            <p className="text-sm font-medium text-primary">Kundli Chart Upload</p>
+            <p className="mt-1 text-xs text-muted-foreground">Coming soon — upload your birth chart PDF or image</p>
           </div>
 
-          <div className="rounded-xl border border-[#0E7C7B]/20 bg-[#0E7C7B]/5 p-5 text-center">
-            <p className="text-sm font-medium text-[#0E7C7B]">Guna Milan Score</p>
-            <p className="mt-1 text-xs text-[#6B6B76]">
+          <div className="rounded-xl border border-teal/20 bg-teal/5 p-5 text-center">
+            <p className="text-sm font-medium text-teal">Guna Milan Score</p>
+            <p className="mt-1 text-xs text-muted-foreground">
               Your compatibility score will appear once both profiles are complete
             </p>
           </div>
