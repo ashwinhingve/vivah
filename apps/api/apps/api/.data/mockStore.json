@@ -387,5 +387,30 @@
       "checklist": [],
       "muhuratDates": []
     }
+  },
+  "wedding_plan:6155874b-a2dc-4548-9c8e-8bc40ddf5b3d": {
+    "userId": "wedding_plan:6155874b-a2dc-4548-9c8e-8bc40ddf5b3d",
+    "plan": {
+      "weddingId": "6155874b-a2dc-4548-9c8e-8bc40ddf5b3d",
+      "theme": {
+        "name": null,
+        "colorPalette": [],
+        "style": null
+      },
+      "budget": {
+        "total": 2000000,
+        "currency": "INR",
+        "categories": [
+          {
+            "name": "Venue",
+            "allocated": 400000,
+            "spent": 50000
+          }
+        ]
+      },
+      "ceremonies": [],
+      "checklist": [],
+      "muhuratDates": []
+    }
   }
 }
