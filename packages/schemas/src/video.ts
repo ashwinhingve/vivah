@@ -1,0 +1,22 @@
+import { z } from 'zod';
+
+export const CreateVideoRoomSchema = z.object({
+  matchId:     z.string().uuid(),
+  durationMin: z.number().int().min(15).max(120).default(60),
+});
+
+export const ScheduleMeetingSchema = z.object({
+  matchId:     z.string().uuid(),
+  scheduledAt: z.string().datetime(),
+  durationMin: z.number().int().min(15).max(120).default(60),
+  notes:       z.string().max(500).optional(),
+});
+
+export const RespondMeetingSchema = z.object({
+  status: z.enum(['CONFIRMED', 'CANCELLED']),
+  notes:  z.string().max(500).optional(),
+});
+
+export type CreateVideoRoomInput = z.infer<typeof CreateVideoRoomSchema>;
+export type ScheduleMeetingInput = z.infer<typeof ScheduleMeetingSchema>;
+export type RespondMeetingInput  = z.infer<typeof RespondMeetingSchema>;

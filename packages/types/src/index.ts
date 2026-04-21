@@ -6,3 +6,5 @@ export * from './matching.js';
 export * from './chat.js';
 export * from './vendor.js';
 export * from './wedding.js';
+export * from './video.js';
+export * from './rental.js';

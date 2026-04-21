@@ -662,6 +662,67 @@ export const orderItems = pgTable('order_items', {
   vendorIdx:  index('order_item_vendor_idx').on(t.vendorId),
 }));
 
+// ── Ceremonies ───────────────────────────────────────────────────────────────
+
+export const ceremonies = pgTable('ceremonies', {
+  id:         uuid('id').primaryKey().defaultRandom(),
+  weddingId:  uuid('wedding_id').notNull().references(() => weddings.id, { onDelete: 'cascade' }),
+  type:       ceremonyTypeEnum('type').notNull(),
+  date:       date('date'),
+  venue:      varchar('venue', { length: 255 }),
+  startTime:  varchar('start_time', { length: 10 }),
+  endTime:    varchar('end_time', { length: 10 }),
+  notes:      text('notes'),
+  createdAt:  timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  weddingIdx: index('ceremonies_wedding_idx').on(t.weddingId),
+}));
+
+// ── Rentals ───────────────────────────────────────────────────────────────────
+
+export const rentalCategoryEnum = pgEnum('rental_category', [
+  'DECOR', 'COSTUME', 'AV_EQUIPMENT', 'FURNITURE', 'LIGHTING', 'TABLEWARE', 'OTHER',
+]);
+
+export const rentalItems = pgTable('rental_items', {
+  id:           uuid('id').primaryKey().defaultRandom(),
+  vendorId:     uuid('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  name:         varchar('name', { length: 255 }).notNull(),
+  description:  text('description'),
+  category:     rentalCategoryEnum('category').notNull(),
+  pricePerDay:  decimal('price_per_day', { precision: 12, scale: 2 }).notNull(),
+  deposit:      decimal('deposit', { precision: 12, scale: 2 }).default('0').notNull(),
+  stockQty:     integer('stock_qty').default(1).notNull(),
+  r2ImageKeys:  text('r2_image_keys').array().default([]),
+  isActive:     boolean('is_active').default(true).notNull(),
+  createdAt:    timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  vendorIdx:   index('rental_items_vendor_idx').on(t.vendorId),
+  categoryIdx: index('rental_items_category_idx').on(t.category),
+}));
+
+export const rentalBookingStatusEnum = pgEnum('rental_booking_status', [
+  'PENDING', 'CONFIRMED', 'ACTIVE', 'RETURNED', 'CANCELLED', 'OVERDUE',
+]);
+
+export const rentalBookings = pgTable('rental_bookings', {
+  id:           uuid('id').primaryKey().defaultRandom(),
+  rentalItemId: uuid('rental_item_id').notNull().references(() => rentalItems.id),
+  customerId:   text('customer_id').notNull().references(() => user.id),
+  fromDate:     date('from_date').notNull(),
+  toDate:       date('to_date').notNull(),
+  quantity:     integer('quantity').default(1).notNull(),
+  totalAmount:  decimal('total_amount', { precision: 12, scale: 2 }).notNull(),
+  depositPaid:  decimal('deposit_paid', { precision: 12, scale: 2 }).default('0').notNull(),
+  status:       rentalBookingStatusEnum('status').default('PENDING').notNull(),
+  notes:        text('notes'),
+  createdAt:    timestamp('created_at').defaultNow().notNull(),
+  updatedAt:    timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  itemIdx:     index('rental_bookings_item_idx').on(t.rentalItemId),
+  customerIdx: index('rental_bookings_customer_idx').on(t.customerId),
+}));
+
 // ── RELATIONS ─────────────────────────────────────────────────────────────────
 
 export const userRelations = relations(user, ({ one, many }) => ({
@@ -710,4 +771,19 @@ export const weddingsRelations = relations(weddings, ({ one, many }) => ({
   members:    many(weddingMembers),
   tasks:      many(weddingTasks),
   guestList:  one(guestLists, { fields: [weddings.id], references: [guestLists.weddingId] }),
+  ceremonies: many(ceremonies),
+}));
+
+export const ceremoniesRelations = relations(ceremonies, ({ one }) => ({
+  wedding: one(weddings, { fields: [ceremonies.weddingId], references: [weddings.id] }),
+}));
+
+export const rentalItemsRelations = relations(rentalItems, ({ one, many }) => ({
+  vendor:   one(vendors,       { fields: [rentalItems.vendorId], references: [vendors.id] }),
+  bookings: many(rentalBookings),
+}));
+
+export const rentalBookingsRelations = relations(rentalBookings, ({ one }) => ({
+  item:     one(rentalItems, { fields: [rentalBookings.rentalItemId], references: [rentalItems.id] }),
+  customer: one(user,        { fields: [rentalBookings.customerId],   references: [user.id] }),
 }));

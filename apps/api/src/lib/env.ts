@@ -44,6 +44,8 @@ const envSchema = z.object({
   CLOUDFLARE_R2_BUCKET:     z.string().default('smart-shaadi-dev'),
 
   AWS_REKOGNITION_REGION: z.string().default('ap-south-1'),
+
+  DAILY_CO_API_KEY: z.string().default('mock-daily-key'),
 });
 
 const parsed = envSchema.safeParse(process.env);
