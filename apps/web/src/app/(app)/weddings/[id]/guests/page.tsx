@@ -3,36 +3,19 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { GuestTable } from '@/components/wedding/GuestTable.client';
 import { RsvpStats } from '@/components/wedding/RsvpStats';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { GuestSummary } from '@smartshaadi/types';
-
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-interface GuestsApiResponse {
-  success: boolean;
-  data?: GuestSummary[];
-  error?: string;
-}
 
 async function fetchGuests(weddingId: string): Promise<{
   guests: GuestSummary[];
   error: boolean;
   notFound: boolean;
 }> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/weddings/${weddingId}/guests`, {
-      cache: 'no-store',
-    });
-    if (res.status === 404) return { guests: [], error: false, notFound: true };
-    if (!res.ok) return { guests: [], error: true, notFound: false };
-    const json = (await res.json()) as GuestsApiResponse;
-    return {
-      guests:   json.success ? (json.data ?? []) : [],
-      error:    !json.success,
-      notFound: false,
-    };
-  } catch {
-    return { guests: [], error: true, notFound: false };
-  }
+  const data = await fetchAuth<{ guests: GuestSummary[] }>(
+    `/api/v1/weddings/${weddingId}/guests`,
+  );
+  if (data === null) return { guests: [], error: true, notFound: false };
+  return { guests: data.guests ?? [], error: false, notFound: false };
 }
 
 interface PageProps {

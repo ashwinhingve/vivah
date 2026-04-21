@@ -334,7 +334,7 @@ export async function updateWedding(
   const [updated] = await db
     .update(weddings)
     .set(updates)
-    .where(eq(weddings.id, weddingId))
+    .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, row.profileId)))
     .returning();
 
   return updated ?? null;

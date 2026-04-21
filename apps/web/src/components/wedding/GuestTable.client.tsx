@@ -51,7 +51,14 @@ export function GuestTable({ weddingId, initialGuests }: GuestTableProps) {
 
   // Send invitation
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [isSending, startSending] = useTransition();
+
+  // Bulk import (paste newline-separated names)
+  const [showBulk, setShowBulk] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [isBulkImporting, startBulkImporting] = useTransition();
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -121,14 +128,78 @@ export function GuestTable({ weddingId, initialGuests }: GuestTableProps) {
 
   function sendInvitation(guestId: string) {
     setSendingId(guestId);
+    setSendError(null);
     startSending(async () => {
       try {
-        await fetch(`${API_URL}/api/v1/weddings/${weddingId}/guests/${guestId}/invite`, {
-          method:      'POST',
-          credentials: 'include',
-        });
+        const res = await fetch(
+          `${API_URL}/api/v1/weddings/${weddingId}/invitations/send`,
+          {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ guestIds: [guestId], channel: 'EMAIL' }),
+            credentials: 'include',
+          },
+        );
+        if (!res.ok) {
+          const json = await res.json().catch(() => null) as
+            | { error?: { message?: string } }
+            | null;
+          throw new Error(json?.error?.message ?? `status ${res.status}`);
+        }
+      } catch (e) {
+        setSendError(e instanceof Error ? e.message : 'Failed to send invitation');
       } finally {
         setSendingId(null);
+      }
+    });
+  }
+
+  function handleBulkImport(e: React.FormEvent) {
+    e.preventDefault();
+    setBulkError(null);
+    const names = bulkText
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (names.length === 0) {
+      setBulkError('Paste at least one name');
+      return;
+    }
+    if (names.length > 500) {
+      setBulkError('Maximum 500 guests per import');
+      return;
+    }
+
+    startBulkImporting(async () => {
+      try {
+        const res = await fetch(
+          `${API_URL}/api/v1/weddings/${weddingId}/guests/bulk`,
+          {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            body:        JSON.stringify({ guests: names.map((name) => ({ name })) }),
+            credentials: 'include',
+          },
+        );
+        if (!res.ok) {
+          const json = await res.json().catch(() => null) as
+            | { error?: { message?: string } }
+            | null;
+          throw new Error(json?.error?.message ?? `status ${res.status}`);
+        }
+        const json = (await res.json()) as {
+          success: boolean;
+          data?: { imported: number; guests: GuestSummary[] };
+          error?: { message?: string };
+        };
+        if (!json.success || !json.data) {
+          throw new Error(json.error?.message ?? 'Import failed');
+        }
+        setGuests((prev) => [...prev, ...json.data!.guests]);
+        setBulkText('');
+        setShowBulk(false);
+      } catch (e) {
+        setBulkError(e instanceof Error ? e.message : 'Failed to import');
       }
     });
   }
@@ -152,7 +223,58 @@ export function GuestTable({ weddingId, initialGuests }: GuestTableProps) {
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add Guest
         </button>
+        <button
+          onClick={() => setShowBulk((v) => !v)}
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-white text-[#7B2D42] hover:bg-[#FEFAF6]"
+        >
+          Import List
+        </button>
       </div>
+
+      {/* Bulk import */}
+      {showBulk && (
+        <form
+          onSubmit={handleBulkImport}
+          className="mb-4 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4"
+        >
+          <label className="text-sm font-medium text-[#7B2D42] block mb-2">
+            Paste guest names (one per line, max 500)
+          </label>
+          <textarea
+            value={bulkText}
+            onChange={(e) => setBulkText(e.target.value)}
+            rows={6}
+            placeholder={'Priya Sharma\nRohan Verma\nAnita Desai'}
+            className="w-full rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B]"
+          />
+          {bulkError && (
+            <p className="mt-2 text-xs text-red-600">{bulkError}</p>
+          )}
+          <div className="flex gap-2 mt-3">
+            <button
+              type="submit"
+              disabled={isBulkImporting}
+              className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-50"
+              style={{ backgroundColor: '#0E7C7B' }}
+            >
+              {isBulkImporting ? 'Importing…' : 'Import'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowBulk(false); setBulkError(null); }}
+              className="min-h-[44px] px-4 rounded-lg border border-[#C5A47E]/40 text-sm text-muted-foreground hover:text-[#7B2D42]"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {sendError && (
+        <div role="alert" className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {sendError}
+        </div>
+      )}
 
       {/* Add guest form */}
       {showForm && (
@@ -289,7 +411,7 @@ export function GuestTable({ weddingId, initialGuests }: GuestTableProps) {
                       onClick={() => sendInvitation(guest.id)}
                       disabled={isSending && sendingId === guest.id}
                       aria-label={`Send invitation to ${guest.name}`}
-                      className="inline-flex items-center gap-1 min-h-[36px] px-3 rounded-lg text-xs text-[#0E7C7B] border border-[#0E7C7B]/30 hover:bg-[#0E7C7B]/10 disabled:opacity-50 transition-colors"
+                      className="inline-flex items-center gap-1 min-h-[44px] px-3 rounded-lg text-xs text-[#0E7C7B] border border-[#0E7C7B]/30 hover:bg-[#0E7C7B]/10 disabled:opacity-50 transition-colors"
                     >
                       {isSending && sendingId === guest.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />

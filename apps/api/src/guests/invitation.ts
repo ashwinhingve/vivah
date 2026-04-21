@@ -105,13 +105,15 @@ export async function sendInvitations(
           `[MOCK] Invitation sent to guest ${guest.name} (${guestId}) via ${channel} — RSVP link: ${rsvpLink}${message ? ` | Message: ${message}` : ''}`,
         );
       } else {
-        // TODO: Implement real delivery here
-        // switch (channel) {
-        //   case 'EMAIL':    await sendEmail(guest.email, rsvpLink, message); break;
-        //   case 'SMS':      await sendSms(guest.phone, rsvpLink, message);   break;
-        //   case 'WHATSAPP': await sendWhatsApp(guest.phone, rsvpLink, message); break;
-        // }
-        console.log(`[INVITATION] Would send ${channel} to guest ${guestId} — real delivery not yet wired`);
+        // Real delivery not yet wired. Surface the gap instead of silently
+        // swallowing it — the invitation row was persisted, but nothing went out.
+        // TODO: Implement:
+        //   EMAIL    → aws-sdk SES sendEmail with rsvpLink in body
+        //   SMS      → MSG91 API POST with rsvpLink in message text
+        //   WHATSAPP → MSG91 WhatsApp API with template + rsvpLink
+        throw new Error(
+          `DELIVERY_NOT_IMPLEMENTED: ${channel} delivery not wired when USE_MOCK_SERVICES=false (guest ${guestId})`,
+        );
       }
 
       details.push({ guestId, token });

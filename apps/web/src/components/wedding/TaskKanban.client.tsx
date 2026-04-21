@@ -56,20 +56,27 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
     const nextIdx = direction === 'next' ? currentIdx + 1 : currentIdx - 1;
     if (nextIdx < 0 || nextIdx >= STATUS_ORDER.length) return;
     const newStatus = STATUS_ORDER[nextIdx];
+    if (!newStatus) return;
 
+    // Optimistic update — apply immediately, roll back if the server rejects.
+    const snapshot = tasks;
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t)));
     setMovingId(task.id);
+
     startTransition(async () => {
       try {
         const res = await fetch(`${API_URL}/api/v1/weddings/${weddingId}/tasks/${task.id}`, {
-          method:  'PATCH',
+          method:  'PUT',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ status: newStatus }),
           credentials: 'include',
         });
+        if (!res.ok) throw new Error(`status_${res.status}`);
         const json = (await res.json()) as MoveResponse;
-        if (json.success && json.data) {
-          setTasks((prev) => prev.map((t) => (t.id === task.id ? json.data! : t)));
-        }
+        if (!json.success || !json.data) throw new Error(json.error ?? 'move_failed');
+        setTasks((prev) => prev.map((t) => (t.id === task.id ? json.data! : t)));
+      } catch {
+        setTasks(snapshot); // rollback on any failure
       } finally {
         setMovingId(null);
       }
@@ -232,7 +239,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                           onClick={() => moveStatus(task, 'prev')}
                           disabled={isPending}
                           aria-label={`Move "${task.title}" to ${COLUMNS[colIdx - 1]?.label}`}
-                          className="flex items-center gap-0.5 min-h-[32px] px-2 rounded-lg text-xs text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-40 transition-colors border border-transparent hover:border-[#C5A47E]/30"
+                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-40 transition-colors border border-transparent hover:border-[#C5A47E]/30"
                         >
                           <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                           {COLUMNS[colIdx - 1]?.label}
@@ -243,7 +250,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                           onClick={() => moveStatus(task, 'next')}
                           disabled={isPending}
                           aria-label={`Move "${task.title}" to ${COLUMNS[colIdx + 1]?.label}`}
-                          className="flex items-center gap-0.5 min-h-[32px] px-2 rounded-lg text-xs text-[#0E7C7B] hover:bg-[#0E7C7B]/10 disabled:opacity-40 transition-colors border border-transparent hover:border-[#0E7C7B]/30 ml-auto"
+                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-[#0E7C7B] hover:bg-[#0E7C7B]/10 disabled:opacity-40 transition-colors border border-transparent hover:border-[#0E7C7B]/30 ml-auto"
                         >
                           {COLUMNS[colIdx + 1]?.label}
                           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />

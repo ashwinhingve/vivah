@@ -2,36 +2,20 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { BudgetTracker } from '@/components/wedding/BudgetTracker';
-import type { WeddingPlan } from '@smartshaadi/types';
-
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-interface PlanApiResponse {
-  success: boolean;
-  data?: WeddingPlan;
-  error?: string;
-}
+import { fetchAuth } from '@/lib/server-fetch';
+import type { WeddingPlan, WeddingSummary } from '@smartshaadi/types';
 
 async function fetchPlan(weddingId: string): Promise<{
   plan: WeddingPlan | null;
   error: boolean;
   notFound: boolean;
 }> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/weddings/${weddingId}/plan`, {
-      cache: 'no-store',
-    });
-    if (res.status === 404) return { plan: null, error: false, notFound: true };
-    if (!res.ok) return { plan: null, error: true, notFound: false };
-    const json = (await res.json()) as PlanApiResponse;
-    return {
-      plan:     json.success ? (json.data ?? null) : null,
-      error:    !json.success,
-      notFound: false,
-    };
-  } catch {
-    return { plan: null, error: true, notFound: false };
-  }
+  // Plan is embedded in GET /weddings/:id — no dedicated /plan endpoint.
+  const detail = await fetchAuth<WeddingSummary & { plan?: WeddingPlan }>(
+    `/api/v1/weddings/${weddingId}`,
+  );
+  if (detail === null) return { plan: null, error: true, notFound: false };
+  return { plan: detail.plan ?? null, error: false, notFound: false };
 }
 
 interface PageProps {

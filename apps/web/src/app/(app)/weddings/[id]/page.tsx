@@ -1,26 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Calendar, MapPin, Users, CheckSquare, ArrowLeft, Wallet } from 'lucide-react';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary, WeddingPlan } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+type WeddingDetail = WeddingSummary & { plan?: WeddingPlan };
 
-interface WeddingDetailResponse {
-  success: boolean;
-  data?: WeddingSummary & { plan?: WeddingPlan };
-  error?: string;
-}
-
-async function fetchWedding(id: string): Promise<WeddingDetailResponse['data'] | null> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/weddings/${id}`, { cache: 'no-store' });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error('Fetch failed');
-    const json = (await res.json()) as WeddingDetailResponse;
-    return json.success ? (json.data ?? null) : null;
-  } catch {
-    return null;
-  }
+async function fetchWedding(id: string): Promise<WeddingDetail | null> {
+  return fetchAuth<WeddingDetail>(`/api/v1/weddings/${id}`);
 }
 
 function formatDate(iso: string | null): string {
@@ -52,7 +39,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
 
   if (!wedding) notFound();
 
-  const { total, done } = wedding.taskProgress;
+  const { total = 0, done = 0 } = wedding.taskProgress ?? {};
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   const tabs = [

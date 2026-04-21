@@ -45,6 +45,6 @@ const WeddingPlanSchema = new mongoose.Schema({
   muhuratDates: [MuhuratSchema],
 }, { timestamps: true })
 
-WeddingPlanSchema.index({ weddingId: 1 })
+// weddingId already has `unique: true` above — no extra index needed.
 
 export const WeddingPlan = mongoose.model('WeddingPlan', WeddingPlanSchema)

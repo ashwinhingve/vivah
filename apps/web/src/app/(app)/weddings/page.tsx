@@ -1,31 +1,13 @@
 import Link from 'next/link';
 import { PlusCircle, Calendar } from 'lucide-react';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-interface WeddingsApiResponse {
-  success: boolean;
-  data: WeddingSummary[];
-  error?: string;
-}
-
 async function fetchWeddings(): Promise<{ weddings: WeddingSummary[]; error: boolean }> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/weddings`, {
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) return { weddings: [], error: true };
-    const json = (await res.json()) as WeddingsApiResponse;
-    return {
-      weddings: json.success ? (json.data ?? []) : [],
-      error: !json.success,
-    };
-  } catch {
-    return { weddings: [], error: true };
-  }
+  const data = await fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings');
+  if (data === null) return { weddings: [], error: true };
+  return { weddings: data.weddings ?? [], error: false };
 }
 
 export default async function WeddingsPage() {

@@ -2,32 +2,24 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { TaskKanban } from '@/components/wedding/TaskKanban.client';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingTask } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-interface TasksApiResponse {
-  success: boolean;
-  data?: WeddingTask[];
-  error?: string;
+interface TaskBoard {
+  TODO:        WeddingTask[];
+  IN_PROGRESS: WeddingTask[];
+  DONE:        WeddingTask[];
 }
 
 async function fetchTasks(weddingId: string): Promise<{ tasks: WeddingTask[]; error: boolean; notFound: boolean }> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/weddings/${weddingId}/tasks`, {
-      cache: 'no-store',
-    });
-    if (res.status === 404) return { tasks: [], error: false, notFound: true };
-    if (!res.ok) return { tasks: [], error: true, notFound: false };
-    const json = (await res.json()) as TasksApiResponse;
-    return {
-      tasks:    json.success ? (json.data ?? []) : [],
-      error:    !json.success,
-      notFound: false,
-    };
-  } catch {
-    return { tasks: [], error: true, notFound: false };
-  }
+  const board = await fetchAuth<TaskBoard>(`/api/v1/weddings/${weddingId}/tasks`);
+  if (board === null) return { tasks: [], error: true, notFound: false };
+  const tasks = [
+    ...(board.TODO        ?? []),
+    ...(board.IN_PROGRESS ?? []),
+    ...(board.DONE        ?? []),
+  ];
+  return { tasks, error: false, notFound: false };
 }
 
 interface PageProps {

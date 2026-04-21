@@ -218,7 +218,7 @@ export async function updateGuest(
   const updated = await db
     .update(guests)
     .set(updateData)
-    .where(eq(guests.id, guestId))
+    .where(and(eq(guests.id, guestId), eq(guests.guestListId, gl.id)))
     .returning();
 
   const row = updated[0];
@@ -237,7 +237,7 @@ export async function deleteGuest(
   const gl = await assertGuestListOwner(weddingId);
   await assertGuestOwner(guestId, gl.id);
 
-  await db.delete(guests).where(eq(guests.id, guestId));
+  await db.delete(guests).where(and(eq(guests.id, guestId), eq(guests.guestListId, gl.id)));
 }
 
 // ── updateRsvp (public — token-based) ────────────────────────────────────────
