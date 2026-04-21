@@ -8,13 +8,26 @@
 ## Current Sprint
 
 ```
-Phase:    1 — Core Platform — PRODUCTION AUDIT COMPLETE ✅
-Week:     5 of 5 — Ready for Colonel Deepak Loom demo
-Target:   Phase 2 — Wedding Planning (Week 6)
+Phase:    2 — Wedding & Event Planning (in progress)
+Week:     7 of 9 — Starting
+Target:   Video Calls + Escrow + Rental Module
 Blocker:  None
 Mocks:    USE_MOCK_SERVICES=true
-Last updated: 2026-04-20
+Last updated: 2026-04-21
 ```
+
+### Week 6 shipped (2026-04-21)
+
+- Wedding planning shared contracts (types + schemas + MongoDB WeddingPlan model) — commit `b82ffac`
+- Wedding core domain: wedding plan, task Kanban, budget tracker, auto-checklist by months-until-wedding — commit `f27d7c0`
+- Guest management: guest list, bulk import (500 cap), RSVP tracking, invitation mock send, token-based public RSVP endpoint — commit `4d557d1`
+- Wedding UI: `/weddings`, `/weddings/new`, `/weddings/[id]` overview + tasks + budget + guests pages, click-arrow Kanban, CSS-only meal-pref donut, "My Wedding" AppNav entry — commit `0a78635`
+- Phase 2 integration: routers mounted at `/api/v1/weddings` and `/api/v1`, dashboard wired with WeddingCard + empty-state CTA, `GET /weddings` list endpoint, `autoGenerateChecklist` auto-fires on create when weddingDate present — commit `e056fbf`
+- Bug fixes during live smoke: `mockGetPlan` now unwraps mockStore `.plan` wrapper; guest `assertWeddingOwner` now resolves `userId → profileId` via `profiles` table (no more silent 403) — commit `d07ee8e`
+- Live HTTP smoke: 20/20 endpoints PASS (see `docs/smoke-test-week6.md`)
+- Unit tests: 205/205 (was 182 → +23 wedding/guest tests, zero regressions)
+- Type-check clean across all 8 packages; web build clean including 6 new `/weddings/*` routes
+- New CLAUDE.md rule 12: always resolve `userId → profileId` before touching profile-keyed columns
 
 ### Phase 1 audit fixes (2026-04-20)
 
@@ -166,18 +179,18 @@ Last updated: 2026-04-20
 
 **End goal: Complete planning suite live**
 
-- [ ] Wedding plan creation (date, venue, style, theme, couple link)
-- [ ] Budget tracker by category (venue, catering, decor, photography…)
-- [ ] Kanban task board (auto-checklist from wedding date)
+- [x] Wedding plan creation (date, venue, style, theme, couple link)
+- [x] Budget tracker by category (venue, catering, decor, photography…)
+- [x] Kanban task board (auto-checklist from wedding date)
 - [ ] Wedding day timeline builder
 - [ ] Mood board + theme selection
 - [ ] Family member access (role-based permissions, task assignment)
-- [ ] Guest list management (manual + spreadsheet import)
-- [ ] RSVP tracking (yes/no/maybe)
-- [ ] Meal preference collection
+- [x] Guest list management (manual + spreadsheet import)
+- [x] RSVP tracking (yes/no/maybe)
+- [x] Meal preference collection
 - [ ] Room allocation (outstation guests)
 - [ ] Digital invitation builder (template + couple photo)
-- [ ] Invitation delivery: email + SMS
+- [x] Invitation delivery: email + SMS (mocked — real AWS SES/MSG91 deferred)
 - [ ] In-platform video calls (Daily.co)
 - [ ] Meeting scheduler (slot proposal, confirmation, reminders)
 - [ ] Escrow payment system (50% advance, 48h dispute window)

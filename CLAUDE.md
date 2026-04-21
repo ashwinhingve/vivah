@@ -19,20 +19,19 @@
 ## Current Status
 
 ```
-Phase:     1 — COMPLETE ✅
-Week:      5 of 5 — DONE
-Focus:     Phase 2 — Wedding Planning (starting Week 6)
-Status:    Production audit complete — ready for Colonel Deepak Loom demo
+Phase:     2
+Week:      7
+Focus:     Video Calls + Escrow + Rental Module
+Status:    Starting
 Mocks:     USE_MOCK_SERVICES=true
-Last session: 2026-04-20 — Phase 1 production-readiness audit
-  - Build: web + api both green, type-check clean (8/8), tests 182/182 green
-  - Privacy: getProfileById always masks phone/email for non-self; contact only via safety-unlock flow
-  - New endpoints: PUT /me/safety-mode, GET /api/v1/admin/stats
-  - Dashboard wired to /matchmaking/feed top-3; CompletenessBar chips link to /profile/[section]
-  - MatchFeedItem.age is now number|null — MatchCard hides age when missing, shows gunaPending overlay
-  - Razorpay webhook deduplicated (sole registration in index.ts)
-  - Design tokens swept: remaining blue/navy → Teal/Burgundy; font-playfair → font-heading; 40px → 44px
-  - Vendor mock portfolio placeholder copy removed — returns null in dev mode so empty state renders
+Last session: 2026-04-21 — Week 6 Wedding Planning + Guest Management complete
+  - Phase 0 single agent: shared types/schemas + MongoDB WeddingPlan model (commit b82ffac)
+  - Phase 1 agent team (3 teammates parallel): weddings domain (f27d7c0), guests domain (4d557d1), wedding UI (0a78635)
+  - Phase 2 single agent: routers mounted, dashboard "My Wedding" section, autoGenerateChecklist auto-wired, GET /weddings list endpoint (e056fbf)
+  - Live smoke: 20/20 endpoints PASS after fixing two bugs (d07ee8e) — mockGetPlan unwrap + guest assertWeddingOwner now resolves userId → profileId via profiles table
+  - Tests: 205/205 green (was 182 + 10 weddings + 13 guests). Type-check clean 8/8. Web build clean.
+  - New CLAUDE.md rule 12: always resolve userId → profileId before touching profile-keyed columns (silent 403 otherwise)
+  - WSL gotcha confirmed: tsx watch on /mnt/d DrvFs does NOT hot-reload — Ctrl+C + pnpm dev is the reliable restart
 ```
 
 > **Update this block at the start of every session.**
