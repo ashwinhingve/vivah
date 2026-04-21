@@ -68,7 +68,8 @@ function planKey(weddingId: string): string {
 function mockGetPlan(weddingId: string): WeddingPlanType | null {
   const raw = mockGet(planKey(weddingId));
   if (!raw) return null;
-  return raw as unknown as WeddingPlanType;
+  const plan = (raw as { plan?: unknown }).plan ?? raw;
+  return plan as WeddingPlanType;
 }
 
 function mockSavePlan(weddingId: string, plan: WeddingPlanType): WeddingPlanType {
@@ -567,3 +568,4 @@ async function resolveOwnedWedding(
 
   return row ?? null;
 }
+

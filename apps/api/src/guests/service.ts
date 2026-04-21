@@ -17,6 +17,7 @@ import {
   guests,
   invitations,
   weddings,
+  profiles,
 } from '@smartshaadi/db';
 import type { AddGuestInput, UpdateGuestInput, RsvpUpdateInput, BulkImportGuestsInput } from '@smartshaadi/schemas';
 import type { GuestSummary } from '@smartshaadi/types';
@@ -54,10 +55,16 @@ async function assertWeddingOwner(weddingId: string, userId: string) {
   const wedding = rows[0];
   if (!wedding) throw Object.assign(new Error('Wedding not found'), { code: 'NOT_FOUND', status: 404 });
 
-  // Multi-tenant safety: profileId stored on weddings maps to the owning user.
-  // The profileId in the weddings table is a uuid referencing profiles.id.
-  // We compare against req.user.id (Better Auth userId). In Phase 1 userId === profileId.
-  if (wedding.profileId !== userId) {
+  // Resolve the caller's profile id from their Better Auth userId — the weddings
+  // table stores profileId, not userId, so a direct compare is always wrong.
+  const profileRows = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1);
+  const profileId = profileRows[0]?.id;
+
+  if (!profileId || wedding.profileId !== profileId) {
     throw Object.assign(new Error('Forbidden'), { code: 'FORBIDDEN', status: 403 });
   }
   return wedding;
@@ -354,3 +361,4 @@ export async function getRsvpStats(
 
   return stats;
 }
+

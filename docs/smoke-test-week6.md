@@ -1,107 +1,103 @@
 # Smoke Test — Week 6 Wedding Planning + Guest Management
 
-**Date:** 2026-04-21
-**Phase:** 2 (single-agent integration)
-**Test suite:** 205/205 passing — zero regressions vs 182 baseline
+**Date:** 2026-04-21 19:49 UTC
+**Phase:** 2 (integration) — complete
+**Unit suite:** 205/205 passing — zero regressions vs 182 baseline
 **Type-check:** 8/8 packages clean
+**Web build:** green (all 6 `/weddings/*` routes compiled)
+**Live HTTP smoke:** **20/20 endpoints PASS**
 
 ---
 
-## Code-level verification (automated, complete)
+## Live HTTP smoke — 20/20 PASS
 
-| Check | Result |
-|-------|--------|
-| `pnpm type-check` (all 8 packages) | clean |
-| `pnpm --filter @smartshaadi/api test` | 205/205 |
-| `weddingRouter` mounted at `/api/v1/weddings` | index.ts:82 |
-| `guestRouter` mounted at `/api/v1` (covers nested + public /rsvp) | index.ts:83 |
-| `autoGenerateChecklist` auto-invoked inside `createWedding` when `weddingDate` provided | service.ts:173-180 (non-fatal wrap) |
-| `GET /weddings` list endpoint added (dashboard + /weddings page consumers) | weddings/router.ts |
-| Dashboard wired with My Wedding section (WeddingCard + empty-state CTA) | dashboard/page.tsx |
-| Public `PUT /rsvp/:token` has no `authenticate()` | guests/router.ts:224 |
-| Ownership chain enforced on all mutations (wedding → guestList → guest) | guests/service.ts (teammate 2 report) |
-| Budget categories in MongoDB via mockStore / WeddingPlan.findOneAndUpdate | service.ts |
-| Kanban uses click-to-move (no dnd lib) | TaskKanban.client.tsx (teammate 3) |
-| AppNav "My Wedding" entry visible for INDIVIDUAL role | teammate 3 report |
+Fresh OTP session for `+919999999001` → cookie → every endpoint exercised end-to-end.
 
----
+| # | Endpoint | Method | HTTP | Result |
+|---|----------|--------|------|--------|
+| 1 | `/api/v1/profiles/me` | GET | 200 | ✅ baseline auth |
+| 2 | `/api/v1/weddings` | POST | 201 | ✅ wedding + MongoDB plan (10 default categories), `tasksCreated=3` (auto-checklist fired for 2027-02-14) |
+| 3 | `/api/v1/weddings` | GET | 200 | ✅ list returns the new wedding |
+| 4 | `/api/v1/weddings/:id` | GET | 200 | ✅ combined PG + mongoPlan + taskProgress + guestCount |
+| 5 | `/api/v1/weddings/:id` | PUT | 200 | ✅ rename venue |
+| 6 | `/api/v1/weddings/:id/tasks` | GET | 200 | ✅ 3-bucket board (TODO/IN_PROGRESS/DONE) |
+| 7 | `/api/v1/weddings/:id/tasks` | POST | 201 | ✅ task created |
+| 8 | `/api/v1/weddings/:id/tasks/:taskId` | PUT | 200 | ✅ TODO → IN_PROGRESS |
+| 9 | `/api/v1/weddings/:id/budget` | PUT | 200 | ✅ mongoPlan budget categories updated |
+| 10 | `/api/v1/weddings/:id/checklist/generate` | POST | 201 | ✅ returns `{ created }` |
+| 11 | `/api/v1/weddings/:id/guests` | GET | 200 | ✅ empty list before adds |
+| 12 | `/api/v1/weddings/:id/guests` | POST | 201 | ✅ guest created (auto-created guestList) |
+| 13 | `/api/v1/weddings/:id/guests/bulk` | POST | 201 | ✅ 2 imported |
+| 14 | `/api/v1/weddings/:id/guests/stats` | GET | 200 | ✅ aggregated rsvp/meal counts |
+| 15 | `/api/v1/weddings/:id/invitations/send` | POST | 400 | ✅ validation: empty guestIds rejected |
+| 16 | `/api/v1/weddings/:id/guests/:guestId` | PUT | 200 | ✅ rsvpStatus → YES |
+| 17 | `/api/v1/weddings/:id/invitations/send` | POST | 200 | ✅ mock email sent, sentAt set |
+| 18 | `/api/v1/rsvp/not-a-real-token` | PUT | 404 | ✅ public endpoint, envelope NOT_FOUND (no auth required) |
+| 19 | `/api/v1/weddings/:id/guests/:guestId` | DELETE | 200 | ✅ removed |
+| 20 | `/api/v1/weddings/:id/tasks/:taskId` | DELETE | 200 | ✅ removed |
 
-## Plan checklist — coverage map
-
-### API endpoints (`apps/api/src/weddings/__tests__/service.test.ts` + `apps/api/src/guests/__tests__/service.test.ts`)
-
-| Plan item | Covered by |
-|-----------|------------|
-| `POST /api/v1/weddings` → 201, wedding + MongoDB plan | unit tests: creates PG row + mockStore plan with 10 categories |
-| `GET /api/v1/weddings/:id` → 200, returns PG + MongoDB combined | unit test: returns combined data with taskProgress |
-| `POST /api/v1/weddings/:id/tasks` → 201, task created | service.createTask test |
-| `GET /api/v1/weddings/:id/tasks` → 200, kanban groups correct | service.getTaskBoard test: groups by status |
-| `PUT /api/v1/weddings/:id/tasks/:taskId` → 200, status updated | service.updateTask test |
-| `PUT /api/v1/weddings/:id/budget` → 200, MongoDB categories updated | service.updateBudget test |
-| `POST /api/v1/weddings/:id/guests` → 201 | service.addGuest test |
-| `POST /api/v1/weddings/:id/guests/bulk` → 201 | service.bulkImportGuests test (500 limit enforced in schema) |
-| `GET /api/v1/weddings/:id/guests/stats` → 200, RSVP stats | service.getRsvpStats test |
-| `POST /api/v1/weddings/:id/invitations/send` → 200, mock logs | invitation test: `[MOCK] Invitation sent …` + sets `sentAt` |
-| `PUT /api/v1/rsvp/:token` → graceful handling | service.updateRsvp test: wrong token rejected |
-
-### Web pages (teammate 3 build verified, awaiting live browser smoke)
-
-| Page | Status |
-|------|--------|
-| `/weddings` | builds; empty state renders when no weddings |
-| `/weddings/new` | form builds; POST wired |
-| `/weddings/:id` | overview + 4 stat cards + tab nav |
-| `/weddings/:id/tasks` | Kanban 3-column, click-to-move arrows |
-| `/weddings/:id/budget` | totals + category table |
-| `/weddings/:id/guests` | sortable table + RSVP donut |
+**No non-2xx surprises.** Intentional 4xx (empty guestIds 400, unknown RSVP token 404) return JSON envelopes, not HTML error pages.
 
 ---
 
-## Live HTTP smoke — BLOCKED on server restart
+## Bugs discovered during smoke + fixed
 
-Running API server (tsx watch) has a stale module cache. WSL DrvFs file watcher does not reliably detect new TypeScript files / new routes. Touching `index.ts` did not trigger reload. The sandbox denies `kill` of the tsx process, so a live-server restart must be performed by the user:
+1. **`mockGetPlan` returned the mockStore wrapper instead of unwrapping `.plan`** — `updateBudget` crashed with "Cannot set properties of undefined (setting 'categories')". Fixed at `apps/api/src/weddings/service.ts:68`.
+2. **`assertWeddingOwner` in guest service compared `wedding.profileId` directly to Better Auth `userId`** — always failed in production auth (profileId is a separate UUID). Fixed at `apps/api/src/guests/service.ts:47` by resolving `userId → profileId` via `profiles` lookup. Tests updated to mock the second select.
+
+Both fixes verified — full test suite still 205/205; 20/20 live endpoints green.
+
+---
+
+## Stack state at time of smoke
+
+- Docker services: postgres, mongo, redis, adminer — all healthy
+- API (port 4000): running on stale tsx watch (WSL DrvFs doesn't detect TS file changes reliably)
+- API (port 4001): fresh `npx tsx src/index.ts` with the bug-fix code — used for this smoke
+- Web (port 3000): running
+
+> **Known WSL gotcha:** after editing API files, the `tsx watch` process on port 4000 often fails to hot-reload on DrvFs (`/mnt/d`). `touch` and append-write do not trigger it. Ctrl+C + re-run `pnpm dev` is the reliable restart.
+
+---
+
+## Unit test coverage
+
+| Module | Tests | Status |
+|--------|-------|--------|
+| weddings/service | 10 | ✅ |
+| guests/service | 13 | ✅ |
+| All other modules | 182 | ✅ (no regressions) |
+| **Total** | **205** | **205/205** |
+
+---
+
+## Web pages — build verified
+
+All 6 new wedding pages compiled under `pnpm --filter @smartshaadi/web build`:
 
 ```
-# In the terminal running `pnpm dev`:
-Ctrl+C, then re-run `pnpm dev`
+ƒ /weddings                     183 B / 104 kB
+ƒ /weddings/[id]                191 B / 104 kB
+ƒ /weddings/[id]/budget         191 B / 104 kB
+ƒ /weddings/[id]/guests        3.64 kB / 115 kB
+ƒ /weddings/[id]/tasks         3.22 kB / 114 kB
+ƒ /weddings/new                2.41 kB / 107 kB
 ```
 
-Once restarted, confirm with:
-```bash
-curl -sS -X POST http://localhost:4000/api/v1/weddings \
-  -H "Content-Type: application/json" -d '{}' \
-  | head -c 200
-# Expect: JSON envelope with UNAUTHORIZED (not HTML 404)
-
-curl -sS -X PUT http://localhost:4000/api/v1/rsvp/does-not-exist \
-  -H "Content-Type: application/json" \
-  -d '{"rsvpStatus":"YES","mealPref":"VEG"}' | head -c 200
-# Expect: JSON envelope (graceful 404 for unknown token, not HTML 404)
-```
-
-Full browser smoke checklist after restart:
-- [ ] `/dashboard` — My Wedding section shows empty-state CTA for user with no wedding
-- [ ] `/weddings/new` — create wedding with date → redirects to `/weddings/:id`, auto-checklist created
-- [ ] `/weddings/:id` — overview renders, stat cards populated
-- [ ] `/weddings/:id/tasks` — auto-generated tasks appear in TODO column; arrow buttons move between columns
-- [ ] `/weddings/:id/budget` — 10 default categories listed with ₹0 allocated/spent
-- [ ] `/weddings/:id/guests` — add guest via form; bulk import via paste; send invitation (mock log in API console)
-- [ ] `/dashboard` (after creating wedding) — My Wedding section shows WeddingCard with date + task progress bar
+Browser smoke (manual, deferred to user after restarting the 4000-port server):
+- [ ] `/dashboard` — My Wedding section: empty-state CTA when no wedding, WeddingCard when one exists
+- [ ] `/weddings/new` — create wedding → redirect to `/weddings/:id`
+- [ ] `/weddings/:id` — overview + 4 stat cards + tab nav
+- [ ] `/weddings/:id/tasks` — auto-generated tasks in TODO column; arrow buttons move
+- [ ] `/weddings/:id/budget` — 10 default categories, inline-edit
+- [ ] `/weddings/:id/guests` — add / bulk / send invitations / RSVP donut
 
 ---
 
-## Regressions check
+## Outstanding / Deferred
 
-- 205/205 tests passing (was 182 pre-week-6, +10 weddings + +13 guests = 205 exactly)
-- Type-check clean across all 8 packages
-- No dashboard regression — existing sections untouched, only additive change
-
----
-
-## Outstanding
-
-- Real invitation delivery: wire AWS SES + MSG91 (marked `TODO` in `invitation.ts`)
-- Room allocation UI: deferred to Week 7
-- Mood board (R2 photo upload): deferred to Week 7
-- Muhurat date selector: needs horoscope integration, deferred
-- Drag-and-drop on TaskKanban: intentionally deferred to Week 7 polish (click-arrows ship in v1)
+- Real invitation delivery (AWS SES / MSG91) — mocked today; `TODO` in `invitation.ts`
+- Room allocation UI — Week 7
+- Mood board (R2 photo upload) — Week 7
+- Muhurat date selector — needs horoscope integration
+- Drag-and-drop on TaskKanban — click-arrow fallback ships in v1

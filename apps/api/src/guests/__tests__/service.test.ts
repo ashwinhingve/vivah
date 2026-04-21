@@ -30,6 +30,7 @@ vi.mock('@smartshaadi/db', () => ({
   guests:      {},
   invitations: {},
   weddings:    {},
+  profiles:    {},
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -147,6 +148,8 @@ describe('addGuest', () => {
     // assertWeddingOwner → ensureGuestList (no existing gl) → insert gl → insert guest
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))   // assertWeddingOwner
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([]));            // ensureGuestList — no existing gl
 
     mockInsert
@@ -167,6 +170,8 @@ describe('addGuest', () => {
   it('reuses existing guest list on second add', async () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))    // assertWeddingOwner
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([guestListRow])); // ensureGuestList — already exists
 
     mockInsert.mockReturnValueOnce(makeInsertChain([guestRow]));
@@ -178,9 +183,9 @@ describe('addGuest', () => {
   });
 
   it('rejects if wedding does not belong to user', async () => {
-    mockSelect.mockReturnValueOnce(
-      makeSelectChain([{ ...weddingRow, profileId: 'other-user' }]),
-    );
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([{ ...weddingRow, profileId: 'other-user' }]))  // wedding owned by someone else
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]));                             // caller's profile — mismatch → forbidden
 
     await expect(addGuest(WEDDING_ID, USER_ID, { name: 'Test' })).rejects.toMatchObject({
       code: 'FORBIDDEN',
@@ -199,6 +204,8 @@ describe('bulkImportGuests', () => {
 
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([guestListRow]));
 
     mockInsert.mockReturnValueOnce(makeInsertChain(insertedRows));
@@ -215,6 +222,8 @@ describe('bulkImportGuests', () => {
 
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([])); // no existing gl
 
     mockInsert
@@ -281,6 +290,8 @@ describe('getRsvpStats', () => {
 
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))            // assertWeddingOwner
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([{ id: GUEST_LIST_ID }])) // find guestList
       .mockReturnValueOnce(makeSelectNoLimit(guestRows));             // guests query
 
@@ -302,6 +313,8 @@ describe('getRsvpStats', () => {
   it('returns zero stats when no guest list exists', async () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([weddingRow]))
+
+      .mockReturnValueOnce(makeSelectChain([{ id: USER_ID }]))  // assertWeddingOwner → profile lookup
       .mockReturnValueOnce(makeSelectChain([])); // no guestList
 
     const stats = await getRsvpStats(WEDDING_ID, USER_ID);
