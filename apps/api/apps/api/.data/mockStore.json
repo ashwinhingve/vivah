@@ -287,5 +287,105 @@
       ],
       "partnerDescription": "hiii"
     }
+  },
+  "wedding_plan:a3a98050-7a30-430d-9b4f-f060375ba49d": {
+    "userId": "wedding_plan:a3a98050-7a30-430d-9b4f-f060375ba49d",
+    "plan": {
+      "weddingId": "a3a98050-7a30-430d-9b4f-f060375ba49d",
+      "theme": {
+        "name": null,
+        "colorPalette": [],
+        "style": null
+      },
+      "budget": {
+        "total": 1500000,
+        "currency": "INR",
+        "categories": [
+          {
+            "name": "Venue",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Catering",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Decoration",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Photography",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Music",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Mehendi",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Makeup",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Invitation",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Transport",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Miscellaneous",
+            "allocated": 0,
+            "spent": 0
+          }
+        ]
+      },
+      "ceremonies": [],
+      "checklist": [],
+      "muhuratDates": []
+    }
+  },
+  "wedding_plan:4defb529-063e-4f71-9276-6a9a0c670ec8": {
+    "userId": "wedding_plan:4defb529-063e-4f71-9276-6a9a0c670ec8",
+    "plan": {
+      "weddingId": "4defb529-063e-4f71-9276-6a9a0c670ec8",
+      "theme": {
+        "name": null,
+        "colorPalette": [],
+        "style": null
+      },
+      "budget": {
+        "total": 1500000,
+        "currency": "INR",
+        "categories": [
+          {
+            "name": "Venue",
+            "allocated": 500000,
+            "spent": 100000
+          },
+          {
+            "name": "Catering",
+            "allocated": 400000,
+            "spent": 0
+          }
+        ]
+      },
+      "ceremonies": [],
+      "checklist": [],
+      "muhuratDates": []
+    }
   }
 }
