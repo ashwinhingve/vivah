@@ -34,9 +34,26 @@ import {
   updateTask,
   deleteTask,
   autoGenerateChecklist,
+  listUserWeddings,
 } from './service.js';
 
 export const weddingRouter = Router();
+
+// ── GET /weddings (list user's weddings) ──────────────────────────────────────
+
+weddingRouter.get(
+  '/',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const weddings = await listUserWeddings(req.user!.id);
+      ok(res, { weddings });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to list weddings';
+      err(res, 'WEDDING_LIST_ERROR', message, 500);
+    }
+  },
+);
 
 // ── POST /weddings ─────────────────────────────────────────────────────────────
 

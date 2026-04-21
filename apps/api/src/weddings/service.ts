@@ -97,7 +97,7 @@ function mapTaskRow(row: TaskRow): WeddingTask {
 export async function createWedding(
   userId: string,
   input: CreateWeddingInput,
-): Promise<{ wedding: WeddingRow; plan: WeddingPlanType }> {
+): Promise<{ wedding: WeddingRow; plan: WeddingPlanType; tasksCreated: number }> {
   // Resolve profileId from userId
   const [profile] = await db
     .select({ id: profiles.id })
@@ -168,7 +168,62 @@ export async function createWedding(
     plan = defaultPlan;
   }
 
-  return { wedding: weddingRow, plan };
+  let tasksCreated = 0;
+  if (input.weddingDate) {
+    try {
+      const result = await autoGenerateChecklist(userId, weddingRow.id, input.weddingDate);
+      tasksCreated = result.created;
+    } catch {
+      // non-fatal — user can generate later via explicit endpoint
+    }
+  }
+
+  return { wedding: weddingRow, plan, tasksCreated };
+}
+
+// ── listUserWeddings ───────────────────────────────────────────────────────────
+
+export async function listUserWeddings(
+  userId: string,
+): Promise<WeddingSummary[]> {
+  const [profile] = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1);
+
+  if (!profile) return [];
+
+  const rows = await db
+    .select()
+    .from(weddings)
+    .where(eq(weddings.profileId, profile.id));
+
+  if (rows.length === 0) return [];
+
+  const results: WeddingSummary[] = [];
+  for (const row of rows) {
+    const tasks = await db
+      .select({ status: weddingTasks.status })
+      .from(weddingTasks)
+      .where(eq(weddingTasks.weddingId, row.id));
+
+    results.push({
+      id:          row.id,
+      weddingDate: row.weddingDate ?? null,
+      venueName:   row.venueName,
+      venueCity:   row.venueCity,
+      budgetTotal: row.budgetTotal != null ? Number(row.budgetTotal) : null,
+      status:      row.status as WeddingSummary['status'],
+      taskProgress: {
+        total: tasks.length,
+        done:  tasks.filter((t) => t.status === 'DONE').length,
+      },
+      guestCount:  row.guestCount ?? 0,
+    });
+  }
+
+  return results;
 }
 
 // ── getWedding ─────────────────────────────────────────────────────────────────

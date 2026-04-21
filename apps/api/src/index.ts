@@ -20,6 +20,8 @@ import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
 import { vendorsRouter } from './vendors/router.js';
 import { bookingsRouter } from './bookings/router.js';
 import { paymentsRouter } from './payments/router.js';
+import { weddingRouter } from './weddings/router.js';
+import { guestRouter } from './guests/router.js';
 import { webhookHandler } from './payments/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { env } from './lib/env.js';
@@ -80,6 +82,8 @@ app.use('/api/v1/chat', chatRouter);              // GET /conversations, GET /co
 app.use('/api/v1/vendors', vendorsRouter);        // GET /vendors, GET /vendors/:id, POST /vendors
 app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookings/:id, PATCH status
 app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
+app.use('/api/v1/weddings', weddingRouter);       // POST|GET|PUT /weddings, tasks, budget, checklist
+app.use('/api/v1', guestRouter);                  // /weddings/:id/guests/*, /invitations/send, public /rsvp/:token
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 

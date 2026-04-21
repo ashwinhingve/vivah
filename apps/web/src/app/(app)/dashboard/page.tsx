@@ -1,14 +1,15 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Heart, Calendar, MailOpen, Gauge, Sparkles, Plus } from 'lucide-react';
+import { Heart, Calendar, MailOpen, Gauge, Sparkles, Plus, Cake } from 'lucide-react';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
+import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
-import type { ProfileSectionCompletion, BookingSummary } from '@smartshaadi/types';
+import type { ProfileSectionCompletion, BookingSummary, WeddingSummary } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  const [profile, bookingsData, requestsData, feedData] = await Promise.all([
+  const [profile, bookingsData, requestsData, feedData, weddingsData] = await Promise.all([
     fetchAuth<ProfileData>('/api/v1/profiles/me', token),
     fetchAuth<{ bookings: BookingSummary[]; total: number }>(
       '/api/v1/bookings?role=customer&limit=50',
@@ -58,6 +59,7 @@ export default async function DashboardPage() {
       token,
     ),
     fetchAuth<{ items: FeedItem[] }>('/api/v1/matchmaking/feed?limit=3', token),
+    fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings', token),
   ]);
 
   const completeness = profile?.profileCompleteness ?? 0;
@@ -69,6 +71,7 @@ export default async function DashboardPage() {
   const pendingBookings = allBookings.filter((b) => b.status === 'PENDING').length;
   const pendingRequests = requestsData?.total ?? 0;
   const feed = feedData?.items ?? [];
+  const myWedding = weddingsData?.weddings?.[0] ?? null;
 
   return (
     <main className="min-h-screen bg-background">
@@ -118,6 +121,32 @@ export default async function DashboardPage() {
             icon={Gauge}
             variant={completeness >= 70 ? 'success' : 'teal'}
           />
+        </div>
+
+        {/* My Wedding */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-primary font-heading">My Wedding</h2>
+            {myWedding && (
+              <Link href={`/weddings/${myWedding.id}`} className="text-xs font-medium text-teal hover:text-teal-hover">
+                Open planner →
+              </Link>
+            )}
+          </div>
+          {myWedding ? (
+            <WeddingCard wedding={myWedding} />
+          ) : (
+            <EmptyState
+              icon={Cake}
+              title="Start Planning Your Wedding"
+              description="Create a wedding plan with budget, tasks, guest list, and RSVP tracking."
+              action={
+                <Button asChild>
+                  <Link href="/weddings/new">Begin Your Journey →</Link>
+                </Button>
+              }
+            />
+          )}
         </div>
 
         {/* Completeness bar + CTA */}
