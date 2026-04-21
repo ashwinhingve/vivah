@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ChatView from '@/components/chat/ChatView.client'
+import { VideoCall } from './VideoCall.client'
 import type { ChatMessage } from '@smartshaadi/types'
 
 // Base server URL — no /api/v1 suffix (used for /api/auth/* and /api/v1/* paths)
@@ -110,6 +111,8 @@ export default async function ChatPage({ params }: ChatPageProps) {
           Could not load conversation. Please refresh.
         </div>
       )}
+
+      <VideoCall matchId={matchId} currentUserId={userId} />
 
       <ChatView
         matchId={matchId}
