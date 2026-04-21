@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Home, Search, Calendar, Bell, User } from 'lucide-react';
+import { Home, Search, Calendar, User, Cake } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
@@ -13,8 +13,8 @@ type NavItem = { href: string; label: string; Icon: LucideIcon };
 const INDIVIDUAL_NAV: NavItem[] = [
   { href: '/feed',      label: 'Matches',   Icon: Home },
   { href: '/vendors',   label: 'Vendors',   Icon: Search },
+  { href: '/weddings',  label: 'My Wedding', Icon: Cake },
   { href: '/bookings',  label: 'Bookings',  Icon: Calendar },
-  { href: '/requests',  label: 'Requests',  Icon: Bell },
   { href: '/dashboard', label: 'Profile',   Icon: User },
 ];
 
