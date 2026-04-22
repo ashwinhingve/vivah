@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation';
 import { Calendar, MapPin, Users, CheckSquare, ArrowLeft, Wallet } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
+import {
+  createCeremonyAction,
+  deleteCeremonyAction,
+  selectMuhuratAction,
+} from './actions';
 
 type WeddingDetail = WeddingSummary & { plan?: WeddingPlan };
 
@@ -177,7 +182,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                     </p>
                   </div>
                   {!d.selected && (
-                    <form action={`/api/v1/weddings/${id}/muhurat`} method="post">
+                    <form action={selectMuhuratAction.bind(null, id)}>
                       <input type="hidden" name="date"    value={d.date} />
                       <input type="hidden" name="muhurat" value={d.muhurat} />
                       {d.tithi && <input type="hidden" name="tithi" value={d.tithi} />}
@@ -216,7 +221,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${colorClass}`}>
                       {CEREMONY_LABELS[c.type] ?? c.type}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       {c.date && (
                         <p className="text-sm font-medium text-[#0F172A]">{formatDate(c.date)}</p>
                       )}
@@ -229,6 +234,15 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                         <p className="text-xs text-[#64748B]">{c.venue}</p>
                       )}
                     </div>
+                    <form action={deleteCeremonyAction.bind(null, id, c.id)}>
+                      <button
+                        type="submit"
+                        aria-label={`Delete ${CEREMONY_LABELS[c.type] ?? c.type} ceremony`}
+                        className="text-xs font-medium min-h-[32px] px-2 rounded-md border border-transparent text-[#64748B] hover:text-[#7B2D42] hover:border-[#C5A47E]/30 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </form>
                   </li>
                 );
               })}
@@ -242,8 +256,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
               Add Ceremony
             </summary>
             <form
-              action={`/api/v1/weddings/${id}/ceremonies`}
-              method="post"
+              action={createCeremonyAction.bind(null, id)}
               className="mt-3 space-y-3"
             >
               <div className="grid grid-cols-2 gap-3">

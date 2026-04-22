@@ -1,7 +1,7 @@
 // env.ts loads root .env and validates all required vars on first import
 import './lib/env.js';
 import { createServer } from 'http';
-import express, { type Request, type Response } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import { initSocket } from './chat/socket/index.js';
 import { connectMongo } from './lib/mongo.js';
 import cors from 'cors';
@@ -92,6 +92,36 @@ app.use('/api/v1/video', videoRouter);            // POST /rooms, POST|PUT|GET /
 app.use('/api/v1/payments', disputeRouter);       // POST /:bookingId/dispute (extends paymentsRouter mount)
 app.use('/api/v1/rentals', rentalRouter);         // GET|POST /, GET /:id, POST /:id/book, /bookings/mine
 app.use('/api/v1/admin', escrowAdminRouter);      // GET /disputes, PUT /disputes/:bookingId/resolve
+
+// ── Global error handler ──────────────────────────────────────────────────────
+// Catches sync throws and any error forwarded via next(err). Async route bodies
+// that reject without try/catch will trip unhandledRejection below — the handler
+// there logs without crashing so one bad route can't take the whole process down.
+app.use((error: unknown, _req: Request, res: Response, next: NextFunction): void => {
+  if (res.headersSent) { next(error); return; }
+  const code = (error as { code?: string } | undefined)?.code;
+  if (code === '22P02') {
+    res.status(400).json({
+      success: false, data: null,
+      error: { code: 'INVALID_ID', message: 'Malformed id in request' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+    return;
+  }
+  console.error('[api] unhandled error', error);
+  res.status(500).json({
+    success: false, data: null,
+    error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    meta: { timestamp: new Date().toISOString() },
+  });
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[api] unhandledRejection', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[api] uncaughtException', err);
+});
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 

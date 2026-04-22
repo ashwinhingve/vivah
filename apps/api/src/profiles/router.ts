@@ -212,13 +212,30 @@ profilesRouter.use('/', safetyRouter);
  * Phone and email are masked unless the requesting user is the profile owner.
  * TODO: Expose contact when safety_mode_unlocks is added to schema.
  */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 profilesRouter.get('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
   const id = req.params['id'] ?? '';
 
-  const profile = await getProfileById(id, req.user!.id);
-  if (!profile) {
-    err(res, 'PROFILE_NOT_FOUND', 'Profile not found or not active', 404);
+  if (!UUID_RE.test(id)) {
+    err(res, 'INVALID_ID', 'Profile id must be a UUID', 400);
     return;
   }
-  ok(res, profile);
+
+  try {
+    const profile = await getProfileById(id, req.user!.id);
+    if (!profile) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found or not active', 404);
+      return;
+    }
+    ok(res, profile);
+  } catch (e) {
+    const code = (e as { code?: string } | undefined)?.code;
+    if (code === '22P02') {
+      err(res, 'INVALID_ID', 'Profile id must be a UUID', 400);
+      return;
+    }
+    console.error('[profiles] GET /:id failed', e);
+    err(res, 'INTERNAL_ERROR', 'Failed to load profile', 500);
+  }
 });
