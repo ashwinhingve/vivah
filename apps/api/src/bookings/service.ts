@@ -363,7 +363,7 @@ export async function completeBooking(userId: string, bookingId: string): Promis
       vendorId:  booking.vendorId,
       amount:    escrowAmount,
     },
-    { delay: FORTY_EIGHT_HOURS_MS },
+    { delay: FORTY_EIGHT_HOURS_MS, jobId: `escrow-release:${bookingId}` },
   );
 
   return toBookingSummary(updated);

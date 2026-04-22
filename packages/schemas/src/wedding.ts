@@ -72,3 +72,24 @@ export type UpdateGuestInput      = z.infer<typeof UpdateGuestSchema>;
 export type RsvpUpdateInput       = z.infer<typeof RsvpUpdateSchema>;
 export type SendInvitationsInput  = z.infer<typeof SendInvitationsSchema>;
 export type BulkImportGuestsInput = z.infer<typeof BulkImportGuestsSchema>;
+
+export const CreateCeremonySchema = z.object({
+  type:      z.enum(['HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION', 'ENGAGEMENT', 'OTHER']),
+  date:      z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  venue:     z.string().max(255).optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  endTime:   z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  notes:     z.string().max(1000).optional(),
+});
+
+export const UpdateCeremonySchema = CreateCeremonySchema.partial();
+
+export const SelectMuhuratSchema = z.object({
+  date:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  muhurat: z.string().min(1).max(100),
+  tithi:   z.string().max(100).optional(),
+});
+
+export type CreateCeremonyInput = z.infer<typeof CreateCeremonySchema>;
+export type UpdateCeremonyInput = z.infer<typeof UpdateCeremonySchema>;
+export type SelectMuhuratInput  = z.infer<typeof SelectMuhuratSchema>;

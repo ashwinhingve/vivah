@@ -111,3 +111,32 @@ export interface InvitationStatus {
   channel:  string | null;
   openedAt: string | null;
 }
+
+export const CeremonyType = {
+  HALDI:      'HALDI',
+  MEHNDI:     'MEHNDI',
+  SANGEET:    'SANGEET',
+  WEDDING:    'WEDDING',
+  RECEPTION:  'RECEPTION',
+  ENGAGEMENT: 'ENGAGEMENT',
+  OTHER:      'OTHER',
+} as const;
+export type CeremonyType = typeof CeremonyType[keyof typeof CeremonyType];
+
+export interface Ceremony {
+  id:        string;
+  weddingId: string;
+  type:      CeremonyType;
+  date:      string | null;
+  venue:     string | null;
+  startTime: string | null;
+  endTime:   string | null;
+  notes:     string | null;
+}
+
+export interface MuhuratDate {
+  date:     string;
+  muhurat:  string;
+  tithi:    string | null;
+  selected: boolean;
+}
