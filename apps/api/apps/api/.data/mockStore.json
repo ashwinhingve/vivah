@@ -106,7 +106,7 @@
     "userId": "seed-compatible-001",
     "personal": {
       "fullName": "Priya Compatible",
-      "dob": "2000-07-21T22:10:15.025Z",
+      "dob": "2000-07-22T09:38:09.985Z",
       "gender": "FEMALE",
       "height": 165,
       "maritalStatus": "NEVER_MARRIED",
@@ -464,6 +464,90 @@
       ],
       "maritalStatus": [
         "NEVER_MARRIED"
+      ]
+    }
+  },
+  "wedding_plan:77dd788a-48b7-471b-9f78-3bc54c0d9077": {
+    "userId": "wedding_plan:77dd788a-48b7-471b-9f78-3bc54c0d9077",
+    "plan": {
+      "weddingId": "77dd788a-48b7-471b-9f78-3bc54c0d9077",
+      "theme": {
+        "name": null,
+        "colorPalette": [],
+        "style": null
+      },
+      "budget": {
+        "total": 1500000,
+        "currency": "INR",
+        "categories": [
+          {
+            "name": "Venue",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Catering",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Decoration",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Photography",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Music",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Mehendi",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Makeup",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Invitation",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Transport",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Miscellaneous",
+            "allocated": 0,
+            "spent": 0
+          }
+        ]
+      },
+      "ceremonies": [
+        {
+          "type": "HALDI",
+          "date": "2026-12-13",
+          "venue": "Rooftop",
+          "notes": "turmeric"
+        }
+      ],
+      "checklist": [],
+      "muhuratDates": [
+        {
+          "date": "2026-12-05",
+          "muhurat": "Brahma Muhurat",
+          "tithi": null,
+          "selected": true
+        }
       ]
     }
   }
