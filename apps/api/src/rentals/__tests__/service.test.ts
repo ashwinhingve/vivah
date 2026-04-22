@@ -7,17 +7,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ─────────────────────────────────────────────────────────────
 
-const { mockSelect, mockInsert, mockUpdate } = vi.hoisted(() => ({
-  mockSelect: vi.fn(),
-  mockInsert: vi.fn(),
-  mockUpdate: vi.fn(),
+const { mockSelect, mockInsert, mockUpdate, mockTransaction } = vi.hoisted(() => ({
+  mockSelect:      vi.fn(),
+  mockInsert:      vi.fn(),
+  mockUpdate:      vi.fn(),
+  mockTransaction: vi.fn(),
 }));
 
 vi.mock('../../lib/db.js', () => ({
   db: {
-    select: mockSelect,
-    insert: mockInsert,
-    update: mockUpdate,
+    select:      mockSelect,
+    insert:      mockInsert,
+    update:      mockUpdate,
+    transaction: mockTransaction,
   },
 }));
 
@@ -132,6 +134,7 @@ import {
   createRentalItem,
   createRentalBooking,
   confirmRentalBooking,
+  activateRentalBooking,
   returnRentalItem,
   getMyRentalBookings,
 } from '../service.js';
@@ -204,6 +207,61 @@ describe('listRentalItems', () => {
 
     expect(result.items).toHaveLength(1);
   });
+
+  it('availableQty on each item reflects stock minus reserved', async () => {
+    // stockQty = 5, reserved = 3 → availableQty should be 2
+    const item5stock = { ...itemRow, stockQty: 5 };
+
+    mockSelect
+      .mockReturnValueOnce(makeSelectChainResolvable([{ count: 1 }]))
+      .mockReturnValueOnce(makeSelectChainResolvable([item5stock]))
+      .mockReturnValueOnce(makeSelectChainResolvable([{ rentalItemId: ITEM_ID, reserved: 3 }]));
+
+    const result = await listRentalItems({
+      page:     1,
+      limit:    10,
+      fromDate: '2026-05-01',
+      toDate:   '2026-05-04',
+    });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]!.availableQty).toBe(2);
+  });
+
+  it('availableQty equals stockQty when no date range provided', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChainResolvable([{ count: 1 }]))
+      .mockReturnValueOnce(makeSelectChainResolvable([itemRow]));
+
+    const result = await listRentalItems({ page: 1, limit: 10 });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]!.availableQty).toBe(itemRow.stockQty);
+  });
+
+  it('meta.total reflects post-filter count when date range excludes booked items', async () => {
+    // Two items in DB, but one is fully booked — total should be 1
+    const item2 = { ...itemRow, id: 'item-2', stockQty: 1 };
+    const items = [itemRow, item2]; // 2 items
+
+    mockSelect
+      .mockReturnValueOnce(makeSelectChainResolvable([{ count: 2 }]))
+      .mockReturnValueOnce(makeSelectChainResolvable(items))
+      // item-2 fully reserved (stockQty=1, reserved=1)
+      .mockReturnValueOnce(makeSelectChainResolvable([{ rentalItemId: 'item-2', reserved: 1 }]));
+
+    const result = await listRentalItems({
+      page:     1,
+      limit:    10,
+      fromDate: '2026-05-01',
+      toDate:   '2026-05-04',
+    });
+
+    // Only item-1 survives (item-2 filtered out)
+    expect(result.items).toHaveLength(1);
+    // total should reflect filtered count
+    expect(result.meta.total).toBe(1);
+  });
 });
 
 // ── createRentalItem ──────────────────────────────────────────────────────────
@@ -248,9 +306,19 @@ describe('createRentalBooking', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it('totalAmount = days × pricePerDay × quantity (3 days × ₹500 × 2 = ₹3000)', async () => {
+    // Transactional version: transaction callback receives tx
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
+      // tx has same interface as db
+      const tx = {
+        select: mockSelect,
+        insert: mockInsert,
+      };
+      return cb(tx);
+    });
+
     mockSelect
-      .mockReturnValueOnce(makeSelectChainResolvable([itemRow]))             // fetch item
-      .mockReturnValueOnce(makeSelectChainResolvable([{ reserved: 0 }]));   // no overlaps
+      .mockReturnValueOnce(makeSelectChainResolvable([itemRow]))             // fetch item (before tx)
+      .mockReturnValueOnce(makeSelectChainResolvable([{ reserved: 0 }]));   // inside tx: no overlaps
 
     mockInsert.mockReturnValueOnce(makeInsertChain([bookingRow]));
 
@@ -265,20 +333,54 @@ describe('createRentalBooking', () => {
     expect(result.depositPaid).toBe(400); // 200 × 2
   });
 
-  it('rejects when overlapping booking sum >= stockQty with CONFLICT', async () => {
-    // stockQty = 5, already reserved = 4, requesting qty = 2 → 4+2=6 > 5
+  it('throws ITEM_NO_LONGER_AVAILABLE when reserved inside tx', async () => {
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
+      const tx = {
+        select: mockSelect,
+        insert: mockInsert,
+      };
+      return cb(tx);
+    });
+
     mockSelect
-      .mockReturnValueOnce(makeSelectChainResolvable([itemRow]))              // item (stockQty:5)
-      .mockReturnValueOnce(makeSelectChainResolvable([{ reserved: 4 }]));    // 4 already reserved
+      .mockReturnValueOnce(makeSelectChainResolvable([itemRow]))           // fetch item (before tx)
+      .mockReturnValueOnce(makeSelectChainResolvable([{ reserved: 5 }])); // inside tx: full
 
     await expect(
       createRentalBooking(USER_ID, {
         rentalItemId: ITEM_ID,
         fromDate:     '2026-05-01',
         toDate:       '2026-05-04',
-        quantity:     2,
+        quantity:     1,
       })
-    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    ).rejects.toThrow('ITEM_NO_LONGER_AVAILABLE');
+  });
+
+  it('prevents overbooking under concurrent requests — transaction test', async () => {
+    // Both concurrent calls see reserved=4 with stockQty=5 and quantity=2 → 4+2=6 > 5
+    let callCount = 0;
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
+      const selectFn = vi.fn();
+      // First call to select inside tx returns reserved=4
+      selectFn.mockReturnValueOnce(makeSelectChainResolvable([{ reserved: 4 }]));
+      const tx = { select: selectFn, insert: mockInsert };
+      callCount++;
+      return cb(tx);
+    });
+
+    mockSelect
+      .mockReturnValueOnce(makeSelectChainResolvable([itemRow])); // fetch item
+
+    await expect(
+      createRentalBooking(USER_ID, {
+        rentalItemId: ITEM_ID,
+        fromDate:     '2026-05-01',
+        toDate:       '2026-05-04',
+        quantity:     2, // 4+2=6 > 5
+      })
+    ).rejects.toThrow('ITEM_NO_LONGER_AVAILABLE');
+
+    expect(callCount).toBe(1); // transaction was entered
   });
 
   it('rejects when fromDate >= toDate with VALIDATION', async () => {
@@ -335,6 +437,65 @@ describe('confirmRentalBooking', () => {
 
     await expect(confirmRentalBooking(USER_ID, BOOKING_ID)).rejects.toMatchObject({
       code: 'INVALID_STATE',
+    });
+  });
+
+  it('throws RENTAL_BOOKING_NOT_FOUND_OR_WRONG_VENDOR when update returns 0 rows (A6 crash guard)', async () => {
+    mockSelect.mockReturnValueOnce(makeSelectChainResolvable([{
+      booking:      bookingRow,
+      item:         itemRow,
+      vendorUserId: USER_ID,
+    }]));
+    // update returns no rows (race condition)
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([]));
+
+    await expect(confirmRentalBooking(USER_ID, BOOKING_ID)).rejects.toThrow(
+      'RENTAL_BOOKING_NOT_FOUND_OR_WRONG_VENDOR'
+    );
+  });
+});
+
+// ── activateRentalBooking ─────────────────────────────────────────────────────
+
+describe('activateRentalBooking', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  const confirmedBooking = { ...bookingRow, status: 'CONFIRMED' };
+  const activeRow        = { ...bookingRow, status: 'ACTIVE' };
+
+  it('activates CONFIRMED booking to ACTIVE', async () => {
+    mockSelect.mockReturnValueOnce(makeSelectChainResolvable([{
+      booking:      confirmedBooking,
+      item:         itemRow,
+      vendorUserId: USER_ID,
+    }]));
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([activeRow]));
+
+    const result = await activateRentalBooking(USER_ID, BOOKING_ID);
+    expect(result.status).toBe('ACTIVE');
+  });
+
+  it('rejects activate on non-CONFIRMED booking', async () => {
+    mockSelect.mockReturnValueOnce(makeSelectChainResolvable([{
+      booking:      bookingRow, // PENDING
+      item:         itemRow,
+      vendorUserId: USER_ID,
+    }]));
+
+    await expect(activateRentalBooking(USER_ID, BOOKING_ID)).rejects.toMatchObject({
+      code: 'INVALID_STATE',
+    });
+  });
+
+  it('rejects activate by wrong vendor', async () => {
+    mockSelect.mockReturnValueOnce(makeSelectChainResolvable([{
+      booking:      confirmedBooking,
+      item:         itemRow,
+      vendorUserId: 'other-vendor',
+    }]));
+
+    await expect(activateRentalBooking(USER_ID, BOOKING_ID)).rejects.toMatchObject({
+      code: 'FORBIDDEN',
     });
   });
 });

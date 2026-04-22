@@ -26,6 +26,7 @@ import {
   createRentalItem,
   createRentalBooking,
   confirmRentalBooking,
+  activateRentalBooking,
   returnRentalItem,
   getMyRentalBookings,
 } from './service.js';
@@ -169,6 +170,25 @@ rentalRouter.put(
       ok(res, booking);
     } catch (e) {
       handleError(res, e, 'Failed to confirm rental booking');
+    }
+  },
+);
+
+// ── PUT /bookings/:id/activate (authenticate) ────────────────────────────────
+
+rentalRouter.put(
+  '/bookings/:id/activate',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const bookingId = req.params['id'];
+    const userId    = req.user!.id;
+    if (!bookingId) { err(res, 'VALIDATION_ERROR', 'Missing booking id', 400); return; }
+
+    try {
+      const booking = await activateRentalBooking(userId, bookingId);
+      ok(res, booking);
+    } catch (e) {
+      handleError(res, e, 'Failed to activate rental booking');
     }
   },
 );

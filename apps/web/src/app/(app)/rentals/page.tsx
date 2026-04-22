@@ -6,11 +6,12 @@
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { fetchAuth } from '@/lib/server-fetch';
 import { RentalCard } from '@/components/rental/RentalCard';
 import { CategoryTabs } from '@/components/rental/CategoryTabs.client';
 import { DateRangePicker } from '@/components/rental/DateRangePicker.client';
 import type { RentalItem } from '@smartshaadi/types';
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export const metadata: Metadata = {
   title: 'Rent Items — Smart Shaadi',
@@ -54,7 +55,17 @@ export default async function RentalsPage({ searchParams }: Props) {
   qs.set('page',  page);
   qs.set('limit', '12');
 
-  const data = await fetchAuth<PageData>(`/api/v1/rentals?${qs.toString()}`);
+  // FIX A4: public GET — no auth cookie needed
+  let data: PageData | null = null;
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/rentals?${qs.toString()}`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = (await res.json()) as { success: boolean; data: PageData };
+      data = json.success ? json.data : null;
+    }
+  } catch {
+    data = null;
+  }
 
   const items      = data?.items   ?? [];
   const totalItems = data?.meta.total ?? 0;

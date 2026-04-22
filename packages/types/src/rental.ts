@@ -20,16 +20,17 @@ export const RentalBookingStatus = {
 export type RentalBookingStatus = typeof RentalBookingStatus[keyof typeof RentalBookingStatus];
 
 export interface RentalItem {
-  id:          string;
-  vendorId:    string;
-  name:        string;
-  description: string | null;
-  category:    RentalCategory;
-  pricePerDay: number;
-  deposit:     number;
-  stockQty:    number;
-  imageKeys:   string[];
-  isActive:    boolean;
+  id:           string;
+  vendorId:     string;
+  name:         string;
+  description:  string | null;
+  category:     RentalCategory;
+  pricePerDay:  number;
+  deposit:      number;
+  stockQty:     number;
+  availableQty: number;
+  imageKeys:    string[];
+  isActive:     boolean;
 }
 
 export interface RentalBookingSummary {

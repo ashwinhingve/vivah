@@ -6,9 +6,22 @@
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { fetchAuth } from '@/lib/server-fetch';
 import { BookingForm } from '@/components/rental/BookingForm.client';
 import type { RentalItem } from '@smartshaadi/types';
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+/** Plain (unauthenticated) fetch — public GET endpoints */
+async function fetchPublic<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success: boolean; data: T };
+    return json.success ? json.data : null;
+  } catch {
+    return null;
+  }
+}
 
 const CATEGORY_LABELS: Record<string, string> = {
   DECOR:        'Decor',
@@ -32,7 +45,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const item = await fetchAuth<RentalItem>(`/api/v1/rentals/${id}`);
+  const item = await fetchPublic<RentalItem>(`/api/v1/rentals/${id}`);
   return {
     title:       item ? `${item.name} — Rent — Smart Shaadi` : 'Rental Item',
     description: item?.description ?? 'Rental item details and booking',
@@ -41,12 +54,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RentalDetailPage({ params }: Props) {
   const { id } = await params;
-  const item   = await fetchAuth<RentalItem>(`/api/v1/rentals/${id}`);
+  const item   = await fetchPublic<RentalItem>(`/api/v1/rentals/${id}`);
 
   if (!item) notFound();
 
-  const categoryLabel = CATEGORY_LABELS[item.category] ?? item.category;
-  const isLimited     = item.stockQty <= 3;
+  const categoryLabel  = CATEGORY_LABELS[item.category] ?? item.category;
+  const availableQty   = item.availableQty;
+  const isFullyBooked  = availableQty <= 0;
+  const isLimited      = availableQty > 0 && availableQty <= 3;
 
   return (
     <div className="min-h-screen bg-[#FEFAF6]">
@@ -100,16 +115,22 @@ export default async function RentalDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* Availability */}
+          {/* Availability — uses availableQty (stock minus active bookings) */}
           <div className="flex items-center gap-2 rounded-lg px-3 py-2 bg-[#FEFAF6]">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'}`}
+              className={`h-2.5 w-2.5 rounded-full ${
+                isFullyBooked ? 'bg-red-500' : isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'
+              }`}
               aria-hidden="true"
             />
-            <span className={`text-sm font-medium ${isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'}`}>
-              {isLimited
-                ? `Only ${item.stockQty} unit${item.stockQty === 1 ? '' : 's'} left`
-                : `${item.stockQty} units available`}
+            <span className={`text-sm font-medium ${
+              isFullyBooked ? 'text-red-700' : isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'
+            }`}>
+              {isFullyBooked
+                ? 'Fully booked'
+                : isLimited
+                ? `Only ${availableQty} unit${availableQty === 1 ? '' : 's'} left`
+                : `${availableQty} available`}
             </span>
           </div>
         </div>
@@ -117,7 +138,14 @@ export default async function RentalDetailPage({ params }: Props) {
         {/* Booking form */}
         <div className="rounded-xl shadow-sm bg-white p-5 space-y-4">
           <h2 className="text-lg font-semibold text-[#0A1F4D]">Book this item</h2>
-          <BookingForm item={item} />
+          {isFullyBooked ? (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-center">
+              <p className="text-sm font-semibold text-red-700">Fully booked</p>
+              <p className="text-xs text-red-500 mt-1">This item has no availability. Check back later.</p>
+            </div>
+          ) : (
+            <BookingForm item={item} />
+          )}
         </div>
 
         {/* Back link */}
