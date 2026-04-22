@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Home, Search, Calendar, User, Cake, Package, ShoppingBag } from 'lucide-react';
+import { Home, Search, Calendar, User, Cake, Package, ShoppingBag, ShoppingCart } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
@@ -21,10 +21,11 @@ const INDIVIDUAL_NAV: NavItem[] = [
 ];
 
 const VENDOR_NAV: NavItem[] = [
-  { href: '/vendor-dashboard', label: 'Dashboard', Icon: Home },
-  { href: '/bookings',         label: 'Bookings',  Icon: Calendar },
-  { href: '/vendors',          label: 'Browse',    Icon: Search },
-  { href: '/profile/personal', label: 'Profile',   Icon: User },
+  { href: '/vendor-dashboard',        label: 'Dashboard', Icon: Home },
+  { href: '/bookings',                label: 'Bookings',  Icon: Calendar },
+  { href: '/vendor-dashboard/store',  label: 'Products',  Icon: Package },
+  { href: '/vendor-dashboard/orders', label: 'Orders',    Icon: ShoppingCart },
+  { href: '/profile/personal',        label: 'Profile',   Icon: User },
 ];
 
 const ADMIN_NAV: NavItem[] = [
