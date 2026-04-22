@@ -6,3 +6,4 @@ export * from './vendor.js';
 export * from './wedding.js';
 export * from './video.js';
 export * from './rental.js';
+export * from './store.js';
