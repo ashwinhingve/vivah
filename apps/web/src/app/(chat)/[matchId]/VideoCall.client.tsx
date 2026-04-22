@@ -7,6 +7,9 @@ const API_BASE = process.env['NEXT_PUBLIC_SOCKET_URL'] ?? 'http://localhost:4000
 
 interface VideoCallProps {
   matchId: string;
+  /** Better Auth userId — used for identity checks where proposedByUserId is available.
+   *  For proposedBy (profileId) comparisons, the component resolves currentProfileId internally.
+   */
   currentUserId: string;
 }
 
@@ -39,6 +42,11 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
   const [loadingMeetings, setLoadingMeetings] = useState(true);
   const [meetingsError, setMeetingsError] = useState<string | null>(null);
 
+  // FIX 5: Resolve currentProfileId (profiles.id) so we can compare against
+  // meeting.proposedBy (which is a profileId, NOT a Better Auth userId).
+  // Without this, isProposer is always false because the namespaces differ.
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
+
   // Instant call
   const [callingRoom, setCallingRoom]     = useState(false);
   const [callError, setCallError]         = useState<string | null>(null);
@@ -53,6 +61,28 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
 
   // Respond
   const [responding, setResponding]       = useState<string | null>(null); // meetingId being responded to
+
+  // ── Resolve currentProfileId on mount ──────────────────────────────────────
+  useEffect(() => {
+    if (!currentUserId) return;
+    void (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/profiles/me`, {
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const json = (await res.json()) as { success: boolean; data?: { id?: string } };
+          if (json.success && json.data?.id) {
+            setCurrentProfileId(json.data.id);
+          }
+        }
+      } catch {
+        // Non-fatal — fallback: isProposer will be false for all meetings,
+        // meaning the respondent buttons show to everyone, but the API
+        // will still reject the proposer with 403. UX degrades gracefully.
+      }
+    })();
+  }, [currentUserId]);
 
   // ── Fetch meetings ──────────────────────────────────────────────────────────
   const fetchMeetings = useCallback(async () => {
@@ -278,7 +308,10 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
         {!loadingMeetings && meetings.length > 0 && (
           <ul className="space-y-2">
             {meetings.map(meeting => {
-              const isProposer = meeting.proposedBy === currentUserId;
+              // FIX 5: Compare meeting.proposedBy (profileId) against currentProfileId
+              // (also a profileId), NOT against currentUserId (Better Auth id).
+              // Both are profileIds — this was the namespace mismatch bug.
+              const isProposer = currentProfileId !== null && meeting.proposedBy === currentProfileId;
               const canRespond = !isProposer && meeting.status === 'PROPOSED';
               const isResponding = responding === meeting.id;
 

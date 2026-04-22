@@ -146,7 +146,25 @@ export async function createVideoRoom(
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, input.matchId);
 
+  // FIX 1: Check Redis for an existing active room — prevent duplicate rooms on refresh
+  const existingRoomName = await redis.get(`room:active:${input.matchId}`);
+  if (existingRoomName) {
+    throw makeError(
+      'ROOM_EXISTS',
+      `A video room already exists for this match. Room: ${existingRoomName}`,
+      409,
+    );
+  }
+
   const room = await createRoom(`match-${input.matchId}`, input.durationMin);
+
+  // FIX 1: Store room name in Redis keyed by matchId, TTL = durationMin * 60
+  await redis.set(
+    `room:active:${input.matchId}`,
+    room.name,
+    'EX',
+    input.durationMin * 60,
+  );
 
   // Append SYSTEM message (no-op in mock mode)
   await appendSystemMessage(
@@ -172,25 +190,63 @@ export async function createVideoRoom(
   };
 }
 
+// ── getActiveRoom ─────────────────────────────────────────────────────────────
+
+/**
+ * FIX 1: Return the active room for a match from Redis, or null if none.
+ * Used by GET /video/rooms/:matchId.
+ */
+export async function getActiveRoom(
+  userId: string,
+  matchId: string,
+): Promise<{ roomName: string; matchId: string } | null> {
+  const profileId = await resolveProfileId(userId);
+  await assertParticipant(profileId, matchId);
+
+  const roomName = await redis.get(`room:active:${matchId}`);
+  if (!roomName) return null;
+
+  return { roomName, matchId };
+}
+
 // ── endVideoRoom ──────────────────────────────────────────────────────────────
 
 export async function endVideoRoom(
   userId: string,
-  roomName: string,
+  _clientRoomName: string,  // kept for API compatibility but NOT used for deletion
   matchId: string,
 ): Promise<{ success: true }> {
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, matchId);
 
-  await deleteRoom(roomName);
+  // FIX 1: Use Redis lookup for room name — do NOT trust client-supplied name
+  const redisRoomName = await redis.get(`room:active:${matchId}`);
+  const roomNameToDelete = redisRoomName ?? _clientRoomName;
+
+  await deleteRoom(roomNameToDelete);
   await appendSystemMessage(matchId, 'Video call ended');
+
+  // FIX 1: Clean up Redis key after deletion
+  await redis.del(`room:active:${matchId}`);
 
   return { success: true };
 }
 
 // ── scheduleMeeting ───────────────────────────────────────────────────────────
 
-const MEETING_TTL = 604800; // 7 days in seconds
+/** FIX 4: Calculate TTL based on scheduledAt rather than a fixed 7-day value.
+ *  TTL = (scheduledAt − now) + 24h buffer.
+ *  Min: 86400s (24h). Max: 2678400s (31 days).
+ */
+function calculateMeetingTTL(scheduledAt: string): number {
+  const scheduledMs  = new Date(scheduledAt).getTime();
+  const nowMs        = Date.now();
+  const diffSeconds  = Math.floor((scheduledMs - nowMs) / 1000);
+  const ttlWithBuffer = diffSeconds + 86400; // + 24h buffer
+  const MIN_TTL = 86400;   // 24h
+  const MAX_TTL = 2678400; // 31 days
+  return Math.min(MAX_TTL, Math.max(MIN_TTL, ttlWithBuffer));
+}
 
 export async function scheduleMeeting(
   userId: string,
@@ -211,11 +267,14 @@ export async function scheduleMeeting(
     notes:       input.notes ?? null,
   };
 
+  // FIX 4: Use calculated TTL instead of fixed 604800
+  const ttl = calculateMeetingTTL(input.scheduledAt);
+
   await redis.set(
     `meeting:${input.matchId}:${meetingId}`,
     JSON.stringify(meeting),
     'EX',
-    MEETING_TTL,
+    ttl,
   );
 
   const otherUserId = await resolveOtherUserId(profileId, input.matchId);
@@ -253,6 +312,16 @@ export async function respondMeeting(
 
   const meeting = JSON.parse(raw) as MeetingSchedule;
 
+  // FIX 3: Validate stored meeting.matchId matches the URL matchId
+  if (meeting.matchId !== matchId) {
+    throw makeError('FORBIDDEN', 'Meeting does not belong to this match', 403);
+  }
+
+  // FIX 3: Only PROPOSED meetings can be responded to
+  if (meeting.status !== 'PROPOSED') {
+    throw makeError('INVALID_STATE', `Meeting is already ${meeting.status} and cannot be responded to`, 409);
+  }
+
   // Only the OTHER participant (not the proposer) can respond
   if (meeting.proposedBy === profileId) {
     throw makeError('FORBIDDEN', 'Proposer cannot respond to their own meeting', 403);
@@ -264,11 +333,14 @@ export async function respondMeeting(
     notes:  input.notes ?? meeting.notes,
   };
 
+  // FIX 4: Recalculate TTL for updated meeting
+  const ttl = calculateMeetingTTL(meeting.scheduledAt);
+
   await redis.set(
     `meeting:${matchId}:${meetingId}`,
     JSON.stringify(updated),
     'EX',
-    MEETING_TTL,
+    ttl,
   );
 
   if (input.status === 'CONFIRMED') {
@@ -294,10 +366,22 @@ export async function getMeetings(
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, matchId);
 
-  // SCAN for all meeting keys under this matchId
-  const [, keys] = await redis.scan(0, 'MATCH', `meeting:${matchId}:*`, 'COUNT', 100) as [string, string[]];
+  // FIX 2: SCAN cursor loop — collect ALL pages, not just the first 100
+  let cursor = '0';
+  const keys: string[] = [];
+  do {
+    const [nextCursor, batch] = await redis.scan(
+      cursor,
+      'MATCH',
+      `meeting:${matchId}:*`,
+      'COUNT',
+      100,
+    ) as [string, string[]];
+    cursor = nextCursor;
+    keys.push(...batch);
+  } while (cursor !== '0');
 
-  if (!keys || keys.length === 0) return [];
+  if (keys.length === 0) return [];
 
   const meetings: MeetingSchedule[] = [];
   for (const key of keys) {

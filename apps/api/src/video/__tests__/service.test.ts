@@ -14,6 +14,7 @@ const {
   mockInsert,
   mockRedisGet,
   mockRedisSet,
+  mockRedisDel,
   mockRedisScan,
   mockCreateRoom,
   mockDeleteRoom,
@@ -23,6 +24,7 @@ const {
   mockInsert:              vi.fn(),
   mockRedisGet:            vi.fn(),
   mockRedisSet:            vi.fn(),
+  mockRedisDel:            vi.fn(),
   mockRedisScan:           vi.fn(),
   mockCreateRoom:          vi.fn(),
   mockDeleteRoom:          vi.fn(),
@@ -58,6 +60,7 @@ vi.mock('../../lib/redis.js', () => ({
   redis: {
     get:  mockRedisGet,
     set:  mockRedisSet,
+    del:  mockRedisDel,
     scan: mockRedisScan,
   },
 }));
@@ -107,6 +110,7 @@ const OTHER_USER = 'user-uuid-2';
 const PROFILE_ID = 'profile-uuid-1';
 const OTHER_PROF = 'profile-uuid-2';
 const MATCH_ID   = '11111111-1111-1111-1111-111111111111';
+const OTHER_MATCH = '33333333-3333-3333-3333-333333333333';
 const MEETING_ID = '22222222-2222-2222-2222-222222222222';
 
 const profileRow    = { id: PROFILE_ID };
@@ -128,6 +132,7 @@ import {
   scheduleMeeting,
   respondMeeting,
   getMeetings,
+  getActiveRoom,
 } from '../service.js';
 
 // ── createVideoRoom ───────────────────────────────────────────────────────────
@@ -150,7 +155,9 @@ describe('createVideoRoom', () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([profileRow]))  // resolve profileId
       .mockReturnValueOnce(makeSelectNoLimit([matchRow])); // accepted match found
+    mockRedisGet.mockResolvedValue(null); // no existing room in Redis
     mockCreateRoom.mockResolvedValue(mockDailyRoom);
+    mockRedisSet.mockResolvedValue('OK');
     mockChatFindOneAndUpdate.mockResolvedValue(null);
 
     const result = await createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 });
@@ -165,7 +172,9 @@ describe('createVideoRoom', () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([profileRow]))
       .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(null);
     mockCreateRoom.mockResolvedValue(mockDailyRoom);
+    mockRedisSet.mockResolvedValue('OK');
     mockChatFindOneAndUpdate.mockResolvedValue(null);
 
     await createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 });
@@ -175,6 +184,72 @@ describe('createVideoRoom', () => {
     expect((filter as { matchRequestId: string }).matchRequestId).toBe(MATCH_ID);
     expect(update.$push.messages.type).toBe('SYSTEM');
     expect(update.$push.messages.content).toContain('Video call started');
+  });
+
+  // FIX 1: Redis room deduplication tests
+  it('returns 409 ROOM_EXISTS if room already exists for match', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    // Redis already has a room for this matchId
+    mockRedisGet.mockResolvedValue('match-' + MATCH_ID);
+
+    await expect(
+      createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 }),
+    ).rejects.toMatchObject({ code: 'ROOM_EXISTS' });
+  });
+
+  it('stores room name in Redis on creation', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(null);
+    mockCreateRoom.mockResolvedValue(mockDailyRoom);
+    mockRedisSet.mockResolvedValue('OK');
+    mockChatFindOneAndUpdate.mockResolvedValue(null);
+
+    await createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 });
+
+    // Should have set room:active:{matchId} with the room name
+    const setCall = mockRedisSet.mock.calls.find(
+      (call: unknown[]) => typeof call[0] === 'string' && (call[0] as string).startsWith('room:active:'),
+    );
+    expect(setCall).toBeDefined();
+    expect(setCall![0]).toBe(`room:active:${MATCH_ID}`);
+    expect(setCall![1]).toBe(mockDailyRoom.name);
+    expect(setCall![2]).toBe('EX');
+    expect(typeof setCall![3]).toBe('number');
+  });
+});
+
+// ── getActiveRoom ─────────────────────────────────────────────────────────────
+
+describe('getActiveRoom', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('returns existing room URL from Redis on GET', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    // Redis has an active room
+    mockRedisGet.mockResolvedValue('match-' + MATCH_ID);
+
+    const result = await getActiveRoom(USER_ID, MATCH_ID);
+
+    expect(result).not.toBeNull();
+    expect(result!.roomName).toBe('match-' + MATCH_ID);
+    expect(result!.matchId).toBe(MATCH_ID);
+  });
+
+  it('returns null when no active room in Redis', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(null);
+
+    const result = await getActiveRoom(USER_ID, MATCH_ID);
+
+    expect(result).toBeNull();
   });
 });
 
@@ -187,7 +262,10 @@ describe('endVideoRoom', () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([profileRow]))
       .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    // Redis lookup returns room name
+    mockRedisGet.mockResolvedValue(mockDailyRoom.name);
     mockDeleteRoom.mockResolvedValue(undefined);
+    mockRedisDel.mockResolvedValue(1);
     mockChatFindOneAndUpdate.mockResolvedValue(null);
 
     const result = await endVideoRoom(USER_ID, mockDailyRoom.name, MATCH_ID);
@@ -198,6 +276,38 @@ describe('endVideoRoom', () => {
     const [, update] = mockChatFindOneAndUpdate.mock.calls[0] as [unknown, { $push: { messages: { content: string } } }];
     expect(update.$push.messages.content).toContain('Video call ended');
   });
+
+  // FIX 1: endVideoRoom uses Redis lookup, not client-sent roomName
+  it('uses Redis lookup not client roomName for deletion', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    const redisRoomName = 'match-' + MATCH_ID + '-real';
+    const clientRoomName = 'some-attacker-supplied-name';
+    mockRedisGet.mockResolvedValue(redisRoomName);
+    mockDeleteRoom.mockResolvedValue(undefined);
+    mockRedisDel.mockResolvedValue(1);
+    mockChatFindOneAndUpdate.mockResolvedValue(null);
+
+    await endVideoRoom(USER_ID, clientRoomName, MATCH_ID);
+
+    // Must delete using the Redis-stored name, not the client-supplied name
+    expect(mockDeleteRoom).toHaveBeenCalledWith(redisRoomName);
+  });
+
+  it('deletes Redis key on room end', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(mockDailyRoom.name);
+    mockDeleteRoom.mockResolvedValue(undefined);
+    mockRedisDel.mockResolvedValue(1);
+    mockChatFindOneAndUpdate.mockResolvedValue(null);
+
+    await endVideoRoom(USER_ID, mockDailyRoom.name, MATCH_ID);
+
+    expect(mockRedisDel).toHaveBeenCalledWith(`room:active:${MATCH_ID}`);
+  });
 });
 
 // ── scheduleMeeting ───────────────────────────────────────────────────────────
@@ -205,12 +315,13 @@ describe('endVideoRoom', () => {
 describe('scheduleMeeting', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
-  it('stores meeting in Redis with TTL 604800 and correct key', async () => {
+  it('stores meeting in Redis with calculated TTL and correct key', async () => {
     mockSelect
       .mockReturnValueOnce(makeSelectChain([profileRow]))
       .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
     mockRedisSet.mockResolvedValue('OK');
 
+    // Schedule 1 day from now
     const scheduledAt = new Date(Date.now() + 86400000).toISOString();
     const result = await scheduleMeeting(USER_ID, {
       matchId: MATCH_ID,
@@ -225,7 +336,50 @@ describe('scheduleMeeting', () => {
     expect(mockRedisSet).toHaveBeenCalledTimes(1);
     const [key, , , ttl] = mockRedisSet.mock.calls[0] as [string, string, string, number];
     expect(key).toMatch(new RegExp(`^meeting:${MATCH_ID}:`));
-    expect(ttl).toBe(604800);
+    // FIX 4: TTL must NOT be fixed 604800 — should be dynamic based on scheduledAt
+    // For 1-day-from-now: TTL = ~86400 + 86400 (24h buffer) ≈ 172800
+    // Must be between 86400 (min) and 2678400 (max 31 days)
+    expect(ttl).toBeGreaterThanOrEqual(86400);
+    expect(ttl).toBeLessThanOrEqual(2678400);
+    // Specifically, for 1-day meeting, TTL should be around 2 days (~172800)
+    expect(ttl).toBeGreaterThan(100000); // more than 1 day
+    expect(ttl).toBeLessThan(300000);    // less than 3.5 days
+  });
+
+  it('uses minimum TTL of 24h for meetings scheduled very soon', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisSet.mockResolvedValue('OK');
+
+    // Schedule just 10 minutes from now (scheduledAt - now + 24h = ~25h → TTL = 25h? but min is 86400)
+    const scheduledAt = new Date(Date.now() + 600000).toISOString(); // +10 min
+    await scheduleMeeting(USER_ID, {
+      matchId: MATCH_ID,
+      scheduledAt,
+      durationMin: 30,
+    });
+
+    const [, , , ttl] = mockRedisSet.mock.calls[0] as [string, string, string, number];
+    expect(ttl).toBeGreaterThanOrEqual(86400); // min 24h
+  });
+
+  it('caps TTL at 31 days for far-future meetings', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisSet.mockResolvedValue('OK');
+
+    // Schedule 35 days from now (beyond 31-day max)
+    const scheduledAt = new Date(Date.now() + 35 * 86400000).toISOString();
+    await scheduleMeeting(USER_ID, {
+      matchId: MATCH_ID,
+      scheduledAt,
+      durationMin: 30,
+    });
+
+    const [, , , ttl] = mockRedisSet.mock.calls[0] as [string, string, string, number];
+    expect(ttl).toBeLessThanOrEqual(2678400); // max 31 days
   });
 });
 
@@ -269,6 +423,47 @@ describe('respondMeeting', () => {
     expect(result.status).toBe('CONFIRMED');
     expect(mockRedisSet).toHaveBeenCalledTimes(1);
   });
+
+  // FIX 3: Status guard tests
+  it('rejects respond on already-CANCELLED meeting', async () => {
+    const cancelledMeeting = { ...storedMeeting, status: 'CANCELLED' as const };
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([otherProfRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(JSON.stringify(cancelledMeeting));
+
+    await expect(
+      respondMeeting(OTHER_USER, MATCH_ID, MEETING_ID, { status: 'CONFIRMED' }),
+    ).rejects.toMatchObject({ code: 'INVALID_STATE' });
+  });
+
+  it('only PROPOSED meetings can be responded to', async () => {
+    const confirmedMeeting = { ...storedMeeting, status: 'CONFIRMED' as const };
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([otherProfRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisGet.mockResolvedValue(JSON.stringify(confirmedMeeting));
+
+    await expect(
+      respondMeeting(OTHER_USER, MATCH_ID, MEETING_ID, { status: 'CANCELLED' }),
+    ).rejects.toMatchObject({ code: 'INVALID_STATE' });
+  });
+
+  it('rejects respond with mismatched matchId', async () => {
+    // Meeting was stored under MATCH_ID, but request uses OTHER_MATCH (attacker's URL).
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([otherProfRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([
+        { id: OTHER_MATCH, senderId: PROFILE_ID, receiverId: OTHER_PROF, status: 'ACCEPTED' },
+      ]));
+    // Redis returns meeting where matchId = MATCH_ID (the real one)
+    // but URL matchId = OTHER_MATCH (mismatch!)
+    mockRedisGet.mockResolvedValue(JSON.stringify({ ...storedMeeting, matchId: MATCH_ID }));
+
+    await expect(
+      respondMeeting(OTHER_USER, OTHER_MATCH, MEETING_ID, { status: 'CONFIRMED' }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
 });
 
 // ── getMeetings ───────────────────────────────────────────────────────────────
@@ -286,7 +481,7 @@ describe('getMeetings', () => {
     const meeting1 = { id: 'meet-1', matchId: MATCH_ID, proposedBy: PROFILE_ID, scheduledAt: future1, durationMin: 60, roomUrl: null, status: 'PROPOSED', notes: null };
     const meeting2 = { id: 'meet-2', matchId: MATCH_ID, proposedBy: OTHER_PROF, scheduledAt: future2, durationMin: 30, roomUrl: null, status: 'PROPOSED', notes: null };
 
-    // Mock SCAN: returns cursor=0 and two keys
+    // Mock SCAN: returns cursor=0 and two keys (single page)
     mockRedisScan.mockResolvedValue(['0', [`meeting:${MATCH_ID}:meet-1`, `meeting:${MATCH_ID}:meet-2`]]);
     mockRedisGet
       .mockResolvedValueOnce(JSON.stringify(meeting1))
@@ -298,5 +493,46 @@ describe('getMeetings', () => {
     // Earlier scheduledAt should come first
     expect(results[0]!.id).toBe('meet-2');
     expect(results[1]!.id).toBe('meet-1');
+  });
+
+  // FIX 2: SCAN cursor loop test
+  it('returns all meetings when >100 exist — SCAN cursor loop', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+
+    // Build 110 meetings
+    const meetingCount = 110;
+    const meetings = Array.from({ length: meetingCount }, (_, i) => ({
+      id: `meet-${i}`,
+      matchId: MATCH_ID,
+      proposedBy: PROFILE_ID,
+      scheduledAt: new Date(Date.now() + (i + 1) * 3600000).toISOString(),
+      durationMin: 30,
+      roomUrl: null,
+      status: 'PROPOSED',
+      notes: null,
+    }));
+
+    // First scan page: cursor='cursor-page-2', returns first 100 keys
+    const page1Keys = meetings.slice(0, 100).map(m => `meeting:${MATCH_ID}:${m.id}`);
+    // Second scan page: cursor='0', returns remaining 10 keys
+    const page2Keys = meetings.slice(100).map(m => `meeting:${MATCH_ID}:${m.id}`);
+
+    mockRedisScan
+      .mockResolvedValueOnce(['cursor-page-2', page1Keys])  // first page, non-zero cursor
+      .mockResolvedValueOnce(['0', page2Keys]);               // second page, cursor=0 → done
+
+    // Redis.get returns each meeting's JSON in order
+    meetings.forEach(m => {
+      mockRedisGet.mockResolvedValueOnce(JSON.stringify(m));
+    });
+
+    const results = await getMeetings(USER_ID, MATCH_ID);
+
+    // Must have fetched both pages = 110 meetings total
+    expect(results).toHaveLength(110);
+    // SCAN must have been called twice (cursor loop)
+    expect(mockRedisScan).toHaveBeenCalledTimes(2);
   });
 });

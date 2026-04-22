@@ -11,6 +11,7 @@ import { CreateVideoRoomSchema, ScheduleMeetingSchema, RespondMeetingSchema } fr
 import {
   createVideoRoom,
   endVideoRoom,
+  getActiveRoom,
   scheduleMeeting,
   respondMeeting,
   getMeetings,
@@ -49,6 +50,27 @@ router.post(
       ok(res, room, 201);
     } catch (e) {
       handleError(res, e, 'Failed to create video room');
+    }
+  },
+);
+
+// ── GET /rooms/:matchId ───────────────────────────────────────────────────────
+// FIX 1: Return existing active room for a match from Redis, or 404 if none.
+
+router.get(
+  '/rooms/:matchId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { matchId } = req.params as { matchId: string };
+    try {
+      const room = await getActiveRoom(req.user!.id, matchId);
+      if (!room) {
+        err(res, 'NOT_FOUND', 'No active room for this match', 404);
+        return;
+      }
+      ok(res, room);
+    } catch (e) {
+      handleError(res, e, 'Failed to get active room');
     }
   },
 );
