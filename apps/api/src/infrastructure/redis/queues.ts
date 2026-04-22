@@ -41,3 +41,16 @@ export const notificationsQueue = new Queue<NotificationJob>(
 export async function queueNotification(job: NotificationJob): Promise<void> {
   await notificationsQueue.add(job.type, job);
 }
+
+/** Payload for a delayed escrow release job. */
+export interface EscrowReleaseJob {
+  escrowId:  string | null;
+  bookingId: string;
+  vendorId:  string;
+  amount:    number;
+}
+
+export const escrowReleaseQueue = new Queue<EscrowReleaseJob>(
+  'escrow-release',
+  { connection },
+);

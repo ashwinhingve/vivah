@@ -7,59 +7,37 @@
  *   getDisputedBookings — admin lists all disputed bookings
  *
  * Invariants:
- *   - Bull escrow-release job is cancelled BEFORE status is updated to DISPUTED
+ *   - Bull escrow-release job is cancelled BEFORE status is updated to DISPUTED (deterministic ID)
+ *   - Optimistic locking via atomic conditional update prevents double-spend on concurrent calls
+ *   - DB transaction commits FIRST; Razorpay call comes second — failure sets *_PENDING, no rollback
  *   - audit_logs are APPEND-ONLY (hash-chain via appendAuditLog from payments/service.ts)
  *   - All queries filtered by userId; ADMIN check via user.role === 'ADMIN'
  *   - USE_MOCK_SERVICES guard on all Razorpay calls
- *
- * TODO (Phase 2): Add 'DISPUTE_RAISED' and 'DISPUTE_RESOLVED' to auditEventTypeEnum in schema.
- *   For now we use 'ESCROW_DISPUTED' for raise and 'ESCROW_RELEASED'/'REFUND_ISSUED' for resolve.
  */
-import { eq, and } from 'drizzle-orm';
-import { Queue } from 'bullmq';
+import { eq, and, inArray } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor, createRefund } from '../lib/razorpay.js';
 import { appendAuditLog } from './service.js';
+import { escrowReleaseQueue, notificationsQueue } from '../infrastructure/redis/queues.js';
 import type { DisputeEscrowInput } from '@smartshaadi/schemas';
-
-// ── Bull queue for escrow release (same name as bookings/service.ts producer) ──
-const escrowReleaseQueue = new Queue('escrow-release', {
-  connection: {
-    url:                  env.REDIS_URL,
-    enableOfflineQueue:   false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-});
-
-// ── Bull queue for notifications ─────────────────────────────────────────────
-const notificationsQueue = new Queue('notifications', {
-  connection: {
-    url:                  env.REDIS_URL,
-    enableOfflineQueue:   false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Cancel any pending escrow-release job for this booking.
- * BullMQ jobs added with `add()` get an auto ID; the booking teammate doesn't set
- * a deterministic jobId. We scan for delayed jobs and remove the one whose data
- * matches the bookingId.
+ * Cancel any pending escrow-release job for this booking using the deterministic jobId.
+ * Phase 0 added `jobId: \`escrow-release:\${bookingId}\`` to the producer in bookings/service.ts.
+ * Using getJob() covers ALL states (delayed, waiting, active) — unlike getDelayed() scan.
  *
  * Falls through silently if no job found — the escrowReleaseJob worker already
  * guards against releasing DISPUTED bookings, but cancelling early is safer.
  */
 async function cancelEscrowReleaseJob(bookingId: string): Promise<void> {
   try {
-    const delayed = await escrowReleaseQueue.getDelayed();
-    for (const job of delayed) {
-      if (job.data?.bookingId === bookingId) {
-        await job.remove();
-      }
+    const job = await escrowReleaseQueue.getJob(`escrow-release:${bookingId}`);
+    if (job) {
+      await job.remove();
     }
   } catch (e) {
     // Non-fatal — worker has its own DISPUTED guard
@@ -113,25 +91,34 @@ export async function raiseDispute(
   }
 
   // 5. CRITICAL: Cancel pending Bull escrow-release job FIRST (before status update)
+  //    Uses deterministic jobId `escrow-release:${bookingId}` — covers all job states
   await cancelEscrowReleaseJob(bookingId);
 
-  // 6. Drizzle transaction: update booking + escrow atomically
-  await db.transaction(async (tx) => {
-    await tx
-      .update(schema.bookings)
-      .set({ status: 'DISPUTED' })
-      .where(eq(schema.bookings.id, bookingId));
+  // 6. Atomic conditional update — optimistic lock prevents double-dispute
+  const updated = await db
+    .update(schema.bookings)
+    .set({ status: 'DISPUTED', updatedAt: new Date() })
+    .where(
+      and(
+        eq(schema.bookings.id, bookingId),
+        inArray(schema.bookings.status, ['CONFIRMED', 'COMPLETED']),
+      ),
+    )
+    .returning({ id: schema.bookings.id });
 
-    await tx
-      .update(schema.escrowAccounts)
-      .set({ status: 'DISPUTED' })
-      .where(eq(schema.escrowAccounts.id, escrow.id));
-  });
+  if (updated.length === 0) {
+    throw new Error('BOOKING_ALREADY_DISPUTED or invalid status');
+  }
 
-  // 7. Append audit log (AFTER status update)
-  // TODO Phase 2: extend auditEventTypeEnum with 'DISPUTE_RAISED' — using 'ESCROW_DISPUTED' as closest existing value
+  // 7. Update escrow status in its own atomic update
+  await db
+    .update(schema.escrowAccounts)
+    .set({ status: 'DISPUTED' })
+    .where(eq(schema.escrowAccounts.id, escrow.id));
+
+  // 8. Append audit log (AFTER status update) — new enum values
   await appendAuditLog({
-    eventType:  'ESCROW_DISPUTED',
+    eventType:  'DISPUTE_RAISED',
     entityType: 'booking',
     entityId:   bookingId,
     actorId:    userId,
@@ -143,22 +130,20 @@ export async function raiseDispute(
     },
   });
 
-  // 8. Enqueue notifications (vendor + admin) — non-blocking, fire-and-forget
+  // 9. Enqueue notifications (vendor + admin) — non-blocking, fire-and-forget
   void notificationsQueue
     .add('DISPUTE_RAISED_VENDOR', {
       type:      'DISPUTE_RAISED_VENDOR',
-      bookingId,
-      vendorId:  booking.vendorId,
-      reason:    input.reason,
+      userId:    booking.vendorId,
+      payload:   { bookingId, vendorId: booking.vendorId, reason: input.reason },
     })
     .catch((e) => console.warn('[dispute] vendor notification queue error:', e));
 
   void notificationsQueue
     .add('DISPUTE_NEEDS_REVIEW', {
-      type:      'DISPUTE_NEEDS_REVIEW',
-      bookingId,
-      customerId: userId,
-      reason:    input.reason,
+      type:    'DISPUTE_NEEDS_REVIEW',
+      userId:  userId,
+      payload: { bookingId, customerId: userId, reason: input.reason },
     })
     .catch((e) => console.warn('[dispute] admin notification queue error:', e));
 
@@ -237,36 +222,54 @@ export async function resolveDispute(
   let vendorAmount   = 0;
   let customerAmount = 0;
 
+  // 5. Atomic optimistic lock — prevents double-resolution on concurrent admin clicks
+  const lockResult = await db
+    .update(schema.bookings)
+    .set({ status: resolution === 'REFUND' ? 'CANCELLED' : 'COMPLETED', updatedAt: new Date() })
+    .where(
+      and(
+        eq(schema.bookings.id, bookingId),
+        eq(schema.bookings.status, 'DISPUTED'),
+      ),
+    )
+    .returning({ id: schema.bookings.id });
+
+  if (lockResult.length === 0) {
+    throw new Error('DISPUTE_ALREADY_RESOLVED');
+  }
+
   switch (resolution) {
     case 'RELEASE': {
-      // Transfer full escrow to vendor
-      // IMPORTANT: Mock-safe — transferToVendor is guarded in razorpay.ts
-      if (env.USE_MOCK_SERVICES) {
-        console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${escrowTotal}`);
-      } else {
-        await transferToVendor(booking.vendorId, escrowTotal);
-      }
+      vendorAmount   = escrowTotal;
+      customerAmount = 0;
 
+      // 6a. DB transaction: update escrow RELEASED (booking already updated above)
       await db.transaction(async (tx) => {
         await tx
           .update(schema.escrowAccounts)
           .set({ status: 'RELEASED', released: String(escrowTotal), releasedAt: new Date() })
           .where(eq(schema.escrowAccounts.id, escrow.id));
-
-        await tx
-          .update(schema.bookings)
-          .set({ status: 'COMPLETED' })
-          .where(eq(schema.bookings.id, bookingId));
       });
 
-      vendorAmount   = escrowTotal;
-      customerAmount = 0;
+      // 7a. Razorpay AFTER DB commits — if it fails, set RELEASE_PENDING for reconciliation
+      try {
+        if (!env.USE_MOCK_SERVICES) {
+          await transferToVendor(booking.vendorId, escrowTotal);
+        } else {
+          console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${escrowTotal}`);
+        }
+      } catch (e) {
+        console.error(`[dispute] transferToVendor failed for booking ${bookingId}, setting RELEASE_PENDING:`, e);
+        await db
+          .update(schema.escrowAccounts)
+          .set({ status: 'RELEASE_PENDING' })
+          .where(eq(schema.escrowAccounts.id, escrow.id));
+      }
 
-      // TODO Phase 2: use 'DISPUTE_RESOLVED_RELEASE' event; using 'ESCROW_RELEASED' for now
       await appendAuditLog({
-        eventType:  'ESCROW_RELEASED',
-        entityType: 'escrow',
-        entityId:   escrow.id,
+        eventType:  'DISPUTE_RESOLVED_RELEASE',
+        entityType: 'booking',
+        entityId:   bookingId,
         actorId:    adminUserId,
         payload:    { resolution, bookingId, vendorAmount, customerAmount, escrowTotal },
       });
@@ -274,15 +277,10 @@ export async function resolveDispute(
     }
 
     case 'REFUND': {
-      // Refund full escrow to customer
-      if (payment?.razorpayPaymentId) {
-        if (env.USE_MOCK_SERVICES) {
-          console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${escrowTotal}`);
-        } else {
-          await createRefund(payment.razorpayPaymentId, escrowTotal);
-        }
-      }
+      vendorAmount   = 0;
+      customerAmount = escrowTotal;
 
+      // 6b. DB transaction: update escrow + payment REFUNDED (booking already updated above)
       await db.transaction(async (tx) => {
         if (payment) {
           await tx
@@ -295,21 +293,29 @@ export async function resolveDispute(
           .update(schema.escrowAccounts)
           .set({ status: 'REFUNDED' })
           .where(eq(schema.escrowAccounts.id, escrow.id));
-
-        await tx
-          .update(schema.bookings)
-          .set({ status: 'CANCELLED' })
-          .where(eq(schema.bookings.id, bookingId));
       });
 
-      vendorAmount   = 0;
-      customerAmount = escrowTotal;
+      // 7b. Razorpay AFTER DB commits — if it fails, set REFUND_PENDING for reconciliation
+      try {
+        if (payment?.razorpayPaymentId) {
+          if (!env.USE_MOCK_SERVICES) {
+            await createRefund(payment.razorpayPaymentId, escrowTotal);
+          } else {
+            console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${escrowTotal}`);
+          }
+        }
+      } catch (e) {
+        console.error(`[dispute] createRefund failed for booking ${bookingId}, setting REFUND_PENDING:`, e);
+        await db
+          .update(schema.payments)
+          .set({ status: 'REFUND_PENDING' })
+          .where(eq(schema.payments.id, payment!.id));
+      }
 
-      // TODO Phase 2: use 'DISPUTE_RESOLVED_REFUND' event; using 'REFUND_ISSUED' for now
       await appendAuditLog({
-        eventType:  'REFUND_ISSUED',
-        entityType: 'payment',
-        entityId:   payment?.id ?? bookingId,
+        eventType:  'DISPUTE_RESOLVED_REFUND',
+        entityType: 'booking',
+        entityId:   bookingId,
         actorId:    adminUserId,
         payload:    { resolution, bookingId, vendorAmount, customerAmount, escrowTotal },
       });
@@ -322,51 +328,64 @@ export async function resolveDispute(
       }
 
       vendorAmount   = Math.round(escrowTotal * splitRatio * 100) / 100;
-      customerAmount = Math.round((escrowTotal - vendorAmount) * 100) / 100;
+      customerAmount = escrowTotal - vendorAmount; // avoid re-multiply drift
 
-      // Transfer vendor's share
-      if (env.USE_MOCK_SERVICES) {
-        console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${vendorAmount}`);
-      } else {
-        await transferToVendor(booking.vendorId, vendorAmount);
-      }
-
-      // Refund customer's share
-      if (payment?.razorpayPaymentId && customerAmount > 0) {
-        if (env.USE_MOCK_SERVICES) {
-          console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${customerAmount}`);
-        } else {
-          await createRefund(payment.razorpayPaymentId, customerAmount);
-        }
-      }
-
+      // 6c. DB transaction: update escrow (booking already updated above)
       await db.transaction(async (tx) => {
         await tx
           .update(schema.escrowAccounts)
           .set({ status: 'RELEASED', released: String(vendorAmount), releasedAt: new Date() })
           .where(eq(schema.escrowAccounts.id, escrow.id));
-
-        await tx
-          .update(schema.bookings)
-          .set({ status: 'COMPLETED' })
-          .where(eq(schema.bookings.id, bookingId));
       });
 
-      // Two audit logs for SPLIT — one per side
-      // TODO Phase 2: use 'DISPUTE_RESOLVED_SPLIT_VENDOR'/'DISPUTE_RESOLVED_SPLIT_CUSTOMER'
+      // 7c. Transfer vendor's share — DB first, Razorpay second
+      try {
+        if (!env.USE_MOCK_SERVICES) {
+          await transferToVendor(booking.vendorId, vendorAmount);
+        } else {
+          console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${vendorAmount}`);
+        }
+      } catch (e) {
+        console.error(`[dispute] SPLIT transferToVendor failed for booking ${bookingId}, setting RELEASE_PENDING:`, e);
+        await db
+          .update(schema.escrowAccounts)
+          .set({ status: 'RELEASE_PENDING' })
+          .where(eq(schema.escrowAccounts.id, escrow.id));
+      }
+
+      // Refund customer's share
+      try {
+        if (payment?.razorpayPaymentId && customerAmount > 0) {
+          if (!env.USE_MOCK_SERVICES) {
+            await createRefund(payment.razorpayPaymentId, customerAmount);
+          } else {
+            console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${customerAmount}`);
+          }
+        }
+      } catch (e) {
+        console.error(`[dispute] SPLIT createRefund failed for booking ${bookingId}, setting REFUND_PENDING:`, e);
+        if (payment) {
+          await db
+            .update(schema.payments)
+            .set({ status: 'REFUND_PENDING' })
+            .where(eq(schema.payments.id, payment.id));
+        }
+      }
+
+      // Two audit logs for SPLIT — both use bookingId as entityId for tamper-detectability
       await appendAuditLog({
-        eventType:  'ESCROW_RELEASED',
-        entityType: 'escrow',
-        entityId:   escrow.id,
+        eventType:  'DISPUTE_RESOLVED_SPLIT',
+        entityType: 'booking',
+        entityId:   bookingId,
         actorId:    adminUserId,
-        payload:    { resolution, side: 'VENDOR', bookingId, vendorAmount, splitRatio, escrowTotal },
+        payload:    { resolution, side: 'vendor', amount: vendorAmount, splitRatio, escrowTotal },
       });
       await appendAuditLog({
-        eventType:  'REFUND_ISSUED',
-        entityType: 'payment',
-        entityId:   payment?.id ?? bookingId,
+        eventType:  'DISPUTE_RESOLVED_SPLIT',
+        entityType: 'booking',
+        entityId:   bookingId,
         actorId:    adminUserId,
-        payload:    { resolution, side: 'CUSTOMER', bookingId, customerAmount, splitRatio, escrowTotal },
+        payload:    { resolution, side: 'customer', amount: customerAmount, splitRatio, escrowTotal },
       });
       break;
     }
@@ -379,13 +398,16 @@ export async function resolveDispute(
   // Notify both parties
   void notificationsQueue
     .add('DISPUTE_RESOLVED', {
-      type:       'DISPUTE_RESOLVED',
-      bookingId,
-      customerId: booking.customerId,
-      vendorId:   booking.vendorId,
-      resolution,
-      vendorAmount,
-      customerAmount,
+      type:    'DISPUTE_RESOLVED',
+      userId:  booking.customerId,
+      payload: {
+        bookingId,
+        customerId: booking.customerId,
+        vendorId:   booking.vendorId,
+        resolution,
+        vendorAmount,
+        customerAmount,
+      },
     })
     .catch((e) => console.warn('[dispute] resolve notification queue error:', e));
 

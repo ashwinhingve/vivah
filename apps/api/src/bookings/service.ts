@@ -16,6 +16,7 @@ import type { CreateBookingInput } from '@smartshaadi/schemas';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import { createRefund } from '../lib/razorpay.js';
+import { escrowReleaseQueue } from '../infrastructure/redis/queues.js';
 
 // ── Error codes ───────────────────────────────────────────────────────────────
 
@@ -29,15 +30,7 @@ export class BookingError extends Error {
   }
 }
 
-// ── BullMQ queue for escrow release (48h delayed) ────────────────────────────
-
-const escrowReleaseQueue = new Queue<EscrowReleaseJob>('escrow-release', {
-  connection: {
-    url: env.REDIS_URL,
-    enableOfflineQueue: false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-});
+// ── BullMQ queue for notifications ───────────────────────────────────────────
 
 const notificationsQueue = new Queue<NotificationJob>('notifications', {
   connection: {

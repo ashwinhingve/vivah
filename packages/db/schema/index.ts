@@ -114,6 +114,7 @@ export const paymentStatusEnum = pgEnum('payment_status', [
   'FAILED',
   'REFUNDED',
   'PARTIALLY_REFUNDED',
+  'REFUND_PENDING',
 ]);
 
 export const escrowStatusEnum = pgEnum('escrow_status', [
@@ -121,6 +122,7 @@ export const escrowStatusEnum = pgEnum('escrow_status', [
   'RELEASED',
   'DISPUTED',
   'REFUNDED',
+  'RELEASE_PENDING',
 ]);
 
 export const notificationTypeEnum = pgEnum('notification_type', [

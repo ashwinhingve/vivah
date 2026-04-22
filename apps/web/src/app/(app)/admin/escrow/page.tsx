@@ -1,16 +1,9 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { fetchAuth } from '@/lib/server-fetch';
-import { ResolveDisputeRow } from './ResolveDisputeRow.client';
+import { DisputeTableClient } from './DisputeTableClient.client';
 
 export const dynamic = 'force-dynamic';
-
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-interface AuthMe {
-  id:   string;
-  role: string;
-}
 
 interface DisputedBookingRow {
   bookingId:    string;
@@ -24,31 +17,12 @@ interface DisputedBookingRow {
   paymentId:    string | null;
 }
 
-async function fetchMe(token: string): Promise<AuthMe | null> {
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
-      headers: { Cookie: `better-auth.session_token=${token}` },
-      cache:   'no-store',
-    });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { success: boolean; data: AuthMe };
-    return json.success ? json.data : null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function AdminEscrowPage() {
-  // Auth gate
+  // Auth gate — rely on middleware for role check, just verify session exists
   const cookieStore = await cookies();
   const token       = cookieStore.get('better-auth.session_token')?.value;
   if (!token) {
     redirect('/login');
-  }
-
-  const me = await fetchMe(token);
-  if (!me || me.role !== 'ADMIN') {
-    redirect('/dashboard');
   }
 
   const disputes = await fetchAuth<DisputedBookingRow[]>('/api/v1/admin/disputes');
@@ -63,9 +37,6 @@ export default async function AdminEscrowPage() {
             Review and resolve disputed escrow payments
           </p>
         </div>
-        <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
-          {disputes?.length ?? 0} open
-        </span>
       </div>
 
       {/* Empty state */}
@@ -78,64 +49,10 @@ export default async function AdminEscrowPage() {
         </div>
       )}
 
-      {/* Disputes table */}
+      {/* Disputes table — lifted state for resolved count + toast */}
       {disputes && disputes.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          {/* Mobile scroll hint */}
-          <div className="block sm:hidden px-4 py-2 text-xs text-[#64748B] bg-gray-50 border-b border-gray-100">
-            Scroll right to see all columns →
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-left">
-              <thead className="border-b border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Booking
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Customer
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Vendor
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Total
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Escrow Held
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Raised At
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                    Resolve
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <DisputeTableBody disputes={disputes} />
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <DisputeTableClient disputes={disputes} />
       )}
     </div>
-  );
-}
-
-// Thin server wrapper so we can pass a server-rendered list to a client component
-// The client component manages optimistic removal after resolve
-function DisputeTableBody({ disputes }: { disputes: DisputedBookingRow[] }) {
-  return (
-    <>
-      {disputes.map((booking) => (
-        <ResolveDisputeRow
-          key={booking.bookingId}
-          booking={booking}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          onResolved={() => {}}
-        />
-      ))}
-    </>
   );
 }
