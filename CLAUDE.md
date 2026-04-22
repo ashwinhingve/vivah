@@ -20,18 +20,20 @@
 
 ```
 Phase:     2
-Week:      8
-Focus:     Pre-Wedding Ceremonies + Muhurat + Firebase Push + Phase 2 QA
+Week:      9
+Focus:     Firebase Push + Multi-Event + Phase 2 QA + Deploy
 Status:    Starting
 Mocks:     USE_MOCK_SERVICES=true
-Last session: 2026-04-22 — Week 7 Video Calls + Escrow Dispute + Rental Module complete
-  - Phase 0 single agent: shared types/schemas + MongoDB WeddingPlan model (commit b82ffac)
-  - Phase 1 agent team (3 teammates parallel): weddings domain (f27d7c0), guests domain (4d557d1), wedding UI (0a78635)
-  - Phase 2 single agent: routers mounted, dashboard "My Wedding" section, autoGenerateChecklist auto-wired, GET /weddings list endpoint (e056fbf)
-  - Live smoke: 20/20 endpoints PASS after fixing two bugs (d07ee8e) — mockGetPlan unwrap + guest assertWeddingOwner now resolves userId → profileId via profiles table
-  - Tests: 205/205 green (was 182 + 10 weddings + 13 guests). Type-check clean 8/8. Web build clean.
-  - New CLAUDE.md rule 12: always resolve userId → profileId before touching profile-keyed columns (silent 403 otherwise)
-  - WSL gotcha confirmed: tsx watch on /mnt/d DrvFs does NOT hot-reload — Ctrl+C + pnpm dev is the reliable restart
+Last session: 2026-04-22 — Week 8 hardening sprint + ceremonies + muhurat complete
+  - Phase 0 single agent: ceremony types + muhurat schemas + deterministic escrow jobId (c493cd3)
+  - Phase 1 agent team (3 teammates parallel):
+      video-hardening (9673d3a): deterministic Redis room storage + 409 on duplicate + GET /rooms/:matchId + SCAN cursor loop + respondMeeting status/matchId guards + TTL from scheduledAt + VideoCall proposer profileId fix
+      escrow-hardening (5d428a1): escrowReleaseQueue moved to infrastructure/redis/queues.ts + cancel by deterministic jobId + optimistic lock on raise/resolveDispute + DB-before-Razorpay with RELEASE_PENDING/REFUND_PENDING fallbacks + audit enum swap to DISPUTE_RAISED/DISPUTE_RESOLVED_* + admin UI resolved-state lift
+      rental-hardening + ceremonies (e1311a6, 936a708): tx-wrapped overbook guard + PUT /activate + availableQty + public fetch on browse pages + /rentals/bookings/mine page + confirmRentalBooking crash guard; wedding ceremony CRUD + muhurat suggest/select with Ceremonies tab + Muhurat card on wedding overview
+  - Phase 2 single agent: pnpm db:push applied RELEASE_PENDING + REFUND_PENDING enum additions; full smoke 15/15 API + 4/4 web pages pass (e7f9cc3)
+  - Tests: 277/277 green (was 239 + 38 new). Type-check clean 8/8.
+  - Known issue flagged for Week 9: GET /api/v1/profiles/matches (and similar routes with :profileId) crashes API on non-UUID segment — unhandled Postgres uuid parse error; needs error-handler middleware
+  - Mock mode: Daily.co still mocked (DAILY_CO_API_KEY not set)
 ```
 
 > **Update this block at the start of every session.**

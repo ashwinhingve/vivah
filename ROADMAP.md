@@ -203,8 +203,9 @@ Last updated: 2026-04-21
 - [ ] E-Commerce Store: order tracking + delivery coordination
 - [ ] Multi-event booking extension (corporate, festival, community types)
 - [ ] Firebase push notifications (all key events)
-- [ ] Pre-wedding ceremony modules: Haldi, Mehndi, Sangeet
-- [ ] Muhurat date selector (integrated with horoscope data)
+- [x] Pre-wedding ceremony modules: Haldi, Mehndi, Sangeet (Week 8)
+- [x] Muhurat date selector (Week 8 — deterministic algorithm, horoscope integration deferred)
+- [x] Week 8 hardening sprint — Video P0 (deterministic rooms, SCAN loop, status guards, TTL from scheduledAt), Escrow P0 (deterministic Bull cancel, optimistic lock, DB-before-Razorpay with RELEASE_PENDING/REFUND_PENDING fallbacks, audit enum swap), Rental P0 (transactional overbook guard, ACTIVE transition, availableQty, public pages)
 - [ ] End-to-end QA — Phase 2
 - [ ] Production deployment — Phase 2 live 🚀
 
