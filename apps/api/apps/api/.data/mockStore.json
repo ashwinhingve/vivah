@@ -106,7 +106,7 @@
     "userId": "seed-compatible-001",
     "personal": {
       "fullName": "Priya Compatible",
-      "dob": "2008-07-21T15:58:20.339Z",
+      "dob": "2000-07-21T22:10:15.025Z",
       "gender": "FEMALE",
       "height": 165,
       "maritalStatus": "NEVER_MARRIED",
@@ -124,7 +124,7 @@
       "occupation": "Software Engineer",
       "employer": "Dev Corp",
       "incomeRange": "10-20 LPA",
-      "workLocation": "bhopal",
+      "workLocation": "Mumbai",
       "employerType": "PRIVATE"
     },
     "family": {
@@ -133,7 +133,7 @@
       "familyStatus": "MIDDLE_CLASS"
     },
     "location": {
-      "city": "bhopal",
+      "city": "Mumbai",
       "state": "Maharashtra",
       "country": "India"
     },
@@ -155,7 +155,7 @@
     "partnerPreferences": {
       "ageRange": {
         "min": 18,
-        "max": 30
+        "max": 38
       },
       "heightRange": {
         "min": 140,
@@ -411,6 +411,60 @@
       "ceremonies": [],
       "checklist": [],
       "muhuratDates": []
+    }
+  },
+  "xurGnbJW8RiP2jbB1p8cZKA5X90FcxBI": {
+    "userId": "xurGnbJW8RiP2jbB1p8cZKA5X90FcxBI",
+    "partnerPreferences": {
+      "ageRange": {
+        "min": 18,
+        "max": 36
+      },
+      "heightRange": {
+        "min": 140,
+        "max": 210
+      },
+      "religion": [
+        "Hindu"
+      ],
+      "openToInterfaith": true,
+      "openToInterCaste": true,
+      "manglik": "ANY",
+      "diet": [
+        "VEG",
+        "NON_VEG",
+        "EGGETARIAN"
+      ],
+      "maritalStatus": [
+        "NEVER_MARRIED"
+      ]
+    }
+  },
+  "Hgtcuhyo9w9VwXPxLGgRdzjTMyALSsnZ": {
+    "userId": "Hgtcuhyo9w9VwXPxLGgRdzjTMyALSsnZ",
+    "partnerPreferences": {
+      "ageRange": {
+        "min": 18,
+        "max": 36
+      },
+      "heightRange": {
+        "min": 140,
+        "max": 210
+      },
+      "religion": [
+        "Hindu"
+      ],
+      "openToInterfaith": true,
+      "openToInterCaste": true,
+      "manglik": "ANY",
+      "diet": [
+        "VEG",
+        "NON_VEG",
+        "EGGETARIAN"
+      ],
+      "maritalStatus": [
+        "NEVER_MARRIED"
+      ]
     }
   }
 }
