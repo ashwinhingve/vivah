@@ -25,6 +25,7 @@ import { guestRouter } from './guests/router.js';
 import { videoRouter } from './video/router.js';
 import { disputeRouter } from './payments/disputeRouter.js';
 import { rentalRouter } from './rentals/router.js';
+import { storeRouter } from './store/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
 import { webhookHandler } from './payments/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
@@ -91,6 +92,7 @@ app.use('/api/v1', guestRouter);                  // /weddings/:id/guests/*, /in
 app.use('/api/v1/video', videoRouter);            // POST /rooms, POST|PUT|GET /meetings
 app.use('/api/v1/payments', disputeRouter);       // POST /:bookingId/dispute (extends paymentsRouter mount)
 app.use('/api/v1/rentals', rentalRouter);         // GET|POST /, GET /:id, POST /:id/book, /bookings/mine
+app.use('/api/v1/store', storeRouter);            // products/orders/vendor store (Week 9)
 app.use('/api/v1/admin', escrowAdminRouter);      // GET /disputes, PUT /disputes/:bookingId/resolve
 
 // ── Global error handler ──────────────────────────────────────────────────────
