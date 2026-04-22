@@ -5,9 +5,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('../../lib/db.js', () => ({ db: {} }));
 
 vi.mock('@smartshaadi/db', () => ({
-  profiles:     { id: {}, userId: {}, isActive: {} },
-  blockedUsers: { blockerId: {}, blockedId: {} },
-  profilePhotos: { profileId: {}, isPrimary: {} },
+  profiles:          { id: {}, userId: {}, isActive: {} },
+  blockedUsers:      { blockerId: {}, blockedId: {} },
+  profilePhotos:     { profileId: {}, isPrimary: {} },
+  safetyModeUnlocks: { profileId: {}, unlockedFor: {} },
 }));
 
 // Mock the scorer so we get deterministic scores in engine tests

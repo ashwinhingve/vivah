@@ -76,6 +76,8 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       _id: Date.now().toString(),
       sentAt: sentAt.toISOString(),
       readAt: null,
+      // TODO(phase-3): enqueue translation via AI service (/ai/translate) —
+      // null is the correct "not translated yet" sentinel per packages/types/chat.
       contentHi: null,
       contentEn: null,
     })

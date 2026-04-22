@@ -13,8 +13,8 @@ import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { db } from '../lib/db.js';
 import { redis } from '../lib/redis.js';
-import { getCachedFeed, computeAndCacheFeed } from './engine.js';
-import { scoreCandidate, type ProfileData } from './scorer.js';
+import { getCachedFeed, computeAndCacheFeed, enrichRow, rowToProfileData } from './engine.js';
+import { scoreCandidate } from './scorer.js';
 import {
   MatchFeedQuerySchema,
   CompatibilityScoreQuerySchema,
@@ -100,38 +100,17 @@ matchmakingRouter.get(
 
       const candidateRow = candidateRows[0]!;
 
-      // Build minimal ProfileData from the postgres rows
-      // Full content (dob, religion, etc.) lives in MongoDB — use safe defaults here
-      const toProfileData = (row: typeof userRow): ProfileData => ({
-        id:           row.id,
-        age:          28,   // placeholder — full data is in MongoDB
-        religion:     'Hindu',
-        city:         '',
-        state:        '',
-        incomeMin:    0,
-        incomeMax:    999999,
-        education:    'bachelors',
-        occupation:   '',
-        familyType:   'JOINT',
-        familyValues: 'MODERATE',
-        diet:         'VEG',
-        smoke:        false,
-        drink:        false,
-        preferences: {
-          ageMin:           18,
-          ageMax:           50,
-          religion:         [],
-          openToInterfaith: false,
-          education:        [],
-          incomeMin:        0,
-          incomeMax:        999999,
-          familyType:       [],
-          diet:             [],
-        },
+      // Hydrate both profiles with MongoDB ProfileContent (age, religion,
+      // income, lifestyle, preferences) — without this the score uses blank
+      // defaults and returns wrong compatibility figures.
+      const userEnriched      = await enrichRow({
+        id: userRow.id, userId: userRow.userId, isActive: userRow.isActive,
       });
-
-      const userProfile      = toProfileData(userRow);
-      const candidateProfile = toProfileData(candidateRow);
+      const candidateEnriched = await enrichRow({
+        id: candidateRow.id, userId: candidateRow.userId, isActive: candidateRow.isActive,
+      });
+      const userProfile      = rowToProfileData(userEnriched);
+      const candidateProfile = rowToProfileData(candidateEnriched);
 
       const score = await scoreCandidate(
         userId,

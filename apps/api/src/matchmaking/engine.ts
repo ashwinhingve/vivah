@@ -13,7 +13,7 @@
 
 import type { MatchFeedItem } from '@smartshaadi/types';
 import type Redis from 'ioredis';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
@@ -127,6 +127,11 @@ type ContentDoc = {
   lifestyle?:          ProfileRow['lifestyle']
   family?:             ProfileRow['family']
   partnerPreferences?: ProfileRow['partnerPreferences']
+  safetyMode?: {
+    photoHidden?:   boolean
+    contactHidden?: boolean
+    incognito?:     boolean
+  } | null
 };
 
 async function loadContentForUser(uid: string): Promise<ContentDoc | null> {
@@ -140,7 +145,7 @@ async function loadContentForUser(uid: string): Promise<ContentDoc | null> {
   return (await model.findOne({ userId: uid }).lean()) ?? null;
 }
 
-async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
+export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
   const doc = await loadContentForUser(row.userId);
   if (!doc) return row;
   const enriched: ProfileRow = { id: row.id, userId: row.userId, isActive: row.isActive };
@@ -163,7 +168,7 @@ async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
 
 // ── Row → ProfileData converter ───────────────────────────────────────────────
 
-function rowToProfileData(row: ProfileRow): ProfileData {
+export function rowToProfileData(row: ProfileRow): ProfileData {
   const dob      = row.personal?.dob;
   // Scorer needs a numeric age. Use 0 when dob is missing; this makes the user
   // fail any realistic age-range filter, so they naturally stay out of feeds
@@ -370,9 +375,40 @@ export async function computeAndCacheFeed(
     return [];
   }
 
-  // 6. Fetch primary photos for filtered candidates
+  // 6. Fetch primary photos for filtered candidates, respecting
+  //    safetyMode.photoHidden + safetyModeUnlocks (CLAUDE.md rule 5 — photos
+  //    are private until the viewer has an unlock record for the candidate).
+  const { safetyModeUnlocks } = await import('@smartshaadi/db');
+  const userIdByProfileId = new Map<string, string>(
+    eligibleRows.map((r) => [r.id, r.userId]),
+  );
+  const photoHiddenProfileIds = new Set<string>();
+  for (const profile of filteredProfiles) {
+    const uid = userIdByProfileId.get(profile.id);
+    if (!uid) continue;
+    const doc = await loadContentForUser(uid);
+    if (doc?.safetyMode?.photoHidden) photoHiddenProfileIds.add(profile.id);
+  }
+  let unlockedProfileIds = new Set<string>();
+  if (photoHiddenProfileIds.size > 0) {
+    const unlockRows = await (db as unknown as DrizzleDB)
+      .select({ profileId: safetyModeUnlocks.profileId })
+      .from(safetyModeUnlocks)
+      .where(
+        and(
+          inArray(safetyModeUnlocks.profileId, Array.from(photoHiddenProfileIds)),
+          eq(safetyModeUnlocks.unlockedFor, userRow.id),
+        ),
+      )
+      .limit(photoHiddenProfileIds.size) as unknown as { profileId: string }[];
+    unlockedProfileIds = new Set(unlockRows.map(r => r.profileId));
+  }
   const photoMap = new Map<string, string | null>();
   for (const profile of filteredProfiles) {
+    if (photoHiddenProfileIds.has(profile.id) && !unlockedProfileIds.has(profile.id)) {
+      photoMap.set(profile.id, null);
+      continue;
+    }
     const photoRows = await db
       .select()
       .from(profilePhotos)
