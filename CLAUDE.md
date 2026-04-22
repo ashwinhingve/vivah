@@ -20,11 +20,11 @@
 
 ```
 Phase:     2
-Week:      7
-Focus:     Video Calls + Escrow + Rental Module
+Week:      8
+Focus:     Pre-Wedding Ceremonies + Muhurat + Firebase Push + Phase 2 QA
 Status:    Starting
 Mocks:     USE_MOCK_SERVICES=true
-Last session: 2026-04-21 — Week 6 Wedding Planning + Guest Management complete
+Last session: 2026-04-22 — Week 7 Video Calls + Escrow Dispute + Rental Module complete
   - Phase 0 single agent: shared types/schemas + MongoDB WeddingPlan model (commit b82ffac)
   - Phase 1 agent team (3 teammates parallel): weddings domain (f27d7c0), guests domain (4d557d1), wedding UI (0a78635)
   - Phase 2 single agent: routers mounted, dashboard "My Wedding" section, autoGenerateChecklist auto-wired, GET /weddings list endpoint (e056fbf)
