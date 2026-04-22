@@ -35,7 +35,6 @@ export function RentalCard({ item }: Props) {
       {/* Thumbnail placeholder (Phase 2: wire r2ImageKeys[0]) */}
       <div className="w-full aspect-[4/3] rounded-lg bg-[#C5A47E]/20 flex items-center justify-center overflow-hidden">
         {item.imageKeys[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/media/${item.imageKeys[0]}`}
             alt={item.name}

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
+import { CartButton } from '@/components/store/CartButton.client';
 import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
 
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                 <RoleSwitcher />
               </>
             )}
+            <CartButton />
             <UserMenu />
           </div>
         </div>

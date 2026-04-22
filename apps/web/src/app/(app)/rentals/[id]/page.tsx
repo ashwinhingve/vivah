@@ -70,7 +70,6 @@ export default async function RentalDetailPage({ params }: Props) {
         {/* Thumbnail */}
         <div className="w-full aspect-[16/9] rounded-xl bg-[#C5A47E]/20 overflow-hidden flex items-center justify-center">
           {item.imageKeys[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={`/api/media/${item.imageKeys[0]}`}
               alt={item.name}
