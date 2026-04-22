@@ -42,6 +42,53 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [r2Keys, setR2Keys] = useState<string[]>([]);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploadError(null);
+    setUploadingCount(n => n + files.length);
+    try {
+      for (const file of Array.from(files)) {
+        const presign = await fetch(`${API_URL}/api/v1/storage/upload-url`, {
+          method:      'POST',
+          credentials: 'include',
+          headers:     { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            folder:   'products',
+          }),
+        });
+        const presignJson = (await presign.json()) as {
+          success: boolean;
+          data?:   { uploadUrl: string; r2Key: string };
+        };
+        if (!presignJson.success || !presignJson.data) {
+          throw new Error('Could not get upload URL');
+        }
+        const put = await fetch(presignJson.data.uploadUrl, {
+          method:  'PUT',
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+          body:    file,
+        });
+        if (!put.ok) throw new Error(`Upload failed (${put.status})`);
+        setR2Keys(prev => [...prev, presignJson.data!.r2Key]);
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploadingCount(n => Math.max(0, n - files.length));
+      e.target.value = '';
+    }
+  }
+
+  function removeKey(key: string) {
+    setR2Keys(prev => prev.filter(k => k !== key));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,10 +133,26 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
         body: JSON.stringify(result.data),
       });
 
-      const json = (await res.json()) as { success: boolean; error?: string };
+      const json = (await res.json()) as {
+        success: boolean;
+        data?:   { id: string };
+        error?:  string;
+      };
       if (!json.success) {
         setServerError(json.error ?? 'Something went wrong. Please try again.');
         return;
+      }
+
+      // Attach any uploaded images. For create mode, use the new product id
+      // from the response; for edit mode, use the incoming productId prop.
+      const targetId = mode === 'create' ? json.data?.id : productId;
+      if (targetId && r2Keys.length > 0) {
+        await fetch(`${API_URL}/api/v1/store/products/${targetId}/images`, {
+          method:      'POST',
+          credentials: 'include',
+          headers:     { 'Content-Type': 'application/json' },
+          body:        JSON.stringify({ r2Keys }),
+        }).catch(() => { /* non-critical — product saved, images can be retried */ });
       }
 
       if (mode === 'create') {
@@ -257,30 +320,48 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
         </label>
       </div>
 
-      {/* Image upload — stub */}
-      <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-[#FEFAF6] px-4 py-6 text-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="mx-auto mb-2 h-8 w-8 text-[#C5A47E]/50"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-        <p className="text-sm font-medium text-[#64748B]">Image upload</p>
-        <p className="text-xs text-[#94A3B8] mt-0.5">Coming soon — R2 pre-signed upload</p>
+      {/* Image upload — R2 pre-signed PUT */}
+      <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-[#FEFAF6] px-4 py-5">
+        <label className={labelCls}>Product Images</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFilesSelected}
+          disabled={uploadingCount > 0}
+          className="block w-full text-sm text-[#64748B] file:mr-3 file:rounded-lg file:border-0 file:bg-[#0E7C7B]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0E7C7B] hover:file:bg-[#0E7C7B]/15 disabled:opacity-50"
+        />
+        {uploadingCount > 0 && (
+          <p className="mt-2 text-xs text-[#64748B]">Uploading {uploadingCount}…</p>
+        )}
+        {uploadError && (
+          <p className="mt-2 text-xs text-red-600">{uploadError}</p>
+        )}
+        {r2Keys.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {r2Keys.map(k => (
+              <li key={k} className="flex items-center justify-between rounded-md bg-white/60 px-2 py-1 text-xs text-[#0F172A]">
+                <span className="truncate">{k.split('/').pop()}</span>
+                <button
+                  type="button"
+                  onClick={() => removeKey(k)}
+                  className="ml-3 text-[#7B2D42] hover:underline"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-[11px] text-[#94A3B8]">
+          Images upload directly to Cloudflare R2. First image becomes the product thumbnail.
+        </p>
       </div>
 
       {/* Submit */}
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || uploadingCount > 0}
         className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C7B]/90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading

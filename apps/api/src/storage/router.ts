@@ -8,13 +8,13 @@ export const storageRouter = Router();
 const UploadUrlSchema = z.object({
   fileName: z.string().min(1).max(255),
   mimeType: z.string().min(1).max(100),
-  folder: z.enum(['photos', 'documents', 'portfolios', 'avatars']),
+  folder: z.enum(['photos', 'documents', 'portfolios', 'avatars', 'products']),
 });
 
 /**
  * POST /api/v1/storage/upload-url
  * Returns a pre-signed R2 PUT URL for direct client-side upload.
- * Body: { fileName: string, mimeType: string, folder: 'photos' | 'documents' | 'portfolios' | 'avatars' }
+ * Body: { fileName: string, mimeType: string, folder: 'photos' | 'documents' | 'portfolios' | 'avatars' | 'products' }
  */
 storageRouter.post(
   '/upload-url',

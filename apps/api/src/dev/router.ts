@@ -1,12 +1,13 @@
 import { Router, type Request, type Response } from 'express';
 import { eq } from 'drizzle-orm';
-import { user } from '@smartshaadi/db';
+import { user, orders } from '@smartshaadi/db';
 import { authenticate } from '../auth/middleware.js';
 import { db } from '../lib/db.js';
 import { ok, err } from '../lib/response.js';
 import { seedProfileContent } from './seedProfiles.js';
 import { createDevMatch } from './createMatch.js';
 import { seedCompatibleMatch } from './seedCompatibleMatch.js';
+import { confirmOrder } from '../store/order.service.js';
 
 export const devRouter = Router();
 
@@ -69,5 +70,40 @@ devRouter.post('/seed-compatible-match', authenticate, async (req: Request, res:
     ok(res, { success: true, ...result });
   } catch (e) {
     err(res, 'SEED_COMPATIBLE_MATCH_FAILED', e instanceof Error ? e.message : 'seed compatible match failed', 500);
+  }
+});
+
+// POST /dev/confirm-mock-payment — fake Razorpay capture for the demo flow.
+// Accepts either { orderId } (customer-facing UUID) or { razorpayOrderId }.
+// Resolves the order's razorpayOrderId when only orderId is supplied, then
+// calls confirmOrder to flip PLACED → CONFIRMED and stamp a mock paymentId.
+devRouter.post('/confirm-mock-payment', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { orderId, razorpayOrderId: bodyRzpId } = req.body as {
+    orderId?: string;
+    razorpayOrderId?: string;
+  };
+  try {
+    let rzpOrderId = bodyRzpId;
+    if (!rzpOrderId && orderId) {
+      const [row] = await db
+        .select({ razorpayOrderId: orders.razorpayOrderId })
+        .from(orders)
+        .where(eq(orders.id, orderId))
+        .limit(1);
+      if (!row || !row.razorpayOrderId) {
+        err(res, 'ORDER_NOT_FOUND', 'order not found or has no razorpayOrderId', 404);
+        return;
+      }
+      rzpOrderId = row.razorpayOrderId;
+    }
+    if (!rzpOrderId) {
+      err(res, 'BAD_REQUEST', 'orderId or razorpayOrderId required', 400);
+      return;
+    }
+    const mockPaymentId = `pay_mock_${Date.now()}`;
+    await confirmOrder(rzpOrderId, mockPaymentId);
+    ok(res, { success: true, razorpayOrderId: rzpOrderId, razorpayPaymentId: mockPaymentId });
+  } catch (e) {
+    err(res, 'CONFIRM_FAILED', e instanceof Error ? e.message : 'confirm failed', 500);
   }
 });

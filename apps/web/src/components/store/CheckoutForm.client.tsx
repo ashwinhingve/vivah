@@ -85,7 +85,7 @@ export function CheckoutForm() {
 
       const json = (await res.json()) as {
         success: boolean;
-        data?:   { id: string };
+        data?:   { order: { id: string }; razorpayOrderId: string | null };
         error?:  string;
       };
 
@@ -94,9 +94,21 @@ export function CheckoutForm() {
         return;
       }
 
-      const orderId = json.data?.id;
+      const orderId = json.data?.order.id;
       clearCart();
       setOrderSuccess(orderId ?? '');
+
+      // Mock Razorpay capture — flip PLACED → CONFIRMED so the demo flow shows
+      // a confirmed order. Real Razorpay replaces this with the client-side
+      // checkout widget + webhook confirmation at cutover. Fire-and-forget.
+      if (orderId) {
+        fetch(`${API_URL}/api/v1/dev/confirm-mock-payment`, {
+          method:      'POST',
+          credentials: 'include',
+          headers:     { 'Content-Type': 'application/json' },
+          body:        JSON.stringify({ orderId }),
+        }).catch(() => { /* non-critical — order still PLACED if this fails */ });
+      }
 
       // Brief success banner then navigate
       setTimeout(() => {

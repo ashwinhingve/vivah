@@ -254,6 +254,23 @@ weddingRouter.delete(
 
 // ── PUT /weddings/:id/budget ──────────────────────────────────────────────────
 
+weddingRouter.get(
+  '/:id/budget',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+    try {
+      const wedding = await getWedding(req.user!.id, id);
+      if (!wedding) { err(res, 'NOT_FOUND', 'Wedding not found', 404); return; }
+      ok(res, { categories: wedding.plan?.budget?.categories ?? [] });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to get budget';
+      err(res, 'BUDGET_GET_ERROR', message, 500);
+    }
+  },
+);
+
 weddingRouter.put(
   '/:id/budget',
   authenticate,
