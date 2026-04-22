@@ -383,12 +383,11 @@ export async function getMeetings(
 
   if (keys.length === 0) return [];
 
+  // Batch fetch — single round-trip instead of N+1 GETs
+  const values = await redis.mget(...keys);
   const meetings: MeetingSchedule[] = [];
-  for (const key of keys) {
-    const raw = await redis.get(key);
-    if (raw) {
-      meetings.push(JSON.parse(raw) as MeetingSchedule);
-    }
+  for (const raw of values) {
+    if (raw) meetings.push(JSON.parse(raw) as MeetingSchedule);
   }
 
   // Sort ascending by scheduledAt

@@ -16,6 +16,7 @@ const {
   mockRedisSet,
   mockRedisDel,
   mockRedisScan,
+  mockRedisMget,
   mockCreateRoom,
   mockDeleteRoom,
   mockChatFindOneAndUpdate,
@@ -26,6 +27,7 @@ const {
   mockRedisSet:            vi.fn(),
   mockRedisDel:            vi.fn(),
   mockRedisScan:           vi.fn(),
+  mockRedisMget:           vi.fn(),
   mockCreateRoom:          vi.fn(),
   mockDeleteRoom:          vi.fn(),
   mockChatFindOneAndUpdate: vi.fn(),
@@ -62,6 +64,7 @@ vi.mock('../../lib/redis.js', () => ({
     set:  mockRedisSet,
     del:  mockRedisDel,
     scan: mockRedisScan,
+    mget: mockRedisMget,
   },
 }));
 
@@ -483,9 +486,7 @@ describe('getMeetings', () => {
 
     // Mock SCAN: returns cursor=0 and two keys (single page)
     mockRedisScan.mockResolvedValue(['0', [`meeting:${MATCH_ID}:meet-1`, `meeting:${MATCH_ID}:meet-2`]]);
-    mockRedisGet
-      .mockResolvedValueOnce(JSON.stringify(meeting1))
-      .mockResolvedValueOnce(JSON.stringify(meeting2));
+    mockRedisMget.mockResolvedValue([JSON.stringify(meeting1), JSON.stringify(meeting2)]);
 
     const results = await getMeetings(USER_ID, MATCH_ID);
 
@@ -523,10 +524,8 @@ describe('getMeetings', () => {
       .mockResolvedValueOnce(['cursor-page-2', page1Keys])  // first page, non-zero cursor
       .mockResolvedValueOnce(['0', page2Keys]);               // second page, cursor=0 → done
 
-    // Redis.get returns each meeting's JSON in order
-    meetings.forEach(m => {
-      mockRedisGet.mockResolvedValueOnce(JSON.stringify(m));
-    });
+    // Redis.mget returns all 110 meetings in one batch (SCAN pages aggregated, then one MGET)
+    mockRedisMget.mockResolvedValue(meetings.map(m => JSON.stringify(m)));
 
     const results = await getMeetings(USER_ID, MATCH_ID);
 
@@ -534,5 +533,8 @@ describe('getMeetings', () => {
     expect(results).toHaveLength(110);
     // SCAN must have been called twice (cursor loop)
     expect(mockRedisScan).toHaveBeenCalledTimes(2);
+    // MGET fires exactly once with all 110 keys
+    expect(mockRedisMget).toHaveBeenCalledTimes(1);
+    expect((mockRedisMget.mock.calls[0] ?? []).length).toBe(110);
   });
 });

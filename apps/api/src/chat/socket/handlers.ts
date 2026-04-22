@@ -1,16 +1,8 @@
 import type { Namespace, Socket } from 'socket.io'
-import { Queue } from 'bullmq'
 import { Chat } from '../../infrastructure/mongo/models/Chat.js'
 import { env } from '../../lib/env.js'
 import { mockGet } from '../../lib/mockStore.js'
-
-const notificationsQueue = new Queue('notifications', {
-  connection: {
-    url: env.REDIS_URL,
-    enableOfflineQueue: false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-})
+import { notificationsQueue } from '../../infrastructure/redis/queues.js'
 
 export function registerChatHandlers(io: Namespace, socket: Socket): void {
   const userId = socket.data['userId'] as string
@@ -106,7 +98,11 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
         if (!receiverInRoom) {
           void notificationsQueue.add(
             'NEW_CHAT_MESSAGE',
-            { type: 'push', userId: receiverId, data: { matchRequestId } },
+            {
+              userId:  receiverId,
+              type:    'NEW_CHAT_MESSAGE',
+              payload: { matchRequestId },
+            },
             { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
           )
         }
