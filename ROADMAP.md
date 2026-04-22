@@ -196,17 +196,17 @@ Last updated: 2026-04-21
 - [x] Escrow dispute system (raise + admin resolve + audit log)
 - [x] Rental catalogue (decor, costumes, AV)
 - [x] Rental booking (date-range, quantity, availability check)
-- [ ] E-Commerce Store: vendor product listings (gifts, trousseau, ethnic wear, pooja items, invitation cards, decor pieces)
-- [ ] E-Commerce Store: shopping cart + Razorpay checkout
-- [ ] E-Commerce Store: order management flow (placed → confirmed → shipped → delivered)
-- [ ] E-Commerce Store: vendor product dashboard (inventory, orders, revenue)
-- [ ] E-Commerce Store: order tracking + delivery coordination
+- [x] E-Commerce Store: vendor product listings (gifts, trousseau, ethnic wear, pooja items, invitation cards, decor pieces)
+- [x] E-Commerce Store: shopping cart + Razorpay checkout (mocked)
+- [x] E-Commerce Store: order management flow (placed → confirmed → shipped → delivered)
+- [x] E-Commerce Store: vendor product dashboard (inventory, orders, revenue)
+- [x] E-Commerce Store: order tracking + delivery coordination
 - [ ] Multi-event booking extension (corporate, festival, community types)
 - [ ] Firebase push notifications (all key events)
 - [x] Pre-wedding ceremony modules: Haldi, Mehndi, Sangeet (Week 8)
 - [x] Muhurat date selector (Week 8 — deterministic algorithm, horoscope integration deferred)
 - [x] Week 8 hardening sprint — Video P0 (deterministic rooms, SCAN loop, status guards, TTL from scheduledAt), Escrow P0 (deterministic Bull cancel, optimistic lock, DB-before-Razorpay with RELEASE_PENDING/REFUND_PENDING fallbacks, audit enum swap), Rental P0 (transactional overbook guard, ACTIVE transition, availableQty, public pages)
-- [ ] End-to-end QA — Phase 2
+- [x] End-to-end QA — Phase 2 (Week 9 audit: 11 ✅ · 4 ⚠️ · 0 ❌)
 - [ ] Production deployment — Phase 2 live 🚀
 
 ---
