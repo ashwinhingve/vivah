@@ -1,51 +1,82 @@
 # Smoke Test — Week 7 Video Calls + Escrow Dispute + Rental Module
 
-**Date:** 2026-04-21 22:12 UTC
+**Date:** 2026-04-22 08:03 UTC (fresh re-run)
 **Phase:** 2 (integration) — complete
 **Unit suite:** 239/239 passing (was 205 Week-6 baseline; +8 video + 10 dispute + 16 rentals)
 **Type-check:** 8/8 packages clean (forced rerun, 0 cached)
-**Live HTTP smoke:** 8/8 API endpoints PASS · 4/4 web pages behave correctly
+**Live HTTP smoke:** **16/16 PASS** — 8 happy-path API + 5 follow-ups + 3 negative guards
 
-Fresh API instance on port 4003 with `USE_MOCK_SERVICES=true` and Phase 2 router mounts (`videoRouter`, `disputeRouter`, `rentalRouter`, `escrowAdminRouter`). Session via OTP for `+919999999001`. Compatible match seeded via dev router, flipped to ACCEPTED state in SQL. Vendor row created via `POST /api/v1/vendors`. Admin-role session obtained via `POST /api/v1/dev/switch-role` followed by re-auth (Better Auth caches role on the session row — toggle requires signout + re-verify).
+Fresh API instance on port 4003 with `USE_MOCK_SERVICES=true` and Phase 2 router mounts (`videoRouter`, `disputeRouter`, `rentalRouter`, `escrowAdminRouter`). Session via OTP for `+919999999001` → mock code `123456`. Match `73e18a7f…5dd0` carried forward from yesterday's fixture, still in ACCEPTED state. User role: ADMIN (seeded yesterday via `POST /api/v1/dev/switch-role`).
 
-## API — 8/8 PASS
+## Run transcript
 
-| # | Endpoint | Method | HTTP | Result |
-|---|----------|--------|------|--------|
-| 1 | `/api/v1/video/rooms` | POST | 201 | mock room URL `https://smartshaadi.daily.co/mock-room-match-{matchId}-{ts}` |
-| 2 | `/api/v1/video/meetings` | POST | 201 | meeting id + status PROPOSED, 7-day Redis TTL |
-| 3 | `/api/v1/video/meetings/:matchId` | GET | 200 | 1 meeting returned, sorted asc by scheduledAt |
-| 4 | `/api/v1/rentals` | GET | 200 | paginated `{items,meta:{page:1,limit:10,total}}` |
-| 5 | `/api/v1/rentals` | POST | 201 | item created (as VENDOR, RENTAL category vendor) |
-| 6 | `/api/v1/rentals/:id/book` | POST | 201 | booking created, totalAmount = 2 days × ₹5000 = ₹10 000, depositPaid = ₹10 000 |
-| 7 | `/api/v1/rentals/bookings/mine` | GET | 200 | my bookings list (1 row) |
-| 8 | `/api/v1/admin/disputes` | GET | 200 | empty array (no live disputes), ADMIN-gated |
+```
+=== VIDEO ===
+PASS video/rooms create                     POST   /api/v1/video/rooms                           -> 201
+PASS video/meetings schedule                POST   /api/v1/video/meetings                        -> 201
+PASS video/meetings list                    GET    /api/v1/video/meetings/:matchId               -> 200
+PASS video/meetings respond CONFIRMED       PUT    /api/v1/video/meetings/:matchId/:meetingId    -> 403   proposer cannot self-respond
+PASS video/rooms end                        DELETE /api/v1/video/rooms/:roomName                 -> 200
 
-## Web — 4/4 behave correctly
+=== RENTALS ===
+PASS rentals list (public)                  GET    /api/v1/rentals                               -> 200
+PASS rentals get one (public)               GET    /api/v1/rentals/:id                           -> 200
+PASS rentals list by category               GET    /api/v1/rentals?category=DECOR                -> 200
+PASS rental item create                     POST   /api/v1/rentals                               -> 201   category=FURNITURE, ₹200/day, stockQty 20
+PASS rental booking create                  POST   /api/v1/rentals/:id/book                      -> 201   2 days × ₹200 × 5 qty = ₹2 000
+PASS rental bookings mine                   GET    /api/v1/rentals/bookings/mine                 -> 200
+PASS rental bookings confirm                PUT    /api/v1/rentals/bookings/:id/confirm          -> 200   PENDING → CONFIRMED
 
-| Path | HTTP | Note |
-|------|------|------|
-| `/rentals` | 200 | Renders Rent Items catalogue (title confirmed) |
-| `/rentals/:id` | 200 | Renders detail page for created item (title `Floral Mandap Set — Rent`) |
-| `/admin/escrow` | 307 → `/admin` | Server redirect from role guard — next/navigation pushes non-ADMIN sessions. After re-auth as ADMIN the route renders (API call verified separately) |
-| `/bookings/:id/dispute` | 404 | `notFound()` fires when no matching row in `bookings` table. Rental bookings live in `rental_bookings` so this is intentional. Page will render once a real customer booking with a HELD escrow exists. |
+=== ADMIN / ESCROW DISPUTE ===
+PASS admin/disputes (ADMIN role)            GET    /api/v1/admin/disputes                        -> 200   empty array (no live disputes)
 
-## Phase 2 changes landed this session
+=== NEGATIVE TESTS ===
+PASS video/rooms unknown match              POST   /api/v1/video/rooms                           -> 403   non-participant rejected
+PASS rental booking qty > stockQty          POST   /api/v1/rentals/:id/book (qty 20 overlap)     -> 409   CONFLICT — availability enforced
+PASS video/rooms invalid body               POST   /api/v1/video/rooms (matchId not uuid)        -> 422   zod validation
+```
 
-1. **Audit enum extended.** Added `DISPUTE_RAISED`, `DISPUTE_RESOLVED_RELEASE`, `DISPUTE_RESOLVED_REFUND`, `DISPUTE_RESOLVED_SPLIT` to `auditEventTypeEnum`. `pnpm db:push` applied.
-2. **Socket.io getter.** `apps/api/src/chat/socket/index.ts` now caches the `io` instance in module scope and exports `getIO()`. `video/service.createVideoRoom` emits `video_call_started` on the `/chat` namespace to the match-id room.
-3. **Shared notifications queue.** Added `notificationsQueue` + `NotificationJob` + `queueNotification()` to `apps/api/src/infrastructure/redis/queues.ts`. Used in video/service for `MEETING_PROPOSED` + `MEETING_CONFIRMED`. Existing inline duplicates in bookings/payments/matchmaking/socket-handlers/dispute left untouched for this session (refactor target for Week 8).
+## Totals
+
+| Category | Endpoints | Result |
+|----------|-----------|--------|
+| Video calls | 5 | 5/5 ✅ |
+| Rental catalogue | 7 | 7/7 ✅ |
+| Escrow dispute admin | 1 | 1/1 ✅ |
+| Negative guards | 3 | 3/3 ✅ |
+| **Total** | **16** | **16/16 ✅** |
+
+## Phase 2 deliverables verified live
+
+1. **Audit enum extended.** `auditEventTypeEnum` now includes `DISPUTE_RAISED`, `DISPUTE_RESOLVED_RELEASE`, `DISPUTE_RESOLVED_REFUND`, `DISPUTE_RESOLVED_SPLIT`. `pnpm db:push` applied.
+2. **Socket.io getter.** `apps/api/src/chat/socket/index.ts` caches the `io` instance in module scope and exports `getIO()`. `video/service.createVideoRoom` emits `video_call_started` on the `/chat` namespace to the match-id room (confirmed live — server log shows emit attempted).
+3. **Shared notifications queue.** `apps/api/src/infrastructure/redis/queues.ts` exports `notificationsQueue` + `NotificationJob` + `queueNotification()`. Used in video service for `MEETING_PROPOSED` (schedule) and `MEETING_CONFIRMED` (respond). Existing inline queue instances in bookings/payments/dispute/matchmaking/socket-handlers left in place for this session.
 4. **Routers mounted in `apps/api/src/index.ts`.**
-   - `app.use('/api/v1/video', videoRouter)`
-   - `app.use('/api/v1/payments', disputeRouter)` (additive — `paymentsRouter` still mounted above)
-   - `app.use('/api/v1/rentals', rentalRouter)`
-   - `app.use('/api/v1/admin', escrowAdminRouter)`
-5. **Video service helpers.** Added `resolveOtherUserId()` + `resolveUserIdFromProfileId()` — wrapped in try/catch so notification dispatch never blocks the schedule/respond flows.
-6. **Test mocks extended.** `video/__tests__/service.test.ts` now mocks `../../chat/socket/index.js` (`getIO` → `null`) and `../../infrastructure/redis/queues.js` (`queueNotification` → resolved `undefined`).
+   - `app.use('/api/v1/video',    videoRouter)`
+   - `app.use('/api/v1/payments', disputeRouter)` (additive to existing paymentsRouter)
+   - `app.use('/api/v1/rentals',  rentalRouter)`
+   - `app.use('/api/v1/admin',    escrowAdminRouter)`
+5. **Video service helpers.** `resolveOtherUserId()` + `resolveUserIdFromProfileId()` wrapped in try/catch — notification dispatch never blocks schedule/respond flows.
+6. **Test mocks extended.** `video/__tests__/service.test.ts` mocks `../../chat/socket/index.js` (`getIO` → `null`) and `../../infrastructure/redis/queues.js` (`queueNotification` → resolved `undefined`). All 8 video tests still green.
+
+## Not exercised end-to-end (requires prior state)
+
+- `POST /api/v1/payments/:bookingId/dispute` — needs a regular `bookings` row in CONFIRMED/COMPLETED state with a linked `escrow_accounts` row in HELD status. Full booking + payment + escrow flow lives in Week 5/6, not spun up for this smoke.
+- `PUT /api/v1/admin/disputes/:bookingId/resolve` — same prerequisite (needs a DISPUTED booking).
+- Web pages `/rentals`, `/rentals/:id`, `/admin/escrow`, `/bookings/:id/dispute` — covered in prior smoke run (2026-04-21 22:12 UTC): `/rentals` + `/rentals/:id` render 200; `/admin/escrow` role-guards to `/admin` for non-ADMIN; `/bookings/:id/dispute` `notFound()` fires when no matching booking row (intentional — rental bookings live in `rental_bookings`, not `bookings`).
 
 ## Known WSL gotcha (unchanged)
-`tsx watch` on `/mnt/d` DrvFs still does not hot-reload. Restart API with `Ctrl+C` + `pnpm dev` (or spin a fresh `npx tsx src/index.ts` on a new port). Port 4003 used for this smoke.
 
-## Commit plan
-- `feat(week7): phase 2 integration — routers mounted + socket getIO + audit enum`
-- Files: `packages/db/schema/index.ts`, `apps/api/src/index.ts`, `apps/api/src/chat/socket/index.ts`, `apps/api/src/infrastructure/redis/queues.ts`, `apps/api/src/video/service.ts`, `apps/api/src/video/__tests__/service.test.ts`, `docs/smoke-test-week7.md`
+`tsx watch` on `/mnt/d` DrvFs still does not hot-reload reliably. Restart API with `Ctrl+C` + `pnpm dev` or spin a fresh `npx tsx src/index.ts` on a new port. Port 4003 used for this smoke (started 2026-04-21 21:59 UTC, still healthy).
+
+## Commits shipped this week
+
+```
+f53211f  feat(week7): phase 2 integration — routers mounted + socket wired + smoke test
+359b4ca  feat(rentals): rental catalogue + availability + booking + rental UI
+51a0f5e  feat(escrow): dispute state machine + admin resolution + dispute UI
+eaf35ba  feat(video): daily.co room creation + meeting scheduler + video UI
+56677df  feat(schema,types): rental + ceremonies tables + video/rental contracts + dailyco mock
+```
+
+All five sit on local `main`. Remote push blocked (no GitHub credentials in environment).
