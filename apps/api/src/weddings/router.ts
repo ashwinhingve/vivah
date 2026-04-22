@@ -23,6 +23,9 @@ import {
   CreateTaskSchema,
   UpdateTaskSchema,
   UpdateBudgetSchema,
+  CreateCeremonySchema,
+  UpdateCeremonySchema,
+  SelectMuhuratSchema,
 } from '@smartshaadi/schemas';
 import {
   createWedding,
@@ -35,6 +38,12 @@ import {
   deleteTask,
   autoGenerateChecklist,
   listUserWeddings,
+  addCeremony,
+  updateCeremony,
+  deleteCeremony,
+  getCeremonies,
+  selectMuhurat,
+  getMuhuratSuggestions,
 } from './service.js';
 
 export const weddingRouter = Router();
@@ -297,6 +306,165 @@ weddingRouter.post(
         return;
       }
       err(res, 'CHECKLIST_GENERATE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── GET /weddings/:id/ceremonies ──────────────────────────────────────────────
+
+weddingRouter.get(
+  '/:id/ceremonies',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    try {
+      const result = await getCeremonies(req.user!.id, id);
+      ok(res, { ceremonies: result });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to get ceremonies';
+      if (message === 'WEDDING_NOT_FOUND') {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
+      }
+      err(res, 'CEREMONIES_GET_ERROR', message, 500);
+    }
+  },
+);
+
+// ── POST /weddings/:id/ceremonies ─────────────────────────────────────────────
+
+weddingRouter.post(
+  '/:id/ceremonies',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    const parsed = CreateCeremonySchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+
+    try {
+      const ceremony = await addCeremony(req.user!.id, id, parsed.data);
+      ok(res, ceremony, 201);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to add ceremony';
+      if (message === 'WEDDING_NOT_FOUND') {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
+      }
+      err(res, 'CEREMONY_CREATE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── PUT /weddings/:id/ceremonies/:cId ─────────────────────────────────────────
+
+weddingRouter.put(
+  '/:id/ceremonies/:cId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { id, cId } = req.params;
+    if (!id || !cId) {
+      err(res, 'VALIDATION_ERROR', 'Missing wedding id or ceremony id', 400); return;
+    }
+
+    const parsed = UpdateCeremonySchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+
+    try {
+      const ceremony = await updateCeremony(req.user!.id, id, cId, parsed.data);
+      if (!ceremony) {
+        err(res, 'NOT_FOUND', 'Ceremony not found', 404); return;
+      }
+      ok(res, ceremony);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to update ceremony';
+      if (message === 'WEDDING_NOT_FOUND') {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
+      }
+      err(res, 'CEREMONY_UPDATE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── DELETE /weddings/:id/ceremonies/:cId ──────────────────────────────────────
+
+weddingRouter.delete(
+  '/:id/ceremonies/:cId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { id, cId } = req.params;
+    if (!id || !cId) {
+      err(res, 'VALIDATION_ERROR', 'Missing wedding id or ceremony id', 400); return;
+    }
+
+    try {
+      const deleted = await deleteCeremony(req.user!.id, id, cId);
+      if (!deleted) {
+        err(res, 'NOT_FOUND', 'Ceremony not found', 404); return;
+      }
+      ok(res, { deleted: true });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to delete ceremony';
+      err(res, 'CEREMONY_DELETE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── GET /weddings/:id/muhurat ─────────────────────────────────────────────────
+
+weddingRouter.get(
+  '/:id/muhurat',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    try {
+      // Derive weddingDate from the wedding record
+      const wedding = await getWedding(req.user!.id, id);
+      if (!wedding) {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
+      }
+      const suggestions = getMuhuratSuggestions(wedding.weddingDate ?? new Date().toISOString().slice(0, 10));
+      ok(res, { suggestions });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to get muhurat suggestions';
+      err(res, 'MUHURAT_GET_ERROR', message, 500);
+    }
+  },
+);
+
+// ── PUT /weddings/:id/muhurat ─────────────────────────────────────────────────
+
+weddingRouter.put(
+  '/:id/muhurat',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    const parsed = SelectMuhuratSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+
+    try {
+      const dates = await selectMuhurat(req.user!.id, id, parsed.data);
+      ok(res, { muhuratDates: dates });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to select muhurat';
+      if (message === 'WEDDING_NOT_FOUND') {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
+      }
+      err(res, 'MUHURAT_SELECT_ERROR', message, 500);
     }
   },
 );

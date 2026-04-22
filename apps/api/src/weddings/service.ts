@@ -15,7 +15,7 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
-import { weddings, weddingTasks, profiles, guestLists } from '@smartshaadi/db';
+import { weddings, weddingTasks, profiles, guestLists, ceremonies } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import type {
@@ -23,6 +23,8 @@ import type {
   WeddingTask,
   WeddingPlan as WeddingPlanType,
   BudgetCategory,
+  Ceremony,
+  MuhuratDate,
 } from '@smartshaadi/types';
 import type {
   CreateWeddingInput,
@@ -30,6 +32,9 @@ import type {
   CreateTaskInput,
   UpdateTaskInput,
   UpdateBudgetInput,
+  CreateCeremonyInput,
+  UpdateCeremonyInput,
+  SelectMuhuratInput,
 } from '@smartshaadi/schemas';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -569,3 +574,278 @@ async function resolveOwnedWedding(
   return row ?? null;
 }
 
+
+// ── Internal row mapper ────────────────────────────────────────────────────────
+
+type CeremonyRow = typeof ceremonies.$inferSelect;
+
+function mapCeremonyRow(row: CeremonyRow): Ceremony {
+  return {
+    id:        row.id,
+    weddingId: row.weddingId,
+    type:      row.type as Ceremony['type'],
+    date:      row.date ?? null,
+    venue:     row.venue ?? null,
+    startTime: row.startTime ?? null,
+    endTime:   row.endTime ?? null,
+    notes:     row.notes ?? null,
+  };
+}
+
+// ── addCeremony ───────────────────────────────────────────────────────────────
+
+export async function addCeremony(
+  userId: string,
+  weddingId: string,
+  input: CreateCeremonyInput,
+): Promise<Ceremony> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) throw new Error('WEDDING_NOT_FOUND');
+
+  const [inserted] = await db
+    .insert(ceremonies)
+    .values({
+      weddingId,
+      type:      input.type,
+      date:      input.date ?? null,
+      venue:     input.venue ?? null,
+      startTime: input.startTime ?? null,
+      endTime:   input.endTime ?? null,
+      notes:     input.notes ?? null,
+    })
+    .returning();
+
+  if (!inserted) throw new Error('CEREMONY_CREATE_FAILED');
+
+  const ceremony = mapCeremonyRow(inserted);
+
+  // Sync ceremonies array to MongoDB / mockStore
+  if (env.USE_MOCK_SERVICES) {
+    const existing = mockGetPlan(weddingId);
+    const plan: WeddingPlanType = existing ?? {
+      weddingId,
+      theme:       { name: null, colorPalette: [], style: null },
+      budget:      { total: 0, currency: 'INR', categories: [] },
+      ceremonies:  [],
+      checklist:   [],
+      muhuratDates: [],
+    };
+    plan.ceremonies = [
+      ...plan.ceremonies,
+      {
+        type:  ceremony.type,
+        date:  ceremony.date,
+        venue: ceremony.venue,
+        notes: ceremony.notes,
+      },
+    ];
+    mockSavePlan(weddingId, plan);
+  } else {
+    await WeddingPlan.findOneAndUpdate(
+      { weddingId },
+      {
+        $push: {
+          ceremonies: {
+            type:  ceremony.type,
+            date:  ceremony.date,
+            venue: ceremony.venue,
+            notes: ceremony.notes,
+          },
+        },
+      },
+      { new: true },
+    );
+  }
+
+  return ceremony;
+}
+
+// ── updateCeremony ────────────────────────────────────────────────────────────
+
+export async function updateCeremony(
+  userId: string,
+  weddingId: string,
+  ceremonyId: string,
+  input: UpdateCeremonyInput,
+): Promise<Ceremony | null> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) throw new Error('WEDDING_NOT_FOUND');
+
+  const updates: Partial<CeremonyRow> = {};
+  if (input.type      !== undefined) updates.type      = input.type;
+  if (input.date      !== undefined) updates.date      = input.date ?? null;
+  if (input.venue     !== undefined) updates.venue     = input.venue ?? null;
+  if (input.startTime !== undefined) updates.startTime = input.startTime ?? null;
+  if (input.endTime   !== undefined) updates.endTime   = input.endTime ?? null;
+  if (input.notes     !== undefined) updates.notes     = input.notes ?? null;
+
+  const [updated] = await db
+    .update(ceremonies)
+    .set(updates)
+    .where(and(eq(ceremonies.id, ceremonyId), eq(ceremonies.weddingId, weddingId)))
+    .returning();
+
+  return updated ? mapCeremonyRow(updated) : null;
+}
+
+// ── deleteCeremony ────────────────────────────────────────────────────────────
+
+export async function deleteCeremony(
+  userId: string,
+  weddingId: string,
+  ceremonyId: string,
+): Promise<boolean> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) return false;
+
+  const deleted = await db
+    .delete(ceremonies)
+    .where(and(eq(ceremonies.id, ceremonyId), eq(ceremonies.weddingId, weddingId)))
+    .returning({ id: ceremonies.id });
+
+  return deleted.length > 0;
+}
+
+// ── getCeremonies ─────────────────────────────────────────────────────────────
+
+export async function getCeremonies(
+  userId: string,
+  weddingId: string,
+): Promise<Ceremony[]> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) throw new Error('WEDDING_NOT_FOUND');
+
+  const rows = await db
+    .select()
+    .from(ceremonies)
+    .where(eq(ceremonies.weddingId, weddingId));
+
+  return rows.map(mapCeremonyRow);
+}
+
+// ── getMuhuratSuggestions ─────────────────────────────────────────────────────
+// Deterministic mock algorithm — no LLM call, pure math.
+// Generates 5 auspicious dates near weddingDate, preferring Sat/Sun.
+
+const MUHURAT_NAMES = [
+  'Brahma Muhurat',
+  'Vijay Muhurat',
+  'Abhijit Muhurat',
+  'Amrit Siddhi Muhurat',
+  'Sarvartha Siddhi Muhurat',
+];
+
+const TITHI_NAMES = [
+  'Dwitiya',
+  'Panchami',
+  'Saptami',
+  'Ekadashi',
+  'Trayodashi',
+];
+
+export function getMuhuratSuggestions(weddingDate: string): MuhuratDate[] {
+  const base = new Date(weddingDate);
+
+  // Collect candidate dates: 14 days before to 14 days after
+  const candidates: Date[] = [];
+  for (let offset = -14; offset <= 14; offset++) {
+    const d = new Date(base);
+    d.setDate(d.getDate() + offset);
+    candidates.push(d);
+  }
+
+  // Prefer Sat (6) and Sun (0) — sort by preference
+  const weekendFirst = [...candidates].sort((a, b) => {
+    const aIsWeekend = a.getDay() === 0 || a.getDay() === 6 ? 0 : 1;
+    const bIsWeekend = b.getDay() === 0 || b.getDay() === 6 ? 0 : 1;
+    return aIsWeekend - bIsWeekend;
+  });
+
+  // Pick 5 unique dates spread across the range
+  const picked: Date[] = [];
+  const usedIndices = new Set<number>();
+  // Take first 5 unique from the weekend-first sorted list
+  for (const d of weekendFirst) {
+    if (picked.length >= 5) break;
+    const key = d.toISOString().slice(0, 10);
+    if (!usedIndices.has(new Date(key).getTime())) {
+      usedIndices.add(new Date(key).getTime());
+      picked.push(d);
+    }
+  }
+
+  return picked.map((d, i) => ({
+    date:     d.toISOString().slice(0, 10),
+    muhurat:  MUHURAT_NAMES[i % MUHURAT_NAMES.length]!,
+    tithi:    TITHI_NAMES[i % TITHI_NAMES.length]!,
+    selected: false,
+  }));
+}
+
+// ── selectMuhurat ─────────────────────────────────────────────────────────────
+
+export async function selectMuhurat(
+  userId: string,
+  weddingId: string,
+  input: SelectMuhuratInput,
+): Promise<MuhuratDate[]> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) throw new Error('WEDDING_NOT_FOUND');
+
+  // Also update weddingDate in PostgreSQL
+  await db
+    .update(weddings)
+    .set({ weddingDate: input.date, updatedAt: new Date() })
+    .where(eq(weddings.id, weddingId));
+
+  if (env.USE_MOCK_SERVICES) {
+    const existing = mockGetPlan(weddingId);
+    const plan: WeddingPlanType = existing ?? {
+      weddingId,
+      theme:       { name: null, colorPalette: [], style: null },
+      budget:      { total: 0, currency: 'INR', categories: [] },
+      ceremonies:  [],
+      checklist:   [],
+      muhuratDates: [],
+    };
+
+    // Mark all others deselected, matching date selected
+    const currentDates = plan.muhuratDates ?? [];
+    let found = false;
+    const updated: MuhuratDate[] = currentDates.map((d): MuhuratDate => {
+      if (d.date === input.date) {
+        found = true;
+        return { date: d.date, muhurat: input.muhurat, tithi: input.tithi ?? d.tithi ?? null, selected: true };
+      }
+      return { date: d.date, muhurat: d.muhurat, tithi: d.tithi, selected: false };
+    });
+
+    // If the date wasn't in the list, append it
+    if (!found) {
+      updated.push({ date: input.date, muhurat: input.muhurat, tithi: input.tithi ?? null, selected: true });
+    }
+
+    plan.muhuratDates = updated;
+    mockSavePlan(weddingId, plan);
+    return updated;
+  } else {
+    // In real mode: unset all, then set the matching one
+    await WeddingPlan.findOneAndUpdate(
+      { weddingId },
+      { $set: { 'muhuratDates.$[].selected': false } },
+    );
+    await WeddingPlan.findOneAndUpdate(
+      { weddingId, 'muhuratDates.date': input.date },
+      {
+        $set: {
+          'muhuratDates.$.selected': true,
+          'muhuratDates.$.muhurat':  input.muhurat,
+          'muhuratDates.$.tithi':    input.tithi ?? null,
+        },
+      },
+      { new: true },
+    );
+    const doc = await WeddingPlan.findOne({ weddingId }).lean();
+    return ((doc?.muhuratDates ?? []) as MuhuratDate[]);
+  }
+}

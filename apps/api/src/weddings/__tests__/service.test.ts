@@ -34,6 +34,7 @@ vi.mock('@smartshaadi/db', () => ({
   weddings: {
     id: {}, profileId: {}, mongoWeddingPlanId: {}, weddingDate: {},
     venueName: {}, venueCity: {}, budgetTotal: {}, guestCount: {}, status: {},
+    updatedAt: {},
   },
   weddingTasks: {
     id: {}, weddingId: {}, title: {}, description: {}, dueDate: {},
@@ -41,6 +42,10 @@ vi.mock('@smartshaadi/db', () => ({
   },
   profiles:   { id: {}, userId: {} },
   guestLists: { id: {}, weddingId: {} },
+  ceremonies: {
+    id: {}, weddingId: {}, type: {}, date: {}, venue: {},
+    startTime: {}, endTime: {}, notes: {}, createdAt: {},
+  },
 }));
 
 // ── Mock env (USE_MOCK_SERVICES=true) ─────────────────────────────────────────
@@ -400,5 +405,205 @@ describe('weddings/service — autoGenerateChecklist', () => {
 
     expect(result.created).toBe(0);
     expect(mockDb.insert).not.toHaveBeenCalled();
+  });
+});
+
+// ── ceremonies ────────────────────────────────────────────────────────────────
+
+describe('weddings/service — addCeremony', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('creates PG ceremonies row and syncs to mockStore', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding();
+    const ceremonyRow = {
+      id:        'ceremony-1',
+      weddingId: 'wedding-1',
+      type:      'HALDI',
+      date:      '2027-02-12',
+      venue:     'The Rooftop Garden',
+      startTime: '10:00',
+      endTime:   '13:00',
+      notes:     null,
+      createdAt: new Date(),
+    };
+
+    // resolveOwnedWedding: profile + wedding
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]));
+
+    mockDb.insert.mockReturnValueOnce(buildInsertChain([ceremonyRow]));
+
+    const { addCeremony } = await import('../service.js');
+
+    const result = await addCeremony('user-1', 'wedding-1', {
+      type:      'HALDI',
+      date:      '2027-02-12',
+      venue:     'The Rooftop Garden',
+      startTime: '10:00',
+      endTime:   '13:00',
+    });
+
+    expect(result.id).toBe('ceremony-1');
+    expect(result.type).toBe('HALDI');
+    expect(result.weddingId).toBe('wedding-1');
+  });
+
+  it('throws WEDDING_NOT_FOUND when wedding not owned', async () => {
+    const profile = makeProfile();
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([])); // no wedding
+
+    const { addCeremony } = await import('../service.js');
+
+    await expect(
+      addCeremony('user-1', 'bad-wedding', { type: 'MEHNDI' })
+    ).rejects.toThrow('WEDDING_NOT_FOUND');
+  });
+});
+
+describe('weddings/service — getCeremonies', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('returns ceremonies scoped to the wedding', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding();
+    const ceremonies = [
+      { id: 'c1', weddingId: 'wedding-1', type: 'HALDI',  date: '2027-02-12', venue: null, startTime: null, endTime: null, notes: null, createdAt: new Date() },
+      { id: 'c2', weddingId: 'wedding-1', type: 'SANGEET', date: '2027-02-13', venue: null, startTime: null, endTime: null, notes: null, createdAt: new Date() },
+    ];
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]))
+      .mockReturnValueOnce(buildSelectChain(ceremonies));
+
+    const { getCeremonies } = await import('../service.js');
+
+    const result = await getCeremonies('user-1', 'wedding-1');
+
+    expect(result).toHaveLength(2);
+    expect(result[0]!.type).toBe('HALDI');
+    expect(result[1]!.type).toBe('SANGEET');
+  });
+
+  it('returns empty array when no ceremonies', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding();
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]))
+      .mockReturnValueOnce(buildSelectChain([]));
+
+    const { getCeremonies } = await import('../service.js');
+
+    const result = await getCeremonies('user-1', 'wedding-1');
+    expect(result).toHaveLength(0);
+  });
+});
+
+describe('weddings/service — selectMuhurat', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('marks selected date as selected:true and deselects others in mockStore', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding();
+
+    // Pre-populate mockStore with 3 muhurat dates
+    _mockStore.set('wedding_plan:wedding-1', {
+      plan: {
+        weddingId:   'wedding-1',
+        theme:       { name: null, colorPalette: [], style: null },
+        budget:      { total: 0, currency: 'INR', categories: [] },
+        ceremonies:  [],
+        checklist:   [],
+        muhuratDates: [
+          { date: '2027-02-14', muhurat: 'Brahma Muhurat',  tithi: null, selected: false },
+          { date: '2027-02-21', muhurat: 'Vijay Muhurat',   tithi: null, selected: false },
+          { date: '2027-02-28', muhurat: 'Abhijit Muhurat', tithi: null, selected: false },
+        ],
+      },
+    });
+
+    // resolveOwnedWedding: profile + wedding
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]));
+
+    // weddings.update for weddingDate sync
+    const updateChain = {
+      set:   vi.fn().mockReturnThis(),
+      where: vi.fn().mockResolvedValue([]),
+    };
+    mockDb.update.mockReturnValueOnce(updateChain);
+
+    const { selectMuhurat } = await import('../service.js');
+
+    const result = await selectMuhurat('user-1', 'wedding-1', {
+      date:    '2027-02-21',
+      muhurat: 'Vijay Muhurat',
+    });
+
+    const selectedOnes = result.filter((d) => d.selected);
+    const unselected   = result.filter((d) => !d.selected);
+
+    expect(selectedOnes).toHaveLength(1);
+    expect(selectedOnes[0]!.date).toBe('2027-02-21');
+    expect(unselected).toHaveLength(2);
+  });
+});
+
+describe('weddings/service — getMuhuratSuggestions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('returns exactly 5 MuhuratDate objects', async () => {
+    const { getMuhuratSuggestions } = await import('../service.js');
+
+    const result = await getMuhuratSuggestions('2027-02-14');
+
+    expect(result).toHaveLength(5);
+  });
+
+  it('each suggestion has date, muhurat name, and selected:false by default', async () => {
+    const { getMuhuratSuggestions } = await import('../service.js');
+
+    const result = await getMuhuratSuggestions('2027-06-15');
+
+    for (const d of result) {
+      expect(typeof d.date).toBe('string');
+      expect(d.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(typeof d.muhurat).toBe('string');
+      expect(d.muhurat.length).toBeGreaterThan(0);
+      expect(d.selected).toBe(false);
+    }
+  });
+
+  it('prefers Saturday/Sunday dates in suggestions', async () => {
+    const { getMuhuratSuggestions } = await import('../service.js');
+
+    const result = await getMuhuratSuggestions('2027-03-20');
+
+    // At least one weekend day should be present
+    const hasWeekend = result.some((d) => {
+      const dow = new Date(d.date).getDay();
+      return dow === 0 || dow === 6; // Sunday or Saturday
+    });
+    expect(hasWeekend).toBe(true);
   });
 });

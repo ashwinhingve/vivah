@@ -87,11 +87,7 @@ export interface WeddingPlan {
     done:    boolean;
     dueDate: string | null;
   }[];
-  muhuratDates: {
-    date:     string;
-    muhurat:  string;
-    selected: boolean;
-  }[];
+  muhuratDates: MuhuratDate[];
 }
 
 export interface GuestSummary {
