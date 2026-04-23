@@ -18,6 +18,19 @@ export const auth = betterAuth({
     storeSessionInDatabase: true,
   },
 
+  // Cookie flags — tokens never touch localStorage (CLAUDE.md rule).
+  advanced: {
+    cookies: {
+      session_token: {
+        attributes: {
+          httpOnly: true,
+          secure:   env.NODE_ENV === 'production',
+          sameSite: 'lax',
+        },
+      },
+    },
+  },
+
   emailAndPassword: { enabled: true },
 
   plugins: [

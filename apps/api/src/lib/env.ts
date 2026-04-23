@@ -46,6 +46,35 @@ const envSchema = z.object({
   AWS_REKOGNITION_REGION: z.string().default('ap-south-1'),
 
   DAILY_CO_API_KEY: z.string().default('mock-daily-key'),
+
+  RAZORPAY_KEY_ID:         z.string().default(''),
+  RAZORPAY_KEY_SECRET:     z.string().default(''),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
+}).superRefine((data, ctx) => {
+  // Real-mode guard — placeholders would silently call external services with
+  // fake tokens and 401 in production. Force explicit configuration.
+  if (data.USE_MOCK_SERVICES) return;
+  if (data.DAILY_CO_API_KEY === 'mock-daily-key') {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['DAILY_CO_API_KEY'],
+      message: 'DAILY_CO_API_KEY must be set when USE_MOCK_SERVICES=false',
+    });
+  }
+  if (!data.RAZORPAY_KEY_ID || !data.RAZORPAY_KEY_SECRET) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['RAZORPAY_KEY_ID'],
+      message: 'RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set when USE_MOCK_SERVICES=false',
+    });
+  }
+  if (!data.MSG91_API_KEY) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['MSG91_API_KEY'],
+      message: 'MSG91_API_KEY must be set when USE_MOCK_SERVICES=false',
+    });
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);

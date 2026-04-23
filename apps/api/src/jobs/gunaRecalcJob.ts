@@ -4,9 +4,8 @@ import { profiles } from '@smartshaadi/db';
 import { redis } from '../lib/redis.js';
 import { db } from '../lib/db.js';
 import { callAiService } from '../lib/ai.js';
-import { env } from '../lib/env.js';
 import { getMyProfileContent } from '../profiles/content.service.js';
-import type { MatchComputeJob } from '../infrastructure/redis/queues.js';
+import { connection, type MatchComputeJob } from '../infrastructure/redis/queues.js';
 
 const GUNA_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const NEUTRAL_SCORE = 18; // guna-milan midpoint when horoscope data is missing
@@ -79,6 +78,6 @@ export function startGunaRecalcWorker(): Worker<MatchComputeJob> {
 
       await redis.setex(key, GUNA_TTL_SECONDS, String(result.total_score));
     },
-    { connection: { url: env.REDIS_URL } },
+    { connection },
   );
 }

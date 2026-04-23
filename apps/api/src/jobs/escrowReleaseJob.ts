@@ -15,11 +15,11 @@
  */
 import { Worker } from 'bullmq';
 import { eq } from 'drizzle-orm';
-import { env } from '../lib/env.js';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
 import { appendAuditLog } from '../payments/service.js';
+import { connection } from '../infrastructure/redis/queues.js';
 
 const QUEUE_NAME = 'escrow-release';
 
@@ -38,12 +38,6 @@ export interface EscrowReleaseJobData {
  * @returns The BullMQ Worker instance (call worker.close() on graceful shutdown).
  */
 export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
-  const connection = {
-    url:                  env.REDIS_URL,
-    enableOfflineQueue:   false,
-    maxRetriesPerRequest: null as unknown as number,
-  };
-
   const worker = new Worker<EscrowReleaseJobData>(
     QUEUE_NAME,
     async (job) => {
