@@ -1,0 +1,54 @@
+# Dependencies — always reinstalled inside the image
+**/node_modules
+.pnpm-store
+
+# Build outputs — rebuilt inside the image
+**/dist
+**/.next
+**/build
+**/out
+**/.turbo
+**/*.tsbuildinfo
+
+# Env files — never bake secrets into images
+.env
+.env.*
+!**/.env.production.example
+
+# Dev mock data + local state
+apps/api/.data
+.playwright-mcp
+
+# VCS + IDE
+.git
+.gitignore
+.github
+.vscode
+.idea
+.claude
+.worktrees
+
+# Tests + misc
+coverage
+playwright-report
+test-results
+*.log
+logs
+
+# Python artifacts (AI service not in API image)
+apps/ai-service
+__pycache__
+*.py[cod]
+.venv
+
+# Mobile — not built in API image
+apps/mobile
+
+# Docs
+docs
+*.md
+!apps/api/README.md
+
+# OS
+.DS_Store
+Thumbs.db

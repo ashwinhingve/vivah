@@ -43,12 +43,24 @@ const app = express();
 // Security headers — disable CSP (handled by Next.js) and COEP (not needed for REST API)
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
+const allowedOrigins = env.NODE_ENV === 'production'
+  ? [
+      process.env['CORS_ORIGIN'] ?? env.WEB_URL,
+      'https://smartshaadi.co.in',
+      'https://www.smartshaadi.co.in',
+    ]
+  : [
+      env.WEB_URL,
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+    ];
+
 app.use(
   cors({
-    origin: env.WEB_URL,
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   }),
 );
 
@@ -189,6 +201,22 @@ async function bootstrap(): Promise<void> {
     registerEscrowReleaseWorker();
     registerOrderExpiryWorker();
   }
+
+  // Graceful shutdown — Railway sends SIGTERM before killing containers.
+  const shutdown = (signal: string): void => {
+    console.info(`${signal} received — shutting down gracefully`);
+    server.close(() => {
+      console.info('HTTP server closed');
+      process.exit(0);
+    });
+    setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 void bootstrap();

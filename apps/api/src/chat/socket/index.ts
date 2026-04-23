@@ -11,8 +11,21 @@ export function getIO(): Server | null {
 }
 
 export function initSocket(server: HttpServer): Server {
+  const allowedOrigins = env.NODE_ENV === 'production'
+    ? [
+        process.env['CORS_ORIGIN'] ?? env.WEB_URL,
+        'https://smartshaadi.co.in',
+        'https://www.smartshaadi.co.in',
+      ]
+    : [env.WEB_URL, 'http://localhost:3000']
+
   const io = new Server(server, {
-    cors: { origin: env.WEB_URL, credentials: true },
+    cors: {
+      origin: allowedOrigins,
+      credentials: true,
+      methods: ['GET', 'POST'],
+    },
+    transports: ['websocket', 'polling'],
   })
 
   ioInstance = io

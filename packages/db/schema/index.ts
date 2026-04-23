@@ -12,7 +12,7 @@ import {
   uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { user } from './auth';
+import { user } from './auth.js';
 
 // ── ENUMS ────────────────────────────────────────────────────────────────────
 
@@ -251,7 +251,7 @@ export const manglikStatusEnum = pgEnum('manglik_status', ['YES','NO','PARTIAL']
 // ── Auth — managed by Better Auth (see schema/auth.ts) ───────────────────────
 // user, session, account, verification tables are in auth.ts.
 // Re-export `user` here so other tables can reference it.
-export { user, session, account, verification } from './auth';
+export { user, session, account, verification } from './auth.js';
 
 // ── Profiles ──────────────────────────────────────────────────────────────────
 
