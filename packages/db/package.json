@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/fix-esm-imports.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint schema",
     "db:push": "drizzle-kit push",
