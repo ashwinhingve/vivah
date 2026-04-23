@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import {
   getMyProfile,
   updateMyProfile,
@@ -22,14 +23,14 @@ export const profilesRouter = Router();
  * Returns the authenticated user's own profile (full contact visible).
  * Creates a profile row automatically on first call.
  */
-profilesRouter.get('/me', authenticate, async (req: Request, res: Response): Promise<void> => {
+profilesRouter.get('/me', authenticate, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const profile = await getMyProfile(req.user!.id);
   if (!profile) {
     err(res, 'USER_NOT_FOUND', 'User not found', 404);
     return;
   }
   ok(res, profile);
-});
+}));
 
 const UpdateProfileSchema = z.object({
   stayQuotient:            z.enum(['INDEPENDENT', 'WITH_PARENTS', 'WITH_INLAWS', 'FLEXIBLE']).optional(),
@@ -42,7 +43,7 @@ const UpdateProfileSchema = z.object({
  * PUT /api/v1/profiles/me
  * Updates mutable profile fields for the authenticated user.
  */
-profilesRouter.put('/me', authenticate, async (req: Request, res: Response): Promise<void> => {
+profilesRouter.put('/me', authenticate, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const parsed = UpdateProfileSchema.safeParse(req.body);
   if (!parsed.success) {
     err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
@@ -62,7 +63,7 @@ profilesRouter.put('/me', authenticate, async (req: Request, res: Response): Pro
     return;
   }
   ok(res, profile);
-});
+}));
 
 /**
  * POST /api/v1/profiles/me/photos
@@ -210,7 +211,8 @@ profilesRouter.use('/', safetyRouter);
  * GET /api/v1/profiles/:id
  * Returns another user's profile by profile UUID.
  * Phone and email are masked unless the requesting user is the profile owner.
- * TODO: Expose contact when safety_mode_unlocks is added to schema.
+ * Viewers with an ACCEPTED match can call GET /profiles/:targetUserId/contact
+ * (handled by safetyRouter) to retrieve contact details.
  */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

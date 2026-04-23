@@ -6,6 +6,7 @@ import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smarts
 import {
   createCeremonyAction,
   deleteCeremonyAction,
+  updateCeremonyAction,
   selectMuhuratAction,
 } from './actions';
 
@@ -234,6 +235,35 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                         <p className="text-xs text-[#64748B]">{c.venue}</p>
                       )}
                     </div>
+                    <details className="shrink-0">
+                      <summary className="cursor-pointer list-none text-xs font-medium min-h-[32px] px-2 py-1 rounded-md border border-transparent text-[#64748B] hover:text-[#7B2D42] hover:border-[#C5A47E]/30 transition-colors">
+                        Edit
+                      </summary>
+                      <form
+                        action={updateCeremonyAction.bind(null, id, c.id)}
+                        className="absolute right-2 mt-1 z-10 w-64 rounded-lg border border-[#C5A47E]/30 bg-white p-3 space-y-2 shadow-lg"
+                      >
+                        <div>
+                          <label className="block text-[10px] font-medium text-[#64748B] mb-1">Date</label>
+                          <input name="date" type="date" defaultValue={c.date ?? ''} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[10px] font-medium text-[#64748B] mb-1">Start</label>
+                            <input name="startTime" type="time" defaultValue={c.startTime ?? ''} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-medium text-[#64748B] mb-1">End</label>
+                            <input name="endTime" type="time" defaultValue={c.endTime ?? ''} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-[#64748B] mb-1">Venue</label>
+                          <input name="venue" type="text" defaultValue={c.venue ?? ''} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" />
+                        </div>
+                        <button type="submit" className="w-full rounded bg-[#7B2D42] text-white text-xs py-1.5">Save</button>
+                      </form>
+                    </details>
                     <form action={deleteCeremonyAction.bind(null, id, c.id)}>
                       <button
                         type="submit"

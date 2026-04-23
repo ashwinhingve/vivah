@@ -23,9 +23,11 @@ async function fetchVendorOrders(token: string): Promise<VendorOrderItem[]> {
     if (!res.ok) return [];
     const json = (await res.json()) as {
       success: boolean;
-      data: { items: VendorOrderItem[] };
+      data: { orders?: VendorOrderItem[]; items?: VendorOrderItem[] };
     };
-    return json.success ? (json.data?.items ?? []) : [];
+    if (!json.success) return [];
+    // API returns { orders: [...] }; tolerate legacy { items } shape.
+    return json.data?.orders ?? json.data?.items ?? [];
   } catch {
     return [];
   }
@@ -55,6 +57,16 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
   const pendingCount = allItems.filter((i) => i.fulfilmentStatus === 'PENDING').length;
   const shippedCount = allItems.filter((i) => i.fulfilmentStatus === 'SHIPPED').length;
   const deliveredCount = allItems.filter((i) => i.fulfilmentStatus === 'DELIVERED').length;
+
+  // Realised revenue = sum of subtotals for DELIVERED items. Subtotal is a
+  // decimal string from Postgres (exactOptionalPropertyTypes) so parseFloat
+  // before summing.
+  const revenue = allItems
+    .filter((i) => i.fulfilmentStatus === 'DELIVERED')
+    .reduce((sum, i) => sum + parseFloat(String(i.subtotal ?? '0')), 0);
+  const revenueLabel = revenue > 0
+    ? `₹${revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+    : '₹0';
 
   return (
     <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
@@ -86,8 +98,8 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
           </div>
           <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Revenue</p>
-            <p className="text-2xl font-bold font-heading text-[#C5A47E]">—</p>
-            <p className="text-xs text-[#94A3B8]">coming soon</p>
+            <p className="text-2xl font-bold font-heading text-[#C5A47E]">{revenueLabel}</p>
+            <p className="text-xs text-[#94A3B8]">realised (delivered)</p>
           </div>
         </div>
 

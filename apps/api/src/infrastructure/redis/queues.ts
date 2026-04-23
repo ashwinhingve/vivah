@@ -8,17 +8,23 @@ export interface MatchComputeJob {
 }
 
 /**
- * BullMQ requires its own dedicated ioredis connection —
- * it cannot share the singleton in lib/redis.ts.
+ * BullMQ requires its own dedicated ioredis connection — it cannot share the
+ * singleton in lib/redis.ts. enableOfflineQueue: false fails fast when Redis
+ * is unreachable (tests / dev without infra). maxRetriesPerRequest: null is
+ * required by BullMQ ^5.
  */
-/**
- * enableOfflineQueue: false — fail fast when Redis is unreachable (e.g. in tests)
- * maxRetriesPerRequest: null — required by BullMQ ^5 (prevents deprecation warning)
- */
-const connection = {
+export const connection = {
   url: env.REDIS_URL,
   enableOfflineQueue: false,
   maxRetriesPerRequest: null as unknown as number,
+};
+
+/** Default retry options for enqueued jobs. */
+export const DEFAULT_JOB_OPTS = {
+  attempts: 5,
+  backoff: { type: 'exponential' as const, delay: 5000 },
+  removeOnFail: { count: 100 },
+  removeOnComplete: { count: 1000 },
 };
 
 export const matchComputeQueue = new Queue<MatchComputeJob>(
@@ -52,5 +58,15 @@ export interface EscrowReleaseJob {
 
 export const escrowReleaseQueue = new Queue<EscrowReleaseJob>(
   'escrow-release',
+  { connection },
+);
+
+/** Payload for a delayed order expiry job — cancels PLACED orders unpaid after TTL. */
+export interface OrderExpiryJob {
+  orderId: string;
+}
+
+export const orderExpiryQueue = new Queue<OrderExpiryJob>(
+  'order-expiry',
   { connection },
 );

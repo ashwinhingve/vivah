@@ -10,9 +10,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockSelect = vi.fn();
 const mockInsert = vi.fn();
 const mockUpdate = vi.fn();
+const mockTransaction = vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
+  // Pass through — the txn callback gets the same stubbed `db` surface so
+  // nested updates/inserts hit the module-level mocks.
+  return fn({ select: mockSelect, insert: mockInsert, update: mockUpdate });
+});
 
 vi.mock('../../lib/db.js', () => ({
-  db: { select: mockSelect, insert: mockInsert, update: mockUpdate },
+  db: { select: mockSelect, insert: mockInsert, update: mockUpdate, transaction: mockTransaction },
 }));
 
 vi.mock('@smartshaadi/db', () => ({
@@ -23,13 +28,23 @@ vi.mock('@smartshaadi/db', () => ({
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:  vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and: vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  eq:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  inArray: vi.fn((_col: unknown, values: unknown[]) => ({ type: 'inArray', values })),
+  sql:     vi.fn(() => ({ type: 'sql' })),
 }));
 
 const mockQueueAdd = vi.fn().mockResolvedValue({ id: 'job-1' });
 vi.mock('bullmq', () => ({
   Queue: vi.fn().mockImplementation(() => ({ add: mockQueueAdd })),
+}));
+
+vi.mock('../../infrastructure/redis/queues.js', () => ({
+  escrowReleaseQueue: { add: mockQueueAdd },
+  notificationsQueue: { add: mockQueueAdd },
+  orderExpiryQueue:   { add: vi.fn() },
+  DEFAULT_JOB_OPTS:   {},
+  connection:         {},
 }));
 
 vi.mock('../../lib/env.js', () => ({

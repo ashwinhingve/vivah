@@ -32,8 +32,13 @@ export const auth = betterAuth({
           );
           return;
         }
-        // TODO: real MSG91 integration when USE_MOCK_SERVICES=false
-        // await msg91.sendOTP(phone, code);
+        // Fail loud in real mode until MSG91 is wired up — silent no-op would
+        // make the UX say "code sent" when nothing was delivered.
+        if (!env.MSG91_API_KEY) {
+          throw new Error('MSG91 not configured — set USE_MOCK_SERVICES=true or MSG91_API_KEY');
+        }
+        // TODO: real MSG91 integration
+        throw new Error('MSG91 integration not yet implemented');
       },
       // Auto-create user on first OTP verify (phone-first signup flow).
       // Temp email is derived from phone — user sets real email in profile later.

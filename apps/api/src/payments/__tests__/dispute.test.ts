@@ -382,7 +382,7 @@ describe('raiseDispute — deterministic Bull cancel (Fix 1)', () => {
 
     await raiseDispute('user-abc', 'bk-det1', { reason: 'Test deterministic cancel' });
 
-    expect(mockGetJob).toHaveBeenCalledWith('escrow-release:bk-det1');
+    expect(mockGetJob).toHaveBeenCalledWith('escrow-release-bk-det1');
     expect(mockJobRemove).toHaveBeenCalled();
   });
 

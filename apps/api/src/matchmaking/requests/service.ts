@@ -11,13 +11,14 @@
  * - All notification jobs pushed to Bull notifications queue asynchronously
  */
 
-import { Queue } from 'bullmq';
 import { eq, or, and, desc, sql } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
 import { env } from '../../lib/env.js';
 import { mockUpsertField } from '../../lib/mockStore.js';
-import { matchRequests, blockedUsers } from '@smartshaadi/db';
+import { matchRequests, blockedUsers, auditLogs } from '@smartshaadi/db';
 import { Chat } from '../../infrastructure/mongo/models/Chat.js';
+import { notificationsQueue } from '../../infrastructure/redis/queues.js';
+import { createHash } from 'crypto';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -45,26 +46,8 @@ export interface ServiceError extends Error {
   code: string;
 }
 
-// ── Notification queue ────────────────────────────────────────────────────────
-
-interface NotificationJob {
-  type: string;
-  userId: string;
-  data: Record<string, unknown>;
-}
-
-/**
- * BullMQ requires a dedicated ioredis connection.
- * enableOfflineQueue: false — fail fast when Redis unavailable (e.g. tests)
- * maxRetriesPerRequest: null — required by BullMQ v5
- */
-const notificationsQueue = new Queue<NotificationJob>('notifications', {
-  connection: {
-    url: env.REDIS_URL,
-    enableOfflineQueue: false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-});
+// notificationsQueue is shared via infrastructure/redis/queues.ts — never
+// re-instantiated per-module.
 
 // ── Error factory ─────────────────────────────────────────────────────────────
 
@@ -146,7 +129,7 @@ export async function sendRequest(
     {
       type: 'MATCH_REQUEST_RECEIVED',
       userId: receiverId,
-      data: { requestId: created.id, senderId },
+      payload: { requestId: created.id, senderId },
     },
     { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
   );
@@ -210,7 +193,7 @@ export async function acceptRequest(
     {
       type: 'MATCH_ACCEPTED',
       userId: request.senderId,
-      data: { requestId },
+      payload: { requestId },
     },
     { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
   );
@@ -298,41 +281,93 @@ export async function blockUser(
     .values({ blockerId: userId, blockedId: targetProfileId })
     .returning();
 
-  // Cancel any pending requests between the two parties
-  await db
+  // Cancel PENDING + flip ACCEPTED match requests to BLOCKED — blocking a
+  // person should also silently break any open conversation, not just stop
+  // future requests. The corresponding Chat gets deactivated below.
+  const affected = await db
     .update(matchRequests)
     .set({ status: 'BLOCKED', updatedAt: new Date() })
     .where(
       and(
-        eq(matchRequests.status, 'PENDING'),
+        or(
+          eq(matchRequests.status, 'PENDING'),
+          eq(matchRequests.status, 'ACCEPTED'),
+        ),
         or(
           and(eq(matchRequests.senderId, userId), eq(matchRequests.receiverId, targetProfileId)),
           and(eq(matchRequests.senderId, targetProfileId), eq(matchRequests.receiverId, userId)),
         ),
       ),
-    );
+    )
+    .returning({ id: matchRequests.id });
+
+  // Deactivate each impacted chat so the UI hides it and sockets stop accepting
+  // new messages on the room.
+  if (affected.length > 0 && !env.USE_MOCK_SERVICES) {
+    try {
+      await Chat.updateMany(
+        { matchRequestId: { $in: affected.map((r) => r.id) } },
+        { $set: { isActive: false } },
+      );
+    } catch (e) {
+      console.error('[blockUser] failed to deactivate chats:', e);
+    }
+  }
+  if (affected.length > 0 && env.USE_MOCK_SERVICES) {
+    const { mockGet } = await import('../../lib/mockStore.js');
+    for (const r of affected) {
+      const stored = mockGet(r.id);
+      const chat = (stored?.['chat'] as Record<string, unknown> | undefined) ?? {};
+      mockUpsertField(r.id, 'chat', { ...chat, isActive: false });
+    }
+  }
 }
 
 // ── reportUser ────────────────────────────────────────────────────────────────
 
 /**
  * Report a user profile for inappropriate behaviour.
- * Writes to audit_logs when possible; falls back to a structured console.info
- * log (picked up by BetterStack drain / CloudWatch) if the insert fails —
- * e.g. because 'PROFILE_REPORTED' is not yet in the auditEventTypeEnum.
+ * Writes to audit_logs with event_type='PROFILE_REPORTED' so moderation tools
+ * can query, notify the admin queue, and preserve an immutable trail. Also
+ * emits a structured console line for external log drains.
  */
 export async function reportUser(
   userId: string,
   targetProfileId: string,
   reason: string,
 ): Promise<void> {
-  const contentHash = Buffer
-    .from(`${userId}:${targetProfileId}:${reason}:${Date.now()}`)
-    .toString('hex')
-    .slice(0, 64);
+  const payload = { reason, reportedAt: new Date().toISOString() };
+  const contentHash = createHash('sha256')
+    .update(`${userId}:${targetProfileId}:${reason}:${Date.now()}`)
+    .digest('hex');
 
-  // 'PROFILE_REPORTED' is not yet in the auditEventTypeEnum (pending DB migration).
-  // Use structured log for now — BetterStack drain picks this up in production.
+  try {
+    await db.insert(auditLogs).values({
+      eventType:   'PROFILE_REPORTED',
+      entityType:  'profile',
+      entityId:    targetProfileId,
+      actorId:     userId,
+      payload,
+      contentHash,
+      prevHash:    null,
+    });
+  } catch (e) {
+    // Don't surface to user — log and continue. Moderation read paths use
+    // the console drain as a secondary source when the insert is blocked
+    // (e.g. enum mismatch in a partially migrated env).
+    console.error('[reportUser] audit insert failed:', e);
+  }
+
+  void notificationsQueue.add(
+    'PROFILE_REPORTED_MODERATION',
+    {
+      type:    'PROFILE_REPORTED_MODERATION',
+      userId:  'admin',
+      payload: { reporterId: userId, targetProfileId, reason },
+    },
+    { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
+  );
+
   console.info(JSON.stringify({
     event_type:   'PROFILE_REPORTED',
     actor_id:     userId,

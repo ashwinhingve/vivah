@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { GuestTable } from '@/components/wedding/GuestTable.client';
 import { RsvpStats } from '@/components/wedding/RsvpStats';
+import { SendInvitations } from '@/components/wedding/SendInvitations.client';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { GuestSummary } from '@smartshaadi/types';
 
@@ -75,6 +76,11 @@ export default async function GuestsPage({ params }: PageProps) {
 
         {/* RSVP stats (only if we have guests) */}
         {!error && guests.length > 0 && <RsvpStats guests={guests} />}
+
+        {/* Send invitations */}
+        {!error && guests.length > 0 && (
+          <SendInvitations weddingId={id} guests={guests} />
+        )}
 
         {/* Guest table */}
         {!error && <GuestTable weddingId={id} initialGuests={guests} />}

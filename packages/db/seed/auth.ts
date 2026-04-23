@@ -88,7 +88,7 @@ export async function seedAuthUsers(): Promise<void> {
       .insert(profiles)
       .values({
         userId:              u.id,
-        verificationStatus:  'PENDING',
+        verificationStatus:  'VERIFIED',
         premiumTier:         'FREE',
         profileCompleteness: 0,
         isActive:            true,

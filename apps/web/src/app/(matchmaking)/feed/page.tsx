@@ -31,11 +31,16 @@ export default async function MatchFeedPage() {
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
   const [feed, me] = await Promise.all([
-    fetchAuth<MatchFeedItem[]>('/api/v1/matchmaking/feed', token),
+    fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(
+      '/api/v1/matchmaking/feed',
+      token,
+    ),
     fetchAuth<MeResponse>('/api/v1/profiles/me', token),
   ]);
 
-  const items = feed ?? [];
+  // Accept either shape — new envelope has { items, total, ... }; legacy cached
+  // data may still be a raw array.
+  const items: MatchFeedItem[] = Array.isArray(feed) ? feed : (feed?.items ?? []);
   const completeness = me?.profileCompleteness ?? 0;
   const profileReady = completeness >= 40;
 

@@ -24,6 +24,26 @@ vi.mock('../../../infrastructure/mongo/models/Chat.js', () => ({
   },
 }))
 
+// ── Mock profile resolver ─────────────────────────────────────────────────────
+// Every chat handler resolves the socket's userId → profileId before any
+// participant check. In tests the participants Mongo doc is seeded with the
+// same string used as userId, so we return it unchanged.
+vi.mock('../../../lib/profile.js', () => ({
+  resolveProfileId: vi.fn(async (userId: string) => userId),
+  invalidateProfileIdCache: vi.fn(),
+}))
+
+vi.mock('../../../infrastructure/redis/queues.js', () => ({
+  notificationsQueue: { add: vi.fn() },
+}))
+
+// ── Mock mockStore (used for participant check in USE_MOCK_SERVICES=true) ─────
+const { mockGetFn } = vi.hoisted(() => ({ mockGetFn: vi.fn() }))
+vi.mock('../../../lib/mockStore.js', () => ({
+  mockGet: mockGetFn,
+  mockUpsertField: vi.fn(),
+}))
+
 import { registerChatHandlers } from '../handlers.js'
 import { env } from '../../../lib/env.js'
 
@@ -81,6 +101,12 @@ describe('registerChatHandlers', () => {
     vi.clearAllMocks()
     // Default: USE_MOCK_SERVICES off
     ;(env as { USE_MOCK_SERVICES: boolean }).USE_MOCK_SERVICES = false
+    // Default mockStore returns a chat doc with user-1 + user-2 as participants.
+    // Tests that need the non-participant branch override per-call.
+    mockGetFn.mockReturnValue({ chat: { participants: ['user-1', 'user-2'] } })
+    // Default real-mode participant lookup also returns user-1 + user-2. Per-
+    // test mockFindOne.mockResolvedValueOnce() overrides this for specific cases.
+    mockFindOne.mockResolvedValue({ participants: ['user-1', 'user-2'] })
   })
 
   describe('join_room', () => {

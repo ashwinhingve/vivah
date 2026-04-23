@@ -15,6 +15,8 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { products, orders, orderItems, vendors } from '@smartshaadi/db';
 import * as razorpay from '../lib/razorpay.js';
+import { orderExpiryQueue } from '../infrastructure/redis/queues.js';
+import { env } from '../lib/env.js';
 import type { OrderSummary, OrderDetail, OrderItemDetail, VendorOrderItem } from '@smartshaadi/types';
 import type { CreateOrderInput, ShipItemInput } from '@smartshaadi/schemas';
 
@@ -219,6 +221,26 @@ export async function createOrder(
     .update(orders)
     .set({ razorpayOrderId: rpOrder.id, updatedAt: new Date() })
     .where(eq(orders.id, order.id));
+
+  // Step 7: Schedule expiry — if the customer abandons payment, cancel the
+  // order in 30 minutes so reserved stock is returned. Deterministic jobId
+  // (no colons — BullMQ rejects them) prevents duplicate scheduling on retry.
+  if (!env.USE_MOCK_SERVICES) {
+    try {
+      await orderExpiryQueue.add(
+        'expire-order',
+        { orderId: order.id },
+        {
+          delay: 30 * 60 * 1000,
+          jobId: `order-expiry-${order.id}`,
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      );
+    } catch (e) {
+      console.error('[store/createOrder] failed to schedule expiry job:', e);
+    }
+  }
 
   return {
     order:          toOrderSummary(order, input.items.length),

@@ -4,18 +4,31 @@ import { Chat } from '../infrastructure/mongo/models/Chat.js'
 import { env } from '../lib/env.js'
 import { ok, err } from '../lib/response.js'
 import { getPresignedUploadUrl } from '../storage/service.js'
+import { resolveProfileId } from '../lib/profile.js'
+import { asyncHandler } from '../lib/asyncHandler.js'
 
 const router = Router()
 
 /**
- * GET /api/v1/chat/conversations
- * List all conversations for the authenticated user.
+ * Chat.participants stores profile UUIDs. All queries here resolve the caller's
+ * userId → profileId first.
  */
+async function requireProfileId(req: Request, res: Response): Promise<string | null> {
+  const profileId = await resolveProfileId(req.user!.id)
+  if (!profileId) {
+    err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404)
+    return null
+  }
+  return profileId
+}
+
+// GET /api/v1/chat/conversations
 router.get(
   '/conversations',
   authenticate,
-  async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user!.id
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const profileId = await requireProfileId(req, res)
+    if (!profileId) return
 
     if (env.USE_MOCK_SERVICES) {
       ok(res, [])
@@ -23,7 +36,7 @@ router.get(
     }
 
     try {
-      const conversations = await Chat.find({ participants: userId })
+      const conversations = await Chat.find({ participants: profileId })
         .select('matchRequestId participants lastMessage isActive updatedAt')
         .sort({ updatedAt: -1 })
         .lean()
@@ -31,37 +44,30 @@ router.get(
     } catch {
       err(res, 'INTERNAL_ERROR', 'Failed to fetch conversations', 500)
     }
-  },
+  }),
 )
 
-/**
- * GET /api/v1/chat/conversations/:matchId
- * Full message history for a conversation, paginated newest-first.
- */
+// GET /api/v1/chat/conversations/:matchId
 router.get(
   '/conversations/:matchId',
   authenticate,
-  async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user!.id
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const profileId = await requireProfileId(req, res)
+    if (!profileId) return
+
     const { matchId } = req.params as { matchId: string }
     const page = Math.max(1, Number(req.query['page']) || 1)
     const limit = Math.min(100, Math.max(1, Number(req.query['limit']) || 50))
 
     if (env.USE_MOCK_SERVICES) {
-      res.json({
-        success: true,
-        data: { messages: [], total: 0 },
-        error: null,
-        meta: { page, limit, timestamp: new Date().toISOString() },
-      })
+      ok(res, { messages: [], total: 0 }, 200, { page, limit })
       return
     }
 
     try {
-      // Guard: only participants can read this conversation
       const chat = await Chat.findOne({
         matchRequestId: matchId,
-        participants: userId,
+        participants: profileId,
       }).lean()
 
       if (!chat) {
@@ -71,38 +77,26 @@ router.get(
 
       const total = chat.messages.length
       const sorted = [...chat.messages].sort(
-        (a, b) =>
-          new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
+        (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
       )
       const messages = sorted.slice((page - 1) * limit, page * limit)
-
-      res.json({
-        success: true,
-        data: { messages, total },
-        error: null,
-        meta: { page, limit, timestamp: new Date().toISOString() },
-      })
+      ok(res, { messages, total }, 200, { page, limit })
     } catch {
       err(res, 'INTERNAL_ERROR', 'Failed to fetch messages', 500)
     }
-  },
+  }),
 )
 
-/**
- * POST /api/v1/chat/conversations/:matchId/photos
- * Get a pre-signed R2 PUT URL for uploading a chat photo.
- * Body: { fileName: string; mimeType: string }
- */
+// POST /api/v1/chat/conversations/:matchId/photos
 router.post(
   '/conversations/:matchId/photos',
   authenticate,
-  async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user!.id
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const profileId = await requireProfileId(req, res)
+    if (!profileId) return
+
     const { matchId } = req.params as { matchId: string }
-    const { fileName, mimeType } = req.body as {
-      fileName?: unknown
-      mimeType?: unknown
-    }
+    const { fileName, mimeType } = req.body as { fileName?: unknown; mimeType?: unknown }
 
     if (
       typeof fileName !== 'string' ||
@@ -114,14 +108,12 @@ router.post(
       return
     }
 
-    // Guard: only conversation participants may upload photos
     if (!env.USE_MOCK_SERVICES) {
       try {
         const chat = await Chat.findOne({
           matchRequestId: matchId,
-          participants: userId,
+          participants: profileId,
         }).lean()
-
         if (!chat) {
           err(res, 'NOT_FOUND', 'Conversation not found', 404)
           return
@@ -142,7 +134,7 @@ router.post(
     } catch {
       err(res, 'INTERNAL_ERROR', 'Failed to generate upload URL', 500)
     }
-  },
+  }),
 )
 
 export { router as chatRouter }

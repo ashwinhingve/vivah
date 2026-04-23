@@ -50,6 +50,32 @@ export async function deleteCeremonyAction(weddingId: string, ceremonyId: string
   revalidatePath(`/weddings/${weddingId}`);
 }
 
+export async function updateCeremonyAction(
+  weddingId: string,
+  ceremonyId: string,
+  formData: FormData,
+): Promise<void> {
+  const payload: Record<string, string> = {};
+  const date      = trim(formData.get('date'));
+  const venue     = trim(formData.get('venue'));
+  const startTime = trim(formData.get('startTime'));
+  const endTime   = trim(formData.get('endTime'));
+  const notes     = trim(formData.get('notes'));
+  if (date)      payload['date']      = date;
+  if (venue)     payload['venue']     = venue;
+  if (startTime) payload['startTime'] = startTime;
+  if (endTime)   payload['endTime']   = endTime;
+  if (notes)     payload['notes']     = notes;
+
+  await fetch(`${API_BASE}/api/v1/weddings/${weddingId}/ceremonies/${ceremonyId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Cookie: await cookieHeader() },
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+  revalidatePath(`/weddings/${weddingId}`);
+}
+
 export async function selectMuhuratAction(weddingId: string, formData: FormData): Promise<void> {
   const date    = trim(formData.get('date'));
   const muhurat = trim(formData.get('muhurat'));

@@ -42,13 +42,17 @@ matchmakingRouter.get(
       // Try cache first
       const cached = await getCachedFeed(userId, redis);
       if (cached !== null) {
-        ok(res, cached);
+        ok(res, { items: cached, total: cached.length, page: 1, limit: cached.length }, 200, {
+          page: 1, limit: cached.length, total: cached.length,
+        });
         return;
       }
 
       // Cache miss — compute fresh feed
       const feed = await computeAndCacheFeed(userId, db, redis);
-      ok(res, feed);
+      ok(res, { items: feed, total: feed.length, page: 1, limit: feed.length }, 200, {
+        page: 1, limit: feed.length, total: feed.length,
+      });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to load feed';
       err(res, 'FEED_ERROR', message, 500);

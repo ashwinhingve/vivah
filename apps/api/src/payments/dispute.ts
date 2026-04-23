@@ -35,7 +35,7 @@ import type { DisputeEscrowInput } from '@smartshaadi/schemas';
  */
 async function cancelEscrowReleaseJob(bookingId: string): Promise<void> {
   try {
-    const job = await escrowReleaseQueue.getJob(`escrow-release:${bookingId}`);
+    const job = await escrowReleaseQueue.getJob(`escrow-release-${bookingId}`);
     if (job) {
       await job.remove();
     }

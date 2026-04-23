@@ -252,13 +252,17 @@ export async function getCachedFeed(
 
 // ── scoreAndRank ──────────────────────────────────────────────────────────────
 
+const SEVENTY_TWO_HOURS_MS = 72 * 60 * 60 * 1000;
+
 export async function scoreAndRank(
   userId: string,
   filtered: ProfileData[],
   userProfile: ProfileData,
   redis: Redis,
   photoMap: Map<string, string | null>,
+  createdAtMap?: Map<string, Date | null>,
 ): Promise<MatchFeedItem[]> {
+  const now = Date.now();
   const scored = await Promise.all(
     filtered.map(async (candidate) => {
       const compatibility = await scoreCandidate(
@@ -269,12 +273,12 @@ export async function scoreAndRank(
         redis,
       );
 
-      // Determine if this is a "new" profile (seen within last 72h — placeholder)
-      const isNew = false;
+      const createdAt = createdAtMap?.get(candidate.id) ?? null;
+      const isNew = createdAt ? now - createdAt.getTime() < SEVENTY_TWO_HOURS_MS : false;
 
       const feedItem: MatchFeedItem = {
         profileId:     candidate.id,
-        name:          '',  // populated by caller with raw row data
+        name:          '',
         age:           candidate.age,
         city:          candidate.city,
         compatibility,
@@ -337,11 +341,12 @@ export async function computeAndCacheFeed(
     userProfileId, // exclude self
   ]);
 
-  // 3. Query active candidate profiles
+  // 3. Query active + KYC-verified candidate profiles only — unverified profiles
+  // must never surface in match feeds (rule 5 — privacy + safety)
   const candidateRows = await db
     .select()
     .from(profiles)
-    .where(eq(profiles.isActive, true))
+    .where(and(eq(profiles.isActive, true), eq(profiles.verificationStatus, 'VERIFIED')))
     .limit(500) as unknown[];
 
   // Filter out blocked / self
@@ -425,8 +430,13 @@ export async function computeAndCacheFeed(
   const userIdMap = new Map<string, string>(
     eligibleRows.map((r) => [r.id, r.userId]),
   );
+  const createdAtMap = new Map<string, Date | null>(
+    (candidateRows as Array<{ id: string; createdAt?: Date | string | null }>).map(
+      (r) => [r.id, r.createdAt ? new Date(r.createdAt) : null],
+    ),
+  );
 
-  const ranked = await scoreAndRank(userId, filteredProfiles, userProfileData, redis, photoMap);
+  const ranked = await scoreAndRank(userId, filteredProfiles, userProfileData, redis, photoMap, createdAtMap);
 
   // Attach names/ages/cities enriched from MongoDB ProfileContent
   const feed: MatchFeedItem[] = await Promise.all(

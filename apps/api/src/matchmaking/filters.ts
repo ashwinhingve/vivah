@@ -85,12 +85,18 @@ function passesLocationFilter(
   user: ProfileWithPreferences,
   candidate: ProfileWithPreferences,
 ): boolean {
-  const sameCity =
-    user.city.toLowerCase() === candidate.city.toLowerCase();
+  // Empty/missing location on either side = "flexible" — do not hard-filter.
+  // Otherwise, require same city or same state (case-insensitive).
+  const uCity  = user.city?.trim().toLowerCase()      ?? '';
+  const cCity  = candidate.city?.trim().toLowerCase() ?? '';
+  const uState = user.state?.trim().toLowerCase()     ?? '';
+  const cState = candidate.state?.trim().toLowerCase() ?? '';
 
-  const sameState =
-    user.state.toLowerCase() === candidate.state.toLowerCase();
+  if (!uCity && !uState) return true;
+  if (!cCity && !cState) return true;
 
+  const sameCity  = uCity  !== '' && uCity  === cCity;
+  const sameState = uState !== '' && uState === cState;
   return sameCity || sameState;
 }
 

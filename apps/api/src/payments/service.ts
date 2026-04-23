@@ -8,7 +8,7 @@
  *  - USE_MOCK_SERVICES guard on all external calls (enforced by razorpay.ts)
  */
 import { createHash } from 'crypto';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import {
@@ -91,14 +91,15 @@ export async function createPaymentOrder(
     throw new Error('Booking must be CONFIRMED before payment');
   }
 
-  // 4. Escrow = exactly 50%
+  // 4. Escrow = exactly 50% of booking total (in rupees)
   const totalAmount = parseFloat(booking.totalAmount);
   const escrowAmount = Math.round(totalAmount * 0.5);
 
-  // 5. Create Razorpay order
-  const order = await createOrder(escrowAmount, 'INR', booking.id);
+  // 5. Create Razorpay order. Razorpay requires amount in paise — multiply at
+  // the integration boundary only. Elsewhere we store/return rupees.
+  const order = await createOrder(escrowAmount * 100, 'INR', booking.id);
 
-  // 6. Insert payments row
+  // 6. Insert payments row (amount stored in rupees)
   await db.insert(schema.payments).values({
     bookingId:       booking.id,
     amount:          String(escrowAmount),
@@ -107,7 +108,6 @@ export async function createPaymentOrder(
     razorpayOrderId: order.id,
   });
 
-  // 7. Return PaymentOrder
   return {
     razorpayOrderId: order.id,
     amount:          escrowAmount,
@@ -134,6 +134,12 @@ export async function handlePaymentSuccess(
     throw new Error(`Payment not found for order: ${razorpayOrderId}`);
   }
 
+  // Idempotency — if this webhook has already been processed for this order,
+  // short-circuit. Razorpay retries on 5xx so a duplicate must return 200 noop.
+  if (payment.status === 'CAPTURED') {
+    return;
+  }
+
   // 2. Update payment status → CAPTURED
   await db
     .update(schema.payments)
@@ -148,13 +154,17 @@ export async function handlePaymentSuccess(
 
   const actorId = booking?.customerId ?? 'system';
 
-  // 4. Insert escrowAccounts row
-  await db.insert(schema.escrowAccounts).values({
-    bookingId:  payment.bookingId,
-    totalHeld:  payment.amount,
-    released:   '0',
-    status:     'HELD',
-  });
+  // 4. Insert escrowAccounts row. bookingId is unique — onConflictDoNothing
+  // keeps duplicate webhooks safe without hitting a 23505 from Postgres.
+  await db
+    .insert(schema.escrowAccounts)
+    .values({
+      bookingId:  payment.bookingId,
+      totalHeld:  payment.amount,
+      released:   '0',
+      status:     'HELD',
+    })
+    .onConflictDoNothing({ target: schema.escrowAccounts.bookingId });
 
   // 5. Append audit logs — payment received + escrow held (two distinct events)
   const auditPayload = { razorpayPaymentId, razorpayOrderId, amount: payment.amount };
@@ -256,6 +266,14 @@ export async function getPaymentHistory(
 ): Promise<{ items: PaymentHistoryItem[]; total: number; page: number; limit: number }> {
   const offset = (page - 1) * limit;
 
+  // Real total count for pagination — bare rows.length would equal the page size
+  const [countRow] = await db
+    .select({ total: sql<string>`count(*)` })
+    .from(schema.payments)
+    .innerJoin(schema.bookings, eq(schema.payments.bookingId, schema.bookings.id))
+    .where(eq(schema.bookings.customerId, userId));
+  const total = Number(countRow?.total ?? 0);
+
   // Join payments → bookings + left-join escrow to eliminate N+1 fetches
   const rows = await db
     .select({
@@ -302,7 +320,7 @@ export async function getPaymentHistory(
         releasedAt:   r.escrowReleasedAt ?? null,
       } : null,
     })),
-    total: rows.length,
+    total,
     page,
     limit,
   };

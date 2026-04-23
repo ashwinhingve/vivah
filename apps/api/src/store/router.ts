@@ -34,7 +34,6 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import * as razorpay from '../lib/razorpay.js';
 import {
   ProductListQuerySchema,
   CreateProductSchema,
@@ -56,7 +55,6 @@ import {
 } from './product.service.js';
 import {
   createOrder,
-  confirmOrder,
   getMyOrders,
   getOrderDetail,
   cancelOrder,
@@ -420,47 +418,6 @@ storeRouter.put(
   },
 );
 
-// ════════════════════════════════════════════════════════════════════════════════
-// WEBHOOK ROUTES (NO auth — Razorpay signature verified)
-// ════════════════════════════════════════════════════════════════════════════════
-
-storeRouter.post(
-  '/webhook/razorpay',
-  async (req: Request, res: Response): Promise<void> => {
-    const signature = req.headers['x-razorpay-signature'];
-    if (typeof signature !== 'string') {
-      err(res, 'UNAUTHORIZED', 'Missing Razorpay signature', 401);
-      return;
-    }
-
-    // Verify webhook signature (mock always returns true in dev)
-    const rawBody = JSON.stringify(req.body);
-    const valid   = await razorpay.verifyWebhookSignature(rawBody, signature);
-    if (!valid) {
-      err(res, 'UNAUTHORIZED', 'Invalid Razorpay signature', 401);
-      return;
-    }
-
-    const body = req.body as {
-      event?: string;
-      payload?: { payment?: { entity?: { order_id?: string; id?: string } } };
-    };
-
-    if (body.event === 'payment.captured') {
-      const razorpayOrderId   = body.payload?.payment?.entity?.order_id ?? '';
-      const razorpayPaymentId = body.payload?.payment?.entity?.id        ?? '';
-
-      if (razorpayOrderId && razorpayPaymentId) {
-        try {
-          await confirmOrder(razorpayOrderId, razorpayPaymentId);
-        } catch (e) {
-          // Log but don't fail — Razorpay will retry
-          console.error('[store/webhook/razorpay] confirmOrder failed:', e);
-        }
-      }
-    }
-
-    // Always respond 200 to Razorpay
-    res.status(200).json({ received: true });
-  },
-);
+// Webhook handler lives in apps/api/src/store/webhook.ts and is mounted
+// directly in index.ts BEFORE express.json() so the raw signed bytes are
+// available for signature verification.

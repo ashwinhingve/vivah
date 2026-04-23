@@ -29,6 +29,7 @@ import {
   activateRentalBooking,
   returnRentalItem,
   getMyRentalBookings,
+  getVendorRentalBookings,
 } from './service.js';
 
 export const rentalRouter = Router();
@@ -84,6 +85,21 @@ rentalRouter.get(
       ok(res, { bookings });
     } catch (e) {
       handleError(res, e, 'Failed to fetch your rental bookings');
+    }
+  },
+);
+
+// ── GET /bookings/vendor — vendor's own rental bookings ─────────────────────
+rentalRouter.get(
+  '/bookings/vendor',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    try {
+      const bookings = await getVendorRentalBookings(userId);
+      ok(res, { bookings });
+    } catch (e) {
+      handleError(res, e, 'Failed to fetch vendor rental bookings');
     }
   },
 );

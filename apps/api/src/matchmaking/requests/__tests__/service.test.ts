@@ -7,6 +7,7 @@ vi.mock('../../../lib/db.js', () => ({ db: {} }));
 vi.mock('@smartshaadi/db', () => ({
   matchRequests: {},
   blockedUsers:  {},
+  auditLogs:     {},
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -17,12 +18,18 @@ vi.mock('drizzle-orm', () => ({
   desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
 }));
 
+// notifications queue is now imported from the shared module — mock it directly
+const mockQueueAdd = vi.fn().mockResolvedValue({ id: 'job-1' });
 vi.mock('../../../infrastructure/redis/queues.js', () => ({
-  matchComputeQueue: { add: vi.fn() },
+  matchComputeQueue:   { add: vi.fn() },
+  notificationsQueue:  { add: mockQueueAdd },
+  escrowReleaseQueue:  { add: vi.fn() },
+  orderExpiryQueue:    { add: vi.fn() },
+  queueNotification:   vi.fn(),
+  DEFAULT_JOB_OPTS:    {},
+  connection:          {},
 }));
 
-// notifications queue mock — the service creates its own Queue instance
-const mockQueueAdd = vi.fn().mockResolvedValue({ id: 'job-1' });
 vi.mock('bullmq', () => ({
   Queue: vi.fn().mockImplementation(() => ({ add: mockQueueAdd })),
 }));
@@ -40,6 +47,7 @@ const mockUpsertFieldFn = vi.fn((userId: string, field: string, value: unknown) 
 });
 vi.mock('../../../lib/mockStore.js', () => ({
   mockUpsertField: mockUpsertFieldFn,
+  mockGet:         vi.fn(() => null),
 }));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -342,8 +350,9 @@ describe('matchmaking/requests/service', () => {
       const dbMod = await import('../../../lib/db.js');
       const insertMock = vi.fn().mockReturnValue(makeInsertChain([{ id: 'block-new' }]));
       const updateMock = vi.fn().mockReturnValue({
-        set:   vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue(undefined),
+        set:       vi.fn().mockReturnThis(),
+        where:     vi.fn().mockReturnThis(),
+        returning: vi.fn().mockResolvedValue([]),
       });
 
       (dbMod.db as unknown as AnyRecord)['insert'] = insertMock;

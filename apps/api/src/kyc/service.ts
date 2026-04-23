@@ -5,6 +5,8 @@ import { KycErrorCode } from '@smartshaadi/types';
 import type { PhotoAnalysis } from '@smartshaadi/types';
 import { analyzePhoto } from './rekognition.js';
 import { getDigiLockerAuthUrl, verifyDigiLockerCallback } from './aadhaar.js';
+import { redis } from '../lib/redis.js';
+import { env } from '../lib/env.js';
 
 function kycErr(code: string): never {
   const e = new Error(code);
@@ -189,6 +191,10 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
   } else {
     console.warn(`[kyc] approveKyc: no kycVerifications row for profile ${profileId}`);
   }
+
+  // Invalidate any cached match feeds — this profile is now eligible to be
+  // surfaced. SCAN+DEL so we don't block Redis on a huge KEYS match.
+  await invalidateFeedCache();
 }
 
 export async function rejectKyc(profileId: string, adminUserId: string, note?: string) {
@@ -216,5 +222,27 @@ export async function rejectKyc(profileId: string, adminUserId: string, note?: s
     }).where(eq(kycVerifications.profileId, profileId));
   } else {
     console.warn(`[kyc] rejectKyc: no kycVerifications row for profile ${profileId}`);
+  }
+
+  await invalidateFeedCache();
+}
+
+/**
+ * Remove every cached match_feed:* key from Redis. Called after any KYC status
+ * change so feeds recompute and either include (VERIFIED) or exclude (REJECTED /
+ * MANUAL_REVIEW) the affected profile. Uses SCAN rather than KEYS so we don't
+ * block Redis with O(n) on a large keyspace.
+ */
+async function invalidateFeedCache(): Promise<void> {
+  if (env.USE_MOCK_SERVICES) return;
+  try {
+    let cursor = '0';
+    do {
+      const [next, keys] = await redis.scan(cursor, 'MATCH', 'match_feed:*', 'COUNT', 200);
+      cursor = next;
+      if (keys.length > 0) await redis.del(...keys);
+    } while (cursor !== '0');
+  } catch (e) {
+    console.error('[kyc] invalidateFeedCache failed:', e);
   }
 }

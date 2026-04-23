@@ -3,8 +3,7 @@
  * Handles create / confirm / cancel / complete lifecycle + escrow scheduling.
  */
 
-import { Queue } from 'bullmq';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 import {
   bookings,
   escrowAccounts,
@@ -14,9 +13,12 @@ import {
 import type { BookingSummary } from '@smartshaadi/types';
 import type { CreateBookingInput } from '@smartshaadi/schemas';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
 import { createRefund } from '../lib/razorpay.js';
-import { escrowReleaseQueue } from '../infrastructure/redis/queues.js';
+import {
+  escrowReleaseQueue,
+  notificationsQueue,
+  DEFAULT_JOB_OPTS,
+} from '../infrastructure/redis/queues.js';
 
 // ── Error codes ───────────────────────────────────────────────────────────────
 
@@ -30,27 +32,14 @@ export class BookingError extends Error {
   }
 }
 
-// ── BullMQ queue for notifications ───────────────────────────────────────────
-
-const notificationsQueue = new Queue<NotificationJob>('notifications', {
-  connection: {
-    url: env.REDIS_URL,
-    enableOfflineQueue: false,
-    maxRetriesPerRequest: null as unknown as number,
-  },
-});
+// notificationsQueue + escrowReleaseQueue are shared singletons exported from
+// infrastructure/redis/queues.ts — never re-instantiate per-module.
 
 export interface EscrowReleaseJob {
   escrowId:  string | null;
   bookingId: string;
   vendorId:  string;
   amount:    number;
-}
-
-export interface NotificationJob {
-  userId:  string;
-  type:    string;
-  payload: Record<string, unknown>;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -99,7 +88,9 @@ export async function createBooking(
   customerId: string,
   input: CreateBookingInput,
 ): Promise<BookingSummary> {
-  // 1. Conflict check — same vendor + same eventDate with CONFIRMED status
+  // 1. Conflict check — same vendor + same eventDate already held (PENDING or
+  // CONFIRMED). A vendor cannot be double-booked even if the first request
+  // hasn't been confirmed yet.
   const conflicts = await db
     .select({ id: bookings.id })
     .from(bookings)
@@ -107,7 +98,7 @@ export async function createBooking(
       and(
         eq(bookings.vendorId, input.vendorId),
         eq(bookings.eventDate, input.eventDate),
-        eq(bookings.status, 'CONFIRMED'),
+        inArray(bookings.status, ['PENDING', 'CONFIRMED']),
       ),
     )
     .limit(1);
@@ -194,14 +185,16 @@ export async function confirmBooking(
     throw new BookingError('INVALID_STATE', `Cannot confirm a booking in ${booking.status} state.`);
   }
 
+  // Optimistic lock — only transition when still PENDING. A concurrent confirm
+  // on the same booking will update zero rows and the second caller errors.
   const [updated] = await db
     .update(bookings)
     .set({ status: 'CONFIRMED', updatedAt: new Date() })
-    .where(eq(bookings.id, bookingId))
+    .where(and(eq(bookings.id, bookingId), eq(bookings.status, 'PENDING')))
     .returning();
 
   if (!updated) {
-    throw new BookingError('UPDATE_FAILED', 'Failed to confirm booking.');
+    throw new BookingError('CONCURRENT_UPDATE', 'Booking was already confirmed by another request.');
   }
 
   // Notify customer
@@ -262,8 +255,14 @@ export async function cancelBooking(
     .where(eq(escrowAccounts.bookingId, bookingId))
     .limit(1);
 
+  // Cancel flow — DB updates wrapped in a single transaction so the booking
+  // always reflects escrow state. If the Razorpay refund call fails the DB
+  // still records REFUND_PENDING + CANCELLED and the payment stays capturable
+  // via admin retry, instead of leaving the booking un-cancelled and the user
+  // unable to try again.
+  let refundAttempt: { paymentId: string; amount: number } | null = null;
+
   if (escrow?.status === 'HELD') {
-    // Find the Razorpay payment ID for this booking
     const [payment] = await db
       .select({ id: payments.id, razorpayPaymentId: payments.razorpayPaymentId })
       .from(payments)
@@ -273,21 +272,51 @@ export async function cancelBooking(
     if (!payment?.razorpayPaymentId) {
       throw new BookingError('REFUND_FAILED', 'Payment has not been captured — cannot issue refund.');
     }
-    await createRefund(payment.razorpayPaymentId, parseAmount(escrow.totalHeld));
+    refundAttempt = {
+      paymentId: payment.razorpayPaymentId,
+      amount:    parseAmount(escrow.totalHeld),
+    };
   }
 
-  const [updated] = await db
-    .update(bookings)
-    .set({
-      status:    'CANCELLED',
-      notes:     reason ? `${booking.notes ?? ''}\nCancellation reason: ${reason}`.trim() : booking.notes,
-      updatedAt: new Date(),
-    })
-    .where(eq(bookings.id, bookingId))
-    .returning();
+  const updated = await db.transaction(async (tx) => {
+    const [row] = await tx
+      .update(bookings)
+      .set({
+        status:    'CANCELLED',
+        notes:     reason ? `${booking.notes ?? ''}\nCancellation reason: ${reason}`.trim() : booking.notes,
+        updatedAt: new Date(),
+      })
+      .where(eq(bookings.id, bookingId))
+      .returning();
+
+    if (escrow?.id && escrow.status === 'HELD') {
+      // Optimistically mark escrow as REFUND_PENDING; flip to RELEASED on
+      // successful Razorpay refund call below.
+      await tx
+        .update(escrowAccounts)
+        .set({ status: 'REFUND_PENDING' })
+        .where(eq(escrowAccounts.id, escrow.id));
+    }
+
+    return row;
+  });
 
   if (!updated) {
     throw new BookingError('UPDATE_FAILED', 'Failed to cancel booking.');
+  }
+
+  // Razorpay call outside the transaction — network I/O should never hold a DB lock.
+  if (refundAttempt && escrow?.id) {
+    try {
+      await createRefund(refundAttempt.paymentId, refundAttempt.amount);
+      await db
+        .update(escrowAccounts)
+        .set({ status: 'RELEASED', released: String(refundAttempt.amount), releasedAt: new Date() })
+        .where(eq(escrowAccounts.id, escrow.id));
+    } catch (e) {
+      // Booking stays CANCELLED + escrow REFUND_PENDING — surface so admin retry can act.
+      console.error('[bookings/cancel] Razorpay refund failed — escrow left REFUND_PENDING:', e);
+    }
   }
 
   return toBookingSummary(updated);
@@ -356,7 +385,11 @@ export async function completeBooking(userId: string, bookingId: string): Promis
       vendorId:  booking.vendorId,
       amount:    escrowAmount,
     },
-    { delay: FORTY_EIGHT_HOURS_MS, jobId: `escrow-release:${bookingId}` },
+    {
+      delay: FORTY_EIGHT_HOURS_MS,
+      jobId: `escrow-release-${bookingId}`,
+      ...DEFAULT_JOB_OPTS,
+    },
   );
 
   return toBookingSummary(updated);
@@ -383,8 +416,15 @@ export async function getBookings(
   const offset = (page - 1) * limit;
 
   let rows: (typeof bookings.$inferSelect)[];
+  let total = 0;
 
   if (role === 'customer') {
+    const [countRow] = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(bookings)
+      .where(eq(bookings.customerId, userId));
+    total = Number(countRow?.count ?? 0);
+
     rows = await db
       .select()
       .from(bookings)
@@ -392,7 +432,6 @@ export async function getBookings(
       .limit(limit)
       .offset(offset);
   } else {
-    // Look up vendor record for this userId
     const [vendor] = await db
       .select({ id: vendors.id })
       .from(vendors)
@@ -402,6 +441,12 @@ export async function getBookings(
     if (!vendor) {
       return { bookings: [], total: 0, page, limit };
     }
+
+    const [countRow] = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(bookings)
+      .where(eq(bookings.vendorId, vendor.id));
+    total = Number(countRow?.count ?? 0);
 
     rows = await db
       .select()
@@ -415,7 +460,7 @@ export async function getBookings(
 
   return {
     bookings: summaries,
-    total:    summaries.length,
+    total,
     page,
     limit,
   };

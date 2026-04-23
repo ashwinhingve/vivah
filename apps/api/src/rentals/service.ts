@@ -473,3 +473,30 @@ export async function getMyRentalBookings(userId: string): Promise<RentalBooking
     toBookingSummary({ ...(r.booking as RentalBookingRow), itemName: r.itemName })
   );
 }
+
+/**
+ * All rental bookings owned by the vendor account (by userId). Includes the
+ * item name so the UI can render without a second fetch per row.
+ */
+export async function getVendorRentalBookings(vendorUserId: string): Promise<RentalBookingSummary[]> {
+  const [vendor] = await db
+    .select({ id: vendors.id })
+    .from(vendors)
+    .where(eq(vendors.userId, vendorUserId))
+    .limit(1);
+  if (!vendor) return [];
+
+  const rows = await db
+    .select({
+      booking:  rentalBookings,
+      itemName: rentalItems.name,
+    })
+    .from(rentalBookings)
+    .innerJoin(rentalItems, eq(rentalBookings.rentalItemId, rentalItems.id))
+    .where(eq(rentalItems.vendorId, vendor.id))
+    .orderBy(sql`${rentalBookings.fromDate} desc`);
+
+  return rows.map((r) =>
+    toBookingSummary({ ...(r.booking as RentalBookingRow), itemName: r.itemName })
+  );
+}

@@ -2,6 +2,7 @@
 import './lib/env.js';
 import { createServer } from 'http';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import { ZodError } from 'zod';
 import { initSocket } from './chat/socket/index.js';
 import { connectMongo } from './lib/mongo.js';
 import cors from 'cors';
@@ -28,8 +29,12 @@ import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
 import { webhookHandler } from './payments/webhook.js';
+import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
+import { registerOrderExpiryWorker } from './jobs/orderExpiryJob.js';
+import { devRouter } from './dev/router.js';
 import { env } from './lib/env.js';
+import { err as errResponse } from './lib/response.js';
 
 const app = express();
 
@@ -59,10 +64,18 @@ if (env.USE_MOCK_SERVICES) {
   app.use('/__mock-r2', mockR2Router);
 }
 
-// Razorpay webhook — raw body MUST be parsed before global express.json()
+// Razorpay webhooks — raw body MUST be parsed before global express.json() so
+// signature verification sees the exact bytes Razorpay signed.
 app.post('/api/v1/payments/webhook', express.raw({ type: '*/*' }), (req, res) => {
   webhookHandler(req, res).catch((error: unknown) => {
     console.error('[payments/webhook] unhandled error:', error);
+    if (!res.headersSent) res.status(500).json({ success: false });
+  });
+});
+
+app.post('/api/v1/store/webhook/razorpay', express.raw({ type: '*/*' }), (req, res) => {
+  storeWebhookHandler(req, res).catch((error: unknown) => {
+    console.error('[store/webhook/razorpay] unhandled error:', error);
     if (!res.headersSent) res.status(500).json({ success: false });
   });
 });
@@ -75,47 +88,73 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
 });
 
-app.use('/api/v1/auth/kyc', kycRouter);      // POST /api/v1/auth/kyc/initiate (spec alias)
-app.use('/api/v1/kyc', kycRouter);            // GET /api/v1/kyc/status, POST /api/v1/kyc/photo
-app.use('/api/v1/admin/kyc', adminKycRouter); // Admin review queue
-app.use('/api/v1/admin', adminStatsRouter);   // GET /api/v1/admin/stats
-app.use('/api/v1/users', usersRouter);        // PATCH /api/v1/users/me/role
-app.use('/api/v1/profiles', profilesRouter); // GET|PUT /me, GET /:id
-app.use('/api/v1/storage', storageRouter);   // POST /presign
-app.use('/api/v1/matchmaking', matchmakingRouter); // GET /feed, GET /score/:id, POST|PUT /requests
-app.use('/api/v1/chat', chatRouter);              // GET /conversations, GET /conversations/:id, POST photos
-app.use('/api/v1/vendors', vendorsRouter);        // GET /vendors, GET /vendors/:id, POST /vendors
-app.use('/api/v1/bookings', bookingsRouter);      // POST /bookings, GET /bookings/:id, PATCH status
-app.use('/api/v1/payments', paymentsRouter);      // POST /payments/order, GET /payments/:id
-app.use('/api/v1/weddings', weddingRouter);       // POST|GET|PUT /weddings, tasks, budget, checklist
-app.use('/api/v1', guestRouter);                  // /weddings/:id/guests/*, /invitations/send, public /rsvp/:token
-app.use('/api/v1/video', videoRouter);            // POST /rooms, POST|PUT|GET /meetings
-app.use('/api/v1/payments', disputeRouter);       // POST /:bookingId/dispute (extends paymentsRouter mount)
-app.use('/api/v1/rentals', rentalRouter);         // GET|POST /, GET /:id, POST /:id/book, /bookings/mine
-app.use('/api/v1/store', storeRouter);            // products/orders/vendor store (Week 9)
-app.use('/api/v1/admin', escrowAdminRouter);      // GET /disputes, PUT /disputes/:bookingId/resolve
+app.use('/api/v1/auth/kyc', kycRouter);
+app.use('/api/v1/kyc', kycRouter);
+app.use('/api/v1/admin/kyc', adminKycRouter);
+app.use('/api/v1/admin', adminStatsRouter);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/profiles', profilesRouter);
+app.use('/api/v1/storage', storageRouter);
+app.use('/api/v1/matchmaking', matchmakingRouter);
+app.use('/api/v1/chat', chatRouter);
+app.use('/api/v1/vendors', vendorsRouter);
+app.use('/api/v1/bookings', bookingsRouter);
+app.use('/api/v1/payments', paymentsRouter);
+app.use('/api/v1/weddings', weddingRouter);
+app.use('/api/v1', guestRouter);
+app.use('/api/v1/video', videoRouter);
+app.use('/api/v1/payments', disputeRouter);
+app.use('/api/v1/rentals', rentalRouter);
+app.use('/api/v1/store', storeRouter);
+app.use('/api/v1/admin', escrowAdminRouter);
+
+// Dev-only routes — mount synchronously BEFORE the 404/error handlers so errors
+// thrown by dev handlers reach the global error middleware.
+if (env.NODE_ENV === 'development') {
+  app.use('/api/v1/dev', devRouter);
+}
+
+// ── 404 catch-all ─────────────────────────────────────────────────────────────
+// Unknown paths must return the standard envelope, not Express's raw HTML.
+app.use((req: Request, res: Response): void => {
+  errResponse(res, 'NOT_FOUND', `Route not found: ${req.method} ${req.path}`, 404);
+});
 
 // ── Global error handler ──────────────────────────────────────────────────────
-// Catches sync throws and any error forwarded via next(err). Async route bodies
-// that reject without try/catch will trip unhandledRejection below — the handler
-// there logs without crashing so one bad route can't take the whole process down.
+// Catches sync throws and any error forwarded via next(err). Handles common
+// parse errors (Zod, Postgres uuid, Mongoose cast, JSON body).
 app.use((error: unknown, _req: Request, res: Response, next: NextFunction): void => {
   if (res.headersSent) { next(error); return; }
-  const code = (error as { code?: string } | undefined)?.code;
-  if (code === '22P02') {
-    res.status(400).json({
-      success: false, data: null,
-      error: { code: 'INVALID_ID', message: 'Malformed id in request' },
-      meta: { timestamp: new Date().toISOString() },
+
+  // Zod validation errors thrown via .parse()
+  if (error instanceof ZodError) {
+    errResponse(res, 'VALIDATION_ERROR', error.issues[0]?.message ?? 'Invalid input', 400, {
+      issues: error.issues as unknown as Record<string, unknown>[],
     });
     return;
   }
+
+  // Postgres: invalid UUID / malformed input (22P02)
+  const code = (error as { code?: string } | undefined)?.code;
+  if (code === '22P02') {
+    errResponse(res, 'INVALID_ID', 'Malformed id in request', 400);
+    return;
+  }
+
+  // express.json() body parse failure
+  if ((error as { type?: string }).type === 'entity.parse.failed') {
+    errResponse(res, 'INVALID_JSON', 'Request body is not valid JSON', 400);
+    return;
+  }
+
+  // Mongoose CastError (invalid ObjectId or similar)
+  if ((error as { name?: string }).name === 'CastError') {
+    errResponse(res, 'INVALID_ID', 'Malformed id in request', 400);
+    return;
+  }
+
   console.error('[api] unhandled error', error);
-  res.status(500).json({
-    success: false, data: null,
-    error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
-    meta: { timestamp: new Date().toISOString() },
-  });
+  errResponse(res, 'INTERNAL_ERROR', 'Internal server error', 500);
 });
 
 process.on('unhandledRejection', (reason) => {
@@ -129,8 +168,6 @@ process.on('uncaughtException', (err) => {
 
 async function bootstrap(): Promise<void> {
   if (env.NODE_ENV === 'development') {
-    const { devRouter } = await import('./dev/router.js');
-    app.use('/api/v1/dev', devRouter);
     console.info('🔧 Dev router mounted at /api/v1/dev');
   }
 
@@ -145,10 +182,13 @@ async function bootstrap(): Promise<void> {
     console.info(`API server running on port ${env.PORT}`);
   });
 
-  if (!env.USE_MOCK_SERVICES) { void startGunaRecalcWorker(); }
-
-  // Start escrow release worker — processes 48h delayed payouts
-  registerEscrowReleaseWorker();
+  // Workers — skip in mock/test mode to avoid connecting to Redis that isn't
+  // configured, and to keep CI / vitest from holding live connections.
+  if (!env.USE_MOCK_SERVICES) {
+    void startGunaRecalcWorker();
+    registerEscrowReleaseWorker();
+    registerOrderExpiryWorker();
+  }
 }
 
 void bootstrap();

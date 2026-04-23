@@ -123,6 +123,7 @@ export const escrowStatusEnum = pgEnum('escrow_status', [
   'DISPUTED',
   'REFUNDED',
   'RELEASE_PENDING',
+  'REFUND_PENDING',
 ]);
 
 export const notificationTypeEnum = pgEnum('notification_type', [
@@ -186,6 +187,7 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'BOOKING_CANCELLED',
   'VENDOR_APPROVED',
   'PROFILE_BLOCKED',
+  'PROFILE_REPORTED',
 ]);
 
 export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER']);

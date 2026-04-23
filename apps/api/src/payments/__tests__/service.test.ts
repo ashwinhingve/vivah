@@ -67,10 +67,12 @@ function makeSelect(resolveWith: unknown[]) {
 }
 
 function makeInsert() {
-  return vi.fn().mockReturnValue({
-    values:    vi.fn().mockReturnThis(),
-    returning: vi.fn().mockResolvedValue([{ id: 'new-id' }]),
-  });
+  const chain: Record<string, unknown> = {};
+  chain['values']              = vi.fn().mockReturnValue(chain);
+  chain['returning']           = vi.fn().mockResolvedValue([{ id: 'new-id' }]);
+  chain['onConflictDoNothing'] = vi.fn().mockResolvedValue(undefined);
+  chain['onConflictDoUpdate']  = vi.fn().mockResolvedValue(undefined);
+  return vi.fn().mockReturnValue(chain);
 }
 
 function makeUpdate() {
@@ -136,7 +138,8 @@ describe('createPaymentOrder', () => {
     const result = await createPaymentOrder('user-abc', { bookingId: 'booking-3' });
 
     // Math.round(10001 * 0.5) = Math.round(5000.5) = 5001
-    expect(mockCreateOrder).toHaveBeenCalledWith(5001, 'INR', 'booking-3');
+    // escrow in rupees (5001) — Razorpay receives paise (5001 * 100 = 500100)
+    expect(mockCreateOrder).toHaveBeenCalledWith(500100, 'INR', 'booking-3');
     expect(result.amount).toBe(5001);
     expect(result.currency).toBe('INR');
     expect(result.bookingId).toBe('booking-3');
@@ -182,8 +185,9 @@ describe('handlePaymentSuccess', () => {
 
     mockDbUpdate.mockImplementation(makeUpdate());
     mockDbInsert.mockReturnValue({
-      values:    vi.fn().mockReturnThis(),
-      returning: vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+      values:              vi.fn().mockReturnThis(),
+      returning:           vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+      onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
     });
 
     await handlePaymentSuccess('order_abc', 'pay_xyz');
@@ -249,8 +253,9 @@ describe('requestRefund', () => {
 
     mockDbUpdate.mockImplementation(makeUpdate());
     mockDbInsert.mockReturnValue({
-      values:    vi.fn().mockReturnThis(),
-      returning: vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+      values:              vi.fn().mockReturnThis(),
+      returning:           vi.fn().mockResolvedValue([{ id: 'new-id' }]),
+      onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
     });
 
     await requestRefund('user-abc', 'pay-2', { reason: 'Event cancelled' });
