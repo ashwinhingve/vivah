@@ -7,11 +7,12 @@ import { AppNav } from '@/components/layout/AppNav.client';
 import { CartButton } from '@/components/store/CartButton.client';
 import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
+import { readSessionCookie } from '@/lib/auth/session-cookie';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) redirect('/login');
+  const sessionCookie = readSessionCookie(cookieStore);
+  if (!sessionCookie) redirect('/login');
 
   return (
     <div className="min-h-screen bg-background pb-24 sm:pb-28">

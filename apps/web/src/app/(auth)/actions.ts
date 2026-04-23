@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { UserRole } from '@smartshaadi/types';
+import { readSessionCookie } from '@/lib/auth/session-cookie';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -36,9 +37,9 @@ export async function setRoleAction(
   role: UserRole,
 ): Promise<{ success: boolean; error?: string }> {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('better-auth.session_token')?.value;
+  const sessionCookie = readSessionCookie(cookieStore);
 
-  if (!sessionToken) {
+  if (!sessionCookie) {
     return { success: false, error: 'Not authenticated' };
   }
 
@@ -46,7 +47,7 @@ export async function setRoleAction(
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      Cookie: `better-auth.session_token=${sessionToken}`,
+      Cookie: `${sessionCookie.name}=${sessionCookie.value}`,
     },
     body: JSON.stringify({ role }),
   });

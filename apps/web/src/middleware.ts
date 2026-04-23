@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { hasSessionCookie } from '@/lib/auth/session-cookie';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -39,7 +40,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!sessionOk) {
-      const hasCookie = request.cookies.has('better-auth.session_token');
+      const hasCookie = hasSessionCookie(request.cookies);
       if (!hasCookie) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
@@ -67,7 +68,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/verify') ||
     pathname.startsWith('/register')
   ) {
-    const hasCookie = request.cookies.has('better-auth.session_token');
+    const hasCookie = hasSessionCookie(request.cookies);
     if (hasCookie) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }

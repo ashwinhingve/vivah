@@ -28,6 +28,12 @@ export const auth = betterAuth({
 
   // Cookie flags — tokens never touch localStorage (CLAUDE.md rule).
   advanced: {
+    // Keep cookie name as `better-auth.session_token` in both dev and prod.
+    // By default Better Auth prefixes the cookie with `__Secure-` when the
+    // baseURL is https, which would force every server-side fetch in the web
+    // app to know about two possible names. Disable the prefix and keep the
+    // Secure/HttpOnly/SameSite attributes below for the same protections.
+    useSecureCookies: false,
     cookies: {
       session_token: {
         attributes: {
