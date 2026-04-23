@@ -40,6 +40,11 @@ export const auth = betterAuth({
           httpOnly: true,
           secure:   env.NODE_ENV === 'production',
           sameSite: 'lax',
+          // Share the cookie across subdomains in prod so the Next.js app on
+          // smartshaadi.co.in can read the session set by the API on
+          // api.smartshaadi.co.in. The leading dot scopes it to the
+          // registrable domain.
+          ...(env.NODE_ENV === 'production' ? { domain: '.smartshaadi.co.in' } : {}),
         },
       },
     },

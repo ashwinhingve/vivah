@@ -14,12 +14,15 @@ type HasStore = {
   has(name: string): boolean;
 };
 
+// Prefer the plain name because the API now sets `useSecureCookies: false`.
+// The secure-prefixed lookup is kept only to handle stale cookies left over
+// from an older deploy; those should be cleared on next login.
 export function readSessionCookie(
   store: ReadonlyStore,
 ): { name: string; value: string } | null {
-  return store.get(SECURE_NAME) ?? store.get(PLAIN_NAME) ?? null;
+  return store.get(PLAIN_NAME) ?? store.get(SECURE_NAME) ?? null;
 }
 
 export function hasSessionCookie(store: HasStore): boolean {
-  return store.has(SECURE_NAME) || store.has(PLAIN_NAME);
+  return store.has(PLAIN_NAME) || store.has(SECURE_NAME);
 }
