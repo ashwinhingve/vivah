@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "pnpm --filter @smartshaadi/types build && pnpm --filter @smartshaadi/schemas build && pnpm --filter @smartshaadi/web build",
+  "buildCommand": "cd ../.. && pnpm --filter @smartshaadi/types build && pnpm --filter @smartshaadi/schemas build && pnpm --filter @smartshaadi/web build",
   "outputDirectory": "apps/web/.next",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile --prod=false",
   "framework": "nextjs",
   "rewrites": [
     {
