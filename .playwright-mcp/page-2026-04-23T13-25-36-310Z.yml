@@ -1,0 +1,33 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - img
+    - img
+    - generic [ref=e3]:
+      - heading "Smart Shaadi" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Find your perfect match
+      - paragraph [ref=e6]: National Smart Marriage Ecosystem
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - heading "I am a…" [level=2] [ref=e51]
+        - paragraph [ref=e52]: Choose how you'll use Smart Shaadi
+      - generic [ref=e53]:
+        - button "Individual Individual Looking for a life partner" [active] [ref=e54]:
+          - img "Individual" [ref=e55]: 👤
+          - generic [ref=e56]: Individual
+          - generic [ref=e57]: Looking for a life partner
+        - button "Family Member Family Member Searching on behalf of family" [ref=e58]:
+          - img "Family Member" [ref=e59]: 👨‍👩‍👧
+          - generic [ref=e60]: Family Member
+          - generic [ref=e61]: Searching on behalf of family
+        - button "Vendor Vendor Photographer, caterer, decorator & more" [ref=e62]:
+          - img "Vendor" [ref=e63]: 🏪
+          - generic [ref=e64]: Vendor
+          - generic [ref=e65]: Photographer, caterer, decorator & more
+        - button "Event Coordinator Event Coordinator Managing multiple wedding events" [ref=e66]:
+          - img "Event Coordinator" [ref=e67]: 📋
+          - generic [ref=e68]: Event Coordinator
+          - generic [ref=e69]: Managing multiple wedding events
+      - button "Continue" [ref=e70]
+  - button "Open Next.js Dev Tools" [ref=e28] [cursor=pointer]:
+    - img [ref=e29]
+  - alert [ref=e22]: Choose Your Role — Smart Shaadi | Smart Shaadi

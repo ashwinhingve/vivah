@@ -1,0 +1,127 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Smart Shaadi" [ref=e5] [cursor=pointer]:
+          - /url: /dashboard
+        - generic [ref=e6]:
+          - button "Open cart" [ref=e7]:
+            - img [ref=e8]
+          - button "User menu" [ref=e12]:
+            - generic [ref=e13]: PS
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - heading "Find Wedding Vendors" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Discover photographers, caterers, decorators and more for your special day.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Category
+          - combobox "Category" [ref=e23]:
+            - option "All Categories" [selected]
+            - option "PHOTOGRAPHY"
+            - option "VIDEOGRAPHY"
+            - option "CATERING"
+            - option "DECORATION"
+            - option "VENUE"
+            - option "MAKEUP"
+            - option "JEWELLERY"
+            - option "CLOTHING"
+            - option "MUSIC"
+            - option "LIGHTING"
+            - option "SECURITY"
+            - option "TRANSPORT"
+            - option "PRIEST"
+            - option "SOUND"
+            - option "EVENT HOSTING"
+            - option "RENTAL"
+            - option "OTHER"
+        - generic [ref=e24]:
+          - generic [ref=e25]: City
+          - textbox "City" [ref=e26]:
+            - /placeholder: e.g. Mumbai, Delhi
+        - button "Search" [ref=e27]
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e31]:
+            - heading "Test Studio" [level=3] [ref=e32]
+            - paragraph [ref=e33]:
+              - img [ref=e34]
+              - text: Mumbai, Maharashtra
+          - generic [ref=e37]: photography
+          - generic [ref=e38]:
+            - generic "0 out of 5 stars" [ref=e39]:
+              - img [ref=e40]
+              - img [ref=e42]
+              - img [ref=e44]
+              - img [ref=e46]
+              - img [ref=e48]
+            - generic [ref=e50]: 0.0 · 0 reviews
+          - link "View Profile" [ref=e51] [cursor=pointer]:
+            - /url: /vendors/21c739af-773c-4d98-b352-73eb80029471
+            - text: View Profile
+            - img
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "Kapoor Moments Photography" [level=3] [ref=e55]
+              - paragraph [ref=e56]:
+                - img [ref=e57]
+                - text: Mumbai, Maharashtra
+            - generic [ref=e60]:
+              - img [ref=e61]
+              - text: Verified
+          - generic [ref=e64]: photography
+          - generic [ref=e65]:
+            - generic "4.8 out of 5 stars" [ref=e66]:
+              - img [ref=e67]
+              - img [ref=e69]
+              - img [ref=e71]
+              - img [ref=e73]
+              - img [ref=e75]
+            - generic [ref=e77]: 4.8 · 142 reviews
+          - paragraph [ref=e78]: ₹50,000 – ₹1,50,000 starting
+          - link "View Profile" [ref=e79] [cursor=pointer]:
+            - /url: /vendors/00000000-0000-0000-0000-000000000001
+            - text: View Profile
+            - img
+        - generic [ref=e80]:
+          - generic [ref=e82]:
+            - heading "Smoke Rentals LLC" [level=3] [ref=e83]
+            - paragraph [ref=e84]:
+              - img [ref=e85]
+              - text: Mumbai, Maharashtra
+          - generic [ref=e88]: rental
+          - generic [ref=e89]:
+            - generic "0 out of 5 stars" [ref=e90]:
+              - img [ref=e91]
+              - img [ref=e93]
+              - img [ref=e95]
+              - img [ref=e97]
+              - img [ref=e99]
+            - generic [ref=e101]: 0.0 · 0 reviews
+          - link "View Profile" [ref=e102] [cursor=pointer]:
+            - /url: /vendors/40c4615d-4d8e-4ed2-8d66-74202c48c572
+            - text: View Profile
+            - img
+    - navigation "Primary" [ref=e103]:
+      - generic [ref=e104]:
+        - link "Matches" [ref=e105] [cursor=pointer]:
+          - /url: /feed
+          - img [ref=e106]
+          - generic [ref=e109]: Matches
+        - link "Vendors" [ref=e110] [cursor=pointer]:
+          - /url: /vendors
+          - img [ref=e112]
+          - generic [ref=e115]: Vendors
+        - link "Wedding" [ref=e116] [cursor=pointer]:
+          - /url: /weddings
+          - img [ref=e117]
+          - generic [ref=e120]: Wedding
+        - link "Profile" [ref=e121] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e122]
+          - generic [ref=e125]: Profile
+        - button "More options" [ref=e126]:
+          - img [ref=e127]
+          - generic [ref=e131]: More
+  - alert [ref=e132]

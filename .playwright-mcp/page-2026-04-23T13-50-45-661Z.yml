@@ -1,0 +1,156 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Smart Shaadi" [ref=e5] [cursor=pointer]:
+          - /url: /dashboard
+        - generic [ref=e6]:
+          - button "Open cart" [ref=e7]:
+            - img [ref=e8]
+          - button "User menu" [ref=e12]:
+            - generic [ref=e13]: PS
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - heading "Dashboard" [level=1] [ref=e18]
+          - paragraph [ref=e19]: Welcome back to Smart Shaadi
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - paragraph [ref=e23]: Active Matches
+              - img [ref=e25]
+            - paragraph [ref=e28]: "1"
+            - paragraph [ref=e29]: confirmed
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - paragraph [ref=e32]: Bookings
+              - img [ref=e34]
+            - paragraph [ref=e37]: "0"
+            - paragraph [ref=e38]: pending
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - paragraph [ref=e41]: Requests
+              - img [ref=e43]
+            - paragraph [ref=e47]: "0"
+            - paragraph [ref=e48]: received
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - paragraph [ref=e51]: Profile
+              - img [ref=e53]
+            - paragraph [ref=e57]: 0%
+            - paragraph [ref=e58]: complete
+        - generic [ref=e59]:
+          - heading "My Wedding" [level=2] [ref=e61]
+          - generic [ref=e62]:
+            - img [ref=e64]
+            - heading "Start Planning Your Wedding" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Create a wedding plan with budget, tasks, guest list, and RSVP tracking.
+            - link "Begin Your Journey →" [ref=e70] [cursor=pointer]:
+              - /url: /weddings/new
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - paragraph [ref=e74]: Profile Completeness
+              - paragraph [ref=e75]: 0 of 7 sections complete
+            - generic [ref=e76]:
+              - text: "0"
+              - generic [ref=e77]: "%"
+          - generic [ref=e80]:
+            - link "Personal — incomplete" [ref=e81] [cursor=pointer]:
+              - /url: /profile/personal
+              - img [ref=e82]
+              - text: Personal
+            - link "Photos — incomplete" [ref=e84] [cursor=pointer]:
+              - /url: /profile/photos
+              - img [ref=e85]
+              - text: Photos
+            - link "Family — incomplete" [ref=e87] [cursor=pointer]:
+              - /url: /profile/family
+              - img [ref=e88]
+              - text: Family
+            - link "Career — incomplete" [ref=e90] [cursor=pointer]:
+              - /url: /profile/career
+              - img [ref=e91]
+              - text: Career
+            - link "Lifestyle — incomplete" [ref=e93] [cursor=pointer]:
+              - /url: /profile/lifestyle
+              - img [ref=e94]
+              - text: Lifestyle
+            - link "Horoscope — incomplete" [ref=e96] [cursor=pointer]:
+              - /url: /profile/horoscope
+              - img [ref=e97]
+              - text: Horoscope
+            - link "Preferences — incomplete" [ref=e99] [cursor=pointer]:
+              - /url: /profile/preferences
+              - img [ref=e100]
+              - text: Preferences
+          - paragraph [ref=e102]:
+            - img [ref=e103]
+            - text: Complete profiles get
+            - generic [ref=e105]: 3× more matches
+        - generic [ref=e106]:
+          - heading "Recommended for You" [level=2] [ref=e108]
+          - generic [ref=e109]:
+            - img [ref=e111]
+            - heading "Your perfect match is out there" [level=3] [ref=e113]
+            - paragraph [ref=e114]: Complete your profile to at least 40% to start seeing matches.
+            - link "Complete Profile →" [ref=e116] [cursor=pointer]:
+              - /url: /profile/personal
+        - generic [ref=e117]:
+          - heading "Quick Actions" [level=2] [ref=e118]
+          - generic [ref=e119]:
+            - link "Discover Matches Browse compatible profiles" [ref=e120] [cursor=pointer]:
+              - /url: /discover
+              - img [ref=e122]
+              - paragraph [ref=e124]: Discover Matches
+              - paragraph [ref=e125]: Browse compatible profiles
+              - img
+            - link "Match Requests Review incoming requests" [ref=e126] [cursor=pointer]:
+              - /url: /requests
+              - img [ref=e128]
+              - paragraph [ref=e131]: Match Requests
+              - paragraph [ref=e132]: Review incoming requests
+              - img
+            - link "My Bookings Wedding vendor bookings" [ref=e133] [cursor=pointer]:
+              - /url: /bookings
+              - img [ref=e135]
+              - paragraph [ref=e137]: My Bookings
+              - paragraph [ref=e138]: Wedding vendor bookings
+              - img
+            - link "Edit Profile Update your profile" [ref=e139] [cursor=pointer]:
+              - /url: /profile/create
+              - img [ref=e141]
+              - paragraph [ref=e153]: Edit Profile
+              - paragraph [ref=e154]: Update your profile
+              - img
+        - generic [ref=e155]:
+          - heading "Recent Activity" [level=2] [ref=e156]
+          - generic [ref=e157]:
+            - img [ref=e159]
+            - paragraph [ref=e162]: No activity yet
+            - paragraph [ref=e163]: Match requests, responses, and booking updates will appear here.
+      - link "Complete profile" [ref=e164] [cursor=pointer]:
+        - /url: /profile/personal
+        - img [ref=e165]
+    - navigation "Primary" [ref=e166]:
+      - generic [ref=e167]:
+        - link "Matches" [ref=e168] [cursor=pointer]:
+          - /url: /feed
+          - img [ref=e169]
+          - generic [ref=e172]: Matches
+        - link "Vendors" [ref=e173] [cursor=pointer]:
+          - /url: /vendors
+          - img [ref=e174]
+          - generic [ref=e177]: Vendors
+        - link "Wedding" [ref=e178] [cursor=pointer]:
+          - /url: /weddings
+          - img [ref=e179]
+          - generic [ref=e182]: Wedding
+        - link "Profile" [ref=e183] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e185]
+          - generic [ref=e188]: Profile
+        - button "More options" [ref=e189]:
+          - img [ref=e190]
+          - generic [ref=e194]: More
+  - alert [ref=e195]

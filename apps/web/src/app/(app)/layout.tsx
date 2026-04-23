@@ -14,21 +14,21 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (!token) redirect('/login');
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24 sm:pb-28">
       <header className="sticky top-0 z-30 border-b border-gold/20 bg-surface/90 backdrop-blur-sm px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           <Link
             href="/dashboard"
-            className="font-bold text-primary text-lg font-heading"
+            className="font-bold text-primary text-base sm:text-lg font-heading truncate"
           >
             Smart Shaadi
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {process.env.NODE_ENV === 'development' && (
-              <>
+              <div className="hidden md:flex items-center gap-2">
                 <CreateMatchButton />
                 <RoleSwitcher />
-              </>
+              </div>
             )}
             <CartButton />
             <UserMenu />

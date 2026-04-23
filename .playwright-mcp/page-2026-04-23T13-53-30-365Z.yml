@@ -1,0 +1,48 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Smart Shaadi" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+      - generic [ref=e6]:
+        - button "Open cart" [ref=e7]:
+          - img [ref=e8]
+        - button "User menu" [ref=e12]:
+          - generic [ref=e13]: "?"
+  - generic [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "My Wedding" [level=1] [ref=e18]
+        - paragraph [ref=e19]: Plan, track, and celebrate your perfect day.
+      - link "New Wedding" [ref=e20] [cursor=pointer]:
+        - /url: /weddings/new
+        - img [ref=e21]
+        - text: New Wedding
+    - generic [ref=e23]:
+      - img [ref=e25]
+      - heading "No weddings yet" [level=2] [ref=e27]
+      - paragraph [ref=e28]: Start planning your perfect day — create your first wedding event.
+      - link "Plan Your Wedding" [ref=e29] [cursor=pointer]:
+        - /url: /weddings/new
+        - img [ref=e30]
+        - text: Plan Your Wedding
+  - navigation "Primary" [ref=e32]:
+    - generic [ref=e33]:
+      - link "Matches" [ref=e34] [cursor=pointer]:
+        - /url: /feed
+        - img [ref=e35]
+        - generic [ref=e38]: Matches
+      - link "Vendors" [ref=e39] [cursor=pointer]:
+        - /url: /vendors
+        - img [ref=e40]
+        - generic [ref=e43]: Vendors
+      - link "Wedding" [ref=e44] [cursor=pointer]:
+        - /url: /weddings
+        - img [ref=e46]
+        - generic [ref=e49]: Wedding
+      - link "Profile" [ref=e50] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e51]
+        - generic [ref=e54]: Profile
+      - button "More options" [ref=e55]:
+        - img [ref=e56]
+        - generic [ref=e60]: More

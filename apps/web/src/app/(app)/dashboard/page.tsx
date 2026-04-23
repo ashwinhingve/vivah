@@ -228,11 +228,12 @@ export default async function DashboardPage() {
         <ActivityFeed />
       </div>
 
-      {/* Mobile FAB */}
+      {/* Mobile FAB — sits above bottom nav (nav is ~64px incl. safe-area) */}
       <Link
         href="/profile/personal"
         aria-label="Complete profile"
-        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
+        className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
       >
         <Plus className="h-6 w-6" aria-hidden="true" />
       </Link>

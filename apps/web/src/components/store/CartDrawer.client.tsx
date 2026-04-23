@@ -21,23 +21,20 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
     router.push('/store/checkout');
   }
 
+  if (!open) return null;
+
   return (
     <>
       {/* Overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* Drawer */}
       <div
-        className={[
-          'fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-[#FEFAF6] shadow-xl flex flex-col transition-transform duration-300',
-          open ? 'translate-x-0' : 'translate-x-full',
-        ].join(' ')}
+        className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-[#FEFAF6] shadow-xl flex flex-col animate-in slide-in-from-right duration-300"
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"

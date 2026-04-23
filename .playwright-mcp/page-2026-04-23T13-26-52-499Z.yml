@@ -1,0 +1,52 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Smart Shaadi" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+      - generic [ref=e6]:
+        - button "Open cart" [ref=e7]:
+          - img [ref=e8]
+        - dialog "Shopping cart" [ref=e11]:
+          - generic [ref=e12]:
+            - heading "Your Cart" [level=2] [ref=e13]
+            - button "Close cart" [ref=e14]:
+              - img [ref=e15]
+          - generic [ref=e19]:
+            - img
+            - paragraph [ref=e22]: Your cart is empty
+        - button "User menu" [ref=e24]:
+          - generic [ref=e25]: "?"
+  - main [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e29]:
+        - heading "Your Matches" [level=1] [ref=e30]
+        - paragraph [ref=e31]: Complete your profile to see matches
+      - generic [ref=e32]:
+        - img [ref=e34]
+        - heading "Complete your profile to unlock matches" [level=3] [ref=e36]
+        - paragraph [ref=e37]: Your profile is 0% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.
+        - link "Complete Profile" [ref=e39] [cursor=pointer]:
+          - /url: /profile/personal
+          - text: Complete Profile
+          - img
+  - navigation "Primary" [ref=e40]:
+    - generic [ref=e41]:
+      - link "Matches" [ref=e42] [cursor=pointer]:
+        - /url: /feed
+        - img [ref=e44]
+        - generic [ref=e47]: Matches
+      - link "Vendors" [ref=e48] [cursor=pointer]:
+        - /url: /vendors
+        - img [ref=e49]
+        - generic [ref=e52]: Vendors
+      - link "Wedding" [ref=e53] [cursor=pointer]:
+        - /url: /weddings
+        - img [ref=e54]
+        - generic [ref=e57]: Wedding
+      - link "Profile" [ref=e58] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e59]
+        - generic [ref=e62]: Profile
+      - button "More options" [ref=e63]:
+        - img [ref=e64]
+        - generic [ref=e68]: More

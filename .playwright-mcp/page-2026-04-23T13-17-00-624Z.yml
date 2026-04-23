@@ -1,0 +1,27 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img
+    - img
+    - generic [ref=e3]:
+      - heading "Smart Shaadi" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Find your perfect match
+      - paragraph [ref=e6]: National Smart Marriage Ecosystem
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - img [ref=e11]
+          - text: Sign in
+        - heading "Welcome back" [level=2] [ref=e13]
+        - paragraph [ref=e14]: Enter your mobile number to receive an OTP.
+      - generic [ref=e15]:
+        - text: Mobile number
+        - generic [ref=e16]:
+          - generic [ref=e17]: "+91"
+          - textbox "Mobile number" [ref=e18]:
+            - /placeholder: 98765 43210
+      - button "Send OTP" [ref=e19]
+      - paragraph [ref=e20]:
+        - text: New to Smart Shaadi?
+        - link "Create account" [ref=e21] [cursor=pointer]:
+          - /url: /register
+  - alert [ref=e22]
