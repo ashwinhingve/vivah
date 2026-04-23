@@ -2,11 +2,19 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { phoneNumber } from 'better-auth/plugins';
 import { sql } from 'drizzle-orm';
+import { user, session, account, verification } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: 'pg' }),
+  // Pass the four auth tables explicitly. The drizzle() instance is created
+  // without a full schema (one re-exported namespace entry is null under
+  // compiled CJS interop and crashes drizzle's extractor), so the adapter
+  // needs its own schema hint here.
+  database: drizzleAdapter(db, {
+    provider: 'pg',
+    schema: { user, session, account, verification },
+  }),
 
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.API_BASE_URL,
