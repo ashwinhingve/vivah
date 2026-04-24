@@ -45,13 +45,16 @@ export interface CompatibilityScore {
 }
 
 export interface MatchFeedItem {
-  profileId:     string
-  name:          string
-  age:           number | null
-  city:          string
-  compatibility: CompatibilityScore
-  photoKey:      string | null
-  isNew:         boolean
+  profileId:          string
+  name:               string
+  age:                number | null
+  city:               string
+  compatibility:      CompatibilityScore
+  photoKey:           string | null
+  isNew:              boolean
+  isVerified:         boolean
+  photoHidden:        boolean
+  shortlisted:        boolean
 }
 
 export type MatchRequestStatus =

@@ -1,12 +1,14 @@
 import Link from 'next/link';
-import { Heart, MailOpen, Calendar, UserCog, ArrowRight } from 'lucide-react';
+import { Heart, MailOpen, Calendar, UserCog, ArrowRight, Bookmark, Eye } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 type Action = { href: string; label: string; desc: string; icon: LucideIcon };
 
 const ACTIONS: readonly Action[] = [
-  { href: '/discover',       label: 'Discover Matches', desc: 'Browse compatible profiles', icon: Heart },
+  { href: '/feed',           label: 'Discover Matches', desc: 'Browse compatible profiles', icon: Heart },
   { href: '/requests',       label: 'Match Requests',   desc: 'Review incoming requests',   icon: MailOpen },
+  { href: '/shortlist',      label: 'My Shortlist',     desc: 'Profiles you saved',         icon: Bookmark },
+  { href: '/viewers',        label: 'Viewed You',       desc: 'See who visited recently',   icon: Eye },
   { href: '/bookings',       label: 'My Bookings',      desc: 'Wedding vendor bookings',    icon: Calendar },
   { href: '/profile/create', label: 'Edit Profile',     desc: 'Update your profile',        icon: UserCog },
 ] as const;

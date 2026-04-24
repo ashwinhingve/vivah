@@ -284,6 +284,10 @@ export async function scoreAndRank(
         compatibility,
         photoKey:      photoMap.get(candidate.id) ?? null,
         isNew,
+        // finalised by the caller (computeAndCacheFeed) before caching
+        isVerified:    true,
+        photoHidden:   photoMap.get(candidate.id) === null,
+        shortlisted:   false,
       };
 
       return feedItem;
@@ -361,7 +365,26 @@ export async function computeAndCacheFeed(
 
   // Enrich candidates from MongoDB (or mockStore) so downstream filters see
   // real age / religion / location / preferences, not schema defaults.
-  const eligibleRows = await Promise.all(eligibleRowsRaw.map(enrichRow));
+  const eligibleRowsEnriched = await Promise.all(eligibleRowsRaw.map(enrichRow));
+
+  // 3b. Load safety flags for every candidate in one pass; hide incognito users
+  // from other people's feeds entirely. Incognito viewers still see everyone —
+  // the filter is one-directional.
+  const safetyByProfileId = new Map<string, NonNullable<ContentDoc['safetyMode']>>();
+  await Promise.all(
+    eligibleRowsEnriched.map(async (r) => {
+      const doc = await loadContentForUser(r.userId);
+      if (doc?.safetyMode) safetyByProfileId.set(r.id, doc.safetyMode);
+    }),
+  );
+  const eligibleRows = eligibleRowsEnriched.filter(
+    (r) => !safetyByProfileId.get(r.id)?.incognito,
+  );
+
+  if (eligibleRows.length === 0) {
+    await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
+    return [];
+  }
 
   // 4. Convert rows to ProfileData
   const userProfileData  = rowToProfileData(userRow);
@@ -383,16 +406,12 @@ export async function computeAndCacheFeed(
   // 6. Fetch primary photos for filtered candidates, respecting
   //    safetyMode.photoHidden + safetyModeUnlocks (CLAUDE.md rule 5 — photos
   //    are private until the viewer has an unlock record for the candidate).
-  const { safetyModeUnlocks } = await import('@smartshaadi/db');
-  const userIdByProfileId = new Map<string, string>(
-    eligibleRows.map((r) => [r.id, r.userId]),
-  );
+  const { safetyModeUnlocks, shortlists } = await import('@smartshaadi/db');
   const photoHiddenProfileIds = new Set<string>();
   for (const profile of filteredProfiles) {
-    const uid = userIdByProfileId.get(profile.id);
-    if (!uid) continue;
-    const doc = await loadContentForUser(uid);
-    if (doc?.safetyMode?.photoHidden) photoHiddenProfileIds.add(profile.id);
+    if (safetyByProfileId.get(profile.id)?.photoHidden) {
+      photoHiddenProfileIds.add(profile.id);
+    }
   }
   let unlockedProfileIds = new Set<string>();
   if (photoHiddenProfileIds.size > 0) {
@@ -438,6 +457,14 @@ export async function computeAndCacheFeed(
 
   const ranked = await scoreAndRank(userId, filteredProfiles, userProfileData, redis, photoMap, createdAtMap);
 
+  // Shortlisted set — which candidates has the viewer already saved?
+  const shortlistRows = await (db as unknown as DrizzleDB)
+    .select({ target: shortlists.targetProfileId })
+    .from(shortlists)
+    .where(eq(shortlists.profileId, userProfileId))
+    .limit(1000) as unknown as { target: string }[];
+  const shortlistedSet = new Set(shortlistRows.map((r) => r.target));
+
   // Attach names/ages/cities enriched from MongoDB ProfileContent
   const feed: MatchFeedItem[] = await Promise.all(
     ranked.map(async (item) => {
@@ -467,7 +494,20 @@ export async function computeAndCacheFeed(
         }
       }
 
-      return { ...item, name, age, city };
+      const photoHidden =
+        photoHiddenProfileIds.has(item.profileId) &&
+        !unlockedProfileIds.has(item.profileId);
+
+      return {
+        ...item,
+        name,
+        age,
+        city,
+        // every candidate passes the VERIFIED status gate in step 3 above
+        isVerified:  true,
+        photoHidden,
+        shortlisted: shortlistedSet.has(item.profileId),
+      };
     }),
   );
 

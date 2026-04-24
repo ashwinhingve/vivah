@@ -9,6 +9,7 @@ vi.mock('@smartshaadi/db', () => ({
   blockedUsers:      { blockerId: {}, blockedId: {} },
   profilePhotos:     { profileId: {}, isPrimary: {} },
   safetyModeUnlocks: { profileId: {}, unlockedFor: {} },
+  shortlists:        { profileId: {}, targetProfileId: {} },
 }));
 
 // Mock the scorer so we get deterministic scores in engine tests
@@ -37,6 +38,14 @@ vi.mock('../filters.js', () => ({
   applyHardFilters: vi.fn().mockImplementation(
     (_user: unknown, candidates: unknown[]) => candidates,
   ),
+}));
+
+// Mock mockStore so tests can inject per-userId content (safetyMode, etc.)
+// This runs under USE_MOCK_SERVICES=true — the actual test env.
+const mockStoreGet = vi.fn<(uid: string) => Record<string, unknown> | null>();
+vi.mock('../../lib/mockStore.js', () => ({
+  mockGet: (uid: string) => mockStoreGet(uid),
+  mockUpsertField: vi.fn(),
 }));
 
 import type Redis from 'ioredis';
@@ -223,5 +232,27 @@ describe('computeAndCacheFeed', () => {
     expect(typeof profileBId).toBe('string');
     // IDs must be sorted alphabetically
     expect(profileAId <= profileBId).toBe(true);
+  });
+
+  it('excludes candidates with safetyMode.incognito = true', async () => {
+    mockStoreGet.mockImplementation((uid: string) =>
+      uid === 'user-uuid-2' ? { safetyMode: { incognito: true } } : null,
+    );
+    const redis = makeRedis(null);
+    const result = await computeAndCacheFeed(USER_ID, makeDb() as never, redis);
+    expect(result).toEqual([]);
+    mockStoreGet.mockReset();
+  });
+
+  it('populates isVerified, photoHidden, and shortlisted on every feed item', async () => {
+    mockStoreGet.mockReturnValue(null);
+    const redis = makeRedis(null);
+    const result = await computeAndCacheFeed(USER_ID, makeDb() as never, redis);
+    expect(result).toHaveLength(1);
+    const item = result[0]!;
+    expect(item.isVerified).toBe(true);
+    expect(typeof item.photoHidden).toBe('boolean');
+    expect(typeof item.shortlisted).toBe('boolean');
+    mockStoreGet.mockReset();
   });
 });

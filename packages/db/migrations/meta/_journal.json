@@ -22,6 +22,13 @@
       "when": 1776499430991,
       "tag": "0002_crazy_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777059746232,
+      "tag": "0003_illegal_payback",
+      "breakpoints": true
     }
   ]
 }

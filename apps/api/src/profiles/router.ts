@@ -15,6 +15,10 @@ import { horoscopeRouter } from './horoscope.router.js';
 import { preferencesRouter } from './preferences.router.js';
 import { communityRouter } from './community.router.js';
 import { safetyRouter } from './safety.router.js';
+import { trackView, getRecentViewers } from './views.service.js';
+import { eq } from 'drizzle-orm';
+import { db } from '../lib/db.js';
+import { profiles } from '@smartshaadi/db';
 
 export const profilesRouter = Router();
 
@@ -192,6 +196,31 @@ profilesRouter.put('/me/photos/primary', authenticate, async (req: Request, res:
   }
 });
 
+/**
+ * GET /api/v1/profiles/me/viewers
+ * Returns paginated list of profiles who recently viewed the current user.
+ * Deduplicates multiple views from the same viewer (most recent only).
+ */
+profilesRouter.get('/me/viewers', authenticate, asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const limitRaw = Number(req.query['limit'] ?? 30);
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : 30;
+
+  // Resolve requesting user's profileId (rule #12)
+  const [myProfile] = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.userId, req.user!.id))
+    .limit(1);
+
+  if (!myProfile) {
+    err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+    return;
+  }
+
+  const viewers = await getRecentViewers(myProfile.id, limit);
+  ok(res, { viewers, total: viewers.length });
+}));
+
 // Mount content sub-router — MUST be before /:id to prevent route conflict
 profilesRouter.use('/me/content', profileContentRouter);
 
@@ -231,6 +260,22 @@ profilesRouter.get('/:id', authenticate, async (req: Request, res: Response): Pr
       return;
     }
     ok(res, profile);
+
+    // Fire-and-forget view tracking (non-blocking) — rule #12: resolve userId → profileId
+    (async () => {
+      try {
+        const [viewerProfile] = await db
+          .select({ id: profiles.id })
+          .from(profiles)
+          .where(eq(profiles.userId, req.user!.id))
+          .limit(1);
+        if (viewerProfile) {
+          await trackView(viewerProfile.id, req.user!.id, id);
+        }
+      } catch (trackErr) {
+        console.error('[profiles] trackView failed', trackErr);
+      }
+    })();
   } catch (e) {
     const code = (e as { code?: string } | undefined)?.code;
     if (code === '22P02') {

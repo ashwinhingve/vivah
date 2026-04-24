@@ -15,6 +15,9 @@ import {
   ShoppingCart,
   MoreHorizontal,
   X,
+  Bookmark,
+  Eye,
+  Shield,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -30,9 +33,12 @@ const INDIVIDUAL_PRIMARY: NavItem[] = [
 ];
 
 const INDIVIDUAL_MORE: NavItem[] = [
-  { href: '/store',    label: 'Shop',     Icon: ShoppingBag },
-  { href: '/rentals',  label: 'Rentals',  Icon: Package },
-  { href: '/bookings', label: 'Bookings', Icon: Calendar },
+  { href: '/shortlist',        label: 'Shortlist',  Icon: Bookmark },
+  { href: '/viewers',          label: 'Viewed Me',  Icon: Eye },
+  { href: '/settings/privacy', label: 'Privacy',    Icon: Shield },
+  { href: '/store',            label: 'Shop',       Icon: ShoppingBag },
+  { href: '/rentals',          label: 'Rentals',    Icon: Package },
+  { href: '/bookings',         label: 'Bookings',   Icon: Calendar },
 ];
 
 const VENDOR_NAV: NavItem[] = [

@@ -795,3 +795,9 @@ export const rentalBookingsRelations = relations(rentalBookings, ({ one }) => ({
   item:     one(rentalItems, { fields: [rentalBookings.rentalItemId], references: [rentalItems.id] }),
   customer: one(user,        { fields: [rentalBookings.customerId],   references: [user.id] }),
 }));
+
+// ── Shortlists (Phase 3) ──────────────────────────────────────────────────────
+export { shortlists } from './shortlists';
+
+// ── Profile Views ("Who viewed me") ──────────────────────────────────────────
+export { profileViews } from './profileViews';
