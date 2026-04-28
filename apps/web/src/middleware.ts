@@ -72,6 +72,10 @@ export async function middleware(request: NextRequest) {
     if (hasCookie) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
+  } else if (pathname.startsWith('/account/recovery')) {
+    if (!hasSessionCookie(request.cookies)) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();
@@ -92,5 +96,6 @@ export const config = {
     '/login',
     '/verify',
     '/register',
+    '/account/recovery',
   ],
 };

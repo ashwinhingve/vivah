@@ -54,11 +54,20 @@ export default function VerifyOtpForm() {
         return;
       }
 
-      // Check if user has a role set; if not, send to role selection
+      // Check session for pending-deletion / 2FA / role state.
       const sessionResult = await authClient.getSession();
-      const role = (sessionResult.data?.user as { role?: string } | undefined)?.role;
+      const u = sessionResult.data?.user as
+        | { role?: string; deletionRequestedAt?: string | null; twoFactorEnabled?: boolean }
+        | undefined;
 
-      if (!role || role === 'INDIVIDUAL') {
+      // 2FA-enabled users are redirected to /two-factor automatically by the
+      // twoFactorClient onTwoFactorRedirect hook (full page reload). When the
+      // server emitted twoFactorRedirect:true, the redirect already happened.
+      if (u?.deletionRequestedAt) {
+        router.push('/account/recovery');
+        return;
+      }
+      if (!u?.role || u.role === 'INDIVIDUAL') {
         router.push('/register/role');
       } else {
         router.push('/dashboard');

@@ -52,11 +52,16 @@ export default function VerifyForm() {
         return;
       }
 
-      // Check if user has a role set
+      // Check session for pending-deletion / role state.
       const sessionResult = await authClient.getSession();
-      const role = (sessionResult.data?.user as { role?: string } | undefined)?.role;
-
-      if (!role || role === '') {
+      const u = sessionResult.data?.user as
+        | { role?: string; deletionRequestedAt?: string | null }
+        | undefined;
+      if (u?.deletionRequestedAt) {
+        router.push('/account/recovery');
+        return;
+      }
+      if (!u?.role || u.role === '') {
         router.push('/register/role');
       } else {
         router.push('/dashboard');

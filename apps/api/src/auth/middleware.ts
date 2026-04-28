@@ -4,6 +4,7 @@ import { auth } from './config.js';
 import type { UserRole } from '@smartshaadi/types';
 import { AuthErrorCode } from '@smartshaadi/types';
 import { err } from '../lib/response.js';
+import { pingLastActive } from './lastActive.js';
 
 // Augment Express Request with Better Auth session data
 declare global {
@@ -37,6 +38,31 @@ export async function authenticate(
     return;
   }
 
+  // Soft-deleted users hold a stale session cookie until their cookie cache
+  // expires (5 min). Block them at the gate so /api/v1/* never serves data
+  // back to a pending-deletion account. Only the /me/account/restore endpoint
+  // is allowed through (handled inside the security router using a separate
+  // path that bypasses this guard).
+  const deletionRequestedAt = (session.user as { deletionRequestedAt?: Date | string | null })
+    .deletionRequestedAt;
+  // Bypass list: paths the user MUST be able to reach while their account is
+  // in the 30-day grace window so they can either restore it or read why
+  // they're locked out.
+  const isAllowedDuringDeletion =
+    req.path.startsWith('/account/restore') ||
+    req.path.startsWith('/account/delete') ||
+    req.path.startsWith('/security/overview') ||
+    req.path.startsWith('/security/events') ||
+    req.path === '/sessions';
+  if (deletionRequestedAt && !isAllowedDuringDeletion) {
+    err(res, 'ACCOUNT_PENDING_DELETION', 'Account is pending deletion', 403, {
+      deletionRequestedAt: typeof deletionRequestedAt === 'string'
+        ? deletionRequestedAt
+        : deletionRequestedAt.toISOString(),
+    });
+    return;
+  }
+
   req.user = {
     id:          session.user.id,
     role:        (session.user as { role?: string }).role ?? 'INDIVIDUAL',
@@ -46,6 +72,7 @@ export async function authenticate(
     email:       session.user.email,
   };
 
+  pingLastActive(req.user.id);
   next();
 }
 
