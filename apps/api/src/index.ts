@@ -55,6 +55,7 @@ import {
   registerAuditChainVerifierWorker,
   scheduleAuditChainVerifierJob,
 } from './jobs/auditChainVerifierJob.js';
+import { metricsMiddleware, metricsHandler } from './lib/metrics.js';
 import { registerOrderExpiryWorker } from './jobs/orderExpiryJob.js';
 import { startAccountPurgeWorker } from './jobs/accountPurgeJob.js';
 import {
@@ -146,9 +147,13 @@ app.use(express.json({ limit: '50kb' }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
 
+app.use(metricsMiddleware);
+
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
 });
+
+app.get('/metrics', metricsHandler);
 
 // /ready — deeper liveness probe. Checks DB + Redis reachability.
 // /health = process alive. /ready = dependencies reachable.
