@@ -76,3 +76,7 @@ test-results/
 *.tgz
 .cache/
 .worktrees/
+
+# Claude Code session state (local-only, not source)
+.claude/scheduled_tasks.lock
+.claude/transcripts/
