@@ -36,8 +36,12 @@ async function fetchTransactions(cookie: string): Promise<WalletTransaction[]> {
       cache:   'no-store',
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: WalletTransaction[] | null };
-    return json.data ?? [];
+    // API envelope: { success, data: { items: [...] } }
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { items: WalletTransaction[] } | null;
+    };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }

@@ -90,8 +90,18 @@ async function fetchLiabilities(cookie: string): Promise<Liability[]> {
       cache:   'no-store',
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: Liability[] | null };
-    return json.data ?? [];
+    // API returns: { data: { escrowHeld, pendingPayouts, walletLiability } }
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { escrowHeld: number; pendingPayouts: number; walletLiability: number } | null;
+    };
+    const d = json.data;
+    if (!d) return [];
+    return [
+      { label: 'Escrow held',      amount: d.escrowHeld },
+      { label: 'Pending payouts',  amount: d.pendingPayouts },
+      { label: 'Wallet liability', amount: d.walletLiability },
+    ];
   } catch {
     return [];
   }

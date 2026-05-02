@@ -27,8 +27,12 @@ async function fetchPayouts(cookie: string): Promise<PayoutRecord[]> {
       cache:   'no-store',
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: PayoutRecord[] | null };
-    return json.data ?? [];
+    // API envelope: { success, data: { items: [...] } }
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { items: PayoutRecord[] } | null;
+    };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }

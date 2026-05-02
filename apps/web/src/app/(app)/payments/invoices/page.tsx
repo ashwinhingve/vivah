@@ -19,8 +19,12 @@ async function fetchInvoices(): Promise<InvoiceRecord[]> {
       cache:   'no-store',
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: InvoiceRecord[] | null };
-    return json.data ?? [];
+    // API envelope: { success, data: { items: [...] } }
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { items: InvoiceRecord[] } | null;
+    };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }

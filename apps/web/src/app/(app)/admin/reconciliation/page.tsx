@@ -23,8 +23,8 @@ async function fetchDiscrepancies(): Promise<Discrepancy[]> {
       headers: { cookie },
     });
     if (!res.ok) return [];
-    const json = await res.json() as { data?: Discrepancy[] };
-    return json.data ?? [];
+    const json = await res.json() as { data?: { items?: Discrepancy[] } };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }

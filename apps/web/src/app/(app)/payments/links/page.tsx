@@ -19,8 +19,12 @@ async function fetchLinks(): Promise<PaymentLinkRecord[]> {
       cache:   'no-store',
     });
     if (!res.ok) return [];
-    const json = (await res.json()) as { success: boolean; data: PaymentLinkRecord[] | null };
-    return json.data ?? [];
+    // API envelope: { success, data: { items: [...] }, error, meta }
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { items: PaymentLinkRecord[] } | null;
+    };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }
