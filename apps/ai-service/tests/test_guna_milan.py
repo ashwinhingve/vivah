@@ -528,3 +528,190 @@ class TestHoroscopeAPI:
         data = response.json()
         expected = round(data["total_score"] / 36 * 100, 2)
         assert data["percentage"] == expected
+
+
+# ---------------------------------------------------------------------------
+# Advanced — Dosha analysis (Manglik intensity, cancellations, Rajju, Vedha…)
+# ---------------------------------------------------------------------------
+
+class TestManglikIntensity:
+    def test_partial_partial_cancels(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik="PARTIAL", girl_manglik="PARTIAL",
+        )
+        assert result["doshas"]["manglik"]["cancelled"] is True
+        assert result["doshas"]["manglik"]["conflict"] is False
+
+    def test_yes_partial_low_severity(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik="YES", girl_manglik="PARTIAL",
+        )
+        assert result["doshas"]["manglik"]["conflict"] is True
+        assert result["doshas"]["manglik"]["severity"] == "low"
+
+    def test_yes_no_high_severity(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik="YES", girl_manglik="NO",
+        )
+        assert result["doshas"]["manglik"]["severity"] == "high"
+
+    def test_legacy_bool_input(self) -> None:
+        """bool input is normalized to YES/NO for back-compat."""
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik=True, girl_manglik=True,
+        )
+        assert result["doshas"]["manglik"]["cancelled"] is True
+
+
+class TestNadiCancellation:
+    def test_same_nadi_uncancelled(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Karka", girl_nak="Hasta",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["nadi"]["dosha"] is True
+        assert result["doshas"]["nadi"]["cancelled"] is False
+
+    def test_different_nadi_no_dosha(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Karka", boy_nak="Punarvasu",
+            girl_rashi="Karka", girl_nak="Ashlesha",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["nadi"]["dosha"] is False
+
+
+class TestBhakootCancellation:
+    def test_friendly_lords_cancel_bhakoot(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Karka", boy_nak="Pushya",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["bhakoot"]["dosha"] is True
+        assert result["doshas"]["bhakoot"]["cancelled"] is True
+
+    def test_same_rashi_lord_cancels(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Vrishchika", girl_nak="Anuradha",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["bhakoot"]["cancelled"] is True
+
+
+class TestRajjuDosha:
+    def test_same_rajju_triggers(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Vrishchika", girl_nak="Jyeshtha",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["rajju"]["dosha"] is True
+
+    def test_different_rajju_no_dosha(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Vrishabha", girl_nak="Krittika",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["rajju"]["dosha"] is False
+
+
+class TestVedhaDosha:
+    def test_known_vedha_pair(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Vrishchika", girl_nak="Jyeshtha",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["vedha"]["dosha"] is True
+
+    def test_no_vedha(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Karka", boy_nak="Pushya",
+            girl_rashi="Meena", girl_nak="Revati",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["doshas"]["vedha"]["dosha"] is False
+
+
+class TestMahendraStreeDeergha:
+    def test_mahendra_present(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Karka", girl_nak="Punarvasu",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["yogas"]["mahendra"]["present"] is True
+
+    def test_stree_deergha_present(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Kanya", girl_nak="Hasta",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert result["yogas"]["stree_deergha"]["present"] is True
+
+
+class TestInsightsAndRemedies:
+    def test_insights_have_5_domains(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Karka", girl_nak="Pushya",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert set(result["insights"].keys()) == {
+            "mental", "physical", "prosperity", "progeny", "longevity"
+        }
+        for domain in result["insights"].values():
+            assert 0 <= domain["score"] <= 100
+            assert domain["label"] in {"excellent", "good", "average", "low"}
+
+    def test_remedies_present_for_active_dosha(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik="YES", girl_manglik="NO",
+        )
+        codes = {r["code"] for r in result["remedies"]}
+        assert "manglik" in codes
+
+    def test_no_remedies_when_clean(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Karka", boy_nak="Pushya",
+            girl_rashi="Meena", girl_nak="Revati",
+            boy_manglik=False, girl_manglik=False,
+        )
+        assert isinstance(result["remedies"], list)
+
+
+class TestFactorMetadata:
+    def test_each_factor_has_name_and_meaning(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Karka", girl_nak="Pushya",
+            boy_manglik=False, girl_manglik=False,
+        )
+        for f in result["factors"].values():
+            assert f["name"]
+            assert f["name_hi"]
+            assert f["meaning"]
+            assert f["status"] in {"excellent", "good", "average", "low", "neutral"}
+
+    def test_blocking_dosha_flag(self) -> None:
+        result = calculator.calculate(
+            boy_rashi="Mesha", boy_nak="Ashwini",
+            girl_rashi="Simha", girl_nak="Magha",
+            boy_manglik="YES", girl_manglik="NO",
+        )
+        assert result["blocking_dosha"] is True
