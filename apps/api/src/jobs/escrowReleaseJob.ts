@@ -14,7 +14,7 @@
  *  - Escrow released = exact job.amount (the 50% held amount).
  */
 import { Worker } from 'bullmq';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
@@ -61,10 +61,34 @@ export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
         return;
       }
 
-      // 2. Transfer funds to vendor via Razorpay (mock-safe — guarded in razorpay.ts)
+      // 2. CAS guard — flip HELD → RELEASE_PENDING before any external call.
+      //    BullMQ retries on transient Razorpay failure could otherwise re-invoke
+      //    transferToVendor and double-pay the vendor. By moving status to
+      //    RELEASE_PENDING first, a re-run sees status != HELD and aborts here.
+      if (escrowId) {
+        const claimed = await db
+          .update(schema.escrowAccounts)
+          .set({ status: 'RELEASE_PENDING' })
+          .where(
+            and(
+              eq(schema.escrowAccounts.id, escrowId),
+              eq(schema.escrowAccounts.status, 'HELD'),
+            ),
+          )
+          .returning({ id: schema.escrowAccounts.id });
+
+        if (claimed.length === 0) {
+          console.warn(
+            `[escrowReleaseJob] escrow ${escrowId} not in HELD state — skipping (already in progress or released)`,
+          );
+          return;
+        }
+      }
+
+      // 3. Transfer funds to vendor via Razorpay (mock-safe — guarded in razorpay.ts)
       await transferToVendor(vendorId, amount);
 
-      // 3. Update escrowAccounts: status → RELEASED, releasedAmount = amount
+      // 4. Update escrowAccounts: RELEASE_PENDING → RELEASED, releasedAmount = amount
       if (escrowId) {
         await db
           .update(schema.escrowAccounts)
@@ -73,10 +97,15 @@ export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
             released:    String(amount),
             releasedAt:  new Date(),
           })
-          .where(eq(schema.escrowAccounts.id, escrowId));
+          .where(
+            and(
+              eq(schema.escrowAccounts.id, escrowId),
+              eq(schema.escrowAccounts.status, 'RELEASE_PENDING'),
+            ),
+          );
       }
 
-      // 4. Append audit log — NEVER update, always insert new row
+      // 5. Append audit log — NEVER update, always insert new row
       await appendAuditLog({
         eventType:  'ESCROW_RELEASED',
         entityType: 'escrow',

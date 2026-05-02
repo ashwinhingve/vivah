@@ -16,6 +16,7 @@ import {
 } from './service.js';
 import { recordWebhookEvent, markProcessed, markFailed, markIgnored } from './webhookEvents.js';
 import { markLinkPaid } from './paymentLinks.js';
+import { logger } from '../lib/logger.js';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { eq, desc } from 'drizzle-orm';
@@ -110,7 +111,7 @@ export async function webhookHandler(req: Request, res: Response): Promise<void>
       signature,
     });
   } catch (e) {
-    console.error('[webhook] failed to record event:', e);
+    logger.error({ err: e }, '[webhook] failed to record event');
     res.status(500).json({ success: false });
     return;
   }
@@ -132,7 +133,7 @@ export async function webhookHandler(req: Request, res: Response): Promise<void>
             const amount = (entity as { amount?: number }).amount ?? 0;
             const { creditWalletForTopup } = await import('./wallet.js');
             await creditWalletForTopup(notes['userId'], Math.round(amount / 100), entity.id).catch((err) => {
-              console.error('[webhook] wallet topup credit failed:', err);
+              logger.error({ err, userId: notes['userId'], amount }, '[webhook] wallet topup credit failed');
             });
           } else {
             await handlePaymentSuccess(entity.order_id, entity.id);
@@ -303,7 +304,7 @@ export async function webhookHandler(req: Request, res: Response): Promise<void>
     res.json({ success: true });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown';
-    console.error('[webhook] processing error:', error);
+    logger.error({ err: error, eventId: recorded.id }, '[webhook] processing error');
     await markFailed(recorded.id, msg).catch(() => undefined);
     res.status(500).json({ success: false, error: 'Internal processing error' });
   }

@@ -50,6 +50,11 @@ import { escrowAdminRouter } from './admin/escrow.js';
 import { webhookHandler } from './payments/webhook.js';
 import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
+import { registerInvitationBlastWorker } from './jobs/invitationBlastJob.js';
+import {
+  registerAuditChainVerifierWorker,
+  scheduleAuditChainVerifierJob,
+} from './jobs/auditChainVerifierJob.js';
 import { registerOrderExpiryWorker } from './jobs/orderExpiryJob.js';
 import { startAccountPurgeWorker } from './jobs/accountPurgeJob.js';
 import {
@@ -143,6 +148,45 @@ app.use(express.json({ limit: '50kb' }));
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
+});
+
+// /ready — deeper liveness probe. Checks DB + Redis reachability.
+// /health = process alive. /ready = dependencies reachable.
+// Railway / load balancers use /ready for traffic routing decisions.
+app.get('/ready', async (_req: Request, res: Response) => {
+  const checks: Record<string, 'ok' | string> = {};
+  let allOk = true;
+
+  if (!env.USE_MOCK_SERVICES) {
+    try {
+      const { db } = await import('./lib/db.js');
+      // raw SQL through the underlying pool — avoids drizzle-orm dual-import
+      // type collision in TypeScript strict mode.
+      await (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
+      checks['postgres'] = 'ok';
+    } catch (err) {
+      checks['postgres'] = err instanceof Error ? err.message : 'unreachable';
+      allOk = false;
+    }
+
+    try {
+      const { redis } = await import('./lib/redis.js');
+      await redis.ping();
+      checks['redis'] = 'ok';
+    } catch (err) {
+      checks['redis'] = err instanceof Error ? err.message : 'unreachable';
+      allOk = false;
+    }
+  } else {
+    checks['mode'] = 'mock';
+  }
+
+  res.status(allOk ? 200 : 503).json({
+    success: allOk,
+    data: { status: allOk ? 'ready' : 'not_ready', checks },
+    error: null,
+    meta: { timestamp: new Date().toISOString() },
+  });
 });
 
 app.use('/api/v1/auth/kyc', kycRouter);
@@ -279,6 +323,9 @@ async function bootstrap(): Promise<void> {
     registerTokenCleanupWorker();
     void scheduleTokenCleanupJob();
     startNotificationsWorker();
+    registerInvitationBlastWorker();
+    registerAuditChainVerifierWorker();
+    void scheduleAuditChainVerifierJob();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.

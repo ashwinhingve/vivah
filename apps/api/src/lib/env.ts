@@ -14,9 +14,10 @@ const envSchema = z.object({
   MONGODB_URI:  z.string().default('mongodb://localhost:27017/smartshaadi'),
   REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
 
-  JWT_SECRET: z
-    .string()
-    .min(32, 'JWT_SECRET must be at least 32 characters for HS256 security'),
+  // JWT_SECRET retained for backwards compatibility with test setups.
+  // No production code path currently signs/verifies JWTs (Better Auth uses
+  // database-backed sessions). Kept optional to avoid breaking test envs.
+  JWT_SECRET: z.string().default(''),
 
   // Mock flag: set USE_MOCK_SERVICES=true in dev/test to skip real external calls.
   // Swap to real by removing this var (or setting to false) — no code change needed.
@@ -89,6 +90,18 @@ const envSchema = z.object({
       code: 'custom',
       path: ['MSG91_API_KEY'],
       message: 'MSG91_API_KEY must be set when USE_MOCK_SERVICES=false',
+    });
+  }
+}).superRefine((data, ctx) => {
+  // AI service internal key — reject the placeholder default in production.
+  // The ai-service validates this header on every internal call (M2.1);
+  // shipping the placeholder to prod = anyone on the network can invoke
+  // /ai/horoscope/guna directly.
+  if (data.NODE_ENV === 'production' && data.AI_SERVICE_INTERNAL_KEY === 'internal-key-change-in-prod') {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['AI_SERVICE_INTERNAL_KEY'],
+      message: 'AI_SERVICE_INTERNAL_KEY must be changed from default placeholder in production',
     });
   }
 });
