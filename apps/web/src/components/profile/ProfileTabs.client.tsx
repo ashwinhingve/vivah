@@ -19,10 +19,11 @@ interface Props {
   lifestyle?: LifestyleSection;
   horoscope?: HoroscopeSection;
   partnerPreferences?: PartnerPreferencesSection;
+  kundliUrl?: string | null;
 }
 
-type Tab = 'Personal' | 'Family' | 'Career' | 'Lifestyle';
-const TABS: Tab[] = ['Personal', 'Family', 'Career', 'Lifestyle'];
+type Tab = 'Personal' | 'Family' | 'Career' | 'Lifestyle' | 'Horoscope' | 'Preferences';
+const TABS: Tab[] = ['Personal', 'Family', 'Career', 'Lifestyle', 'Horoscope', 'Preferences'];
 
 function cmToFtIn(cm: number): string {
   const totalInches = Math.round(cm / 2.54);
@@ -137,100 +138,113 @@ function CareerTab({
   );
 }
 
-function LifestyleTab({
-  lifestyle,
-  horoscope,
-  partnerPreferences,
-}: {
-  lifestyle?: LifestyleSection;
-  horoscope?: HoroscopeSection;
-  partnerPreferences?: PartnerPreferencesSection;
-}) {
-  if (!lifestyle && !horoscope && !partnerPreferences) {
+function LifestyleTab({ lifestyle }: { lifestyle?: LifestyleSection }) {
+  if (!lifestyle) {
     return <p className="text-sm text-muted-foreground py-4 text-center">No lifestyle details added yet.</p>;
   }
   return (
-    <div className="space-y-5">
-      {/* Lifestyle chips */}
-      {lifestyle && (
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Lifestyle</p>
-          <div className="flex flex-wrap gap-2">
-            {lifestyle.diet && <Chip label={lifestyle.diet} teal />}
-            {lifestyle.smoking && lifestyle.smoking !== 'NEVER' && (
-              <Chip label={`Smoking: ${lifestyle.smoking.toLowerCase()}`} />
-            )}
-            {lifestyle.drinking && lifestyle.drinking !== 'NEVER' && (
-              <Chip label={`Drinking: ${lifestyle.drinking.toLowerCase()}`} />
-            )}
-            {lifestyle.fitnessLevel && <Chip label={lifestyle.fitnessLevel} />}
-            {lifestyle.ownHouse && <Chip label="Owns house" teal />}
-            {lifestyle.ownCar && <Chip label="Owns car" />}
-            {lifestyle.hobbies?.map((h) => <Chip key={h} label={h} teal />)}
-            {lifestyle.interests?.map((i) => <Chip key={i} label={i} />)}
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {lifestyle.diet && <Chip label={lifestyle.diet} teal />}
+        {lifestyle.smoking && lifestyle.smoking !== 'NEVER' && (
+          <Chip label={`Smoking: ${lifestyle.smoking.toLowerCase()}`} />
+        )}
+        {lifestyle.drinking && lifestyle.drinking !== 'NEVER' && (
+          <Chip label={`Drinking: ${lifestyle.drinking.toLowerCase()}`} />
+        )}
+        {lifestyle.fitnessLevel && <Chip label={lifestyle.fitnessLevel} />}
+        {lifestyle.ownHouse && <Chip label="Owns house" teal />}
+        {lifestyle.ownCar && <Chip label="Owns car" />}
+        {lifestyle.hobbies?.map((h) => <Chip key={h} label={h} teal />)}
+        {lifestyle.interests?.map((i) => <Chip key={i} label={i} />)}
+      </div>
+    </div>
+  );
+}
+
+function HoroscopeTab({ horoscope, kundliUrl }: { horoscope?: HoroscopeSection; kundliUrl?: string | null }) {
+  if (!horoscope) {
+    return <p className="text-sm text-muted-foreground py-4 text-center">No horoscope details added yet.</p>;
+  }
+  return (
+    <div className="space-y-4">
+      <div>
+        {horoscope.rashi && <DetailRow label="Rashi" value={horoscope.rashi} />}
+        {horoscope.nakshatra && <DetailRow label="Nakshatra" value={horoscope.nakshatra} />}
+        {horoscope.pob && <DetailRow label="Place of Birth" value={horoscope.pob} />}
+        {horoscope.tob && <DetailRow label="Time of Birth" value={horoscope.tob} />}
+        {horoscope.manglik && (
+          <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border-light last:border-0">
+            <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">Manglik</span>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                horoscope.manglik === 'YES'
+                  ? 'bg-destructive/10 text-destructive'
+                  : horoscope.manglik === 'NO'
+                  ? 'bg-success/10 text-success'
+                  : 'bg-amber-100 text-amber-700'
+              }`}
+            >
+              {horoscope.manglik}
+            </span>
           </div>
+        )}
+      </div>
+      {kundliUrl && (
+        <div className="border-t border-border-light pt-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Kundli Chart</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={kundliUrl}
+            alt="Vedic kundli chart"
+            className="w-full max-w-sm rounded-lg border border-border bg-background"
+          />
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Horoscope */}
-      {horoscope && (
-        <div className="border-t border-border-light pt-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Horoscope</p>
-          <div>
-            {horoscope.rashi && <DetailRow label="Rashi" value={horoscope.rashi} />}
-            {horoscope.nakshatra && <DetailRow label="Nakshatra" value={horoscope.nakshatra} />}
-            {horoscope.pob && <DetailRow label="Place of Birth" value={horoscope.pob} />}
-            {horoscope.tob && <DetailRow label="Time of Birth" value={horoscope.tob} />}
-            {horoscope.manglik && (
-              <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border-light last:border-0">
-                <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">Manglik</span>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    horoscope.manglik === 'YES'
-                      ? 'bg-destructive/10 text-destructive'
-                      : horoscope.manglik === 'NO'
-                      ? 'bg-success/10 text-success'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {horoscope.manglik}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+function PreferencesTab({ partnerPreferences }: { partnerPreferences?: PartnerPreferencesSection }) {
+  if (!partnerPreferences) {
+    return <p className="text-sm text-muted-foreground py-4 text-center">No partner preferences added yet.</p>;
+  }
+  return (
+    <div>
+      {partnerPreferences.ageRange && (
+        <DetailRow
+          label="Age"
+          value={`${partnerPreferences.ageRange.min}–${partnerPreferences.ageRange.max} yrs`}
+        />
       )}
-
-      {/* Partner preferences */}
-      {partnerPreferences && (
-        <div className="border-t border-border-light pt-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Partner Expectations</p>
-          <div>
-            {partnerPreferences.ageRange && (
-              <DetailRow
-                label="Age"
-                value={`${partnerPreferences.ageRange.min}–${partnerPreferences.ageRange.max} yrs`}
-              />
-            )}
-            {partnerPreferences.heightRange && (
-              <DetailRow
-                label="Height"
-                value={`${cmToFtIn(partnerPreferences.heightRange.min)} – ${cmToFtIn(partnerPreferences.heightRange.max)}`}
-              />
-            )}
-            {partnerPreferences.manglik && (
-              <DetailRow
-                label="Manglik"
-                value={partnerPreferences.manglik.replace(/_/g, ' ')}
-              />
-            )}
-            {partnerPreferences.partnerDescription && (
-              <p className="mt-3 text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
-                &ldquo;{partnerPreferences.partnerDescription}&rdquo;
-              </p>
-            )}
-          </div>
-        </div>
+      {partnerPreferences.heightRange && (
+        <DetailRow
+          label="Height"
+          value={`${cmToFtIn(partnerPreferences.heightRange.min)} – ${cmToFtIn(partnerPreferences.heightRange.max)}`}
+        />
+      )}
+      {partnerPreferences.manglik && (
+        <DetailRow label="Manglik" value={partnerPreferences.manglik.replace(/_/g, ' ')} />
+      )}
+      {partnerPreferences.openToInterCaste != null && (
+        <DetailRow label="Inter-caste" value={partnerPreferences.openToInterCaste ? 'Open' : 'Same community only'} />
+      )}
+      {partnerPreferences.openToInterfaith != null && (
+        <DetailRow label="Inter-faith" value={partnerPreferences.openToInterfaith ? 'Open' : 'Same religion only'} />
+      )}
+      {partnerPreferences.religion && partnerPreferences.religion.length > 0 && (
+        <DetailRow label="Religion" value={partnerPreferences.religion.join(', ')} />
+      )}
+      {partnerPreferences.education && partnerPreferences.education.length > 0 && (
+        <DetailRow label="Education" value={partnerPreferences.education.join(', ')} />
+      )}
+      {partnerPreferences.diet && partnerPreferences.diet.length > 0 && (
+        <DetailRow label="Diet" value={partnerPreferences.diet.join(', ')} />
+      )}
+      {partnerPreferences.partnerDescription && (
+        <p className="mt-3 text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
+          &ldquo;{partnerPreferences.partnerDescription}&rdquo;
+        </p>
       )}
     </div>
   );
@@ -244,6 +258,7 @@ export function ProfileTabs({
   lifestyle,
   horoscope,
   partnerPreferences,
+  kundliUrl,
 }: Props) {
   const [active, setActive] = useState<Tab>('Personal');
 
@@ -272,13 +287,9 @@ export function ProfileTabs({
         {active === 'Personal' && <PersonalTab personal={personal} />}
         {active === 'Family' && <FamilyTab family={family} />}
         {active === 'Career' && <CareerTab education={education} profession={profession} />}
-        {active === 'Lifestyle' && (
-          <LifestyleTab
-            lifestyle={lifestyle}
-            horoscope={horoscope}
-            partnerPreferences={partnerPreferences}
-          />
-        )}
+        {active === 'Lifestyle' && <LifestyleTab lifestyle={lifestyle} />}
+        {active === 'Horoscope' && <HoroscopeTab horoscope={horoscope} kundliUrl={kundliUrl} />}
+        {active === 'Preferences' && <PreferencesTab partnerPreferences={partnerPreferences} />}
       </div>
     </div>
   );

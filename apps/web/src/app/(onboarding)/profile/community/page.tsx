@@ -32,6 +32,9 @@ const COMMUNITY_SUGGESTIONS = [
 interface ProfileSnapshot {
   community?: string;
   subCommunity?: string;
+  caste?: string;
+  gotra?: string;
+  gotraExclusionEnabled?: boolean;
   motherTongue?: string;
   preferredLang?: string;
   lgbtqProfile?: boolean;
@@ -77,7 +80,7 @@ export default function CommunityPage() {
           )}
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              Community / Caste
+              Community
             </label>
             <input
               type="text"
@@ -96,7 +99,7 @@ export default function CommunityPage() {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              Sub-community / Gotra <span className="text-muted-foreground font-normal">(optional)</span>
+              Sub-community <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <input
               type="text"
@@ -105,6 +108,53 @@ export default function CommunityPage() {
               placeholder="e.g. Deshastha, Karhade"
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Community background <span className="text-muted-foreground font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              name="caste"
+              defaultValue={profile?.caste ?? ''}
+              placeholder="Used for community-based matching"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Optional. Override with &quot;open to inter-caste&quot; in Preferences if you don&apos;t want this filter.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Gotra <span className="text-muted-foreground font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              name="gotra"
+              defaultValue={profile?.gotra ?? ''}
+              placeholder="e.g. Bharadwaja, Kashyap"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+            />
+          </div>
+
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+            <input
+              type="checkbox"
+              id="gotraExclusionEnabled"
+              name="gotraExclusionEnabled"
+              defaultChecked={profile?.gotraExclusionEnabled ?? true}
+              className="mt-0.5 h-4 w-4 rounded border-border text-teal focus:ring-teal"
+            />
+            <div>
+              <label htmlFor="gotraExclusionEnabled" className="text-sm font-medium text-foreground cursor-pointer">
+                Exclude same gotra (sapinda)
+              </label>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Recommended. Hides matches who share your gotra. Both sides must enable for the rule to apply.
+              </p>
+            </div>
           </div>
 
           <div>

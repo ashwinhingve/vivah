@@ -589,7 +589,7 @@ function Step4({ onDone }: { onDone: () => void }) {
       >
         {preview ? (
           // blob: URLs from FileReader aren't compatible with next/image — <img> is intentional here
-          <img src={preview} alt="Photo preview" className="w-full h-40 object-cover rounded-xl" />
+          <img src={preview} alt="Photo preview" loading="lazy" decoding="async" className="w-full h-40 object-cover rounded-xl" />
         ) : (
           <div className="flex flex-col items-center gap-2 py-6">
             <span className="text-3xl">&#128247;</span>

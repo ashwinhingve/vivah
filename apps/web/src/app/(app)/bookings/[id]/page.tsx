@@ -1,22 +1,34 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { BookingStatus } from '@smartshaadi/types';
+import type { BookingStatus, BookingAddon } from '@smartshaadi/types';
 import { CancelBookingButton } from '@/components/bookings/CancelBookingButton.client';
+import { RescheduleControls } from '@/components/bookings/RescheduleControls.client';
+import { VendorReviews } from '@/components/vendor/VendorReviews.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface BookingDetail {
-  id:            string;
-  vendorId:      string;
-  vendorName:    string;
-  serviceId:     string | null;
-  eventDate:     string;
-  status:        BookingStatus;
-  totalAmount:   number;
-  escrowAmount:  number | null;
-  paymentStatus: string | null;
-  createdAt:     string;
+  id:             string;
+  vendorId:       string;
+  vendorName:     string;
+  serviceId:      string | null;
+  eventDate:      string;
+  ceremonyType?:  string;
+  status:         BookingStatus;
+  totalAmount:    number;
+  escrowAmount:   number | null;
+  paymentStatus:  string | null;
+  createdAt:      string;
+  packageName?:   string | null;
+  packagePrice?:  number | null;
+  guestCount?:    number | null;
+  eventLocation?: string | null;
+  proposedDate?:  string | null;
+  proposedBy?:    string | null;
+  proposedReason?: string | null;
+  addons?:        BookingAddon[];
+  hasReview?:     boolean;
 }
 
 interface BookingDetailResponse {
@@ -24,11 +36,8 @@ interface BookingDetailResponse {
   data:    { booking: BookingDetail } | null;
 }
 
-async function fetchBooking(id: string): Promise<BookingDetail | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('better-auth.session_token')?.value;
+async function fetchBooking(id: string, token: string): Promise<BookingDetail | null> {
   if (!token) return null;
-
   try {
     const res = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
@@ -37,12 +46,8 @@ async function fetchBooking(id: string): Promise<BookingDetail | null> {
     if (!res.ok) return null;
     const json = (await res.json()) as BookingDetailResponse;
     return json.data?.booking ?? null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatInr(amount: number): string {
   return '₹' + amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
@@ -64,136 +69,128 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   DISPUTED:  'Under Dispute',
 };
 
-function EscrowIndicator({ booking }: { booking: BookingDetail }) {
-  if (booking.escrowAmount === null && booking.paymentStatus === null) {
-    return (
-      <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-3">
-        <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
-        <span className="text-sm text-gray-500">No payment yet</span>
-      </div>
-    );
-  }
-
-  const escrowHeld = booking.escrowAmount !== null && booking.escrowAmount > 0;
-
-  return (
-    <div className={`flex items-center justify-between rounded-lg px-4 py-3 ${escrowHeld ? 'bg-teal-50' : 'bg-gray-50'}`}>
-      <div className="flex items-center gap-2">
-        <div className={`h-2.5 w-2.5 rounded-full ${escrowHeld ? 'bg-teal-500' : 'bg-gray-400'}`} />
-        <span className={`text-sm font-medium ${escrowHeld ? 'text-teal-700' : 'text-gray-600'}`}>
-          {escrowHeld ? 'Escrow Held' : 'No escrow'}
-        </span>
-      </div>
-      {escrowHeld && booking.escrowAmount !== null && (
-        <span className="text-sm font-semibold text-teal-700">
-          {formatInr(booking.escrowAmount)}
-        </span>
-      )}
-    </div>
-  );
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default async function BookingDetailPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
-  const booking = await fetchBooking(id);
+  const booking = await fetchBooking(id, token);
+  if (!booking) notFound();
 
-  if (!booking) {
-    notFound();
-  }
-
-  const escrowPercent =
-    booking.escrowAmount !== null && booking.totalAmount > 0
-      ? Math.round((booking.escrowAmount / booking.totalAmount) * 100)
-      : 0;
+  const addonsTotal = (booking.addons ?? []).reduce(
+    (sum, a) => sum + (a.unitPrice ?? 0) * (a.quantity ?? 1),
+    0,
+  );
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl">
-
-        {/* Back link */}
-        <Link
-          href="/bookings"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors"
-        >
+      <div className="mx-auto max-w-2xl space-y-5">
+        <Link href="/bookings" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary">
           ← Back to Bookings
         </Link>
 
-        {/* Status banner */}
-        <div
-          className={`mb-6 rounded-xl border px-5 py-4 ${STATUS_STYLES[booking.status]}`}
-        >
+        <div className={`rounded-xl border px-5 py-4 ${STATUS_STYLES[booking.status]}`}>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold uppercase tracking-wide">
-              {STATUS_LABELS[booking.status]}
-            </span>
-            <span className="text-xs opacity-70">
-              Booked {new Date(booking.createdAt).toLocaleDateString('en-IN')}
-            </span>
+            <span className="text-sm font-semibold uppercase tracking-wide">{STATUS_LABELS[booking.status]}</span>
+            <span className="text-xs opacity-70">Booked {new Date(booking.createdAt).toLocaleDateString('en-IN')}</span>
           </div>
         </div>
 
-        {/* Main card */}
-        <div className="rounded-xl border border-gray-100 bg-surface p-6 shadow-sm">
+        {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+          <RescheduleControls
+            bookingId={booking.id}
+            currentDate={booking.eventDate}
+            proposedDate={booking.proposedDate ?? null}
+            proposedReason={booking.proposedReason ?? null}
+          />
+        )}
 
-          <h1 className="mb-1 text-xl font-bold text-primary">{booking.vendorName}</h1>
-          <p className="text-sm text-gray-400">Booking ID: {booking.id}</p>
+        <div className="rounded-xl border border-gray-100 bg-surface p-6 shadow-sm space-y-4">
+          <div>
+            <Link href={`/vendors/${booking.vendorId}`} className="text-xl font-bold text-primary hover:underline">
+              {booking.vendorName}
+            </Link>
+            <p className="text-xs text-gray-400 mt-0.5">Booking ID: {booking.id}</p>
+          </div>
 
-          <div className="mt-5 divide-y divide-gray-100">
-
-            {/* Event date */}
+          <dl className="divide-y divide-gray-100">
             <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-gray-500">Event Date</span>
-              <span className="text-sm font-medium text-gray-900">
-                {new Date(booking.eventDate).toLocaleDateString('en-IN', {
-                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                })}
-              </span>
+              <dt className="text-sm text-gray-500">Event Date</dt>
+              <dd className="text-sm font-medium text-gray-900">
+                {new Date(booking.eventDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </dd>
             </div>
-
-            {/* Total amount */}
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-gray-500">Total Amount</span>
-              <span className="text-lg font-bold text-gray-900">
-                {formatInr(booking.totalAmount)}
-              </span>
-            </div>
-
-            {/* Escrow */}
-            <div className="py-3">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm text-gray-500">Escrow Status</span>
-                {escrowPercent > 0 && (
-                  <span className="text-xs text-teal-600">{escrowPercent}% held</span>
-                )}
-              </div>
-              <EscrowIndicator booking={booking} />
-            </div>
-
-            {/* Payment status */}
-            {booking.paymentStatus && (
+            {booking.ceremonyType && (
               <div className="flex items-center justify-between py-3">
-                <span className="text-sm text-gray-500">Payment</span>
-                <span className="text-sm font-medium text-gray-700">
-                  {booking.paymentStatus}
-                </span>
+                <dt className="text-sm text-gray-500">Ceremony</dt>
+                <dd className="text-sm font-medium text-gray-900 capitalize">{booking.ceremonyType.toLowerCase().replace(/_/g, ' ')}</dd>
               </div>
             )}
-
-          </div>
+            {booking.guestCount && (
+              <div className="flex items-center justify-between py-3">
+                <dt className="text-sm text-gray-500">Guest count</dt>
+                <dd className="text-sm font-medium text-gray-900">{booking.guestCount.toLocaleString('en-IN')}</dd>
+              </div>
+            )}
+            {booking.eventLocation && (
+              <div className="flex items-center justify-between py-3 gap-3">
+                <dt className="text-sm text-gray-500 shrink-0">Location</dt>
+                <dd className="text-sm font-medium text-gray-900 text-right">{booking.eventLocation}</dd>
+              </div>
+            )}
+            {booking.packageName && (
+              <div className="flex items-center justify-between py-3">
+                <dt className="text-sm text-gray-500">Package</dt>
+                <dd className="text-sm font-medium text-gray-900">
+                  {booking.packageName}
+                  {booking.packagePrice != null && (
+                    <span className="text-muted-foreground ml-2">{formatInr(booking.packagePrice)}</span>
+                  )}
+                </dd>
+              </div>
+            )}
+            <div className="flex items-center justify-between py-3">
+              <dt className="text-sm text-gray-500">Total</dt>
+              <dd className="text-lg font-bold text-gray-900">{formatInr(booking.totalAmount)}</dd>
+            </div>
+            {booking.escrowAmount !== null && (
+              <div className="flex items-center justify-between py-3">
+                <dt className="text-sm text-gray-500">Escrow Held</dt>
+                <dd className="text-sm font-medium text-teal-700">{formatInr(booking.escrowAmount)}</dd>
+              </div>
+            )}
+            {booking.paymentStatus && (
+              <div className="flex items-center justify-between py-3">
+                <dt className="text-sm text-gray-500">Payment</dt>
+                <dd className="text-sm font-medium text-gray-700">{booking.paymentStatus}</dd>
+              </div>
+            )}
+          </dl>
         </div>
 
-        {/* Action buttons */}
-        <div className="mt-5 flex flex-wrap gap-3">
+        {booking.addons && booking.addons.length > 0 && (
+          <div className="rounded-xl border border-gray-100 bg-surface p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-primary mb-3">Add-ons</h2>
+            <ul className="divide-y divide-gray-100">
+              {booking.addons.map((a) => (
+                <li key={a.id} className="flex items-center justify-between py-2 text-sm">
+                  <span className="text-foreground">
+                    {a.name}
+                    <span className="text-muted-foreground ml-2">×{a.quantity}</span>
+                  </span>
+                  <span className="font-medium text-gray-900">{formatInr(a.unitPrice * a.quantity)}</span>
+                </li>
+              ))}
+              <li className="flex items-center justify-between py-2 text-sm border-t-2 border-gray-200 mt-1 pt-2">
+                <span className="font-semibold text-primary">Add-ons total</span>
+                <span className="font-bold text-primary">{formatInr(addonsTotal)}</span>
+              </li>
+            </ul>
+          </div>
+        )}
 
-          {/* Download invoice — only for COMPLETED */}
+        <div className="flex flex-wrap gap-3">
           {booking.status === 'COMPLETED' && (
             <a
               href={`${API_URL}/api/v1/bookings/${booking.id}/invoice`}
@@ -204,17 +201,9 @@ export default async function BookingDetailPage({
               ↓ Download Invoice
             </a>
           )}
-
-          {/* Cancel — available while PENDING or CONFIRMED */}
           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-            <CancelBookingButton
-              bookingId={booking.id}
-              apiUrl={API_URL}
-              authToken={token}
-            />
+            <CancelBookingButton bookingId={booking.id} apiUrl={API_URL} authToken={token} />
           )}
-
-          {/* Back */}
           <Link
             href="/bookings"
             className="rounded-lg border border-gray-200 bg-surface px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
@@ -223,17 +212,28 @@ export default async function BookingDetailPage({
           </Link>
         </div>
 
-        {/* Escrow notice */}
-        {booking.status === 'CONFIRMED' && (
-          <div className="mt-5 rounded-xl bg-amber-50 border border-amber-200 p-4">
-            <p className="text-sm text-amber-800">
-              <span className="font-semibold">Escrow Protection:</span>{' '}
-              50% of the payment ({formatInr(booking.totalAmount * 0.5)}) will be held in escrow
-              and released to the vendor 48 hours after your event is marked complete.
-            </p>
+        {booking.status === 'COMPLETED' && !booking.hasReview && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+            <h2 className="text-base font-semibold text-amber-900 mb-2">How was your experience?</h2>
+            <p className="text-sm text-amber-800 mb-3">Leave a review to help other couples find great vendors.</p>
+            <VendorReviews
+              vendorId={booking.vendorId}
+              initial={[]}
+              total={0}
+              canReview={true}
+              bookingId={booking.id}
+            />
           </div>
         )}
 
+        {booking.status === 'CONFIRMED' && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+            <p className="text-sm text-amber-800">
+              <span className="font-semibold">Escrow Protection:</span>{' '}
+              50% of the payment ({formatInr(booking.totalAmount * 0.5)}) is held in escrow and released to the vendor 48 hours after your event.
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );

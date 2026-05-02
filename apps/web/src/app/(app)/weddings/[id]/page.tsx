@@ -85,9 +85,18 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
   const selectedMuhurat = muhuratSuggestions.find((d) => d.selected);
 
   const tabs = [
-    { href: `/weddings/${id}/tasks`,   label: 'Tasks' },
-    { href: `/weddings/${id}/budget`,  label: 'Budget' },
-    { href: `/weddings/${id}/guests`,  label: 'Guests' },
+    { href: `/weddings/${id}/tasks`,     label: 'Tasks' },
+    { href: `/weddings/${id}/budget`,    label: 'Budget' },
+    { href: `/weddings/${id}/expenses`,  label: 'Expenses' },
+    { href: `/weddings/${id}/guests`,    label: 'Guests' },
+    { href: `/weddings/${id}/seating`,   label: 'Seating' },
+    { href: `/weddings/${id}/timeline`,  label: 'Schedule' },
+    { href: `/weddings/${id}/vendors`,   label: 'Vendors' },
+    { href: `/weddings/${id}/moodboard`, label: 'Mood Board' },
+    { href: `/weddings/${id}/documents`, label: 'Docs' },
+    { href: `/weddings/${id}/registry`,  label: 'Registry' },
+    { href: `/weddings/${id}/website`,   label: 'Website' },
+    { href: `/weddings/${id}/members`,   label: 'Members' },
   ];
 
   return (
@@ -346,22 +355,24 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           </details>
         </div>
 
-        {/* Tab nav */}
-        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
-          {tabs.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex-1 text-center min-h-[44px] py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6] transition-colors"
-            >
-              {label}
-            </Link>
-          ))}
+        {/* Tab nav — scrollable on mobile */}
+        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
+          <div className="flex gap-1 min-w-max">
+            {tabs.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-center min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6] transition-colors whitespace-nowrap"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Quick-access hint */}
         <p className="text-center text-xs text-muted-foreground">
-          Use the tabs above to manage tasks, budget, and guests.
+          Tabs above manage every part of your wedding plan.
         </p>
       </div>
     </div>

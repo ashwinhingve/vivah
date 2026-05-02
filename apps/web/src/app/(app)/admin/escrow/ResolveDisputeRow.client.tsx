@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -41,6 +42,7 @@ function formatInr(value: string | number): string {
 }
 
 export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProps) {
+  const router                          = useRouter();
   const [selected, setSelected]         = useState<string>('');
   const [customRatio, setCustomRatio]   = useState<string>('');
   const [confirming, setConfirming]     = useState(false);
@@ -102,6 +104,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
 
       setResolved(true);
       onResolved(booking.bookingId);
+      router.refresh();
     } catch {
       setError('Network error. Please try again.');
     } finally {

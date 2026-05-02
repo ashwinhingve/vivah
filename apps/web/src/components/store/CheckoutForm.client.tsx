@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useCartStore } from '@/store/useCartStore';
+import type { PromoApplicationResult } from '@smartshaadi/types';
 
 const ShippingSchema = z.object({
   name:    z.string().min(2, 'Name is required'),
@@ -39,6 +40,47 @@ export function CheckoutForm() {
   const [submitting,   setSubmitting]   = useState(false);
   const [serverError,  setServerError]  = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+
+  // Promo code state
+  const [promoOpen,    setPromoOpen]    = useState(false);
+  const [promoCode,    setPromoCode]    = useState('');
+  const [promoApplying,setPromoApplying]= useState(false);
+  const [promoError,   setPromoError]   = useState<string | null>(null);
+  const [promoResult,  setPromoResult]  = useState<PromoApplicationResult | null>(null);
+
+  async function applyPromo() {
+    setPromoError(null);
+    if (!promoCode.trim()) {
+      setPromoError('Please enter a promo code.');
+      return;
+    }
+    setPromoApplying(true);
+    try {
+      const res = await fetch(`${API_URL}/api/v1/payments/promos/quote`, {
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode.trim().toUpperCase(), amount: subtotal, scope: 'STORE' }),
+      });
+      const json = (await res.json()) as { success: boolean; data?: PromoApplicationResult; error?: string };
+      if (!res.ok || !json.success || !json.data) {
+        setPromoError(json.error ?? 'Invalid or expired promo code.');
+        setPromoResult(null);
+        return;
+      }
+      setPromoResult(json.data);
+    } catch {
+      setPromoError('Network error. Please try again.');
+    } finally {
+      setPromoApplying(false);
+    }
+  }
+
+  function removePromo() {
+    setPromoResult(null);
+    setPromoCode('');
+    setPromoError(null);
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -250,14 +292,75 @@ export function CheckoutForm() {
             <span>Subtotal</span>
             <span className="text-[#0F172A]">₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
+          {promoResult && (
+            <div className="flex justify-between text-emerald-700">
+              <span className="flex items-center gap-1">
+                {promoResult.code}
+                <button
+                  type="button"
+                  onClick={removePromo}
+                  className="text-[10px] text-muted-foreground hover:text-red-600 ml-1"
+                  aria-label="Remove promo"
+                >
+                  ✕
+                </button>
+              </span>
+              <span>−₹{promoResult.discount.toLocaleString('en-IN')}</span>
+            </div>
+          )}
           <div className="flex justify-between text-[#64748B]">
             <span>Shipping</span>
             <span className="text-emerald-700">Free</span>
           </div>
           <div className="flex justify-between font-bold text-[#0F172A] border-t border-[#C5A47E]/20 pt-2">
             <span>Total</span>
-            <span className="text-[#0E7C7B]">₹{subtotal.toLocaleString('en-IN')}</span>
+            <span className="text-[#0E7C7B]">
+              ₹{(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}
+            </span>
           </div>
+        </div>
+
+        {/* Promo code section */}
+        <div className="mt-4 border-t border-[#C5A47E]/20 pt-3">
+          {!promoResult ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setPromoOpen(v => !v)}
+                className="text-xs font-medium text-[#0E7C7B] hover:underline"
+              >
+                {promoOpen ? 'Hide promo code' : 'Have a promo code?'}
+              </button>
+              {promoOpen && (
+                <div className="mt-2 space-y-2">
+                  {promoError && (
+                    <p className="text-xs text-red-600">{promoError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                      placeholder="PROMO CODE"
+                      className="flex-1 h-9 rounded-lg border border-[#C5A47E]/30 bg-white px-3 text-xs font-mono focus:outline-none focus:border-[#0E7C7B] uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={applyPromo}
+                      disabled={promoApplying}
+                      className="h-9 px-3 rounded-lg bg-[#0E7C7B] text-white text-xs font-semibold disabled:opacity-60"
+                    >
+                      {promoApplying ? '…' : 'Apply'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-emerald-700 font-medium">
+              Promo applied: saving ₹{promoResult.discount.toLocaleString('en-IN')}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -107,6 +107,25 @@ export async function updateFamily(_prev: unknown, formData: FormData): Promise<
   if (nativePlace) payload.nativePlace = nativePlace;
   const familyAbout = formData.get('familyAbout');
   if (familyAbout) payload.familyAbout = familyAbout;
+  const photoR2Key = formData.get('photoR2Key');
+  if (photoR2Key && typeof photoR2Key === 'string') payload.photoR2Key = photoR2Key;
+
+  // Siblings — multiple `siblingName[]` / `siblingMarried[]` / `siblingOccupation[]`
+  const sibNames       = formData.getAll('siblingName').map(v => String(v));
+  const sibMarrieds    = formData.getAll('siblingMarried').map(v => String(v));
+  const sibOccupations = formData.getAll('siblingOccupation').map(v => String(v));
+  if (sibNames.length > 0) {
+    const siblings = sibNames.map((name, i) => {
+      const entry: Record<string, unknown> = {};
+      if (name && name.trim().length > 0) entry['name'] = name.trim();
+      const marriedRaw = sibMarrieds[i] ?? '';
+      if (marriedRaw === 'true' || marriedRaw === '1') entry['married'] = true;
+      const occ = sibOccupations[i] ?? '';
+      if (occ && occ.trim().length > 0) entry['occupation'] = occ.trim();
+      return entry;
+    }).filter(s => Object.keys(s).length > 0);
+    if (siblings.length > 0) payload.siblings = siblings;
+  }
 
   try {
     const res = await apiPut('/api/v1/profiles/me/content/family', payload, token);
@@ -253,6 +272,11 @@ export async function updateCommunity(_prev: unknown, formData: FormData): Promi
   if (community) payload.community = community;
   const subCommunity = formData.get('subCommunity');
   if (subCommunity) payload.subCommunity = subCommunity;
+  const caste = formData.get('caste');
+  if (caste) payload.caste = caste;
+  const gotra = formData.get('gotra');
+  if (gotra) payload.gotra = gotra;
+  payload.gotraExclusionEnabled = formData.get('gotraExclusionEnabled') === 'on';
   const motherTongue = formData.get('motherTongue');
   if (motherTongue) payload.motherTongue = motherTongue;
   const preferredLang = formData.get('preferredLang');
@@ -339,4 +363,29 @@ export async function updatePreferences(_prev: unknown, formData: FormData): Pro
   revalidatePath('/dashboard');
   revalidatePath('/profile/preferences');
   redirect('/dashboard');
+}
+
+export async function savePersonalityAction(p: {
+  introvertExtrovert: number; traditionalModern: number; plannerSpontaneous: number;
+  religiousSecular: number; ambitiousBalanced: number; familyIndependent: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const token = await getAuthToken();
+  if (!token) return { ok: false, error: 'Not authenticated' };
+  try {
+    const res = await fetch(`${API_URL}/api/v1/profiles/me/personality`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `better-auth.session_token=${token}`,
+      },
+      body: JSON.stringify(p),
+    });
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { ok: false, error: json.error?.message ?? 'Save failed' };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'Network error' };
+  }
 }

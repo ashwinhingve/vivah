@@ -12,10 +12,12 @@ const RSVP_CONFIG = {
 } as const;
 
 const MEAL_CONFIG: Record<MealPref, { label: string; color: string }> = {
-  VEG:     { label: 'Veg',     color: '#059669' },
-  NON_VEG: { label: 'Non-Veg', color: '#DC2626' },
-  JAIN:    { label: 'Jain',    color: '#D97706' },
-  VEGAN:   { label: 'Vegan',   color: '#7C3AED' },
+  VEG:           { label: 'Veg',           color: '#059669' },
+  NON_VEG:       { label: 'Non-Veg',       color: '#DC2626' },
+  JAIN:          { label: 'Jain',          color: '#D97706' },
+  VEGAN:         { label: 'Vegan',         color: '#7C3AED' },
+  EGGETARIAN:    { label: 'Eggetarian',    color: '#0891B2' },
+  NO_PREFERENCE: { label: 'No preference', color: '#64748B' },
 };
 
 export function RsvpStats({ guests }: RsvpStatsProps) {
@@ -32,10 +34,12 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
   // Meal pref counts (only for confirmed guests)
   const attending = guests.filter((g) => g.rsvpStatus === 'YES');
   const mealCounts: Record<MealPref, number> = {
-    VEG:     attending.filter((g) => g.mealPref === 'VEG').length,
-    NON_VEG: attending.filter((g) => g.mealPref === 'NON_VEG').length,
-    JAIN:    attending.filter((g) => g.mealPref === 'JAIN').length,
-    VEGAN:   attending.filter((g) => g.mealPref === 'VEGAN').length,
+    VEG:           attending.filter((g) => g.mealPref === 'VEG').length,
+    NON_VEG:       attending.filter((g) => g.mealPref === 'NON_VEG').length,
+    JAIN:          attending.filter((g) => g.mealPref === 'JAIN').length,
+    VEGAN:         attending.filter((g) => g.mealPref === 'VEGAN').length,
+    EGGETARIAN:    attending.filter((g) => g.mealPref === 'EGGETARIAN').length,
+    NO_PREFERENCE: attending.filter((g) => g.mealPref === 'NO_PREFERENCE').length,
   };
   const mealTotal = Object.values(mealCounts).reduce((s, n) => s + n, 0);
 

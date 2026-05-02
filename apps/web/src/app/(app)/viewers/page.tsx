@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState, PhotoFallback } from '@/components/shared';
 import { resolvePhotoUrl } from '@/lib/photo';
+import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
+import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -53,8 +55,12 @@ function timeAgo(iso: string): string {
 export default async function ViewersPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
-  const result = await fetchViewers(token);
+  const [result, entitlements] = await Promise.all([
+    fetchViewers(token),
+    getEntitlementsForCurrentUser(),
+  ]);
   const viewers = result?.viewers ?? [];
+  const isLocked = !(entitlements?.entitlements.canViewViewers ?? false);
 
   return (
     <main className="min-h-screen bg-background">
@@ -68,7 +74,30 @@ export default async function ViewersPage() {
           </p>
         </div>
 
-        {viewers.length === 0 ? (
+        {isLocked && viewers.length > 0 ? (
+          <UpgradeCTA
+            requiredTier="STANDARD"
+            feature={`${viewers.length} viewer${viewers.length !== 1 ? 's' : ''}`}
+            message={`See who has viewed your profile. Upgrade to Standard to unlock all ${viewers.length} visitors.`}
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {viewers.slice(0, 6).map((v) => {
+                const photoUrl = resolvePhotoUrl(v.primaryPhotoKey);
+                return (
+                  <Card key={v.viewerProfileId} className="overflow-hidden">
+                    <div className="relative block aspect-[4/5]">
+                      {photoUrl ? (
+                        <Image src={photoUrl} alt="" fill sizes="33vw" className="object-cover" />
+                      ) : (
+                        <PhotoFallback name={v.name} />
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </UpgradeCTA>
+        ) : viewers.length === 0 ? (
           <EmptyState
             icon={Eye}
             title="No recent visitors"

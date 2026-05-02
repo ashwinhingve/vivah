@@ -12,17 +12,25 @@ const STEPS = [
   { label: 'Family', done: false, active: true },
 ];
 
+interface SiblingEntry {
+  name?: string;
+  married?: boolean;
+  occupation?: string;
+}
+
 interface ProfileSnapshot {
   family?: {
     fatherName?: string;
     fatherOccupation?: string;
     motherName?: string;
     motherOccupation?: string;
+    siblings?: SiblingEntry[];
     familyType?: string;
     familyValues?: string;
     familyStatus?: string;
     nativePlace?: string;
     familyAbout?: string;
+    photoR2Key?: string;
   };
 }
 
@@ -30,6 +38,7 @@ export default function FamilyPage() {
   const [state, formAction] = useActionState(updateFamily, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [siblings, setSiblings] = useState<SiblingEntry[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +46,10 @@ export default function FamilyPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((json: { success?: boolean; data?: ProfileSnapshot } | null) => {
         if (cancelled) return;
-        if (json?.success && json.data) setProfile(json.data);
+        if (json?.success && json.data) {
+          setProfile(json.data);
+          setSiblings(json.data.family?.siblings ?? []);
+        }
         setLoaded(true);
       })
       .catch(() => { if (!cancelled) setLoaded(true); });
@@ -45,6 +57,19 @@ export default function FamilyPage() {
   }, []);
 
   const f = profile?.family;
+
+  function updateSibling(idx: number, field: 'name' | 'occupation', value: string): void {
+    setSiblings(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+  }
+  function toggleSiblingMarried(idx: number): void {
+    setSiblings(prev => prev.map((s, i) => i === idx ? { ...s, married: !s.married } : s));
+  }
+  function addSibling(): void {
+    setSiblings(prev => [...prev, {}]);
+  }
+  function removeSibling(idx: number): void {
+    setSiblings(prev => prev.filter((_, i) => i !== idx));
+  }
 
   return (
     <div>
@@ -175,6 +200,60 @@ export default function FamilyPage() {
               className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none resize-none"
               placeholder="Share a bit about your family background…"
             />
+          </div>
+
+          {/* Siblings */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-foreground">Siblings</label>
+              <button
+                type="button"
+                onClick={addSibling}
+                className="text-xs text-teal hover:underline"
+              >
+                + Add sibling
+              </button>
+            </div>
+            {siblings.length === 0 ? (
+              <p className="text-xs text-muted-foreground">None added yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {siblings.map((sib, idx) => (
+                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-center bg-[#FEFAF6] rounded-lg p-2">
+                    <input
+                      name="siblingName"
+                      defaultValue={sib.name ?? ''}
+                      onChange={(e) => updateSibling(idx, 'name', e.target.value)}
+                      placeholder="Name"
+                      className="border border-border rounded px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      name="siblingOccupation"
+                      defaultValue={sib.occupation ?? ''}
+                      onChange={(e) => updateSibling(idx, 'occupation', e.target.value)}
+                      placeholder="Occupation"
+                      className="border border-border rounded px-2 py-1.5 text-sm"
+                    />
+                    <label className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={sib.married ?? false}
+                        onChange={() => toggleSiblingMarried(idx)}
+                      />
+                      <input type="hidden" name="siblingMarried" value={sib.married ? 'true' : 'false'} />
+                      Married
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeSibling(idx)}
+                      className="text-red-600 text-xs hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <OnboardingNav currentStep={2} backHref="/profile/personal" skipHref="/profile/career" />

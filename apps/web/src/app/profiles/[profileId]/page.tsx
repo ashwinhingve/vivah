@@ -6,7 +6,9 @@ import { ProfileTabs } from '@/components/profile/ProfileTabs.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ContactSection } from '@/components/profile/ContactSection';
 import { SendInterestButton } from '@/components/matching/SendInterestButton.client';
-import type { ProfileDetailResponse } from '@smartshaadi/types';
+import type { ProfileDetailResponse, MatchExplainer } from '@smartshaadi/types';
+import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
+import { SimilarProfiles } from '@/components/matchmaking/SimilarProfiles';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -26,6 +28,32 @@ async function getProfile(profileId: string): Promise<ProfileDetailResponse | nu
   }
 }
 
+interface MatchScoreSlice { explainer: MatchExplainer | null; distanceKm: number | null }
+
+async function getMatchScore(profileId: string): Promise<MatchScoreSlice | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value;
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/matchmaking/score/${profileId}`, {
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      success: boolean;
+      data?: { explainer?: MatchExplainer | null; distanceKm?: number | null };
+    };
+    if (!json.success) return null;
+    return {
+      explainer: json.data?.explainer ?? null,
+      distanceKm: json.data?.distanceKm ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function calculateAge(dob: string): number {
   const birth = new Date(dob);
   const now = new Date();
@@ -40,7 +68,11 @@ interface Props {
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const profile = await getProfile(profileId);
+  const [profile, entitlements, matchScore] = await Promise.all([
+    getProfile(profileId),
+    getEntitlementsForCurrentUser(),
+    getMatchScore(profileId),
+  ]);
   if (!profile) notFound();
 
   const age = profile.personal?.dob ? calculateAge(profile.personal.dob) : null;
@@ -74,6 +106,12 @@ export default async function ProfileViewPage({ params }: Props) {
           isVerified={profile.verificationStatus === 'VERIFIED'}
           completeness={profile.profileCompleteness}
           premiumTier={profile.premiumTier}
+          manglik={profile.horoscope?.manglik ?? null}
+          lastActiveAt={profile.lastActiveAt ?? null}
+          showsPreciseLastActive={isSelf || (entitlements?.entitlements.showsPreciseLastActive ?? false)}
+          explainer={isSelf ? null : matchScore?.explainer ?? null}
+          distanceKm={isSelf ? null : matchScore?.distanceKm ?? null}
+          viewerTier={(entitlements?.tier ?? 'FREE') as 'FREE' | 'STANDARD' | 'PREMIUM'}
         />
 
         <div className="px-4 space-y-4 mt-4">
@@ -173,6 +211,7 @@ export default async function ProfileViewPage({ params }: Props) {
             lifestyle={profile.lifestyle}
             horoscope={profile.horoscope}
             partnerPreferences={profile.partnerPreferences}
+            kundliUrl={profile.kundliUrl ?? null}
           />
 
           {/* ── Contact (self-view only) ───────────────────── */}
@@ -183,6 +222,9 @@ export default async function ProfileViewPage({ params }: Props) {
               isSelf={isSelf}
             />
           )}
+
+          {/* ── Similar profiles ────────────────────────── */}
+          {!isSelf && <SimilarProfiles sourceProfileId={profileId} />}
 
         </div>
       </div>

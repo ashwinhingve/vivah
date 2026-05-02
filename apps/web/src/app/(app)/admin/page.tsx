@@ -22,9 +22,17 @@ interface KycRow {
   profileId: string;
   userId: string;
   verificationStatus: string;
+  verificationLevel: string | null;
   aadhaarVerified: boolean | null;
+  panVerified: boolean | null;
+  bankVerified: boolean | null;
+  livenessScore: number | null;
+  faceMatchScore: number | null;
+  riskScore: number | null;
   duplicateFlag: boolean | null;
   duplicateReason: string | null;
+  sanctionsHit: boolean | null;
+  attemptCount: number | null;
   submittedAt: string | null;
 }
 
@@ -99,14 +107,19 @@ export default async function AdminPage() {
 
         {/* KYC pending queue */}
         <div>
-          <h2 className="text-lg font-semibold text-primary font-heading mb-3">
-            KYC Pending Review
-            {kycQueue.length > 0 && (
-              <span className="ml-2 text-xs font-semibold text-warning bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                {kycQueue.length}
-              </span>
-            )}
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-primary font-heading">
+              KYC Pending Review
+              {kycQueue.length > 0 && (
+                <span className="ml-2 text-xs font-semibold text-warning bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  {kycQueue.length}
+                </span>
+              )}
+            </h2>
+            <a href="/admin/kyc" className="text-xs font-semibold text-teal hover:text-teal-hover">
+              Open full KYC console →
+            </a>
+          </div>
           <KycQueueTable initialRows={kycQueue} />
         </div>
 

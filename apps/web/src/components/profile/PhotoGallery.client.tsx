@@ -29,7 +29,7 @@ export function PhotoGallery({ photos, name }: Props) {
       {/* Main photo */}
       <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border-2 border-gold">
         {active?.url ? (
-          <img src={active.url} alt={`${name}'s photo`} className="w-full h-full object-cover" />
+          <img src={active.url} alt={`${name}&#39;s photo`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
         ) : (
           // Warm gradient fallback with initials
           <div className="w-full h-full bg-gradient-to-br from-primary to-gold flex items-center justify-center">
@@ -52,7 +52,7 @@ export function PhotoGallery({ photos, name }: Props) {
               }`}
               aria-label={`View photo ${idx + 1}`}>
               {photo.url ? (
-                <img src={photo.url} alt="" className="w-full h-full object-cover" aria-hidden="true" />
+                <img src={photo.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" aria-hidden="true" />
               ) : (
                 <div className="w-full h-full bg-border animate-pulse" />
               )}

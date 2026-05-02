@@ -5,6 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { PhotoFallback } from '@/components/shared';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { cn } from '@/lib/utils';
+import { ManglikChip } from './ManglikChip';
+import { LastActiveBadge } from './LastActiveBadge';
+import { DistancePill } from './DistancePill';
+import { WhyMatchPanel } from './WhyMatchPanel';
+import type { MatchExplainer } from '@smartshaadi/types';
 
 interface ProfileHeroProps {
   name: string;
@@ -16,6 +21,12 @@ interface ProfileHeroProps {
   completeness: number;
   createdByRole?: 'SELF' | 'PARENT' | 'SIBLING' | 'RELATIVE';
   premiumTier?: string;
+  manglik?: 'YES' | 'NO' | 'PARTIAL' | null;
+  lastActiveAt?: string | null;
+  showsPreciseLastActive?: boolean;
+  explainer?: MatchExplainer | null;
+  viewerTier?: 'FREE' | 'STANDARD' | 'PREMIUM';
+  distanceKm?: number | null;
 }
 
 const ROLE_CONFIG: Record<
@@ -44,6 +55,12 @@ export function ProfileHero({
   completeness,
   createdByRole = 'SELF',
   premiumTier,
+  manglik,
+  lastActiveAt,
+  showsPreciseLastActive = false,
+  explainer,
+  viewerTier = 'FREE',
+  distanceKm,
 }: ProfileHeroProps) {
   const role = ROLE_CONFIG[createdByRole];
   const RoleIcon = role.icon;
@@ -76,6 +93,11 @@ export function ProfileHero({
             {age != null ? `${age} yrs` : 'Age not set'}
             {city ? ` · ${city}` : ''}
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <ManglikChip manglik={manglik} size="xs" />
+            <DistancePill distanceKm={distanceKm ?? null} fallbackCity={null} />
+            <LastActiveBadge lastActiveAt={lastActiveAt} showPrecise={showsPreciseLastActive} />
+          </div>
         </div>
 
         {isVerified ? (
@@ -131,6 +153,10 @@ export function ProfileHero({
             </div>
           </div>
         </div>
+
+        {explainer ? (
+          <WhyMatchPanel explainer={explainer} tier={viewerTier} />
+        ) : null}
       </div>
     </Card>
   );

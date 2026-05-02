@@ -5,18 +5,21 @@ import { GuestTable } from '@/components/wedding/GuestTable.client';
 import { RsvpStats } from '@/components/wedding/RsvpStats';
 import { SendInvitations } from '@/components/wedding/SendInvitations.client';
 import { fetchAuth } from '@/lib/server-fetch';
-import type { GuestSummary } from '@smartshaadi/types';
+import type { GuestRich, Ceremony } from '@smartshaadi/types';
 
 async function fetchGuests(weddingId: string): Promise<{
-  guests: GuestSummary[];
-  error: boolean;
-  notFound: boolean;
+  guests: GuestRich[]; error: boolean;
 }> {
-  const data = await fetchAuth<{ guests: GuestSummary[] }>(
+  const data = await fetchAuth<{ guests: GuestRich[] }>(
     `/api/v1/weddings/${weddingId}/guests`,
   );
-  if (data === null) return { guests: [], error: true, notFound: false };
-  return { guests: data.guests ?? [], error: false, notFound: false };
+  if (data === null) return { guests: [], error: true };
+  return { guests: data.guests ?? [], error: false };
+}
+
+async function fetchCeremonies(weddingId: string): Promise<Ceremony[]> {
+  const data = await fetchAuth<{ ceremonies: Ceremony[] }>(`/api/v1/weddings/${weddingId}/ceremonies`);
+  return data?.ceremonies ?? [];
 }
 
 interface PageProps {
@@ -25,9 +28,12 @@ interface PageProps {
 
 export default async function GuestsPage({ params }: PageProps) {
   const { id } = await params;
-  const { guests, error, notFound: nf } = await fetchGuests(id);
+  const [{ guests, error }, ceremonies] = await Promise.all([
+    fetchGuests(id),
+    fetchCeremonies(id),
+  ]);
 
-  if (nf) notFound();
+  if (false) notFound();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
@@ -43,20 +49,22 @@ export default async function GuestsPage({ params }: PageProps) {
 
         <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Guests</h1>
         <p className="text-muted-foreground text-sm mb-6">
-          Manage your guest list, RSVPs, and send invitations.
+          Manage guest list, RSVPs, invitations, analytics, and check-in.
         </p>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
+        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           {[
-            { href: `/weddings/${id}/tasks`,  label: 'Tasks',  active: false },
-            { href: `/weddings/${id}/budget`, label: 'Budget', active: false },
-            { href: `/weddings/${id}/guests`, label: 'Guests', active: true },
+            { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
+            { href: `/weddings/${id}/guests/analytics`,  label: 'Analytics', active: false },
+            { href: `/weddings/${id}/guests/check-in`,   label: 'Check-in',  active: false },
+            { href: `/weddings/${id}/rsvp-questions`,    label: 'Questions', active: false },
+            { href: `/weddings/${id}/seating`,           label: 'Seating',   active: false },
           ].map(({ href, label, active }) => (
             <Link
               key={href}
               href={href}
-              className={`flex-1 text-center min-h-[44px] py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 text-center min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 active
                   ? 'bg-[#0E7C7B]/10 text-[#0E7C7B]'
                   : 'text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6]'
@@ -83,7 +91,7 @@ export default async function GuestsPage({ params }: PageProps) {
         )}
 
         {/* Guest table */}
-        {!error && <GuestTable weddingId={id} initialGuests={guests} />}
+        {!error && <GuestTable weddingId={id} initialGuests={guests} ceremonies={ceremonies} />}
       </div>
     </div>
   );

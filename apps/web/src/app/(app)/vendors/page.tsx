@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import { VendorFilterBar } from '@/components/vendor/VendorFilterBar.client';
 import type { VendorProfile } from '@smartshaadi/types';
@@ -17,34 +18,29 @@ interface VendorsApiResponse {
 }
 
 interface PageProps {
-  searchParams: Promise<{
-    category?: string;
-    city?: string;
-    state?: string;
-    page?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
-async function fetchVendors(params: {
-  category?: string;
-  city?: string;
-  state?: string;
-  page: number;
-}): Promise<{ vendors: VendorProfile[]; total: number; error: boolean }> {
+const FILTER_KEYS = ['q', 'category', 'city', 'state', 'priceMin', 'priceMax', 'minRating', 'verifiedOnly', 'sort'] as const;
+
+async function fetchVendors(
+  params: Record<string, string>,
+  token: string,
+): Promise<{ vendors: VendorProfile[]; total: number; error: boolean }> {
   const query = new URLSearchParams();
-  if (params.category) query.set('category', params.category);
-  if (params.city)     query.set('city', params.city);
-  if (params.state)    query.set('state', params.state);
-  query.set('page',  String(params.page));
+  for (const k of FILTER_KEYS) {
+    const v = params[k];
+    if (v) query.set(k, v);
+  }
+  query.set('page',  params['page']  ?? '1');
   query.set('limit', String(PAGE_SIZE));
 
   try {
     const res = await fetch(`${API_URL}/api/v1/vendors?${query.toString()}`, {
       cache: 'no-store',
+      ...(token ? { headers: { Cookie: `better-auth.session_token=${token}` } } : {}),
     });
-
     if (!res.ok) return { vendors: [], total: 0, error: true };
-
     const json = (await res.json()) as VendorsApiResponse;
     return {
       vendors: json.success ? (json.data?.vendors ?? []) : [],
@@ -57,22 +53,22 @@ async function fetchVendors(params: {
 }
 
 export default async function VendorsPage({ searchParams }: PageProps) {
-  const params   = await searchParams;
-  const page     = Math.max(1, parseInt(params.page ?? '1', 10));
-  const category = params.category;
-  const city     = params.city;
-  const state    = params.state;
+  const params = await searchParams;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value ?? '';
+  const page = Math.max(1, parseInt(params['page'] ?? '1', 10));
 
-  const { vendors, total, error } = await fetchVendors({ category, city, state, page });
+  const { vendors, total, error } = await fetchVendors(params as Record<string, string>, token);
 
   const hasNext = total > page * PAGE_SIZE;
   const hasPrev = page > 1;
 
   function buildPageHref(p: number) {
     const q = new URLSearchParams();
-    if (category) q.set('category', category);
-    if (city)     q.set('city', city);
-    if (state)    q.set('state', state);
+    for (const k of FILTER_KEYS) {
+      const v = params[k];
+      if (v) q.set(k, v);
+    }
     q.set('page', String(p));
     return `/vendors?${q.toString()}`;
   }
@@ -80,29 +76,35 @@ export default async function VendorsPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-primary">Find Wedding Vendors</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Discover photographers, caterers, decorators and more for your special day.
-          </p>
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">Find Wedding Vendors</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {total > 0
+                ? `${total.toLocaleString('en-IN')} vendor${total === 1 ? '' : 's'} found`
+                : 'Discover photographers, caterers, decorators and more.'}
+            </p>
+          </div>
+          <Link
+            href="/vendors/favorites"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm font-medium text-primary hover:bg-gold/10"
+          >
+            ❤ Saved
+          </Link>
         </div>
 
-        {/* Filter bar */}
         <div className="bg-surface border border-border rounded-xl p-4 mb-6 shadow-sm">
           <Suspense fallback={<div className="h-10 animate-pulse bg-[#F5EFE8] rounded-lg" />}>
             <VendorFilterBar />
           </Suspense>
         </div>
 
-        {/* Error state */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-700 font-medium">Could not load vendors. Please try again.</p>
           </div>
         )}
 
-        {/* Empty state */}
         {!error && vendors.length === 0 && (
           <div className="bg-surface border border-border rounded-xl p-12 text-center">
             <p className="text-muted-foreground text-lg">No vendors found.</p>
@@ -110,7 +112,6 @@ export default async function VendorsPage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* Vendor grid */}
         {vendors.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {vendors.map((vendor) => (
@@ -119,7 +120,6 @@ export default async function VendorsPage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* Pagination */}
         {(hasPrev || hasNext) && (
           <div className="flex items-center justify-center gap-3">
             {hasPrev && (

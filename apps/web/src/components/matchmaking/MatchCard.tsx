@@ -12,6 +12,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PhotoFallback } from '@/components/shared';
 import { resolvePhotoUrl } from '@/lib/photo';
+import { ManglikChip } from '@/components/profile/ManglikChip';
+import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
+import { DistancePill } from '@/components/profile/DistancePill';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -153,7 +156,22 @@ export function MatchCard({ match }: MatchCardProps) {
           <Badge variant="gold" aria-label={`${match.compatibility.gunaScore} of 36 Guna matched`}>
             {match.compatibility.gunaScore}/36 Guna
           </Badge>
+          <ManglikChip manglik={match.manglik} size="xs" />
+          <DistancePill distanceKm={match.distanceKm ?? null} fallbackCity={match.city ?? null} />
+          {match.isBoosted ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              Boosted
+            </span>
+          ) : null}
+          <LastActiveBadge lastActiveAt={match.lastActiveAt} showPrecise={match.premiumTier !== 'FREE'} />
         </div>
+
+        {match.explainer?.reasons[0] ? (
+          <p className="line-clamp-1 text-[12px] text-slate-600">
+            {match.explainer.reasons[0]}
+          </p>
+        ) : null}
 
         <div className="mt-auto flex gap-2 pt-1">
           <Button

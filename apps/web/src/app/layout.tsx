@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/toast';
+import { PostHogProvider } from '@/components/providers/PostHogProvider.client';
 import './globals.css';
 
 const playfair = Playfair_Display({
@@ -36,7 +38,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${notoDevanagari.variable}`}>
-      <body className="bg-background text-foreground antialiased overflow-x-clip font-body">{children}</body>
+      <body className="bg-background text-foreground antialiased overflow-x-clip font-body">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[1000] focus:rounded focus:bg-foreground focus:px-3 focus:py-2 focus:text-white"
+        >
+          Skip to content
+        </a>
+        <PostHogProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </PostHogProvider>
+      </body>
     </html>
   );
 }

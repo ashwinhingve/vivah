@@ -1,10 +1,11 @@
 /**
  * Smart Shaadi — Payment History Page
- * Server Component — fetches data server-side, no client JS needed.
- *
- * Design: Ivory #FEFAF6 bg, Burgundy #7B2D42 headings, Gold #C5A47E borders
+ * Server Component — fetches data server-side, no client JS needed for static content.
  */
 import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { PaymentSummaryCard } from '@/components/payments/PaymentSummaryCard';
+import { PaymentsPageClient } from '@/components/payments/PaymentsPageClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -28,248 +29,127 @@ interface PaymentHistoryItem {
   status:            string;
   razorpayOrderId:   string;
   razorpayPaymentId: string | null;
+  invoiceId:         string | null;
   createdAt:         string;
   escrow:            EscrowAccount | null;
 }
 
-interface PaymentHistoryResponse {
-  success: boolean;
-  data: {
-    items: PaymentHistoryItem[];
-    total: number;
-    page:  number;
-    limit: number;
-  } | null;
+interface WalletSnapshot {
+  balance:     string;
+  lifetimeIn:  string;
+  lifetimeOut: string;
+  currency:    string;
+  isActive:    boolean;
 }
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
-async function fetchPaymentHistory(): Promise<PaymentHistoryResponse['data']> {
+async function getAuthHeader(): Promise<string | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) return null;
+  return token ? `better-auth.session_token=${token}` : null;
+}
 
+async function fetchPaymentHistory(cookie: string): Promise<PaymentHistoryItem[]> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/payments/history?limit=20`, {
-      headers: { Cookie: `better-auth.session_token=${token}` },
-      cache: 'no-store',
+    const res = await fetch(`${API_URL}/api/v1/payments/history?limit=50`, {
+      headers: { Cookie: cookie },
+      cache:   'no-store',
+    });
+    if (!res.ok) return [];
+    const json = (await res.json()) as {
+      success: boolean;
+      data: { items: PaymentHistoryItem[] } | null;
+    };
+    return json.data?.items ?? [];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchWallet(cookie: string): Promise<WalletSnapshot | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/payments/wallet`, {
+      headers: { Cookie: cookie },
+      cache:   'no-store',
     });
     if (!res.ok) return null;
-    const json = (await res.json()) as PaymentHistoryResponse;
+    const json = (await res.json()) as { success: boolean; data: WalletSnapshot | null };
     return json.data ?? null;
   } catch {
     return null;
   }
 }
 
-// ── Formatting helpers ────────────────────────────────────────────────────────
-
-function formatINR(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('en-IN', {
-    style:    'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(num);
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-IN', {
-    day:   '2-digit',
-    month: 'short',
-    year:  'numeric',
-  });
-}
-
-// ── Status badge ──────────────────────────────────────────────────────────────
-
-interface StatusBadgeProps {
-  status: string;
-}
-
-function PaymentStatusBadge({ status }: StatusBadgeProps) {
-  const map: Record<string, { bg: string; text: string; label: string }> = {
-    PENDING:  { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
-    CAPTURED: { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Held in Escrow' },
-    RELEASED: { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Released' },
-    REFUNDED: { bg: 'bg-surface-muted',  text: 'text-foreground',  label: 'Refunded' },
-    FAILED:   { bg: 'bg-red-100',    text: 'text-red-800',    label: 'Failed' },
-    PARTIALLY_REFUNDED: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partially Refunded' },
-  };
-
-  const style = map[status] ?? { bg: 'bg-surface-muted', text: 'text-muted-foreground', label: status };
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${style.bg} ${style.text}`}
-    >
-      {style.label}
-    </span>
-  );
-}
-
-function EscrowStatusBadge({ status }: { status: EscrowAccount['status'] }) {
-  const map: Record<EscrowAccount['status'], { bg: string; text: string; label: string }> = {
-    HELD:     { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Escrow Held' },
-    RELEASED: { bg: 'bg-green-50',  text: 'text-green-700',  label: 'Released to Vendor' },
-    DISPUTED: { bg: 'bg-red-50',    text: 'text-red-700',    label: 'Disputed' },
-    REFUNDED: { bg: 'bg-surface-muted',  text: 'text-muted-foreground',  label: 'Escrow Refunded' },
-  };
-
-  const style = map[status];
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${style.bg} ${style.text}`}
-    >
-      {style.label}
-    </span>
-  );
-}
-
-// ── Payment card ──────────────────────────────────────────────────────────────
-
-interface PaymentCardProps {
-  payment: PaymentHistoryItem;
-  escrow:  EscrowAccount | null;
-}
-
-function PaymentCard({ payment, escrow }: PaymentCardProps) {
-  return (
-    <div
-      className="rounded-xl bg-surface shadow-sm border p-5"
-      style={{ borderColor: '#C5A47E' }}
-    >
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground font-mono truncate">
-            Order: {payment.razorpayOrderId || '—'}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Booking: {payment.bookingId.slice(0, 8)}…
-          </p>
-        </div>
-
-        <div className="shrink-0 text-right">
-          <p
-            className="text-lg font-bold"
-            style={{ color: '#7B2D42' }}
-          >
-            {formatINR(payment.amount)}
-          </p>
-          <p className="text-xs text-muted-foreground">{payment.currency}</p>
-        </div>
-      </div>
-
-      {/* Status + escrow row */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <PaymentStatusBadge status={payment.status} />
-        {escrow && <EscrowStatusBadge status={escrow.status} />}
-      </div>
-
-      {/* Escrow detail */}
-      {escrow && (
-        <div
-          className="mt-3 rounded-lg px-3 py-2 text-xs"
-          style={{ background: '#FEF9F0', borderLeft: '3px solid #C5A47E' }}
-        >
-          <span className="font-medium text-foreground">Escrow: </span>
-          <span className="text-muted-foreground">{formatINR(escrow.totalHeld)} held</span>
-          {escrow.status === 'RELEASED' && (
-            <span className="ml-2 text-green-700">· {formatINR(escrow.released)} released</span>
-          )}
-          {escrow.releaseDueAt && escrow.status === 'HELD' && (
-            <span className="ml-2 text-muted-foreground">
-              · Release due {formatDate(escrow.releaseDueAt)}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Footer */}
-      <p className="mt-3 text-xs text-muted-foreground">
-        Created {formatDate(payment.createdAt)}
-        {payment.razorpayPaymentId && (
-          <span className="ml-2 font-mono">· {payment.razorpayPaymentId}</span>
-        )}
-      </p>
-    </div>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function PaymentsPage() {
-  const historyData = await fetchPaymentHistory();
-  const payments = historyData?.items ?? [];
+  const cookie = await getAuthHeader();
+  if (!cookie) {
+    return (
+      <div className="min-h-screen px-4 py-16 text-center" style={{ background: '#FEFAF6' }}>
+        <p className="text-muted-foreground">Please sign in to view your payment history.</p>
+      </div>
+    );
+  }
+
+  const [payments, wallet] = await Promise.all([
+    fetchPaymentHistory(cookie),
+    fetchWallet(cookie),
+  ]);
+
+  const totalSpend = payments
+    .filter(p => p.status === 'CAPTURED' || p.status === 'RELEASED')
+    .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+  const totalRefunded = payments
+    .filter(p => p.status === 'REFUNDED' || p.status === 'PARTIALLY_REFUNDED')
+    .reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+  const walletBalance = wallet ? parseFloat(wallet.balance) : 0;
 
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
       <div className="mx-auto max-w-3xl">
         {/* Page heading */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>
-            Payment History
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your bookings, escrow holdings, and payment records
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>
+              Payment History
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your bookings, wallet, and payment records
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              href="/payments/wallet"
+              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10"
+              style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+            >
+              Wallet
+            </Link>
+            <Link
+              href="/payments/refunds"
+              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10"
+              style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+            >
+              Refunds
+            </Link>
+          </div>
         </div>
 
-        {/* Summary strip */}
-        {payments.length > 0 && (
-          <div className="mb-6 grid grid-cols-3 gap-4">
-            {(
-              [
-                { label: 'Total Payments', value: payments.length },
-                {
-                  label: 'In Escrow',
-                  value: payments.filter((p) => p.status === 'CAPTURED').length,
-                },
-                {
-                  label: 'Completed',
-                  value: payments.filter((p) => p.escrow?.status === 'RELEASED').length,
-                },
-              ] as const
-            ).map(({ label, value }) => (
-              <div
-                key={label}
-                className="rounded-xl bg-surface shadow-sm border px-4 py-3 text-center"
-                style={{ borderColor: '#C5A47E' }}
-              >
-                <p className="text-xl font-bold" style={{ color: '#7B2D42' }}>
-                  {value}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Summary card */}
+        <div className="mb-6">
+          <PaymentSummaryCard
+            totalSpend={totalSpend}
+            totalRefunded={totalRefunded}
+            walletBalance={walletBalance}
+          />
+        </div>
 
-        {/* Payment list */}
-        {payments.length === 0 ? (
-          /* Empty state */
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="text-4xl">💳</p>
-            <p className="mt-3 font-medium" style={{ color: '#7B2D42' }}>
-              No payments yet
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Confirm a booking and make a payment to see it here.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {payments.map((payment) => (
-              <PaymentCard
-                key={payment.id}
-                payment={payment}
-                escrow={payment.escrow ?? null}
-              />
-            ))}
-          </div>
-        )}
+        {/* Filter tabs + payment list (client) */}
+        <PaymentsPageClient payments={payments} />
 
         {/* Escrow explanation */}
         <div

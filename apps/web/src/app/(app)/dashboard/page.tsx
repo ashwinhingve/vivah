@@ -6,6 +6,7 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
+import { StrengthTipsPanel } from '@/components/profile/StrengthTipsPanel';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
@@ -148,6 +149,9 @@ export default async function DashboardPage() {
             />
           )}
         </div>
+
+        {/* Strength tips — shows top 5 actionable improvements */}
+        <StrengthTipsPanel />
 
         {/* Completeness bar + CTA */}
         {sections ? (

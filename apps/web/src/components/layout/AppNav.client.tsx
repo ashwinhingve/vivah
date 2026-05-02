@@ -18,6 +18,8 @@ import {
   Bookmark,
   Eye,
   Shield,
+  Heart,
+  MessageCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -33,12 +35,18 @@ const INDIVIDUAL_PRIMARY: NavItem[] = [
 ];
 
 const INDIVIDUAL_MORE: NavItem[] = [
+  { href: '/chats',            label: 'Chats',      Icon: MessageCircle },
+  { href: '/likes',            label: 'Likes',      Icon: Heart },
   { href: '/shortlist',        label: 'Shortlist',  Icon: Bookmark },
   { href: '/viewers',          label: 'Viewed Me',  Icon: Eye },
   { href: '/settings/privacy', label: 'Privacy',    Icon: Shield },
   { href: '/store',            label: 'Shop',       Icon: ShoppingBag },
   { href: '/rentals',          label: 'Rentals',    Icon: Package },
   { href: '/bookings',         label: 'Bookings',   Icon: Calendar },
+  { href: '/payments',         label: 'Payments',   Icon: ShoppingCart },
+  { href: '/payments/wallet',  label: 'Wallet',     Icon: Package },
+  { href: '/payments/invoices',label: 'Invoices',   Icon: Bookmark },
+  { href: '/payments/refunds', label: 'Refunds',    Icon: Shield },
 ];
 
 const VENDOR_NAV: NavItem[] = [
@@ -46,14 +54,20 @@ const VENDOR_NAV: NavItem[] = [
   { href: '/bookings',                label: 'Bookings', Icon: Calendar },
   { href: '/vendor-dashboard/store',  label: 'Products', Icon: Package },
   { href: '/vendor-dashboard/orders', label: 'Orders',   Icon: ShoppingCart },
+  { href: '/vendor/payouts',          label: 'Payouts',  Icon: ShoppingBag },
+  { href: '/payments/links',          label: 'Links',    Icon: MessageCircle },
   { href: '/profile/personal',        label: 'Profile',  Icon: User },
 ];
 
 const ADMIN_NAV: NavItem[] = [
-  { href: '/admin',     label: 'Admin',     Icon: Home },
-  { href: '/vendors',   label: 'Vendors',   Icon: Search },
-  { href: '/bookings',  label: 'Bookings',  Icon: Calendar },
-  { href: '/dashboard', label: 'Dashboard', Icon: User },
+  { href: '/admin',           label: 'Admin',    Icon: Home },
+  { href: '/admin/revenue',   label: 'Revenue',  Icon: Search },
+  { href: '/admin/payouts',   label: 'Payouts',  Icon: ShoppingBag },
+  { href: '/admin/refunds',   label: 'Refunds',  Icon: Shield },
+  { href: '/admin/promos',    label: 'Promos',   Icon: Heart },
+  { href: '/admin/escrow',    label: 'Disputes', Icon: Bookmark },
+  { href: '/vendors',         label: 'Vendors',  Icon: Search },
+  { href: '/bookings',        label: 'Bookings', Icon: Calendar },
 ];
 
 function isActive(pathname: string, href: string) {
