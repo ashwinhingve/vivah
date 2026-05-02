@@ -10,7 +10,7 @@
  *   GET  /refunds/admin/list                    → list all refunds (?status=)
  */
 import { Router, type Request, type Response } from 'express';
-import { authenticate } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { RequestRefundSchema, AdminApproveRefundSchema } from '@smartshaadi/schemas';
 import {
@@ -47,7 +47,7 @@ refundsRouter.get('/mine', authenticate, async (req: Request, res: Response) => 
   } catch (e) { handle(res, e); }
 });
 
-refundsRouter.post('/admin/decide', authenticate, async (req: Request, res: Response) => {
+refundsRouter.post('/admin/decide', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const parse = AdminApproveRefundSchema.safeParse(req.body);
   if (!parse.success) return err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid', 422);
   try {
@@ -56,7 +56,7 @@ refundsRouter.post('/admin/decide', authenticate, async (req: Request, res: Resp
   } catch (e) { handle(res, e); }
 });
 
-refundsRouter.get('/admin/list', authenticate, async (req: Request, res: Response) => {
+refundsRouter.get('/admin/list', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const status = (req.query['status'] as string | undefined) ?? undefined;
   try {
     const items = await listAllRefundsForAdmin(req.user!.id, status);

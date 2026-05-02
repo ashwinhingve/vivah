@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
+import { ok, err } from '../lib/response.js';
 import { getPresignedUploadUrl } from './service.js';
 
 export const storageRouter = Router();
@@ -22,10 +23,7 @@ storageRouter.post(
   async (req: Request, res: Response): Promise<void> => {
     const parsed = UploadUrlSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({
-        success: false,
-        error: { message: 'Invalid request', details: parsed.error.flatten() },
-      });
+      err(res, 'VALIDATION_ERROR', 'Invalid request', 400, { details: parsed.error.flatten() });
       return;
     }
 
@@ -33,9 +31,9 @@ storageRouter.post(
 
     try {
       const { uploadUrl, r2Key } = await getPresignedUploadUrl(folder, fileName, mimeType);
-      res.json({ success: true, data: { uploadUrl, r2Key } });
+      ok(res, { uploadUrl, r2Key });
     } catch {
-      res.status(500).json({ success: false, error: { message: 'Failed to generate upload URL' } });
+      err(res, 'INTERNAL', 'Failed to generate upload URL', 500);
     }
   },
 );

@@ -280,9 +280,10 @@ securityRouter.post('/phone/change/start', authenticate, async (req: Request, re
       userAgent: uaOf(req),
       metadata:  { purpose: 'PHONE_CHANGE', phone: newPhone },
     });
-    // Mock dev mode → log the code; real mode → MSG91 (TODO).
-    console.info(`[phone-change OTP] ${newPhone}: ${code} (mock=${process.env['USE_MOCK_SERVICES']})`);
-    ok(res, { sent: true, expiresIn: ttl });
+    // Mock dev mode → return code in response; real mode → MSG91 (TODO).
+    // Never log raw OTP to stdout — log aggregation enables account takeover.
+    const includeMockCode = process.env['USE_MOCK_SERVICES'] === 'true';
+    ok(res, includeMockCode ? { sent: true, expiresIn: ttl, mockCode: code } : { sent: true, expiresIn: ttl });
   } catch (error) {
     console.error('[security] phone change start failed', error);
     err(res, 'PHONE_CHANGE_FAILED', 'Could not start phone change', 500);

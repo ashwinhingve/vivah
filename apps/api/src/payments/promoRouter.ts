@@ -7,7 +7,7 @@
  * POST /promos/admin/deactivate/:code  → admin: deactivate
  */
 import { Router, type Request, type Response } from 'express';
-import { authenticate } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { PromoApplySchema, CreatePromoSchema } from '@smartshaadi/schemas';
 import {
@@ -45,7 +45,7 @@ promoRouter.get('/active', authenticate, async (req: Request, res: Response) => 
   } catch (e) { handle(res, e); }
 });
 
-promoRouter.post('/admin/create', authenticate, async (req: Request, res: Response) => {
+promoRouter.post('/admin/create', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const parse = CreatePromoSchema.safeParse(req.body);
   if (!parse.success) return err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid', 422);
   try {
@@ -54,7 +54,7 @@ promoRouter.post('/admin/create', authenticate, async (req: Request, res: Respon
   } catch (e) { handle(res, e); }
 });
 
-promoRouter.post('/admin/deactivate/:code', authenticate, async (req: Request, res: Response) => {
+promoRouter.post('/admin/deactivate/:code', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const code = req.params['code'];
   if (!code) return err(res, 'VALIDATION_ERROR', 'code required', 422);
   try {

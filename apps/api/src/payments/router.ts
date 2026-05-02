@@ -13,6 +13,7 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
+import { authorizeBookingAccess } from '../lib/bookingAccess.js';
 import { CreatePaymentOrderSchema, RefundSchema, RetryPaymentSchema } from '@smartshaadi/schemas';
 import {
   createPaymentOrder,
@@ -143,6 +144,12 @@ paymentsRouter.get(
     const bookingId = req.params['bookingId'];
     if (!bookingId) {
       err(res, 'VALIDATION_ERROR', 'Booking ID is required', 422);
+      return;
+    }
+
+    const access = await authorizeBookingAccess(bookingId, req.user!.id, req.user!.role);
+    if (!access.ok) {
+      err(res, access.code, access.message, access.status);
       return;
     }
 

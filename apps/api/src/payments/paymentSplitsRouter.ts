@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../auth/middleware.js';
 import { authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
+import { authorizeBookingAccess } from '../lib/bookingAccess.js';
 import { addSplit, listSplits, releaseSplit, disputeSplit } from './paymentSplits.js';
 
 export const paymentSplitsRouter = Router();
@@ -14,6 +15,11 @@ paymentSplitsRouter.get(
     const { bookingId } = req.params;
     if (!bookingId) {
       err(res, 'VALIDATION_ERROR', 'Booking ID is required', 422);
+      return;
+    }
+    const access = await authorizeBookingAccess(bookingId, req.user!.id, req.user!.role);
+    if (!access.ok) {
+      err(res, access.code, access.message, access.status);
       return;
     }
     try {

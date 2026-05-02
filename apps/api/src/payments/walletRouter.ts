@@ -6,7 +6,7 @@
  * POST /wallet/admin/adjust     → admin manual credit/debit
  */
 import { Router, type Request, type Response } from 'express';
-import { authenticate } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { WalletAdjustSchema } from '@smartshaadi/schemas';
 import { z } from 'zod';
@@ -42,7 +42,7 @@ walletRouter.get('/transactions', authenticate, async (req: Request, res: Respon
   } catch (e) { handle(res, e); }
 });
 
-walletRouter.post('/admin/adjust', authenticate, async (req: Request, res: Response) => {
+walletRouter.post('/admin/adjust', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const parse = WalletAdjustSchema.safeParse(req.body);
   if (!parse.success) return err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid', 422);
   try {

@@ -14,7 +14,21 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/chat') ||
     pathname.startsWith('/matches') ||
     pathname.startsWith('/profile') ||
-    pathname.startsWith('/wedding')
+    pathname.startsWith('/wedding') ||
+    pathname.startsWith('/payments') ||
+    pathname.startsWith('/likes') ||
+    pathname.startsWith('/shortlist') ||
+    pathname.startsWith('/requests') ||
+    pathname.startsWith('/notifications') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/store') ||
+    pathname.startsWith('/rentals') ||
+    pathname.startsWith('/viewers') ||
+    pathname.startsWith('/coordinator') ||
+    pathname.startsWith('/family') ||
+    pathname.startsWith('/weddings') ||
+    pathname.startsWith('/vendor')
   ) {
     let role = 'INDIVIDUAL';
     let sessionOk = false;
@@ -88,11 +102,25 @@ export const config = {
     '/admin/:path*',
     '/feed/:path*',
     '/vendors/:path*',
+    '/vendor/:path*',
     '/bookings/:path*',
     '/chat/:path*',
     '/matches/:path*',
     '/profile/:path*',
     '/wedding/:path*',
+    '/weddings/:path*',
+    '/payments/:path*',
+    '/likes/:path*',
+    '/shortlist/:path*',
+    '/requests/:path*',
+    '/notifications/:path*',
+    '/settings/:path*',
+    '/pricing',
+    '/store/:path*',
+    '/rentals/:path*',
+    '/viewers/:path*',
+    '/coordinator/:path*',
+    '/family/:path*',
     '/login',
     '/verify',
     '/register',
