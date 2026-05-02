@@ -19,17 +19,24 @@ vi.mock('drizzle-orm', () => {
   return {
     eq:      stub,
     and:     stub,
+    or:      stub,
     ilike:   stub,
     inArray: stub,
+    gte:     stub,
+    lte:     stub,
+    asc:     stub,
+    desc:    stub,
     sql:     Object.assign(stub, { raw: stub }),
   };
 });
 
 // ── Mock schema tables ────────────────────────────────────────────────────────
 vi.mock('@smartshaadi/db', () => ({
-  vendors:        { id: {}, userId: {}, isActive: {}, category: {}, city: {}, state: {}, mongoPortfolioId: {} },
-  vendorServices: { id: {}, vendorId: {}, isActive: {} },
-  bookings:       { vendorId: {}, status: {}, eventDate: {} },
+  vendors:            { id: {}, userId: {}, isActive: {}, category: {}, city: {}, state: {}, mongoPortfolioId: {}, rating: {}, totalReviews: {}, viewCount: {}, favoriteCount: {}, priceMin: {}, priceMax: {}, businessName: {}, tagline: {}, description: {}, verified: {}, createdAt: {}, updatedAt: {} },
+  vendorServices:     { id: {}, vendorId: {}, isActive: {} },
+  bookings:           { vendorId: {}, status: {}, eventDate: {} },
+  vendorFavorites:    { id: {}, userId: {}, vendorId: {} },
+  vendorBlockedDates: { id: {}, vendorId: {}, date: {}, reason: {} },
 }));
 
 // ── Mock env ──────────────────────────────────────────────────────────────────
@@ -87,8 +94,11 @@ function buildSelectChain(returnValue: unknown[]) {
   const terminal = () => Promise.resolve(returnValue);
   chain.from    = vi.fn().mockReturnValue(chain);
   chain.where   = vi.fn().mockReturnValue(chain);
+  chain.orderBy = vi.fn().mockReturnValue(chain);
   chain.limit   = vi.fn().mockReturnValue(chain);
   chain.offset  = vi.fn().mockReturnValue(chain);
+  chain.innerJoin = vi.fn().mockReturnValue(chain);
+  chain.leftJoin  = vi.fn().mockReturnValue(chain);
   chain.then    = (resolve: (v: unknown) => unknown) => Promise.resolve(returnValue).then(resolve);
   // Allow awaiting the chain directly
   Object.defineProperty(chain, Symbol.toStringTag, { value: 'Promise' });
@@ -131,7 +141,7 @@ describe('vendors/service — listVendors', () => {
 
     const { listVendors } = await import('../service.js');
 
-    const result = await listVendors({ page: 1, limit: 10 });
+    const result = await listVendors({ page: 1, limit: 10, sort: 'popular' });
 
     expect(result.meta.total).toBe(2);
     expect(result.meta.page).toBe(1);
@@ -155,7 +165,7 @@ describe('vendors/service — listVendors', () => {
 
     const { listVendors } = await import('../service.js');
 
-    const result = await listVendors({ page: 2, limit: 10 });
+    const result = await listVendors({ page: 2, limit: 10, sort: 'popular' });
 
     expect(result.meta.page).toBe(2);
     expect(result.meta.total).toBe(12);
@@ -174,7 +184,7 @@ describe('vendors/service — listVendors', () => {
 
     const { listVendors } = await import('../service.js');
 
-    const result = await listVendors({ category: 'CATERING', page: 1, limit: 10 });
+    const result = await listVendors({ category: 'CATERING', page: 1, limit: 10, sort: 'popular' });
 
     expect(result.vendors).toHaveLength(0);
     expect(result.meta.total).toBe(0);
@@ -252,30 +262,41 @@ describe('vendors/service — getAvailability', () => {
     vi.clearAllMocks();
   });
 
-  it('returns array of booked date strings for a month', async () => {
-    const bookingRows = [
-      { eventDate: '2026-05-15' },
-      { eventDate: '2026-05-22' },
-    ];
-    const bookingChain = buildSelectChain(bookingRows);
-    mockDb.select.mockReturnValueOnce(bookingChain);
+  function pretendChain(rows: unknown[]) {
+    return {
+      from:   () => ({
+        where: () => Promise.resolve(rows),
+      }),
+    };
+  }
+
+  it('returns booked dates + blocked dates for a month', async () => {
+    mockDb.select
+      .mockReturnValueOnce(pretendChain([
+        { eventDate: '2026-05-15' },
+        { eventDate: '2026-05-22' },
+      ]))
+      .mockReturnValueOnce(pretendChain([
+        { date: '2026-05-10', reason: 'Personal' },
+      ]));
 
     const { getAvailability } = await import('../service.js');
-
     const result = await getAvailability('vendor-1', '2026-05');
 
-    expect(result).toEqual(['2026-05-15', '2026-05-22']);
+    expect(result.bookedDates.sort()).toEqual(['2026-05-15', '2026-05-22']);
+    expect(result.blockedDates).toEqual([{ date: '2026-05-10', reason: 'Personal' }]);
   });
 
-  it('returns empty array when no bookings', async () => {
-    const bookingChain = buildSelectChain([]);
-    mockDb.select.mockReturnValueOnce(bookingChain);
+  it('returns empty arrays when no bookings or blocked dates', async () => {
+    mockDb.select
+      .mockReturnValueOnce(pretendChain([]))
+      .mockReturnValueOnce(pretendChain([]));
 
     const { getAvailability } = await import('../service.js');
-
     const result = await getAvailability('vendor-1', '2026-06');
 
-    expect(result).toEqual([]);
+    expect(result.bookedDates).toEqual([]);
+    expect(result.blockedDates).toEqual([]);
   });
 
   it('throws on invalid month format', async () => {

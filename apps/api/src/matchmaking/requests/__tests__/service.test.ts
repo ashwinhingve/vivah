@@ -5,17 +5,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('../../../lib/db.js', () => ({ db: {} }));
 
 vi.mock('@smartshaadi/db', () => ({
-  matchRequests: {},
-  blockedUsers:  {},
-  auditLogs:     {},
+  matchRequests:        {},
+  blockedUsers:         {},
+  matchRequestReports:  {},
+  profiles:             {},
+  profilePhotos:        {},
+  auditLogs:            {},
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:   vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and:  vi.fn((...args: unknown[]) => ({ type: 'and', args })),
-  or:   vi.fn((...args: unknown[]) => ({ type: 'or', args })),
-  sql:  vi.fn(() => ({ type: 'sql' })),
-  desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  eq:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  or:      vi.fn((...args: unknown[]) => ({ type: 'or', args })),
+  sql:     vi.fn(() => ({ type: 'sql' })),
+  desc:    vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  inArray: vi.fn((_col: unknown, _vals: unknown[]) => ({ type: 'inArray', _col, _vals })),
+  gt:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'gt', _col, _val })),
+  lt:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'lt', _col, _val })),
 }));
 
 // notifications queue is now imported from the shared module — mock it directly
@@ -66,8 +72,9 @@ function makeSelectChain(resolveWith: AnyRecord[]) {
 
 function makeInsertChain(resolveWith: AnyRecord[]) {
   return {
-    values:    vi.fn().mockReturnThis(),
-    returning: vi.fn().mockResolvedValue(resolveWith),
+    values:             vi.fn().mockReturnThis(),
+    onConflictDoNothing: vi.fn().mockReturnThis(),
+    returning:          vi.fn().mockResolvedValue(resolveWith),
   };
 }
 
@@ -128,6 +135,31 @@ describe('matchmaking/requests/service', () => {
     expect(typeof mod.getSentRequests).toBe('function');
   });
 
+  it('exports markRequestSeen', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.markRequestSeen).toBe('function');
+  });
+
+  it('exports unblockUser', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.unblockUser).toBe('function');
+  });
+
+  it('exports listBlockedUsers', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.listBlockedUsers).toBe('function');
+  });
+
+  it('exports expireOldRequests', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.expireOldRequests).toBe('function');
+  });
+
+  it('exports getEnrichedRequests', async () => {
+    const mod = await import('../service.js');
+    expect(typeof mod.getEnrichedRequests).toBe('function');
+  });
+
   // ── sendRequest ─────────────────────────────────────────────────────────────
 
   describe('sendRequest', () => {
@@ -150,15 +182,15 @@ describe('matchmaking/requests/service', () => {
       });
     });
 
-    it('throws DUPLICATE_REQUEST if a PENDING request already exists', async () => {
+    it('throws DUPLICATE_REQUEST if a PENDING request already exists from sender', async () => {
       const dbMod = await import('../../../lib/db.js');
       let call = 0;
       (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => ({
         from:  vi.fn().mockReturnThis(),
         where: vi.fn().mockImplementation(() => {
           call += 1;
-          // first call = block check (empty), second = duplicate check (hit)
-          return Promise.resolve(call === 1 ? [] : [{ id: 'req-1', status: 'PENDING' }]);
+          // 1st = block check (empty), 2nd = open (hit, sender→receiver pending)
+          return Promise.resolve(call === 1 ? [] : [{ id: 'req-1', senderId: 'user-1', receiverId: 'user-2', status: 'PENDING' }]);
         }),
       }));
 
@@ -168,24 +200,33 @@ describe('matchmaking/requests/service', () => {
       });
     });
 
-    it('inserts PENDING record and pushes notification job on success', async () => {
+    it('inserts PENDING record with expiresAt and pushes notification job', async () => {
       const dbMod = await import('../../../lib/db.js');
       const created = {
         id: 'req-new', senderId: 'user-1', receiverId: 'user-2',
-        status: 'PENDING', message: 'Hi', createdAt: new Date(),
-        updatedAt: new Date(), respondedAt: null, expiresAt: null,
+        status: 'PENDING', priority: 'NORMAL', message: 'Hi',
+        acceptanceMessage: null, declineReason: null, seenAt: null,
+        createdAt: new Date(), updatedAt: new Date(),
+        respondedAt: null, expiresAt: new Date(Date.now() + 14 * 86_400_000),
       };
 
-      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => ({
-        from:  vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue([]), // no blocks, no duplicates
-      }));
+      // select() chains: must be both awaitable AND chainable to .limit()
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+        const chain: AnyRecord = {
+          from:  vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([]),
+        };
+        chain['then'] = (resolve: (v: unknown[]) => unknown) => Promise.resolve(resolve([]));
+        return chain;
+      });
+
       (dbMod.db as unknown as AnyRecord)['insert'] = vi.fn().mockReturnValue(
         makeInsertChain([created]),
       );
 
       const { sendRequest } = await import('../service.js');
-      const result = await sendRequest('user-1', 'user-2', 'Hi');
+      const result = await sendRequest('user-1', 'user-2', { message: 'Hi' });
 
       expect(result.status).toBe('PENDING');
       expect(result.senderId).toBe('user-1');
@@ -430,6 +471,118 @@ describe('matchmaking/requests/service', () => {
       await getReceivedRequests('user-2', 2, 10);
 
       expect(offsetMock).toHaveBeenCalledWith(10); // (page-1)*limit = 1*10 = 10
+    });
+  });
+
+  // ── markRequestSeen ──────────────────────────────────────────────────────────
+
+  describe('markRequestSeen', () => {
+    it('throws FORBIDDEN when caller is not the receiver', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue(
+        makeSelectChain([{ id: 'req-1', senderId: 'user-1', receiverId: 'user-2', status: 'PENDING', seenAt: null }]),
+      );
+
+      const { markRequestSeen } = await import('../service.js');
+      await expect(markRequestSeen('user-WRONG', 'req-1')).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    });
+
+    it('is a no-op when seenAt already set', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const already = { id: 'req-1', senderId: 'user-1', receiverId: 'user-2', status: 'PENDING', seenAt: new Date() };
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue(
+        makeSelectChain([already]),
+      );
+      const updateMock = vi.fn();
+      (dbMod.db as unknown as AnyRecord)['update'] = updateMock;
+
+      const { markRequestSeen } = await import('../service.js');
+      const out = await markRequestSeen('user-2', 'req-1');
+      expect(out.id).toBe('req-1');
+      expect(updateMock).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── unblockUser ──────────────────────────────────────────────────────────────
+
+  describe('unblockUser', () => {
+    it('deletes the blocked_users record', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const deleteWhere = vi.fn().mockResolvedValue(undefined);
+      (dbMod.db as unknown as AnyRecord)['delete'] = vi.fn().mockReturnValue({
+        where: deleteWhere,
+      });
+
+      const { unblockUser } = await import('../service.js');
+      await unblockUser('user-1', 'profile-2');
+      expect(deleteWhere).toHaveBeenCalled();
+    });
+  });
+
+  // ── reportUser (categorised) ─────────────────────────────────────────────────
+
+  describe('reportUser', () => {
+    it('throws SELF_REPORT when reporter === reported', async () => {
+      const { reportUser } = await import('../service.js');
+      await expect(
+        reportUser('user-1', 'user-1', { category: 'HARASSMENT' }),
+      ).rejects.toMatchObject({ code: 'SELF_REPORT' });
+    });
+
+    it('inserts a structured report and queues moderation notification', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      // First select = recent dedupe (empty)
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
+        from:  vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      });
+      (dbMod.db as unknown as AnyRecord)['insert'] = vi.fn().mockReturnValue(
+        makeInsertChain([{ id: 'report-1' }]),
+      );
+
+      const { reportUser } = await import('../service.js');
+      const result = await reportUser('user-1', 'profile-2', {
+        category: 'HARASSMENT',
+        details: 'Bad message',
+      });
+      expect(result.reportId).toBe('report-1');
+      expect(mockQueueAdd).toHaveBeenCalledWith(
+        'PROFILE_REPORTED_MODERATION',
+        expect.objectContaining({
+          type: 'PROFILE_REPORTED_MODERATION',
+          payload: expect.objectContaining({ category: 'HARASSMENT' }),
+        }),
+        expect.any(Object),
+      );
+    });
+  });
+
+  // ── expireOldRequests ────────────────────────────────────────────────────────
+
+  describe('expireOldRequests', () => {
+    it('returns count of expired and notifies sender for each', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['update'] = vi.fn().mockReturnValue(
+        makeUpdateChain([
+          { id: 'req-1', senderId: 'user-A' },
+          { id: 'req-2', senderId: 'user-B' },
+        ]),
+      );
+
+      const { expireOldRequests } = await import('../service.js');
+      const out = await expireOldRequests();
+      expect(out.expired).toBe(2);
+      expect(mockQueueAdd).toHaveBeenCalledWith(
+        'MATCH_REQUEST_EXPIRED',
+        expect.objectContaining({ userId: 'user-A' }),
+        expect.any(Object),
+      );
+      expect(mockQueueAdd).toHaveBeenCalledWith(
+        'MATCH_REQUEST_EXPIRED',
+        expect.objectContaining({ userId: 'user-B' }),
+        expect.any(Object),
+      );
     });
   });
 });

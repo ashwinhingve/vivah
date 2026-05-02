@@ -1,5 +1,7 @@
 import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'http'
+import { createAdapter } from '@socket.io/redis-adapter'
+import Redis from 'ioredis'
 import { auth } from '../../auth/config.js'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
@@ -8,6 +10,19 @@ let ioInstance: Server | null = null
 
 export function getIO(): Server | null {
   return ioInstance
+}
+
+async function attachRedisAdapter(io: Server): Promise<void> {
+  if (!env.REDIS_URL) return
+  try {
+    const pubClient = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, lazyConnect: true })
+    const subClient = pubClient.duplicate()
+    await Promise.all([pubClient.connect(), subClient.connect()])
+    io.adapter(createAdapter(pubClient, subClient))
+    console.log('[socket] Redis adapter attached — multi-instance broadcast enabled')
+  } catch (err) {
+    console.warn('[socket] Redis adapter unavailable, falling back to in-memory:', err)
+  }
 }
 
 export function initSocket(server: HttpServer): Server {
@@ -29,6 +44,9 @@ export function initSocket(server: HttpServer): Server {
   })
 
   ioInstance = io
+
+  // Attach Redis adapter for cross-instance broadcast (best-effort).
+  void attachRedisAdapter(io)
 
   const chat = io.of('/chat')
 

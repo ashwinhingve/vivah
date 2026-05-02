@@ -174,7 +174,7 @@ export async function createVideoRoom(
 
   const io = getIO();
   if (io) {
-    io.of('/chat').to(input.matchId).emit('video_call_started', {
+    io.of('/chat').to(input.matchId).emit('videoCallStarted', {
       matchId: input.matchId,
       roomUrl: room.url,
     });

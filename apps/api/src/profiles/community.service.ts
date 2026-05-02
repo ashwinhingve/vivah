@@ -16,10 +16,17 @@ async function getProfileId(userId: string): Promise<string | null> {
   return rows[0]?.id ?? null;
 }
 
+function titleCase(s: string): string {
+  return s.trim().replace(/\s+/g, ' ').replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
+
 function mapToResponse(row: typeof communityZones.$inferSelect): CommunityZoneData {
   return {
     ...(row.community    != null && { community:    row.community }),
     ...(row.subCommunity != null && { subCommunity: row.subCommunity }),
+    ...(row.caste        != null && { caste:        row.caste }),
+    ...(row.gotra        != null && { gotra:        row.gotra }),
+    gotraExclusionEnabled: row.gotraExclusionEnabled ?? true,
     ...(row.motherTongue != null && { motherTongue: row.motherTongue }),
     ...(row.preferredLang != null && { preferredLang: row.preferredLang }),
     lgbtqProfile: row.lgbtqProfile ?? false,
@@ -49,6 +56,9 @@ export async function updateCommunityZone(
   const setValue: Partial<typeof communityZones.$inferInsert> = { updatedAt: new Date() };
   if (data.community    != null) setValue.community    = data.community;
   if (data.subCommunity != null) setValue.subCommunity = data.subCommunity;
+  if (data.caste        != null) setValue.caste        = titleCase(data.caste);
+  if (data.gotra        != null) setValue.gotra        = titleCase(data.gotra);
+  if (data.gotraExclusionEnabled != null) setValue.gotraExclusionEnabled = data.gotraExclusionEnabled;
   if (data.motherTongue != null) setValue.motherTongue = data.motherTongue;
   if (data.preferredLang != null) setValue.preferredLang = data.preferredLang;
   if (data.lgbtqProfile != null) setValue.lgbtqProfile  = data.lgbtqProfile;

@@ -372,5 +372,70 @@ export async function markBookingDisputed(bookingId: string): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// handlePaymentFailed — called by webhook on payment.failed
+// ---------------------------------------------------------------------------
+export async function handlePaymentFailed(
+  razorpayOrderId: string,
+  errorCode: string,
+  errorDescription: string,
+): Promise<void> {
+  const [payment] = await db
+    .select()
+    .from(schema.payments)
+    .where(eq(schema.payments.razorpayOrderId, razorpayOrderId))
+    .limit(1);
+  if (!payment) return;
+  if (payment.status === 'CAPTURED' || payment.status === 'REFUNDED') return;
+
+  await db
+    .update(schema.payments)
+    .set({ status: 'FAILED' })
+    .where(eq(schema.payments.id, payment.id));
+
+  const [booking] = await db
+    .select()
+    .from(schema.bookings)
+    .where(eq(schema.bookings.id, payment.bookingId));
+  const actorId = booking?.customerId ?? 'system';
+
+  await appendAuditLog({
+    eventType:  'PAYMENT_FAILED',
+    entityType: 'payment',
+    entityId:   payment.id,
+    actorId,
+    payload:    { razorpayOrderId, errorCode, errorDescription },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// retryPaymentOrder — creates a fresh Razorpay order for a previously failed
+// payment, allowing the customer another attempt without re-creating the booking.
+// ---------------------------------------------------------------------------
+export async function retryPaymentOrder(userId: string, bookingId: string): Promise<PaymentOrder> {
+  const [booking] = await db
+    .select()
+    .from(schema.bookings)
+    .where(eq(schema.bookings.id, bookingId))
+    .limit(1);
+  if (!booking) throw new Error('Booking not found');
+  if (booking.customerId !== userId) throw new Error('Forbidden');
+  if (booking.status !== 'CONFIRMED') throw new Error('Booking must be CONFIRMED');
+
+  // Look up the most-recent payment for this booking. If it's already CAPTURED, refuse.
+  const [latest] = await db
+    .select()
+    .from(schema.payments)
+    .where(eq(schema.payments.bookingId, bookingId))
+    .orderBy(desc(schema.payments.createdAt))
+    .limit(1);
+
+  if (latest && latest.status === 'CAPTURED') {
+    throw new Error('Payment already captured for this booking');
+  }
+
+  return createPaymentOrder(userId, { bookingId });
+}
+
 // Export for escrow job
 export { computeHash, appendAuditLog };

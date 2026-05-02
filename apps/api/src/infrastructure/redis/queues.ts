@@ -70,3 +70,87 @@ export const orderExpiryQueue = new Queue<OrderExpiryJob>(
   'order-expiry',
   { connection },
 );
+
+/** Payload for the match request expiry sweeper — repeatable, no per-request payload. */
+export interface MatchRequestExpiryJob {
+  scheduledAt: string;
+}
+
+export const matchRequestExpiryQueue = new Queue<MatchRequestExpiryJob>(
+  'match-request-expiry',
+  { connection },
+);
+
+/** RSVP reminder — scheduled reminder N days before deadline. */
+export interface RsvpReminderJob {
+  weddingId:  string;
+  daysBefore: number;
+}
+
+export const rsvpReminderQueue = new Queue<RsvpReminderJob>(
+  'rsvp-reminder',
+  { connection },
+);
+
+/** Save-the-date one-shot. */
+export interface SaveTheDateJob {
+  weddingId: string;
+  guestId:   string;
+  channel:   string;
+}
+
+export const saveTheDateQueue = new Queue<SaveTheDateJob>(
+  'save-the-date',
+  { connection },
+);
+
+/** Thank-you delayed 24h post-RSVP YES. */
+export interface ThankYouJob {
+  weddingId: string;
+  guestId:   string;
+}
+
+export const thankYouQueue = new Queue<ThankYouJob>(
+  'thank-you',
+  { connection },
+);
+
+/** Token cleanup — repeatable cron, no per-run payload. */
+export interface TokenCleanupJob {
+  scheduledAt: string;
+}
+
+export const tokenCleanupQueue = new Queue<TokenCleanupJob>(
+  'token-cleanup',
+  { connection },
+);
+
+/** Daily payments reconciliation. */
+export interface PaymentsReconcileJob {
+  date?: string;
+}
+
+export const paymentsReconcileQueue = new Queue<PaymentsReconcileJob>(
+  'payments-reconcile',
+  { connection },
+);
+
+/** Wedding reminder dispatcher — scans wedding_reminders for due rows. */
+export interface WeddingReminderJob {
+  scheduledAt: string;
+}
+
+export const weddingReminderQueue = new Queue<WeddingReminderJob>(
+  'wedding-reminder',
+  { connection },
+);
+
+/** Invitation blast — periodic worker pulling pending invitations. */
+export interface InvitationBlastJob {
+  scheduledAt: string;
+}
+
+export const invitationBlastQueue = new Queue<InvitationBlastJob>(
+  'invitation-blast',
+  { connection },
+);

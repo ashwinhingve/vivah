@@ -8,13 +8,14 @@
  *
  * Invariants:
  *   - Bull escrow-release job is cancelled BEFORE status is updated to DISPUTED (deterministic ID)
- *   - Optimistic locking via atomic conditional update prevents double-spend on concurrent calls
+ *   - Optimistic locking via SELECT … FOR UPDATE prevents double-dispute on concurrent calls
  *   - DB transaction commits FIRST; Razorpay call comes second — failure sets *_PENDING, no rollback
  *   - audit_logs are APPEND-ONLY (hash-chain via appendAuditLog from payments/service.ts)
  *   - All queries filtered by userId; ADMIN check via user.role === 'ADMIN'
  *   - USE_MOCK_SERVICES guard on all Razorpay calls
  */
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
@@ -22,17 +23,10 @@ import { transferToVendor, createRefund } from '../lib/razorpay.js';
 import { appendAuditLog } from './service.js';
 import { escrowReleaseQueue, notificationsQueue } from '../infrastructure/redis/queues.js';
 import type { DisputeEscrowInput } from '@smartshaadi/schemas';
+import { logger } from '../lib/logger.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * Cancel any pending escrow-release job for this booking using the deterministic jobId.
- * Phase 0 added `jobId: \`escrow-release:\${bookingId}\`` to the producer in bookings/service.ts.
- * Using getJob() covers ALL states (delayed, waiting, active) — unlike getDelayed() scan.
- *
- * Falls through silently if no job found — the escrowReleaseJob worker already
- * guards against releasing DISPUTED bookings, but cancelling early is safer.
- */
 async function cancelEscrowReleaseJob(bookingId: string): Promise<void> {
   try {
     const job = await escrowReleaseQueue.getJob(`escrow-release-${bookingId}`);
@@ -40,7 +34,6 @@ async function cancelEscrowReleaseJob(bookingId: string): Promise<void> {
       await job.remove();
     }
   } catch (e) {
-    // Non-fatal — worker has its own DISPUTED guard
     console.warn(`[dispute] cancelEscrowReleaseJob failed for ${bookingId}:`, e);
   }
 }
@@ -58,84 +51,96 @@ export async function raiseDispute(
   bookingId: string,
   input: DisputeEscrowInput,
 ): Promise<RaiseDisputeResult> {
-  // 1. Fetch booking
-  const [booking] = await db
-    .select()
+  // 1. Verify ownership before entering the transaction (fast rejection)
+  const [bookingCheck] = await db
+    .select({ id: schema.bookings.id, customerId: schema.bookings.customerId })
     .from(schema.bookings)
     .where(eq(schema.bookings.id, bookingId))
     .limit(1);
 
-  if (!booking) {
+  if (!bookingCheck) {
     throw new Error('Booking not found');
   }
-
-  // 2. Verify ownership
-  if (booking.customerId !== userId) {
+  if (bookingCheck.customerId !== userId) {
     throw new Error('Forbidden: booking does not belong to this user');
   }
 
-  // 3. Verify booking is in a disputable state
-  if (booking.status !== 'CONFIRMED' && booking.status !== 'COMPLETED') {
-    throw new Error(`Invalid state: booking status is ${booking.status}, must be CONFIRMED or COMPLETED`);
-  }
-
-  // 4. Fetch escrow account
-  const [escrow] = await db
-    .select()
-    .from(schema.escrowAccounts)
-    .where(eq(schema.escrowAccounts.bookingId, bookingId))
-    .limit(1);
-
-  if (!escrow || escrow.status !== 'HELD') {
-    throw new Error(`Invalid state: escrow status is ${escrow?.status ?? 'missing'}, must be HELD`);
-  }
-
-  // 5. CRITICAL: Cancel pending Bull escrow-release job FIRST (before status update)
-  //    Uses deterministic jobId `escrow-release:${bookingId}` — covers all job states
+  // 2. Cancel pending Bull job BEFORE entering the transaction
   await cancelEscrowReleaseJob(bookingId);
 
-  // 6. Atomic conditional update — optimistic lock prevents double-dispute
-  const updated = await db
-    .update(schema.bookings)
-    .set({ status: 'DISPUTED', updatedAt: new Date() })
-    .where(
-      and(
-        eq(schema.bookings.id, bookingId),
-        inArray(schema.bookings.status, ['CONFIRMED', 'COMPLETED']),
-      ),
-    )
-    .returning({ id: schema.bookings.id });
+  // 3. Transaction with SELECT … FOR UPDATE to prevent concurrent double-dispute
+  let vendorId: string;
 
-  if (updated.length === 0) {
-    throw new Error('BOOKING_ALREADY_DISPUTED or invalid status');
-  }
+  await db.transaction(async (tx) => {
+    // Row-level lock on the booking
+    const locked = await tx.execute(
+      sql`SELECT id, status, vendor_id FROM bookings WHERE id = ${bookingId} FOR UPDATE`,
+    );
+    const lockedRow = locked.rows[0] as { id: string; status: string; vendor_id: string } | undefined;
 
-  // 7. Update escrow status in its own atomic update
-  await db
-    .update(schema.escrowAccounts)
-    .set({ status: 'DISPUTED' })
-    .where(eq(schema.escrowAccounts.id, escrow.id));
+    if (!lockedRow) {
+      throw new Error('Booking not found');
+    }
+    if (lockedRow.status !== 'CONFIRMED' && lockedRow.status !== 'COMPLETED') {
+      throw new Error(`Invalid state: booking status is ${lockedRow.status}, must be CONFIRMED or COMPLETED`);
+    }
 
-  // 8. Append audit log (AFTER status update) — new enum values
-  await appendAuditLog({
-    eventType:  'DISPUTE_RAISED',
-    entityType: 'booking',
-    entityId:   bookingId,
-    actorId:    userId,
-    payload:    {
-      reason:    input.reason,
-      bookingId,
-      escrowId:  escrow.id,
-      raisedAt:  new Date().toISOString(),
-    },
+    vendorId = lockedRow.vendor_id;
+
+    // Fetch escrow inside txn
+    const [escrow] = await tx
+      .select()
+      .from(schema.escrowAccounts)
+      .where(eq(schema.escrowAccounts.bookingId, bookingId))
+      .limit(1);
+
+    if (!escrow || escrow.status !== 'HELD') {
+      throw new Error(`Invalid state: escrow status is ${escrow?.status ?? 'missing'}, must be HELD`);
+    }
+
+    // Atomic update booking
+    const updated = await tx
+      .update(schema.bookings)
+      .set({ status: 'DISPUTED', updatedAt: new Date() })
+      .where(
+        and(
+          eq(schema.bookings.id, bookingId),
+          inArray(schema.bookings.status, ['CONFIRMED', 'COMPLETED']),
+        ),
+      )
+      .returning({ id: schema.bookings.id });
+
+    if (updated.length === 0) {
+      throw new Error('BOOKING_ALREADY_DISPUTED or invalid status');
+    }
+
+    // Update escrow status
+    await tx
+      .update(schema.escrowAccounts)
+      .set({ status: 'DISPUTED' })
+      .where(eq(schema.escrowAccounts.id, escrow.id));
+
+    // Append audit log inside txn
+    await appendAuditLog({
+      eventType:  'DISPUTE_RAISED',
+      entityType: 'booking',
+      entityId:   bookingId,
+      actorId:    userId,
+      payload:    {
+        reason:    input.reason,
+        bookingId,
+        escrowId:  escrow.id,
+        raisedAt:  new Date().toISOString(),
+      },
+    });
   });
 
-  // 9. Enqueue notifications (vendor + admin) — non-blocking, fire-and-forget
+  // 4. Enqueue notifications AFTER txn commits — non-blocking, fire-and-forget
   void notificationsQueue
     .add('DISPUTE_RAISED_VENDOR', {
-      type:      'DISPUTE_RAISED_VENDOR',
-      userId:    booking.vendorId,
-      payload:   { bookingId, vendorId: booking.vendorId, reason: input.reason },
+      type:    'DISPUTE_RAISED_VENDOR',
+      userId:  vendorId!,
+      payload: { bookingId, vendorId: vendorId!, reason: input.reason },
     })
     .catch((e) => console.warn('[dispute] vendor notification queue error:', e));
 
@@ -155,8 +160,9 @@ export async function raiseDispute(
 export type DisputeResolution = 'RELEASE' | 'REFUND' | 'SPLIT';
 
 export interface ResolveDisputeBody {
-  resolution:   DisputeResolution;
-  splitRatio?:  number; // 0 < splitRatio < 1 — vendor's share (required for SPLIT)
+  resolution:    DisputeResolution;
+  splitRatio?:   number;
+  resolutionId?: string;
 }
 
 export interface ResolveDisputeResult {
@@ -173,7 +179,7 @@ export async function resolveDispute(
   bookingId: string,
   body: ResolveDisputeBody,
 ): Promise<ResolveDisputeResult> {
-  // 1. Fetch admin user and verify ADMIN role
+  // 1. Verify ADMIN role
   const [adminUser] = await db
     .select({ id: schema.user.id, role: schema.user.role })
     .from(schema.user)
@@ -184,7 +190,10 @@ export async function resolveDispute(
     throw new Error('Forbidden: admin access required');
   }
 
-  // 2. Fetch booking and assert DISPUTED
+  // 2. Idempotency — generate or accept caller-supplied resolutionId
+  const resolutionId = body.resolutionId ?? randomUUID();
+
+  // 3. Fetch booking and assert DISPUTED
   const [booking] = await db
     .select()
     .from(schema.bookings)
@@ -198,7 +207,7 @@ export async function resolveDispute(
     throw new Error(`Invalid state: booking status is ${booking.status}, must be DISPUTED`);
   }
 
-  // 3. Fetch escrow account
+  // 4. Fetch escrow account
   const [escrow] = await db
     .select()
     .from(schema.escrowAccounts)
@@ -209,7 +218,7 @@ export async function resolveDispute(
     throw new Error('Escrow account not found for booking');
   }
 
-  // 4. Fetch latest payment for this booking
+  // 5. Fetch latest payment for this booking
   const [payment] = await db
     .select()
     .from(schema.payments)
@@ -222,7 +231,50 @@ export async function resolveDispute(
   let vendorAmount   = 0;
   let customerAmount = 0;
 
-  // 5. Atomic optimistic lock — prevents double-resolution on concurrent admin clicks
+  // 6. Idempotent INSERT into disputeResolutions — onConflictDoNothing on (bookingId, resolutionId)
+  //    If insert returns no row, this is a duplicate replay — return stored result.
+  const computedVendorAmount   = resolution === 'RELEASE' ? escrowTotal
+                                : resolution === 'REFUND'  ? 0
+                                : Math.round(escrowTotal * (splitRatio ?? 0));
+  const computedCustomerAmount = escrowTotal - computedVendorAmount;
+
+  const inserted = await db
+    .insert(schema.disputeResolutions)
+    .values({
+      bookingId,
+      resolutionId,
+      outcome:        resolution,
+      amountVendor:   String(computedVendorAmount),
+      amountCustomer: String(computedCustomerAmount),
+      resolvedBy:     adminUserId,
+    })
+    .onConflictDoNothing({ target: [schema.disputeResolutions.bookingId, schema.disputeResolutions.resolutionId] })
+    .returning();
+
+  if (inserted.length === 0) {
+    // Duplicate idempotent replay — return previously stored row
+    const [existing] = await db
+      .select()
+      .from(schema.disputeResolutions)
+      .where(
+        and(
+          eq(schema.disputeResolutions.bookingId, bookingId),
+          eq(schema.disputeResolutions.resolutionId, resolutionId),
+        ),
+      )
+      .limit(1);
+
+    return {
+      success:    true,
+      resolution: (existing?.outcome ?? resolution) as DisputeResolution,
+      amounts: {
+        vendor:   parseFloat(existing?.amountVendor ?? '0'),
+        customer: parseFloat(existing?.amountCustomer ?? '0'),
+      },
+    };
+  }
+
+  // 7. Atomic optimistic lock — prevents double-resolution on concurrent admin clicks
   const lockResult = await db
     .update(schema.bookings)
     .set({ status: resolution === 'REFUND' ? 'CANCELLED' : 'COMPLETED', updatedAt: new Date() })
@@ -243,7 +295,6 @@ export async function resolveDispute(
       vendorAmount   = escrowTotal;
       customerAmount = 0;
 
-      // 6a. DB transaction: update escrow RELEASED (booking already updated above)
       await db.transaction(async (tx) => {
         await tx
           .update(schema.escrowAccounts)
@@ -251,12 +302,11 @@ export async function resolveDispute(
           .where(eq(schema.escrowAccounts.id, escrow.id));
       });
 
-      // 7a. Razorpay AFTER DB commits — if it fails, set RELEASE_PENDING for reconciliation
       try {
         if (!env.USE_MOCK_SERVICES) {
           await transferToVendor(booking.vendorId, escrowTotal);
         } else {
-          console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${escrowTotal}`);
+          logger.debug({ vendorId: booking.vendorId, amount: escrowTotal }, '[dispute:mock] transferToVendor');
         }
       } catch (e) {
         console.error(`[dispute] transferToVendor failed for booking ${bookingId}, setting RELEASE_PENDING:`, e);
@@ -280,7 +330,6 @@ export async function resolveDispute(
       vendorAmount   = 0;
       customerAmount = escrowTotal;
 
-      // 6b. DB transaction: update escrow + payment REFUNDED (booking already updated above)
       await db.transaction(async (tx) => {
         if (payment) {
           await tx
@@ -295,13 +344,12 @@ export async function resolveDispute(
           .where(eq(schema.escrowAccounts.id, escrow.id));
       });
 
-      // 7b. Razorpay AFTER DB commits — if it fails, set REFUND_PENDING for reconciliation
       try {
         if (payment?.razorpayPaymentId) {
           if (!env.USE_MOCK_SERVICES) {
             await createRefund(payment.razorpayPaymentId, escrowTotal);
           } else {
-            console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${escrowTotal}`);
+            logger.debug({ paymentId: payment.razorpayPaymentId, amount: escrowTotal }, '[dispute:mock] createRefund');
           }
         }
       } catch (e) {
@@ -327,10 +375,9 @@ export async function resolveDispute(
         throw new Error('splitRatio must be between 0 and 1 (exclusive) for SPLIT resolution');
       }
 
-      vendorAmount   = Math.round(escrowTotal * splitRatio * 100) / 100;
-      customerAmount = escrowTotal - vendorAmount; // avoid re-multiply drift
+      vendorAmount   = Math.round(escrowTotal * splitRatio);
+      customerAmount = escrowTotal - vendorAmount;
 
-      // 6c. DB transaction: update escrow (booking already updated above)
       await db.transaction(async (tx) => {
         await tx
           .update(schema.escrowAccounts)
@@ -338,12 +385,11 @@ export async function resolveDispute(
           .where(eq(schema.escrowAccounts.id, escrow.id));
       });
 
-      // 7c. Transfer vendor's share — DB first, Razorpay second
       try {
         if (!env.USE_MOCK_SERVICES) {
           await transferToVendor(booking.vendorId, vendorAmount);
         } else {
-          console.info(`[dispute:mock] transferToVendor ${booking.vendorId} ₹${vendorAmount}`);
+          logger.debug({ vendorId: booking.vendorId, amount: vendorAmount }, '[dispute:mock] transferToVendor');
         }
       } catch (e) {
         console.error(`[dispute] SPLIT transferToVendor failed for booking ${bookingId}, setting RELEASE_PENDING:`, e);
@@ -353,13 +399,12 @@ export async function resolveDispute(
           .where(eq(schema.escrowAccounts.id, escrow.id));
       }
 
-      // Refund customer's share
       try {
         if (payment?.razorpayPaymentId && customerAmount > 0) {
           if (!env.USE_MOCK_SERVICES) {
             await createRefund(payment.razorpayPaymentId, customerAmount);
           } else {
-            console.info(`[dispute:mock] createRefund payment ${payment.razorpayPaymentId} ₹${customerAmount}`);
+            logger.debug({ paymentId: payment.razorpayPaymentId, amount: customerAmount }, '[dispute:mock] createRefund');
           }
         }
       } catch (e) {
@@ -372,7 +417,6 @@ export async function resolveDispute(
         }
       }
 
-      // Two audit logs for SPLIT — both use bookingId as entityId for tamper-detectability
       await appendAuditLog({
         eventType:  'DISPUTE_RESOLVED_SPLIT',
         entityType: 'booking',
@@ -395,7 +439,6 @@ export async function resolveDispute(
     }
   }
 
-  // Notify both parties
   void notificationsQueue
     .add('DISPUTE_RESOLVED', {
       type:    'DISPUTE_RESOLVED',
@@ -429,7 +472,6 @@ export interface DisputedBookingRow {
 }
 
 export async function getDisputedBookings(adminUserId: string): Promise<DisputedBookingRow[]> {
-  // 1. Assert ADMIN
   const [adminUser] = await db
     .select({ id: schema.user.id, role: schema.user.role })
     .from(schema.user)
@@ -440,7 +482,6 @@ export async function getDisputedBookings(adminUserId: string): Promise<Disputed
     throw new Error('Forbidden: admin access required');
   }
 
-  // 2. SELECT disputed bookings joined with escrow, payments, and customer user
   const rows = await db
     .select({
       bookingId:    schema.bookings.id,

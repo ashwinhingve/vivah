@@ -71,6 +71,7 @@ const profileContentSchema = new Schema(
       familyStatus: String,   // MIDDLE_CLASS | UPPER_MIDDLE | AFFLUENT
       nativePlace:  String,
       familyAbout:  String,
+      photoR2Key:   String,
     },
 
     location: {

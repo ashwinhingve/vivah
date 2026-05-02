@@ -6,10 +6,69 @@ import { profiles, matchRequests, safetyModeUnlocks, user } from '@smartshaadi/d
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
 
+export type AllowMessageFrom = 'EVERYONE' | 'VERIFIED_ONLY' | 'SAME_COMMUNITY' | 'ACCEPTED_ONLY';
+
 export interface SafetyModeInput {
-  contactHidden?: boolean | undefined;
-  photoHidden?:   boolean | undefined;
-  incognito?:     boolean | undefined;
+  contactHidden?:        boolean | undefined;
+  photoHidden?:          boolean | undefined;
+  incognito?:            boolean | undefined;
+  showLastActive?:       boolean | undefined;
+  showReadReceipts?:     boolean | undefined;
+  photoBlurUntilUnlock?: boolean | undefined;
+  hideFromSearch?:       boolean | undefined;
+  allowMessageFrom?:     AllowMessageFrom | undefined;
+}
+
+export type PrivacyPreset = 'CONSERVATIVE' | 'BALANCED' | 'OPEN';
+
+export const PRIVACY_PRESETS: Record<PrivacyPreset, Required<SafetyModeInput>> = {
+  CONSERVATIVE: {
+    contactHidden:        true,
+    photoHidden:          true,
+    incognito:            true,
+    showLastActive:       false,
+    showReadReceipts:     false,
+    photoBlurUntilUnlock: true,
+    hideFromSearch:       true,
+    allowMessageFrom:     'VERIFIED_ONLY',
+  },
+  BALANCED: {
+    contactHidden:        true,
+    photoHidden:          false,
+    incognito:            false,
+    showLastActive:       true,
+    showReadReceipts:     true,
+    photoBlurUntilUnlock: false,
+    hideFromSearch:       false,
+    allowMessageFrom:     'EVERYONE',
+  },
+  OPEN: {
+    contactHidden:        false,
+    photoHidden:          false,
+    incognito:            false,
+    showLastActive:       true,
+    showReadReceipts:     true,
+    photoBlurUntilUnlock: false,
+    hideFromSearch:       false,
+    allowMessageFrom:     'EVERYONE',
+  },
+};
+
+export async function applyPrivacyPreset(
+  userId: string,
+  preset: PrivacyPreset,
+): Promise<{ safetyMode: SafetyModeInput }> {
+  const mode = PRIVACY_PRESETS[preset];
+  return updateSafetyMode(userId, mode);
+}
+
+export async function getSafetyMode(userId: string): Promise<SafetyModeInput> {
+  if (env.USE_MOCK_SERVICES) {
+    return (mockGet(userId)?.['safetyMode'] as SafetyModeInput | undefined) ?? {};
+  }
+  const model = ProfileContent as unknown as Model<{ userId: string; safetyMode?: SafetyModeInput }>;
+  const doc = await model.findOne({ userId }).select('safetyMode').lean();
+  return doc?.safetyMode ?? {};
 }
 
 export interface ContactResponse {

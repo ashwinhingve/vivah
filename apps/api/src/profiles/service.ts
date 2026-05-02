@@ -1,12 +1,14 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
-import { mockGet } from '../lib/mockStore.js';
+import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import { profiles, profilePhotos, profileSections, communityZones, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
 import { getPhotoUrls } from '../storage/service.js';
 import { computeAndUpdateCompleteness } from './content.service.js';
+import { geocode } from '../lib/geocode.js';
+import type { PersonalityProfile } from '@smartshaadi/types';
 import type {
   ProfileDetailResponse,
   PersonalSection,
@@ -41,6 +43,9 @@ export interface ProfileResponse {
   photos:               { id: string; r2Key: string; isPrimary: boolean; displayOrder: number }[];
   createdAt:            Date;
   updatedAt:            Date;
+  lastActiveAt?:        string | null;
+  audioIntroKey?:       string | null;
+  videoIntroKey?:       string | null;
   sectionCompletion?:   ProfileSectionCompletion;
   personal?:            PersonalSection;
   education?:           EducationSection;
@@ -93,8 +98,9 @@ function buildProfileResponse(
     name:                    userRow.name,
     role:                    userRow.role,
     status:                  userRow.status,
-    // Contact masked unless viewing own profile
-    // TODO: expose when safety_mode_unlocks is implemented in schema
+    // Contact masked unless viewing own profile. Other viewers must call
+    // GET /api/v1/profiles/:targetUserId/contact (gated by getContactIfVisible)
+    // which checks accepted match + safetyMode.contactHidden + safetyModeUnlocks.
     phoneNumber:             isSelf ? (userRow.phoneNumber ?? null) : null,
     email:                   isSelf ? (userRow.email ?? null) : null,
     verificationStatus:      profile.verificationStatus,
@@ -112,6 +118,9 @@ function buildProfileResponse(
     })),
     createdAt:  profile.createdAt,
     updatedAt:  profile.updatedAt,
+    lastActiveAt: profile.lastActiveAt ? profile.lastActiveAt.toISOString() : null,
+    audioIntroKey: profile.audioIntroKey ?? null,
+    videoIntroKey: profile.videoIntroKey ?? null,
   };
 }
 
@@ -358,4 +367,34 @@ export async function getProfileById(
       },
     }),
   };
+}
+
+export async function savePersonality(
+  userId: string,
+  personality: PersonalityProfile,
+): Promise<void> {
+  if (env.USE_MOCK_SERVICES) {
+    mockUpsertField(userId, "personality", personality);
+    return;
+  }
+  const model = ProfileContent as unknown as Model<unknown>;
+  await model.updateOne(
+    { userId },
+    { $set: { personality } },
+    { upsert: true },
+  );
+}
+
+export async function geocodeAndPersistCoords(
+  userId: string,
+  city: string | null | undefined,
+  state: string | null | undefined,
+): Promise<void> {
+  if (!city || !state) return;
+  const coords = await geocode(city, state);
+  if (!coords) return;
+  await db
+    .update(profiles)
+    .set({ latitude: String(coords.lat), longitude: String(coords.lng) })
+    .where(eq(profiles.userId, userId));
 }

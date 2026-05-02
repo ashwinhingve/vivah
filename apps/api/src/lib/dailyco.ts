@@ -54,3 +54,41 @@ export async function deleteRoom(roomName: string): Promise<void> {
     headers: { Authorization: `Bearer ${env.DAILY_CO_API_KEY}` },
   });
 }
+
+export async function getRoom(roomName: string): Promise<DailyRoom | null> {
+  if (USE_MOCK) return null;
+  const res = await fetch(`https://api.daily.co/v1/rooms/${roomName}`, {
+    headers: { Authorization: `Bearer ${env.DAILY_CO_API_KEY}` },
+  });
+  if (!res.ok) return null;
+  return res.json() as Promise<DailyRoom>;
+}
+
+export interface MeetingTokenInput {
+  roomName:      string;
+  userName:      string;
+  isOwner?:      boolean;
+  expirySeconds?: number;
+}
+
+export async function createMeetingToken(input: MeetingTokenInput): Promise<string> {
+  if (USE_MOCK) return `mock-token-${input.roomName}`;
+  const res = await fetch('https://api.daily.co/v1/meeting-tokens', {
+    method:  'POST',
+    headers: {
+      Authorization:  `Bearer ${env.DAILY_CO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      properties: {
+        room_name: input.roomName,
+        user_name: input.userName,
+        is_owner:  input.isOwner ?? false,
+        exp:       Math.floor(Date.now() / 1000) + (input.expirySeconds ?? 3600),
+      },
+    }),
+  });
+  if (!res.ok) throw new Error(`Daily.co token error: ${res.status}`);
+  const data = await res.json() as { token: string };
+  return data.token;
+}

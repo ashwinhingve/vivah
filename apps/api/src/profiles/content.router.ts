@@ -183,6 +183,7 @@ profileContentRouter.put(
     if (parsed.data.familyStatus != null) input.familyStatus = parsed.data.familyStatus;
     if (parsed.data.nativePlace != null) input.nativePlace = parsed.data.nativePlace;
     if (parsed.data.familyAbout != null) input.familyAbout = parsed.data.familyAbout;
+    if (parsed.data.photoR2Key != null) input.photoR2Key = parsed.data.photoR2Key;
 
     const content = await updateFamily(req.user!.id, input);
     ok(res, content);

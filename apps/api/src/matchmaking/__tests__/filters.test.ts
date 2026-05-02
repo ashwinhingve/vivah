@@ -1,25 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyHardFilters } from '../filters.js';
-
-interface ProfileWithPreferences {
-  id: string
-  age: number
-  religion: string
-  city: string
-  state: string
-  incomeMin: number
-  incomeMax: number
-  preferences: {
-    ageMin: number
-    ageMax: number
-    religion: string[]
-    openToInterfaith: boolean
-    city: string
-    state: string
-    incomeMin: number
-    incomeMax: number
-  }
-}
+import { applyHardFilters, type ProfileWithPreferences } from '../filters.js';
 
 // Base user profile — age 35, Hindu
 const baseUser: ProfileWithPreferences = {
@@ -147,5 +127,108 @@ describe('applyHardFilters', () => {
     const result = applyHardFilters(baseUser, [baseCandidate]);
     expect(result).toHaveLength(1);
     expect(result[0]!.id).toBe('cand-1');
+  });
+});
+
+// ── Distance filter tests ──────────────────────────────────────────────────
+
+const distanceBase: ProfileWithPreferences = {
+  id: 'a',
+  age: 28,
+  religion: 'Hindu',
+  city: 'Pune',
+  state: 'Maharashtra',
+  incomeMin: 50000,
+  incomeMax: 100000,
+  latitude: 18.5204,
+  longitude: 73.8567,
+  preferences: {
+    ageMin: 22,
+    ageMax: 35,
+    religion: ['Hindu'],
+    openToInterfaith: false,
+    city: 'Pune',
+    state: 'Maharashtra',
+    incomeMin: 30000,
+    incomeMax: 200000,
+    maxDistanceKm: 100,
+  },
+};
+
+describe('distance filter', () => {
+  it('passes when both within radius', () => {
+    const cand: ProfileWithPreferences = { ...distanceBase, id: 'b', latitude: 18.6, longitude: 73.9 };
+    expect(applyHardFilters(distanceBase, [cand])).toHaveLength(1);
+  });
+
+  it('fails when beyond limit', () => {
+    const cand: ProfileWithPreferences = { ...distanceBase, id: 'b', latitude: 28.7, longitude: 77.1 };
+    expect(applyHardFilters(distanceBase, [cand])).toHaveLength(0);
+  });
+
+  it('falls back to state match when coords missing', () => {
+    const u: ProfileWithPreferences = { ...distanceBase, latitude: null, longitude: null };
+    const cand: ProfileWithPreferences = { ...distanceBase, id: 'b', latitude: null, longitude: null };
+    expect(applyHardFilters(u, [cand])).toHaveLength(1);
+  });
+
+  it('mustHave.distance disables fallback', () => {
+    const u: ProfileWithPreferences = {
+      ...distanceBase,
+      latitude: null,
+      longitude: null,
+      preferences: { ...distanceBase.preferences, mustHave: { distance: true } },
+    };
+    const cand: ProfileWithPreferences = { ...distanceBase, id: 'b', latitude: null, longitude: null };
+    expect(applyHardFilters(u, [cand])).toHaveLength(0);
+  });
+});
+
+describe('mustHave education', () => {
+  it('promotes soft to hard when set', () => {
+    const u: ProfileWithPreferences = {
+      ...distanceBase,
+      education: 'masters',
+      preferences: {
+        ...distanceBase.preferences,
+        education: ['masters'],
+        mustHave: { education: true },
+      },
+    };
+    const candPass: ProfileWithPreferences = { ...distanceBase, id: 'b', education: 'masters' };
+    const candFail: ProfileWithPreferences = { ...distanceBase, id: 'c', education: '12th' };
+    expect(applyHardFilters(u, [candPass, candFail])).toHaveLength(1);
+  });
+});
+
+describe('mustHave religion bypasses interfaith', () => {
+  it('rejects interfaith even when openToInterfaith=true', () => {
+    const u: ProfileWithPreferences = {
+      ...distanceBase,
+      preferences: {
+        ...distanceBase.preferences,
+        openToInterfaith: true,
+        mustHave: { religion: true },
+      },
+    };
+    const cand: ProfileWithPreferences = { ...distanceBase, id: 'b', religion: 'Christian' };
+    expect(applyHardFilters(u, [cand])).toHaveLength(0);
+  });
+});
+
+describe('mustHave diet', () => {
+  it('promotes diet preference to hard filter', () => {
+    const u: ProfileWithPreferences = {
+      ...distanceBase,
+      diet: 'VEG',
+      preferences: {
+        ...distanceBase.preferences,
+        diet: ['VEG'],
+        mustHave: { diet: true },
+      },
+    };
+    const candPass: ProfileWithPreferences = { ...distanceBase, id: 'b', diet: 'VEG' };
+    const candFail: ProfileWithPreferences = { ...distanceBase, id: 'c', diet: 'NON_VEG' };
+    expect(applyHardFilters(u, [candPass, candFail])).toHaveLength(1);
   });
 });

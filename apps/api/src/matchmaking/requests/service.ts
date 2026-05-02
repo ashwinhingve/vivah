@@ -1,55 +1,75 @@
 /**
- * Smart Shaadi — Match Request State Machine
+ * Smart Shaadi — Match Request State Machine + Privacy
  *
- * Owns the full lifecycle of a match request:
- *   PENDING → ACCEPTED | DECLINED | WITHDRAWN | BLOCKED | EXPIRED
+ * Lifecycle: PENDING → ACCEPTED | DECLINED | WITHDRAWN | BLOCKED | EXPIRED
  *
  * Rules:
- * - sender_id / receiver_id map to profile IDs (not user IDs)
- * - Reciprocal block check in both directions before any send
- * - MongoDB Chat document created on ACCEPTED (USE_MOCK_SERVICES guarded)
- * - All notification jobs pushed to Bull notifications queue asynchronously
+ *  - sender_id / receiver_id always profile UUIDs (not user IDs)
+ *  - Reciprocal block check both directions before any send
+ *  - PENDING auto-expires after MATCH_REQUEST_TTL_DAYS (sweeper worker)
+ *  - Reciprocal pending: if A→B and B→A both PENDING, accept fast-tracks both
+ *  - Cool-off: declined sender cannot re-request same receiver for COOLDOWN_DAYS
+ *  - SUPER_LIKE priority: bypasses daily quota (handled in router) + receiver
+ *    sees a highlighted card
+ *  - All notification jobs pushed to BullMQ; never await in request path
  */
 
-import { eq, or, and, desc, sql } from 'drizzle-orm';
+import { eq, or, and, desc, sql, inArray, gt, lt } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
 import { env } from '../../lib/env.js';
-import { mockUpsertField } from '../../lib/mockStore.js';
-import { matchRequests, blockedUsers, auditLogs } from '@smartshaadi/db';
+import { mockUpsertField, mockGet } from '../../lib/mockStore.js';
+import {
+  matchRequests,
+  blockedUsers,
+  matchRequestReports,
+  profiles,
+  profilePhotos,
+} from '@smartshaadi/db';
 import { Chat } from '../../infrastructure/mongo/models/Chat.js';
 import { notificationsQueue } from '../../infrastructure/redis/queues.js';
-import { createHash } from 'crypto';
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+export const MATCH_REQUEST_TTL_DAYS = 14;
+export const DECLINE_COOLDOWN_DAYS = 30;
+export const REPORT_COOLDOWN_DAYS  = 7;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type MatchRequestStatus =
-  | 'PENDING'
-  | 'ACCEPTED'
-  | 'DECLINED'
-  | 'WITHDRAWN'
-  | 'BLOCKED'
-  | 'EXPIRED';
+  | 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'WITHDRAWN' | 'BLOCKED' | 'EXPIRED';
+
+export type MatchRequestPriority = 'NORMAL' | 'SUPER_LIKE';
+
+export type ReportCategory =
+  | 'HARASSMENT' | 'FAKE_PROFILE' | 'INAPPROPRIATE_CONTENT'
+  | 'SCAM' | 'UNDERAGE' | 'SPAM' | 'OTHER';
+
+export type DeclineReason =
+  | 'NOT_INTERESTED' | 'NOT_MATCHING_PREFERENCES' | 'INCOMPLETE_PROFILE'
+  | 'PHOTO_HIDDEN' | 'INAPPROPRIATE_MESSAGE' | 'OTHER';
 
 export interface MatchRequest {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  status: MatchRequestStatus;
-  message: string | null;
-  respondedAt: Date | null;
-  expiresAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  id:                string;
+  senderId:          string;
+  receiverId:        string;
+  status:            MatchRequestStatus;
+  priority:          MatchRequestPriority;
+  message:           string | null;
+  acceptanceMessage: string | null;
+  declineReason:     string | null;
+  seenAt:            Date | null;
+  respondedAt:       Date | null;
+  expiresAt:         Date | null;
+  createdAt:         Date;
+  updatedAt:         Date;
 }
 
 export interface ServiceError extends Error {
   code: string;
 }
 
-// notificationsQueue is shared via infrastructure/redis/queues.ts — never
-// re-instantiated per-module.
-
-// ── Error factory ─────────────────────────────────────────────────────────────
+// ── Error helper ──────────────────────────────────────────────────────────────
 
 function serviceError(code: string, message: string): ServiceError {
   const e = new Error(message) as ServiceError;
@@ -57,81 +77,119 @@ function serviceError(code: string, message: string): ServiceError {
   return e;
 }
 
+function pushNotify(type: string, userId: string, payload: Record<string, unknown>): void {
+  void notificationsQueue.add(
+    type,
+    { type, userId, payload },
+    { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+  );
+}
+
 // ── sendRequest ───────────────────────────────────────────────────────────────
+
+export interface SendRequestInput {
+  message?:  string | undefined;
+  priority?: MatchRequestPriority | undefined;
+}
 
 /**
  * Send a match request from senderId → receiverId.
  *
  * Guards:
  *  1. Cannot send to yourself
- *  2. Cannot send if either party has blocked the other
- *  3. Cannot send if a PENDING request already exists between them
+ *  2. Cannot send if either party blocked the other
+ *  3. Cannot send if ACCEPTED or PENDING already exists between them
+ *  4. Cool-off after a recent DECLINE from this receiver
+ *  5. Reciprocal-pending detection: if receiver already has a PENDING request
+ *     directed at sender, sender's "send" is silently treated as an ACCEPT
  */
 export async function sendRequest(
   senderId: string,
   receiverId: string,
-  message?: string,
+  input: SendRequestInput = {},
 ): Promise<MatchRequest> {
   if (senderId === receiverId) {
     throw serviceError('SELF_REQUEST', 'Cannot send a match request to yourself');
   }
 
-  // Check for any block in either direction
+  // 1. Blocks check
   const blocks = await db
     .select()
     .from(blockedUsers)
-    .where(
-      or(
-        and(eq(blockedUsers.blockerId, senderId), eq(blockedUsers.blockedId, receiverId)),
-        and(eq(blockedUsers.blockerId, receiverId), eq(blockedUsers.blockedId, senderId)),
-      ),
-    );
-
+    .where(or(
+      and(eq(blockedUsers.blockerId, senderId), eq(blockedUsers.blockedId, receiverId)),
+      and(eq(blockedUsers.blockerId, receiverId), eq(blockedUsers.blockedId, senderId)),
+    ));
   if (blocks.length > 0) {
-    throw serviceError('BLOCKED', 'Cannot send request — a block relationship exists between these users');
+    throw serviceError('BLOCKED', 'A block relationship exists between these profiles');
   }
 
-  // Check for an existing PENDING request in either direction
-  const existing = await db
+  // 2. Existing pending / accepted check
+  const open = await db
     .select()
     .from(matchRequests)
-    .where(
-      and(
-        or(
-          and(eq(matchRequests.senderId, senderId), eq(matchRequests.receiverId, receiverId)),
-          and(eq(matchRequests.senderId, receiverId), eq(matchRequests.receiverId, senderId)),
-        ),
-        eq(matchRequests.status, 'PENDING'),
+    .where(and(
+      or(
+        and(eq(matchRequests.senderId, senderId), eq(matchRequests.receiverId, receiverId)),
+        and(eq(matchRequests.senderId, receiverId), eq(matchRequests.receiverId, senderId)),
       ),
-    );
+      inArray(matchRequests.status, ['PENDING', 'ACCEPTED'] as MatchRequestStatus[]),
+    ));
 
-  if (existing.length > 0) {
-    throw serviceError('DUPLICATE_REQUEST', 'A pending request already exists between these users');
+  if (open.length > 0) {
+    const reciprocal = open.find((r) => r.senderId === receiverId && r.status === 'PENDING');
+    if (reciprocal) {
+      // Reciprocal pending — fast-accept both sides
+      const accepted = await acceptRequest(senderId, reciprocal.id);
+      return accepted;
+    }
+    const accepted = open.find((r) => r.status === 'ACCEPTED');
+    if (accepted) {
+      throw serviceError('ALREADY_MATCHED', 'You already have an active match with this profile');
+    }
+    throw serviceError('DUPLICATE_REQUEST', 'A pending request already exists between these profiles');
   }
+
+  // 3. Decline cool-off
+  const cutoff = new Date(Date.now() - DECLINE_COOLDOWN_DAYS * 86_400_000);
+  const recentDecline = await db
+    .select({ id: matchRequests.id, updatedAt: matchRequests.updatedAt })
+    .from(matchRequests)
+    .where(and(
+      eq(matchRequests.senderId, senderId),
+      eq(matchRequests.receiverId, receiverId),
+      eq(matchRequests.status, 'DECLINED'),
+      gt(matchRequests.updatedAt, cutoff),
+    ))
+    .limit(1);
+  if (recentDecline.length > 0) {
+    throw serviceError(
+      'COOLDOWN_ACTIVE',
+      `This profile recently declined an interest. You can try again after the ${DECLINE_COOLDOWN_DAYS}-day cool-off period.`,
+    );
+  }
+
+  const expiresAt = new Date(Date.now() + MATCH_REQUEST_TTL_DAYS * 86_400_000);
+  const priority: MatchRequestPriority = input.priority ?? 'NORMAL';
 
   const [created] = await db
     .insert(matchRequests)
     .values({
       senderId,
       receiverId,
-      status: 'PENDING',
-      message: message ?? null,
+      status:   'PENDING',
+      priority,
+      message:  input.message ?? null,
+      expiresAt,
     })
     .returning();
 
-  if (!created) {
-    throw serviceError('INSERT_FAILED', 'Failed to create match request');
-  }
+  if (!created) throw serviceError('INSERT_FAILED', 'Failed to create match request');
 
-  // Push notification job (fire-and-forget — do not await in request path)
-  void notificationsQueue.add(
-    'MATCH_REQUEST_RECEIVED',
-    {
-      type: 'MATCH_REQUEST_RECEIVED',
-      userId: receiverId,
-      payload: { requestId: created.id, senderId },
-    },
-    { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+  pushNotify(
+    priority === 'SUPER_LIKE' ? 'MATCH_REQUEST_SUPER_LIKE' : 'MATCH_REQUEST_RECEIVED',
+    receiverId,
+    { requestId: created.id, senderId, priority },
   );
 
   return created as MatchRequest;
@@ -139,16 +197,14 @@ export async function sendRequest(
 
 // ── acceptRequest ─────────────────────────────────────────────────────────────
 
-/**
- * Accept an incoming match request.
- * Only the receiver may call this. Status must be PENDING.
- * Side-effects:
- *  - Creates a Chat document in MongoDB (or mock store in dev)
- *  - Pushes MATCH_ACCEPTED notification to sender
- */
+export interface AcceptRequestInput {
+  welcomeMessage?: string | undefined;
+}
+
 export async function acceptRequest(
   userId: string,
   requestId: string,
+  input: AcceptRequestInput = {},
 ): Promise<MatchRequest> {
   const request = await fetchRequest(requestId);
 
@@ -161,55 +217,54 @@ export async function acceptRequest(
 
   const [updated] = await db
     .update(matchRequests)
-    .set({ status: 'ACCEPTED', respondedAt: new Date(), updatedAt: new Date() })
+    .set({
+      status:            'ACCEPTED',
+      acceptanceMessage: input.welcomeMessage ?? null,
+      respondedAt:       new Date(),
+      seenAt:            request.seenAt ?? new Date(),
+      updatedAt:         new Date(),
+    })
     .where(eq(matchRequests.id, requestId))
     .returning();
 
-  if (!updated) {
-    throw serviceError('UPDATE_FAILED', 'Failed to accept match request');
-  }
+  if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to accept match request');
 
-  // Create Chat document in MongoDB
+  // Mongo Chat document — use mock store in dev
   if (env.USE_MOCK_SERVICES) {
-    // In mock mode, write to the in-memory store instead of Mongoose
     mockUpsertField(requestId, 'chat', {
-      participants: [request.senderId, request.receiverId],
-      matchRequestId: requestId,
-      messages: [],
-      isActive: true,
+      participants:    [request.senderId, request.receiverId],
+      matchRequestId:  requestId,
+      messages:        [],
+      isActive:        true,
+      welcomeMessage:  input.welcomeMessage ?? null,
     });
   } else {
     await Chat.create({
-      participants: [request.senderId, request.receiverId],
-      matchRequestId: requestId,
-      messages: [],
-      isActive: true,
+      participants:    [request.senderId, request.receiverId],
+      matchRequestId:  requestId,
+      messages:        [],
+      isActive:        true,
     });
   }
 
-  // Push notification to sender
-  void notificationsQueue.add(
-    'MATCH_ACCEPTED',
-    {
-      type: 'MATCH_ACCEPTED',
-      userId: request.senderId,
-      payload: { requestId },
-    },
-    { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-  );
+  pushNotify('MATCH_ACCEPTED', request.senderId, {
+    requestId,
+    welcomeMessage: input.welcomeMessage ?? null,
+  });
 
   return updated as MatchRequest;
 }
 
 // ── declineRequest ────────────────────────────────────────────────────────────
 
-/**
- * Decline an incoming match request.
- * Only the receiver may call this. Status must be PENDING.
- */
+export interface DeclineRequestInput {
+  reason?: DeclineReason | undefined;
+}
+
 export async function declineRequest(
   userId: string,
   requestId: string,
+  input: DeclineRequestInput = {},
 ): Promise<MatchRequest> {
   const request = await fetchRequest(requestId);
 
@@ -222,27 +277,28 @@ export async function declineRequest(
 
   const [updated] = await db
     .update(matchRequests)
-    .set({ status: 'DECLINED', respondedAt: new Date(), updatedAt: new Date() })
+    .set({
+      status:        'DECLINED',
+      declineReason: input.reason ?? null,
+      respondedAt:   new Date(),
+      seenAt:        request.seenAt ?? new Date(),
+      updatedAt:     new Date(),
+    })
     .where(eq(matchRequests.id, requestId))
     .returning();
 
-  if (!updated) {
-    throw serviceError('UPDATE_FAILED', 'Failed to decline match request');
-  }
+  if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to decline match request');
+
+  // Sender does NOT learn the decline reason — only an opaque "declined" notification
+  // (matrimony etiquette). Reason kept internal for moderation + ML signal.
+  pushNotify('MATCH_DECLINED', request.senderId, { requestId });
 
   return updated as MatchRequest;
 }
 
 // ── withdrawRequest ───────────────────────────────────────────────────────────
 
-/**
- * Withdraw a sent match request.
- * Only the sender may call this. Status must be PENDING.
- */
-export async function withdrawRequest(
-  userId: string,
-  requestId: string,
-): Promise<MatchRequest> {
+export async function withdrawRequest(userId: string, requestId: string): Promise<MatchRequest> {
   const request = await fetchRequest(requestId);
 
   if (request.senderId !== userId) {
@@ -258,131 +314,252 @@ export async function withdrawRequest(
     .where(eq(matchRequests.id, requestId))
     .returning();
 
-  if (!updated) {
-    throw serviceError('UPDATE_FAILED', 'Failed to withdraw match request');
+  if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to withdraw match request');
+
+  // Notify the receiver only if they had already seen it — silent withdraw
+  // before "seen" is the polite default (no read-receipt, no ghost trail).
+  if (request.seenAt) {
+    pushNotify('MATCH_WITHDRAWN', request.receiverId, { requestId });
   }
 
   return updated as MatchRequest;
 }
 
-// ── blockUser ─────────────────────────────────────────────────────────────────
+// ── markRequestSeen ───────────────────────────────────────────────────────────
 
 /**
- * Block a user profile.
- * - Inserts a blocked_users record
- * - Cancels any PENDING match_request between them by setting status → BLOCKED
+ * Marks a received request as seen by the receiver. First call sets seenAt;
+ * subsequent calls no-op. Triggers a "seen" notification to the sender if
+ * they have read-receipts allowed in their privacy settings (handled at
+ * router layer; service is unconditional for now).
  */
+export async function markRequestSeen(userId: string, requestId: string): Promise<MatchRequest> {
+  const request = await fetchRequest(requestId);
+
+  if (request.receiverId !== userId) {
+    throw serviceError('FORBIDDEN', 'Only the receiver may mark a request as seen');
+  }
+  if (request.seenAt) return request;
+
+  const [updated] = await db
+    .update(matchRequests)
+    .set({ seenAt: new Date(), updatedAt: new Date() })
+    .where(eq(matchRequests.id, requestId))
+    .returning();
+
+  if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to mark request as seen');
+
+  return updated as MatchRequest;
+}
+
+// ── blockUser / unblockUser / listBlockedUsers ────────────────────────────────
+
 export async function blockUser(
   userId: string,
   targetProfileId: string,
+  reason?: string,
 ): Promise<void> {
+  if (userId === targetProfileId) {
+    throw serviceError('SELF_BLOCK', 'You cannot block yourself');
+  }
+
   await db
     .insert(blockedUsers)
-    .values({ blockerId: userId, blockedId: targetProfileId })
+    .values({ blockerId: userId, blockedId: targetProfileId, reason: reason ?? null })
+    .onConflictDoNothing()
     .returning();
 
-  // Cancel PENDING + flip ACCEPTED match requests to BLOCKED — blocking a
-  // person should also silently break any open conversation, not just stop
-  // future requests. The corresponding Chat gets deactivated below.
+  // Cancel PENDING + flip ACCEPTED match requests to BLOCKED
   const affected = await db
     .update(matchRequests)
     .set({ status: 'BLOCKED', updatedAt: new Date() })
-    .where(
-      and(
-        or(
-          eq(matchRequests.status, 'PENDING'),
-          eq(matchRequests.status, 'ACCEPTED'),
-        ),
-        or(
-          and(eq(matchRequests.senderId, userId), eq(matchRequests.receiverId, targetProfileId)),
-          and(eq(matchRequests.senderId, targetProfileId), eq(matchRequests.receiverId, userId)),
-        ),
+    .where(and(
+      inArray(matchRequests.status, ['PENDING', 'ACCEPTED'] as MatchRequestStatus[]),
+      or(
+        and(eq(matchRequests.senderId, userId), eq(matchRequests.receiverId, targetProfileId)),
+        and(eq(matchRequests.senderId, targetProfileId), eq(matchRequests.receiverId, userId)),
       ),
-    )
+    ))
     .returning({ id: matchRequests.id });
 
-  // Deactivate each impacted chat so the UI hides it and sockets stop accepting
-  // new messages on the room.
-  if (affected.length > 0 && !env.USE_MOCK_SERVICES) {
-    try {
-      await Chat.updateMany(
-        { matchRequestId: { $in: affected.map((r) => r.id) } },
-        { $set: { isActive: false } },
-      );
-    } catch (e) {
-      console.error('[blockUser] failed to deactivate chats:', e);
+  // Deactivate impacted chats
+  if (affected.length > 0) {
+    if (env.USE_MOCK_SERVICES) {
+      for (const r of affected) {
+        const stored = mockGet(r.id);
+        const chat = (stored?.['chat'] as Record<string, unknown> | undefined) ?? {};
+        mockUpsertField(r.id, 'chat', { ...chat, isActive: false });
+      }
+    } else {
+      try {
+        await Chat.updateMany(
+          { matchRequestId: { $in: affected.map((r) => r.id) } },
+          { $set: { isActive: false } },
+        );
+      } catch (e) {
+        console.error('[blockUser] chat deactivation failed:', e);
+      }
     }
   }
-  if (affected.length > 0 && env.USE_MOCK_SERVICES) {
-    const { mockGet } = await import('../../lib/mockStore.js');
-    for (const r of affected) {
-      const stored = mockGet(r.id);
-      const chat = (stored?.['chat'] as Record<string, unknown> | undefined) ?? {};
-      mockUpsertField(r.id, 'chat', { ...chat, isActive: false });
+}
+
+export async function unblockUser(userId: string, targetProfileId: string): Promise<void> {
+  await db
+    .delete(blockedUsers)
+    .where(and(
+      eq(blockedUsers.blockerId, userId),
+      eq(blockedUsers.blockedId, targetProfileId),
+    ));
+}
+
+export interface BlockedUserItem {
+  blockId:         string;
+  profileId:       string;
+  name:            string | null;
+  primaryPhotoKey: string | null;
+  reason:          string | null;
+  blockedAt:       string;
+}
+
+/**
+ * Returns the caller's blocked list, enriched with display name + primary photo.
+ */
+export async function listBlockedUsers(userId: string): Promise<BlockedUserItem[]> {
+  const rows = await db
+    .select({
+      blockId:    blockedUsers.id,
+      profileId:  blockedUsers.blockedId,
+      reason:     blockedUsers.reason,
+      blockedAt:  blockedUsers.createdAt,
+      userId:     profiles.userId,
+    })
+    .from(blockedUsers)
+    .leftJoin(profiles, eq(profiles.id, blockedUsers.blockedId))
+    .where(eq(blockedUsers.blockerId, userId))
+    .orderBy(desc(blockedUsers.createdAt));
+
+  if (rows.length === 0) return [];
+
+  const profileIds = rows.map((r) => r.profileId);
+  const photos = await db
+    .select({ profileId: profilePhotos.profileId, r2Key: profilePhotos.r2Key })
+    .from(profilePhotos)
+    .where(and(inArray(profilePhotos.profileId, profileIds), eq(profilePhotos.isPrimary, true)));
+  const photoByProfile = new Map(photos.map((p) => [p.profileId, p.r2Key]));
+
+  type ContentDoc = { personal?: { fullName?: string } };
+  const nameByUser = new Map<string, string>();
+  const userIds = rows.map((r) => r.userId).filter((u): u is string => Boolean(u));
+  if (env.USE_MOCK_SERVICES) {
+    for (const uid of userIds) {
+      const doc = mockGet(uid) as ContentDoc | null;
+      if (doc?.personal?.fullName) nameByUser.set(uid, doc.personal.fullName);
     }
+  } else {
+    const { ProfileContent } = await import('../../infrastructure/mongo/models/ProfileContent.js');
+    const Content = ProfileContent as unknown as {
+      find: (filter: object) => { lean: () => Promise<Array<ContentDoc & { userId: string }>> };
+    };
+    const docs = await Content.find({ userId: { $in: userIds } }).lean();
+    for (const d of docs) if (d.userId && d.personal?.fullName) nameByUser.set(d.userId, d.personal.fullName);
   }
+
+  return rows.map((r) => ({
+    blockId:         r.blockId,
+    profileId:       r.profileId,
+    name:            r.userId ? nameByUser.get(r.userId) ?? null : null,
+    primaryPhotoKey: photoByProfile.get(r.profileId) ?? null,
+    reason:          r.reason,
+    blockedAt:       r.blockedAt.toISOString(),
+  }));
 }
 
 // ── reportUser ────────────────────────────────────────────────────────────────
 
-/**
- * Report a user profile for inappropriate behaviour.
- * Writes to audit_logs with event_type='PROFILE_REPORTED' so moderation tools
- * can query, notify the admin queue, and preserve an immutable trail. Also
- * emits a structured console line for external log drains.
- */
-export async function reportUser(
-  userId: string,
-  targetProfileId: string,
-  reason: string,
-): Promise<void> {
-  const payload = { reason, reportedAt: new Date().toISOString() };
-  const contentHash = createHash('sha256')
-    .update(`${userId}:${targetProfileId}:${reason}:${Date.now()}`)
-    .digest('hex');
-
-  try {
-    await db.insert(auditLogs).values({
-      eventType:   'PROFILE_REPORTED',
-      entityType:  'profile',
-      entityId:    targetProfileId,
-      actorId:     userId,
-      payload,
-      contentHash,
-      prevHash:    null,
-    });
-  } catch (e) {
-    // Don't surface to user — log and continue. Moderation read paths use
-    // the console drain as a secondary source when the insert is blocked
-    // (e.g. enum mismatch in a partially migrated env).
-    console.error('[reportUser] audit insert failed:', e);
-  }
-
-  void notificationsQueue.add(
-    'PROFILE_REPORTED_MODERATION',
-    {
-      type:    'PROFILE_REPORTED_MODERATION',
-      userId:  'admin',
-      payload: { reporterId: userId, targetProfileId, reason },
-    },
-    { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
-  );
-
-  console.info(JSON.stringify({
-    event_type:   'PROFILE_REPORTED',
-    actor_id:     userId,
-    target_id:    targetProfileId,
-    metadata:     { reason },
-    content_hash: contentHash,
-    timestamp:    new Date().toISOString(),
-  }));
+export interface ReportUserInput {
+  category:   ReportCategory;
+  details?:   string | undefined;
+  requestId?: string | undefined;
 }
 
-// ── getReceivedRequests ───────────────────────────────────────────────────────
+export async function reportUser(
+  reporterId: string,
+  reportedProfileId: string,
+  input: ReportUserInput,
+): Promise<{ reportId: string }> {
+  if (reporterId === reportedProfileId) {
+    throw serviceError('SELF_REPORT', 'You cannot report yourself');
+  }
+
+  // De-dupe: same reporter→reported within REPORT_COOLDOWN_DAYS is a no-op
+  const cutoff = new Date(Date.now() - REPORT_COOLDOWN_DAYS * 86_400_000);
+  const recent = await db
+    .select({ id: matchRequestReports.id })
+    .from(matchRequestReports)
+    .where(and(
+      eq(matchRequestReports.reporterId, reporterId),
+      eq(matchRequestReports.reportedId, reportedProfileId),
+      eq(matchRequestReports.category, input.category),
+      gt(matchRequestReports.createdAt, cutoff),
+    ))
+    .limit(1);
+  if (recent.length > 0 && recent[0]) {
+    return { reportId: recent[0].id };
+  }
+
+  const [row] = await db
+    .insert(matchRequestReports)
+    .values({
+      reporterId,
+      reportedId:  reportedProfileId,
+      category:    input.category,
+      details:     input.details ?? null,
+      requestId:   input.requestId ?? null,
+      status:      'OPEN',
+    })
+    .returning({ id: matchRequestReports.id });
+
+  if (!row) throw serviceError('INSERT_FAILED', 'Failed to record report');
+
+  pushNotify('PROFILE_REPORTED_MODERATION', 'admin', {
+    reportId:   row.id,
+    reporterId,
+    reportedId: reportedProfileId,
+    category:   input.category,
+  });
+
+  return { reportId: row.id };
+}
+
+// ── expireOldRequests (sweeper) ───────────────────────────────────────────────
+
+/**
+ * Flips PENDING requests with expiresAt < now to EXPIRED. Notifies the sender
+ * for each expired request. Idempotent. Safe to run on a daily cron.
+ */
+export async function expireOldRequests(): Promise<{ expired: number }> {
+  const now = new Date();
+  const expired = await db
+    .update(matchRequests)
+    .set({ status: 'EXPIRED', updatedAt: now })
+    .where(and(
+      eq(matchRequests.status, 'PENDING'),
+      lt(matchRequests.expiresAt, now),
+    ))
+    .returning({ id: matchRequests.id, senderId: matchRequests.senderId });
+
+  for (const row of expired) {
+    pushNotify('MATCH_REQUEST_EXPIRED', row.senderId, { requestId: row.id });
+  }
+
+  return { expired: expired.length };
+}
+
+// ── Pagination ─────────────────────────────────────────────────────────────────
 
 export interface PaginatedRequests {
   requests: MatchRequest[];
-  total: number;
+  total:    number;
 }
 
 export async function getReceivedRequests(
@@ -405,12 +582,11 @@ export async function getReceivedRequests(
     .from(matchRequests)
     .where(eq(matchRequests.receiverId, userId));
 
-  const total = Number(countRow?.count ?? 0);
-
-  return { requests: requests as MatchRequest[], total };
+  return {
+    requests: requests as MatchRequest[],
+    total:    Number(countRow?.count ?? 0),
+  };
 }
-
-// ── getSentRequests ───────────────────────────────────────────────────────────
 
 export async function getSentRequests(
   userId: string,
@@ -432,22 +608,220 @@ export async function getSentRequests(
     .from(matchRequests)
     .where(eq(matchRequests.senderId, userId));
 
-  const total = Number(countRow?.count ?? 0);
+  return {
+    requests: requests as MatchRequest[],
+    total:    Number(countRow?.count ?? 0),
+  };
+}
 
-  return { requests: requests as MatchRequest[], total };
+// ── Enriched requests ─────────────────────────────────────────────────────────
+
+export interface EnrichedRequest {
+  id:                string;
+  status:            MatchRequestStatus;
+  priority:          MatchRequestPriority;
+  message:           string | null;
+  acceptanceMessage: string | null;
+  declineReason:     string | null;
+  seenAt:            string | null;
+  respondedAt:       string | null;
+  expiresAt:         string | null;
+  createdAt:         string;
+  // Counterparty:
+  profileId:         string;
+  name:              string | null;
+  age:               number | null;
+  city:              string | null;
+  primaryPhotoKey:   string | null;
+  isVerified:        boolean;
+  manglik:           'YES' | 'NO' | 'PARTIAL' | null;
+  lastActiveAt:      string | null;
+}
+
+type EnrichSide = 'received' | 'sent';
+
+/**
+ * Enriches a page of received or sent requests with counterparty profile
+ * details (name, age, city, photo, verified, manglik, lastActiveAt). Honours
+ * the counterparty's `safetyMode.showLastActive` flag.
+ */
+export async function getEnrichedRequests(
+  userId: string,
+  side: EnrichSide,
+  page: number,
+  limit: number,
+): Promise<{ requests: EnrichedRequest[]; total: number }> {
+  const base = side === 'received'
+    ? await getReceivedRequests(userId, page, limit)
+    : await getSentRequests(userId, page, limit);
+
+  if (base.requests.length === 0) return { requests: [], total: base.total };
+
+  const counterIds = side === 'received'
+    ? base.requests.map((r) => r.senderId)
+    : base.requests.map((r) => r.receiverId);
+  const uniqueIds = Array.from(new Set(counterIds));
+
+  const profileRows = await db
+    .select()
+    .from(profiles)
+    .where(inArray(profiles.id, uniqueIds));
+
+  const photoRows = await db
+    .select()
+    .from(profilePhotos)
+    .where(and(inArray(profilePhotos.profileId, uniqueIds), eq(profilePhotos.isPrimary, true)));
+
+  const profileById = new Map(profileRows.map((p) => [p.id, p]));
+  const photoById = new Map(photoRows.map((p) => [p.profileId, p.r2Key]));
+
+  type ContentDoc = {
+    userId?:    string;
+    personal?:  { fullName?: string; dob?: string };
+    location?:  { city?: string };
+    horoscope?: { manglik?: 'YES' | 'NO' | 'PARTIAL' };
+    safetyMode?:{ showLastActive?: boolean; photoHidden?: boolean };
+  };
+  const userIds = profileRows.map((p) => p.userId);
+  const contentByUserId = new Map<string, ContentDoc>();
+  if (env.USE_MOCK_SERVICES) {
+    for (const uid of userIds) {
+      const doc = mockGet(uid) as ContentDoc | null;
+      if (doc) contentByUserId.set(uid, doc);
+    }
+  } else {
+    const { ProfileContent } = await import('../../infrastructure/mongo/models/ProfileContent.js');
+    const Content = ProfileContent as unknown as {
+      find: (filter: object) => { lean: () => Promise<ContentDoc[]> };
+    };
+    const docs = await Content.find({ userId: { $in: userIds } }).lean();
+    for (const d of docs) if (d.userId) contentByUserId.set(d.userId, d);
+  }
+
+  const enriched: EnrichedRequest[] = base.requests.map((r) => {
+    const counterId = side === 'received' ? r.senderId : r.receiverId;
+    const p = profileById.get(counterId);
+    const c = p ? contentByUserId.get(p.userId) : undefined;
+    const dob = c?.personal?.dob;
+    const age = dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 86_400_000)) : null;
+    const showLastActive = c?.safetyMode?.showLastActive !== false; // default true
+    const photoHidden = c?.safetyMode?.photoHidden === true;
+    return {
+      id:                r.id,
+      status:            r.status,
+      priority:          r.priority,
+      message:           r.message,
+      acceptanceMessage: r.acceptanceMessage,
+      declineReason:     r.declineReason,
+      seenAt:            r.seenAt ? new Date(r.seenAt).toISOString() : null,
+      respondedAt:       r.respondedAt ? new Date(r.respondedAt).toISOString() : null,
+      expiresAt:         r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
+      createdAt:         new Date(r.createdAt).toISOString(),
+      profileId:         counterId,
+      name:              c?.personal?.fullName ?? null,
+      age:               age && age > 0 ? age : null,
+      city:              c?.location?.city ?? null,
+      primaryPhotoKey:   photoHidden ? null : photoById.get(counterId) ?? null,
+      isVerified:        p?.verificationStatus === 'VERIFIED',
+      manglik:           c?.horoscope?.manglik ?? null,
+      lastActiveAt:      showLastActive && p?.lastActiveAt ? p.lastActiveAt.toISOString() : null,
+    };
+  });
+
+  return { requests: enriched, total: base.total };
+}
+
+// ── getWhoLikedMe ─────────────────────────────────────────────────────────────
+
+export interface WhoLikedMeItem {
+  requestId:        string;
+  senderProfileId:  string;
+  message:          string | null;
+  priority:         MatchRequestPriority;
+  createdAt:        Date;
+  name:             string | null;
+  age:              number | null;
+  city:             string | null;
+  primaryPhotoKey:  string | null;
+  manglik:          'YES' | 'NO' | 'PARTIAL' | null;
+  lastActiveAt:     string | null;
+  isVerified:       boolean;
+}
+
+export async function getWhoLikedMe(
+  receiverProfileId: string,
+  limit: number,
+): Promise<{ items: WhoLikedMeItem[]; total: number }> {
+  const requests = await db
+    .select()
+    .from(matchRequests)
+    .where(and(eq(matchRequests.receiverId, receiverProfileId), eq(matchRequests.status, 'PENDING')))
+    .orderBy(desc(matchRequests.priority), desc(matchRequests.createdAt))
+    .limit(limit);
+
+  if (requests.length === 0) return { items: [], total: 0 };
+
+  const senderIds = Array.from(new Set(requests.map((r) => r.senderId)));
+  const profileRows = await db.select().from(profiles).where(inArray(profiles.id, senderIds));
+  const photoRows = await db
+    .select()
+    .from(profilePhotos)
+    .where(and(inArray(profilePhotos.profileId, senderIds), eq(profilePhotos.isPrimary, true)));
+  const profileById = new Map(profileRows.map((p) => [p.id, p]));
+  const photoById = new Map(photoRows.map((p) => [p.profileId, p.r2Key]));
+
+  type ContentDoc = {
+    userId?:    string;
+    personal?:  { fullName?: string; dob?: string };
+    location?:  { city?: string };
+    horoscope?: { manglik?: 'YES' | 'NO' | 'PARTIAL' };
+    safetyMode?:{ showLastActive?: boolean };
+  };
+  const userIds = profileRows.map((p) => p.userId);
+  const contentByUserId = new Map<string, ContentDoc>();
+  if (env.USE_MOCK_SERVICES) {
+    for (const uid of userIds) {
+      const doc = mockGet(uid) as ContentDoc | null;
+      if (doc) contentByUserId.set(uid, doc);
+    }
+  } else {
+    const { ProfileContent } = await import('../../infrastructure/mongo/models/ProfileContent.js');
+    const Content = ProfileContent as unknown as {
+      find: (filter: object) => { lean: () => Promise<ContentDoc[]> };
+    };
+    const docs = await Content.find({ userId: { $in: userIds } }).lean();
+    for (const d of docs) if (d.userId) contentByUserId.set(d.userId, d);
+  }
+
+  const items: WhoLikedMeItem[] = requests.map((r) => {
+    const p = profileById.get(r.senderId);
+    const c = p ? contentByUserId.get(p.userId) : undefined;
+    const dob = c?.personal?.dob;
+    const age = dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 86_400_000)) : null;
+    const showLastActive = c?.safetyMode?.showLastActive !== false;
+    return {
+      requestId:       r.id,
+      senderProfileId: r.senderId,
+      message:         r.message ?? null,
+      priority:        r.priority as MatchRequestPriority,
+      createdAt:       r.createdAt,
+      name:            c?.personal?.fullName ?? null,
+      age:             age && age > 0 ? age : null,
+      city:            c?.location?.city ?? null,
+      primaryPhotoKey: photoById.get(r.senderId) ?? null,
+      manglik:         c?.horoscope?.manglik ?? null,
+      lastActiveAt:    showLastActive && p?.lastActiveAt ? p.lastActiveAt.toISOString() : null,
+      isVerified:      p?.verificationStatus === 'VERIFIED',
+    };
+  });
+
+  return { items, total: items.length };
 }
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 async function fetchRequest(requestId: string): Promise<MatchRequest> {
-  const [request] = await db
-    .select()
-    .from(matchRequests)
-    .where(eq(matchRequests.id, requestId));
-
-  if (!request) {
-    throw serviceError('NOT_FOUND', `Match request ${requestId} not found`);
-  }
-
+  const [request] = await db.select().from(matchRequests).where(eq(matchRequests.id, requestId));
+  if (!request) throw serviceError('NOT_FOUND', `Match request ${requestId} not found`);
   return request as MatchRequest;
 }

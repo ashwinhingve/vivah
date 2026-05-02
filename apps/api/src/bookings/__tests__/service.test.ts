@@ -21,16 +21,20 @@ vi.mock('../../lib/db.js', () => ({
 }));
 
 vi.mock('@smartshaadi/db', () => ({
-  bookings:       {},
-  payments:       {},
-  escrowAccounts: {},
-  vendors:        {},
+  bookings:           {},
+  payments:           {},
+  escrowAccounts:     {},
+  vendors:            {},
+  bookingAddons:      { bookingId: {} },
+  vendorReviews:      { id: {}, bookingId: {} },
+  vendorBlockedDates: { id: {}, vendorId: {}, date: {} },
 }));
 
 vi.mock('drizzle-orm', () => ({
   eq:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
   and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
   inArray: vi.fn((_col: unknown, values: unknown[]) => ({ type: 'inArray', values })),
+  desc:    vi.fn((_col: unknown) => ({ type: 'desc' })),
   sql:     vi.fn(() => ({ type: 'sql' })),
 }));
 
@@ -64,12 +68,15 @@ vi.mock('../../lib/razorpay.js', () => ({
 type SelectResult = Record<string, unknown>[];
 
 function makeQueryChain(rows: SelectResult) {
-  const chain = {
-    from:   vi.fn().mockReturnThis(),
-    where:  vi.fn().mockReturnThis(),
-    limit:  vi.fn().mockResolvedValue(rows),
-    offset: vi.fn().mockResolvedValue(rows),
-  };
+  const chain: Record<string, unknown> = {};
+  chain.from    = vi.fn().mockReturnValue(chain);
+  chain.where   = vi.fn().mockReturnValue(chain);
+  chain.orderBy = vi.fn().mockReturnValue(chain);
+  chain.limit   = vi.fn().mockResolvedValue(rows);
+  chain.offset  = vi.fn().mockResolvedValue(rows);
+  // Allow `await db.select().from().where()` (no .limit) for new addon/review fetches
+  chain.then = (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) =>
+    Promise.resolve(rows).then(resolve, reject);
   return chain;
 }
 
@@ -151,9 +158,12 @@ describe('bookings/service', () => {
     it('creates booking and returns summary when no conflict', async () => {
       const calls: SelectResult[] = [
         [],             // conflict check → no conflict
+        [],             // blocked-date check → not blocked
         [baseVendor],   // notify vendor — get vendor userId
         [baseVendor],   // toBookingSummary — get vendor name
         [],             // toBookingSummary — no escrow yet
+        [],             // toBookingSummary — no addons
+        [],             // toBookingSummary — no existing review
       ];
       let callIndex = 0;
 
@@ -234,6 +244,8 @@ describe('bookings/service', () => {
         [escrowRow],                                 // escrow lookup
         [baseVendor],                                // toBookingSummary — vendor name
         [],                                          // toBookingSummary — escrow for summary
+        [],                                          // toBookingSummary — addons
+        [],                                          // toBookingSummary — review check
       ];
       let callIndex = 0;
 
@@ -272,6 +284,8 @@ describe('bookings/service', () => {
         [],                               // no escrow yet
         [baseVendor],                     // toBookingSummary
         [],                               // summary escrow
+        [],                               // summary addons
+        [],                               // summary review
       ];
       let callIndex = 0;
 
@@ -311,6 +325,8 @@ describe('bookings/service', () => {
         [paymentRow],                         // payment lookup for razorpayPaymentId
         [baseVendor],                         // toBookingSummary vendor
         [],                                   // toBookingSummary escrow
+        [],                                   // toBookingSummary addons
+        [],                                   // toBookingSummary review
       ];
       let callIndex = 0;
 
@@ -334,6 +350,8 @@ describe('bookings/service', () => {
         [],                                          // no escrow
         [baseVendor],                                // toBookingSummary
         [],                                          // summary escrow
+        [],                                          // summary addons
+        [],                                          // summary review
       ];
       let callIndex = 0;
 

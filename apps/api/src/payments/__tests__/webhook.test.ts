@@ -14,6 +14,9 @@ vi.mock('@smartshaadi/db', () => ({
   bookings:       { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId' },
   escrowAccounts: { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', totalHeld: 'escrowAccounts.totalHeld', status: 'escrowAccounts.status', released: 'escrowAccounts.released' },
   auditLogs:      { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash' },
+  refunds:        { id: 'refunds.id', razorpayRefundId: 'refunds.razorpayRefundId', status: 'refunds.status' },
+  webhookEvents:  { id: 'webhookEvents.id', provider: 'webhookEvents.provider', eventId: 'webhookEvents.eventId' },
+  paymentLinks:   { id: 'paymentLinks.id', razorpayLinkId: 'paymentLinks.razorpayLinkId', status: 'paymentLinks.status' },
   auditEventTypeEnum: { enumValues: ['PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED'] },
 }));
 
@@ -44,6 +47,8 @@ const mockMarkBookingDisputed  = vi.fn().mockResolvedValue(undefined);
 vi.mock('../service.js', () => ({
   handlePaymentSuccess:  mockHandlePaymentSuccess,
   markBookingDisputed:   mockMarkBookingDisputed,
+  handlePaymentFailed:   vi.fn().mockResolvedValue(undefined),
+  retryPaymentOrder:     vi.fn(),
   requestRefund:         vi.fn(),
   createPaymentOrder:    vi.fn(),
   getPaymentHistory:     vi.fn(),
@@ -51,6 +56,23 @@ vi.mock('../service.js', () => ({
   computeHash:           vi.fn().mockReturnValue('mock-hash'),
   appendAuditLog:        vi.fn().mockResolvedValue(undefined),
   transferToVendor:      vi.fn(),
+}));
+
+// Mock webhookEvents — non-duplicate by default; flip via mockNextDuplicate().
+vi.mock('../webhookEvents.js', () => ({
+  recordWebhookEvent: vi.fn().mockImplementation(async (args: { eventId: string; eventType: string }) => ({
+    duplicate: false,
+    id:        'mock-event-row',
+    eventId:   args.eventId,
+    eventType: args.eventType,
+  })),
+  markProcessed: vi.fn().mockResolvedValue(undefined),
+  markFailed:    vi.fn().mockResolvedValue(undefined),
+  markIgnored:   vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../paymentLinks.js', () => ({
+  markLinkPaid: vi.fn().mockResolvedValue(null),
 }));
 
 // ── Helper to build mock req/res ──────────────────────────────────────────────
@@ -132,12 +154,20 @@ describe('webhookHandler', () => {
     const { webhookHandler } = await import('../webhook.js');
 
     const dbMod = await import('../../lib/db.js');
-    // Payment found by razorpayPaymentId
-    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockReturnValue({
-      from:    vi.fn().mockReturnThis(),
-      where:   vi.fn().mockResolvedValue([{ id: 'pay-1', bookingId: 'booking-1', razorpayPaymentId: 'pay_ref' }]),
-      orderBy: vi.fn().mockReturnThis(),
-      limit:   vi.fn().mockReturnThis(),
+    // First select call → payments (returns row); second → refunds (no match); third → not used
+    let selectCall = 0;
+    (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+      selectCall++;
+      if (selectCall === 1) {
+        return {
+          from:    vi.fn().mockReturnThis(),
+          where:   vi.fn().mockResolvedValue([{ id: 'pay-1', bookingId: 'booking-1', razorpayPaymentId: 'pay_ref', status: 'CAPTURED', amount: '100' }]),
+        };
+      }
+      return {
+        from:  vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnValue({ limit: vi.fn().mockResolvedValue([]) }),
+      };
     });
     (dbMod.db as unknown as AnyRecord)['update'] = vi.fn().mockReturnValue({
       set:   vi.fn().mockReturnThis(),

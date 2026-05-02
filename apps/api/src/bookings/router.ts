@@ -17,7 +17,7 @@ import { ok, err } from '../lib/response.js';
 import { db } from '../lib/db.js';
 import { eq } from 'drizzle-orm';
 import { bookings, vendors, vendorServices } from '@smartshaadi/db';
-import { CreateBookingSchema } from '@smartshaadi/schemas';
+import { CreateBookingSchema, RescheduleBookingSchema } from '@smartshaadi/schemas';
 import { generateInvoice } from './invoice.js';
 import {
   createBooking,
@@ -26,8 +26,12 @@ import {
   completeBooking,
   getBookings,
   getBooking,
+  proposeReschedule,
+  acceptReschedule,
+  rejectReschedule,
   BookingError,
 } from './service.js';
+import type { BookingStatus } from '@smartshaadi/types';
 
 export const bookingsRouter = Router();
 
@@ -74,9 +78,11 @@ bookingsRouter.post(
 // ── GET /bookings ─────────────────────────────────────────────────────────────
 
 const BookingListQuery = z.object({
-  role:  z.enum(['customer', 'vendor']).default('customer'),
-  page:  z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(10),
+  role:     z.enum(['customer', 'vendor']).default('customer'),
+  status:   z.enum(['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'DISPUTED']).default('ALL'),
+  timeline: z.enum(['all', 'upcoming', 'past']).default('all'),
+  page:     z.coerce.number().int().min(1).default(1),
+  limit:    z.coerce.number().int().min(1).max(50).default(10),
 });
 
 bookingsRouter.get(
@@ -90,14 +96,60 @@ bookingsRouter.get(
     }
 
     const userId = req.user!.id;
-    const { role, page, limit } = parsed.data;
+    const { role, page, limit, status, timeline } = parsed.data;
 
     try {
-      const result = await getBookings(userId, role, page, limit);
+      const result = await getBookings(userId, role, page, limit, {
+        status:   status as BookingStatus | 'ALL',
+        timeline,
+      });
       ok(res, result);
     } catch (error) {
       handleError(res, error);
     }
+  },
+);
+
+// ── Reschedule routes ────────────────────────────────────────────────────────
+
+bookingsRouter.post(
+  '/:id/reschedule',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const bookingId = req.params['id'];
+    if (!bookingId) { err(res, 'VALIDATION_ERROR', 'Missing booking id', 400); return; }
+    const parsed = RescheduleBookingSchema.safeParse(req.body);
+    if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid body', 400); return; }
+    try {
+      const booking = await proposeReschedule(req.user!.id, bookingId, parsed.data);
+      ok(res, { booking });
+    } catch (error) { handleError(res, error); }
+  },
+);
+
+bookingsRouter.put(
+  '/:id/reschedule/accept',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const bookingId = req.params['id'];
+    if (!bookingId) { err(res, 'VALIDATION_ERROR', 'Missing booking id', 400); return; }
+    try {
+      const booking = await acceptReschedule(req.user!.id, bookingId);
+      ok(res, { booking });
+    } catch (error) { handleError(res, error); }
+  },
+);
+
+bookingsRouter.put(
+  '/:id/reschedule/reject',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const bookingId = req.params['id'];
+    if (!bookingId) { err(res, 'VALIDATION_ERROR', 'Missing booking id', 400); return; }
+    try {
+      const booking = await rejectReschedule(req.user!.id, bookingId);
+      ok(res, { booking });
+    } catch (error) { handleError(res, error); }
   },
 );
 

@@ -581,14 +581,21 @@ type CeremonyRow = typeof ceremonies.$inferSelect;
 
 function mapCeremonyRow(row: CeremonyRow): Ceremony {
   return {
-    id:        row.id,
-    weddingId: row.weddingId,
-    type:      row.type as Ceremony['type'],
-    date:      row.date ?? null,
-    venue:     row.venue ?? null,
-    startTime: row.startTime ?? null,
-    endTime:   row.endTime ?? null,
-    notes:     row.notes ?? null,
+    id:             row.id,
+    weddingId:      row.weddingId,
+    type:           row.type as Ceremony['type'],
+    status:         row.status as Ceremony['status'],
+    date:           row.date ?? null,
+    venue:          row.venue ?? null,
+    venueAddress:   row.venueAddress ?? null,
+    startTime:      row.startTime ?? null,
+    endTime:        row.endTime ?? null,
+    dressCode:      row.dressCode ?? null,
+    expectedGuests: row.expectedGuests ?? null,
+    isPublic:       row.isPublic,
+    notes:          row.notes ?? null,
+    startedAt:      row.startedAt ? row.startedAt.toISOString() : null,
+    completedAt:    row.completedAt ? row.completedAt.toISOString() : null,
   };
 }
 

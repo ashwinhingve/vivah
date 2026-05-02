@@ -55,6 +55,7 @@ function makeSocket(userId: string) {
   const handlers: Record<string, EventHandler> = {}
   const emitted: Array<{ event: string; data: unknown }> = []
   const toEmitted: Array<{ room: string; event: string; data: unknown }> = []
+  const broadcastEmitted: Array<{ event: string; data: unknown }> = []
 
   const socket = {
     data: { userId },
@@ -71,21 +72,47 @@ function makeSocket(userId: string) {
         },
       }
     },
+    broadcast: {
+      emit(event: string, data: unknown) {
+        broadcastEmitted.push({ event, data })
+      },
+    },
     join: vi.fn(),
+    leave: vi.fn(),
     _handlers: handlers,
     _emitted: emitted,
     _toEmitted: toEmitted,
+    _broadcastEmitted: broadcastEmitted,
   }
   return socket
 }
 
-function makeIo() {
+function makeIo(opts?: { socketsInRoom?: Array<{ data: { userId?: string } }> }) {
   const toEmitted: Array<{ room: string; event: string; data: unknown }> = []
+  const inRoomSockets = opts?.socketsInRoom ?? []
   const io = {
     to(room: string) {
       return {
         emit(event: string, data: unknown) {
           toEmitted.push({ room, event, data })
+        },
+      }
+    },
+    in(_room: string) {
+      return {
+        async fetchSockets() {
+          return inRoomSockets
+        },
+      }
+    },
+    of(_namespace: string) {
+      return {
+        to(_room: string) {
+          return {
+            emit(event: string, data: unknown) {
+              toEmitted.push({ room: _room, event, data })
+            },
+          }
         },
       }
     },
@@ -124,7 +151,7 @@ describe('registerChatHandlers', () => {
       expect(handler).toBeDefined()
       await handler!({ matchRequestId: 'match-abc' })
 
-      expect(socket.join).not.toHaveBeenCalled()
+      expect(socket.join).not.toHaveBeenCalledWith('match-abc')
       const errorEvt = socket._emitted.find((e) => e.event === 'error')
       expect(errorEvt).toBeDefined()
       expect((errorEvt!.data as { message: string }).message).toBe('Not a participant')
@@ -139,7 +166,7 @@ describe('registerChatHandlers', () => {
 
       await socket._handlers['join_room']!({ matchRequestId: 'match-abc' })
 
-      expect(socket.join).not.toHaveBeenCalled()
+      expect(socket.join).not.toHaveBeenCalledWith('match-abc')
       expect(socket._emitted.find((e) => e.event === 'error')).toBeDefined()
     })
 
@@ -191,6 +218,7 @@ describe('registerChatHandlers', () => {
           $push: expect.objectContaining({ messages: expect.any(Object) }),
           $set: expect.objectContaining({ lastMessage: expect.any(Object) }),
         }),
+        expect.objectContaining({ new: true }),
       )
 
       const roomEmit = io._toEmitted.find((e) => e.event === 'message_received')

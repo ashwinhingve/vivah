@@ -47,9 +47,25 @@ const envSchema = z.object({
 
   DAILY_CO_API_KEY: z.string().default('mock-daily-key'),
 
-  RAZORPAY_KEY_ID:         z.string().default(''),
-  RAZORPAY_KEY_SECRET:     z.string().default(''),
-  RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
+  RAZORPAY_KEY_ID:          z.string().default(''),
+  RAZORPAY_KEY_SECRET:      z.string().default(''),
+  RAZORPAY_WEBHOOK_SECRET:  z.string().default(''),
+  RAZORPAY_WEBHOOK_SECRETS: z.string().default(''), // comma-separated for rotation
+  RAZORPAY_ACCOUNT_ID:      z.string().default(''),
+
+  // Notifications providers
+  AWS_SES_ACCESS_KEY: z.string().default(''),
+  AWS_SES_SECRET_KEY: z.string().default(''),
+  AWS_SES_REGION:     z.string().default('ap-south-1'),
+  AWS_SES_FROM:       z.string().default('noreply@smartshaadi.co.in'),
+  FIREBASE_SERVICE_ACCOUNT_JSON: z.string().default(''),
+
+  // E-invoicing (NIC IRP) — gated; threshold defaults to ₹5,00,000
+  EINVOICE_API_KEY:    z.string().default(''),
+  EINVOICE_THRESHOLD:  z.coerce.number().default(500000),
+
+  // Platform tax + GSTIN
+  PLATFORM_GSTIN: z.string().default('27AAAAA0000A1Z5'),
 }).superRefine((data, ctx) => {
   // Real-mode guard — placeholders would silently call external services with
   // fake tokens and 401 in production. Force explicit configuration.

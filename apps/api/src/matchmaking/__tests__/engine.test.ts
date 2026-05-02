@@ -10,6 +10,7 @@ vi.mock('@smartshaadi/db', () => ({
   profilePhotos:     { profileId: {}, isPrimary: {} },
   safetyModeUnlocks: { profileId: {}, unlockedFor: {} },
   shortlists:        { profileId: {}, targetProfileId: {} },
+  communityZones:    { profileId: {}, community: {}, subCommunity: {}, caste: {}, gotra: {}, motherTongue: {}, gotraExclusionEnabled: {} },
 }));
 
 // Mock the scorer so we get deterministic scores in engine tests
@@ -21,11 +22,12 @@ vi.mock('../scorer.js', () => ({
   scoreCandidate: vi.fn().mockResolvedValue({
     totalScore: 72,
     breakdown: {
-      demographicAlignment:   { score: 18, max: 25 },
-      lifestyleCompatibility: { score: 16, max: 20 },
+      demographicAlignment:   { score: 18, max: 20 },
+      lifestyleCompatibility: { score: 14, max: 15 },
       careerEducation:        { score: 12, max: 15 },
-      familyValues:           { score: 16, max: 20 },
+      familyValues:           { score: 13, max: 15 },
       preferenceOverlap:      { score: 10, max: 20 },
+      personalityFit:         { score: 11, max: 15 },
     },
     gunaScore: 25,
     tier: 'good',
@@ -120,13 +122,15 @@ function makeDb(options: {
   //   2 → blocked outbound (blockerId = userProfileId)
   //   3 → blocked inbound  (blockedId = userProfileId)
   //   4 → active candidate profiles
-  //   5+ → primary photo per filtered candidate (one call each)
+  //   5 → community_zones bulk lookup (caste/gotra/manglik filters)
+  //   6+ → primary photo per filtered candidate (one call each)
   chain.limit.mockImplementation(() => {
     callCount++;
     if (callCount === 1) return Promise.resolve(userProfile ? [userProfile] : []);
     if (callCount === 2) return Promise.resolve([]); // blocked outbound — empty by default
     if (callCount === 3) return Promise.resolve([]); // blocked inbound — empty by default
     if (callCount === 4) return Promise.resolve(candidates);
+    if (callCount === 5) return Promise.resolve([]); // community_zones — empty by default
     return Promise.resolve(primaryPhoto ? [primaryPhoto] : []);
   });
 
@@ -207,11 +211,12 @@ describe('computeAndCacheFeed', () => {
     vi.mocked(scoreCandidate).mockResolvedValueOnce({
       totalScore: 72,
       breakdown: {
-        demographicAlignment:   { score: 18, max: 25 },
-        lifestyleCompatibility: { score: 16, max: 20 },
+        demographicAlignment:   { score: 18, max: 20 },
+        lifestyleCompatibility: { score: 14, max: 15 },
         careerEducation:        { score: 12, max: 15 },
-        familyValues:           { score: 16, max: 20 },
+        familyValues:           { score: 13, max: 15 },
         preferenceOverlap:      { score: 10, max: 20 },
+        personalityFit:         { score: 11, max: 15 },
       },
       gunaScore: 18,
       tier: 'good',

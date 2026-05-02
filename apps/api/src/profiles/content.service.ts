@@ -103,7 +103,18 @@ export async function updateLocation(
   userId: string,
   data: LocationSection,
 ): Promise<ProfileContentResponse> {
-  return upsertSection(userId, 'location', data);
+  const result = await upsertSection(userId, 'location', data);
+  // Geocode + persist coords as a fire-and-forget side-effect; coord absence
+  // falls back to city/state in the engine, so this never blocks the response.
+  void (async () => {
+    try {
+      const { geocodeAndPersistCoords } = await import('./service.js');
+      await geocodeAndPersistCoords(userId, data.city ?? null, data.state ?? null);
+    } catch (e) {
+      console.error('Geocode persist failed:', e);
+    }
+  })();
+  return result;
 }
 
 export async function updateLifestyle(

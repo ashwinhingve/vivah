@@ -13,12 +13,13 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import { CreatePaymentOrderSchema, RefundSchema } from '@smartshaadi/schemas';
+import { CreatePaymentOrderSchema, RefundSchema, RetryPaymentSchema } from '@smartshaadi/schemas';
 import {
   createPaymentOrder,
   getPaymentHistory,
   requestRefund,
   getEscrowStatus,
+  retryPaymentOrder,
 } from './service.js';
 
 export const paymentsRouter = Router();
@@ -103,6 +104,31 @@ paymentsRouter.post(
       } else {
         err(res, 'INTERNAL', message, 500);
       }
+    }
+  },
+);
+
+// ---------------------------------------------------------------------------
+// POST /payments/retry — recreate Razorpay order after a failed attempt
+// ---------------------------------------------------------------------------
+paymentsRouter.post(
+  '/retry',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parse = RetryPaymentSchema.safeParse(req.body);
+    if (!parse.success) {
+      err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid input', 422);
+      return;
+    }
+    try {
+      const order = await retryPaymentOrder(req.user!.id, parse.data.bookingId);
+      ok(res, order, 201);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Retry failed';
+      if (message.includes('Forbidden')) err(res, 'FORBIDDEN', message, 403);
+      else if (message.includes('not found')) err(res, 'NOT_FOUND', message, 404);
+      else if (message.includes('CONFIRMED') || message.includes('already captured')) err(res, 'UNPROCESSABLE', message, 422);
+      else err(res, 'INTERNAL', message, 500);
     }
   },
 );

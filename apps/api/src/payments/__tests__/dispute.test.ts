@@ -20,10 +20,18 @@ const mockDbSelect = vi.fn();
 const mockDbInsert = vi.fn();
 const mockDbUpdate = vi.fn();
 
-// transaction mock — runs callback with a tx object that has update (same mockUpdate)
+// transaction mock — runs callback with a tx object that mirrors the db facade.
+// The dispute service calls tx.execute (FOR UPDATE), tx.select, tx.update, tx.insert.
+// We forward each to the same mock fns the test asserts against, so no behavior changes.
 const mockTxUpdate = vi.fn();
+const mockTxExecute = vi.fn();
 const mockDbTransaction = vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => {
-  const tx = { update: mockTxUpdate };
+  const tx = {
+    select:  mockDbSelect,
+    insert:  mockDbInsert,
+    update:  mockTxUpdate,
+    execute: mockTxExecute,
+  };
   return cb(tx);
 });
 
@@ -37,14 +45,15 @@ vi.mock('../../lib/db.js', () => ({
 }));
 
 vi.mock('@smartshaadi/db', () => ({
-  bookings:       { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId', createdAt: 'bookings.createdAt', updatedAt: 'bookings.updatedAt' },
-  escrowAccounts: { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', status: 'escrowAccounts.status', totalHeld: 'escrowAccounts.totalHeld', released: 'escrowAccounts.released', releasedAt: 'escrowAccounts.releasedAt' },
-  payments:       { id: 'payments.id', bookingId: 'payments.bookingId', status: 'payments.status', razorpayPaymentId: 'payments.razorpayPaymentId' },
-  user:           { id: 'user.id', role: 'user.role', name: 'user.name' },
-  auditLogs:      { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash', createdAt: 'auditLogs.createdAt' },
+  bookings:           { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId', createdAt: 'bookings.createdAt', updatedAt: 'bookings.updatedAt' },
+  escrowAccounts:     { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', status: 'escrowAccounts.status', totalHeld: 'escrowAccounts.totalHeld', released: 'escrowAccounts.released', releasedAt: 'escrowAccounts.releasedAt' },
+  payments:           { id: 'payments.id', bookingId: 'payments.bookingId', status: 'payments.status', razorpayPaymentId: 'payments.razorpayPaymentId' },
+  user:               { id: 'user.id', role: 'user.role', name: 'user.name' },
+  auditLogs:          { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash', createdAt: 'auditLogs.createdAt' },
+  disputeResolutions: { id: 'disputeResolutions.id', bookingId: 'disputeResolutions.bookingId', resolutionId: 'disputeResolutions.resolutionId', outcome: 'disputeResolutions.outcome', amountVendor: 'disputeResolutions.amountVendor', amountCustomer: 'disputeResolutions.amountCustomer', resolvedBy: 'disputeResolutions.resolvedBy', resolvedAt: 'disputeResolutions.resolvedAt' },
   auditEventTypeEnum: { enumValues: [
     'PAYMENT_RECEIVED', 'PAYMENT_FAILED', 'REFUND_ISSUED', 'ESCROW_HELD',
-    'ESCROW_RELEASED', 'ESCROW_DISPUTED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED',
+    'BOOKING_CONFIRMED', 'BOOKING_CANCELLED',
     'CONTRACT_SIGNED', 'VENDOR_APPROVED', 'PROFILE_BLOCKED', 'USER_REGISTERED',
     'USER_VERIFIED', 'USER_SUSPENDED', 'KYC_SUBMITTED', 'KYC_VERIFIED', 'KYC_REJECTED',
     'MATCH_ACCEPTED',
@@ -57,6 +66,10 @@ vi.mock('drizzle-orm', () => ({
   and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
   inArray: vi.fn((_col: unknown, _vals: unknown) => ({ type: 'inArray', _col, _vals })),
   desc:    vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  sql:     Object.assign(
+    (_strings: TemplateStringsArray, ..._args: unknown[]) => ({ type: 'sql', _strings, _args }),
+    { raw: (s: string) => ({ type: 'sql_raw', s }) },
+  ),
 }));
 
 vi.mock('../../lib/env.js', () => ({
@@ -133,10 +146,12 @@ function makeUpdate(returningRows: unknown[] = [{ id: 'mock-id' }]) {
   return vi.fn().mockReturnValue(chain);
 }
 
-function makeInsert() {
-  return vi.fn().mockReturnValue({
-    values: vi.fn().mockResolvedValue([]),
-  });
+function makeInsert(returningRows: unknown[] = [{ id: 'dr-1', bookingId: 'bk-1', resolutionId: 'res-1', outcome: 'RELEASE', amountVendor: '5000', amountCustomer: '0', resolvedBy: 'admin-1', resolvedAt: new Date() }]) {
+  const chain: Record<string, unknown> = {};
+  chain['values']              = vi.fn().mockReturnValue(chain);
+  chain['onConflictDoNothing'] = vi.fn().mockReturnValue(chain);
+  chain['returning']           = vi.fn().mockResolvedValue(returningRows);
+  return vi.fn().mockReturnValue(chain);
 }
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
@@ -149,6 +164,8 @@ beforeEach(() => {
   mockDbUpdate.mockImplementation(makeUpdate([{ id: 'mock-id' }]));
   // Default getJob: no job found (idempotent cancel)
   mockGetJob.mockResolvedValue(null);
+  // Default tx.execute (FOR UPDATE): booking lock returns CONFIRMED row.
+  mockTxExecute.mockResolvedValue({ rows: [{ id: 'bk-1', status: 'CONFIRMED', vendor_id: 'v-1' }] });
 });
 
 // ── raiseDispute tests ────────────────────────────────────────────────────────
@@ -192,7 +209,8 @@ describe('raiseDispute', () => {
       return { remove: async () => { callOrder.push('jobRemove'); } };
     });
 
-    mockDbUpdate.mockImplementation(() => {
+    // Status flip happens inside the transaction via tx.update
+    mockTxUpdate.mockImplementation(() => {
       const chain: Record<string, unknown> = {};
       chain['set']   = vi.fn().mockReturnValue(chain);
       chain['where'] = vi.fn().mockReturnValue(chain);
@@ -419,8 +437,10 @@ describe('raiseDispute — optimistic locking (Fix 2)', () => {
         makeSelect([{ id: 'esc-lock1', bookingId: 'bk-lock1', status: 'HELD', totalHeld: '5000' }]),
       );
 
-    // Atomic update returns [] — concurrent write already happened
-    mockDbUpdate.mockImplementation(makeUpdate([]));
+    // Atomic tx.update returns [] — concurrent write already flipped status to DISPUTED.
+    // The service uses `tx.update(...)` inside the transaction, so mock mockTxUpdate
+    // (not mockDbUpdate, which only catches calls outside the txn).
+    mockTxUpdate.mockImplementation(makeUpdate([]));
 
     await expect(
       raiseDispute('user-abc', 'bk-lock1', { reason: 'Duplicate' }),
@@ -464,7 +484,7 @@ describe('resolveDispute — transactional money movement (Fix 3)', () => {
 
     mockDbTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
       callOrder.push('db_tx_commit');
-      return cb({ update: mockTxUpdate });
+      return cb({ select: mockDbSelect, insert: mockDbInsert, update: mockTxUpdate, execute: mockTxExecute });
     });
 
     mockTransferToVendor.mockImplementation(async () => {

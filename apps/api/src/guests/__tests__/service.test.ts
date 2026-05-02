@@ -29,8 +29,13 @@ vi.mock('@smartshaadi/db', () => ({
   guestLists:  {},
   guests:      {},
   invitations: {},
+  rsvpTokens:  {},
   weddings:    {},
   profiles:    {},
+}));
+
+vi.mock('../../weddings/activity.service.js', () => ({
+  logActivity: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -242,10 +247,12 @@ describe('bulkImportGuests', () => {
 describe('updateRsvp (public token-based endpoint)', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
-  it('updates rsvp status for valid token', async () => {
+  it('updates rsvp status for valid token (legacy invitations path)', async () => {
     const confirmedGuest = { ...guestRow, rsvpStatus: 'YES', mealPreference: 'VEG' };
 
-    mockSelect.mockReturnValueOnce(makeSelectChain([invitationRow]));
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([])) // rsvpTokens lookup → empty (legacy fallback)
+      .mockReturnValueOnce(makeSelectChain([invitationRow]));
     mockUpdate
       .mockReturnValueOnce(makeUpdateChain([]))             // invitations.rsvpAt
       .mockReturnValueOnce(makeUpdateChain([confirmedGuest])); // guests.rsvpStatus
@@ -256,7 +263,9 @@ describe('updateRsvp (public token-based endpoint)', () => {
   });
 
   it('rejects unknown token', async () => {
-    mockSelect.mockReturnValueOnce(makeSelectChain([]));
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([]))  // rsvpTokens
+      .mockReturnValueOnce(makeSelectChain([])); // invitations fallback
 
     await expect(updateRsvp('bad-token-xyz', { rsvpStatus: 'YES' })).rejects.toMatchObject({
       code: 'INVALID_TOKEN',
@@ -264,13 +273,38 @@ describe('updateRsvp (public token-based endpoint)', () => {
   });
 
   it('works without optional mealPref', async () => {
-    mockSelect.mockReturnValueOnce(makeSelectChain([invitationRow]));
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([])) // rsvpTokens empty
+      .mockReturnValueOnce(makeSelectChain([invitationRow]));
     mockUpdate
       .mockReturnValueOnce(makeUpdateChain([]))
       .mockReturnValueOnce(makeUpdateChain([{ ...guestRow, rsvpStatus: 'NO' }]));
 
     const result = await updateRsvp(TOKEN, { rsvpStatus: 'NO' });
     expect(result.rsvpStatus).toBe('NO');
+  });
+
+  it('honours canonical rsvp_tokens path before legacy fallback', async () => {
+    const tokRow = { id: 't1', guestId: guestRow.id, token: TOKEN, expiresAt: new Date(Date.now() + 60_000) };
+    const updatedGuest = { ...guestRow, rsvpStatus: 'YES' };
+
+    mockSelect.mockReturnValueOnce(makeSelectChain([tokRow]));  // rsvp_tokens hit
+    mockUpdate
+      .mockReturnValueOnce(makeUpdateChain([])) // rsvpTokens.usedAt
+      .mockReturnValueOnce(makeUpdateChain([updatedGuest])); // guests.rsvpStatus
+
+    const result = await updateRsvp(TOKEN, { rsvpStatus: 'YES' });
+    expect(result.rsvpStatus).toBe('YES');
+  });
+
+  it('rejects expired rsvp_tokens with 410', async () => {
+    const expired = { id: 't1', guestId: guestRow.id, token: TOKEN, expiresAt: new Date(Date.now() - 60_000) };
+    mockSelect.mockReturnValueOnce(makeSelectChain([expired]));
+
+    await expect(updateRsvp(TOKEN, { rsvpStatus: 'YES' })).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+      status: 410,
+    });
   });
 });
 
@@ -344,6 +378,7 @@ describe('sendInvitations (mock mode)', () => {
     const result = await sendInvitations(WEDDING_ID, {
       guestIds: [GUEST_ID],
       channel:  'EMAIL',
+      type:     'INVITATION',
     });
 
     expect(result.sent).toBe(1);
@@ -363,6 +398,7 @@ describe('sendInvitations (mock mode)', () => {
     const result = await sendInvitations(WEDDING_ID, {
       guestIds: ['nonexistent-id'],
       channel:  'SMS',
+      type:     'INVITATION',
     });
 
     expect(result.sent).toBe(0);
@@ -376,6 +412,7 @@ describe('sendInvitations (mock mode)', () => {
     const result = await sendInvitations(WEDDING_ID, {
       guestIds: [GUEST_ID],
       channel:  'EMAIL',
+      type:     'INVITATION',
     });
 
     expect(result.sent).toBe(0);

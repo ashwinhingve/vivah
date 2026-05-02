@@ -4,8 +4,15 @@
  * Guna score (0–36) is read from Redis; missing key → neutral 18 + flag.
  */
 
-import type { CompatibilityScore, CompatibilityBreakdown } from '@smartshaadi/types';
+import type {
+  CompatibilityScore,
+  CompatibilityBreakdown,
+  PersonalityProfile,
+  MustHaveFlags,
+  PersonalityIdeal,
+} from '@smartshaadi/types';
 import type Redis from 'ioredis';
+import { scorePersonality } from './personality.js';
 
 export interface ProfileData {
   id: string
@@ -22,6 +29,16 @@ export interface ProfileData {
   diet: string          // 'VEG' | 'NON_VEG' | 'JAIN' | 'VEGAN' | 'EGGETARIAN'
   smoke: boolean
   drink: boolean
+  manglik?: 'YES' | 'NO' | 'PARTIAL' | null
+  caste?: string | null
+  gotra?: string | null
+  gotraExclusionEnabled?: boolean
+  community?: string | null
+  lastActiveAt?: string | null
+  premiumTier?: 'FREE' | 'STANDARD' | 'PREMIUM'
+  latitude?: number | null
+  longitude?: number | null
+  personality?: PersonalityProfile | null
   preferences: {
     ageMin: number
     ageMax: number
@@ -32,6 +49,11 @@ export interface ProfileData {
     incomeMax: number
     familyType: string[]
     diet: string[]
+    manglik?: 'ANY' | 'ONLY_MANGLIK' | 'NON_MANGLIK'
+    openToInterCaste?: boolean
+    maxDistanceKm?: number
+    mustHave?: MustHaveFlags
+    personalityIdeal?: PersonalityIdeal
   }
 }
 
@@ -127,7 +149,7 @@ function scoreDemographicAlignment(
   if (userBracket === candBracket)              score += 3;
   else if (Math.abs(userBracket - candBracket) === 1) score += 1;
 
-  return Math.min(score, 25);
+  return Math.min(score, 20);
 }
 
 function scoreLifestyleCompatibility(
@@ -150,7 +172,7 @@ function scoreLifestyleCompatibility(
   // Drinking (max 5)
   if (user.drink === candidate.drink) score += 5;
 
-  return Math.min(score, 20);
+  return Math.min(score, 15);
 }
 
 function scoreCareerEducation(
@@ -200,7 +222,7 @@ function scoreFamilyValues(
     if (uIdx !== -1 && cIdx !== -1 && Math.abs(uIdx - cIdx) === 1) score += 4;
   }
 
-  return Math.min(score, 20);
+  return Math.min(score, 15);
 }
 
 function scorePreferenceOverlap(
@@ -271,6 +293,12 @@ export async function scoreCandidate(
   const careerScore          = scoreCareerEducation(userProfile, candidateProfile);
   const familyScore          = scoreFamilyValues(userProfile, candidateProfile);
   const preferenceScore      = scorePreferenceOverlap(userProfile, candidateProfile);
+  const personalityResult    = scorePersonality(
+    userProfile.personality ?? null,
+    candidateProfile.personality ?? null,
+    userProfile.preferences.personalityIdeal,
+  );
+  if (personalityResult.flag) flags.push(personalityResult.flag);
 
   // Guna score from Redis
   const [idA, idB] = [userProfile.id, candidateProfile.id].sort();
@@ -291,15 +319,17 @@ export async function scoreCandidate(
   const gunaBonus = Math.round((gunaScore / 36) * 5);
 
   const breakdown: CompatibilityBreakdown = {
-    demographicAlignment:   { score: demographicScore,   max: 25 },
-    lifestyleCompatibility: { score: lifestyleScore,     max: 20 },
-    careerEducation:        { score: careerScore,        max: 15 },
-    familyValues:           { score: familyScore,        max: 20 },
-    preferenceOverlap:      { score: preferenceScore,    max: 20 },
+    demographicAlignment:   { score: demographicScore,        max: 20 },
+    lifestyleCompatibility: { score: lifestyleScore,          max: 15 },
+    careerEducation:        { score: careerScore,             max: 15 },
+    familyValues:           { score: familyScore,             max: 15 },
+    preferenceOverlap:      { score: preferenceScore,         max: 20 },
+    personalityFit:         { score: personalityResult.score, max: 15 },
   };
 
   const rawTotal =
-    demographicScore + lifestyleScore + careerScore + familyScore + preferenceScore + gunaBonus;
+    demographicScore + lifestyleScore + careerScore + familyScore +
+    preferenceScore + personalityResult.score + gunaBonus;
   const totalScore = Math.min(100, rawTotal);
 
   let tier: CompatibilityScore['tier'];

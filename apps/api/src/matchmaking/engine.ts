@@ -11,11 +11,23 @@
  * Production callers should pass the `db` singleton from apps/api/src/lib/db.ts.
  */
 
-import type { MatchFeedItem } from '@smartshaadi/types';
+import type {
+  MatchFeedItem,
+  PersonalityProfile,
+  MustHaveFlags,
+  PersonalityIdeal,
+} from '@smartshaadi/types';
 import type Redis from 'ioredis';
 import { eq, and, inArray } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
+import { explainMatch } from './explainer.js';
+import {
+  mmrRerank,
+  buildClusterKeys,
+  type ClusterableItem,
+} from './diversity.js';
+import { haversineKm } from '../lib/geocode.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
 import { env } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
@@ -50,6 +62,11 @@ interface ProfileRow {
   id:           string
   userId:       string
   isActive:     boolean
+  lastActiveAt?: Date | string | null
+  premiumTier?: 'FREE' | 'STANDARD' | 'PREMIUM'
+  latitude?:    number | string | null
+  longitude?:   number | string | null
+  personality?: PersonalityProfile | null
   personal?:    {
     fullName?:  string | null
     dob?:       Date | null
@@ -83,6 +100,22 @@ interface ProfileRow {
     education?:       string[] | null
     diet?:            string[] | null
     familyType?:      string[] | null
+    manglik?:         'ANY' | 'ONLY_MANGLIK' | 'NON_MANGLIK' | null
+    openToInterCaste?: boolean | null
+    maxDistanceKm?:   number | null
+    mustHave?:        MustHaveFlags | null
+    personalityIdeal?: PersonalityIdeal | null
+  } | null
+  horoscope?: {
+    manglik?: 'YES' | 'NO' | 'PARTIAL' | null
+  } | null
+  community?: {
+    community?:    string | null
+    subCommunity?: string | null
+    caste?:        string | null
+    gotra?:        string | null
+    motherTongue?: string | null
+    gotraExclusionEnabled?: boolean | null
   } | null
 }
 
@@ -127,10 +160,17 @@ type ContentDoc = {
   lifestyle?:          ProfileRow['lifestyle']
   family?:             ProfileRow['family']
   partnerPreferences?: ProfileRow['partnerPreferences']
+  horoscope?:          ProfileRow['horoscope']
+  personality?:        PersonalityProfile | null
   safetyMode?: {
-    photoHidden?:   boolean
-    contactHidden?: boolean
-    incognito?:     boolean
+    photoHidden?:        boolean
+    contactHidden?:      boolean
+    incognito?:          boolean
+    showLastActive?:     boolean
+    showReadReceipts?:   boolean
+    photoBlurUntilUnlock?: boolean
+    hideFromSearch?:     boolean
+    allowMessageFrom?:   'EVERYONE' | 'VERIFIED_ONLY' | 'SAME_COMMUNITY' | 'ACCEPTED_ONLY'
   } | null
 };
 
@@ -163,6 +203,13 @@ export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
   if (lifestyle          !== undefined) enriched.lifestyle          = lifestyle;
   if (family             !== undefined) enriched.family             = family;
   if (partnerPreferences !== undefined) enriched.partnerPreferences = partnerPreferences;
+  const horoscope = doc.horoscope ?? row.horoscope;
+  if (horoscope !== undefined) enriched.horoscope = horoscope;
+  if (row.community !== undefined) enriched.community = row.community;
+  const personality = doc.personality ?? row.personality;
+  if (personality !== undefined && personality !== null) enriched.personality = personality;
+  if (row.latitude  !== undefined) enriched.latitude  = row.latitude;
+  if (row.longitude !== undefined) enriched.longitude = row.longitude;
   return enriched;
 }
 
@@ -178,6 +225,8 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
   const prefIncome = parseIncomeRange(row.partnerPreferences?.incomeRange);
   const prefAgeMin = row.partnerPreferences?.ageRange?.min ?? 18;
   const prefAgeMax = row.partnerPreferences?.ageRange?.max ?? 50;
+  const lat = row.latitude  != null ? Number(row.latitude)  : null;
+  const lng = row.longitude != null ? Number(row.longitude) : null;
 
   return {
     id:           row.id,
@@ -194,6 +243,16 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
     diet:         row.lifestyle?.diet ?? 'VEG',
     smoke:        row.lifestyle?.smoking !== 'NEVER',
     drink:        row.lifestyle?.drinking !== 'NEVER',
+    manglik:      row.horoscope?.manglik ?? null,
+    caste:        row.community?.caste ?? null,
+    gotra:        row.community?.gotra ?? null,
+    gotraExclusionEnabled: row.community?.gotraExclusionEnabled ?? true,
+    community:    row.community?.community ?? null,
+    lastActiveAt: row.lastActiveAt instanceof Date ? row.lastActiveAt.toISOString() : (row.lastActiveAt ?? null),
+    premiumTier:  row.premiumTier ?? 'FREE',
+    latitude:     Number.isFinite(lat as number) ? lat : null,
+    longitude:    Number.isFinite(lng as number) ? lng : null,
+    personality:  row.personality ?? null,
     preferences: {
       ageMin:          prefAgeMin,
       ageMax:          prefAgeMax,
@@ -204,6 +263,11 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
       incomeMax:       prefIncome.max,
       familyType:      (row.partnerPreferences?.familyType as string[]) ?? [],
       diet:            (row.partnerPreferences?.diet as string[]) ?? [],
+      manglik:         row.partnerPreferences?.manglik ?? 'ANY',
+      openToInterCaste: row.partnerPreferences?.openToInterCaste ?? false,
+      maxDistanceKm:   row.partnerPreferences?.maxDistanceKm ?? 100,
+      mustHave:        row.partnerPreferences?.mustHave ?? {},
+      personalityIdeal: row.partnerPreferences?.personalityIdeal ?? {},
     },
   };
 }
@@ -219,6 +283,14 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
     state:      p.state,
     incomeMin:  p.incomeMin,
     incomeMax:  p.incomeMax,
+    manglik:    p.manglik ?? null,
+    caste:      p.caste ?? null,
+    gotra:      p.gotra ?? null,
+    gotraExclusionEnabled: p.gotraExclusionEnabled ?? true,
+    latitude:   p.latitude  ?? null,
+    longitude:  p.longitude ?? null,
+    education:  p.education,
+    diet:       p.diet,
     preferences: {
       ageMin:          p.preferences.ageMin,
       ageMax:          p.preferences.ageMax,
@@ -228,6 +300,12 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
       state:           p.state,
       incomeMin:       p.preferences.incomeMin,
       incomeMax:       p.preferences.incomeMax,
+      education:       p.preferences.education ?? [],
+      diet:            p.preferences.diet ?? [],
+      ...(p.preferences.maxDistanceKm !== undefined ? { maxDistanceKm: p.preferences.maxDistanceKm } : {}),
+      ...(p.preferences.mustHave      !== undefined ? { mustHave:      p.preferences.mustHave      } : {}),
+      ...(p.preferences.manglik          ? { manglik: p.preferences.manglik } : {}),
+      ...(p.preferences.openToInterCaste !== undefined ? { openToInterCaste: p.preferences.openToInterCaste } : {}),
     },
   };
 }
@@ -276,6 +354,17 @@ export async function scoreAndRank(
       const createdAt = createdAtMap?.get(candidate.id) ?? null;
       const isNew = createdAt ? now - createdAt.getTime() < SEVENTY_TWO_HOURS_MS : false;
 
+      const distanceKm: number | null =
+        typeof userProfile.latitude === 'number' && typeof userProfile.longitude === 'number' &&
+        typeof candidate.latitude  === 'number' && typeof candidate.longitude  === 'number'
+          ? haversineKm(
+              { lat: userProfile.latitude, lng: userProfile.longitude },
+              { lat: candidate.latitude,  lng: candidate.longitude },
+            )
+          : null;
+
+      const explainer = explainMatch(userProfile, candidate, compatibility, distanceKm);
+
       const feedItem: MatchFeedItem = {
         profileId:     candidate.id,
         name:          '',
@@ -288,6 +377,11 @@ export async function scoreAndRank(
         isVerified:    true,
         photoHidden:   photoMap.get(candidate.id) === null,
         shortlisted:   false,
+        manglik:       candidate.manglik ?? null,
+        lastActiveAt:  candidate.lastActiveAt ?? null,
+        premiumTier:   candidate.premiumTier ?? 'FREE',
+        distanceKm,
+        explainer,
       };
 
       return feedItem;
@@ -363,6 +457,42 @@ export async function computeAndCacheFeed(
     return [];
   }
 
+  // 3a. Bulk-load community_zones for everyone in one query — caste/gotra/
+  // manglik filters need it. Done as a side-load (not a JOIN) to keep
+  // candidate query untouched and avoid Drizzle nested-row reshape.
+  const { communityZones } = await import('@smartshaadi/db');
+  const allProfileIds: string[] = [userProfileId, ...eligibleRowsRaw.map((r) => r.id)];
+  const czRows = await db
+    .select()
+    .from(communityZones)
+    .where(inArray(communityZones.profileId, allProfileIds))
+    .limit(1000) as unknown[];
+  const czMap = new Map<string, ProfileRow['community']>();
+  for (const raw of czRows as Array<{
+    profileId: string;
+    community: string | null;
+    subCommunity: string | null;
+    caste: string | null;
+    gotra: string | null;
+    motherTongue: string | null;
+    gotraExclusionEnabled: boolean | null;
+  }>) {
+    czMap.set(raw.profileId, {
+      community:    raw.community,
+      subCommunity: raw.subCommunity,
+      caste:        raw.caste,
+      gotra:        raw.gotra,
+      motherTongue: raw.motherTongue,
+      gotraExclusionEnabled: raw.gotraExclusionEnabled,
+    });
+  }
+  const userCz = czMap.get(userProfileId);
+  if (userCz) userRow.community = userCz;
+  for (const r of eligibleRowsRaw) {
+    const cz = czMap.get(r.id);
+    if (cz) r.community = cz;
+  }
+
   // Enrich candidates from MongoDB (or mockStore) so downstream filters see
   // real age / religion / location / preferences, not schema defaults.
   const eligibleRowsEnriched = await Promise.all(eligibleRowsRaw.map(enrichRow));
@@ -377,9 +507,10 @@ export async function computeAndCacheFeed(
       if (doc?.safetyMode) safetyByProfileId.set(r.id, doc.safetyMode);
     }),
   );
-  const eligibleRows = eligibleRowsEnriched.filter(
-    (r) => !safetyByProfileId.get(r.id)?.incognito,
-  );
+  const eligibleRows = eligibleRowsEnriched.filter((r) => {
+    const sm = safetyByProfileId.get(r.id);
+    return !(sm?.incognito || sm?.hideFromSearch);
+  });
 
   if (eligibleRows.length === 0) {
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
@@ -527,8 +658,22 @@ export async function computeAndCacheFeed(
       });
   }
 
-  // 9. Cache result
-  await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify(feed));
+  // 9. MMR diversity rerank (λ=0.7) over caste/occupation/city/age cluster keys
+  const enrichedForMmr: Array<MatchFeedItem & ClusterableItem> = feed.map((item) => {
+    const candProfile = candidateProfiles.find((p) => p.id === item.profileId);
+    const cluster = buildClusterKeys({
+      caste:              candProfile?.caste ?? null,
+      occupationCategory: candProfile?.occupation ?? null,
+      city:               candProfile?.city ?? null,
+      age:                candProfile?.age ?? null,
+    });
+    return Object.assign(item, { _clusterKeys: cluster });
+  });
+  const reranked = mmrRerank(enrichedForMmr, 0.7, 50)
+    .map(({ _clusterKeys: _ck, ...rest }) => rest as MatchFeedItem);
 
-  return feed;
+  // 10. Cache result
+  await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify(reranked));
+
+  return reranked;
 }

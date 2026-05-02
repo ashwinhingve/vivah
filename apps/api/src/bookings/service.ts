@@ -3,15 +3,18 @@
  * Handles create / confirm / cancel / complete lifecycle + escrow scheduling.
  */
 
-import { eq, and, inArray, sql } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql, type SQL } from 'drizzle-orm';
 import {
   bookings,
   escrowAccounts,
   payments,
   vendors,
+  bookingAddons,
+  vendorReviews,
+  vendorBlockedDates,
 } from '@smartshaadi/db';
-import type { BookingSummary } from '@smartshaadi/types';
-import type { CreateBookingInput } from '@smartshaadi/schemas';
+import type { BookingSummary, BookingAddon, BookingStatus } from '@smartshaadi/types';
+import type { CreateBookingInput, RescheduleBookingInput } from '@smartshaadi/schemas';
 import { db } from '../lib/db.js';
 import { createRefund } from '../lib/razorpay.js';
 import {
@@ -51,18 +54,35 @@ function parseAmount(raw: string | null): number {
 async function toBookingSummary(
   row: typeof bookings.$inferSelect,
 ): Promise<BookingSummary> {
-  // Fetch vendor name
   const [vendor] = await db
     .select({ businessName: vendors.businessName })
     .from(vendors)
     .where(eq(vendors.id, row.vendorId))
     .limit(1);
 
-  // Fetch escrow if any
   const [escrow] = await db
     .select({ totalHeld: escrowAccounts.totalHeld })
     .from(escrowAccounts)
     .where(eq(escrowAccounts.bookingId, row.id))
+    .limit(1);
+
+  const addonRows = await db
+    .select()
+    .from(bookingAddons)
+    .where(eq(bookingAddons.bookingId, row.id));
+
+  const addons: BookingAddon[] = addonRows.map((a) => ({
+    id:        a.id,
+    name:      a.name,
+    quantity:  a.quantity,
+    unitPrice: parseAmount(a.unitPrice),
+    notes:     a.notes,
+  }));
+
+  const [reviewRow] = await db
+    .select({ id: vendorReviews.id })
+    .from(vendorReviews)
+    .where(eq(vendorReviews.bookingId, row.id))
     .limit(1);
 
   return {
@@ -71,10 +91,20 @@ async function toBookingSummary(
     vendorName:   vendor?.businessName ?? 'Unknown Vendor',
     serviceId:    row.serviceId ?? null,
     eventDate:    row.eventDate,
+    ceremonyType: row.ceremonyType,
     status:       row.status as BookingSummary['status'],
     totalAmount:  parseAmount(row.totalAmount),
     escrowAmount: escrow ? parseAmount(escrow.totalHeld) : null,
     createdAt:    row.createdAt.toISOString(),
+    packageName:  row.packageName,
+    packagePrice: row.packagePrice != null ? parseAmount(row.packagePrice) : null,
+    guestCount:   row.guestCount,
+    eventLocation: row.eventLocation,
+    proposedDate: row.proposedDate ?? null,
+    proposedBy:   row.proposedBy ?? null,
+    proposedReason: row.proposedReason ?? null,
+    addons,
+    hasReview:    reviewRow != null,
   };
 }
 
@@ -88,9 +118,8 @@ export async function createBooking(
   customerId: string,
   input: CreateBookingInput,
 ): Promise<BookingSummary> {
-  // 1. Conflict check — same vendor + same eventDate already held (PENDING or
-  // CONFIRMED). A vendor cannot be double-booked even if the first request
-  // hasn't been confirmed yet.
+  // Conflict check — same vendor + same eventDate already held (PENDING or
+  // CONFIRMED). A vendor cannot be double-booked.
   const conflicts = await db
     .select({ id: bookings.id })
     .from(bookings)
@@ -110,26 +139,60 @@ export async function createBooking(
     );
   }
 
-  // 2. Insert booking
-  const [inserted] = await db
-    .insert(bookings)
-    .values({
-      customerId,
-      vendorId:     input.vendorId,
-      serviceId:    input.serviceId ?? null,
-      eventDate:    input.eventDate,
-      ceremonyType: (input.ceremonyType as typeof bookings.$inferInsert['ceremonyType']) ?? 'WEDDING',
-      status:       'PENDING',
-      totalAmount:  String(input.totalAmount),
-      notes:        input.notes ?? null,
-    })
-    .returning();
+  // Blocked-date check — vendor explicitly blocked this date
+  const blocked = await db
+    .select({ id: vendorBlockedDates.id, reason: vendorBlockedDates.reason })
+    .from(vendorBlockedDates)
+    .where(and(
+      eq(vendorBlockedDates.vendorId, input.vendorId),
+      eq(vendorBlockedDates.date, input.eventDate),
+    ))
+    .limit(1);
 
-  if (!inserted) {
-    throw new BookingError('INSERT_FAILED', 'Failed to create booking.');
+  if (blocked.length > 0) {
+    throw new BookingError(
+      'BOOKING_CONFLICT',
+      blocked[0]?.reason ? `Vendor unavailable: ${blocked[0]?.reason}` : 'Vendor is unavailable on this date.',
+    );
   }
 
-  // 3. Notify vendor of new booking request
+  // Insert booking + addons in a single transaction
+  const inserted = await db.transaction(async (tx) => {
+    const [b] = await tx
+      .insert(bookings)
+      .values({
+        customerId,
+        vendorId:      input.vendorId,
+        serviceId:     input.serviceId ?? null,
+        eventDate:     input.eventDate,
+        ceremonyType:  (input.ceremonyType as typeof bookings.$inferInsert['ceremonyType']) ?? 'WEDDING',
+        status:        'PENDING',
+        totalAmount:   String(input.totalAmount),
+        notes:         input.notes ?? null,
+        packageName:   input.packageName ?? null,
+        packagePrice:  input.packagePrice != null ? String(input.packagePrice) : null,
+        guestCount:    input.guestCount ?? null,
+        eventLocation: input.eventLocation ?? null,
+      })
+      .returning();
+    if (!b) throw new BookingError('INSERT_FAILED', 'Failed to create booking.');
+
+    if (input.addons && input.addons.length > 0) {
+      await tx.insert(bookingAddons).values(
+        input.addons.map((a) => ({
+          bookingId: b.id,
+          name:      a.name,
+          quantity:  a.quantity,
+          unitPrice: String(a.unitPrice),
+          notes:     a.notes ?? null,
+        })),
+      );
+    }
+
+    return b;
+  });
+
+  // Notify vendor
   const [vendor] = await db
     .select({ userId: vendors.userId })
     .from(vendors)
@@ -145,6 +208,164 @@ export async function createBooking(
   }
 
   return toBookingSummary(inserted);
+}
+
+/**
+ * Either the customer or vendor proposes a new event date. The booking stays
+ * in its current status (PENDING/CONFIRMED) until the counterparty accepts
+ * via {@link acceptReschedule} or rejects via {@link rejectReschedule}.
+ */
+export async function proposeReschedule(
+  userId:    string,
+  bookingId: string,
+  input:     RescheduleBookingInput,
+): Promise<BookingSummary> {
+  const [booking] = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, bookingId))
+    .limit(1);
+
+  if (!booking) throw new BookingError('NOT_FOUND', 'Booking not found.');
+
+  const [vendor] = await db
+    .select({ userId: vendors.userId })
+    .from(vendors)
+    .where(eq(vendors.id, booking.vendorId))
+    .limit(1);
+
+  const isCustomer = booking.customerId === userId;
+  const isVendor   = vendor?.userId === userId;
+  if (!isCustomer && !isVendor) {
+    throw new BookingError('FORBIDDEN', 'You are not authorised to reschedule this booking.');
+  }
+
+  if (booking.status !== 'PENDING' && booking.status !== 'CONFIRMED') {
+    throw new BookingError('INVALID_STATE', `Cannot reschedule a ${booking.status} booking.`);
+  }
+
+  // Conflict check on the proposed date
+  const conflicts = await db
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(and(
+      eq(bookings.vendorId, booking.vendorId),
+      eq(bookings.eventDate, input.proposedDate),
+      inArray(bookings.status, ['PENDING', 'CONFIRMED']),
+    ))
+    .limit(1);
+  if (conflicts.length > 0 && conflicts[0]?.id !== bookingId) {
+    throw new BookingError('BOOKING_CONFLICT', 'Vendor already booked on the proposed date.');
+  }
+
+  const [updated] = await db
+    .update(bookings)
+    .set({
+      proposedDate:   input.proposedDate,
+      proposedBy:     userId,
+      proposedReason: input.reason,
+      proposedAt:     new Date(),
+      updatedAt:      new Date(),
+    })
+    .where(eq(bookings.id, bookingId))
+    .returning();
+  if (!updated) throw new BookingError('UPDATE_FAILED', 'Failed to propose reschedule.');
+
+  const targetUserId = isCustomer ? vendor?.userId : booking.customerId;
+  if (targetUserId) {
+    await notificationsQueue.add('SYSTEM', {
+      userId:  targetUserId,
+      type:    'SYSTEM',
+      payload: { kind: 'reschedule-proposed', bookingId, proposedDate: input.proposedDate },
+    });
+  }
+
+  return toBookingSummary(updated);
+}
+
+export async function acceptReschedule(
+  userId:    string,
+  bookingId: string,
+): Promise<BookingSummary> {
+  const [booking] = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, bookingId))
+    .limit(1);
+  if (!booking) throw new BookingError('NOT_FOUND', 'Booking not found.');
+  if (!booking.proposedDate || !booking.proposedBy) {
+    throw new BookingError('INVALID_STATE', 'No active reschedule proposal.');
+  }
+
+  const [vendor] = await db
+    .select({ userId: vendors.userId })
+    .from(vendors)
+    .where(eq(vendors.id, booking.vendorId))
+    .limit(1);
+  const isCustomer = booking.customerId === userId;
+  const isVendor   = vendor?.userId === userId;
+  if (!isCustomer && !isVendor) {
+    throw new BookingError('FORBIDDEN', 'Not authorised.');
+  }
+  // The party that did NOT propose must accept
+  if (booking.proposedBy === userId) {
+    throw new BookingError('FORBIDDEN', 'Counterparty must accept the reschedule.');
+  }
+
+  const [updated] = await db
+    .update(bookings)
+    .set({
+      eventDate:      booking.proposedDate,
+      proposedDate:   null,
+      proposedBy:     null,
+      proposedReason: null,
+      proposedAt:     null,
+      updatedAt:      new Date(),
+    })
+    .where(eq(bookings.id, bookingId))
+    .returning();
+  if (!updated) throw new BookingError('UPDATE_FAILED', 'Failed to accept reschedule.');
+
+  return toBookingSummary(updated);
+}
+
+export async function rejectReschedule(
+  userId:    string,
+  bookingId: string,
+): Promise<BookingSummary> {
+  const [booking] = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, bookingId))
+    .limit(1);
+  if (!booking) throw new BookingError('NOT_FOUND', 'Booking not found.');
+  if (!booking.proposedDate) throw new BookingError('INVALID_STATE', 'No active reschedule proposal.');
+
+  const [vendor] = await db
+    .select({ userId: vendors.userId })
+    .from(vendors)
+    .where(eq(vendors.id, booking.vendorId))
+    .limit(1);
+  const isCustomer = booking.customerId === userId;
+  const isVendor   = vendor?.userId === userId;
+  if (!isCustomer && !isVendor) {
+    throw new BookingError('FORBIDDEN', 'Not authorised.');
+  }
+
+  const [updated] = await db
+    .update(bookings)
+    .set({
+      proposedDate:   null,
+      proposedBy:     null,
+      proposedReason: null,
+      proposedAt:     null,
+      updatedAt:      new Date(),
+    })
+    .where(eq(bookings.id, bookingId))
+    .returning();
+  if (!updated) throw new BookingError('UPDATE_FAILED', 'Failed to reject reschedule.');
+
+  return toBookingSummary(updated);
 }
 
 /**
@@ -402,6 +623,11 @@ export interface BookingListResult {
   limit:    number;
 }
 
+export interface BookingListOptions {
+  status?:   BookingStatus | 'ALL';
+  timeline?: 'upcoming' | 'past' | 'all';
+}
+
 /**
  * Get paginated list of bookings for a user.
  * Role 'customer' → filter by customerId.
@@ -412,49 +638,47 @@ export async function getBookings(
   role:   'customer' | 'vendor',
   page  = 1,
   limit = 10,
+  options: BookingListOptions = {},
 ): Promise<BookingListResult> {
   const offset = (page - 1) * limit;
 
-  let rows: (typeof bookings.$inferSelect)[];
-  let total = 0;
-
+  const conds: SQL[] = [];
   if (role === 'customer') {
-    const [countRow] = await db
-      .select({ count: sql<string>`count(*)` })
-      .from(bookings)
-      .where(eq(bookings.customerId, userId));
-    total = Number(countRow?.count ?? 0);
-
-    rows = await db
-      .select()
-      .from(bookings)
-      .where(eq(bookings.customerId, userId))
-      .limit(limit)
-      .offset(offset);
+    conds.push(eq(bookings.customerId, userId));
   } else {
     const [vendor] = await db
       .select({ id: vendors.id })
       .from(vendors)
       .where(eq(vendors.userId, userId))
       .limit(1);
-
-    if (!vendor) {
-      return { bookings: [], total: 0, page, limit };
-    }
-
-    const [countRow] = await db
-      .select({ count: sql<string>`count(*)` })
-      .from(bookings)
-      .where(eq(bookings.vendorId, vendor.id));
-    total = Number(countRow?.count ?? 0);
-
-    rows = await db
-      .select()
-      .from(bookings)
-      .where(eq(bookings.vendorId, vendor.id))
-      .limit(limit)
-      .offset(offset);
+    if (!vendor) return { bookings: [], total: 0, page, limit };
+    conds.push(eq(bookings.vendorId, vendor.id));
   }
+
+  if (options.status && options.status !== 'ALL') {
+    conds.push(eq(bookings.status, options.status));
+  }
+  if (options.timeline === 'upcoming') {
+    conds.push(sql`${bookings.eventDate} >= CURRENT_DATE`);
+  } else if (options.timeline === 'past') {
+    conds.push(sql`${bookings.eventDate} < CURRENT_DATE`);
+  }
+
+  const where = conds.length > 1 ? and(...conds) : conds[0]!;
+
+  const [countRow] = await db
+    .select({ count: sql<string>`count(*)` })
+    .from(bookings)
+    .where(where);
+  const total = Number(countRow?.count ?? 0);
+
+  const rows = await db
+    .select()
+    .from(bookings)
+    .where(where)
+    .orderBy(desc(bookings.eventDate))
+    .limit(limit)
+    .offset(offset);
 
   const summaries = await Promise.all(rows.map(toBookingSummary));
 

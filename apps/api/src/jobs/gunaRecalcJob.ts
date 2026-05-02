@@ -35,7 +35,8 @@ const NAKSHATRA_MAP: Record<string, string> = {
   REVATI: 'Revati',
 };
 
-interface Horoscope { rashi: string; nakshatra: string; manglik: boolean }
+type ManglikStatus = 'YES' | 'NO' | 'PARTIAL';
+interface Horoscope { rashi: string; nakshatra: string; manglik: ManglikStatus }
 
 async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
   const [row] = await db
@@ -52,7 +53,9 @@ async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
   const rashi     = RASHI_MAP[h.rashi];
   const nakshatra = NAKSHATRA_MAP[h.nakshatra];
   if (!rashi || !nakshatra) return null;
-  return { rashi, nakshatra, manglik: h.manglik === 'YES' };
+  const manglik: ManglikStatus =
+    h.manglik === 'YES' || h.manglik === 'PARTIAL' ? h.manglik : 'NO';
+  return { rashi, nakshatra, manglik };
 }
 
 export function startGunaRecalcWorker(): Worker<MatchComputeJob> {

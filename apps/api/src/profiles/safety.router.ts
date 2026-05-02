@@ -2,15 +2,43 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
-import { requestContactUnlock, getContactIfVisible, updateSafetyMode } from './safety.service.js';
+import {
+  requestContactUnlock,
+  getContactIfVisible,
+  updateSafetyMode,
+  getSafetyMode,
+  applyPrivacyPreset,
+} from './safety.service.js';
 
 export const safetyRouter = Router();
 
 const SafetyModeSchema = z.object({
-  contactHidden: z.boolean().optional(),
-  photoHidden:   z.boolean().optional(),
-  incognito:     z.boolean().optional(),
+  contactHidden:        z.boolean().optional(),
+  photoHidden:          z.boolean().optional(),
+  incognito:            z.boolean().optional(),
+  showLastActive:       z.boolean().optional(),
+  showReadReceipts:     z.boolean().optional(),
+  photoBlurUntilUnlock: z.boolean().optional(),
+  hideFromSearch:       z.boolean().optional(),
+  allowMessageFrom:     z.enum(['EVERYONE', 'VERIFIED_ONLY', 'SAME_COMMUNITY', 'ACCEPTED_ONLY']).optional(),
 });
+
+const PresetSchema = z.object({
+  preset: z.enum(['CONSERVATIVE', 'BALANCED', 'OPEN']),
+});
+
+/**
+ * GET /api/v1/profiles/me/safety-mode
+ * Returns the authenticated user's current safety-mode settings.
+ */
+safetyRouter.get(
+  '/me/safety-mode',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const mode = await getSafetyMode(req.user!.id);
+    ok(res, { safetyMode: mode });
+  },
+);
 
 /**
  * PUT /api/v1/profiles/me/safety-mode
@@ -26,6 +54,24 @@ safetyRouter.put(
       return;
     }
     const updated = await updateSafetyMode(req.user!.id, parsed.data);
+    ok(res, updated);
+  },
+);
+
+/**
+ * POST /api/v1/profiles/me/safety-mode/preset
+ * Applies a named privacy preset to the user's safety-mode settings.
+ */
+safetyRouter.post(
+  '/me/safety-mode/preset',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = PresetSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid preset', 400);
+      return;
+    }
+    const updated = await applyPrivacyPreset(req.user!.id, parsed.data.preset);
     ok(res, updated);
   },
 );

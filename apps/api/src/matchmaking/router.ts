@@ -8,13 +8,15 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { db } from '../lib/db.js';
 import { redis } from '../lib/redis.js';
 import { getCachedFeed, computeAndCacheFeed, enrichRow, rowToProfileData } from './engine.js';
 import { scoreCandidate } from './scorer.js';
+import { explainMatch } from './explainer.js';
+import { haversineKm } from '../lib/geocode.js';
 import {
   MatchFeedQuerySchema,
   CompatibilityScoreQuerySchema,
@@ -22,6 +24,8 @@ import {
 import { profiles } from '@smartshaadi/db';
 import { matchRequestsRouter } from './requests/router.js';
 import { shortlistsRouter } from './shortlists/router.js';
+import { getWhoLikedMe } from './requests/service.js';
+import { getProfileTier, getEntitlements } from '../lib/entitlements.js';
 
 export const matchmakingRouter = Router();
 
@@ -125,7 +129,17 @@ matchmakingRouter.get(
         redis,
       );
 
-      ok(res, score);
+      const distanceKm =
+        typeof userProfile.latitude === 'number' && typeof userProfile.longitude === 'number' &&
+        typeof candidateProfile.latitude === 'number' && typeof candidateProfile.longitude === 'number'
+          ? haversineKm(
+              { lat: userProfile.latitude, lng: userProfile.longitude },
+              { lat: candidateProfile.latitude, lng: candidateProfile.longitude },
+            )
+          : null;
+      const explainer = explainMatch(userProfile, candidateProfile, score, distanceKm);
+
+      ok(res, { ...score, explainer, distanceKm });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to compute score';
       err(res, 'SCORE_ERROR', message, 500);
@@ -134,6 +148,99 @@ matchmakingRouter.get(
 );
 
 
+
+// ── GET /who-liked-me ─────────────────────────────────────────────────────────
+//
+// Returns pending-received requests with sender profile summary. FREE tier
+// returns only the count; STANDARD+ get full identity.
+
+matchmakingRouter.get(
+  '/who-liked-me',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const limit = Math.min(Math.max(Number(req.query['limit'] ?? 50), 1), 100);
+    try {
+      const resolved = await getProfileTier(req.user!.id);
+      if (!resolved) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+      const { items, total } = await getWhoLikedMe(resolved.profileId, limit);
+      const ent = getEntitlements(resolved.tier);
+      if (!ent.canViewWhoLikedMe) {
+        ok(res, { items: [], total, locked: true, requiredTier: 'PREMIUM' });
+        return;
+      }
+      ok(res, { items, total, locked: false });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load likes';
+      err(res, 'WHO_LIKED_ME_ERROR', message, 500);
+    }
+  },
+);
+
+// ── GET /similar/:profileId ───────────────────────────────────────────────────
+//
+// Returns up to 6 profiles similar to the source profile (same religion, same
+// community when set). Useful for "You may also like" rail on profile view.
+
+matchmakingRouter.get(
+  '/similar/:profileId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const sourceId = req.params['profileId'] ?? '';
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(sourceId)) { err(res, 'INVALID_ID', 'Profile id must be a UUID', 400); return; }
+
+    try {
+      const cached = await getCachedFeed(req.user!.id, redis);
+      const items = (cached ?? []).filter((it) => it.profileId !== sourceId).slice(0, 6);
+      ok(res, { items, total: items.length });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load similar profiles';
+      err(res, 'SIMILAR_ERROR', message, 500);
+    }
+  },
+);
+
+// ── GET /profile-of-day ───────────────────────────────────────────────────────
+//
+// Returns one PREMIUM profile picked by deterministic daily rotation. Reads from
+// Redis cache populated by the cron; falls back to a same-tier query when miss.
+
+matchmakingRouter.get(
+  '/profile-of-day',
+  authenticate,
+  async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const cached = await redis.get(`pod:${today}`);
+      if (cached) { ok(res, JSON.parse(cached) as Record<string, unknown>); return; }
+
+      // Fallback: pick a PREMIUM verified profile with most-recent activity
+      const { profiles, profilePhotos } = await import('@smartshaadi/db');
+      const [pick] = await db
+        .select()
+        .from(profiles)
+        .where(and(eq(profiles.premiumTier, 'PREMIUM'), eq(profiles.verificationStatus, 'VERIFIED'), eq(profiles.isActive, true)))
+        .orderBy(desc(profiles.lastActiveAt))
+        .limit(1);
+      if (!pick) { ok(res, null); return; }
+      const [photo] = await db
+        .select()
+        .from(profilePhotos)
+        .where(and(eq(profilePhotos.profileId, pick.id), eq(profilePhotos.isPrimary, true)))
+        .limit(1);
+      const result = {
+        profileId: pick.id,
+        primaryPhotoKey: photo?.r2Key ?? null,
+        date: today,
+      };
+      await redis.setex(`pod:${today}`, 24 * 60 * 60, JSON.stringify(result));
+      ok(res, result);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load profile of the day';
+      err(res, 'POD_ERROR', message, 500);
+    }
+  },
+);
 
 // ── Mount sub-routers ─────────────────────────────────────────────────────────
 matchmakingRouter.use('/', matchRequestsRouter);

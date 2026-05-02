@@ -19,10 +19,15 @@ import { mockR2Router } from './storage/mockR2.router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
 import { chatRouter } from './chat/router.js';
 import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
+import { startNotificationsWorker } from './jobs/notificationsWorker.js';
 import { vendorsRouter } from './vendors/router.js';
 import { bookingsRouter } from './bookings/router.js';
 import { paymentsRouter } from './payments/router.js';
 import { weddingRouter } from './weddings/router.js';
+import { weddingExtrasRouter, publicRsvpRouter } from './weddings/extras.router.js';
+import { coordinatorRouter, weddingCoordinatorRouter } from './weddings/coordinator.router.js';
+import { weddingIncidentsRouter } from './weddings/incidents.router.js';
+import { weddingDayOfRouter } from './weddings/dayOf.router.js';
 import { guestRouter } from './guests/router.js';
 import { videoRouter } from './video/router.js';
 import { disputeRouter } from './payments/disputeRouter.js';
@@ -34,6 +39,11 @@ import { payoutsRouter } from './payments/payoutsRouter.js';
 import { analyticsRouter } from './payments/analyticsRouter.js';
 import { statementRouter } from './payments/statementRouter.js';
 import { invoiceRouter } from './payments/invoiceRouter.js';
+import { subscriptionsRouter } from './payments/subscriptionsRouter.js';
+import { paymentSplitsRouter } from './payments/paymentSplitsRouter.js';
+import { csvExportRouter } from './payments/csvExportRouter.js';
+import { adminVendorsRouter } from './admin/vendors.router.js';
+import { reconciliationRouter } from './payments/reconciliationRouter.js';
 import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
@@ -42,13 +52,36 @@ import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { registerOrderExpiryWorker } from './jobs/orderExpiryJob.js';
 import { startAccountPurgeWorker } from './jobs/accountPurgeJob.js';
+import {
+  registerMatchRequestExpiryWorker,
+  scheduleMatchRequestExpiryJob,
+} from './jobs/matchRequestExpiryJob.js';
+import {
+  registerWeddingReminderWorker,
+  scheduleWeddingReminderJob,
+} from './jobs/weddingReminderJob.js';
+import { registerRsvpReminderWorker } from './jobs/rsvpReminderJob.js';
+import { registerSaveTheDateWorker } from './jobs/saveTheDateJob.js';
+import { registerThankYouWorker } from './jobs/thankYouJob.js';
+import {
+  registerTokenCleanupWorker,
+  scheduleTokenCleanupJob,
+} from './jobs/tokenCleanupJob.js';
 import { devRouter } from './dev/router.js';
 import { env } from './lib/env.js';
 import { err as errResponse } from './lib/response.js';
+import { logger } from './lib/logger.js';
+import { requestIdMiddleware } from './lib/requestId.js';
+import { initSentry, captureException } from './lib/sentry.js';
+import { applyGlobalRateLimit } from './lib/rateLimit.js';
+
+initSentry();
 
 const app = express();
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
+
+app.use(requestIdMiddleware);
 
 // Security headers — disable CSP (handled by Next.js) and COEP (not needed for REST API)
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
@@ -75,6 +108,8 @@ app.use(
 );
 
 app.use(cookieParser());
+
+applyGlobalRateLimit(app);
 
 // Better Auth MUST be mounted before express.json() — it reads the raw body itself.
 // authRouter registers GET /me first, then ALL /* for Better Auth's handler.
@@ -124,6 +159,12 @@ app.use('/api/v1/vendors', vendorsRouter);
 app.use('/api/v1/bookings', bookingsRouter);
 app.use('/api/v1/payments', paymentsRouter);
 app.use('/api/v1/weddings', weddingRouter);
+app.use('/api/v1/weddings', weddingExtrasRouter);
+app.use('/api/v1/weddings', weddingCoordinatorRouter);
+app.use('/api/v1/weddings', weddingIncidentsRouter);
+app.use('/api/v1/weddings', weddingDayOfRouter);
+app.use('/api/v1/coordinator', coordinatorRouter);
+app.use('/api/v1', publicRsvpRouter);
 app.use('/api/v1', guestRouter);
 app.use('/api/v1/video', videoRouter);
 app.use('/api/v1/payments', disputeRouter);
@@ -135,6 +176,11 @@ app.use('/api/v1/payments/payouts', payoutsRouter);
 app.use('/api/v1/payments/admin/analytics', analyticsRouter);
 app.use('/api/v1/payments/statement', statementRouter);
 app.use('/api/v1/payments/invoices', invoiceRouter);
+app.use('/api/v1/payments/subscriptions', subscriptionsRouter);
+app.use('/api/v1/payments', paymentSplitsRouter);
+app.use('/api/v1/payments/admin/export', csvExportRouter);
+app.use('/api/v1/admin', adminVendorsRouter);
+app.use('/api/v1/payments', reconciliationRouter);
 app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/admin', escrowAdminRouter);
@@ -184,15 +230,18 @@ app.use((error: unknown, _req: Request, res: Response, next: NextFunction): void
     return;
   }
 
-  console.error('[api] unhandled error', error);
+  logger.error({ err: error, requestId: (_req as Request & { id?: string }).id }, 'unhandled error');
+  captureException(error, { requestId: (_req as Request & { id?: string }).id });
   errResponse(res, 'INTERNAL_ERROR', 'Internal server error', 500);
 });
 
 process.on('unhandledRejection', (reason) => {
-  console.error('[api] unhandledRejection', reason);
+  logger.error({ err: reason }, 'unhandledRejection');
+  captureException(reason);
 });
 process.on('uncaughtException', (err) => {
-  console.error('[api] uncaughtException', err);
+  logger.fatal({ err }, 'uncaughtException');
+  captureException(err);
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────────
@@ -220,6 +269,16 @@ async function bootstrap(): Promise<void> {
     registerEscrowReleaseWorker();
     registerOrderExpiryWorker();
     startAccountPurgeWorker();
+    registerMatchRequestExpiryWorker();
+    void scheduleMatchRequestExpiryJob();
+    registerWeddingReminderWorker();
+    void scheduleWeddingReminderJob();
+    registerRsvpReminderWorker();
+    registerSaveTheDateWorker();
+    registerThankYouWorker();
+    registerTokenCleanupWorker();
+    void scheduleTokenCleanupJob();
+    startNotificationsWorker();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.
