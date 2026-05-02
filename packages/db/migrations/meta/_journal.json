@@ -29,6 +29,41 @@
       "when": 1777059746232,
       "tag": "0003_illegal_payback",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777110253967,
+      "tag": "0004_salty_firebrand",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777312305796,
+      "tag": "0005_sparkling_menace",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777371454252,
+      "tag": "0006_grey_gauntlet",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777382817497,
+      "tag": "0007_known_sunspot",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1777582284192,
+      "tag": "0008_peaceful_taskmaster",
+      "breakpoints": true
     }
   ]
 }

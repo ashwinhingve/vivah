@@ -85,6 +85,15 @@ export interface ProfileMetaResponse {
   photos: ProfilePhotoItem[];
   createdAt: Date;
   updatedAt: Date;
+  lastActiveAt?: string | null;
+  audioIntroKey?: string | null;
+  videoIntroKey?: string | null;
+  audioIntroUrl?: string | null;
+  videoIntroUrl?: string | null;
+  kundliUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  personality?: PersonalityProfile | null;
 }
 
 export interface PersonalSection {
@@ -144,6 +153,57 @@ export interface FamilySection {
   familyStatus?: 'MIDDLE_CLASS' | 'UPPER_MIDDLE' | 'AFFLUENT';
   nativePlace?: string;
   familyAbout?: string;
+  photoR2Key?: string;
+}
+
+export const FamilyRelationship = {
+  FATHER:     'FATHER',
+  MOTHER:     'MOTHER',
+  SIBLING:    'SIBLING',
+  GUARDIAN:   'GUARDIAN',
+  GRANDPARENT:'GRANDPARENT',
+  UNCLE:      'UNCLE',
+  AUNT:       'AUNT',
+  COUSIN:     'COUSIN',
+  OTHER:      'OTHER',
+} as const;
+export type FamilyRelationship = typeof FamilyRelationship[keyof typeof FamilyRelationship];
+
+export const FamilyVerificationBadge = {
+  NONE:             'NONE',
+  FAMILY_VERIFIED:  'FAMILY_VERIFIED',
+  PARENT_VERIFIED:  'PARENT_VERIFIED',
+} as const;
+export type FamilyVerificationBadge = typeof FamilyVerificationBadge[keyof typeof FamilyVerificationBadge];
+
+export interface FamilyMember {
+  id:             string;
+  profileId:      string;
+  name:           string;
+  relationship:   FamilyRelationship;
+  isManaging:     boolean;
+  managerUserId:  string | null;
+  phone?:         string | null;
+  email?:         string | null;
+  notes?:         string | null;
+  addedAt:        string;
+}
+
+export interface FamilyVerification {
+  profileId:    string;
+  isVerified:   boolean;
+  verifiedAt:   string | null;
+  verifiedBy:   string | null;
+  badge:        FamilyVerificationBadge;
+  createdAt:    string;
+  updatedAt:    string;
+}
+
+export interface FamilyView {
+  section:        FamilySection;
+  members:        FamilyMember[];
+  verification:   FamilyVerification | null;
+  inclinationScore: number | null;
 }
 
 export interface LocationSection {
@@ -178,6 +238,43 @@ export interface HoroscopeSection {
   chartImageKey?: string;
 }
 
+export type PersonalityAxis = number; // integer 1..7
+
+export interface PersonalityProfile {
+  introvertExtrovert: PersonalityAxis;
+  traditionalModern: PersonalityAxis;
+  plannerSpontaneous: PersonalityAxis;
+  religiousSecular: PersonalityAxis;
+  ambitiousBalanced: PersonalityAxis;
+  familyIndependent: PersonalityAxis;
+}
+
+export type MustHaveKey =
+  | 'age'
+  | 'religion'
+  | 'education'
+  | 'income'
+  | 'diet'
+  | 'manglik'
+  | 'caste'
+  | 'distance';
+
+export type MustHaveFlags = Partial<Record<MustHaveKey, boolean>>;
+
+export interface PersonalityIdealAxis {
+  value: PersonalityAxis;
+  tolerance: number; // 1..3
+}
+
+export type PersonalityIdeal = Partial<{
+  introvertExtrovert: PersonalityIdealAxis;
+  traditionalModern: PersonalityIdealAxis;
+  plannerSpontaneous: PersonalityIdealAxis;
+  religiousSecular: PersonalityIdealAxis;
+  ambitiousBalanced: PersonalityIdealAxis;
+  familyIndependent: PersonalityIdealAxis;
+}>;
+
 export interface PartnerPreferencesSection {
   ageRange?: { min: number; max: number };
   heightRange?: { min: number; max: number };
@@ -192,6 +289,9 @@ export interface PartnerPreferencesSection {
   openToInterCaste?: boolean;
   maritalStatus?: ('NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED')[];
   partnerDescription?: string;
+  maxDistanceKm?: number;
+  mustHave?: MustHaveFlags;
+  personalityIdeal?: PersonalityIdeal;
 }
 
 export interface ProfileSectionCompletion {
@@ -213,6 +313,9 @@ export interface SafetyModeSection {
 export interface CommunityZoneData {
   community?: string;
   subCommunity?: string;
+  caste?: string;
+  gotra?: string;
+  gotraExclusionEnabled?: boolean;
   motherTongue?: string;
   preferredLang?: string;
   lgbtqProfile?: boolean;

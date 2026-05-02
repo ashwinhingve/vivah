@@ -92,7 +92,24 @@ export const UpdateFamilySchema = z.object({
   familyStatus:     z.enum(['MIDDLE_CLASS', 'UPPER_MIDDLE', 'AFFLUENT']).optional(),
   nativePlace:      z.string().max(100).optional(),
   familyAbout:      z.string().max(500).optional(),
+  photoR2Key:       z.string().max(500).optional(),
 });
+
+export const FamilyRelationshipEnum = z.enum([
+  'FATHER', 'MOTHER', 'SIBLING', 'GUARDIAN', 'GRANDPARENT',
+  'UNCLE', 'AUNT', 'COUSIN', 'OTHER',
+]);
+
+export const AddFamilyMemberSchema = z.object({
+  name:         z.string().min(1).max(255),
+  relationship: FamilyRelationshipEnum,
+  isManaging:   z.boolean().optional(),
+  phone:        z.string().max(15).optional(),
+  email:        z.string().email().optional(),
+  notes:        z.string().max(500).optional(),
+});
+
+export const UpdateFamilyMemberSchema = AddFamilyMemberSchema.partial();
 
 export const UpdateLocationSchema = z.object({
   city:    z.string().max(100).optional(),
@@ -144,6 +161,44 @@ export const UpdateHoroscopeSchema = z.object({
   manglik:   z.enum(['YES','NO','PARTIAL']).optional(),
 });
 
+// ── Personality + mustHave ───────────────────────────────────────────────────
+
+export const PersonalityAxisSchema = z.number().int().min(1).max(7);
+
+export const PersonalitySchema = z.object({
+  introvertExtrovert: PersonalityAxisSchema,
+  traditionalModern:  PersonalityAxisSchema,
+  plannerSpontaneous: PersonalityAxisSchema,
+  religiousSecular:   PersonalityAxisSchema,
+  ambitiousBalanced:  PersonalityAxisSchema,
+  familyIndependent:  PersonalityAxisSchema,
+});
+
+export const MustHaveFlagsSchema = z.object({
+  age:       z.boolean().optional(),
+  religion:  z.boolean().optional(),
+  education: z.boolean().optional(),
+  income:    z.boolean().optional(),
+  diet:      z.boolean().optional(),
+  manglik:   z.boolean().optional(),
+  caste:     z.boolean().optional(),
+  distance:  z.boolean().optional(),
+});
+
+export const PersonalityIdealAxisSchema = z.object({
+  value:     PersonalityAxisSchema,
+  tolerance: z.number().int().min(1).max(3),
+});
+
+export const PersonalityIdealSchema = z.object({
+  introvertExtrovert: PersonalityIdealAxisSchema.optional(),
+  traditionalModern:  PersonalityIdealAxisSchema.optional(),
+  plannerSpontaneous: PersonalityIdealAxisSchema.optional(),
+  religiousSecular:   PersonalityIdealAxisSchema.optional(),
+  ambitiousBalanced:  PersonalityIdealAxisSchema.optional(),
+  familyIndependent:  PersonalityIdealAxisSchema.optional(),
+});
+
 const rangeSchema = (min: number, max: number) =>
   z.object({
     min: z.number().int().min(min).max(max),
@@ -164,6 +219,9 @@ export const UpdatePartnerPreferencesSchema = z.object({
   openToInterCaste:   z.boolean().optional(),
   maritalStatus:      z.array(z.enum(['NEVER_MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED'])).optional(),
   partnerDescription: z.string().max(1000).optional(),
+  maxDistanceKm:      z.number().int().min(5).max(2000).optional(),
+  mustHave:           MustHaveFlagsSchema.optional(),
+  personalityIdeal:   PersonalityIdealSchema.optional(),
 }).refine(
   d => d.ageRange == null || d.ageRange.min <= d.ageRange.max,
   { message: 'ageRange.min must be ≤ ageRange.max', path: ['ageRange'] },
@@ -177,6 +235,9 @@ export const INDIAN_LANGUAGES = ['hi','en','mr','gu','ta','te','kn','ml','pa','b
 export const UpdateCommunityZoneSchema = z.object({
   community:    z.string().max(100).optional(),
   subCommunity: z.string().max(100).optional(),
+  caste:        z.string().max(80).optional(),
+  gotra:        z.string().max(80).optional(),
+  gotraExclusionEnabled: z.boolean().optional(),
   motherTongue: z.string().max(50).optional(),
   preferredLang: z.enum(INDIAN_LANGUAGES).optional(),
   lgbtqProfile: z.boolean().optional(),
@@ -204,9 +265,14 @@ export type UpdatePersonalInput           = z.infer<typeof UpdatePersonalSchema>
 export type UpdateEducationInput          = z.infer<typeof UpdateEducationSchema>;
 export type UpdateProfessionInput         = z.infer<typeof UpdateProfessionSchema>;
 export type UpdateFamilyInput             = z.infer<typeof UpdateFamilySchema>;
+export type AddFamilyMemberInput          = z.infer<typeof AddFamilyMemberSchema>;
+export type UpdateFamilyMemberInput       = z.infer<typeof UpdateFamilyMemberSchema>;
 export type UpdateLocationInput           = z.infer<typeof UpdateLocationSchema>;
 export type UpdateLifestyleInput          = z.infer<typeof UpdateLifestyleSchema>;
 export type UpdateHoroscopeInput          = z.infer<typeof UpdateHoroscopeSchema>;
 export type UpdatePartnerPreferencesInput = z.infer<typeof UpdatePartnerPreferencesSchema>;
 export type ProfileBulkUpdateInput        = z.infer<typeof ProfileBulkUpdateSchema>;
 export type UpdateCommunityZoneInput      = z.infer<typeof UpdateCommunityZoneSchema>;
+export type PersonalityInput              = z.infer<typeof PersonalitySchema>;
+export type MustHaveFlagsInput            = z.infer<typeof MustHaveFlagsSchema>;
+export type PersonalityIdealInput         = z.infer<typeof PersonalityIdealSchema>;

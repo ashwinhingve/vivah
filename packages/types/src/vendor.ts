@@ -33,6 +33,7 @@ export const PaymentStatus = {
   CAPTURED:           'CAPTURED',
   REFUNDED:           'REFUNDED',
   PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED',
+  REFUND_PENDING:     'REFUND_PENDING',
   FAILED:             'FAILED',
 } as const
 export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus]
@@ -57,6 +58,70 @@ export interface VendorProfile {
   verified:     boolean
   services:     VendorService[]
   portfolioKey: string | null
+  tagline?:     string | null
+  description?: string | null
+  coverImageKey?: string | null
+  phone?:       string | null
+  email?:       string | null
+  website?:     string | null
+  instagram?:   string | null
+  yearsActive?: number | null
+  responseTimeHours?: number | null
+  priceMin?:    number | null
+  priceMax?:    number | null
+  viewCount?:   number
+  favoriteCount?: number
+  isFavorite?:  boolean
+}
+
+export interface VendorReview {
+  id:               string
+  vendorId:         string
+  bookingId:        string | null
+  reviewerId:       string
+  reviewerName:     string
+  rating:           number
+  title:            string | null
+  comment:          string | null
+  vendorReply:      string | null
+  vendorRepliedAt:  string | null
+  createdAt:        string
+}
+
+export type InquiryStatus = 'NEW' | 'REPLIED' | 'CONVERTED' | 'CLOSED'
+
+export interface VendorInquiry {
+  id:           string
+  vendorId:     string
+  vendorName?:  string
+  customerId:   string
+  customerName?: string
+  ceremonyType: string | null
+  eventDate:    string | null
+  guestCount:   number | null
+  budgetMin:    number | null
+  budgetMax:    number | null
+  message:      string
+  vendorReply:  string | null
+  repliedAt:    string | null
+  status:       InquiryStatus
+  createdAt:    string
+}
+
+export interface VendorBlockedDate {
+  id:        string
+  vendorId:  string
+  date:      string
+  reason:    string | null
+  createdAt: string
+}
+
+export interface BookingAddon {
+  id:        string
+  name:      string
+  quantity:  number
+  unitPrice: number
+  notes:     string | null
 }
 
 export interface BookingSummary {
@@ -65,10 +130,20 @@ export interface BookingSummary {
   vendorName:   string
   serviceId:    string | null
   eventDate:    string
+  ceremonyType?: string
   status:       BookingStatus
   totalAmount:  number
   escrowAmount: number | null
   createdAt:    string
+  packageName?:  string | null
+  packagePrice?: number | null
+  guestCount?:   number | null
+  eventLocation?: string | null
+  proposedDate?: string | null
+  proposedBy?:   string | null
+  proposedReason?: string | null
+  addons?:       BookingAddon[]
+  hasReview?:    boolean
 }
 
 export interface PaymentOrder {
