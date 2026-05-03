@@ -79,7 +79,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run database migrations (test DB)
-        run: pnpm db:push
+        run: pnpm db:migrate
         env:
           DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
 
@@ -90,6 +90,7 @@ jobs:
           REDIS_URL: redis://localhost:6379
           JWT_ACCESS_SECRET: test-secret-do-not-use-in-prod
           JWT_REFRESH_SECRET: test-refresh-secret-do-not-use
+          BETTER_AUTH_SECRET: test-better-auth-secret-32-chars-min-len-aaaaaa
           NODE_ENV: test
 
   # ── Build ────────────────────────────────────────────────────────────────────

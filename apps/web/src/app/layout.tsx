@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { PostHogProvider } from '@/components/providers/PostHogProvider.client';
+// Validates NEXT_PUBLIC_* on first server render — bad deploy fails fast.
+import '@/lib/env';
 import './globals.css';
 
 const playfair = Playfair_Display({

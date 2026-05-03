@@ -6,9 +6,21 @@ import { getPresignedUploadUrl } from './service.js';
 
 export const storageRouter = Router();
 
+// MIME allowlist — anything outside this set is rejected at the API edge so
+// clients cannot upload HTML/JS/SVG (XSS via R2/CDN) or oversized binaries.
+// `image/*` covers profile + product photos; `application/pdf` for invoices/KYC.
+export const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+] as const;
+
 const UploadUrlSchema = z.object({
   fileName: z.string().min(1).max(255),
-  mimeType: z.string().min(1).max(100),
+  mimeType: z.enum(ALLOWED_MIME_TYPES, {
+    message: `mimeType must be one of: ${ALLOWED_MIME_TYPES.join(', ')}`,
+  }),
   folder: z.enum(['photos', 'documents', 'portfolios', 'avatars', 'products']),
 });
 

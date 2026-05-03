@@ -167,7 +167,24 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
 });
 
-app.get('/metrics', metricsHandler);
+// /metrics — Prometheus exposition. Internal observability surface; gated by
+// METRICS_TOKEN bearer when set so we don't expose queue depths and request
+// counts to the world. Mock/dev mode without a token leaves it open.
+app.get('/metrics', (req: Request, res: Response, next: NextFunction): void => {
+  const token = env.METRICS_TOKEN;
+  if (!token) { void metricsHandler(req, res).catch(next); return; }
+  const header = req.header('authorization') ?? '';
+  if (header !== `Bearer ${token}`) {
+    res.status(401).json({
+      success: false,
+      data: null,
+      error: { code: 'UNAUTHORIZED', message: 'metrics endpoint requires bearer token' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+    return;
+  }
+  void metricsHandler(req, res).catch(next);
+});
 
 // /ready — deeper liveness probe. Checks DB + Redis reachability.
 // /health = process alive. /ready = dependencies reachable.
@@ -176,28 +193,46 @@ app.get('/ready', async (_req: Request, res: Response) => {
   const checks: Record<string, 'ok' | string> = {};
   let allOk = true;
 
+  if (env.USE_MOCK_SERVICES) checks['mode'] = 'mock';
+
+  // Postgres + Redis are local infra — required even in mock mode (mock only
+  // skips external SaaS like Razorpay/MSG91). If they are down the API cannot
+  // serve traffic, so /ready must reflect that.
+  try {
+    const { db } = await import('./lib/db.js');
+    await (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
+    checks['postgres'] = 'ok';
+  } catch (err) {
+    checks['postgres'] = err instanceof Error ? err.message : 'unreachable';
+    allOk = false;
+  }
+
+  try {
+    const { redis } = await import('./lib/redis.js');
+    await redis.ping();
+    checks['redis'] = 'ok';
+  } catch (err) {
+    checks['redis'] = err instanceof Error ? err.message : 'unreachable';
+    allOk = false;
+  }
+
+  // Mongo is gated — connectMongo() is a no-op in mock mode, so a ping would
+  // return false-negatives. Only check when real connection is expected.
   if (!env.USE_MOCK_SERVICES) {
     try {
-      const { db } = await import('./lib/db.js');
-      // raw SQL through the underlying pool — avoids drizzle-orm dual-import
-      // type collision in TypeScript strict mode.
-      await (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
-      checks['postgres'] = 'ok';
+      const { mongoose } = await import('./lib/mongo.js');
+      // 1 = connected, 2 = connecting, others = unhealthy.
+      const state = mongoose.connection.readyState;
+      if (state === 1) {
+        checks['mongo'] = 'ok';
+      } else {
+        checks['mongo'] = `readyState=${state}`;
+        allOk = false;
+      }
     } catch (err) {
-      checks['postgres'] = err instanceof Error ? err.message : 'unreachable';
+      checks['mongo'] = err instanceof Error ? err.message : 'unreachable';
       allOk = false;
     }
-
-    try {
-      const { redis } = await import('./lib/redis.js');
-      await redis.ping();
-      checks['redis'] = 'ok';
-    } catch (err) {
-      checks['redis'] = err instanceof Error ? err.message : 'unreachable';
-      allOk = false;
-    }
-  } else {
-    checks['mode'] = 'mock';
   }
 
   res.status(allOk ? 200 : 503).json({
@@ -327,41 +362,90 @@ async function bootstrap(): Promise<void> {
 
   // Workers — skip in mock/test mode to avoid connecting to Redis that isn't
   // configured, and to keep CI / vitest from holding live connections.
+  // Workers that return their handle are tracked for graceful drain on SIGTERM.
+  const workers: Array<{ close(): Promise<void> }> = [];
   if (!env.USE_MOCK_SERVICES) {
     void startGunaRecalcWorker();
-    registerEscrowReleaseWorker();
-    registerOrderExpiryWorker();
+    workers.push(registerEscrowReleaseWorker());
+    workers.push(registerOrderExpiryWorker());
     startAccountPurgeWorker();
-    registerMatchRequestExpiryWorker();
+    workers.push(registerMatchRequestExpiryWorker());
     void scheduleMatchRequestExpiryJob();
-    registerWeddingReminderWorker();
+    workers.push(registerWeddingReminderWorker());
     void scheduleWeddingReminderJob();
-    registerRsvpReminderWorker();
-    registerSaveTheDateWorker();
-    registerThankYouWorker();
-    registerTokenCleanupWorker();
+    workers.push(registerRsvpReminderWorker());
+    workers.push(registerSaveTheDateWorker());
+    workers.push(registerThankYouWorker());
+    workers.push(registerTokenCleanupWorker());
     void scheduleTokenCleanupJob();
     startNotificationsWorker();
-    registerInvitationBlastWorker();
-    registerAuditChainVerifierWorker();
+    workers.push(registerInvitationBlastWorker());
+    workers.push(registerAuditChainVerifierWorker());
     void scheduleAuditChainVerifierJob();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.
-  const shutdown = (signal: string): void => {
+  // Drain HTTP, BullMQ workers, Redis, Postgres, Mongo before exit.
+  let shuttingDown = false;
+  const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     console.info(`${signal} received — shutting down gracefully`);
-    server.close(() => {
-      console.info('HTTP server closed');
-      process.exit(0);
-    });
-    setTimeout(() => {
-      console.error('Forced shutdown after timeout');
+
+    // Hard cap: 30s total. Force exit if any step hangs.
+    const forceTimer = setTimeout(() => {
+      console.error('Forced shutdown after 30s timeout');
       process.exit(1);
-    }, 10000);
+    }, 30_000);
+
+    try {
+      await new Promise<void>((resolve) => {
+        server.close(() => { console.info('HTTP server closed'); resolve(); });
+      });
+
+      if (workers.length > 0) {
+        console.info(`draining ${workers.length} BullMQ workers`);
+        await Promise.all(
+          workers.map((w) => w.close().catch((e) => console.warn('worker.close failed', e))),
+        );
+      }
+
+      try {
+        const { stopAccountPurgeWorker } = await import('./jobs/accountPurgeJob.js');
+        stopAccountPurgeWorker();
+      } catch { /* not registered in mock */ }
+
+      try {
+        const { redis } = await import('./lib/redis.js');
+        await redis.quit();
+        console.info('Redis disconnected');
+      } catch (e) { console.warn('redis.quit failed', e); }
+
+      try {
+        const { pool } = await import('./lib/db.js');
+        await pool.end();
+        console.info('Postgres pool ended');
+      } catch (e) { console.warn('pg pool.end failed', e); }
+
+      try {
+        const { mongoose } = await import('./lib/mongo.js');
+        if (mongoose.connection.readyState !== 0) {
+          await mongoose.disconnect();
+          console.info('Mongo disconnected');
+        }
+      } catch (e) { console.warn('mongoose.disconnect failed', e); }
+
+      clearTimeout(forceTimer);
+      process.exit(0);
+    } catch (e) {
+      console.error('Shutdown error:', e);
+      clearTimeout(forceTimer);
+      process.exit(1);
+    }
   };
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+  process.on('SIGINT',  () => { void shutdown('SIGINT'); });
 }
 
 void bootstrap();

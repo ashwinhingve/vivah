@@ -12,6 +12,7 @@
     "type-check": "turbo type-check",
     "db:push": "turbo db:push --filter=@smartshaadi/db",
     "db:generate": "turbo db:generate --filter=@smartshaadi/db",
+    "db:migrate": "turbo db:migrate --filter=@smartshaadi/db",
     "db:seed": "turbo db:seed --filter=@smartshaadi/db",
     "db:studio": "turbo db:studio --filter=@smartshaadi/db",
     "clean": "turbo clean && rm -rf node_modules",

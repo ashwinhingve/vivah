@@ -67,6 +67,9 @@ const envSchema = z.object({
 
   // Platform tax + GSTIN
   PLATFORM_GSTIN: z.string().default('27AAAAA0000A1Z5'),
+
+  // /metrics endpoint bearer token. Empty = open access (only safe in mock/dev).
+  METRICS_TOKEN: z.string().default(''),
 }).superRefine((data, ctx) => {
   // Real-mode guard — placeholders would silently call external services with
   // fake tokens and 401 in production. Force explicit configuration.
@@ -97,6 +100,24 @@ const envSchema = z.object({
       code: 'custom',
       path: ['RAZORPAY_WEBHOOK_SECRET'],
       message: 'RAZORPAY_WEBHOOK_SECRET (or RAZORPAY_WEBHOOK_SECRETS for rotation) must be set when USE_MOCK_SERVICES=false — empty secret accepts any signature',
+    });
+  }
+  // R2 storage — uploads/photos break in production without these.
+  // S3Client constructs with blank credentials and every request 403s at runtime.
+  for (const key of ['CLOUDFLARE_R2_ACCOUNT_ID', 'CLOUDFLARE_R2_ACCESS_KEY', 'CLOUDFLARE_R2_SECRET_KEY', 'CLOUDFLARE_R2_BUCKET'] as const) {
+    if (!data[key]) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [key],
+        message: `${key} must be set when USE_MOCK_SERVICES=false`,
+      });
+    }
+  }
+  if (!data.METRICS_TOKEN) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['METRICS_TOKEN'],
+      message: 'METRICS_TOKEN must be set when USE_MOCK_SERVICES=false — /metrics would otherwise be world-readable',
     });
   }
 }).superRefine((data, ctx) => {
