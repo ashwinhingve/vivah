@@ -2,17 +2,20 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { DataTable, type DataTableColumn } from '@/components/shared';
+import { cn } from '@/lib/utils';
 
 interface Discrepancy {
-  id:                string;
-  paymentId:         string | null;
+  id: string;
+  paymentId: string | null;
   razorpayPaymentId: string | null;
-  field:             string;
-  expected:          string | null;
-  actual:            string | null;
-  status:            string;
-  notes:             string | null;
-  detectedAt:        string;
+  field: string;
+  expected: string | null;
+  actual: string | null;
+  status: string;
+  notes: string | null;
+  detectedAt: string;
 }
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -22,78 +25,119 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
   const [filter, setFilter] = useState<'OPEN' | 'ALL'>('OPEN');
   const router = useRouter();
 
-  const filtered = filter === 'OPEN' ? items.filter(i => i.status === 'OPEN') : items;
+  const filtered = filter === 'OPEN' ? items.filter((i) => i.status === 'OPEN') : items;
+  const openCount = items.filter((i) => i.status === 'OPEN').length;
 
   function resolve(id: string): void {
     startTransition(async () => {
       try {
-        const res = await fetch(`${API_URL}/api/v1/payments/admin/reconciliation/${id}/resolve`, {
-          method:      'POST',
-          credentials: 'include',
-          headers:     { 'Content-Type': 'application/json' },
-          body:        JSON.stringify({ status: 'RESOLVED' }),
-        });
+        const res = await fetch(
+          `${API_URL}/api/v1/payments/admin/reconciliation/${id}/resolve`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'RESOLVED' }),
+          }
+        );
         if (res.ok) router.refresh();
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
     });
   }
 
-  if (filtered.length === 0) {
-    return (
-      <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-        No {filter === 'OPEN' ? 'open' : ''} discrepancies. Settlements match local ledger.
-      </div>
-    );
-  }
+  const columns: DataTableColumn<Discrepancy>[] = [
+    {
+      key: 'paymentId',
+      header: 'Payment ID',
+      render: (i) => (
+        <span className="font-mono text-xs">{i.razorpayPaymentId ?? i.paymentId ?? '–'}</span>
+      ),
+    },
+    { key: 'field', header: 'Field' },
+    { key: 'expected', header: 'Expected', render: (i) => i.expected ?? '–' },
+    {
+      key: 'actual',
+      header: 'Actual',
+      render: (i) => <span className="text-destructive">{i.actual ?? '–'}</span>,
+    },
+    {
+      key: 'detectedAt',
+      header: 'Detected',
+      render: (i) => (
+        <span className="text-muted-foreground">
+          {new Date(i.detectedAt).toLocaleString('en-IN')}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (i) => (
+        <span
+          className={cn(
+            'text-xs font-medium',
+            i.status === 'OPEN' ? 'text-warning' : 'text-success'
+          )}
+        >
+          {i.status}
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      render: (i) =>
+        i.status === 'OPEN' ? (
+          <Button size="sm" onClick={() => resolve(i.id)} disabled={pending} className="text-xs">
+            Mark resolved
+          </Button>
+        ) : null,
+    },
+  ];
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-3">
-        <button
+      <div
+        role="tablist"
+        aria-label="Reconciliation filter"
+        className="mb-4 flex items-center gap-3"
+      >
+        <Button
+          type="button"
+          role="tab"
+          aria-selected={filter === 'OPEN'}
+          variant={filter === 'OPEN' ? 'default' : 'outline'}
+          size="sm"
           onClick={() => setFilter('OPEN')}
-          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'OPEN' ? 'bg-[#0A1F4D] text-white' : 'border border-border'}`}
-        >Open ({items.filter(i => i.status === 'OPEN').length})</button>
-        <button
+        >
+          Open ({openCount})
+        </Button>
+        <Button
+          type="button"
+          role="tab"
+          aria-selected={filter === 'ALL'}
+          variant={filter === 'ALL' ? 'default' : 'outline'}
+          size="sm"
           onClick={() => setFilter('ALL')}
-          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'ALL' ? 'bg-[#0A1F4D] text-white' : 'border border-border'}`}
-        >All ({items.length})</button>
+        >
+          All ({items.length})
+        </Button>
       </div>
-      <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200 rounded-xl border border-border bg-surface shadow-sm">
-        <thead className="bg-secondary text-left text-xs font-medium uppercase text-muted-foreground">
-          <tr>
-            <th className="px-4 py-3">Payment ID</th>
-            <th className="px-4 py-3">Field</th>
-            <th className="px-4 py-3">Expected</th>
-            <th className="px-4 py-3">Actual</th>
-            <th className="px-4 py-3">Detected</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 text-sm">
-          {filtered.map(i => (
-            <tr key={i.id}>
-              <td className="px-4 py-3 font-mono text-xs">{i.razorpayPaymentId ?? i.paymentId ?? '–'}</td>
-              <td className="px-4 py-3">{i.field}</td>
-              <td className="px-4 py-3">{i.expected ?? '–'}</td>
-              <td className="px-4 py-3 text-destructive">{i.actual ?? '–'}</td>
-              <td className="px-4 py-3 text-muted-foreground">{new Date(i.detectedAt).toLocaleString()}</td>
-              <td className="px-4 py-3"><span className={i.status === 'OPEN' ? 'text-amber-700' : 'text-emerald-700'}>{i.status}</span></td>
-              <td className="px-4 py-3">
-                {i.status === 'OPEN' ? (
-                  <button
-                    onClick={() => resolve(i.id)}
-                    disabled={pending}
-                    className="px-3 py-1.5 rounded-lg bg-[#0A1F4D] text-white text-xs hover:bg-[#1848C8] disabled:opacity-50"
-                  >Mark resolved</button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
+
+      <DataTable
+        columns={columns}
+        data={filtered}
+        rowKey={(i) => i.id}
+        empty={{
+          title: 'No discrepancies',
+          description:
+            filter === 'OPEN'
+              ? 'No open discrepancies. Settlements match local ledger.'
+              : 'No discrepancies on record.',
+        }}
+      />
     </div>
   );
 }

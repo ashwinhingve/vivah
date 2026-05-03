@@ -16,12 +16,12 @@ export const metadata: Metadata = {
 };
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING:   { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
+  PENDING:   { bg: 'bg-warning/15',  text: 'text-warning',  label: 'Pending' },
   CONFIRMED: { bg: 'bg-teal-100',   text: 'text-teal-800',   label: 'Confirmed' },
-  ACTIVE:    { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Active' },
+  ACTIVE:    { bg: 'bg-success/15',  text: 'text-success',  label: 'Active' },
   RETURNED:  { bg: 'bg-secondary',   text: 'text-muted-foreground',   label: 'Returned' },
   CANCELLED: { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Cancelled' },
-  OVERDUE:   { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Overdue' },
+  OVERDUE:   { bg: 'bg-warning/15', text: 'text-warning', label: 'Overdue' },
 };
 
 const inrFormatter = new Intl.NumberFormat('en-IN', {

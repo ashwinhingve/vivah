@@ -162,7 +162,7 @@ export function VendorPortfolio({ vendor }: VendorPortfolioProps) {
           <h2 className="text-lg font-semibold font-heading text-primary mb-3">Awards & Recognition</h2>
           <ul className="flex flex-wrap gap-2">
             {portfolio.awards.map((award, i) => (
-              <li key={i} className="bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium px-3 py-1 rounded-full">
+              <li key={i} className="bg-warning/10 border border-warning/30 text-warning text-xs font-medium px-3 py-1 rounded-full">
                 {award}
               </li>
             ))}

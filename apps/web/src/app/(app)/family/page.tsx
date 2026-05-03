@@ -47,7 +47,7 @@ export default async function FamilyPage() {
               <div className="h-full bg-[#0E7C7B]" style={{ width: `${score}%` }} />
             </div>
           </Card>
-          <Card icon={<ShieldCheck className="h-4 w-4 text-amber-600" />} title="Verification">
+          <Card icon={<ShieldCheck className="h-4 w-4 text-warning" />} title="Verification">
             <div className="text-base font-semibold">{verification ? BADGE_LABEL[verification.badge] : 'Not verified'}</div>
             {verification?.verifiedAt && (
               <p className="text-[10px] text-muted-foreground">Verified {new Date(verification.verifiedAt).toLocaleDateString()}</p>

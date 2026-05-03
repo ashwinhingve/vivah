@@ -7,10 +7,10 @@ interface OrdersResponse {
 }
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; cls: string }> = {
-  PLACED:    { label: 'Placed',    cls: 'bg-amber-50  text-amber-700'    },
+  PLACED:    { label: 'Placed',    cls: 'bg-warning/10  text-warning'    },
   CONFIRMED: { label: 'Confirmed', cls: 'bg-teal/10   text-teal'     },
-  SHIPPED:   { label: 'Shipped',   cls: 'bg-purple-50 text-purple-700'   },
-  DELIVERED: { label: 'Delivered', cls: 'bg-emerald-50 text-emerald-700' },
+  SHIPPED:   { label: 'Shipped',   cls: 'bg-primary/10 text-primary'   },
+  DELIVERED: { label: 'Delivered', cls: 'bg-success/10 text-success' },
   CANCELLED: { label: 'Cancelled', cls: 'bg-secondary  text-muted-foreground'     },
   REFUNDED:  { label: 'Refunded',  cls: 'bg-secondary  text-muted-foreground'     },
 };

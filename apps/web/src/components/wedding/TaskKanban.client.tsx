@@ -14,8 +14,8 @@ const COLUMNS: { status: TaskStatus; label: string }[] = [
 ];
 
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  LOW:    'text-green-700 bg-green-50',
-  MEDIUM: 'text-amber-700 bg-amber-50',
+  LOW:    'text-success bg-success/10',
+  MEDIUM: 'text-warning bg-warning/10',
   HIGH:   'text-destructive bg-destructive/10',
 };
 

@@ -13,9 +13,9 @@ const statusBadge: Record<
   string,
   { text: string; cls: string }
 > = {
-  PENDING:   { text: 'Pending',   cls: 'text-amber-700 bg-amber-50 border border-amber-200' },
-  SHIPPED:   { text: 'Shipped',   cls: 'text-purple-700 bg-purple-50 border border-purple-200' },
-  DELIVERED: { text: 'Delivered', cls: 'text-emerald-700 bg-emerald-50 border border-emerald-200' },
+  PENDING:   { text: 'Pending',   cls: 'text-warning bg-warning/10 border border-warning/30' },
+  SHIPPED:   { text: 'Shipped',   cls: 'text-primary bg-primary/10 border border-purple-200' },
+  DELIVERED: { text: 'Delivered', cls: 'text-success bg-success/10 border border-emerald-200' },
 };
 
 export function VendorOrderRow({ item }: VendorOrderRowProps) {

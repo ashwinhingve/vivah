@@ -6,8 +6,8 @@ import { createRegistryItemAction, deleteRegistryItemAction } from './actions';
 interface PageProps { params: Promise<{ id: string }> }
 
 const STATUS_COLORS: Record<string, string> = {
-  AVAILABLE: 'bg-green-100 text-green-800',
-  CLAIMED:   'bg-amber-100 text-amber-800',
+  AVAILABLE: 'bg-success/15 text-success',
+  CLAIMED:   'bg-warning/15 text-warning',
   PURCHASED: 'bg-teal/10 text-teal',
 };
 

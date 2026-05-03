@@ -56,9 +56,9 @@ const CEREMONY_LABELS: Record<string, string> = {
 };
 
 const CEREMONY_COLORS: Record<string, string> = {
-  HALDI:      'bg-yellow-100 text-yellow-800',
-  MEHNDI:     'bg-green-100 text-green-800',
-  SANGEET:    'bg-purple-100 text-purple-800',
+  HALDI:      'bg-warning/15 text-warning',
+  MEHNDI:     'bg-success/15 text-success',
+  SANGEET:    'bg-primary/15 text-primary',
   WEDDING:    'bg-destructive/15 text-destructive',
   RECEPTION:  'bg-teal/10 text-teal',
   ENGAGEMENT: 'bg-pink-100 text-pink-800',
@@ -167,7 +167,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             <h2 className="font-semibold text-[#0A1F4D] mb-3 flex items-center gap-2">
               <span>Auspicious Dates (Muhurat)</span>
               {selectedMuhurat && (
-                <span className="text-xs font-normal text-[#059669] bg-green-50 rounded-full px-2 py-0.5 border border-green-200">
+                <span className="text-xs font-normal text-[#059669] bg-success/10 rounded-full px-2 py-0.5 border border-success/30">
                   Selected
                 </span>
               )}

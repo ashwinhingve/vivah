@@ -108,7 +108,7 @@ export default async function DisputePage({
           {booking.escrowAmount != null && (
             <div>
               <dt className="text-[#64748B]">Escrow held</dt>
-              <dd className="font-semibold text-amber-700">{formatInr(booking.escrowAmount)}</dd>
+              <dd className="font-semibold text-warning">{formatInr(booking.escrowAmount)}</dd>
             </div>
           )}
         </dl>

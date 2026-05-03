@@ -48,16 +48,16 @@ export function RescheduleControls(props: RescheduleControlsProps) {
 
   if (props.proposedDate) {
     return (
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-        <p className="text-sm font-semibold text-amber-900 mb-1">
+      <div className="rounded-xl border border-warning/40 bg-warning/10 p-4">
+        <p className="text-sm font-semibold text-warning mb-1">
           {props.proposedByYou ? 'You proposed a new date' : 'New date proposed'}
         </p>
-        <p className="text-sm text-amber-900">
+        <p className="text-sm text-warning">
           {new Date(props.proposedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-          {' '}<span className="text-xs text-amber-700">(was {new Date(props.currentDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })})</span>
+          {' '}<span className="text-xs text-warning">(was {new Date(props.currentDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })})</span>
         </p>
         {props.proposedReason && (
-          <p className="text-xs text-amber-800 mt-1 italic">"{props.proposedReason}"</p>
+          <p className="text-xs text-warning mt-1 italic">"{props.proposedReason}"</p>
         )}
         {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         {props.proposedByYou ? (
@@ -65,7 +65,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
             type="button"
             onClick={() => call('/reschedule/reject', 'PUT')}
             disabled={pending}
-            className="mt-3 rounded-lg border border-amber-700 text-amber-900 text-sm font-medium px-3 py-1.5 hover:bg-amber-100 disabled:opacity-60"
+            className="mt-3 rounded-lg border border-amber-700 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
           >
             {pending ? 'Cancelling…' : 'Cancel proposal'}
           </button>
@@ -83,7 +83,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
               type="button"
               onClick={() => call('/reschedule/reject', 'PUT')}
               disabled={pending}
-              className="rounded-lg border border-amber-700 text-amber-900 text-sm font-medium px-3 py-1.5 hover:bg-amber-100 disabled:opacity-60"
+              className="rounded-lg border border-amber-700 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
             >
               Reject
             </button>

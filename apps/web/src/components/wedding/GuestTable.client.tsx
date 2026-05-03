@@ -25,9 +25,9 @@ interface GuestTableProps {
 }
 
 const RSVP_COLORS: Record<RsvpStatus, string> = {
-  YES:     'bg-green-100 text-green-800',
+  YES:     'bg-success/15 text-success',
   NO:      'bg-destructive/15 text-destructive',
-  MAYBE:   'bg-amber-100 text-amber-800',
+  MAYBE:   'bg-warning/15 text-warning',
   PENDING: 'bg-secondary text-muted-foreground',
 };
 
@@ -293,12 +293,12 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                 <tr key={guest.id} className={`border-b border-[#C5A47E]/10 last:border-0 ${i % 2 === 0 ? 'bg-surface' : 'bg-[#FEFAF6]/50'}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      {guest.isVip && <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-500" aria-label="VIP" />}
+                      {guest.isVip && <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning" aria-label="VIP" />}
                       <p className="font-medium text-foreground">{guest.name}</p>
                       {guest.ageGroup !== 'ADULT' && (
                         <span className="text-[10px] uppercase tracking-wide bg-[#C5A47E]/20 text-[#7B2D42] rounded-full px-1.5 py-0.5">{guest.ageGroup}</span>
                       )}
-                      {guest.arrivedAt && <CheckCircle2 className="h-3.5 w-3.5 text-green-600" aria-label="Checked in" />}
+                      {guest.arrivedAt && <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-label="Checked in" />}
                     </div>
                     <div className="flex gap-2 mt-0.5 flex-wrap">
                       {guest.phone && <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground"><Phone className="h-2.5 w-2.5" />{guest.phone}</span>}

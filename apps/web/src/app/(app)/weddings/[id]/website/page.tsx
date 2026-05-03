@@ -22,12 +22,12 @@ export default async function WebsitePage({ params }: PageProps) {
         <p className="text-sm text-muted-foreground mb-6">A public landing page guests can visit. Share the link via your invitations.</p>
 
         {site && site.isPublic && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="bg-success/10 border border-success/30 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-green-700" />
+              <Sparkles className="h-4 w-4 text-success" />
               <div>
-                <p className="font-semibold text-green-800">Live</p>
-                <p className="text-xs text-green-700">/w/{site.slug} · {site.viewCount} views</p>
+                <p className="font-semibold text-success">Live</p>
+                <p className="text-xs text-success">/w/{site.slug} · {site.viewCount} views</p>
               </div>
             </div>
             <a href={`/w/${site.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-[#0E7C7B] hover:underline">

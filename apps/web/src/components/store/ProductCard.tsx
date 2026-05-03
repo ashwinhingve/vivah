@@ -10,8 +10,8 @@ export function ProductCard({ product }: ProductCardProps) {
     product.stockQty === 0
       ? { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' }
       : product.stockQty < 5
-      ? { text: 'Low Stock', cls: 'text-amber-700 bg-amber-50' }
-      : { text: 'In Stock', cls: 'text-emerald-700 bg-emerald-50' };
+      ? { text: 'Low Stock', cls: 'text-warning bg-warning/10' }
+      : { text: 'In Stock', cls: 'text-success bg-success/10' };
 
   return (
     <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden flex flex-col">

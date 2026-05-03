@@ -54,9 +54,9 @@ function formatInr(amount: number): string {
 }
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
-  PENDING:   'bg-amber-100 text-amber-800 border-amber-200',
+  PENDING:   'bg-warning/15 text-warning border-warning/30',
   CONFIRMED: 'bg-teal-100 text-teal-800 border-teal-200',
-  COMPLETED: 'bg-green-100 text-green-800 border-green-200',
+  COMPLETED: 'bg-success/15 text-success border-success/30',
   CANCELLED: 'bg-secondary text-muted-foreground border-border',
   DISPUTED:  'bg-destructive/15 text-destructive border-destructive/30',
 };
@@ -196,7 +196,7 @@ export default async function BookingDetailPage({
               href={`${API_URL}/api/v1/bookings/${booking.id}/invoice`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-white hover:bg-success transition-colors"
             >
               ↓ Download Invoice
             </a>
@@ -213,9 +213,9 @@ export default async function BookingDetailPage({
         </div>
 
         {booking.status === 'COMPLETED' && !booking.hasReview && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-            <h2 className="text-base font-semibold text-amber-900 mb-2">How was your experience?</h2>
-            <p className="text-sm text-amber-800 mb-3">Leave a review to help other couples find great vendors.</p>
+          <div className="rounded-xl border border-warning/30 bg-warning/10 p-5">
+            <h2 className="text-base font-semibold text-warning mb-2">How was your experience?</h2>
+            <p className="text-sm text-warning mb-3">Leave a review to help other couples find great vendors.</p>
             <VendorReviews
               vendorId={booking.vendorId}
               initial={[]}
@@ -227,8 +227,8 @@ export default async function BookingDetailPage({
         )}
 
         {booking.status === 'CONFIRMED' && (
-          <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-            <p className="text-sm text-amber-800">
+          <div className="rounded-xl bg-warning/10 border border-warning/30 p-4">
+            <p className="text-sm text-warning">
               <span className="font-semibold">Escrow Protection:</span>{' '}
               50% of the payment ({formatInr(booking.totalAmount * 0.5)}) is held in escrow and released to the vendor 48 hours after your event.
             </p>

@@ -58,7 +58,7 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
           <ActionButton label="Mark Returned" disabled={pending} onClick={() => act('return')} />
         )}
         {booking.status === 'RETURNED' && (
-          <span className="text-xs text-emerald-600 font-medium">Completed</span>
+          <span className="text-xs text-success font-medium">Completed</span>
         )}
       </div>
       {error && <p className="text-xs text-destructive w-full">{error}</p>}
@@ -68,10 +68,10 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
 
 function StatusBadge({ status }: { status: RentalBookingSummary['status'] }) {
   const map: Record<string, string> = {
-    PENDING:   'bg-amber-100 text-amber-700',
+    PENDING:   'bg-warning/15 text-warning',
     CONFIRMED: 'bg-teal/10 text-teal',
-    ACTIVE:    'bg-purple-100 text-purple-700',
-    RETURNED:  'bg-emerald-100 text-emerald-700',
+    ACTIVE:    'bg-primary/15 text-primary',
+    RETURNED:  'bg-success/15 text-success',
     CANCELLED: 'bg-secondary text-muted-foreground',
   };
   const cls = map[status] ?? 'bg-secondary text-muted-foreground';

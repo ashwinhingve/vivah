@@ -83,17 +83,17 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Pending</p>
-            <p className="text-2xl font-bold font-heading text-amber-600">{pendingCount}</p>
+            <p className="text-2xl font-bold font-heading text-warning">{pendingCount}</p>
             <p className="text-xs text-[#94A3B8]">to ship</p>
           </div>
           <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Shipped</p>
-            <p className="text-2xl font-bold font-heading text-purple-600">{shippedCount}</p>
+            <p className="text-2xl font-bold font-heading text-primary">{shippedCount}</p>
             <p className="text-xs text-[#94A3B8]">in transit</p>
           </div>
           <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Delivered</p>
-            <p className="text-2xl font-bold font-heading text-emerald-600">{deliveredCount}</p>
+            <p className="text-2xl font-bold font-heading text-success">{deliveredCount}</p>
             <p className="text-xs text-[#94A3B8]">completed</p>
           </div>
           <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">

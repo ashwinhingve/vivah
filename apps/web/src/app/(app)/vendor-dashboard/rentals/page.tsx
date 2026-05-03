@@ -69,10 +69,10 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Pending"   value={counts.pending}   color="text-amber-600"   sub="awaiting confirm" />
+          <StatCard label="Pending"   value={counts.pending}   color="text-warning"   sub="awaiting confirm" />
           <StatCard label="Confirmed" value={counts.confirmed} color="text-teal"    sub="ready to hand off" />
-          <StatCard label="Active"    value={counts.active}    color="text-purple-600"  sub="out with customer" />
-          <StatCard label="Returned"  value={counts.returned}  color="text-emerald-600" sub="completed" />
+          <StatCard label="Active"    value={counts.active}    color="text-primary"  sub="out with customer" />
+          <StatCard label="Returned"  value={counts.returned}  color="text-success" sub="completed" />
         </div>
 
         <div className="flex gap-1 mb-5 overflow-x-auto pb-1">

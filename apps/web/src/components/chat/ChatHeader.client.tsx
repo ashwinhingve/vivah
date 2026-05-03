@@ -176,7 +176,7 @@ export default function ChatHeader({
             aria-label={isOnline ? 'Online' : 'Offline'}
             className={cn(
               'absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-surface',
-              isOnline ? 'bg-green-500' : 'bg-muted-foreground/40',
+              isOnline ? 'bg-success' : 'bg-muted-foreground/40',
             )}
           />
         </div>
@@ -186,7 +186,7 @@ export default function ChatHeader({
             {initialOther?.firstName ?? 'Match'}
             {initialOther?.age ? <span className="font-normal text-muted-foreground"> · {initialOther.age}</span> : null}
           </p>
-          <p className={cn('truncate text-[11px]', isOnline ? 'text-green-600' : 'text-muted-foreground')}>
+          <p className={cn('truncate text-[11px]', isOnline ? 'text-success' : 'text-muted-foreground')}>
             {subtitle}
             {initialOther?.city ? ` · ${initialOther.city}` : ''}
           </p>

@@ -22,17 +22,17 @@ const DECLINE_REASONS: { value: string; label: string }[] = [
 
 const REPORT_CATEGORIES: { value: string; label: string; tone: string }[] = [
   { value: 'HARASSMENT',            label: 'Harassment / abusive language', tone: 'text-destructive' },
-  { value: 'FAKE_PROFILE',          label: 'Fake or impersonated profile',  tone: 'text-amber-600' },
-  { value: 'INAPPROPRIATE_CONTENT', label: 'Inappropriate photos / content', tone: 'text-amber-600' },
+  { value: 'FAKE_PROFILE',          label: 'Fake or impersonated profile',  tone: 'text-warning' },
+  { value: 'INAPPROPRIATE_CONTENT', label: 'Inappropriate photos / content', tone: 'text-warning' },
   { value: 'SCAM',                  label: 'Scam / asking for money',        tone: 'text-destructive' },
   { value: 'UNDERAGE',              label: 'Underage / minor',                tone: 'text-destructive' },
-  { value: 'SPAM',                  label: 'Spam / repeated unwanted contact', tone: 'text-amber-600' },
+  { value: 'SPAM',                  label: 'Spam / repeated unwanted contact', tone: 'text-warning' },
   { value: 'OTHER',                 label: 'Other',                            tone: 'text-muted-foreground' },
 ];
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
-  PENDING:   { label: 'Pending',   cls: 'bg-amber-50 text-amber-700' },
-  ACCEPTED:  { label: 'Matched',   cls: 'bg-emerald-50 text-emerald-700' },
+  PENDING:   { label: 'Pending',   cls: 'bg-warning/10 text-warning' },
+  ACCEPTED:  { label: 'Matched',   cls: 'bg-success/10 text-success' },
   DECLINED:  { label: 'Declined',  cls: 'bg-rose-50 text-rose-600' },
   WITHDRAWN: { label: 'Withdrawn', cls: 'bg-secondary text-muted-foreground' },
   BLOCKED:   { label: 'Blocked',   cls: 'bg-secondary text-muted-foreground' },
@@ -211,7 +211,7 @@ function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModal
               setBusy(true);
               try { await onConfirm(msg.trim() || null); onClose(); } finally { setBusy(false); }
             }}
-            className="flex-1 rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 min-h-[44px] flex items-center justify-center gap-2"
+            className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white hover:bg-success min-h-[44px] flex items-center justify-center gap-2"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} Accept
           </button>
@@ -315,7 +315,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
   const initial = r.name?.charAt(0)?.toUpperCase() ?? '?';
 
   return (
-    <div className={`rounded-xl border ${isSuper ? 'border-amber-300 bg-amber-50/40' : 'border-border bg-surface'} p-4 space-y-3`}>
+    <div className={`rounded-xl border ${isSuper ? 'border-warning/40 bg-warning/10/40' : 'border-border bg-surface'} p-4 space-y-3`}>
       <div className="flex items-center gap-3">
         {r.primaryPhotoKey ? (
           <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-teal/20 grid place-items-center shrink-0 text-primary font-bold">
@@ -335,11 +335,11 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
               {r.name ?? `Profile ${r.profileId.slice(0, 6)}`}
             </Link>
             {r.isVerified && (
-              <Verified className="h-4 w-4 text-emerald-600 shrink-0" aria-label="Verified" />
+              <Verified className="h-4 w-4 text-success shrink-0" aria-label="Verified" />
             )}
             {isSuper && (
-              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 shrink-0 flex items-center gap-0.5">
-                <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" /> SUPER
+              <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning shrink-0 flex items-center gap-0.5">
+                <Star className="h-2.5 w-2.5 fill-amber-500 text-warning" /> SUPER
               </span>
             )}
           </div>
@@ -351,8 +351,8 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
             {lastActive && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <p className="text-xs text-emerald-600 flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {lastActive}
+                <p className="text-xs text-success flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" /> {lastActive}
                 </p>
               </>
             )}
@@ -403,14 +403,14 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
       )}
 
       {r.acceptanceMessage && r.status === 'ACCEPTED' && side === 'sent' && (
-        <p className="text-xs text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 flex items-start gap-2">
+        <p className="text-xs text-success bg-success/10 rounded-lg px-3 py-2 flex items-start gap-2">
           <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
           <span className="italic">“{r.acceptanceMessage}”</span>
         </p>
       )}
 
       {expires && (
-        <p className={`text-xs flex items-center gap-1 ${expires === 'expired' ? 'text-rose-600' : 'text-amber-700'}`}>
+        <p className={`text-xs flex items-center gap-1 ${expires === 'expired' ? 'text-rose-600' : 'text-warning'}`}>
           <Clock className="h-3 w-3" /> {expires}
         </p>
       )}
@@ -427,7 +427,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
             type="button"
             onClick={onAccept}
             disabled={busy}
-            className="flex-1 bg-emerald-600 text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+            className="flex-1 bg-success text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-success transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
           >
             <Heart className="h-4 w-4 fill-white" /> Accept
           </button>

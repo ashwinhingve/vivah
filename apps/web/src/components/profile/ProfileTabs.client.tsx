@@ -182,7 +182,7 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope?: HoroscopeSection; 
                   ? 'bg-destructive/10 text-destructive'
                   : horoscope.manglik === 'NO'
                   ? 'bg-success/10 text-success'
-                  : 'bg-amber-100 text-amber-700'
+                  : 'bg-warning/15 text-warning'
               }`}
             >
               {horoscope.manglik}

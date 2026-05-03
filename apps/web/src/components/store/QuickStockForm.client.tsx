@@ -76,7 +76,7 @@ export function QuickStockForm({ productId, currentStock }: QuickStockFormProps)
         {loading ? 'Saving…' : 'Update'}
       </button>
       {success && (
-        <span className="text-xs text-emerald-600 font-medium">Updated!</span>
+        <span className="text-xs text-success font-medium">Updated!</span>
       )}
       {error && (
         <span className="text-xs text-destructive">{error}</span>

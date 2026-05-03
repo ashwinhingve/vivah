@@ -60,12 +60,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role={t.variant === 'error' ? 'alert' : 'status'}
             className={cn(
               'pointer-events-auto flex max-w-sm items-start gap-2 rounded-xl border px-3 py-2.5 text-sm shadow-lg backdrop-blur-md',
-              t.variant === 'success' && 'border-green-200 bg-green-50/95 text-green-800',
+              t.variant === 'success' && 'border-success/30 bg-success/10/95 text-success',
               t.variant === 'error'   && 'border-rose-200 bg-rose-50/95 text-rose-800',
               t.variant === 'info'    && 'border-gold/30 bg-surface/95 text-foreground',
             )}
           >
-            {t.variant === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" /> :
+            {t.variant === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-success" /> :
              t.variant === 'error'   ? <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" /> : null}
             <span className="flex-1">{t.message}</span>
             <button

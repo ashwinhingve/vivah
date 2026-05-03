@@ -70,7 +70,7 @@ export default async function PricingPage() {
             <ul className="mb-6 space-y-2 text-sm text-foreground">
               {(Array.isArray(plan.features) ? plan.features as string[] : []).map((f, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-emerald-600 mt-0.5">✓</span>
+                  <span className="text-success mt-0.5">✓</span>
                   <span>{f}</span>
                 </li>
               ))}

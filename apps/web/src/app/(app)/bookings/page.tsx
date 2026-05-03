@@ -32,9 +32,9 @@ async function fetchBookings(
 }
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
-  PENDING:   'bg-amber-100 text-amber-800',
+  PENDING:   'bg-warning/15 text-warning',
   CONFIRMED: 'bg-teal-100 text-teal-800',
-  COMPLETED: 'bg-green-100 text-green-800',
+  COMPLETED: 'bg-success/15 text-success',
   CANCELLED: 'bg-secondary text-muted-foreground',
   DISPUTED:  'bg-destructive/15 text-destructive',
 };
@@ -169,7 +169,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                       <span className="truncate text-base font-semibold text-foreground">{booking.vendorName}</span>
                       <StatusBadge status={booking.status} />
                       {booking.proposedDate && (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700 text-xs px-2 py-0.5 font-medium">
+                        <span className="inline-flex items-center rounded-full bg-warning/10 text-warning text-xs px-2 py-0.5 font-medium">
                           Reschedule pending
                         </span>
                       )}
@@ -186,7 +186,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                   <div className="flex shrink-0 flex-col items-end gap-1">
                     <span className="text-sm font-medium text-primary">View →</span>
                     {booking.status === 'COMPLETED' && role === 'customer' && !booking.hasReview && (
-                      <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700 text-xs px-2 py-0.5 font-medium">
+                      <span className="inline-flex items-center rounded-full bg-warning/10 text-warning text-xs px-2 py-0.5 font-medium">
                         Review pending
                       </span>
                     )}

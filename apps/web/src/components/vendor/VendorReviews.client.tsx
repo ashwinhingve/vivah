@@ -26,7 +26,7 @@ function StarsInput({ value, onChange }: { value: number; onChange: (n: number) 
           className="rounded p-0.5 transition-transform hover:scale-110"
         >
           <Star
-            className={`h-6 w-6 ${n <= value ? 'fill-amber-400 text-amber-400' : 'text-border'}`}
+            className={`h-6 w-6 ${n <= value ? 'fill-amber-400 text-warning/80' : 'text-border'}`}
           />
         </button>
       ))}
@@ -40,7 +40,7 @@ function StarsDisplay({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((n) => (
         <Star
           key={n}
-          className={`h-3.5 w-3.5 ${n <= rating ? 'fill-amber-400 text-amber-400' : 'text-border'}`}
+          className={`h-3.5 w-3.5 ${n <= rating ? 'fill-amber-400 text-warning/80' : 'text-border'}`}
         />
       ))}
     </div>

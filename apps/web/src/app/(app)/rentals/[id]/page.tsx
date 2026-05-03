@@ -118,12 +118,12 @@ export default async function RentalDetailPage({ params }: Props) {
           <div className="flex items-center gap-2 rounded-lg px-3 py-2 bg-[#FEFAF6]">
             <span
               className={`h-2.5 w-2.5 rounded-full ${
-                isFullyBooked ? 'bg-destructive' : isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'
+                isFullyBooked ? 'bg-destructive' : isLimited ? 'bg-warning' : 'bg-[#0E7C7B]'
               }`}
               aria-hidden="true"
             />
             <span className={`text-sm font-medium ${
-              isFullyBooked ? 'text-destructive' : isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'
+              isFullyBooked ? 'text-destructive' : isLimited ? 'text-warning' : 'text-[#0E7C7B]'
             }`}>
               {isFullyBooked
                 ? 'Fully booked'

@@ -95,7 +95,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
             {snap.ceremonies.map((c) => {
               const active = snap.activeCeremonyId === c.id;
               return (
-                <li key={c.id} className={`rounded-lg border p-3 ${active ? 'border-emerald-300 bg-emerald-50' : 'border-foreground/10'}`}>
+                <li key={c.id} className={`rounded-lg border p-3 ${active ? 'border-emerald-300 bg-success/10' : 'border-foreground/10'}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-foreground">{c.type}</p>
@@ -104,10 +104,10 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                       </p>
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
-                      c.status === 'IN_PROGRESS' ? 'bg-emerald-200 text-emerald-900' :
+                      c.status === 'IN_PROGRESS' ? 'bg-success text-success' :
                       c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
                       c.status === 'CANCELLED'   ? 'bg-rose-100 text-rose-800' :
-                      'bg-amber-100 text-amber-800'
+                      'bg-warning/15 text-warning'
                     }`}>
                       {c.status}
                     </span>
@@ -117,7 +117,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                       <button
                         type="button"
                         onClick={() => setStatus(c.id, 'IN_PROGRESS')}
-                        className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                        className="rounded-md bg-success px-3 py-1 text-xs font-medium text-white hover:bg-success"
                       >
                         Start
                       </button>
@@ -146,7 +146,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
             <span className="text-muted-foreground text-base"> / {snap.guestArrivals.expected}</span>
           </p>
           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-foreground/10">
-            <div className="h-full bg-emerald-500 transition-all" style={{ width: `${arrivalsPct}%` }} />
+            <div className="h-full bg-success transition-all" style={{ width: `${arrivalsPct}%` }} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{arrivalsPct}% checked in</p>
         </div>
@@ -164,15 +164,15 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                     <span className="font-medium text-foreground">{i.title}</span>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                       i.severity === 'CRITICAL' ? 'bg-rose-200 text-rose-900' :
-                      i.severity === 'HIGH'     ? 'bg-amber-200 text-amber-900' :
-                      i.severity === 'MEDIUM'   ? 'bg-amber-100 text-amber-800' :
+                      i.severity === 'HIGH'     ? 'bg-warning/20 text-warning' :
+                      i.severity === 'MEDIUM'   ? 'bg-warning/15 text-warning' :
                       'bg-foreground/10 text-foreground'
                     }`}>
                       {i.severity}
                     </span>
                   </div>
                   {i.resolvedAt ? (
-                    <p className="mt-1 text-xs text-emerald-700">Resolved</p>
+                    <p className="mt-1 text-xs text-success">Resolved</p>
                   ) : (
                     <p className="mt-1 text-xs text-muted-foreground">Open</p>
                   )}
@@ -202,7 +202,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                   type="button"
                   onClick={() => checkInVendor(v.eventId, !v.checkedIn)}
                   className={`rounded-md px-3 py-1 text-xs font-medium ${
-                    v.checkedIn ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'border border-foreground/15 text-foreground hover:bg-foreground/5'
+                    v.checkedIn ? 'bg-success text-white hover:bg-success' : 'border border-foreground/15 text-foreground hover:bg-foreground/5'
                   }`}
                 >
                   {v.checkedIn ? 'Checked in' : 'Mark arrived'}

@@ -47,8 +47,8 @@ async function fetchRelated(category: string, excludeId: string): Promise<Produc
 
 function stockLabel(qty: number) {
   if (qty === 0) return { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' };
-  if (qty < 5)  return { text: `Low Stock (${qty} left)`, cls: 'text-amber-700 bg-amber-50' };
-  return { text: 'In Stock', cls: 'text-emerald-700 bg-emerald-50' };
+  if (qty < 5)  return { text: `Low Stock (${qty} left)`, cls: 'text-warning bg-warning/10' };
+  return { text: 'In Stock', cls: 'text-success bg-success/10' };
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
@@ -136,7 +136,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <span className="text-base text-[#94A3B8] line-through">
                     ₹{product.comparePrice.toLocaleString('en-IN')}
                   </span>
-                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
                     {Math.round((1 - product.price / product.comparePrice) * 100)}% off
                   </span>
                 </>

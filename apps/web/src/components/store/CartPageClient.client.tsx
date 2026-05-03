@@ -109,7 +109,7 @@ export function CartPageClient() {
           </div>
           <div className="flex justify-between text-[#64748B]">
             <span>Shipping</span>
-            <span className="text-emerald-700 font-medium">Free</span>
+            <span className="text-success font-medium">Free</span>
           </div>
           <div className="border-t border-[#C5A47E]/20 pt-2 flex justify-between font-semibold text-[#0F172A]">
             <span>Total</span>

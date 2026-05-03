@@ -65,13 +65,13 @@ export function RentalCard({ item }: Props) {
       <div className="flex items-center gap-1.5">
         <span
           className={`inline-block h-2 w-2 rounded-full ${
-            isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'
+            isLimited ? 'bg-warning' : 'bg-[#0E7C7B]'
           }`}
           aria-hidden="true"
         />
         <span
           className={`text-xs font-medium ${
-            isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'
+            isLimited ? 'text-warning' : 'text-[#0E7C7B]'
           }`}
         >
           {isLimited ? `Limited (${item.stockQty} left)` : 'Available'}

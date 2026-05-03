@@ -425,7 +425,7 @@ export function ProfilePhotoUploader({
                       e.stopPropagation();
                       handleSetPrimary(photo.id);
                     }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-yellow-300 text-sm hover:bg-black/60 transition"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/40 text-warning/80 text-sm hover:bg-black/60 transition"
                     title="Set as main photo"
                     aria-label="Set as main photo"
                   >

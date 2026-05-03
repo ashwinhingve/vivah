@@ -115,8 +115,8 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
 
   if (resolved) {
     return (
-      <tr className="bg-green-50">
-        <td colSpan={7} className="px-4 py-3 text-center text-sm text-green-700 font-medium">
+      <tr className="bg-success/10">
+        <td colSpan={7} className="px-4 py-3 text-center text-sm text-success font-medium">
           Dispute resolved
         </td>
       </tr>
@@ -134,7 +134,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
           {booking.vendorId.slice(0, 8)}
         </td>
         <td className="px-4 py-3 text-sm text-[#0F172A]">{formatInr(booking.totalAmount)}</td>
-        <td className="px-4 py-3 text-sm font-semibold text-amber-700">
+        <td className="px-4 py-3 text-sm font-semibold text-warning">
           {formatInr(booking.escrowHeld)}
         </td>
         <td className="px-4 py-3 text-sm text-[#64748B]">
@@ -188,7 +188,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-[#0F172A]">
                 <span className="font-semibold">Resolution preview:</span>{' '}
-                <span className="text-green-700">Vendor receives {formatInr(vendorPreview)}</span>
+                <span className="text-success">Vendor receives {formatInr(vendorPreview)}</span>
                 {' · '}
                 <span className="text-teal">Customer receives {formatInr(customerPreview)}</span>
               </div>
@@ -205,7 +205,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
                   type="button"
                   onClick={handleConfirm}
                   disabled={loading}
-                  className="min-h-[44px] rounded-lg bg-[#059669] px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition disabled:opacity-50"
+                  className="min-h-[44px] rounded-lg bg-[#059669] px-4 py-2 text-sm font-semibold text-white hover:bg-success transition disabled:opacity-50"
                 >
                   {loading ? 'Resolving…' : 'Confirm Resolution'}
                 </button>

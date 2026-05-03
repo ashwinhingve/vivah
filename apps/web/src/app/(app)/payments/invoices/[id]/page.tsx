@@ -167,7 +167,7 @@ export default async function InvoiceDetailPage({
               {parseFloat(invoice.discount) > 0 && (
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Discount</span>
-                  <span className="text-green-700">−{formatINR(invoice.discount)}</span>
+                  <span className="text-success">−{formatINR(invoice.discount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm text-muted-foreground">

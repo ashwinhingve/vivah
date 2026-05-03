@@ -111,7 +111,7 @@ export default async function AdminPage() {
             <h2 className="text-lg font-semibold text-primary font-heading">
               KYC Pending Review
               {kycQueue.length > 0 && (
-                <span className="ml-2 text-xs font-semibold text-warning bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                <span className="ml-2 text-xs font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded-full border border-warning/30">
                   {kycQueue.length}
                 </span>
               )}

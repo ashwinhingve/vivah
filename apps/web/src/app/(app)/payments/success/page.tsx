@@ -10,15 +10,15 @@ export default async function PaymentSuccessPage({
   const params = await searchParams;
   return (
     <main className="mx-auto max-w-xl px-4 py-12">
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-3xl text-white">✓</div>
-        <h1 className="mb-2 text-2xl font-semibold text-emerald-900">Payment successful</h1>
-        <p className="mb-6 text-emerald-800">Your transaction has been recorded. Thank you.</p>
+      <div className="rounded-xl border border-emerald-200 bg-success/10 p-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success text-3xl text-white">✓</div>
+        <h1 className="mb-2 text-2xl font-semibold text-success">Payment successful</h1>
+        <p className="mb-6 text-success">Your transaction has been recorded. Thank you.</p>
         {params.paymentId ? (
-          <p className="mb-2 text-sm text-emerald-700">Payment ID: <code className="bg-surface px-2 py-1 rounded">{params.paymentId}</code></p>
+          <p className="mb-2 text-sm text-success">Payment ID: <code className="bg-surface px-2 py-1 rounded">{params.paymentId}</code></p>
         ) : null}
         {params.bookingId ? (
-          <p className="mb-2 text-sm text-emerald-700">Booking: <code className="bg-surface px-2 py-1 rounded">{params.bookingId.slice(0, 8)}…</code></p>
+          <p className="mb-2 text-sm text-success">Booking: <code className="bg-surface px-2 py-1 rounded">{params.bookingId.slice(0, 8)}…</code></p>
         ) : null}
         <div className="mt-6 flex justify-center gap-3">
           {params.bookingId ? (

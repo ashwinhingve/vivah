@@ -19,13 +19,13 @@ export function WhyMatchPanel({ explainer, tier }: Props): JSX.Element | null {
         <ul className="space-y-1.5">
           {explainer.reasons.map((r, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-success" />
               {r}
             </li>
           ))}
           {explainer.caveat && (
-            <li className="flex items-start gap-2 text-sm text-amber-700">
-              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <li className="flex items-start gap-2 text-sm text-warning">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-warning" />
               {explainer.caveat}
             </li>
           )}

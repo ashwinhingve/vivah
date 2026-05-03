@@ -40,7 +40,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         isDisabled
           ? 'bg-secondary text-muted-foreground cursor-not-allowed'
           : added
-          ? 'bg-emerald-600 text-white'
+          ? 'bg-success text-white'
           : 'bg-[#0E7C7B] text-white hover:bg-[#0E7C7B]/90 active:scale-95',
       ].join(' ')}
     >

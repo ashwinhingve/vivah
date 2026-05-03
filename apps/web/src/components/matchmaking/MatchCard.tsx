@@ -159,7 +159,7 @@ export function MatchCard({ match }: MatchCardProps) {
           <ManglikChip manglik={match.manglik} size="xs" />
           <DistancePill distanceKm={match.distanceKm ?? null} fallbackCity={match.city ?? null} />
           {match.isBoosted ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning ring-1 ring-amber-200">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               Boosted
             </span>

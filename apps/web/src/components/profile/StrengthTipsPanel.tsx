@@ -29,12 +29,12 @@ export async function StrengthTipsPanel() {
   if (!data) return null;
   if (data.tips.length === 0) {
     return (
-      <Card className="border-emerald-200 bg-emerald-50 p-4">
+      <Card className="border-emerald-200 bg-success/10 p-4">
         <div className="flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <CheckCircle2 className="h-5 w-5 text-success" />
           <div>
-            <p className="text-sm font-semibold text-emerald-900">Profile is fully built</p>
-            <p className="text-xs text-emerald-700">No further suggestions — keep it up.</p>
+            <p className="text-sm font-semibold text-success">Profile is fully built</p>
+            <p className="text-xs text-success">No further suggestions — keep it up.</p>
           </div>
         </div>
       </Card>
@@ -44,7 +44,7 @@ export async function StrengthTipsPanel() {
   return (
     <Card className="space-y-3 p-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-amber-500" />
+        <Sparkles className="h-4 w-4 text-warning" />
         <h2 className="text-sm font-semibold text-foreground">Boost your profile</h2>
         <span className="ml-auto text-xs text-muted-foreground">{data.completeness}% complete</span>
       </div>
@@ -57,7 +57,7 @@ export async function StrengthTipsPanel() {
             >
               <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">{tip.tip}</p>
-                <p className="text-xs text-emerald-600">{tip.impactLabel}</p>
+                <p className="text-xs text-success">{tip.impactLabel}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </Link>

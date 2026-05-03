@@ -78,10 +78,10 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
             const arrived = !!g.arrivedAt;
             const pending = pendingId === g.id;
             return (
-              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-green-200' : 'border-[#C5A47E]/20'}`}>
+              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-success/30' : 'border-[#C5A47E]/20'}`}>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm flex items-center gap-1.5">
-                    {arrived && <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />}
+                    {arrived && <CheckCircle2 className="h-4 w-4 text-success shrink-0" />}
                     <span className="truncate">{g.name}</span>
                   </p>
                   <p className="text-[11px] text-muted-foreground">

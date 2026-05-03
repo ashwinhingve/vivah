@@ -111,8 +111,8 @@ export function RsvpForm({ token, view }: Props) {
   if (submitted) {
     return (
       <div className="text-center py-8">
-        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-3">
-          <Check className="h-6 w-6 text-green-700" />
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-success/15 mb-3">
+          <Check className="h-6 w-6 text-success" />
         </div>
         <p className="font-semibold text-[#7B2D42]">RSVP submitted</p>
         <p className="text-sm text-muted-foreground mt-1">Thank you! See you soon.</p>
@@ -135,7 +135,7 @@ export function RsvpForm({ token, view }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {deadlineWarning && (
-        <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 flex items-center gap-1.5">
+        <div className="rounded-lg bg-warning/10 border border-warning/30 px-3 py-2 text-xs text-warning flex items-center gap-1.5">
           <AlertTriangle className="h-3.5 w-3.5" />
           RSVP deadline: {deadline?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} at {deadline?.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
         </div>

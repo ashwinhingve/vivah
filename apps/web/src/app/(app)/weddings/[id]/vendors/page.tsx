@@ -13,8 +13,8 @@ const STATUSES = ['SHORTLISTED','INQUIRED','BOOKED','CONFIRMED','CANCELLED'];
 const STATUS_COLORS: Record<string, string> = {
   SHORTLISTED: 'bg-secondary text-foreground',
   INQUIRED:    'bg-teal/10 text-teal',
-  BOOKED:      'bg-amber-100 text-amber-800',
-  CONFIRMED:   'bg-green-100 text-green-800',
+  BOOKED:      'bg-warning/15 text-warning',
+  CONFIRMED:   'bg-success/15 text-success',
   CANCELLED:   'bg-destructive/15 text-destructive',
 };
 

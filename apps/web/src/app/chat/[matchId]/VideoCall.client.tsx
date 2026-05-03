@@ -17,8 +17,8 @@ type MeetingStatus = MeetingSchedule['status'];
 
 function statusBadge(status: MeetingStatus) {
   const styles: Record<MeetingStatus, string> = {
-    PROPOSED:  'bg-amber-100 text-amber-800',
-    CONFIRMED: 'bg-green-100 text-green-800',
+    PROPOSED:  'bg-warning/15 text-warning',
+    CONFIRMED: 'bg-success/15 text-success',
     COMPLETED: 'bg-secondary text-muted-foreground',
     CANCELLED: 'bg-destructive/15 text-destructive',
   };
@@ -338,7 +338,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
                       <button
                         onClick={() => handleRespond(meeting.id, 'CONFIRMED')}
                         disabled={isResponding}
-                        className="min-h-[44px] flex-1 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
+                        className="min-h-[44px] flex-1 rounded-lg bg-success px-3 py-2 text-sm font-semibold text-white hover:bg-success disabled:opacity-60 transition-colors"
                       >
                         {isResponding ? '…' : 'Confirm'}
                       </button>

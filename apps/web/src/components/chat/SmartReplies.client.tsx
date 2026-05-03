@@ -14,7 +14,7 @@ interface SmartRepliesProps {
 
 const TONE_COLORS: Record<SmartReplySuggestion['tone'], string> = {
   warm:     'border-rose-300/50 bg-rose-50 text-rose-700 hover:bg-rose-100',
-  curious:  'border-amber-300/50 bg-amber-50 text-amber-700 hover:bg-amber-100',
+  curious:  'border-warning/40/50 bg-warning/10 text-warning hover:bg-warning/15',
   friendly: 'border-teal/40 bg-teal/10 text-teal hover:bg-teal/15',
   safe:     'border-border bg-surface-muted text-foreground hover:bg-surface',
 }

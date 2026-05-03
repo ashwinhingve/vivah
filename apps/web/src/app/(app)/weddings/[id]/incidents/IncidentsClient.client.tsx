@@ -119,8 +119,8 @@ export function IncidentsClient({ weddingId, initial }: Props) {
                   <span className="font-medium text-foreground">{i.title}</span>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                     i.severity === 'CRITICAL' ? 'bg-rose-200 text-rose-900' :
-                    i.severity === 'HIGH'     ? 'bg-amber-200 text-amber-900' :
-                    i.severity === 'MEDIUM'   ? 'bg-amber-100 text-amber-800' :
+                    i.severity === 'HIGH'     ? 'bg-warning/20 text-warning' :
+                    i.severity === 'MEDIUM'   ? 'bg-warning/15 text-warning' :
                     'bg-foreground/10 text-foreground'
                   }`}>
                     {i.severity}
@@ -131,7 +131,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
                   {new Date(i.createdAt).toLocaleString()}
                   {i.resolvedAt ? ` · resolved ${new Date(i.resolvedAt).toLocaleString()}` : ''}
                 </p>
-                {i.resolution ? <p className="mt-1 text-xs italic text-emerald-700">Resolution: {i.resolution}</p> : null}
+                {i.resolution ? <p className="mt-1 text-xs italic text-success">Resolution: {i.resolution}</p> : null}
               </div>
               {!i.resolvedAt ? (
                 <button
@@ -141,7 +141,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
                   Resolve
                 </button>
               ) : (
-                <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-emerald-700">Resolved</span>
+                <span className="shrink-0 rounded-full bg-success/15 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-success">Resolved</span>
               )}
             </li>
           ))}

@@ -15,8 +15,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  PLANNING:  'bg-amber-100 text-amber-800',
-  CONFIRMED: 'bg-green-100 text-green-800',
+  PLANNING:  'bg-warning/15 text-warning',
+  CONFIRMED: 'bg-success/15 text-success',
   COMPLETED: 'bg-[#0E7C7B]/10 text-[#0E7C7B]',
   CANCELLED: 'bg-destructive/15 text-destructive',
 };

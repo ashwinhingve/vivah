@@ -54,12 +54,12 @@ const STATUS_TABS: { value: PaymentStatus; label: string }[] = [
 ];
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING:            { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
+  PENDING:            { bg: 'bg-warning/15',  text: 'text-warning',  label: 'Pending' },
   CAPTURED:           { bg: 'bg-teal/10',    text: 'text-teal',       label: 'Captured' },
-  RELEASED:           { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Released' },
+  RELEASED:           { bg: 'bg-success/15',  text: 'text-success',  label: 'Released' },
   REFUNDED:           { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Refunded' },
   FAILED:             { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Failed' },
-  PARTIALLY_REFUNDED: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Partly Refunded' },
+  PARTIALLY_REFUNDED: { bg: 'bg-warning/15', text: 'text-warning', label: 'Partly Refunded' },
 };
 
 export function PaymentsPageClient({ payments }: Props) {
@@ -109,7 +109,7 @@ export function PaymentsPageClient({ payments }: Props) {
       </div>
 
       {refundSuccess && (
-        <div className="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+        <div className="mb-4 rounded-lg bg-success/10 border border-success/30 px-4 py-3 text-sm text-success">
           Refund request submitted successfully. You will be notified once it is reviewed.
         </div>
       )}

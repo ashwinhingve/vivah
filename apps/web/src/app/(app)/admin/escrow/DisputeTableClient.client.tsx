@@ -40,7 +40,7 @@ export function DisputeTableClient({ disputes }: Props) {
           {openCount} open
         </span>
         {resolvedCount > 0 && (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
+          <span className="inline-flex items-center rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">
             {resolvedCount} resolved this session
           </span>
         )}
@@ -51,7 +51,7 @@ export function DisputeTableClient({ disputes }: Props) {
         <div
           role="status"
           aria-live="polite"
-          className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 shadow-sm"
+          className="mb-4 flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success shadow-sm"
         >
           <span className="font-semibold">Done:</span> {toast}
         </div>

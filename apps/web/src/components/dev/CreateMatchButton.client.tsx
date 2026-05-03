@@ -48,7 +48,7 @@ export function CreateMatchButton() {
       type="button"
       onClick={handleClick}
       disabled={status === 'loading'}
-      className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 disabled:opacity-50"
+      className="inline-flex items-center gap-1 rounded border border-warning/40 bg-warning/10 px-2 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/15 disabled:opacity-50"
       title="Dev: create a match engineered for the current user"
     >
       <Icon className={`h-3.5 w-3.5 ${status === 'loading' ? 'animate-spin' : ''}`} aria-hidden="true" />

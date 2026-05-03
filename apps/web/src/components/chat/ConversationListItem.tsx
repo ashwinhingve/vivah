@@ -66,7 +66,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
         {other?.isOnline ? (
           <span
             aria-label="Online"
-            className="absolute -right-0.5 -bottom-0.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-green-500"
+            className="absolute -right-0.5 -bottom-0.5 h-3.5 w-3.5 rounded-full border-2 border-surface bg-success"
           />
         ) : null}
       </div>

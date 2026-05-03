@@ -32,7 +32,7 @@ export function ClaimRegistryButton({ itemId, accent }: { itemId: string; accent
     });
   }
 
-  if (done) return <span className="text-xs text-green-700 italic shrink-0">Claimed — thank you!</span>;
+  if (done) return <span className="text-xs text-success italic shrink-0">Claimed — thank you!</span>;
 
   if (!open) {
     return (

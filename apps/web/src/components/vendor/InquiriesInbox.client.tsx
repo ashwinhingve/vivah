@@ -107,9 +107,9 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-sm text-primary truncate">{i.customerName ?? 'Customer'}</span>
                   <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                    i.status === 'NEW'       ? 'bg-amber-100 text-amber-700' :
+                    i.status === 'NEW'       ? 'bg-warning/15 text-warning' :
                     i.status === 'REPLIED'   ? 'bg-teal/15 text-teal' :
-                    i.status === 'CONVERTED' ? 'bg-green-100 text-green-700' :
+                    i.status === 'CONVERTED' ? 'bg-success/15 text-success' :
                                                'bg-secondary text-muted-foreground'
                   }`}>{i.status}</span>
                 </div>
@@ -177,7 +177,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
                   type="button"
                   onClick={() => send('CONVERTED')}
                   disabled={pending}
-                  className="rounded-lg border border-success text-success text-sm font-medium px-4 py-2 hover:bg-green-50 disabled:opacity-60"
+                  className="rounded-lg border border-success text-success text-sm font-medium px-4 py-2 hover:bg-success/10 disabled:opacity-60"
                 >
                   Mark booked
                 </button>

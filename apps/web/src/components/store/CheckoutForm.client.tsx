@@ -170,8 +170,8 @@ export function CheckoutForm() {
   if (orderSuccess !== null) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -293,7 +293,7 @@ export function CheckoutForm() {
             <span className="text-[#0F172A]">₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
           {promoResult && (
-            <div className="flex justify-between text-emerald-700">
+            <div className="flex justify-between text-success">
               <span className="flex items-center gap-1">
                 {promoResult.code}
                 <button
@@ -310,7 +310,7 @@ export function CheckoutForm() {
           )}
           <div className="flex justify-between text-[#64748B]">
             <span>Shipping</span>
-            <span className="text-emerald-700">Free</span>
+            <span className="text-success">Free</span>
           </div>
           <div className="flex justify-between font-bold text-[#0F172A] border-t border-[#C5A47E]/20 pt-2">
             <span>Total</span>
@@ -357,7 +357,7 @@ export function CheckoutForm() {
               )}
             </>
           ) : (
-            <p className="text-xs text-emerald-700 font-medium">
+            <p className="text-xs text-success font-medium">
               Promo applied: saving ₹{promoResult.discount.toLocaleString('en-IN')}
             </p>
           )}

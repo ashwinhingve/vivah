@@ -32,7 +32,7 @@ export default async function CoordinatorDashboardPage() {
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {weddings.map((w) => {
-            const accent = w.daysUntil !== null && w.daysUntil <= 7 ? 'border-amber-300 bg-amber-50' : 'border-foreground/10 bg-surface';
+            const accent = w.daysUntil !== null && w.daysUntil <= 7 ? 'border-warning/40 bg-warning/10' : 'border-foreground/10 bg-surface';
             return (
               <li key={w.weddingId}>
                 <Link
@@ -63,7 +63,7 @@ export default async function CoordinatorDashboardPage() {
                     </div>
                     <div className="flex justify-between">
                       <dt>Open incidents</dt>
-                      <dd className={`font-medium ${w.openIncidents > 0 ? 'text-amber-700' : 'text-foreground'}`}>
+                      <dd className={`font-medium ${w.openIncidents > 0 ? 'text-warning' : 'text-foreground'}`}>
                         {w.openIncidents}
                       </dd>
                     </div>

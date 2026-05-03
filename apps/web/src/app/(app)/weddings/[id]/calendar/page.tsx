@@ -52,10 +52,10 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-foreground">{c.type}</span>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
-                        c.status === 'IN_PROGRESS' ? 'bg-emerald-100 text-emerald-700' :
+                        c.status === 'IN_PROGRESS' ? 'bg-success/15 text-success' :
                         c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
                         c.status === 'CANCELLED'   ? 'bg-rose-100 text-rose-800' :
-                        'bg-amber-100 text-amber-800'
+                        'bg-warning/15 text-warning'
                       }`}>
                         {c.status}
                       </span>

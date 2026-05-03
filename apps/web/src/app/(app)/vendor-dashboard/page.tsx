@@ -84,7 +84,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
             >
               {t.label}
               {t.value === 'inquiries' && newInquiries > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5">{newInquiries}</span>
+                <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-warning/15 text-warning text-[10px] font-bold px-1.5">{newInquiries}</span>
               )}
             </Link>
           ))}
@@ -116,7 +116,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                         </p>
                         <p className="text-xs text-muted-foreground">₹{b.totalAmount.toLocaleString('en-IN')}</p>
                       </div>
-                      <span className="text-xs font-semibold text-success bg-green-50 px-2 py-1 rounded-full">Confirmed</span>
+                      <span className="text-xs font-semibold text-success bg-success/10 px-2 py-1 rounded-full">Confirmed</span>
                     </div>
                   ))}
                 </div>

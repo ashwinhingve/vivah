@@ -63,9 +63,9 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <span className="inline-flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: full }).map((_, i) => (
-        <Star key={`f${i}`} className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+        <Star key={`f${i}`} className="h-4 w-4 fill-amber-400 text-warning/80" aria-hidden="true" />
       ))}
-      {half ? <StarHalf className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" /> : null}
+      {half ? <StarHalf className="h-4 w-4 fill-amber-400 text-warning/80" aria-hidden="true" /> : null}
       {Array.from({ length: empty }).map((_, i) => (
         <Star key={`e${i}`} className="h-4 w-4 text-border" aria-hidden="true" />
       ))}

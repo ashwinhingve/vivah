@@ -64,7 +64,7 @@ export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPane
           </span>
         </span>
         {pending > 0 ? (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+          <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
             {pending} pending
           </span>
         ) : null}

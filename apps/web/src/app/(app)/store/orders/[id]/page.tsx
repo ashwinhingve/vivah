@@ -9,18 +9,18 @@ interface PageProps {
 }
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; cls: string }> = {
-  PLACED:    { label: 'Placed',    cls: 'bg-amber-50  text-amber-700'    },
+  PLACED:    { label: 'Placed',    cls: 'bg-warning/10  text-warning'    },
   CONFIRMED: { label: 'Confirmed', cls: 'bg-teal/10   text-teal'     },
-  SHIPPED:   { label: 'Shipped',   cls: 'bg-purple-50 text-purple-700'   },
-  DELIVERED: { label: 'Delivered', cls: 'bg-emerald-50 text-emerald-700' },
+  SHIPPED:   { label: 'Shipped',   cls: 'bg-primary/10 text-primary'   },
+  DELIVERED: { label: 'Delivered', cls: 'bg-success/10 text-success' },
   CANCELLED: { label: 'Cancelled', cls: 'bg-secondary  text-muted-foreground'     },
   REFUNDED:  { label: 'Refunded',  cls: 'bg-secondary  text-muted-foreground'     },
 };
 
 const FULFILMENT_CONFIG: Record<FulfilmentStatus, { label: string; cls: string }> = {
-  PENDING:   { label: 'Pending',   cls: 'text-amber-700'  },
-  SHIPPED:   { label: 'Shipped',   cls: 'text-purple-700' },
-  DELIVERED: { label: 'Delivered', cls: 'text-emerald-700'},
+  PENDING:   { label: 'Pending',   cls: 'text-warning'  },
+  SHIPPED:   { label: 'Shipped',   cls: 'text-primary' },
+  DELIVERED: { label: 'Delivered', cls: 'text-success'},
 };
 
 const CANCELLABLE: OrderStatus[] = ['PLACED', 'CONFIRMED'];
@@ -109,7 +109,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             </div>
             <div className="flex justify-between text-[#64748B]">
               <span>Shipping</span>
-              <span className="text-emerald-700">
+              <span className="text-success">
                 {order.shippingFee === 0 ? 'Free' : `₹${order.shippingFee.toLocaleString('en-IN')}`}
               </span>
             </div>

@@ -10,8 +10,8 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
     product.stockQty === 0
       ? { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' }
       : product.stockQty <= 10
-      ? { text: `${product.stockQty} left`, cls: 'text-amber-700 bg-amber-50' }
-      : { text: `${product.stockQty} in stock`, cls: 'text-emerald-700 bg-emerald-50' };
+      ? { text: `${product.stockQty} left`, cls: 'text-warning bg-warning/10' }
+      : { text: `${product.stockQty} in stock`, cls: 'text-success bg-success/10' };
 
   return (
     <div

@@ -54,10 +54,10 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Warning banner */}
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+      <div className="rounded-xl border border-warning/40 bg-warning/10 p-4">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 text-amber-600" aria-hidden="true">⚠</span>
-          <p className="text-sm text-amber-800">
+          <span className="mt-0.5 text-warning" aria-hidden="true">⚠</span>
+          <p className="text-sm text-warning">
             <strong>Important:</strong> Disputes freeze your escrow payment until admin resolution.
             This process may take 1–3 business days. Only raise a dispute if you have a genuine
             concern that cannot be resolved directly with the vendor.
@@ -87,13 +87,13 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
         />
         <div className="flex items-center justify-between">
           <p
-            className={`text-xs ${charCount < MIN_REASON ? 'text-amber-600' : 'text-[#64748B]'}`}
+            className={`text-xs ${charCount < MIN_REASON ? 'text-warning' : 'text-[#64748B]'}`}
           >
             {charCount < MIN_REASON
               ? `${MIN_REASON - charCount} more characters required`
               : 'Looks good'}
           </p>
-          <p className={`text-xs ${charCount > MAX_REASON * 0.9 ? 'text-amber-600' : 'text-[#64748B]'}`}>
+          <p className={`text-xs ${charCount > MAX_REASON * 0.9 ? 'text-warning' : 'text-[#64748B]'}`}>
             {charCount} / {MAX_REASON}
           </p>
         </div>

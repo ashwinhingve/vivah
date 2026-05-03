@@ -8,9 +8,9 @@ import { createExpenseAction, deleteExpenseAction, recordPaymentAction } from '.
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT:          'bg-secondary text-foreground',
-  DUE:            'bg-amber-100 text-amber-800',
+  DUE:            'bg-warning/15 text-warning',
   PARTIALLY_PAID: 'bg-teal/10 text-teal',
-  PAID:           'bg-green-100 text-green-800',
+  PAID:           'bg-success/15 text-success',
   CANCELLED:      'bg-destructive/15 text-destructive',
 };
 
@@ -96,8 +96,8 @@ export default async function ExpensesPage({ params }: PageProps) {
 
         {/* Upcoming due */}
         {(summary?.upcomingDue ?? []).length > 0 && (
-          <div className="bg-surface border border-amber-200 rounded-xl shadow-sm p-5 mb-6">
-            <h2 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+          <div className="bg-surface border border-warning/30 rounded-xl shadow-sm p-5 mb-6">
+            <h2 className="font-semibold text-warning mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" /> Upcoming payments
             </h2>
             <ul className="divide-y divide-[#C5A47E]/10">
@@ -107,7 +107,7 @@ export default async function ExpensesPage({ params }: PageProps) {
                     <p className="font-medium text-foreground">{d.label}</p>
                     <p className="text-xs text-muted-foreground">Due {new Date(d.dueDate).toLocaleDateString('en-IN')}</p>
                   </div>
-                  <span className="font-semibold text-amber-700">{fmt(d.amount)}</span>
+                  <span className="font-semibold text-warning">{fmt(d.amount)}</span>
                 </li>
               ))}
             </ul>
@@ -202,7 +202,7 @@ export default async function ExpensesPage({ params }: PageProps) {
 }
 
 function SummaryCard({ label, value, success, warning }: { label: string; value: string; success?: boolean; warning?: boolean }) {
-  const color = success ? 'text-[#0E7C7B]' : warning ? 'text-amber-700' : 'text-[#7B2D42]';
+  const color = success ? 'text-[#0E7C7B]' : warning ? 'text-warning' : 'text-[#7B2D42]';
   return (
     <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>

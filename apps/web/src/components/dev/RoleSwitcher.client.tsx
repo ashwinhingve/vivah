@@ -40,7 +40,7 @@ export function RoleSwitcher() {
     <select
       onChange={(e) => { if (e.target.value) void handleSwitch(e.target.value); }}
       disabled={loading}
-      className="text-xs border border-amber-300 bg-amber-50 text-amber-800 rounded px-1.5 py-1 cursor-pointer disabled:opacity-50"
+      className="text-xs border border-warning/40 bg-warning/10 text-warning rounded px-1.5 py-1 cursor-pointer disabled:opacity-50"
       defaultValue=""
     >
       <option value="" disabled>Switch Role</option>

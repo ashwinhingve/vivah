@@ -142,7 +142,7 @@ export function SendInvitations({
       </button>
 
       {result && (
-        <div className="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900">
+        <div className="mt-4 rounded-lg bg-success/10 border border-emerald-200 p-3 text-xs text-success">
           <p className="font-medium">
             Sent {result.sent ?? 0} · Failed {result.failed ?? 0}
           </p>
