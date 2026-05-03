@@ -14,6 +14,12 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./src/vitest.setup.ts'],
+    // Heavy tests (e.g. profiles/service.test.ts on cold WSL2 fs) take 5–7s
+    // on first import as the full module graph compiles. Default 5s timeout
+    // produces transient flakes; 15s gives steady headroom without masking
+    // truly stuck tests.
+    testTimeout: 15_000,
+    hookTimeout: 15_000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],

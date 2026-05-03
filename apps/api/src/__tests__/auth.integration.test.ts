@@ -42,6 +42,14 @@ vi.mock('../lib/db.js', () => ({
   db: { update: mockDbUpdate },
 }));
 
+// pingLastActive is a fire-and-forget heartbeat that hits db.update directly.
+// We don't exercise it in these middleware tests, so stub it out to avoid the
+// "[lastActive] update threw synchronously" noise that surfaces when the
+// minimal db mock doesn't return a chainable for set/where.
+vi.mock('../auth/lastActive.js', () => ({
+  pingLastActive: vi.fn(),
+}));
+
 // ── Import modules under test after mocks are in place ───────────────────────
 
 import { authenticate } from '../auth/middleware.js';
