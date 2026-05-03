@@ -60,32 +60,32 @@ export function DisputeTableClient({ disputes }: Props) {
       {/* Disputes table */}
       <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
         {/* Mobile scroll hint */}
-        <div className="block sm:hidden px-4 py-2 text-xs text-[#64748B] bg-secondary border-b border-border">
+        <div className="block sm:hidden px-4 py-2 text-xs text-muted-foreground bg-secondary border-b border-border">
           Scroll right to see all columns →
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left">
             <thead className="border-b border-border bg-secondary">
               <tr>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Booking
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Customer
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Vendor
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Total
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Escrow Held
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Raised At
                 </th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Resolve
                 </th>
               </tr>

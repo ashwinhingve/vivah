@@ -206,12 +206,12 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           placeholder="Search guests…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B]"
+          className="flex-1 min-w-[200px] min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal"
         />
         <button
           onClick={() => setShowForm((v) => !v)}
           className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors shrink-0"
-          style={{ backgroundColor: '#0E7C7B' }}
+          style={{ backgroundColor: 'var(--color-teal)' }}
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add Guest
@@ -219,7 +219,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isImporting}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-surface text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-60"
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-gold/40 bg-surface text-primary hover:bg-background disabled:opacity-60"
         >
           {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
           Import CSV
@@ -227,7 +227,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvFile} className="hidden" />
         <button
           onClick={handleCsvExport}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-surface text-[#7B2D42] hover:bg-[#FEFAF6]"
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-gold/40 bg-surface text-primary hover:bg-background"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -238,7 +238,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
       {showForm && (
         <form
           onSubmit={handleAdd}
-          className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
+          className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <input name="name" type="text" placeholder="Full name *" value={form.name} onChange={handleFormChange} required className={inputCls} />
@@ -262,8 +262,8 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
             </select>
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setShowForm(false)} className="min-h-[44px] px-4 rounded-lg border border-[#C5A47E]/40 text-sm text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
-            <button type="submit" disabled={isAdding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: '#0E7C7B' }}>
+            <button type="button" onClick={() => setShowForm(false)} className="min-h-[44px] px-4 rounded-lg border border-gold/40 text-sm text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
+            <button type="submit" disabled={isAdding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
               {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Guest'}
             </button>
           </div>
@@ -272,14 +272,14 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
 
       {/* Table */}
       {sorted.length === 0 ? (
-        <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-10 text-center">
+        <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-10 text-center">
           <p className="text-muted-foreground text-sm">{search ? 'No guests match your search.' : 'No guests added yet.'}</p>
         </div>
       ) : (
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
-              <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6]">
+              <tr className="border-b border-gold/10 bg-background">
                 <SortHeader col="name"         label="Name"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader col="relationship" label="Relationship" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                 <SortHeader col="side"         label="Side"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -290,13 +290,13 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
             </thead>
             <tbody>
               {sorted.map((guest, i) => (
-                <tr key={guest.id} className={`border-b border-[#C5A47E]/10 last:border-0 ${i % 2 === 0 ? 'bg-surface' : 'bg-[#FEFAF6]/50'}`}>
+                <tr key={guest.id} className={`border-b border-gold/10 last:border-0 ${i % 2 === 0 ? 'bg-surface' : 'bg-background/50'}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       {guest.isVip && <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning" aria-label="VIP" />}
                       <p className="font-medium text-foreground">{guest.name}</p>
                       {guest.ageGroup !== 'ADULT' && (
-                        <span className="text-[10px] uppercase tracking-wide bg-[#C5A47E]/20 text-[#7B2D42] rounded-full px-1.5 py-0.5">{guest.ageGroup}</span>
+                        <span className="text-[10px] uppercase tracking-wide bg-gold/20 text-primary rounded-full px-1.5 py-0.5">{guest.ageGroup}</span>
                       )}
                       {guest.arrivedAt && <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-label="Checked in" />}
                     </div>
@@ -318,7 +318,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                         onClick={() => sendInvitation(guest.id)}
                         disabled={isSending && sendingId === guest.id}
                         aria-label={`Send invitation to ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-[#0E7C7B] border border-[#0E7C7B]/30 hover:bg-[#0E7C7B]/10 disabled:opacity-50 transition-colors"
+                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-teal border border-teal/30 hover:bg-teal/10 disabled:opacity-50 transition-colors"
                       >
                         {isSending && sendingId === guest.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Mail className="h-3 w-3" />}
                         Invite
@@ -326,7 +326,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                       <button
                         onClick={() => setEditGuest(guest)}
                         aria-label={`Edit ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-muted-foreground border border-[#C5A47E]/40 hover:bg-[#FEFAF6]"
+                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-muted-foreground border border-gold/40 hover:bg-background"
                       >
                         <Pencil className="h-3 w-3" /> Edit
                       </button>
@@ -369,7 +369,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
   );
 }
 
-const inputCls = 'min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B]';
+const inputCls = 'min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal';
 
 function SortHeader({
   col, label, sortKey, sortDir, onSort,
@@ -381,7 +381,7 @@ function SortHeader({
     <th className="text-left px-4 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground select-none" onClick={() => onSort(col)}>
       <span className="inline-flex items-center gap-1">
         {label}
-        <span className={active ? 'text-[#0E7C7B]' : ''}>
+        <span className={active ? 'text-teal' : ''}>
           {sortDir === 'asc' || !active ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
         </span>
       </span>

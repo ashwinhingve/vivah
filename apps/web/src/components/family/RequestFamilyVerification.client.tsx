@@ -25,7 +25,7 @@ export function RequestFamilyVerification({ verified }: Props) {
     <button
       onClick={handleClick}
       disabled={pending}
-      className="text-xs text-[#0E7C7B] underline mt-1 disabled:opacity-60 inline-flex items-center gap-1"
+      className="text-xs text-teal underline mt-1 disabled:opacity-60 inline-flex items-center gap-1"
     >
       {pending && <Loader2 className="h-3 w-3 animate-spin" />} Request verification
     </button>

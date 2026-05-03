@@ -23,9 +23,9 @@ export function PaymentSummaryCard({
   walletBalance,
 }: PaymentSummaryCardProps) {
   const items = [
-    { label: 'Total Spent',     value: formatINR(totalSpend),    color: '#7B2D42' },
-    { label: 'Refunded',        value: formatINR(totalRefunded), color: '#059669' },
-    { label: 'Wallet Balance',  value: formatINR(walletBalance), color: '#0E7C7B' },
+    { label: 'Total Spent',     value: formatINR(totalSpend),    color: 'var(--color-primary)' },
+    { label: 'Refunded',        value: formatINR(totalRefunded), color: 'var(--color-success)' },
+    { label: 'Wallet Balance',  value: formatINR(walletBalance), color: 'var(--color-teal)' },
   ];
 
   return (
@@ -34,7 +34,7 @@ export function PaymentSummaryCard({
         <div
           key={label}
           className="rounded-xl bg-surface border px-4 py-4 text-center shadow-sm"
-          style={{ borderColor: '#C5A47E' }}
+          style={{ borderColor: 'var(--color-gold)' }}
         >
           <p className="text-lg font-bold sm:text-xl" style={{ color }}>
             {value}

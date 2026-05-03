@@ -37,7 +37,7 @@ const socialIcons = [
 
 function renderLink(link: FooterLink) {
   const className =
-    'text-[#9090A0] text-sm hover:text-white transition-colors min-h-[44px] inline-flex items-center';
+    'text-muted-foreground text-sm hover:text-white transition-colors min-h-[44px] inline-flex items-center';
 
   if (link.disabled) {
     return (
@@ -78,7 +78,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <LogoWhite />
-            <p className="text-[#9090A0] text-sm mt-4 max-w-[220px] leading-relaxed">
+            <p className="text-muted-foreground text-sm mt-4 max-w-[220px] leading-relaxed">
               India&apos;s AI-Powered Matrimonial Platform
             </p>
             <div className="flex gap-3 mt-6">

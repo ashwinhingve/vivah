@@ -40,7 +40,7 @@ export default function PersonalityPage(): JSX.Element {
   return (
     <div className="mx-auto max-w-md p-5 space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-[#0A1F4D]">Tell us about yourself</h1>
+        <h1 className="text-2xl font-semibold text-primary">Tell us about yourself</h1>
         <p className="text-sm text-muted-foreground">
           Six quick sliders. Helps us find people who fit you.
         </p>
@@ -86,7 +86,7 @@ export default function PersonalityPage(): JSX.Element {
             router.push('/profile/preferences');
           })
         }
-        className="w-full rounded-lg bg-[#1848C8] py-3 font-medium text-white disabled:opacity-50"
+        className="w-full rounded-lg bg-teal py-3 font-medium text-white disabled:opacity-50"
       >
         {pending ? 'Saving…' : 'Continue'}
       </button>

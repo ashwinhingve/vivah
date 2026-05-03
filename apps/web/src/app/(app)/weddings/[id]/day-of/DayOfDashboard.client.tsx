@@ -95,7 +95,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
             {snap.ceremonies.map((c) => {
               const active = snap.activeCeremonyId === c.id;
               return (
-                <li key={c.id} className={`rounded-lg border p-3 ${active ? 'border-emerald-300 bg-success/10' : 'border-foreground/10'}`}>
+                <li key={c.id} className={`rounded-lg border p-3 ${active ? 'border-success/30 bg-success/10' : 'border-foreground/10'}`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-foreground">{c.type}</p>
@@ -106,7 +106,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                       c.status === 'IN_PROGRESS' ? 'bg-success text-success' :
                       c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
-                      c.status === 'CANCELLED'   ? 'bg-rose-100 text-rose-800' :
+                      c.status === 'CANCELLED'   ? 'bg-destructive text-destructive' :
                       'bg-warning/15 text-warning'
                     }`}>
                       {c.status}
@@ -163,7 +163,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-foreground">{i.title}</span>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
-                      i.severity === 'CRITICAL' ? 'bg-rose-200 text-rose-900' :
+                      i.severity === 'CRITICAL' ? 'bg-destructive text-destructive' :
                       i.severity === 'HIGH'     ? 'bg-warning/20 text-warning' :
                       i.severity === 'MEDIUM'   ? 'bg-warning/15 text-warning' :
                       'bg-foreground/10 text-foreground'

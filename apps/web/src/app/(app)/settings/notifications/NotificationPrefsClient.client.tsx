@@ -63,13 +63,13 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <h2 className="mb-1 text-lg font-semibold text-[#0A1F4D]">Channels</h2>
+        <h2 className="mb-1 text-lg font-semibold text-primary">Channels</h2>
         <p className="mb-4 text-sm text-muted-foreground">Choose how you want to be notified.</p>
         <div className="divide-y divide-slate-100">
           {CHANNELS.map(c => (
             <label key={c.key} className="flex items-center justify-between gap-4 py-3">
               <div>
-                <span className="block font-medium text-[#0A1F4D]">{c.label}</span>
+                <span className="block font-medium text-primary">{c.label}</span>
                 <span className="block text-sm text-muted-foreground">{c.description}</span>
               </div>
               <input
@@ -84,14 +84,14 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
       </section>
 
       <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <h2 className="mb-1 text-lg font-semibold text-[#0A1F4D]">Mute specific events</h2>
+        <h2 className="mb-1 text-lg font-semibold text-primary">Mute specific events</h2>
         <p className="mb-4 text-sm text-muted-foreground">Even with channels enabled, these specific events will not notify you.</p>
         <div className="divide-y divide-slate-100">
           {MUTABLE_EVENTS.map(e => {
             const muted = prefs.mutedTypes.includes(e.key);
             return (
               <label key={e.key} className="flex items-center justify-between gap-4 py-3">
-                <span className="text-[#0A1F4D]">{e.label}</span>
+                <span className="text-primary">{e.label}</span>
                 <input
                   type="checkbox"
                   checked={muted}

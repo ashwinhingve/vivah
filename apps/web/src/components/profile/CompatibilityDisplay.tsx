@@ -41,24 +41,24 @@ const DEFAULT_FACTORS: AshtakootFactor[] = [
 ];
 
 function getScoreConfig(score: number): { color: string; label: string } {
-  if (score <= 17) return { color: '#DC2626', label: 'Low Compatibility' };
-  if (score <= 24) return { color: '#D97706', label: 'Moderate' };
-  if (score <= 32) return { color: '#0E7C7B', label: 'Good Compatibility' };
-  return { color: '#059669', label: 'Excellent Match' };
+  if (score <= 17) return { color: 'var(--color-destructive)', label: 'Low Compatibility' };
+  if (score <= 24) return { color: 'var(--color-warning)', label: 'Moderate' };
+  if (score <= 32) return { color: 'var(--color-teal)', label: 'Good Compatibility' };
+  return { color: 'var(--color-success)', label: 'Excellent Match' };
 }
 
 const SEVERITY_COLOR: Record<DoshaSeverity, string> = {
-  none:   '#059669',
-  low:    '#D97706',
-  medium: '#EA580C',
-  high:   '#DC2626',
+  none:   'var(--color-success)',
+  low:    'var(--color-warning)',
+  medium: 'var(--color-warning)',
+  high:   'var(--color-destructive)',
 };
 
 const BAND_COLOR: Record<DomainBand, string> = {
-  excellent: '#059669',
-  good:      '#0E7C7B',
-  average:   '#D97706',
-  low:       '#DC2626',
+  excellent: 'var(--color-success)',
+  good:      'var(--color-teal)',
+  average:   'var(--color-warning)',
+  low:       'var(--color-destructive)',
 };
 
 const DOMAIN_META: Record<keyof GunaResult['insights'], { label: string; hi: string; icon: string }> = {
@@ -110,7 +110,7 @@ export function CompatibilityDisplay({
       <div className="p-5 flex items-center gap-5">
         <div className="relative shrink-0 w-24 h-24">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-            <circle cx="50" cy="50" r={RING_RADIUS} fill="none" stroke="#F0EBE4" strokeWidth="8" />
+            <circle cx="50" cy="50" r={RING_RADIUS} fill="none" stroke="var(--color-border-light)" strokeWidth="8" />
             <circle
               cx="50" cy="50" r={RING_RADIUS}
               fill="none"
@@ -226,9 +226,9 @@ function OverviewPane({ result }: { result: GunaResult }) {
       <p className="text-sm text-foreground leading-relaxed">{result.recommendation}</p>
 
       <div className="grid grid-cols-3 gap-2">
-        <StatChip label="Score"          value={`${result.totalScore}/36`} accent="#0E7C7B" />
-        <StatChip label="Active doshas"  value={String(counts.active)}     accent={counts.active > 0 ? '#DC2626' : '#059669'} />
-        <StatChip label="Yogas present"  value={String(yogaCount)}         accent="#0A1F4D" />
+        <StatChip label="Score"          value={`${result.totalScore}/36`} accent="var(--color-teal)" />
+        <StatChip label="Active doshas"  value={String(counts.active)}     accent={counts.active > 0 ? 'var(--color-destructive)' : 'var(--color-success)'} />
+        <StatChip label="Yogas present"  value={String(yogaCount)}         accent="var(--color-primary)" />
       </div>
 
       <div>
@@ -437,7 +437,7 @@ function InsightsPane({
 }
 
 function YogaCard({ name, present, reason }: { name: string; present: boolean; reason: string }) {
-  const c = present ? '#059669' : '#94A3B8';
+  const c = present ? 'var(--color-success)' : 'var(--color-muted-foreground)';
   return (
     <div className="rounded-lg border border-border-light p-3"
          style={{ borderLeftWidth: 3, borderLeftColor: c }}>

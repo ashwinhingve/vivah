@@ -42,14 +42,14 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
   if (confirming) {
     return (
       <div className="flex flex-col items-end gap-1.5">
-        <p className="text-xs text-[#64748B] max-w-[180px] text-right">
+        <p className="text-xs text-muted-foreground max-w-[180px] text-right">
           Delete &ldquo;{productName}&rdquo;? This cannot be undone.
         </p>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => setConfirming(false)}
-            className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-[#64748B] border border-[#C5A47E]/30 rounded-lg hover:border-[#64748B] transition-colors"
+            className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-muted-foreground border border-gold/30 rounded-lg hover:border-muted-foreground transition-colors"
           >
             Cancel
           </button>

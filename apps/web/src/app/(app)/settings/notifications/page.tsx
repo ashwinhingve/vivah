@@ -33,7 +33,7 @@ export default async function NotificationSettingsPage() {
   const prefs = await fetchPrefs();
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-[#0A1F4D]">Notification preferences</h1>
+      <h1 className="mb-6 text-2xl font-bold text-primary">Notification preferences</h1>
       <NotificationPrefsClient initial={prefs} />
     </main>
   );

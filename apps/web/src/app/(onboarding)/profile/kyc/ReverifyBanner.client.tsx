@@ -29,7 +29,7 @@ export function ReverifyBanner({ expiresAt }: Props) {
       expired ? 'border-destructive/30 bg-destructive/5' : 'border-warning/30 bg-warning/5'
     }`}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-        stroke={expired ? '#DC2626' : '#D97706'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        stroke={expired ? 'var(--color-destructive)' : 'var(--color-warning)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
         className="shrink-0 mt-0.5" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />

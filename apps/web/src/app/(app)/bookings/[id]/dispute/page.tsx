@@ -44,15 +44,15 @@ export default async function DisputePage({
     return (
       <div className="mx-auto max-w-lg px-4 py-12">
         <div className="rounded-xl border border-border bg-surface p-6 shadow-sm text-center">
-          <p className="text-[#0F172A] font-medium">
+          <p className="text-foreground font-medium">
             This booking cannot be disputed
           </p>
-          <p className="mt-1 text-sm text-[#64748B]">
+          <p className="mt-1 text-sm text-muted-foreground">
             Only confirmed or completed bookings can have disputes raised.
           </p>
           <Link
             href={`/bookings/${id}`}
-            className="mt-4 inline-block rounded-lg bg-[#0A1F4D] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1848C8] transition"
+            className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal transition"
           >
             Back to Booking
           </Link>
@@ -64,22 +64,22 @@ export default async function DisputePage({
   return (
     <div className="mx-auto max-w-lg px-4 py-8 sm:py-12">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-[#64748B]">
-        <Link href="/bookings" className="hover:text-[#1848C8] transition">
+      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/bookings" className="hover:text-teal transition">
           Bookings
         </Link>
         <span aria-hidden="true">/</span>
-        <Link href={`/bookings/${id}`} className="hover:text-[#1848C8] transition">
+        <Link href={`/bookings/${id}`} className="hover:text-teal transition">
           Booking Details
         </Link>
         <span aria-hidden="true">/</span>
-        <span className="text-[#0F172A] font-medium">Raise Dispute</span>
+        <span className="text-foreground font-medium">Raise Dispute</span>
       </nav>
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-[#0A1F4D]">Raise a Dispute</h1>
-        <p className="mt-1 text-sm text-[#64748B]">
+        <h1 className="text-xl font-bold text-primary">Raise a Dispute</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Booking #{id.slice(0, 8).toUpperCase()}
         </p>
       </div>
@@ -88,12 +88,12 @@ export default async function DisputePage({
       <div className="mb-6 rounded-xl border border-border bg-surface p-4 shadow-sm">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div>
-            <dt className="text-[#64748B]">Vendor</dt>
-            <dd className="font-medium text-[#0F172A]">{booking.vendorName}</dd>
+            <dt className="text-muted-foreground">Vendor</dt>
+            <dd className="font-medium text-foreground">{booking.vendorName}</dd>
           </div>
           <div>
-            <dt className="text-[#64748B]">Event date</dt>
-            <dd className="font-medium text-[#0F172A]">
+            <dt className="text-muted-foreground">Event date</dt>
+            <dd className="font-medium text-foreground">
               {new Date(booking.eventDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -102,12 +102,12 @@ export default async function DisputePage({
             </dd>
           </div>
           <div>
-            <dt className="text-[#64748B]">Total amount</dt>
-            <dd className="font-medium text-[#0F172A]">{formatInr(booking.totalAmount)}</dd>
+            <dt className="text-muted-foreground">Total amount</dt>
+            <dd className="font-medium text-foreground">{formatInr(booking.totalAmount)}</dd>
           </div>
           {booking.escrowAmount != null && (
             <div>
-              <dt className="text-[#64748B]">Escrow held</dt>
+              <dt className="text-muted-foreground">Escrow held</dt>
               <dd className="font-semibold text-warning">{formatInr(booking.escrowAmount)}</dd>
             </div>
           )}

@@ -219,7 +219,7 @@ export default function FamilyPage() {
             ) : (
               <div className="space-y-2">
                 {siblings.map((sib, idx) => (
-                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-center bg-[#FEFAF6] rounded-lg p-2">
+                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-center bg-background rounded-lg p-2">
                     <input
                       name="siblingName"
                       defaultValue={sib.name ?? ''}

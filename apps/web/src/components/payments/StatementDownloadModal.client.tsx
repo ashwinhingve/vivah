@@ -73,10 +73,10 @@ export function StatementDownloadModal({ onClose }: Props) {
     >
       <div
         className="w-full max-w-sm rounded-2xl bg-surface border shadow-xl"
-        style={{ borderColor: '#C5A47E' }}
+        style={{ borderColor: 'var(--color-gold)' }}
       >
-        <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#C5A47E' }}>
-          <h2 id="statement-modal-title" className="font-heading text-lg font-semibold" style={{ color: '#7B2D42' }}>
+        <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: 'var(--color-gold)' }}>
+          <h2 id="statement-modal-title" className="font-heading text-lg font-semibold" style={{ color: 'var(--color-primary)' }}>
             Download Statement
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">

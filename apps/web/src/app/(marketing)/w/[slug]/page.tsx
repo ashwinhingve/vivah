@@ -33,15 +33,15 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
   const view = await fetchPublicWebsite(slug, password) as SiteView | null;
   if (!view) notFound();
 
-  const accent = view.theme?.primary ?? '#7B2D42';
-  const muted  = view.theme?.accent ?? '#C5A47E';
+  const accent = view.theme?.primary ?? 'var(--color-primary)';
+  const muted  = view.theme?.accent ?? 'var(--color-gold)';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[320px] flex items-center justify-center overflow-hidden">
         {view.heroImageUrl ? (
-          <Image src={view.heroImageUrl} alt="" fill className="object-cover" sizes="100vw" priority unoptimized />
+          <Image src={view.heroImageUrl} alt="" fill className="object-cover" sizes="100vw" priority />
         ) : (
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}33, ${muted}33)` }} />
         )}
@@ -66,7 +66,7 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
           <h2 className="font-heading text-2xl mb-6 text-center" style={{ color: accent }}>Schedule of Events</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {view.ceremonies.map((c, i) => (
-              <div key={i} className="bg-surface border border-[#C5A47E]/20 rounded-xl p-5">
+              <div key={i} className="bg-surface border border-gold/20 rounded-xl p-5">
                 <p className="text-xs uppercase tracking-widest mb-1" style={{ color: muted }}>{c.type}</p>
                 <p className="font-semibold">{fmtDate(c.date)}</p>
                 {c.startTime && <p className="text-sm text-muted-foreground">{c.startTime}</p>}
@@ -85,7 +85,7 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {view.galleryUrls.map((url, i) => (
               <div key={i} className="aspect-square relative rounded-lg overflow-hidden">
-                <Image src={url} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" unoptimized />
+                <Image src={url} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" />
               </div>
             ))}
           </div>
@@ -98,10 +98,10 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
           <h2 className="font-heading text-2xl mb-6 text-center" style={{ color: accent }}>Gift Registry</h2>
           <div className="space-y-3">
             {view.registry.map(r => (
-              <div key={r.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 flex items-center gap-4">
+              <div key={r.id} className="bg-surface border border-gold/20 rounded-xl p-4 flex items-center gap-4">
                 {r.imageUrl && (
                   <div className="h-16 w-16 relative rounded overflow-hidden shrink-0">
-                    <Image src={r.imageUrl} alt="" fill className="object-cover" sizes="64px" unoptimized />
+                    <Image src={r.imageUrl} alt="" fill className="object-cover" sizes="64px" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">

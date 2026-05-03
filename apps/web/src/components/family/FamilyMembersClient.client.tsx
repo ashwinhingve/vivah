@@ -65,51 +65,51 @@ export function FamilyMembersClient({ initial }: Props) {
   }
 
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-sm text-[#7B2D42]">Family members</h3>
+        <h3 className="font-medium text-sm text-primary">Family members</h3>
         <button
           onClick={() => setShowForm(v => !v)}
           className="flex items-center gap-1.5 text-xs px-3 min-h-[36px] rounded-lg text-white"
-          style={{ backgroundColor: '#0E7C7B' }}
+          style={{ backgroundColor: 'var(--color-teal)' }}
         >
           <Plus className="h-3.5 w-3.5" /> Add
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-[#FEFAF6] rounded-lg p-3 mb-4">
+        <form onSubmit={handleAdd} className="bg-background rounded-lg p-3 mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Full name *"
               required
-              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm"
+              className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
             />
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as FamilyRelationship)}
-              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm"
+              className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
             >
               {RELATIONS.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm" />
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
           </div>
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Notes (optional)"
-            className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm mb-2"
+            className="w-full min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm mb-2"
           />
           <label className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <input type="checkbox" checked={isManaging} onChange={(e) => setIsManaging(e.target.checked)} />
             This person manages my profile
           </label>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setShowForm(false)} className="min-h-[40px] px-3 rounded-lg border border-[#C5A47E]/40 text-xs text-muted-foreground">Cancel</button>
-            <button type="submit" disabled={adding} className="min-h-[40px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: '#0E7C7B' }}>
+            <button type="button" onClick={() => setShowForm(false)} className="min-h-[40px] px-3 rounded-lg border border-gold/40 text-xs text-muted-foreground">Cancel</button>
+            <button type="submit" disabled={adding} className="min-h-[40px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
               {adding && <Loader2 className="h-3 w-3 animate-spin" />} Add member
             </button>
           </div>

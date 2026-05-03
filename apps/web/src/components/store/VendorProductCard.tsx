@@ -15,12 +15,12 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
 
   return (
     <div
-      className={`bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden flex flex-col transition-opacity ${
+      className={`bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden flex flex-col transition-opacity ${
         !product.isActive ? 'opacity-60' : ''
       }`}
     >
       {/* Image */}
-      <div className="relative aspect-square bg-[#FEFAF6]">
+      <div className="relative aspect-square bg-background">
         {product.imageKey ? (
           <img
             src={`/api/r2/${encodeURIComponent(product.imageKey)}`}
@@ -28,7 +28,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#C5A47E]/30">
+          <div className="w-full h-full flex items-center justify-center text-gold/30">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-10 h-10"
@@ -49,12 +49,12 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {!product.isActive && (
-            <span className="bg-[#64748B] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-muted-foreground text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
               Inactive
             </span>
           )}
           {product.isFeatured && product.isActive && (
-            <span className="bg-[#C5A47E] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-gold text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
               Featured
             </span>
           )}
@@ -64,22 +64,22 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
       {/* Body */}
       <div className="p-3 flex flex-col gap-1.5 flex-1">
         {/* Category badge */}
-        <span className="inline-block self-start text-[10px] font-medium bg-[#C5A47E]/10 text-[#C5A47E] px-2 py-0.5 rounded-full">
+        <span className="inline-block self-start text-[10px] font-medium bg-gold/10 text-gold px-2 py-0.5 rounded-full">
           {product.category}
         </span>
 
         {/* Name */}
-        <h3 className="font-heading text-[#7B2D42] font-semibold text-sm leading-snug line-clamp-2">
+        <h3 className="font-heading text-primary font-semibold text-sm leading-snug line-clamp-2">
           {product.name}
         </h3>
 
         {/* Price */}
         <div className="flex items-baseline gap-2">
-          <span className="text-[#0E7C7B] font-semibold text-sm">
+          <span className="text-teal font-semibold text-sm">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
           {product.comparePrice !== null && product.comparePrice > product.price && (
-            <span className="text-[#94A3B8] text-xs line-through">
+            <span className="text-muted-foreground text-xs line-through">
               ₹{product.comparePrice.toLocaleString('en-IN')}
             </span>
           )}
@@ -95,7 +95,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
         {/* Edit CTA */}
         <Link
           href={`/vendor-dashboard/store/${product.id}`}
-          className="mt-auto block text-center text-xs font-semibold text-[#0E7C7B] border border-[#0E7C7B] rounded-lg py-2 min-h-[44px] flex items-center justify-center hover:bg-[#0E7C7B]/5 transition-colors"
+          className="mt-auto block text-center text-xs font-semibold text-teal border border-teal rounded-lg py-2 min-h-[44px] flex items-center justify-center hover:bg-teal/5 transition-colors"
         >
           Edit Product
         </Link>

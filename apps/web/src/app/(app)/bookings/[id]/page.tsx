@@ -55,7 +55,7 @@ function formatInr(amount: number): string {
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   PENDING:   'bg-warning/15 text-warning border-warning/30',
-  CONFIRMED: 'bg-teal-100 text-teal-800 border-teal-200',
+  CONFIRMED: 'bg-teal/15 text-teal border-teal/30',
   COMPLETED: 'bg-success/15 text-success border-success/30',
   CANCELLED: 'bg-secondary text-muted-foreground border-border',
   DISPUTED:  'bg-destructive/15 text-destructive border-destructive/30',
@@ -157,7 +157,7 @@ export default async function BookingDetailPage({
             {booking.escrowAmount !== null && (
               <div className="flex items-center justify-between py-3">
                 <dt className="text-sm text-muted-foreground">Escrow Held</dt>
-                <dd className="text-sm font-medium text-teal-700">{formatInr(booking.escrowAmount)}</dd>
+                <dd className="text-sm font-medium text-teal">{formatInr(booking.escrowAmount)}</dd>
               </div>
             )}
             {booking.paymentStatus && (

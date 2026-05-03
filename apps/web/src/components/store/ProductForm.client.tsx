@@ -168,8 +168,8 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
   }
 
   const inputCls =
-    'w-full rounded-lg border border-[#C5A47E]/30 bg-surface px-3 py-2.5 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors';
-  const labelCls = 'block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1';
+    'w-full rounded-lg border border-gold/30 bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal/40 transition-colors';
+  const labelCls = 'block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1';
   const errorCls = 'mt-1 text-xs text-destructive';
 
   return (
@@ -311,17 +311,17 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
         <input
           id="pf-featured"
           type="checkbox"
-          className="h-4 w-4 rounded border-[#C5A47E]/40 text-[#0E7C7B] focus:ring-[#0E7C7B]/40"
+          className="h-4 w-4 rounded border-gold/40 text-teal focus:ring-teal/40"
           checked={isFeatured}
           onChange={(e) => setIsFeatured(e.target.checked)}
         />
-        <label htmlFor="pf-featured" className="text-sm text-[#0F172A] font-medium cursor-pointer">
+        <label htmlFor="pf-featured" className="text-sm text-foreground font-medium cursor-pointer">
           Feature this product on the store homepage
         </label>
       </div>
 
       {/* Image upload — R2 pre-signed PUT */}
-      <div className="rounded-xl border border-dashed border-[#C5A47E]/40 bg-[#FEFAF6] px-4 py-5">
+      <div className="rounded-xl border border-dashed border-gold/40 bg-background px-4 py-5">
         <label className={labelCls}>Product Images</label>
         <input
           type="file"
@@ -329,10 +329,10 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
           multiple
           onChange={handleFilesSelected}
           disabled={uploadingCount > 0}
-          className="block w-full text-sm text-[#64748B] file:mr-3 file:rounded-lg file:border-0 file:bg-[#0E7C7B]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0E7C7B] hover:file:bg-[#0E7C7B]/15 disabled:opacity-50"
+          className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-teal/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal hover:file:bg-teal/15 disabled:opacity-50"
         />
         {uploadingCount > 0 && (
-          <p className="mt-2 text-xs text-[#64748B]">Uploading {uploadingCount}…</p>
+          <p className="mt-2 text-xs text-muted-foreground">Uploading {uploadingCount}…</p>
         )}
         {uploadError && (
           <p className="mt-2 text-xs text-destructive">{uploadError}</p>
@@ -340,12 +340,12 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
         {r2Keys.length > 0 && (
           <ul className="mt-3 space-y-1">
             {r2Keys.map(k => (
-              <li key={k} className="flex items-center justify-between rounded-md bg-surface/60 px-2 py-1 text-xs text-[#0F172A]">
+              <li key={k} className="flex items-center justify-between rounded-md bg-surface/60 px-2 py-1 text-xs text-foreground">
                 <span className="truncate">{k.split('/').pop()}</span>
                 <button
                   type="button"
                   onClick={() => removeKey(k)}
-                  className="ml-3 text-[#7B2D42] hover:underline"
+                  className="ml-3 text-primary hover:underline"
                 >
                   Remove
                 </button>
@@ -353,7 +353,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
             ))}
           </ul>
         )}
-        <p className="mt-3 text-[11px] text-[#94A3B8]">
+        <p className="mt-3 text-[11px] text-muted-foreground">
           Images upload directly to Cloudflare R2. First image becomes the product thumbnail.
         </p>
       </div>
@@ -362,7 +362,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       <button
         type="submit"
         disabled={loading || uploadingCount > 0}
-        className="w-full min-h-[44px] rounded-lg bg-[#0E7C7B] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C7B]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full min-h-[44px] rounded-lg bg-teal px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-teal/90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading
           ? mode === 'create'

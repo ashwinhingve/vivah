@@ -48,9 +48,9 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
   return (
     <div>
       {/* Counter */}
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
         <div>
-          <div className="text-3xl font-semibold text-[#0E7C7B]">{checkedIn}<span className="text-base text-muted-foreground"> / {guests.length}</span></div>
+          <div className="text-3xl font-semibold text-teal">{checkedIn}<span className="text-base text-muted-foreground"> / {guests.length}</span></div>
           <p className="text-xs text-muted-foreground">Guests checked in</p>
         </div>
         <p className="text-xs text-muted-foreground text-right max-w-[180px]">
@@ -66,7 +66,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, phone, email"
-          className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-surface pl-10 pr-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B]"
+          className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-surface pl-10 pr-3 py-2.5 text-sm outline-none focus:border-teal"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
             const arrived = !!g.arrivedAt;
             const pending = pendingId === g.id;
             return (
-              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-success/30' : 'border-[#C5A47E]/20'}`}>
+              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-success/30' : 'border-gold/20'}`}>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm flex items-center gap-1.5">
                     {arrived && <CheckCircle2 className="h-4 w-4 text-success shrink-0" />}
@@ -91,8 +91,8 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
                 <button
                   onClick={() => toggleCheckIn(g)}
                   disabled={pending}
-                  className={`min-h-[44px] px-4 rounded-lg text-sm font-medium flex items-center gap-1.5 shrink-0 ${arrived ? 'border border-[#C5A47E]/40 text-muted-foreground hover:bg-[#FEFAF6]' : 'text-white'}`}
-                  style={arrived ? {} : { backgroundColor: '#0E7C7B' }}
+                  className={`min-h-[44px] px-4 rounded-lg text-sm font-medium flex items-center gap-1.5 shrink-0 ${arrived ? 'border border-gold/40 text-muted-foreground hover:bg-background' : 'text-white'}`}
+                  style={arrived ? {} : { backgroundColor: 'var(--color-teal)' }}
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : (arrived ? <Undo2 className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />)}
                   {arrived ? 'Undo' : 'Check in'}

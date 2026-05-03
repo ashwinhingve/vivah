@@ -35,7 +35,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
 
   if (entries.length === 0) {
     return (
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 text-center">
         <History className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
         <p className="text-sm text-muted-foreground">No activity yet.</p>
       </div>
@@ -43,8 +43,8 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
   }
 
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
-      <h3 className="font-medium text-sm text-[#7B2D42] mb-3 flex items-center gap-1.5">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+      <h3 className="font-medium text-sm text-primary mb-3 flex items-center gap-1.5">
         <History className="h-4 w-4" /> Recent activity
       </h3>
       <ul className="space-y-2">
@@ -53,7 +53,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
           const initials = (e.actorName ?? 'S').slice(0, 1).toUpperCase();
           return (
             <li key={e.id} className="flex gap-3 text-sm">
-              <div className="h-7 w-7 rounded-full bg-[#0E7C7B]/10 text-[#0E7C7B] text-xs font-semibold flex items-center justify-center shrink-0">
+              <div className="h-7 w-7 rounded-full bg-teal/10 text-teal text-xs font-semibold flex items-center justify-center shrink-0">
                 {initials}
               </div>
               <div className="flex-1 min-w-0">

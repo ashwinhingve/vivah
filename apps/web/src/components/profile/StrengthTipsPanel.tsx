@@ -29,7 +29,7 @@ export async function StrengthTipsPanel() {
   if (!data) return null;
   if (data.tips.length === 0) {
     return (
-      <Card className="border-emerald-200 bg-success/10 p-4">
+      <Card className="border-success/30 bg-success/10 p-4">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="h-5 w-5 text-success" />
           <div>

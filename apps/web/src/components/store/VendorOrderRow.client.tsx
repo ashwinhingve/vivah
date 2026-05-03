@@ -15,7 +15,7 @@ const statusBadge: Record<
 > = {
   PENDING:   { text: 'Pending',   cls: 'text-warning bg-warning/10 border border-warning/30' },
   SHIPPED:   { text: 'Shipped',   cls: 'text-primary bg-primary/10 border border-purple-200' },
-  DELIVERED: { text: 'Delivered', cls: 'text-success bg-success/10 border border-emerald-200' },
+  DELIVERED: { text: 'Delivered', cls: 'text-success bg-success/10 border border-success/30' },
 };
 
 export function VendorOrderRow({ item }: VendorOrderRowProps) {
@@ -26,7 +26,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const badge = statusBadge[status] ?? { text: status, cls: 'text-[#64748B] bg-secondary border border-border' };
+  const badge = statusBadge[status] ?? { text: status, cls: 'text-muted-foreground bg-secondary border border-border' };
 
   async function markShipped() {
     if (!tracking.trim()) {
@@ -78,13 +78,13 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   }
 
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden">
       {/* Main row */}
       <div className="px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         {/* Left: product + customer info */}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-heading text-[#7B2D42] font-semibold text-sm truncate max-w-[200px]">
+            <h3 className="font-heading text-primary font-semibold text-sm truncate max-w-[200px]">
               {item.productName}
             </h3>
             <span
@@ -93,12 +93,12 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               {badge.text}
             </span>
           </div>
-          <p className="text-xs text-[#64748B]">
-            Customer: <span className="font-medium text-[#0F172A]">{item.customerName}</span>
+          <p className="text-xs text-muted-foreground">
+            Customer: <span className="font-medium text-foreground">{item.customerName}</span>
           </p>
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-muted-foreground">
             Ordered:{' '}
-            <span className="font-medium text-[#0F172A]">
+            <span className="font-medium text-foreground">
               {new Date(item.orderDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -107,30 +107,30 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
             </span>
           </p>
           {item.trackingNumber && (
-            <p className="text-xs text-[#64748B]">
-              Tracking: <span className="font-mono text-[#0F172A] text-[11px]">{item.trackingNumber}</span>
+            <p className="text-xs text-muted-foreground">
+              Tracking: <span className="font-mono text-foreground text-[11px]">{item.trackingNumber}</span>
             </p>
           )}
         </div>
 
         {/* Right: qty + price */}
         <div className="flex flex-row sm:flex-col items-start sm:items-end gap-2 sm:gap-1 shrink-0">
-          <p className="text-sm font-semibold text-[#0E7C7B]">
+          <p className="text-sm font-semibold text-teal">
             ₹{item.subtotal.toLocaleString('en-IN')}
           </p>
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-muted-foreground">
             {item.quantity} × ₹{item.unitPrice.toLocaleString('en-IN')}
           </p>
         </div>
       </div>
 
       {/* Actions row */}
-      <div className="border-t border-[#C5A47E]/10 px-4 py-2.5 flex flex-wrap items-center gap-2">
+      <div className="border-t border-gold/10 px-4 py-2.5 flex flex-wrap items-center gap-2">
         {/* Show address toggle */}
         <button
           type="button"
           onClick={() => setShowAddress((v) => !v)}
-          className="text-xs text-[#64748B] hover:text-[#0F172A] underline underline-offset-2 min-h-[44px] flex items-center"
+          className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 min-h-[44px] flex items-center"
         >
           {showAddress ? 'Hide address' : 'Show shipping address'}
         </button>
@@ -140,7 +140,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
             <button
               type="button"
               onClick={() => setShowShipForm((v) => !v)}
-              className="text-xs font-semibold text-white bg-[#7B2D42] px-3 py-1.5 min-h-[44px] rounded-lg hover:bg-[#7B2D42]/90 transition-colors"
+              className="text-xs font-semibold text-white bg-primary px-3 py-1.5 min-h-[44px] rounded-lg hover:bg-primary/90 transition-colors"
             >
               Mark Shipped
             </button>
@@ -150,7 +150,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               type="button"
               onClick={markDelivered}
               disabled={loading}
-              className="text-xs font-semibold text-white bg-[#0E7C7B] px-3 py-1.5 min-h-[44px] rounded-lg hover:bg-[#0E7C7B]/90 transition-colors disabled:opacity-50"
+              className="text-xs font-semibold text-white bg-teal px-3 py-1.5 min-h-[44px] rounded-lg hover:bg-teal/90 transition-colors disabled:opacity-50"
             >
               {loading ? 'Updating…' : 'Mark Delivered'}
             </button>
@@ -160,10 +160,10 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
 
       {/* Ship form (expandable) */}
       {showShipForm && status === 'PENDING' && (
-        <div className="border-t border-[#C5A47E]/10 px-4 py-3 bg-[#FEFAF6] flex flex-col gap-2">
+        <div className="border-t border-gold/10 px-4 py-3 bg-background flex flex-col gap-2">
           <label
             htmlFor={`track-${item.id}`}
-            className="text-xs font-semibold text-[#64748B] uppercase tracking-wide"
+            className="text-xs font-semibold text-muted-foreground uppercase tracking-wide"
           >
             Tracking Number
           </label>
@@ -171,7 +171,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
             <input
               id={`track-${item.id}`}
               type="text"
-              className="flex-1 rounded-lg border border-[#C5A47E]/30 bg-surface px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors"
+              className="flex-1 rounded-lg border border-gold/30 bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal/40 transition-colors"
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
               placeholder="e.g. DTDC123456789"
@@ -180,7 +180,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               type="button"
               onClick={markShipped}
               disabled={loading}
-              className="shrink-0 text-xs font-semibold text-white bg-[#0E7C7B] px-4 py-2 min-h-[44px] rounded-lg hover:bg-[#0E7C7B]/90 transition-colors disabled:opacity-50"
+              className="shrink-0 text-xs font-semibold text-white bg-teal px-4 py-2 min-h-[44px] rounded-lg hover:bg-teal/90 transition-colors disabled:opacity-50"
             >
               {loading ? 'Saving…' : 'Confirm'}
             </button>
@@ -198,18 +198,18 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
 
       {/* Shipping address (expandable) */}
       {showAddress && (
-        <div className="border-t border-[#C5A47E]/10 px-4 py-3 bg-[#FEFAF6]">
-          <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1.5">
+        <div className="border-t border-gold/10 px-4 py-3 bg-background">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
             Shipping Address
           </p>
-          <address className="not-italic text-xs text-[#0F172A] space-y-0.5">
+          <address className="not-italic text-xs text-foreground space-y-0.5">
             <p className="font-medium">{item.shippingAddress.name}</p>
             <p>{item.shippingAddress.address}</p>
             <p>
               {item.shippingAddress.city}, {item.shippingAddress.state}{' '}
               {item.shippingAddress.pincode}
             </p>
-            <p className="text-[#64748B]">{item.shippingAddress.phone}</p>
+            <p className="text-muted-foreground">{item.shippingAddress.phone}</p>
           </address>
         </div>
       )}

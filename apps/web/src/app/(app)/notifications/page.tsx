@@ -67,8 +67,8 @@ export default async function NotificationsPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#0A1F4D]">Notifications</h1>
-        <Link href="/settings/notifications" className="text-sm text-[#1848C8] hover:underline">Settings</Link>
+        <h1 className="text-2xl font-bold text-primary">Notifications</h1>
+        <Link href="/settings/notifications" className="text-sm text-teal hover:underline">Settings</Link>
       </div>
 
       {items.length === 0 ? (
@@ -85,13 +85,13 @@ export default async function NotificationsPage() {
               <li key={n.id}>
                 <Wrapper>
                   <article className={`rounded-xl border p-4 transition-colors ${
-                    n.read ? 'border-border bg-surface' : 'border-[#1848C8]/30 bg-[#1848C8]/5'
+                    n.read ? 'border-border bg-surface' : 'border-teal/30 bg-teal/5'
                   } hover:bg-secondary`}>
                     <div className="flex items-start gap-3">
                       <span className="text-2xl shrink-0" aria-hidden>{TYPE_ICON[n.type] ?? '🔔'}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2">
-                          <h2 className="font-semibold text-[#0A1F4D] truncate">{n.title}</h2>
+                          <h2 className="font-semibold text-primary truncate">{n.title}</h2>
                           <span className="text-xs text-muted-foreground shrink-0">{formatAge(n.createdAt)}</span>
                         </div>
                         <p className="mt-0.5 text-sm text-foreground line-clamp-2">{n.body}</p>

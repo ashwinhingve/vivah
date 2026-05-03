@@ -69,7 +69,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
       <div className="space-y-1.5">
         <label
           htmlFor="dispute-reason"
-          className="block text-sm font-medium text-[#0F172A]"
+          className="block text-sm font-medium text-foreground"
         >
           Reason for dispute
           <span className="ml-1 text-destructive" aria-hidden="true">*</span>
@@ -81,19 +81,19 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           rows={5}
           maxLength={MAX_REASON}
           placeholder="Describe your issue clearly (minimum 10 characters)…"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-[#0F172A] placeholder-[#64748B] shadow-sm outline-none ring-0 transition focus:border-[#1848C8] focus:ring-2 focus:ring-[#1848C8]/20 resize-none"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder-[#64748B] shadow-sm outline-none ring-0 transition focus:border-teal focus:ring-2 focus:ring-teal/20 resize-none"
           disabled={loading}
           required
         />
         <div className="flex items-center justify-between">
           <p
-            className={`text-xs ${charCount < MIN_REASON ? 'text-warning' : 'text-[#64748B]'}`}
+            className={`text-xs ${charCount < MIN_REASON ? 'text-warning' : 'text-muted-foreground'}`}
           >
             {charCount < MIN_REASON
               ? `${MIN_REASON - charCount} more characters required`
               : 'Looks good'}
           </p>
-          <p className={`text-xs ${charCount > MAX_REASON * 0.9 ? 'text-warning' : 'text-[#64748B]'}`}>
+          <p className={`text-xs ${charCount > MAX_REASON * 0.9 ? 'text-warning' : 'text-muted-foreground'}`}>
             {charCount} / {MAX_REASON}
           </p>
         </div>
@@ -112,7 +112,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           type="button"
           onClick={() => router.back()}
           disabled={loading}
-          className="min-h-[44px] w-full rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-[#0F172A] transition hover:bg-secondary disabled:opacity-50 sm:w-auto"
+          className="min-h-[44px] w-full rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary disabled:opacity-50 sm:w-auto"
         >
           Cancel
         </button>

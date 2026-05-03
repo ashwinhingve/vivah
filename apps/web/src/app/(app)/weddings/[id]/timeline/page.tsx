@@ -33,17 +33,17 @@ export default async function TimelinePage({ params }: PageProps) {
   const dates = [...byDate.keys()].sort();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-4 min-h-[44px]">
+        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-heading text-2xl text-[#7B2D42]">Day-of Schedule</h1>
+          <h1 className="font-heading text-2xl text-primary">Day-of Schedule</h1>
           {cers.length > 0 && events.length === 0 && (
             <form action={autoGenerateAction.bind(null, id)}>
-              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-[#7B2D42] text-white text-sm font-medium">
+              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
                 <Sparkles className="h-4 w-4" /> Auto-generate from ceremonies
               </button>
             </form>
@@ -51,12 +51,12 @@ export default async function TimelinePage({ params }: PageProps) {
         </div>
 
         {dates.length === 0 ? (
-          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
-            <Clock className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
+          <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center">
+            <Clock className="h-10 w-10 text-gold mx-auto mb-3" />
             <p className="text-sm text-muted-foreground mb-4">No schedule events yet.</p>
             {cers.length > 0 ? (
               <form action={autoGenerateAction.bind(null, id)}>
-                <button type="submit" className="inline-flex items-center gap-2 min-h-[44px] px-6 rounded-lg bg-[#7B2D42] text-white text-sm font-medium">
+                <button type="submit" className="inline-flex items-center gap-2 min-h-[44px] px-6 rounded-lg bg-primary text-white text-sm font-medium">
                   <Sparkles className="h-4 w-4" /> Generate from your ceremonies
                 </button>
               </form>
@@ -67,15 +67,15 @@ export default async function TimelinePage({ params }: PageProps) {
         ) : (
           <div className="space-y-6">
             {dates.map(d => (
-              <div key={d} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm">
-                <div className="px-5 py-3 border-b border-[#C5A47E]/10 bg-[#FEFAF6]">
-                  <p className="font-semibold text-[#0A1F4D]">{fmtDate(d)}</p>
+              <div key={d} className="bg-surface border border-gold/20 rounded-xl shadow-sm">
+                <div className="px-5 py-3 border-b border-gold/10 bg-background">
+                  <p className="font-semibold text-primary">{fmtDate(d)}</p>
                 </div>
                 <ol className="divide-y divide-[#C5A47E]/10">
                   {byDate.get(d)!.map(e => (
                     <li key={e.id} className="px-5 py-3 flex items-center gap-3">
                       <div className="text-right shrink-0 w-20">
-                        <p className="font-semibold text-sm text-[#7B2D42]">{fmtTime(e.startTime)}</p>
+                        <p className="font-semibold text-sm text-primary">{fmtTime(e.startTime)}</p>
                         {e.endTime && <p className="text-xs text-muted-foreground">{fmtTime(e.endTime)}</p>}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -99,43 +99,43 @@ export default async function TimelinePage({ params }: PageProps) {
         )}
 
         {/* Add event */}
-        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mt-6">
-          <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
+        <details className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mt-6">
+          <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-primary list-none">
             <Plus className="h-4 w-4" /> Add event
           </summary>
           <form action={createEventAction.bind(null, id)} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-muted-foreground mb-1">Title *</label>
-              <input name="title" required className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <input name="title" required className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Date *</label>
-              <input name="date" type="date" required className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <input name="date" type="date" required className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Ceremony</label>
-              <select name="ceremonyId" className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm">
+              <select name="ceremonyId" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm">
                 <option value="">— None —</option>
                 {cers.map(c => <option key={c.id} value={c.id}>{c.type}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Start *</label>
-              <input name="startTime" type="time" required className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <input name="startTime" type="time" required className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">End</label>
-              <input name="endTime" type="time" className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <input name="endTime" type="time" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-muted-foreground mb-1">Location</label>
-              <input name="location" className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <input name="location" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
-              <textarea name="description" rows={2} className="w-full rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              <textarea name="description" rows={2} className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
-            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-[#7B2D42] text-white text-sm font-semibold">Add to schedule</button>
+            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Add to schedule</button>
           </form>
         </details>
       </div>

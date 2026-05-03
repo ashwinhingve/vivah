@@ -39,10 +39,10 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
   const to   = new Date(booking.toDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
   return (
-    <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p className="font-semibold text-[#0F172A]">{booking.itemName}</p>
-        <p className="text-xs text-[#64748B]">
+        <p className="font-semibold text-foreground">{booking.itemName}</p>
+        <p className="text-xs text-muted-foreground">
           {from} → {to} · Qty {booking.quantity} · ₹{booking.totalAmount.toLocaleString('en-IN')}
         </p>
         <StatusBadge status={booking.status} />
@@ -88,7 +88,7 @@ function ActionButton({ label, onClick, disabled }: { label: string; onClick: ()
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-lg bg-[#7B2D42] text-white px-3 py-1.5 text-xs font-medium hover:bg-[#5E1F30] disabled:opacity-50"
+      className="rounded-lg bg-primary text-white px-3 py-1.5 text-xs font-medium hover:bg-primary-hover disabled:opacity-50"
     >
       {disabled ? 'Working…' : label}
     </button>

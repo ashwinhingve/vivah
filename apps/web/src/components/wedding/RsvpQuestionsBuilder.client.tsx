@@ -76,17 +76,17 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
   return (
     <div>
       {/* Add form */}
-      <form onSubmit={handleAdd} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
-        <h3 className="font-medium text-sm text-[#7B2D42] mb-3">Add a question</h3>
+      <form onSubmit={handleAdd} className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-6">
+        <h3 className="font-medium text-sm text-primary mb-3">Add a question</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Question text"
-            className="sm:col-span-2 min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B]"
+            className="sm:col-span-2 min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal"
             required
           />
-          <select value={type} onChange={(e) => setType(e.target.value as RsvpQuestionType)} className="min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm">
+          <select value={type} onChange={(e) => setType(e.target.value as RsvpQuestionType)} className="min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm">
             {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
@@ -95,7 +95,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
             value={choices}
             onChange={(e) => setChoices(e.target.value)}
             placeholder="Options separated by | (e.g. Beer|Wine|None)"
-            className="w-full mt-3 min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm"
+            className="w-full mt-3 min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm"
           />
         )}
         <label className="flex items-center gap-2 text-sm mt-3">
@@ -103,7 +103,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
           Required
         </label>
         <div className="mt-4 flex justify-end">
-          <button type="submit" disabled={adding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: '#0E7C7B' }}>
+          <button type="submit" disabled={adding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
             {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add question
           </button>
         </div>
@@ -115,7 +115,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
       ) : (
         <ul className="space-y-2">
           {questions.map(q => (
-            <li key={q.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-3">
+            <li key={q.id} className="bg-surface border border-gold/20 rounded-xl shadow-sm p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{q.questionText}</p>
@@ -124,7 +124,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <button onClick={() => toggleRequired(q)} className="text-xs text-muted-foreground hover:text-[#7B2D42] underline">
+                  <button onClick={() => toggleRequired(q)} className="text-xs text-muted-foreground hover:text-primary underline">
                     {q.isRequired ? 'Make optional' : 'Make required'}
                   </button>
                   <button onClick={() => setDeletingId(q.id)} className="text-destructive hover:bg-destructive/10 rounded p-1" aria-label="Delete">

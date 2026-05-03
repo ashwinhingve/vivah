@@ -17,7 +17,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_COLORS: Record<string, string> = {
   PLANNING:  'bg-warning/15 text-warning',
   CONFIRMED: 'bg-success/15 text-success',
-  COMPLETED: 'bg-[#0E7C7B]/10 text-[#0E7C7B]',
+  COMPLETED: 'bg-teal/10 text-teal',
   CANCELLED: 'bg-destructive/15 text-destructive',
 };
 
@@ -45,9 +45,9 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
 
   return (
     <Link href={`/weddings/${wedding.id}`}>
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 hover:shadow-md hover:border-[#C5A47E]/40 transition-all">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 hover:shadow-md hover:border-gold/40 transition-all">
         <div className="flex items-start justify-between mb-3">
-          <h2 className="font-heading text-lg text-[#7B2D42] leading-snug">
+          <h2 className="font-heading text-lg text-primary leading-snug">
             {wedding.venueName ?? 'Wedding'}
           </h2>
           <span
@@ -62,22 +62,22 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
 
         <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-[#C5A47E]" aria-hidden="true" />
+            <Calendar className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
             {formatDate(wedding.weddingDate)}
           </div>
           {wedding.venueCity && (
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-[#C5A47E]" aria-hidden="true" />
+              <MapPin className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
               {wedding.venueCity}
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5 text-[#C5A47E]" aria-hidden="true" />
+            <Users className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
             {wedding.guestCount} guests
           </div>
           {wedding.budgetTotal != null && (
             <div className="flex items-center gap-1.5">
-              <span className="text-[#C5A47E] text-xs font-bold">₹</span>
+              <span className="text-gold text-xs font-bold">₹</span>
               {formatCurrency(wedding.budgetTotal)}
             </div>
           )}
@@ -92,10 +92,10 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
             </span>
             <span>{done}/{total} done</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-[#F5EFE8]">
+          <div className="h-1.5 w-full rounded-full bg-secondary">
             <div
-              className="h-1.5 rounded-full transition-all"
-              style={{ width: `${pct}%`, backgroundColor: '#0E7C7B' }}
+              className="h-1.5 rounded-full bg-teal transition-all"
+              style={{ width: `${pct}%` }}
             />
           </div>
         </div>

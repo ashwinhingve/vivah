@@ -73,12 +73,12 @@ export default async function RentalsPage({ searchParams }: Props) {
   const currentPage = parseInt(page, 10);
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-[#0A1F4D] font-heading">Rent for Your Wedding</h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <h1 className="text-2xl font-bold text-primary font-heading">Rent for Your Wedding</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Browse decor, costumes, AV equipment and more
           </p>
         </div>
@@ -95,7 +95,7 @@ export default async function RentalsPage({ searchParams }: Props) {
 
         {/* Results count */}
         {data && (
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-muted-foreground">
             {totalItems === 0
               ? 'No items found'
               : `${totalItems} item${totalItems === 1 ? '' : 's'} available`}
@@ -113,9 +113,9 @@ export default async function RentalsPage({ searchParams }: Props) {
 
         {/* Empty state */}
         {data && items.length === 0 && (
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-8 text-center">
-            <p className="text-lg font-semibold text-[#7B2D42]">No items found</p>
-            <p className="text-sm text-[#64748B] mt-2">
+          <div className="rounded-xl border border-gold/30 bg-surface p-8 text-center">
+            <p className="text-lg font-semibold text-primary">No items found</p>
+            <p className="text-sm text-muted-foreground mt-2">
               {category
                 ? `No ${category.toLowerCase()} items available for your selected dates.`
                 : 'No items match your filters. Try adjusting the dates or category.'}
@@ -144,8 +144,8 @@ export default async function RentalsPage({ searchParams }: Props) {
                   href={`/rentals?${pqs.toString()}`}
                   className={`min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     p === currentPage
-                      ? 'bg-[#7B2D42] text-white'
-                      : 'bg-surface border border-[#C5A47E]/40 text-[#64748B] hover:border-[#7B2D42]'
+                      ? 'bg-primary text-white'
+                      : 'bg-surface border border-gold/40 text-muted-foreground hover:border-primary'
                   }`}
                   aria-current={p === currentPage ? 'page' : undefined}
                 >

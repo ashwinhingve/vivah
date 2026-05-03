@@ -33,7 +33,7 @@ async function fetchBookings(
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   PENDING:   'bg-warning/15 text-warning',
-  CONFIRMED: 'bg-teal-100 text-teal-800',
+  CONFIRMED: 'bg-teal/15 text-teal',
   COMPLETED: 'bg-success/15 text-success',
   CANCELLED: 'bg-secondary text-muted-foreground',
   DISPUTED:  'bg-destructive/15 text-destructive',
@@ -148,7 +148,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
             <p className="mt-1 text-sm text-muted-foreground">Try a different filter or browse vendors.</p>
             <Link
               href="/vendors"
-              className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#6a2538] transition-colors"
+              className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
             >
               Explore Vendors
             </Link>
@@ -178,7 +178,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                       <span>📅 {new Date(booking.eventDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                       <span className="font-medium text-foreground">{formatInr(booking.totalAmount)}</span>
                       {booking.escrowAmount !== null && booking.escrowAmount > 0 && (
-                        <span className="text-teal-600">Escrow: {formatInr(booking.escrowAmount)}</span>
+                        <span className="text-teal">Escrow: {formatInr(booking.escrowAmount)}</span>
                       )}
                       {booking.packageName && <span className="text-primary">{booking.packageName}</span>}
                     </div>

@@ -69,37 +69,37 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
     : '₹0';
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="font-heading text-[#7B2D42] text-2xl font-bold mb-0.5">
+          <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
             Orders
           </h1>
-          <p className="text-[#64748B] text-sm">Fulfil and track customer orders</p>
+          <p className="text-muted-foreground text-sm">Fulfil and track customer orders</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Pending</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pending</p>
             <p className="text-2xl font-bold font-heading text-warning">{pendingCount}</p>
-            <p className="text-xs text-[#94A3B8]">to ship</p>
+            <p className="text-xs text-muted-foreground">to ship</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Shipped</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Shipped</p>
             <p className="text-2xl font-bold font-heading text-primary">{shippedCount}</p>
-            <p className="text-xs text-[#94A3B8]">in transit</p>
+            <p className="text-xs text-muted-foreground">in transit</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Delivered</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Delivered</p>
             <p className="text-2xl font-bold font-heading text-success">{deliveredCount}</p>
-            <p className="text-xs text-[#94A3B8]">completed</p>
+            <p className="text-xs text-muted-foreground">completed</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Revenue</p>
-            <p className="text-2xl font-bold font-heading text-[#C5A47E]">{revenueLabel}</p>
-            <p className="text-xs text-[#94A3B8]">realised (delivered)</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Revenue</p>
+            <p className="text-2xl font-bold font-heading text-gold">{revenueLabel}</p>
+            <p className="text-xs text-muted-foreground">realised (delivered)</p>
           </div>
         </div>
 
@@ -113,8 +113,8 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
                 href={value === 'ALL' ? '/vendor-dashboard/orders' : `?status=${value.toLowerCase()}`}
                 className={`shrink-0 min-h-[44px] px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center ${
                   isActive
-                    ? 'bg-[#0E7C7B] text-white'
-                    : 'bg-surface border border-[#C5A47E]/20 text-[#64748B] hover:border-[#0E7C7B] hover:text-[#0E7C7B]'
+                    ? 'bg-teal text-white'
+                    : 'bg-surface border border-gold/20 text-muted-foreground hover:border-teal hover:text-teal'
                 }`}
               >
                 {label}
@@ -125,10 +125,10 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
 
         {/* Order list */}
         {filteredItems.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#C5A47E]/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
+          <div className="rounded-xl border border-dashed border-gold/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-[#C5A47E]/40"
+              className="h-10 w-10 text-gold/40"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -140,10 +140,10 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
-            <p className="font-heading text-[#7B2D42] font-semibold text-lg">
+            <p className="font-heading text-primary font-semibold text-lg">
               {activeFilter === 'ALL' ? 'No orders yet' : `No ${activeFilter.toLowerCase()} orders`}
             </p>
-            <p className="text-[#64748B] text-sm max-w-xs">
+            <p className="text-muted-foreground text-sm max-w-xs">
               {activeFilter === 'ALL'
                 ? 'Orders will appear here once customers purchase your products.'
                 : `No orders with ${activeFilter.toLowerCase()} status at the moment.`}

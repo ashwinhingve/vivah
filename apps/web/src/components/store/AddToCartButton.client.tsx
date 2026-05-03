@@ -41,7 +41,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
           ? 'bg-secondary text-muted-foreground cursor-not-allowed'
           : added
           ? 'bg-success text-white'
-          : 'bg-[#0E7C7B] text-white hover:bg-[#0E7C7B]/90 active:scale-95',
+          : 'bg-teal text-white hover:bg-teal/90 active:scale-95',
       ].join(' ')}
     >
       {added ? (

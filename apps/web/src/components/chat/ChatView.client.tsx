@@ -440,6 +440,10 @@ export default function ChatView({
       <div
         ref={scrollerRef}
         onScroll={onScroll}
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label="Chat messages"
         className="relative flex-1 overflow-y-auto px-4 py-4 space-y-2 overscroll-contain"
         style={{
           // Account for sticky header + iOS safe area
@@ -458,7 +462,7 @@ export default function ChatView({
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal/10 text-3xl">💬</div>
-            <p className="font-heading text-base font-semibold text-[#0F172A]">Start the conversation</p>
+            <p className="font-heading text-base font-semibold text-foreground">Start the conversation</p>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
               Say hello and begin your journey together
             </p>

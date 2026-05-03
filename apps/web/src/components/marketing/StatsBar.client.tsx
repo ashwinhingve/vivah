@@ -80,21 +80,21 @@ export default function StatsBar() {
             height="80"
             patternUnits="userSpaceOnUse"
           >
-            <circle cx="40" cy="40" r="2" fill="#C5A47E" />
-            <circle cx="0" cy="0" r="2" fill="#C5A47E" />
-            <circle cx="80" cy="0" r="2" fill="#C5A47E" />
-            <circle cx="0" cy="80" r="2" fill="#C5A47E" />
-            <circle cx="80" cy="80" r="2" fill="#C5A47E" />
+            <circle cx="40" cy="40" r="2" fill="var(--color-gold)" />
+            <circle cx="0" cy="0" r="2" fill="var(--color-gold)" />
+            <circle cx="80" cy="0" r="2" fill="var(--color-gold)" />
+            <circle cx="0" cy="80" r="2" fill="var(--color-gold)" />
+            <circle cx="80" cy="80" r="2" fill="var(--color-gold)" />
             <path
               d="M40 20 Q 50 30 40 40 Q 30 30 40 20 Z"
               fill="none"
-              stroke="#C5A47E"
+              stroke="var(--color-gold)"
               strokeWidth="0.5"
             />
             <path
               d="M40 60 Q 50 50 40 40 Q 30 50 40 60 Z"
               fill="none"
-              stroke="#C5A47E"
+              stroke="var(--color-gold)"
               strokeWidth="0.5"
             />
           </pattern>

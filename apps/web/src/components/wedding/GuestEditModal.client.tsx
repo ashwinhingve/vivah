@@ -101,7 +101,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
         className="w-full max-w-2xl rounded-2xl bg-surface p-5 shadow-2xl my-4"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading text-base font-semibold text-[#7B2D42]">Edit guest</h2>
+          <h2 className="font-heading text-base font-semibold text-primary">Edit guest</h2>
           <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
 
@@ -168,7 +168,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
                 />
               ))}
               {plusOneNames.length > plusOnes && (
-                <button type="button" onClick={() => setPlusOneNames(plusOneNames.slice(0, plusOnes))} className="text-xs text-muted-foreground hover:text-[#7B2D42]"><Plus className="inline h-3 w-3 rotate-45" /> trim</button>
+                <button type="button" onClick={() => setPlusOneNames(plusOneNames.slice(0, plusOnes))} className="text-xs text-muted-foreground hover:text-primary"><Plus className="inline h-3 w-3 rotate-45" /> trim</button>
               )}
             </div>
           </div>
@@ -192,7 +192,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
           <Field label="Invited to ceremonies">
             <div className="flex flex-wrap gap-2">
               {ceremonies.map(c => (
-                <label key={c.id} className={`px-3 py-1.5 rounded-full text-xs border cursor-pointer ${invitedToCeremonies.includes(c.id) ? 'bg-[#0E7C7B]/10 text-[#0E7C7B] border-[#0E7C7B]/40' : 'border-[#C5A47E]/40 text-muted-foreground'}`}>
+                <label key={c.id} className={`px-3 py-1.5 rounded-full text-xs border cursor-pointer ${invitedToCeremonies.includes(c.id) ? 'bg-teal/10 text-teal border-teal/40' : 'border-gold/40 text-muted-foreground'}`}>
                   <input type="checkbox" className="sr-only" checked={invitedToCeremonies.includes(c.id)} onChange={() => toggleCeremony(c.id)} />
                   {c.type}
                 </label>
@@ -206,8 +206,8 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
         </Field>
 
         <div className="flex justify-end gap-2 mt-5">
-          <button type="button" onClick={onCancel} className="min-h-[44px] px-4 rounded-lg border border-[#C5A47E]/40 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
-          <button type="submit" disabled={isSaving} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: '#0E7C7B' }}>
+          <button type="button" onClick={onCancel} className="min-h-[44px] px-4 rounded-lg border border-gold/40 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
+          <button type="submit" disabled={isSaving} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
             {isSaving && <Loader2 className="h-4 w-4 animate-spin" />} Save
           </button>
         </div>
@@ -216,7 +216,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
   );
 }
 
-const inputCls = 'w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B]';
+const inputCls = 'w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

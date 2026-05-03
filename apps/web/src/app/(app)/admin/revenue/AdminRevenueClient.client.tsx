@@ -29,14 +29,14 @@ interface Props {
 }
 
 const KPI_CONFIG = (s: RevenueSummary) => [
-  { label: 'Gross Revenue',       value: formatINR(s.grossRevenue),                    color: '#7B2D42' },
-  { label: 'Net Revenue',         value: formatINR(s.netRevenue),                      color: '#0E7C7B' },
-  { label: 'Refunded',            value: formatINR(s.refunded),                        color: '#D97706' },
-  { label: 'Pending Payouts',     value: formatINR(s.pendingPayouts),                  color: '#7C3AED' },
-  { label: 'Platform Fees',       value: formatINR(s.platformFees),                    color: '#0F172A' },
-  { label: 'Tax Collected',       value: formatINR(s.taxCollected),                    color: '#059669' },
-  { label: 'Avg Booking Value',   value: formatINR(s.avgBookingValue),                 color: '#0F172A' },
-  { label: 'Payment Success Rate',value: `${s.paymentSuccessRate.toFixed(1)}%`,        color: '#059669' },
+  { label: 'Gross Revenue',       value: formatINR(s.grossRevenue),                    color: 'var(--color-primary)' },
+  { label: 'Net Revenue',         value: formatINR(s.netRevenue),                      color: 'var(--color-teal)' },
+  { label: 'Refunded',            value: formatINR(s.refunded),                        color: 'var(--color-warning)' },
+  { label: 'Pending Payouts',     value: formatINR(s.pendingPayouts),                  color: 'var(--color-primary)' },
+  { label: 'Platform Fees',       value: formatINR(s.platformFees),                    color: 'var(--color-foreground)' },
+  { label: 'Tax Collected',       value: formatINR(s.taxCollected),                    color: 'var(--color-success)' },
+  { label: 'Avg Booking Value',   value: formatINR(s.avgBookingValue),                 color: 'var(--color-foreground)' },
+  { label: 'Payment Success Rate',value: `${s.paymentSuccessRate.toFixed(1)}%`,        color: 'var(--color-success)' },
 ];
 
 export function AdminRevenueClient({ summary, daily, categories, topVendors, liabilities, fromDate, toDate }: Props) {
@@ -122,7 +122,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
                       >
                         <div
                           className="w-full rounded-t-sm transition-all"
-                          style={{ height: `${height}%`, background: '#0E7C7B', minHeight: 2 }}
+                          style={{ height: `${height}%`, background: 'var(--color-teal)', minHeight: 2 }}
                         />
                         {daily.length <= 14 && (
                           <span className="text-[9px] text-muted-foreground rotate-0 whitespace-nowrap">
@@ -178,7 +178,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
                     <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
                       <div
                         className="h-full rounded-full"
-                        style={{ width: `${Math.min(cat.pct, 100)}%`, background: '#0E7C7B' }}
+                        style={{ width: `${Math.min(cat.pct, 100)}%`, background: 'var(--color-teal)' }}
                       />
                     </div>
                   </div>

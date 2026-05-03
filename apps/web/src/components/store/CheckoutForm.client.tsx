@@ -175,8 +175,8 @@ export function CheckoutForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="font-heading text-[#7B2D42] text-xl font-bold">Payment Successful (Test Mode)</h2>
-        <p className="text-sm text-[#64748B]">Your order has been placed! Redirecting to order details…</p>
+        <h2 className="font-heading text-primary text-xl font-bold">Payment Successful (Test Mode)</h2>
+        <p className="text-sm text-muted-foreground">Your order has been placed! Redirecting to order details…</p>
       </div>
     );
   }
@@ -187,7 +187,7 @@ export function CheckoutForm() {
     <div className="grid md:grid-cols-3 gap-6">
       {/* Shipping form */}
       <form onSubmit={handleSubmit} className="md:col-span-2 space-y-4">
-        <h2 className="font-heading text-[#7B2D42] font-semibold text-lg">Shipping Details</h2>
+        <h2 className="font-heading text-primary font-semibold text-lg">Shipping Details</h2>
 
         {serverError && (
           <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
@@ -264,33 +264,33 @@ export function CheckoutForm() {
         <button
           type="submit"
           disabled={submitting || items.length === 0}
-          className="w-full min-h-[44px] bg-[#0E7C7B] text-white font-semibold rounded-lg text-sm hover:bg-[#0E7C7B]/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
+          className="w-full min-h-[44px] bg-teal text-white font-semibold rounded-lg text-sm hover:bg-teal/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
         >
           {submitting ? 'Placing Order…' : 'Place Order'}
         </button>
       </form>
 
       {/* Order summary sidebar */}
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 h-fit sticky top-24">
-        <h2 className="font-heading text-[#7B2D42] font-semibold text-base mb-3">Order Summary</h2>
+      <div className="bg-surface border border-gold/20 rounded-xl p-4 h-fit sticky top-24">
+        <h2 className="font-heading text-primary font-semibold text-base mb-3">Order Summary</h2>
 
         <div className="space-y-2.5 mb-4">
           {items.map(item => (
             <div key={item.productId} className="flex justify-between text-xs">
-              <span className="text-[#64748B] truncate max-w-[140px]">
+              <span className="text-muted-foreground truncate max-w-[140px]">
                 {item.name} × {item.quantity}
               </span>
-              <span className="font-medium text-[#0F172A] ml-2 flex-shrink-0">
+              <span className="font-medium text-foreground ml-2 flex-shrink-0">
                 ₹{(item.price * item.quantity).toLocaleString('en-IN')}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="space-y-2 text-sm border-t border-[#C5A47E]/20 pt-3">
-          <div className="flex justify-between text-[#64748B]">
+        <div className="space-y-2 text-sm border-t border-gold/20 pt-3">
+          <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
-            <span className="text-[#0F172A]">₹{subtotal.toLocaleString('en-IN')}</span>
+            <span className="text-foreground">₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
           {promoResult && (
             <div className="flex justify-between text-success">
@@ -308,26 +308,26 @@ export function CheckoutForm() {
               <span>−₹{promoResult.discount.toLocaleString('en-IN')}</span>
             </div>
           )}
-          <div className="flex justify-between text-[#64748B]">
+          <div className="flex justify-between text-muted-foreground">
             <span>Shipping</span>
             <span className="text-success">Free</span>
           </div>
-          <div className="flex justify-between font-bold text-[#0F172A] border-t border-[#C5A47E]/20 pt-2">
+          <div className="flex justify-between font-bold text-foreground border-t border-gold/20 pt-2">
             <span>Total</span>
-            <span className="text-[#0E7C7B]">
+            <span className="text-teal">
               ₹{(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}
             </span>
           </div>
         </div>
 
         {/* Promo code section */}
-        <div className="mt-4 border-t border-[#C5A47E]/20 pt-3">
+        <div className="mt-4 border-t border-gold/20 pt-3">
           {!promoResult ? (
             <>
               <button
                 type="button"
                 onClick={() => setPromoOpen(v => !v)}
-                className="text-xs font-medium text-[#0E7C7B] hover:underline"
+                className="text-xs font-medium text-teal hover:underline"
               >
                 {promoOpen ? 'Hide promo code' : 'Have a promo code?'}
               </button>
@@ -342,13 +342,13 @@ export function CheckoutForm() {
                       value={promoCode}
                       onChange={e => setPromoCode(e.target.value.toUpperCase())}
                       placeholder="PROMO CODE"
-                      className="flex-1 h-9 rounded-lg border border-[#C5A47E]/30 bg-surface px-3 text-xs font-mono focus:outline-none focus:border-[#0E7C7B] uppercase"
+                      className="flex-1 h-9 rounded-lg border border-gold/30 bg-surface px-3 text-xs font-mono focus:outline-none focus:border-teal uppercase"
                     />
                     <button
                       type="button"
                       onClick={applyPromo}
                       disabled={promoApplying}
-                      className="h-9 px-3 rounded-lg bg-[#0E7C7B] text-white text-xs font-semibold disabled:opacity-60"
+                      className="h-9 px-3 rounded-lg bg-teal text-white text-xs font-semibold disabled:opacity-60"
                     >
                       {promoApplying ? '…' : 'Apply'}
                     </button>
@@ -382,7 +382,7 @@ interface FieldProps {
 function Field({ label, name, type, placeholder, value, error, onChange }: FieldProps) {
   return (
     <div>
-      <label className="block text-xs font-medium text-[#0F172A] mb-1" htmlFor={name}>
+      <label className="block text-xs font-medium text-foreground mb-1" htmlFor={name}>
         {label}
       </label>
       <input
@@ -396,7 +396,7 @@ function Field({ label, name, type, placeholder, value, error, onChange }: Field
           'w-full px-3 py-2.5 text-sm bg-surface border rounded-lg outline-none min-h-[44px] transition-colors',
           error
             ? 'border-destructive/60 focus:ring-2 focus:ring-red-200'
-            : 'border-[#C5A47E]/30 focus:ring-2 focus:ring-[#0E7C7B]/30 focus:border-[#0E7C7B]',
+            : 'border-gold/30 focus:ring-2 focus:ring-teal/30 focus:border-teal',
         ].join(' ')}
       />
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}

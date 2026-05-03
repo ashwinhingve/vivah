@@ -52,7 +52,7 @@ export function CancelBookingButton({ bookingId, apiUrl, authToken }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary text-white font-medium py-2 rounded-lg text-sm hover:bg-[#631f33] disabled:opacity-50"
+        className="w-full bg-primary text-white font-medium py-2 rounded-lg text-sm hover:bg-primary-hover disabled:opacity-50"
       >
         {loading ? 'Cancelling...' : 'Cancel Booking'}
       </button>

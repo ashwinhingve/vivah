@@ -36,24 +36,24 @@ export default async function GuestsPage({ params }: PageProps) {
   if (false) notFound();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
         {/* Back */}
         <Link
           href={`/weddings/${id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-6 transition-colors min-h-[44px]"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Overview
         </Link>
 
-        <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Guests</h1>
+        <h1 className="font-heading text-2xl text-primary mb-1">Guests</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Manage guest list, RSVPs, invitations, analytics, and check-in.
         </p>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
+        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           {[
             { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
             { href: `/weddings/${id}/guests/analytics`,  label: 'Analytics', active: false },
@@ -66,8 +66,8 @@ export default async function GuestsPage({ params }: PageProps) {
               href={href}
               className={`flex-1 text-center min-h-[44px] py-2.5 px-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 active
-                  ? 'bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6]'
+                  ? 'bg-teal/10 text-teal'
+                  : 'text-muted-foreground hover:text-primary hover:bg-background'
               }`}
             >
               {label}

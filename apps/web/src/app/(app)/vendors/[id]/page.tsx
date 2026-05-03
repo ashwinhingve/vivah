@@ -147,7 +147,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 </span>
                 {vendor.favoriteCount != null && vendor.favoriteCount > 0 && (
                   <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
-                    <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+                    <Heart className="h-3.5 w-3.5 fill-rose-400 text-destructive" />
                     {vendor.favoriteCount}
                   </span>
                 )}

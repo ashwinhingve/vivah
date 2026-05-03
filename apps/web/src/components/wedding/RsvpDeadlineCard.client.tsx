@@ -32,8 +32,8 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
   const daysRemaining = deadline ? Math.max(0, Math.ceil((new Date(deadline).getTime() - Date.now()) / (24 * 60 * 60 * 1000))) : null;
 
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
-      <h3 className="font-medium text-sm text-[#7B2D42] mb-3">RSVP Deadline</h3>
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-6">
+      <h3 className="font-medium text-sm text-primary mb-3">RSVP Deadline</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label className="text-xs text-muted-foreground block mb-1">Deadline</label>
@@ -41,7 +41,7 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
             type="datetime-local"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B]"
+            className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal"
           />
         </div>
         <div>
@@ -50,7 +50,7 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
             value={reminderDays}
             onChange={(e) => setRDays(e.target.value)}
             placeholder="7,3,1"
-            className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B]"
+            className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal"
           />
         </div>
         <div className="flex items-end">
@@ -69,7 +69,7 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
           onClick={handleSave}
           disabled={isSaving}
           className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5"
-          style={{ backgroundColor: '#0E7C7B' }}
+          style={{ backgroundColor: 'var(--color-teal)' }}
         >
           {isSaving && <Loader2 className="h-4 w-4 animate-spin" />} Save deadline
         </button>

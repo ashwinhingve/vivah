@@ -51,7 +51,7 @@ export function R2Uploader({ folder, accept = 'image/*', label = 'Upload', onUpl
 
   return (
     <div>
-      <label className="inline-flex items-center gap-2 cursor-pointer min-h-[40px] px-4 rounded-lg bg-[#7B2D42] text-white text-sm font-medium hover:bg-[#5f2233]">
+      <label className="inline-flex items-center gap-2 cursor-pointer min-h-[40px] px-4 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-hover">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
         {busy ? 'Uploading…' : label}
         <input

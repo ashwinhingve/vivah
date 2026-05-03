@@ -64,14 +64,14 @@ export function QuickStockForm({ productId, currentStock }: QuickStockFormProps)
             setStockQty(e.target.value);
             setSuccess(false);
           }}
-          className="w-full rounded-lg border border-[#C5A47E]/30 bg-[#FEFAF6] px-3 py-2.5 text-sm text-[#0F172A] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors"
+          className="w-full rounded-lg border border-gold/30 bg-background px-3 py-2.5 text-sm text-foreground focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal/40 transition-colors"
           placeholder="New stock qty"
         />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="shrink-0 min-h-[44px] px-4 py-2 rounded-lg bg-[#0E7C7B] text-white text-sm font-semibold hover:bg-[#0E7C7B]/90 transition-colors disabled:opacity-50"
+        className="shrink-0 min-h-[44px] px-4 py-2 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal/90 transition-colors disabled:opacity-50"
       >
         {loading ? 'Saving…' : 'Update'}
       </button>

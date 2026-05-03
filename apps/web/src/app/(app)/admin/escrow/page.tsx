@@ -33,8 +33,8 @@ export default async function AdminEscrowPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0A1F4D]">Escrow Disputes</h1>
-          <p className="mt-1 text-sm text-[#64748B]">
+          <h1 className="text-2xl font-bold text-primary">Escrow Disputes</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Review and resolve disputed escrow payments
           </p>
         </div>
@@ -43,8 +43,8 @@ export default async function AdminEscrowPage() {
       {/* Empty state */}
       {(!disputes || disputes.length === 0) && (
         <div className="rounded-xl border border-border bg-surface p-12 text-center shadow-sm">
-          <p className="font-medium text-[#0F172A]">No disputed bookings</p>
-          <p className="mt-1 text-sm text-[#64748B]">
+          <p className="font-medium text-foreground">No disputed bookings</p>
+          <p className="mt-1 text-sm text-muted-foreground">
             All escrow disputes have been resolved or none have been raised yet.
           </p>
         </div>

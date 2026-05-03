@@ -94,7 +94,7 @@ export default async function VendorsPage({ searchParams }: PageProps) {
         </div>
 
         <div className="bg-surface border border-border rounded-xl p-4 mb-6 shadow-sm">
-          <Suspense fallback={<div className="h-10 animate-pulse bg-[#F5EFE8] rounded-lg" />}>
+          <Suspense fallback={<div className="h-10 animate-pulse bg-secondary rounded-lg" />}>
             <VendorFilterBar />
           </Suspense>
         </div>

@@ -15,14 +15,14 @@ export default async function PublicRsvpPage({ params }: PageProps) {
   if (!view) notFound();
 
   const { wedding, ceremonies, guest } = view;
-  const accentColor = wedding.primaryColor ?? '#7B2D42';
+  const accentColor = wedding.primaryColor ?? 'var(--color-primary)';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-xl mx-auto px-4 py-12">
         {/* Hero */}
         <div className="text-center mb-8">
-          <p className="text-xs uppercase tracking-widest text-[#C5A47E] mb-3">You are invited</p>
+          <p className="text-xs uppercase tracking-widest text-gold mb-3">You are invited</p>
           <h1 className="font-heading text-4xl mb-2" style={{ color: accentColor }}>
             {wedding.brideName && wedding.groomName
               ? <>{wedding.brideName} <span className="opacity-60">&</span> {wedding.groomName}</>
@@ -34,7 +34,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
 
         {/* Ceremonies card */}
         {ceremonies.length > 0 && (
-          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
             <h2 className="font-semibold mb-3" style={{ color: accentColor }}>Schedule</h2>
             <ul className="divide-y divide-[#C5A47E]/10">
               {ceremonies.map((c, idx) => (
@@ -55,7 +55,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
         )}
 
         {/* RSVP form */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-6">
           <h2 className="font-semibold mb-1" style={{ color: accentColor }}>Hello, {guest.name}!</h2>
           <p className="text-sm text-muted-foreground mb-5">Please RSVP below — we can&apos;t wait to celebrate with you.</p>
           <RsvpForm token={token} view={view} />

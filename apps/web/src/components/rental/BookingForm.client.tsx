@@ -70,7 +70,7 @@ export function BookingForm({ item }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-xs font-medium text-[#64748B]">
+        <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
           From date
           <input
             type="date"
@@ -78,11 +78,11 @@ export function BookingForm({ item }: Props) {
             value={fromDate}
             min={today}
             onChange={(e) => setFromDate(e.target.value)}
-            className="min-h-[44px] rounded-lg border border-[#C5A47E]/50 px-3 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+            className="min-h-[44px] rounded-lg border border-gold/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal/40"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-xs font-medium text-[#64748B]">
+        <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
           To date
           <input
             type="date"
@@ -90,12 +90,12 @@ export function BookingForm({ item }: Props) {
             value={toDate}
             min={fromDate || today}
             onChange={(e) => setToDate(e.target.value)}
-            className="min-h-[44px] rounded-lg border border-[#C5A47E]/50 px-3 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+            className="min-h-[44px] rounded-lg border border-gold/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal/40"
           />
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-xs font-medium text-[#64748B]">
+      <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
         Quantity
         <input
           type="number"
@@ -104,19 +104,19 @@ export function BookingForm({ item }: Props) {
           max={item.stockQty}
           value={quantity}
           onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
-          className="min-h-[44px] rounded-lg border border-[#C5A47E]/50 px-3 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]/40"
+          className="min-h-[44px] rounded-lg border border-gold/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
-        <span className="text-[10px] text-[#64748B]">Max: {item.stockQty}</span>
+        <span className="text-[10px] text-muted-foreground">Max: {item.stockQty}</span>
       </label>
 
       {/* Live total preview */}
       {total > 0 && (
-        <div className="rounded-lg bg-[#0E7C7B]/10 px-4 py-3 text-sm">
-          <div className="flex justify-between text-[#0F172A]">
-            <span className="text-[#64748B]">Estimated total</span>
-            <span className="font-bold text-[#0E7C7B]">{inrFormatter.format(total)}</span>
+        <div className="rounded-lg bg-teal/10 px-4 py-3 text-sm">
+          <div className="flex justify-between text-foreground">
+            <span className="text-muted-foreground">Estimated total</span>
+            <span className="font-bold text-teal">{inrFormatter.format(total)}</span>
           </div>
-          <div className="flex justify-between text-xs text-[#64748B] mt-1">
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>Deposit (on booking)</span>
             <span>{inrFormatter.format(item.deposit * quantity)}</span>
           </div>
@@ -132,7 +132,7 @@ export function BookingForm({ item }: Props) {
       <button
         type="submit"
         disabled={loading || total === 0}
-        className="w-full min-h-[44px] rounded-lg bg-[#7B2D42] text-white font-semibold text-sm hover:bg-[#5f2233] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full min-h-[44px] rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Booking…' : 'Confirm Booking Request'}
       </button>

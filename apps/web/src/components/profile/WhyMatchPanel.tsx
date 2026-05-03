@@ -14,7 +14,7 @@ export function WhyMatchPanel({ explainer, tier }: Props): JSX.Element | null {
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
-      <h3 className="mb-2 text-sm font-semibold text-[#0A1F4D]">Why you match</h3>
+      <h3 className="mb-2 text-sm font-semibold text-primary">Why you match</h3>
       <div className={locked ? 'pointer-events-none select-none blur-sm' : ''}>
         <ul className="space-y-1.5">
           {explainer.reasons.map((r, i) => (

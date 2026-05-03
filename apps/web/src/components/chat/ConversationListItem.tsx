@@ -75,7 +75,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
         <div className="flex items-center gap-2">
           <p className={cn(
             'truncate font-heading text-sm',
-            isUnread ? 'font-semibold text-[#0F172A]' : 'font-medium text-foreground',
+            isUnread ? 'font-semibold text-foreground' : 'font-medium text-foreground',
           )}>
             {other?.firstName ?? 'Match'}
             {other?.age ? <span className="text-muted-foreground"> · {other.age}</span> : null}

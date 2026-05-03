@@ -65,7 +65,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
             type="button"
             onClick={() => call('/reschedule/reject', 'PUT')}
             disabled={pending}
-            className="mt-3 rounded-lg border border-amber-700 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
+            className="mt-3 rounded-lg border border-warning/40 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
           >
             {pending ? 'Cancelling…' : 'Cancel proposal'}
           </button>
@@ -83,7 +83,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
               type="button"
               onClick={() => call('/reschedule/reject', 'PUT')}
               disabled={pending}
-              className="rounded-lg border border-amber-700 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
+              className="rounded-lg border border-warning/40 text-warning text-sm font-medium px-3 py-1.5 hover:bg-warning/15 disabled:opacity-60"
             >
               Reject
             </button>

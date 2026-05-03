@@ -96,7 +96,7 @@ export default async function ProfileCompletePage() {
         {/* CTA */}
         <Link
           href="/dashboard"
-          className="block w-full bg-teal text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-[#0D6B6A]"
+          className="block w-full bg-teal text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-teal-hover"
         >
           Go to Dashboard →
         </Link>

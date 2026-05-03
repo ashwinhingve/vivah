@@ -63,7 +63,7 @@ function StepIndicator({ current }: { current: Step }) {
           {i < steps.length - 1 && (
             <div
               className={`h-0.5 flex-1 mb-4 transition-colors ${
-                current > s.n ? 'bg-success' : 'bg-[#CBD5E1]'
+                current > s.n ? 'bg-success' : 'bg-border'
               }`}
             />
           )}

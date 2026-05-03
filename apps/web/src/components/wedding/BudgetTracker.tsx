@@ -27,23 +27,23 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
     <div className="space-y-4">
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-3">
-        <SummaryCard label="Total Budget"    value={fmt(total, currency)}          color="text-[#7B2D42]" />
+        <SummaryCard label="Total Budget"    value={fmt(total, currency)}          color="text-primary" />
         <SummaryCard label="Spent"           value={fmt(totalSpent, currency)}      color="text-destructive" />
-        <SummaryCard label="Remaining"       value={fmt(remaining, currency)}       color="text-[#0E7C7B]" />
+        <SummaryCard label="Remaining"       value={fmt(remaining, currency)}       color="text-teal" />
       </div>
 
       {/* Overall progress */}
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
         <div className="flex justify-between text-sm mb-2">
           <span className="font-medium text-foreground">Spent vs Budget</span>
           <span className="text-muted-foreground">{pct(totalSpent, total)}%</span>
         </div>
-        <div className="h-2.5 w-full rounded-full bg-[#F5EFE8]">
+        <div className="h-2.5 w-full rounded-full bg-secondary">
           <div
             className="h-2.5 rounded-full transition-all"
             style={{
               width:           `${pct(totalSpent, total)}%`,
-              backgroundColor: totalSpent > total ? '#DC2626' : '#0E7C7B',
+              backgroundColor: totalSpent > total ? 'var(--color-destructive)' : 'var(--color-teal)',
             }}
           />
         </div>
@@ -51,10 +51,10 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
 
       {/* Category table */}
       {categories.length > 0 ? (
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6]">
+              <tr className="border-b border-gold/10 bg-background">
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Category</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Allocated</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground">Spent</th>
@@ -70,8 +70,8 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
                 return (
                   <tr
                     key={cat.name}
-                    className={`border-b border-[#C5A47E]/10 last:border-0 ${
-                      i % 2 === 0 ? 'bg-surface' : 'bg-[#FEFAF6]/50'
+                    className={`border-b border-gold/10 last:border-0 ${
+                      i % 2 === 0 ? 'bg-surface' : 'bg-background/50'
                     }`}
                   >
                     <td className="px-4 py-3 font-medium text-foreground">{cat.name}</td>
@@ -81,16 +81,16 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
                     <td className={`px-4 py-3 text-right font-medium ${over ? 'text-destructive' : 'text-foreground'}`}>
                       {fmt(cat.spent, currency)}
                     </td>
-                    <td className={`px-4 py-3 text-right hidden sm:table-cell ${over ? 'text-destructive' : 'text-[#0E7C7B]'}`}>
+                    <td className={`px-4 py-3 text-right hidden sm:table-cell ${over ? 'text-destructive' : 'text-teal'}`}>
                       {over ? `−${fmt(Math.abs(rem), currency)}` : fmt(rem, currency)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="h-1.5 w-full rounded-full bg-[#F5EFE8]">
+                      <div className="h-1.5 w-full rounded-full bg-secondary">
                         <div
                           className="h-1.5 rounded-full"
                           style={{
                             width:           `${p}%`,
-                            backgroundColor: over ? '#DC2626' : '#C5A47E',
+                            backgroundColor: over ? 'var(--color-destructive)' : 'var(--color-gold)',
                           }}
                         />
                       </div>
@@ -101,7 +101,7 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
               })}
             </tbody>
             <tfoot>
-              <tr className="bg-[#FEFAF6] border-t border-[#C5A47E]/20">
+              <tr className="bg-background border-t border-gold/20">
                 <td className="px-4 py-3 font-semibold text-foreground">Total</td>
                 <td className="px-4 py-3 text-right font-semibold hidden sm:table-cell">
                   {fmt(totalAllocated, currency)}
@@ -109,7 +109,7 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
                 <td className="px-4 py-3 text-right font-semibold text-foreground">
                   {fmt(totalSpent, currency)}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-[#0E7C7B] hidden sm:table-cell">
+                <td className="px-4 py-3 text-right font-semibold text-teal hidden sm:table-cell">
                   {fmt(total - totalSpent, currency)}
                 </td>
                 <td className="px-4 py-3" />
@@ -118,7 +118,7 @@ export function BudgetTracker({ total, currency, categories }: BudgetTrackerProp
           </table>
         </div>
       ) : (
-        <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-8 text-center">
+        <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-8 text-center">
           <p className="text-muted-foreground text-sm">No budget categories set up yet.</p>
           <p className="text-muted-foreground text-xs mt-1">
             Add categories in your wedding plan to track spending.
@@ -139,7 +139,7 @@ function SummaryCard({
   color: string;
 }) {
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 text-center">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className={`font-semibold text-base leading-snug ${color}`}>{value}</p>
     </div>

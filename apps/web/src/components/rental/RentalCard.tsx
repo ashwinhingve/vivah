@@ -31,9 +31,9 @@ export function RentalCard({ item }: Props) {
   const isLimited     = item.stockQty <= 3;
 
   return (
-    <div className="rounded-xl shadow-sm bg-[#FEFAF6] p-4 flex flex-col gap-3">
+    <div className="rounded-xl shadow-sm bg-background p-4 flex flex-col gap-3">
       {/* Thumbnail placeholder (Phase 2: wire r2ImageKeys[0]) */}
-      <div className="w-full aspect-[4/3] rounded-lg bg-[#C5A47E]/20 flex items-center justify-center overflow-hidden">
+      <div className="w-full aspect-[4/3] rounded-lg bg-gold/20 flex items-center justify-center overflow-hidden">
         {item.imageKeys[0] ? (
           <img
             src={`/api/media/${item.imageKeys[0]}`}
@@ -41,37 +41,37 @@ export function RentalCard({ item }: Props) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-[#C5A47E] text-xs font-medium">No image yet</span>
+          <span className="text-gold text-xs font-medium">No image yet</span>
         )}
       </div>
 
       {/* Category badge */}
-      <span className="inline-flex self-start rounded-full bg-[#C5A47E]/20 text-[#7B2D42] px-2 py-0.5 text-xs uppercase font-medium tracking-wide">
+      <span className="inline-flex self-start rounded-full bg-gold/20 text-primary px-2 py-0.5 text-xs uppercase font-medium tracking-wide">
         {categoryLabel}
       </span>
 
       {/* Name */}
-      <h3 className="text-lg font-semibold text-[#7B2D42] leading-snug line-clamp-2">
+      <h3 className="text-lg font-semibold text-primary leading-snug line-clamp-2">
         {item.name}
       </h3>
 
       {/* Price */}
-      <p className="text-sm font-bold text-[#0F172A]">
+      <p className="text-sm font-bold text-foreground">
         {inrFormatter.format(item.pricePerDay)}
-        <span className="font-normal text-[#64748B]">/day</span>
+        <span className="font-normal text-muted-foreground">/day</span>
       </p>
 
       {/* Availability indicator */}
       <div className="flex items-center gap-1.5">
         <span
           className={`inline-block h-2 w-2 rounded-full ${
-            isLimited ? 'bg-warning' : 'bg-[#0E7C7B]'
+            isLimited ? 'bg-warning' : 'bg-teal'
           }`}
           aria-hidden="true"
         />
         <span
           className={`text-xs font-medium ${
-            isLimited ? 'text-warning' : 'text-[#0E7C7B]'
+            isLimited ? 'text-warning' : 'text-teal'
           }`}
         >
           {isLimited ? `Limited (${item.stockQty} left)` : 'Available'}
@@ -81,7 +81,7 @@ export function RentalCard({ item }: Props) {
       {/* CTA */}
       <Link
         href={`/rentals/${item.id}`}
-        className="mt-auto flex items-center justify-center min-h-[44px] rounded-lg bg-[#0E7C7B] text-white text-sm font-semibold hover:bg-[#0a5e5d] transition-colors"
+        className="mt-auto flex items-center justify-center min-h-[44px] rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal-hover transition-colors"
       >
         View &amp; Book
       </Link>

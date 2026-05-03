@@ -59,7 +59,7 @@ export function CancelOrderButton({ orderId }: CancelOrderButtonProps) {
       {confirm && !loading && (
         <button
           onClick={() => setConfirm(false)}
-          className="block text-xs text-[#64748B] hover:text-[#0F172A] transition-colors py-1"
+          className="block text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
         >
           Keep order
         </button>

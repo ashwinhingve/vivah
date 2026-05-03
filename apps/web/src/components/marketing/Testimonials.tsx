@@ -59,7 +59,7 @@ export default function Testimonials() {
         viewBox="0 0 200 200"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g fill="none" stroke="#7B2D42" strokeWidth="0.5">
+        <g fill="none" stroke="var(--color-primary)" strokeWidth="0.5">
           <circle cx="100" cy="100" r="80" />
           <circle cx="100" cy="100" r="65" />
           <circle cx="100" cy="100" r="50" />

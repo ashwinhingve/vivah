@@ -125,8 +125,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors"
-          style={{ backgroundColor: '#0E7C7B' }}
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-teal hover:bg-teal-hover text-white text-sm font-medium transition-colors"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add Task
@@ -137,7 +136,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
+          className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4"
         >
           {createError && (
             <p className="mb-3 text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{createError}</p>
@@ -149,12 +148,12 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               required
-              className="flex-1 min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B]"
+              className="flex-1 min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal"
             />
             <select
               value={newPriority}
               onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
-              className="min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal"
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
@@ -164,13 +163,12 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
               type="date"
               value={newDueDate}
               onChange={(e) => setNewDueDate(e.target.value)}
-              className="min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2 text-sm outline-none focus:border-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2 text-sm outline-none focus:border-teal"
             />
             <button
               type="submit"
               disabled={isCreating}
-              className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5"
-              style={{ backgroundColor: '#0E7C7B' }}
+              className="min-h-[44px] px-4 rounded-lg bg-teal hover:bg-teal-hover text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5"
             >
               {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
             </button>
@@ -187,7 +185,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
               {/* Column header */}
               <div className="flex items-center justify-between px-1 mb-1">
                 <h3 className="font-medium text-sm text-foreground">{label}</h3>
-                <span className="text-xs text-muted-foreground bg-[#F5EFE8] rounded-full px-2 py-0.5">
+                <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2 py-0.5">
                   {colTasks.length}
                 </span>
               </div>
@@ -195,7 +193,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
               {/* Column body */}
               <div className="flex flex-col gap-2 min-h-[80px]">
                 {colTasks.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-[#C5A47E]/30 p-4 text-center text-xs text-muted-foreground">
+                  <div className="rounded-xl border border-dashed border-gold/30 p-4 text-center text-xs text-muted-foreground">
                     No tasks here
                   </div>
                 )}
@@ -203,7 +201,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                   <div
                     key={task.id}
                     className={cn(
-                      'bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-3 transition-opacity',
+                      'bg-surface border border-gold/20 rounded-xl shadow-sm p-3 transition-opacity',
                       movingId === task.id && isPending ? 'opacity-40' : 'opacity-100'
                     )}
                   >
@@ -222,7 +220,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                         {task.priority}
                       </span>
                       {task.dueDate && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-[#F5EFE8] px-1.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
                           <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
                           {new Date(task.dueDate).toLocaleDateString('en-IN', {
                             day: 'numeric',
@@ -239,7 +237,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                           onClick={() => moveStatus(task, 'prev')}
                           disabled={isPending}
                           aria-label={`Move "${task.title}" to ${COLUMNS[colIdx - 1]?.label}`}
-                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-40 transition-colors border border-transparent hover:border-[#C5A47E]/30"
+                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-muted-foreground hover:text-primary hover:bg-background disabled:opacity-40 transition-colors border border-transparent hover:border-gold/30"
                         >
                           <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
                           {COLUMNS[colIdx - 1]?.label}
@@ -250,7 +248,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                           onClick={() => moveStatus(task, 'next')}
                           disabled={isPending}
                           aria-label={`Move "${task.title}" to ${COLUMNS[colIdx + 1]?.label}`}
-                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-[#0E7C7B] hover:bg-[#0E7C7B]/10 disabled:opacity-40 transition-colors border border-transparent hover:border-[#0E7C7B]/30 ml-auto"
+                          className="flex items-center gap-0.5 min-h-[44px] px-2 rounded-lg text-xs text-teal hover:bg-teal/10 disabled:opacity-40 transition-colors border border-transparent hover:border-teal/30 ml-auto"
                         >
                           {COLUMNS[colIdx + 1]?.label}
                           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />

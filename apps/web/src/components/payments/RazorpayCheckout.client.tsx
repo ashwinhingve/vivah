@@ -104,7 +104,7 @@ export function RazorpayCheckout({
         contact: customerPhone ?? '',
       },
       notes:   { bookingId, ...(subscriptionId ? { subscriptionId } : {}) },
-      theme:   { color: '#0A1F4D' },
+      theme:   { color: 'var(--color-primary)' },
       ...(saveMethod ? { remember_customer: true } : {}),
       modal:   {
         ondismiss: () => { onDismiss?.(); opening.current = false; },
@@ -138,7 +138,7 @@ export function RazorpayCheckout({
       disabled={disabled}
       className={
         className ??
-        'min-h-[44px] inline-flex items-center justify-center px-5 rounded-lg bg-[#0A1F4D] text-white font-medium shadow-sm hover:bg-[#1848C8] transition-colors disabled:opacity-50'
+        'min-h-[44px] inline-flex items-center justify-center px-5 rounded-lg bg-primary text-white font-medium shadow-sm hover:bg-teal transition-colors disabled:opacity-50'
       }
     >
       {buttonLabel}

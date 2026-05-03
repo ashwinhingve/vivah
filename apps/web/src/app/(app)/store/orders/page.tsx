@@ -25,25 +25,25 @@ export default async function OrdersPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/store" className="text-[#64748B] hover:text-[#0E7C7B] transition-colors text-sm">
+          <Link href="/store" className="text-muted-foreground hover:text-teal transition-colors text-sm">
             ← Store
           </Link>
-          <h1 className="font-heading text-[#7B2D42] text-xl font-bold">My Orders</h1>
+          <h1 className="font-heading text-primary text-xl font-bold">My Orders</h1>
         </div>
 
         {sorted.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 text-[#64748B]">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-[#C5A47E]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex flex-col items-center justify-center py-24 gap-4 text-muted-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gold/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             <p className="text-sm font-medium">No orders yet</p>
             <Link
               href="/store"
-              className="px-5 py-2.5 min-h-[44px] flex items-center bg-[#0E7C7B] text-white font-semibold rounded-lg text-sm hover:bg-[#0E7C7B]/90 transition-colors"
+              className="px-5 py-2.5 min-h-[44px] flex items-center bg-teal text-white font-semibold rounded-lg text-sm hover:bg-teal/90 transition-colors"
             >
               Browse Products
             </Link>
@@ -56,17 +56,17 @@ export default async function OrdersPage() {
                 <Link
                   key={order.id}
                   href={`/store/orders/${order.id}`}
-                  className="block bg-surface border border-[#C5A47E]/20 rounded-xl p-4 hover:border-[#0E7C7B]/40 hover:shadow-sm transition-all"
+                  className="block bg-surface border border-gold/20 rounded-xl p-4 hover:border-teal/40 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs text-[#64748B] font-medium">
+                      <p className="text-xs text-muted-foreground font-medium">
                         Order #{order.id.slice(-8).toUpperCase()}
                       </p>
-                      <p className="font-semibold text-[#0F172A] mt-0.5">
+                      <p className="font-semibold text-foreground mt-0.5">
                         ₹{order.total.toLocaleString('en-IN')}
                       </p>
-                      <p className="text-xs text-[#64748B] mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {order.itemCount} item{order.itemCount !== 1 ? 's' : ''} ·{' '}
                         {new Date(order.createdAt).toLocaleDateString('en-IN', {
                           day: 'numeric', month: 'short', year: 'numeric',

@@ -47,8 +47,8 @@ export function CategoryTabs({ current }: Props) {
             className={cn(
               'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors min-h-[32px]',
               active
-                ? 'bg-[#7B2D42] text-white border-[#7B2D42]'
-                : 'bg-surface text-[#64748B] border-[#C5A47E]/50 hover:border-[#7B2D42] hover:text-[#7B2D42]'
+                ? 'bg-primary text-white border-primary'
+                : 'bg-surface text-muted-foreground border-gold/50 hover:border-primary hover:text-primary'
             )}
           >
             {label}

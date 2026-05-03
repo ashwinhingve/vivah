@@ -86,7 +86,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
           width={1600}
           height={1200}
           className="max-h-[88vh] w-auto max-w-full select-none object-contain"
-          unoptimized
+         
           priority
         />
       </div>

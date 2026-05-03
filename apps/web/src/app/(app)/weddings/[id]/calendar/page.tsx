@@ -54,7 +54,7 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                         c.status === 'IN_PROGRESS' ? 'bg-success/15 text-success' :
                         c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
-                        c.status === 'CANCELLED'   ? 'bg-rose-100 text-rose-800' :
+                        c.status === 'CANCELLED'   ? 'bg-destructive text-destructive' :
                         'bg-warning/15 text-warning'
                       }`}>
                         {c.status}

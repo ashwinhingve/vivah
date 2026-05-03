@@ -5,19 +5,19 @@ interface RsvpStatsProps {
 }
 
 const RSVP_CONFIG = {
-  YES:     { label: 'Attending',  color: '#0E7C7B' },
-  NO:      { label: 'Declined',   color: '#DC2626' },
-  MAYBE:   { label: 'Maybe',      color: '#D97706' },
-  PENDING: { label: 'Pending',    color: '#94A3B8' },
+  YES:     { label: 'Attending',  color: 'var(--color-teal)' },
+  NO:      { label: 'Declined',   color: 'var(--color-destructive)' },
+  MAYBE:   { label: 'Maybe',      color: 'var(--color-warning)' },
+  PENDING: { label: 'Pending',    color: 'var(--color-muted-foreground)' },
 } as const;
 
 const MEAL_CONFIG: Record<MealPref, { label: string; color: string }> = {
-  VEG:           { label: 'Veg',           color: '#059669' },
-  NON_VEG:       { label: 'Non-Veg',       color: '#DC2626' },
-  JAIN:          { label: 'Jain',          color: '#D97706' },
-  VEGAN:         { label: 'Vegan',         color: '#7C3AED' },
-  EGGETARIAN:    { label: 'Eggetarian',    color: '#0891B2' },
-  NO_PREFERENCE: { label: 'No preference', color: '#64748B' },
+  VEG:           { label: 'Veg',           color: 'var(--color-success)' },
+  NON_VEG:       { label: 'Non-Veg',       color: 'var(--color-destructive)' },
+  JAIN:          { label: 'Jain',          color: 'var(--color-warning)' },
+  VEGAN:         { label: 'Vegan',         color: 'var(--color-primary)' },
+  EGGETARIAN:    { label: 'Eggetarian',    color: 'var(--color-teal)' },
+  NO_PREFERENCE: { label: 'No preference', color: 'var(--color-muted-foreground)' },
 };
 
 export function RsvpStats({ guests }: RsvpStatsProps) {
@@ -62,7 +62,7 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
       {/* RSVP badges */}
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
         <h3 className="font-medium text-sm text-foreground mb-3">RSVP Summary</h3>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(RSVP_CONFIG) as (keyof typeof RSVP_CONFIG)[]).map((status) => {
@@ -89,7 +89,7 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
       </div>
 
       {/* Meal preference donut */}
-      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
         <h3 className="font-medium text-sm text-foreground mb-3">
           Meal Preferences
           <span className="ml-1.5 text-xs text-muted-foreground font-normal">(attending only)</span>

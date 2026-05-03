@@ -59,13 +59,13 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
-          <h1 className="font-heading text-[#7B2D42] text-2xl font-bold mb-0.5">
+          <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
             Rental Bookings
           </h1>
-          <p className="text-[#64748B] text-sm">Activate and return customer rentals</p>
+          <p className="text-muted-foreground text-sm">Activate and return customer rentals</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -87,8 +87,8 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
                 href={href}
                 className={`px-4 py-2 text-sm rounded-full whitespace-nowrap transition-colors ${
                   isActive
-                    ? 'bg-[#7B2D42] text-white'
-                    : 'bg-surface text-[#64748B] border border-[#C5A47E]/30 hover:bg-[#FEFAF6]'
+                    ? 'bg-primary text-white'
+                    : 'bg-surface text-muted-foreground border border-gold/30 hover:bg-background'
                 }`}
               >
                 {label}
@@ -98,8 +98,8 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-10 text-center">
-            <p className="text-[#64748B]">No rental bookings match this filter.</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-10 text-center">
+            <p className="text-muted-foreground">No rental bookings match this filter.</p>
           </div>
         ) : (
           <ul className="space-y-3">
@@ -117,10 +117,10 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
 
 function StatCard({ label, value, color, sub }: { label: string; value: number; color: string; sub: string }) {
   return (
-    <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-      <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">{label}</p>
+    <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
       <p className={`text-2xl font-bold font-heading ${color}`}>{value}</p>
-      <p className="text-xs text-[#94A3B8]">{sub}</p>
+      <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
 }

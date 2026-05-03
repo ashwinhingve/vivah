@@ -38,7 +38,7 @@ export default async function PhotosPage() {
 
           <Link
             href="/profile/preferences"
-            className="inline-flex items-center text-sm font-medium text-primary hover:text-[#5C2031] mb-4 min-h-[44px]"
+            className="inline-flex items-center text-sm font-medium text-primary hover:text-primary-hover mb-4 min-h-[44px]"
           >
             ← Back
           </Link>

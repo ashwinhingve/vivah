@@ -182,7 +182,7 @@ export default function ChatHeader({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-heading text-sm font-semibold text-[#0F172A]">
+          <p className="truncate font-heading text-sm font-semibold text-foreground">
             {initialOther?.firstName ?? 'Match'}
             {initialOther?.age ? <span className="font-normal text-muted-foreground"> · {initialOther.age}</span> : null}
           </p>

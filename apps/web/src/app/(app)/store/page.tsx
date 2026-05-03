@@ -76,12 +76,12 @@ export default async function StorePage({ searchParams }: PageProps) {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="font-heading text-[#7B2D42] text-2xl font-bold mb-1">Wedding Store</h1>
-          <p className="text-[#64748B] text-sm">Gifts, trousseau, ethnic wear & more</p>
+          <h1 className="font-heading text-primary text-2xl font-bold mb-1">Wedding Store</h1>
+          <p className="text-muted-foreground text-sm">Gifts, trousseau, ethnic wear & more</p>
         </div>
 
         {/* Filters */}
@@ -92,7 +92,7 @@ export default async function StorePage({ searchParams }: PageProps) {
         {/* Featured section */}
         {featured.length > 0 && (
           <section className="mb-8">
-            <h2 className="font-heading text-[#7B2D42] font-semibold text-lg mb-3">Featured</h2>
+            <h2 className="font-heading text-primary font-semibold text-lg mb-3">Featured</h2>
             <ProductGrid products={featured} />
           </section>
         )}
@@ -100,9 +100,9 @@ export default async function StorePage({ searchParams }: PageProps) {
         {/* All products */}
         <section>
           {category || search ? null : (
-            <h2 className="font-heading text-[#7B2D42] font-semibold text-lg mb-3">
+            <h2 className="font-heading text-primary font-semibold text-lg mb-3">
               All Products
-              {total > 0 && <span className="text-[#64748B] font-normal text-sm ml-2">({total})</span>}
+              {total > 0 && <span className="text-muted-foreground font-normal text-sm ml-2">({total})</span>}
             </h2>
           )}
           <ProductGrid products={products} />
@@ -114,18 +114,18 @@ export default async function StorePage({ searchParams }: PageProps) {
             {page > 1 && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page - 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-[#C5A47E]/30 rounded-lg text-[#64748B] hover:border-[#0E7C7B] hover:text-[#0E7C7B] transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
                 ← Previous
               </Link>
             )}
-            <span className="text-sm text-[#64748B] px-2">
+            <span className="text-sm text-muted-foreground px-2">
               Page {page} of {totalPages}
             </span>
             {page < totalPages && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page + 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-[#C5A47E]/30 rounded-lg text-[#64748B] hover:border-[#0E7C7B] hover:text-[#0E7C7B] transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
                 Next →
               </Link>

@@ -64,11 +64,11 @@ export default async function RentalDetailPage({ params }: Props) {
   const isLimited      = availableQty > 0 && availableQty <= 3;
 
   return (
-    <div className="min-h-screen bg-[#FEFAF6]">
+    <div className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
 
         {/* Thumbnail */}
-        <div className="w-full aspect-[16/9] rounded-xl bg-[#C5A47E]/20 overflow-hidden flex items-center justify-center">
+        <div className="w-full aspect-[16/9] rounded-xl bg-gold/20 overflow-hidden flex items-center justify-center">
           {item.imageKeys[0] ? (
             <img
               src={`/api/media/${item.imageKeys[0]}`}
@@ -76,25 +76,25 @@ export default async function RentalDetailPage({ params }: Props) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-[#C5A47E] text-sm font-medium">No image yet</span>
+            <span className="text-gold text-sm font-medium">No image yet</span>
           )}
         </div>
 
         {/* Details card */}
         <div className="rounded-xl shadow-sm bg-surface p-5 space-y-4">
           {/* Category badge */}
-          <span className="inline-flex rounded-full bg-[#C5A47E]/20 text-[#7B2D42] px-3 py-1 text-xs uppercase font-medium tracking-wide">
+          <span className="inline-flex rounded-full bg-gold/20 text-primary px-3 py-1 text-xs uppercase font-medium tracking-wide">
             {categoryLabel}
           </span>
 
           {/* Name */}
-          <h1 className="text-2xl font-bold text-[#7B2D42] leading-snug">
+          <h1 className="text-2xl font-bold text-primary leading-snug">
             {item.name}
           </h1>
 
           {/* Description */}
           {item.description && (
-            <p className="text-sm text-[#64748B] leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {item.description}
             </p>
           )}
@@ -102,28 +102,28 @@ export default async function RentalDetailPage({ params }: Props) {
           {/* Pricing */}
           <div className="flex items-baseline gap-4 flex-wrap">
             <div>
-              <span className="text-xl font-bold text-[#0F172A]">
+              <span className="text-xl font-bold text-foreground">
                 {inrFormatter.format(item.pricePerDay)}
               </span>
-              <span className="text-sm text-[#64748B]"> / day</span>
+              <span className="text-sm text-muted-foreground"> / day</span>
             </div>
             {item.deposit > 0 && (
-              <div className="text-sm text-[#64748B]">
-                Deposit: <span className="font-medium text-[#0F172A]">{inrFormatter.format(item.deposit)}</span>
+              <div className="text-sm text-muted-foreground">
+                Deposit: <span className="font-medium text-foreground">{inrFormatter.format(item.deposit)}</span>
               </div>
             )}
           </div>
 
           {/* Availability — uses availableQty (stock minus active bookings) */}
-          <div className="flex items-center gap-2 rounded-lg px-3 py-2 bg-[#FEFAF6]">
+          <div className="flex items-center gap-2 rounded-lg px-3 py-2 bg-background">
             <span
               className={`h-2.5 w-2.5 rounded-full ${
-                isFullyBooked ? 'bg-destructive' : isLimited ? 'bg-warning' : 'bg-[#0E7C7B]'
+                isFullyBooked ? 'bg-destructive' : isLimited ? 'bg-warning' : 'bg-teal'
               }`}
               aria-hidden="true"
             />
             <span className={`text-sm font-medium ${
-              isFullyBooked ? 'text-destructive' : isLimited ? 'text-warning' : 'text-[#0E7C7B]'
+              isFullyBooked ? 'text-destructive' : isLimited ? 'text-warning' : 'text-teal'
             }`}>
               {isFullyBooked
                 ? 'Fully booked'
@@ -136,7 +136,7 @@ export default async function RentalDetailPage({ params }: Props) {
 
         {/* Booking form */}
         <div className="rounded-xl shadow-sm bg-surface p-5 space-y-4">
-          <h2 className="text-lg font-semibold text-[#0A1F4D]">Book this item</h2>
+          <h2 className="text-lg font-semibold text-primary">Book this item</h2>
           {isFullyBooked ? (
             <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4 text-center">
               <p className="text-sm font-semibold text-destructive">Fully booked</p>
@@ -150,7 +150,7 @@ export default async function RentalDetailPage({ params }: Props) {
         {/* Back link */}
         <a
           href="/rentals"
-          className="block text-center text-sm text-[#64748B] hover:text-[#7B2D42] transition-colors"
+          className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           ← Back to catalogue
         </a>

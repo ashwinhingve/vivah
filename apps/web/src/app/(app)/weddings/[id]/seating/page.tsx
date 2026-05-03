@@ -19,20 +19,20 @@ export default async function SeatingPage({ params }: PageProps) {
   const unseated = guests.filter(g => !seatedIds.has(g.id) && g.rsvpStatus === 'YES');
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-6xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-4 min-h-[44px]">
+        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-heading text-2xl text-[#7B2D42]">Seating Plan</h1>
+            <h1 className="font-heading text-2xl text-primary">Seating Plan</h1>
             <p className="text-sm text-muted-foreground">{tables.length} tables · {seatedIds.size} of {guests.filter(g => g.rsvpStatus === 'YES').length} confirmed guests seated</p>
           </div>
           {tables.length > 0 && unseated.length > 0 && (
             <form action={autoAssignAction.bind(null, id)}>
-              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-[#7B2D42] text-white text-sm font-medium">
+              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
                 <Sparkles className="h-4 w-4" /> Auto-assign
               </button>
             </form>
@@ -43,18 +43,18 @@ export default async function SeatingPage({ params }: PageProps) {
           {/* Tables */}
           <div className="lg:col-span-2 space-y-4">
             {tables.length === 0 ? (
-              <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
-                <Users className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
+              <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center">
+                <Users className="h-10 w-10 text-gold mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No tables yet. Add your first table on the right.</p>
               </div>
             ) : (
               tables.map(t => {
                 const filled = t.assignedGuests.length;
                 return (
-                  <div key={t.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+                  <div key={t.id} className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h3 className="font-semibold text-[#0A1F4D]">{t.name}</h3>
+                        <h3 className="font-semibold text-primary">{t.name}</h3>
                         <p className="text-xs text-muted-foreground">{t.shape.toLowerCase()} · {filled}/{t.capacity} seats</p>
                       </div>
                       <form action={deleteTableAction.bind(null, id, t.id)}>
@@ -64,7 +64,7 @@ export default async function SeatingPage({ params }: PageProps) {
 
                     <ul className="space-y-1 mb-3">
                       {t.assignedGuests.map(g => (
-                        <li key={g.guestId} className="flex items-center justify-between text-sm bg-[#FEFAF6] rounded px-3 py-1.5">
+                        <li key={g.guestId} className="flex items-center justify-between text-sm bg-background rounded px-3 py-1.5">
                           <span>{g.guestName}</span>
                           <form action={unassignSeatAction.bind(null, id, t.id, g.guestId)}>
                             <button type="submit" className="text-xs text-muted-foreground hover:text-destructive" aria-label="Unassign">
@@ -78,10 +78,10 @@ export default async function SeatingPage({ params }: PageProps) {
 
                     {filled < t.capacity && unseated.length > 0 && (
                       <form action={assignSeatAction.bind(null, id, t.id)} className="flex gap-2">
-                        <select name="guestId" className="flex-1 min-h-[36px] rounded border border-[#C5A47E]/30 px-2 py-1 text-xs">
+                        <select name="guestId" className="flex-1 min-h-[36px] rounded border border-gold/30 px-2 py-1 text-xs">
                           {unseated.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                         </select>
-                        <button type="submit" className="min-h-[36px] px-3 rounded bg-[#0E7C7B] text-white text-xs">Seat</button>
+                        <button type="submit" className="min-h-[36px] px-3 rounded bg-teal text-white text-xs">Seat</button>
                       </form>
                     )}
                   </div>
@@ -92,32 +92,32 @@ export default async function SeatingPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
-              <h3 className="font-semibold text-[#0A1F4D] mb-3 flex items-center gap-2">
+            <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+              <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
                 <Plus className="h-4 w-4" /> New table
               </h3>
               <form action={createTableAction.bind(null, id)} className="space-y-3">
-                <input name="name" placeholder="Table name" required className="w-full min-h-[36px] rounded border border-[#C5A47E]/30 px-3 py-1.5 text-sm" />
+                <input name="name" placeholder="Table name" required className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
                 <div className="grid grid-cols-2 gap-2">
-                  <input name="capacity" type="number" min="2" max="50" defaultValue={8} className="w-full min-h-[36px] rounded border border-[#C5A47E]/30 px-3 py-1.5 text-sm" />
-                  <select name="shape" className="w-full min-h-[36px] rounded border border-[#C5A47E]/30 px-3 py-1.5 text-sm">
+                  <input name="capacity" type="number" min="2" max="50" defaultValue={8} className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
+                  <select name="shape" className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm">
                     <option value="ROUND">Round</option>
                     <option value="RECT">Rectangle</option>
                     <option value="SQUARE">Square</option>
                     <option value="OVAL">Oval</option>
                   </select>
                 </div>
-                <button type="submit" className="w-full min-h-[40px] rounded-lg bg-[#7B2D42] text-white text-sm font-semibold">Add table</button>
+                <button type="submit" className="w-full min-h-[40px] rounded-lg bg-primary text-white text-sm font-semibold">Add table</button>
               </form>
             </div>
 
-            <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
-              <h3 className="font-semibold text-[#0A1F4D] mb-3">Unseated ({unseated.length})</h3>
+            <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+              <h3 className="font-semibold text-primary mb-3">Unseated ({unseated.length})</h3>
               {unseated.length === 0 ? (
                 <p className="text-xs text-muted-foreground">All confirmed guests are seated.</p>
               ) : (
                 <ul className="space-y-1 max-h-64 overflow-y-auto text-sm">
-                  {unseated.map(g => <li key={g.id} className="px-2 py-1 rounded bg-[#FEFAF6]">{g.name}</li>)}
+                  {unseated.map(g => <li key={g.id} className="px-2 py-1 rounded bg-background">{g.name}</li>)}
                 </ul>
               )}
             </div>

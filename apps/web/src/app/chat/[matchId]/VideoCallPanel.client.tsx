@@ -58,7 +58,7 @@ export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPane
           <Video className="h-4 w-4" />
         </span>
         <span className="flex-1">
-          <span className="block text-sm font-semibold text-[#0F172A]">Video calls</span>
+          <span className="block text-sm font-semibold text-foreground">Video calls</span>
           <span className="block text-[11px] text-muted-foreground">
             Start an instant call or schedule one together
           </span>

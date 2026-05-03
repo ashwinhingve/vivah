@@ -49,7 +49,7 @@ export function UpgradeCTA(props: BlurProps | InlineProps) {
             <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
             <Link
               href="/settings/billing"
-              className="mt-3 inline-flex items-center rounded-lg bg-[#0A1F4D] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1848C8]"
+              className="mt-3 inline-flex items-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-teal"
             >
               Upgrade to {TIER_LABEL[requiredTier]}
             </Link>
@@ -64,12 +64,12 @@ export function UpgradeCTA(props: BlurProps | InlineProps) {
       <div className="pointer-events-none select-none filter blur-md">{props.children}</div>
       <div className="absolute inset-0 flex items-center justify-center bg-surface/40 backdrop-blur-[2px]">
         <div className="rounded-2xl border border-border bg-surface px-5 py-4 text-center shadow-lg">
-          <Lock className="mx-auto h-5 w-5 text-[#0A1F4D]" />
+          <Lock className="mx-auto h-5 w-5 text-primary" />
           <h3 className="mt-2 text-sm font-semibold text-foreground">{heading}</h3>
           <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
           <Link
             href="/settings/billing"
-            className="mt-3 inline-flex items-center rounded-lg bg-[#0A1F4D] px-4 py-2 text-xs font-medium text-white hover:bg-[#1848C8]"
+            className="mt-3 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-teal"
           >
             Upgrade to {TIER_LABEL[requiredTier]}
           </Link>

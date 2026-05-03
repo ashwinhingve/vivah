@@ -250,7 +250,7 @@ export function PrivacyToggles({ initial }: { initial: SafetyMode }) {
           className="flex items-center justify-between gap-3 -m-2 p-2 rounded-lg hover:bg-muted transition-colors"
         >
           <div className="flex items-center gap-3">
-            <ShieldX className="h-4 w-4 text-rose-600" />
+            <ShieldX className="h-4 w-4 text-destructive" />
             <div>
               <p className="text-sm font-semibold text-primary">Blocked profiles</p>
               <p className="text-xs text-muted-foreground">Review who you've blocked and unblock if you change your mind.</p>

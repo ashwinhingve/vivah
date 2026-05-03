@@ -75,7 +75,7 @@ export function BlocksList() {
 
   if (error) {
     return (
-      <Card className="p-4 text-sm text-rose-600">
+      <Card className="p-4 text-sm text-destructive">
         {error} <button type="button" onClick={() => void load()} className="underline ml-1">Retry</button>
       </Card>
     );

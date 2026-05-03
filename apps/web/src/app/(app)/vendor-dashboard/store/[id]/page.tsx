@@ -41,12 +41,12 @@ export default async function EditProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-xl mx-auto">
         {/* Back link */}
         <Link
           href="/vendor-dashboard/store"
-          className="inline-flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0E7C7B] transition-colors mb-5 min-h-[44px]"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-teal transition-colors mb-5 min-h-[44px]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -63,25 +63,25 @@ export default async function EditProductPage({ params }: PageProps) {
         {/* Header */}
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-[#7B2D42] text-2xl font-bold mb-0.5">
+            <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
               Edit Product
             </h1>
-            <p className="text-[#64748B] text-sm line-clamp-1">{product.name}</p>
+            <p className="text-muted-foreground text-sm line-clamp-1">{product.name}</p>
           </div>
           <DeleteProductButton productId={product.id} productName={product.name} />
         </div>
 
         {/* Quick stock update */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-4">
-          <h2 className="font-heading text-[#7B2D42] font-semibold text-base mb-3">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-4">
+          <h2 className="font-heading text-primary font-semibold text-base mb-3">
             Quick Stock Update
           </h2>
           <QuickStockForm productId={product.id} currentStock={product.stockQty} />
         </div>
 
         {/* Full edit form */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
-          <h2 className="font-heading text-[#7B2D42] font-semibold text-base mb-4">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+          <h2 className="font-heading text-primary font-semibold text-base mb-4">
             Product Details
           </h2>
           <ProductForm

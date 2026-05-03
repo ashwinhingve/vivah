@@ -33,7 +33,7 @@ const REPORT_CATEGORIES: { value: string; label: string; tone: string }[] = [
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   PENDING:   { label: 'Pending',   cls: 'bg-warning/10 text-warning' },
   ACCEPTED:  { label: 'Matched',   cls: 'bg-success/10 text-success' },
-  DECLINED:  { label: 'Declined',  cls: 'bg-rose-50 text-rose-600' },
+  DECLINED:  { label: 'Declined',  cls: 'bg-destructive text-destructive' },
   WITHDRAWN: { label: 'Withdrawn', cls: 'bg-secondary text-muted-foreground' },
   BLOCKED:   { label: 'Blocked',   cls: 'bg-secondary text-muted-foreground' },
   EXPIRED:   { label: 'Expired',   cls: 'bg-secondary text-muted-foreground' },
@@ -150,7 +150,7 @@ function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
               setBusy(true);
               try { await onConfirm(selected); onClose(); } finally { setBusy(false); }
             }}
-            className="flex-1 rounded-lg bg-rose-600 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 min-h-[44px] flex items-center justify-center gap-2"
+            className="flex-1 rounded-lg bg-destructive py-2.5 text-sm font-semibold text-white hover:bg-destructive min-h-[44px] flex items-center justify-center gap-2"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} Decline
           </button>
@@ -285,7 +285,7 @@ function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
               setBusy(true);
               try { await onConfirm(category, details.trim() || null); onClose(); } finally { setBusy(false); }
             }}
-            className="flex-1 rounded-lg bg-rose-600 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 min-h-[44px] flex items-center justify-center gap-2"
+            className="flex-1 rounded-lg bg-destructive py-2.5 text-sm font-semibold text-white hover:bg-destructive min-h-[44px] flex items-center justify-center gap-2"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} Submit report
           </button>
@@ -386,7 +386,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
                 <button
                   type="button"
                   onClick={() => { setMenuOpen(false); onBlock(); }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-muted text-rose-600 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-muted text-destructive flex items-center gap-2"
                 >
                   <ShieldX className="h-3.5 w-3.5" /> Block
                 </button>
@@ -410,7 +410,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
       )}
 
       {expires && (
-        <p className={`text-xs flex items-center gap-1 ${expires === 'expired' ? 'text-rose-600' : 'text-warning'}`}>
+        <p className={`text-xs flex items-center gap-1 ${expires === 'expired' ? 'text-destructive' : 'text-warning'}`}>
           <Clock className="h-3 w-3" /> {expires}
         </p>
       )}
@@ -435,7 +435,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
             type="button"
             onClick={onDecline}
             disabled={busy}
-            className="flex-1 border border-border text-muted-foreground text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-rose-300 hover:text-rose-600 transition-colors disabled:opacity-50"
+            className="flex-1 border border-border text-muted-foreground text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
           >
             Decline
           </button>
@@ -447,7 +447,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
           type="button"
           onClick={onWithdraw}
           disabled={busy}
-          className="w-full border border-border text-muted-foreground text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-rose-300 hover:text-rose-600 transition-colors disabled:opacity-50"
+          className="w-full border border-border text-muted-foreground text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
         >
           Withdraw interest
         </button>
@@ -666,7 +666,7 @@ export default function RequestsPage() {
                   onReport={() => setReportModal(r)}
                 />
                 {actionError[r.id] && (
-                  <p className="text-xs text-rose-500 mt-1 px-1">{actionError[r.id]}</p>
+                  <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
                 )}
               </div>
             ))}
@@ -723,7 +723,7 @@ export default function RequestsPage() {
                   onReport={() => setReportModal(r)}
                 />
                 {actionError[r.id] && (
-                  <p className="text-xs text-rose-500 mt-1 px-1">{actionError[r.id]}</p>
+                  <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
                 )}
               </div>
             ))}

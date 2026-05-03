@@ -37,13 +37,13 @@ export default async function ExpensesPage({ params }: PageProps) {
   const overBudget = summary?.overBudget ?? false;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-4 transition-colors min-h-[44px]">
+        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 transition-colors min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back to Wedding
         </Link>
 
-        <h1 className="font-heading text-2xl text-[#7B2D42] mb-6">Expenses</h1>
+        <h1 className="font-heading text-2xl text-primary mb-6">Expenses</h1>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -64,8 +64,8 @@ export default async function ExpensesPage({ params }: PageProps) {
         )}
 
         {/* By category */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
-          <h2 className="font-semibold text-[#0A1F4D] mb-3">By category</h2>
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+          <h2 className="font-semibold text-primary mb-3">By category</h2>
           <div className="space-y-2">
             {(summary?.byCategory ?? []).length === 0 && (
               <p className="text-sm text-muted-foreground">No expenses yet.</p>
@@ -82,10 +82,10 @@ export default async function ExpensesPage({ params }: PageProps) {
                       {fmt(c.committed)}{c.allocated > 0 ? ` / ${fmt(c.allocated)}` : ''}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-[#F5EFE8]">
+                  <div className="h-1.5 w-full rounded-full bg-secondary">
                     <div
                       className="h-1.5 rounded-full"
-                      style={{ width: `${pct}%`, backgroundColor: over ? '#DC2626' : '#0E7C7B' }}
+                      style={{ width: `${pct}%`, backgroundColor: over ? 'var(--color-destructive)' : 'var(--color-teal)' }}
                     />
                   </div>
                 </div>
@@ -115,19 +115,19 @@ export default async function ExpensesPage({ params }: PageProps) {
         )}
 
         {/* Expenses table */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden mb-6">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[#C5A47E]/10">
-            <h2 className="font-semibold text-[#0A1F4D]">All expenses ({expenses.length})</h2>
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden mb-6">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-gold/10">
+            <h2 className="font-semibold text-primary">All expenses ({expenses.length})</h2>
           </div>
           {expenses.length === 0 ? (
             <div className="p-10 text-center">
-              <Receipt className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
+              <Receipt className="h-10 w-10 text-gold mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">No expenses yet. Add your first one below.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6] text-left">
+                <tr className="border-b border-gold/10 bg-background text-left">
                   <th className="px-4 py-2 font-medium text-muted-foreground">Item</th>
                   <th className="px-4 py-2 font-medium text-muted-foreground">Category</th>
                   <th className="px-4 py-2 font-medium text-muted-foreground hidden md:table-cell">Due</th>
@@ -139,7 +139,7 @@ export default async function ExpensesPage({ params }: PageProps) {
               </thead>
               <tbody>
                 {expenses.map(e => (
-                  <tr key={e.id} className="border-b border-[#C5A47E]/10 last:border-0">
+                  <tr key={e.id} className="border-b border-gold/10 last:border-0">
                     <td className="px-4 py-3 font-medium text-foreground">
                       {e.label}
                       {e.notes && <p className="text-xs text-muted-foreground">{e.notes}</p>}
@@ -158,10 +158,10 @@ export default async function ExpensesPage({ params }: PageProps) {
                     <td className="px-4 py-3 flex gap-2 justify-end">
                       {e.status !== 'PAID' && e.status !== 'CANCELLED' && (
                         <details className="relative">
-                          <summary className="text-xs font-medium text-[#0E7C7B] hover:underline cursor-pointer list-none">Pay</summary>
-                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-[#C5A47E]/30 bg-surface p-3 space-y-2 shadow-lg">
-                            <input name="amount" type="number" min="1" step="1" placeholder={`Up to ${e.amount - e.paid}`} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" required />
-                            <button type="submit" className="w-full rounded bg-[#0E7C7B] text-white text-xs py-1.5">Record</button>
+                          <summary className="text-xs font-medium text-teal hover:underline cursor-pointer list-none">Pay</summary>
+                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg">
+                            <input name="amount" type="number" min="1" step="1" placeholder={`Up to ${e.amount - e.paid}`} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" required />
+                            <button type="submit" className="w-full rounded bg-teal text-white text-xs py-1.5">Record</button>
                           </form>
                         </details>
                       )}
@@ -177,8 +177,8 @@ export default async function ExpensesPage({ params }: PageProps) {
         </div>
 
         {/* Add expense */}
-        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
-          <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
+        <details className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+          <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-primary list-none">
             <Plus className="h-4 w-4" /> Add expense
           </summary>
           <form action={createExpenseAction.bind(null, id)} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -188,7 +188,7 @@ export default async function ExpensesPage({ params }: PageProps) {
             <Field label="Already paid (₹)" name="paid" type="number" min="0" step="1" />
             <Field label="Due date" name="dueDate" type="date" />
             <Field label="Notes" name="notes" />
-            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-[#7B2D42] text-white font-semibold text-sm">Save expense</button>
+            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white font-semibold text-sm">Save expense</button>
           </form>
         </details>
 
@@ -202,9 +202,9 @@ export default async function ExpensesPage({ params }: PageProps) {
 }
 
 function SummaryCard({ label, value, success, warning }: { label: string; value: string; success?: boolean; warning?: boolean }) {
-  const color = success ? 'text-[#0E7C7B]' : warning ? 'text-warning' : 'text-[#7B2D42]';
+  const color = success ? 'text-teal' : warning ? 'text-warning' : 'text-primary';
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 text-center">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className={`font-semibold text-base ${color}`}>{value}</p>
     </div>
@@ -216,7 +216,7 @@ function Field({ label, name, type = 'text', required, min, step }: { label: str
     <div>
       <label className="block text-xs font-medium text-muted-foreground mb-1">{label}{required && ' *'}</label>
       <input type={type} name={name} required={required} min={min} step={step}
-        className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B2D42]/20" />
+        className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
     </div>
   );
 }
@@ -225,7 +225,7 @@ function SelectField({ label, name, options }: { label: string; name: string; op
   return (
     <div>
       <label className="block text-xs font-medium text-muted-foreground mb-1">{label}</label>
-      <select name={name} className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm">
+      <select name={name} className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm">
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>

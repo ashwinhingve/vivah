@@ -45,9 +45,9 @@ export function ClaimRegistryButton({ itemId, accent }: { itemId: string; accent
   return (
     <div className="flex items-center gap-2 shrink-0">
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" autoFocus
-        className="text-xs rounded border border-[#C5A47E]/30 px-2 py-1 w-32" />
+        className="text-xs rounded border border-gold/30 px-2 py-1 w-32" />
       <button onClick={handleClaim} disabled={isPending || !name.trim()}
-        className="text-xs px-3 py-1 rounded bg-[#0E7C7B] text-white disabled:opacity-50">
+        className="text-xs px-3 py-1 rounded bg-teal text-white disabled:opacity-50">
         OK
       </button>
       {error && <p className="text-xs text-destructive">{error}</p>}

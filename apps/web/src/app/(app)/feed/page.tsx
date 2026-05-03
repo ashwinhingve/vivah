@@ -102,7 +102,12 @@ export default async function MatchFeedPage() {
             />
           )
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            role="feed"
+            aria-busy="false"
+            aria-label={`${items.length} match suggestions`}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
             {items.map((item) => (
               <MatchCard key={item.profileId} match={item} />
             ))}

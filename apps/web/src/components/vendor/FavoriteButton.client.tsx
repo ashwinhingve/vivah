@@ -43,7 +43,7 @@ export function FavoriteButton({ vendorId, initialFavorite = false, className = 
       className={`min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-full border border-gold/40 bg-surface hover:bg-gold/10 transition-colors disabled:opacity-50 ${className}`}
     >
       <Heart
-        className={`h-5 w-5 ${isFav ? 'fill-rose-500 text-rose-500' : 'text-foreground'}`}
+        className={`h-5 w-5 ${isFav ? 'fill-rose-500 text-destructive' : 'text-foreground'}`}
         aria-hidden="true"
       />
     </button>

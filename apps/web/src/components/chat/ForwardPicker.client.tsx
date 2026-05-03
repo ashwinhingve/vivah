@@ -96,7 +96,7 @@ export default function ForwardPicker({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-gold/20 px-4 py-3">
-          <h2 className="font-heading text-base font-semibold text-[#0F172A]">Forward to…</h2>
+          <h2 className="font-heading text-base font-semibold text-foreground">Forward to…</h2>
           <button
             type="button"
             onClick={onClose}

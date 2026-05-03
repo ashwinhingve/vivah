@@ -83,21 +83,21 @@ export function SendInvitations({
   };
 
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-5 mb-6">
+    <div className="bg-surface border border-gold/20 rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-heading text-lg text-[#7B2D42]">Send Invitations</h2>
-        <span className="text-xs text-[#64748B]">
+        <h2 className="font-heading text-lg text-primary">Send Invitations</h2>
+        <span className="text-xs text-muted-foreground">
           {selectedIds.size} of {guests.length} selected
         </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
         <label className="text-xs">
-          <span className="block text-[#64748B] mb-1">Channel</span>
+          <span className="block text-muted-foreground mb-1">Channel</span>
           <select
             value={channel}
             onChange={(e) => setChannel(e.target.value as Channel)}
-            className="w-full border border-[#C5A47E]/30 rounded-lg px-3 py-2"
+            className="w-full border border-gold/30 rounded-lg px-3 py-2"
           >
             <option value="EMAIL">Email</option>
             <option value="SMS">SMS</option>
@@ -105,27 +105,27 @@ export function SendInvitations({
           </select>
         </label>
         <label className="text-xs sm:col-span-2">
-          <span className="block text-[#64748B] mb-1">Personal note (optional)</span>
+          <span className="block text-muted-foreground mb-1">Personal note (optional)</span>
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={500}
             placeholder="With love, Priya & Rohan"
-            className="w-full border border-[#C5A47E]/30 rounded-lg px-3 py-2"
+            className="w-full border border-gold/30 rounded-lg px-3 py-2"
           />
         </label>
       </div>
 
-      <div className="max-h-40 overflow-y-auto border border-[#C5A47E]/20 rounded-lg mb-3">
+      <div className="max-h-40 overflow-y-auto border border-gold/20 rounded-lg mb-3">
         {guests.map((g) => (
-          <label key={g.id} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[#FEFAF6]">
+          <label key={g.id} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-background">
             <input
               type="checkbox"
               checked={selectedIds.has(g.id)}
               onChange={() => toggle(g.id)}
             />
             <span className="flex-1">{g.name}</span>
-            <span className="text-xs text-[#64748B]">{g.rsvpStatus}</span>
+            <span className="text-xs text-muted-foreground">{g.rsvpStatus}</span>
           </label>
         ))}
       </div>
@@ -136,13 +136,13 @@ export function SendInvitations({
         type="button"
         onClick={submit}
         disabled={pending || selectedIds.size === 0}
-        className="rounded-lg bg-[#7B2D42] text-white px-4 py-2 text-sm font-medium hover:bg-[#5E1F30] disabled:opacity-50"
+        className="rounded-lg bg-primary text-white px-4 py-2 text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
       >
         {pending ? 'Sending…' : `Send ${selectedIds.size} invitation${selectedIds.size === 1 ? '' : 's'}`}
       </button>
 
       {result && (
-        <div className="mt-4 rounded-lg bg-success/10 border border-emerald-200 p-3 text-xs text-success">
+        <div className="mt-4 rounded-lg bg-success/10 border border-success/30 p-3 text-xs text-success">
           <p className="font-medium">
             Sent {result.sent ?? 0} · Failed {result.failed ?? 0}
           </p>

@@ -33,19 +33,19 @@ export default async function VendorStorePage() {
   const outOfStock = products.filter((p) => p.stockQty === 0).length;
 
   return (
-    <main className="min-h-screen bg-[#FEFAF6] px-4 py-6">
+    <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-heading text-[#7B2D42] text-2xl font-bold mb-0.5">
+            <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
               My Products
             </h1>
-            <p className="text-[#64748B] text-sm">Manage your store catalogue</p>
+            <p className="text-muted-foreground text-sm">Manage your store catalogue</p>
           </div>
           <Link
             href="/vendor-dashboard/store/new"
-            className="shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 rounded-lg bg-[#0E7C7B] text-white text-sm font-semibold hover:bg-[#0E7C7B]/90 transition-colors"
+            className="shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal/90 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -62,34 +62,34 @@ export default async function VendorStorePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Total</p>
-            <p className="text-2xl font-bold font-heading text-[#7B2D42]">{totalProducts}</p>
-            <p className="text-xs text-[#94A3B8]">products</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Total</p>
+            <p className="text-2xl font-bold font-heading text-primary">{totalProducts}</p>
+            <p className="text-xs text-muted-foreground">products</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Active</p>
-            <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{activeProducts}</p>
-            <p className="text-xs text-[#94A3B8]">listed</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Active</p>
+            <p className="text-2xl font-bold font-heading text-teal">{activeProducts}</p>
+            <p className="text-xs text-muted-foreground">listed</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Out of Stock</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Out of Stock</p>
             <p className="text-2xl font-bold font-heading text-destructive">{outOfStock}</p>
-            <p className="text-xs text-[#94A3B8]">need restocking</p>
+            <p className="text-xs text-muted-foreground">need restocking</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Revenue</p>
-            <p className="text-2xl font-bold font-heading text-[#C5A47E]">—</p>
-            <p className="text-xs text-[#94A3B8]">coming soon</p>
+          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Revenue</p>
+            <p className="text-2xl font-bold font-heading text-gold">—</p>
+            <p className="text-xs text-muted-foreground">coming soon</p>
           </div>
         </div>
 
         {/* Product grid */}
         {products.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#C5A47E]/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
+          <div className="rounded-xl border border-dashed border-gold/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-[#C5A47E]/40"
+              className="h-10 w-10 text-gold/40"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -101,13 +101,13 @@ export default async function VendorStorePage() {
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
               />
             </svg>
-            <p className="font-heading text-[#7B2D42] font-semibold text-lg">No products yet</p>
-            <p className="text-[#64748B] text-sm max-w-xs">
+            <p className="font-heading text-primary font-semibold text-lg">No products yet</p>
+            <p className="text-muted-foreground text-sm max-w-xs">
               Add your first product to start selling on the Smart Shaadi store.
             </p>
             <Link
               href="/vendor-dashboard/store/new"
-              className="inline-flex items-center gap-1.5 min-h-[44px] px-5 py-2 rounded-lg bg-[#0E7C7B] text-white text-sm font-semibold hover:bg-[#0E7C7B]/90 transition-colors mt-1"
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-5 py-2 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal/90 transition-colors mt-1"
             >
               Add your first product
             </Link>

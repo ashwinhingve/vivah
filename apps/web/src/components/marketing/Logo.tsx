@@ -62,10 +62,10 @@ export function LogoMark({ size = 32, className }: LogoProps) {
     <MandapSvg
       size={size}
       className={className}
-      stroke="#7B2D42"
-      fillPrimary="#7B2D42"
-      fillGold="#C5A47E"
-      fillTeal="#0E7C7B"
+      stroke="var(--color-primary)"
+      fillPrimary="var(--color-primary)"
+      fillGold="var(--color-gold)"
+      fillTeal="var(--color-teal)"
     />
   );
 }
@@ -86,10 +86,10 @@ export function LogoWhite({ size = 32, className }: LogoProps) {
     <span className={`inline-flex items-center ${className ?? ''}`}>
       <MandapSvg
         size={size}
-        stroke="#FFFFFF"
-        fillPrimary="#FFFFFF"
-        fillGold="#FFFFFF"
-        fillTeal="#FFFFFF"
+        stroke="var(--color-surface)"
+        fillPrimary="var(--color-surface)"
+        fillGold="var(--color-surface)"
+        fillTeal="var(--color-surface)"
       />
       <span className="ml-2.5 text-xl font-semibold text-white font-[family-name:var(--font-heading)]">
         Smart Shaadi

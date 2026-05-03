@@ -188,7 +188,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
         <button
           onClick={handleStartCall}
           disabled={callingRoom}
-          className="min-h-[44px] inline-flex items-center gap-2 rounded-lg bg-[#0E7C7B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a6564] disabled:opacity-60 transition-colors"
+          className="min-h-[44px] inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-sm font-semibold text-white hover:bg-teal-hover disabled:opacity-60 transition-colors"
         >
           {callingRoom ? (
             <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -205,7 +205,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
 
         <button
           onClick={() => setShowSchedule(v => !v)}
-          className="min-h-[44px] inline-flex items-center gap-2 rounded-lg border border-[#0E7C7B] px-4 py-2 text-sm font-semibold text-[#0E7C7B] hover:bg-[#0E7C7B]/5 transition-colors"
+          className="min-h-[44px] inline-flex items-center gap-2 rounded-lg border border-teal px-4 py-2 text-sm font-semibold text-teal hover:bg-teal/5 transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -226,7 +226,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
       {/* Schedule form */}
       {showSchedule && (
         <form onSubmit={handleSchedule} className="rounded-xl border border-border bg-secondary p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-[#0F172A]">Schedule a video call</h3>
+          <h3 className="text-sm font-semibold text-foreground">Schedule a video call</h3>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="scheduled-at" className="text-xs font-medium text-muted-foreground">Date &amp; Time</label>
@@ -236,7 +236,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               value={scheduledAt}
               onChange={e => setScheduledAt(e.target.value)}
               min={new Date().toISOString().slice(0, 16)}
-              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal"
               required
             />
           </div>
@@ -247,7 +247,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               id="duration"
               value={durationMin}
               onChange={e => setDurationMin(Number(e.target.value))}
-              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal"
             >
               <option value={15}>15 minutes</option>
               <option value={30}>30 minutes</option>
@@ -267,7 +267,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               onChange={e => setScheduleNotes(e.target.value)}
               maxLength={500}
               placeholder="e.g. Let's talk about the family intro…"
-              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal"
             />
           </div>
 
@@ -280,7 +280,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
           <button
             type="submit"
             disabled={scheduling}
-            className="min-h-[44px] w-full rounded-lg bg-[#0E7C7B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a6564] disabled:opacity-60 transition-colors"
+            className="min-h-[44px] w-full rounded-lg bg-teal px-4 py-2 text-sm font-semibold text-white hover:bg-teal-hover disabled:opacity-60 transition-colors"
           >
             {scheduling ? 'Scheduling…' : 'Confirm Schedule'}
           </button>
@@ -289,7 +289,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
 
       {/* Meetings list */}
       <div>
-        <h3 className="text-sm font-semibold text-[#0F172A] mb-2">Upcoming Meetings</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-2">Upcoming Meetings</h3>
 
         {loadingMeetings && (
           <p className="text-sm text-muted-foreground py-2">Loading meetings…</p>
@@ -322,7 +322,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-sm font-medium text-[#0F172A]">
+                      <p className="text-sm font-medium text-foreground">
                         {formatDateTime(meeting.scheduledAt)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">

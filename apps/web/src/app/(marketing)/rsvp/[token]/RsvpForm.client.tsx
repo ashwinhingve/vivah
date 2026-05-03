@@ -114,7 +114,7 @@ export function RsvpForm({ token, view }: Props) {
         <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-success/15 mb-3">
           <Check className="h-6 w-6 text-success" />
         </div>
-        <p className="font-semibold text-[#7B2D42]">RSVP submitted</p>
+        <p className="font-semibold text-primary">RSVP submitted</p>
         <p className="text-sm text-muted-foreground mt-1">Thank you! See you soon.</p>
       </div>
     );
@@ -149,7 +149,7 @@ export function RsvpForm({ token, view }: Props) {
               key={s}
               type="button"
               onClick={() => setStatus(s)}
-              className={`flex-1 min-h-[44px] rounded-lg border text-sm font-medium ${status === s ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-surface text-foreground border-[#C5A47E]/30'}`}
+              className={`flex-1 min-h-[44px] rounded-lg border text-sm font-medium ${status === s ? 'bg-primary text-white border-primary' : 'bg-surface text-foreground border-gold/30'}`}
             >
               {s === 'YES' ? "Yes, I'll be there" : s === 'NO' ? "Sorry, can't make it" : 'Maybe'}
             </button>
@@ -163,7 +163,7 @@ export function RsvpForm({ token, view }: Props) {
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Meal preference</label>
               <select value={meal} onChange={e => setMeal(e.target.value as MealPref)}
-                className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm">
+                className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm">
                 {MEAL_OPTS.map(m => <option key={m} value={m}>{MEAL_LABEL[m]}</option>)}
               </select>
             </div>
@@ -175,7 +175,7 @@ export function RsvpForm({ token, view }: Props) {
                   setPlusOnes(n);
                   setPlusOneNames(prev => prev.slice(0, n));
                 }}
-                className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+                className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
           </div>
 
@@ -188,7 +188,7 @@ export function RsvpForm({ token, view }: Props) {
                     value={plusOneNames[i] ?? ''}
                     onChange={(e) => setPlusOneNames(prev => prev.map((v, j) => j === i ? e.target.value : v).concat(Array(Math.max(0, i + 1 - prev.length)).fill('')).slice(0, plusOnes))}
                     placeholder={`Plus-one ${i + 1}`}
-                    className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm"
+                    className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm"
                   />
                 ))}
               </div>
@@ -220,18 +220,18 @@ export function RsvpForm({ token, view }: Props) {
             <label className="block text-xs font-medium text-muted-foreground mb-1">Dietary restrictions / allergies</label>
             <input value={dietary} onChange={e => setDietary(e.target.value)}
               placeholder="e.g. nut allergy, gluten-free"
-              className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Accessibility needs</label>
             <input value={accessibility} onChange={e => setAccessibility(e.target.value)}
               placeholder="e.g. wheelchair access"
-              className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+              className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
           </div>
 
           {view.customQuestions.length > 0 && (
-            <div className="space-y-3 border-t border-[#C5A47E]/20 pt-4 mt-4">
+            <div className="space-y-3 border-t border-gold/20 pt-4 mt-4">
               <p className="text-xs font-medium text-muted-foreground">A few more questions from the couple</p>
               {view.customQuestions.map(q => (
                 <div key={q.id}>
@@ -242,7 +242,7 @@ export function RsvpForm({ token, view }: Props) {
                     <input
                       value={answers[q.id]?.text ?? ''}
                       onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: { ...prev[q.id], text: e.target.value } }))}
-                      className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm"
+                      className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm"
                     />
                   )}
                   {q.questionType === 'BOOLEAN' && (
@@ -252,7 +252,7 @@ export function RsvpForm({ token, view }: Props) {
                           type="button"
                           key={String(v)}
                           onClick={() => setAnswers(prev => ({ ...prev, [q.id]: { ...prev[q.id], bool: v } }))}
-                          className={`flex-1 min-h-[40px] rounded-lg border text-sm font-medium ${answers[q.id]?.bool === v ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'border-[#C5A47E]/30 text-muted-foreground'}`}
+                          className={`flex-1 min-h-[40px] rounded-lg border text-sm font-medium ${answers[q.id]?.bool === v ? 'bg-primary text-white border-primary' : 'border-gold/30 text-muted-foreground'}`}
                         >
                           {v ? 'Yes' : 'No'}
                         </button>
@@ -263,7 +263,7 @@ export function RsvpForm({ token, view }: Props) {
                     <select
                       value={answers[q.id]?.text ?? ''}
                       onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: { ...prev[q.id], text: e.target.value } }))}
-                      className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm"
+                      className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm"
                     >
                       <option value="">Select…</option>
                       {q.choices.map(c => <option key={c} value={c}>{c}</option>)}
@@ -279,13 +279,13 @@ export function RsvpForm({ token, view }: Props) {
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1">Message to the couple</label>
         <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3}
-          className="w-full rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
+          className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm" />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button type="submit" disabled={isPending}
-        className="w-full min-h-[48px] rounded-lg bg-[#7B2D42] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60">
+        className="w-full min-h-[48px] rounded-lg bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60">
         {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Send RSVP
       </button>

@@ -64,19 +64,19 @@ export default function NewWeddingPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-lg mx-auto px-4 py-8 pb-24">
         {/* Back link */}
         <Link
           href="/weddings"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-6 transition-colors min-h-[44px]"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to Weddings
         </Link>
 
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
-          <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Plan Your Wedding</h1>
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-6">
+          <h1 className="font-heading text-2xl text-primary mb-1">Plan Your Wedding</h1>
           <p className="text-muted-foreground text-sm mb-6">
             Fill in the basics — you can update everything later.
           </p>
@@ -98,7 +98,7 @@ export default function NewWeddingPage() {
                 type="date"
                 value={form.weddingDate}
                 onChange={handleChange}
-                className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B] transition-colors"
+                className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
               />
             </div>
 
@@ -113,7 +113,7 @@ export default function NewWeddingPage() {
                 placeholder="e.g. The Grand Palace Banquet"
                 value={form.venueName}
                 onChange={handleChange}
-                className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B] transition-colors"
+                className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function NewWeddingPage() {
                 placeholder="e.g. Mumbai"
                 value={form.venueCity}
                 onChange={handleChange}
-                className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B] transition-colors"
+                className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
               />
             </div>
 
@@ -145,7 +145,7 @@ export default function NewWeddingPage() {
                 placeholder="e.g. 2000000"
                 value={form.budgetTotal}
                 onChange={handleChange}
-                className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-[#FEFAF6] px-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B] focus:ring-1 focus:ring-[#0E7C7B] transition-colors"
+                className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
               />
             </div>
 
@@ -153,7 +153,7 @@ export default function NewWeddingPage() {
               type="submit"
               disabled={isPending}
               className="w-full min-h-[44px] rounded-lg py-2.5 text-sm font-medium text-white flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
-              style={{ backgroundColor: '#0E7C7B' }}
+              style={{ backgroundColor: 'var(--color-teal)' }}
             >
               {isPending ? (
                 <>

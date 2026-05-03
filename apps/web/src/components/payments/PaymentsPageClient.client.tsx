@@ -80,7 +80,7 @@ export function PaymentsPageClient({ payments }: Props) {
           type="button"
           onClick={() => setShowStatement(true)}
           className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-gold/10"
-          style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+          style={{ borderColor: 'var(--color-gold)', color: 'var(--color-primary)' }}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -90,7 +90,7 @@ export function PaymentsPageClient({ payments }: Props) {
       </div>
 
       {/* Filter tabs */}
-      <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border p-1" style={{ borderColor: '#C5A47E', background: '#FEF9F0' }}>
+      <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border p-1" style={{ borderColor: 'var(--color-gold)', background: 'var(--color-secondary)' }}>
         {STATUS_TABS.map(tab => (
           <button
             key={tab.value}
@@ -99,7 +99,7 @@ export function PaymentsPageClient({ payments }: Props) {
             className={[
               'flex-1 min-w-[72px] rounded-lg px-3 py-2 text-xs font-semibold transition-colors whitespace-nowrap',
               filter === tab.value
-                ? 'bg-surface shadow-sm text-[#7B2D42]'
+                ? 'bg-surface shadow-sm text-primary'
                 : 'text-muted-foreground hover:text-foreground',
             ].join(' ')}
           >
@@ -116,8 +116,8 @@ export function PaymentsPageClient({ payments }: Props) {
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-          <p className="font-medium" style={{ color: '#7B2D42' }}>No payments found</p>
+        <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: 'var(--color-gold)' }}>
+          <p className="font-medium" style={{ color: 'var(--color-primary)' }}>No payments found</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {filter === 'ALL' ? 'You have no payment records yet.' : `No ${filter.toLowerCase()} payments.`}
           </p>
@@ -130,7 +130,7 @@ export function PaymentsPageClient({ payments }: Props) {
               <div
                 key={payment.id}
                 className="rounded-xl bg-surface shadow-sm border p-5"
-                style={{ borderColor: '#C5A47E' }}
+                style={{ borderColor: 'var(--color-gold)' }}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
@@ -142,7 +142,7 @@ export function PaymentsPageClient({ payments }: Props) {
                       {formatDate(payment.createdAt)}
                     </p>
                   </div>
-                  <p className="shrink-0 text-lg font-bold" style={{ color: '#7B2D42' }}>
+                  <p className="shrink-0 text-lg font-bold" style={{ color: 'var(--color-primary)' }}>
                     {formatINR(payment.amount)}
                   </p>
                 </div>
@@ -165,7 +165,7 @@ export function PaymentsPageClient({ payments }: Props) {
                     <Link
                       href={`/payments/invoices/${payment.invoiceId}`}
                       className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-gold/10"
-                      style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+                      style={{ borderColor: 'var(--color-gold)', color: 'var(--color-primary)' }}
                     >
                       View Invoice
                     </Link>

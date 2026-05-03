@@ -54,7 +54,7 @@ export function OnboardingNav({
         {backHref ? (
           <Link
             href={backHref}
-            className="text-sm font-medium text-primary hover:text-[#5C2031] transition-colors min-h-[44px] inline-flex items-center"
+            className="text-sm font-medium text-primary hover:text-primary-hover transition-colors min-h-[44px] inline-flex items-center"
           >
             ← Back
           </Link>

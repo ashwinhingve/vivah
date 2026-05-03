@@ -29,24 +29,24 @@ export default async function BudgetPage({ params }: PageProps) {
   if (nf) notFound();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Back */}
         <Link
           href={`/weddings/${id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-6 transition-colors min-h-[44px]"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Overview
         </Link>
 
-        <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Budget</h1>
+        <h1 className="font-heading text-2xl text-primary mb-1">Budget</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Track spending across your wedding categories.
         </p>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
+        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6">
           {[
             { href: `/weddings/${id}/tasks`,  label: 'Tasks',  active: false },
             { href: `/weddings/${id}/budget`, label: 'Budget', active: true },
@@ -57,8 +57,8 @@ export default async function BudgetPage({ params }: PageProps) {
               href={href}
               className={`flex-1 text-center min-h-[44px] py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 active
-                  ? 'bg-[#0E7C7B]/10 text-[#0E7C7B]'
-                  : 'text-muted-foreground hover:text-[#7B2D42] hover:bg-[#FEFAF6]'
+                  ? 'bg-teal/10 text-teal'
+                  : 'text-muted-foreground hover:text-primary hover:bg-background'
               }`}
             >
               {label}
@@ -84,7 +84,7 @@ export default async function BudgetPage({ params }: PageProps) {
 
         {/* No plan yet */}
         {!error && !plan && (
-          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center shadow-sm">
+          <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center shadow-sm">
             <p className="text-muted-foreground font-medium">No wedding plan found.</p>
             <p className="text-muted-foreground text-sm mt-1">
               Create a wedding plan first to track your budget.

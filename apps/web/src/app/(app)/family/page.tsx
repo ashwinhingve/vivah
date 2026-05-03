@@ -15,7 +15,7 @@ export default async function FamilyPage() {
   const view = await fetchAuth<FamilyView>('/api/v1/profiles/me/family');
   if (!view) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FEFAF6' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
         <p className="text-sm text-muted-foreground">Could not load family information.</p>
       </div>
     );
@@ -25,26 +25,26 @@ export default async function FamilyPage() {
   const score = inclinationScore ?? 0;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FEFAF6' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#7B2D42] mb-6 min-h-[44px]">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Dashboard
         </Link>
 
-        <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Family</h1>
+        <h1 className="font-heading text-2xl text-primary mb-1">Family</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Add structured family details that power matchmaking and trust badges. Free-form intro lives on your profile.
         </p>
 
         {/* Top stat row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-          <Card icon={<Users className="h-4 w-4 text-[#7B2D42]" />} title="Family members">
+          <Card icon={<Users className="h-4 w-4 text-primary" />} title="Family members">
             <div className="text-2xl font-semibold">{members.length}</div>
           </Card>
-          <Card icon={<Sparkles className="h-4 w-4 text-[#0E7C7B]" />} title="Family signal score">
+          <Card icon={<Sparkles className="h-4 w-4 text-teal" />} title="Family signal score">
             <div className="text-2xl font-semibold">{score}<span className="text-base text-muted-foreground"> / 100</span></div>
             <div className="h-1.5 bg-secondary rounded mt-2 overflow-hidden">
-              <div className="h-full bg-[#0E7C7B]" style={{ width: `${score}%` }} />
+              <div className="h-full bg-teal" style={{ width: `${score}%` }} />
             </div>
           </Card>
           <Card icon={<ShieldCheck className="h-4 w-4 text-warning" />} title="Verification">
@@ -57,8 +57,8 @@ export default async function FamilyPage() {
         </div>
 
         {/* Family bio summary */}
-        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
-          <h3 className="font-medium text-sm text-[#7B2D42] mb-3">Family details</h3>
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-6">
+          <h3 className="font-medium text-sm text-primary mb-3">Family details</h3>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <Field label="Father">{section.fatherName ?? '—'}{section.fatherOccupation ? ` · ${section.fatherOccupation}` : ''}</Field>
             <Field label="Mother">{section.motherName ?? '—'}{section.motherOccupation ? ` · ${section.motherOccupation}` : ''}</Field>
@@ -68,7 +68,7 @@ export default async function FamilyPage() {
             <Field label="Family status">{section.familyStatus ?? '—'}</Field>
           </dl>
           {section.siblings && section.siblings.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-[#C5A47E]/10">
+            <div className="mt-3 pt-3 border-t border-gold/10">
               <p className="text-xs text-muted-foreground mb-1">Siblings</p>
               <ul className="text-sm space-y-1">
                 {section.siblings.map((s, i) => (
@@ -82,13 +82,13 @@ export default async function FamilyPage() {
             </div>
           )}
           {section.familyAbout && (
-            <div className="mt-3 pt-3 border-t border-[#C5A47E]/10">
+            <div className="mt-3 pt-3 border-t border-gold/10">
               <p className="text-xs text-muted-foreground mb-1">About</p>
               <p className="text-sm whitespace-pre-line">{section.familyAbout}</p>
             </div>
           )}
           <p className="text-xs text-muted-foreground mt-3">
-            Edit details from <Link href="/profile/family" className="text-[#0E7C7B] underline">profile family page</Link>.
+            Edit details from <Link href="/profile/family" className="text-teal underline">profile family page</Link>.
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export default async function FamilyPage() {
 
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
       <div className="flex items-center gap-1.5 mb-1.5">
         {icon}
         <span className="text-xs text-muted-foreground">{title}</span>
