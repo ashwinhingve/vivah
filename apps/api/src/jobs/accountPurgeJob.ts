@@ -3,8 +3,8 @@
  * apps/api/src/jobs/accountPurgeJob.ts
  *
  * Hard-deletes users whose deletionRequestedAt is older than 30 days.
- * Runs once per hour from a process-local interval. Lightweight enough that
- * we don't need a Bull queue — DELETE statement with a date predicate.
+ * Runs hourly via a BullMQ repeatable job — under multi-instance Railway
+ * deploys this dedups across pods (one purge per hour, not N per pod).
  *
  * Cascade delete is handled by FK constraints on session, account, two_factor,
  * auth_events, profiles (et al) — all reference user.id with ON DELETE CASCADE
@@ -12,11 +12,17 @@
  */
 
 import { lt, and, isNotNull } from 'drizzle-orm';
+import { Worker, Queue } from 'bullmq';
 import { user } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
+import { connection } from '../infrastructure/redis/queues.js';
 
-const RUN_INTERVAL_MS = 60 * 60 * 1000; // 1h
+const QUEUE_NAME = 'account-purge';
+const REPEAT_KEY = 'account-purge-hourly';
+const REPEAT_EVERY_MS = 60 * 60 * 1000;
 const GRACE_DAYS = 30;
+
+interface AccountPurgeJob { scheduledAt: string }
 
 export async function purgeExpiredDeletions(): Promise<number> {
   const cutoff = new Date(Date.now() - GRACE_DAYS * 24 * 60 * 60 * 1000);
@@ -29,17 +35,37 @@ export async function purgeExpiredDeletions(): Promise<number> {
   return deleted.length;
 }
 
-let timer: NodeJS.Timeout | null = null;
+let worker: Worker<AccountPurgeJob> | null = null;
+let queue: Queue<AccountPurgeJob> | null = null;
 
 export function startAccountPurgeWorker(): void {
-  if (timer) return;
-  // First run after 60s so startup is not blocked, then every hour.
-  setTimeout(() => { void purgeExpiredDeletions().catch((e) => console.warn('[account-purge] failed', e)); }, 60_000);
-  timer = setInterval(() => {
-    void purgeExpiredDeletions().catch((e) => console.warn('[account-purge] failed', e));
-  }, RUN_INTERVAL_MS);
+  if (worker) return;
+  queue = new Queue<AccountPurgeJob>(QUEUE_NAME, { connection });
+  worker = new Worker<AccountPurgeJob>(
+    QUEUE_NAME,
+    async () => {
+      const purged = await purgeExpiredDeletions();
+      return { purged };
+    },
+    { connection },
+  );
+  worker.on('failed', (job, err) => {
+    console.warn(`[account-purge] job ${job?.id} failed:`, err);
+  });
+  // Idempotent — BullMQ keys repeats by jobId so multiple boots don't fan out.
+  void queue.add(
+    REPEAT_KEY,
+    { scheduledAt: new Date().toISOString() },
+    { repeat: { every: REPEAT_EVERY_MS }, removeOnComplete: { count: 50 }, removeOnFail: { count: 50 } },
+  );
 }
 
-export function stopAccountPurgeWorker(): void {
-  if (timer) { clearInterval(timer); timer = null; }
+export async function stopAccountPurgeWorker(): Promise<void> {
+  try {
+    if (worker) await worker.close();
+    if (queue)  await queue.close();
+  } finally {
+    worker = null;
+    queue = null;
+  }
 }

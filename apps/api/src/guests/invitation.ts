@@ -11,7 +11,8 @@ import { randomUUID } from 'crypto';
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { guests, invitations, guestLists } from '@smartshaadi/db';
-import { env } from '../lib/env.js';
+import { sendEmail } from '../notifications/providers/ses.js';
+import { sendSms } from '../notifications/providers/msg91.js';
 import type { SendInvitationsInput } from '@smartshaadi/schemas';
 
 const RSVP_BASE_URL = 'https://smartshaadi.co.in/rsvp';
@@ -95,25 +96,38 @@ export async function sendInvitations(
           });
       }
 
-      if (env.USE_MOCK_SERVICES) {
-        // TODO: Wire real delivery via AWS SES (EMAIL) or MSG91 (SMS / WHATSAPP)
-        // when USE_MOCK_SERVICES=false. Each channel needs:
-        //   EMAIL     → aws-sdk SES sendEmail with rsvpLink in body
-        //   SMS       → MSG91 API POST with rsvpLink in message text
-        //   WHATSAPP  → MSG91 WhatsApp API with template + rsvpLink
-        console.log(
-          `[MOCK] Invitation sent to guest ${guest.name} (${guestId}) via ${channel} — RSVP link: ${rsvpLink}${message ? ` | Message: ${message}` : ''}`,
-        );
-      } else {
-        // Real delivery not yet wired. Surface the gap instead of silently
-        // swallowing it — the invitation row was persisted, but nothing went out.
-        // TODO: Implement:
-        //   EMAIL    → aws-sdk SES sendEmail with rsvpLink in body
-        //   SMS      → MSG91 API POST with rsvpLink in message text
-        //   WHATSAPP → MSG91 WhatsApp API with template + rsvpLink
-        throw new Error(
-          `DELIVERY_NOT_IMPLEMENTED: ${channel} delivery not wired when USE_MOCK_SERVICES=false (guest ${guestId})`,
-        );
+      // Real delivery via existing notification providers (SES / MSG91).
+      // Mock mode short-circuits inside each provider, so no token leaks here.
+      const subject = `You're invited — ${guest.name}`;
+      const body = (message ? `${message}\n\n` : '') + `Please RSVP: ${rsvpLink}`;
+      let delivery: { ok: boolean; error?: string };
+      switch (channel) {
+        case 'EMAIL':
+          if (!guest.email) { delivery = { ok: false, error: 'guest.email missing' }; break; }
+          delivery = await sendEmail({
+            to:      guest.email,
+            subject,
+            html:    `<p>${(message ?? '').replace(/</g, '&lt;')}</p><p><a href="${rsvpLink}">RSVP here</a></p>`,
+            text:    body,
+          });
+          break;
+        case 'SMS':
+          if (!guest.phone) { delivery = { ok: false, error: 'guest.phone missing' }; break; }
+          delivery = await sendSms({ phone: guest.phone, message: body });
+          break;
+        case 'WHATSAPP':
+          // WhatsApp Cloud / MSG91 WhatsApp template not yet wired — fail loud
+          // so this code path cannot silently appear successful in production.
+          delivery = { ok: false, error: 'WHATSAPP delivery not yet implemented' };
+          break;
+        default:
+          delivery = { ok: false, error: `unknown channel ${channel as string}` };
+      }
+
+      if (!delivery.ok) {
+        details.push({ guestId, error: delivery.error ?? 'delivery failed' });
+        failed++;
+        continue;
       }
 
       details.push({ guestId, token });

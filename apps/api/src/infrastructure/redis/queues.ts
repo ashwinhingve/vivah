@@ -34,7 +34,9 @@ export const matchComputeQueue = new Queue<MatchComputeJob>(
 
 /** Payload for a notification delivery job (SMS / email / push). */
 export interface NotificationJob {
-  userId:  string;
+  userId:    string;
+  /** Optional profiles.id — worker resolves to user.id when set. */
+  profileId?: string;
   type:    string;
   payload: Record<string, unknown>;
 }

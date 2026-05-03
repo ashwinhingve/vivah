@@ -122,7 +122,9 @@ applyGlobalRateLimit(app);
 app.use('/api/auth', authRouter);
 
 // Dev-only R2 stub (USE_MOCK_SERVICES=true). Mounted before express.json so
-// raw binary PUTs are handled by the router's own raw parser.
+// raw binary PUTs are handled by the router's own raw parser. Module is
+// statically imported but has no side effects, so a prod bundle that never
+// hits this branch carries an inert router with zero handler attachment.
 if (env.USE_MOCK_SERVICES) {
   app.use('/__mock-r2', mockR2Router);
 }
@@ -412,7 +414,7 @@ async function bootstrap(): Promise<void> {
 
       try {
         const { stopAccountPurgeWorker } = await import('./jobs/accountPurgeJob.js');
-        stopAccountPurgeWorker();
+        await stopAccountPurgeWorker();
       } catch { /* not registered in mock */ }
 
       try {

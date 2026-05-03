@@ -77,10 +77,29 @@ function serviceError(code: string, message: string): ServiceError {
   return e;
 }
 
-function pushNotify(type: string, userId: string, payload: Record<string, unknown>): void {
+/**
+ * Enqueue a notification for the recipient identified by their `profiles.id`.
+ *
+ * The notifications service contract uses Better Auth `user.id` as the delivery
+ * key — it joins `user`, `notification_preferences`, `device_tokens` by
+ * user.id. Matchmaking holds profile IDs only (sender/receiver of the match
+ * request), so we pass the profileId through and the notifications worker
+ * resolves it before delivery (see notifications/service.ts).
+ *
+ * Sentinel `'admin'` is not a profile UUID — the worker treats it as a
+ * moderator routing key.
+ */
+function pushNotify(type: string, recipientProfileId: string, payload: Record<string, unknown>): void {
   void notificationsQueue.add(
     type,
-    { type, userId, payload },
+    {
+      type,
+      // Worker uses `profileId` first, falling back to `userId` for backwards
+      // compatibility with non-matchmaking callers that already supply user.id.
+      profileId: recipientProfileId,
+      userId:    recipientProfileId,
+      payload,
+    },
     { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
   );
 }
@@ -201,11 +220,18 @@ export interface AcceptRequestInput {
   welcomeMessage?: string | undefined;
 }
 
+/**
+ * Accept a PENDING match request. `callerProfileId` is the receiver's
+ * `profiles.id` (NOT Better Auth `user.id`). Resolve via
+ * `db.select({id: profiles.id}).from(profiles).where(eq(profiles.userId, ...))`
+ * before invoking — see CLAUDE.md rule 12.
+ */
 export async function acceptRequest(
-  userId: string,
+  callerProfileId: string,
   requestId: string,
   input: AcceptRequestInput = {},
 ): Promise<MatchRequest> {
+  const userId = callerProfileId; // body keeps legacy alias; column refs are profile.id keys
   const request = await fetchRequest(requestId);
 
   if (request.receiverId !== userId) {
@@ -261,11 +287,13 @@ export interface DeclineRequestInput {
   reason?: DeclineReason | undefined;
 }
 
+/** Decline a PENDING request. `callerProfileId` = receiver's `profiles.id`. */
 export async function declineRequest(
-  userId: string,
+  callerProfileId: string,
   requestId: string,
   input: DeclineRequestInput = {},
 ): Promise<MatchRequest> {
+  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
   if (request.receiverId !== userId) {
@@ -298,7 +326,9 @@ export async function declineRequest(
 
 // ── withdrawRequest ───────────────────────────────────────────────────────────
 
-export async function withdrawRequest(userId: string, requestId: string): Promise<MatchRequest> {
+/** Withdraw a PENDING request. `callerProfileId` = sender's `profiles.id`. */
+export async function withdrawRequest(callerProfileId: string, requestId: string): Promise<MatchRequest> {
+  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
   if (request.senderId !== userId) {
@@ -333,7 +363,8 @@ export async function withdrawRequest(userId: string, requestId: string): Promis
  * they have read-receipts allowed in their privacy settings (handled at
  * router layer; service is unconditional for now).
  */
-export async function markRequestSeen(userId: string, requestId: string): Promise<MatchRequest> {
+export async function markRequestSeen(callerProfileId: string, requestId: string): Promise<MatchRequest> {
+  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
   if (request.receiverId !== userId) {
@@ -354,11 +385,13 @@ export async function markRequestSeen(userId: string, requestId: string): Promis
 
 // ── blockUser / unblockUser / listBlockedUsers ────────────────────────────────
 
+/** Block another profile. `callerProfileId` = blocker's `profiles.id`. */
 export async function blockUser(
-  userId: string,
+  callerProfileId: string,
   targetProfileId: string,
   reason?: string,
 ): Promise<void> {
+  const userId = callerProfileId;
   if (userId === targetProfileId) {
     throw serviceError('SELF_BLOCK', 'You cannot block yourself');
   }
@@ -403,7 +436,9 @@ export async function blockUser(
   }
 }
 
-export async function unblockUser(userId: string, targetProfileId: string): Promise<void> {
+/** Unblock a previously-blocked profile. `callerProfileId` = blocker's `profiles.id`. */
+export async function unblockUser(callerProfileId: string, targetProfileId: string): Promise<void> {
+  const userId = callerProfileId;
   await db
     .delete(blockedUsers)
     .where(and(
@@ -424,7 +459,9 @@ export interface BlockedUserItem {
 /**
  * Returns the caller's blocked list, enriched with display name + primary photo.
  */
-export async function listBlockedUsers(userId: string): Promise<BlockedUserItem[]> {
+/** List profiles blocked by the caller. `callerProfileId` = caller's `profiles.id`. */
+export async function listBlockedUsers(callerProfileId: string): Promise<BlockedUserItem[]> {
+  const userId = callerProfileId;
   const rows = await db
     .select({
       blockId:    blockedUsers.id,
@@ -562,11 +599,13 @@ export interface PaginatedRequests {
   total:    number;
 }
 
+/** Page of requests received by the caller. `callerProfileId` = receiver's `profiles.id`. */
 export async function getReceivedRequests(
-  userId: string,
+  callerProfileId: string,
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
+  const userId = callerProfileId;
   const offset = (page - 1) * limit;
 
   const requests = await db
@@ -588,11 +627,13 @@ export async function getReceivedRequests(
   };
 }
 
+/** Page of requests sent by the caller. `callerProfileId` = sender's `profiles.id`. */
 export async function getSentRequests(
-  userId: string,
+  callerProfileId: string,
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
+  const userId = callerProfileId;
   const offset = (page - 1) * limit;
 
   const requests = await db

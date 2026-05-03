@@ -362,9 +362,7 @@ describe('getRsvpStats', () => {
 describe('sendInvitations (mock mode)', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
-  it('logs invitation and sets sentAt in mock mode', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
+  it('persists invitation row and returns ok in mock mode', async () => {
     // guestList lookup
     mockSelect
       .mockReturnValueOnce(makeSelectChain([{ id: GUEST_LIST_ID }]))
@@ -384,10 +382,8 @@ describe('sendInvitations (mock mode)', () => {
     expect(result.sent).toBe(1);
     expect(result.failed).toBe(0);
     expect(result.details[0]?.token).toBeDefined();
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('[MOCK]'));
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(GUEST_ID));
-
-    logSpy.mockRestore();
+    // Delivery now flows through SES/MSG91 providers; mock mode returns ok
+    // without leaking the rsvp token to stdout.
   });
 
   it('returns failed count for guest not in list', async () => {

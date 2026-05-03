@@ -23,7 +23,6 @@ const parsed = ServerSchema.safeParse({
 });
 
 if (!parsed.success) {
-  // eslint-disable-next-line no-console
   console.error('❌ Invalid web environment variables:', parsed.error.flatten());
   throw new Error('Invalid web env: ' + parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; '));
 }

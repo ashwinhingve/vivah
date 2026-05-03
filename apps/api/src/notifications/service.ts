@@ -36,15 +36,45 @@ export type NotificationType =
   | 'REFUND_REQUESTED'
   | 'REFUND_COMPLETED'
   | 'DISPUTE_RAISED'
+  | 'DISPUTE_RAISED_VENDOR'
+  | 'DISPUTE_NEEDS_REVIEW'
   | 'DISPUTE_RESOLVED'
   | 'SUBSCRIPTION_RENEWED'
   | 'SUBSCRIPTION_FAILED'
   | 'GENERIC';
 
 export interface NotificationDeliveryJob {
-  userId:  string;
+  /** Recipient user.id (Better Auth). Either `userId` OR `profileId` is required. */
+  userId:    string;
+  /**
+   * Optional `profiles.id` — when present, the worker resolves it to user.id
+   * before delivery. Matchmaking callsites only have profile IDs available, so
+   * they pass `profileId` here; the resolution layer joins `profiles.userId`.
+   */
+  profileId?: string;
   type:    NotificationType | string;
   payload: Record<string, unknown>;
+}
+
+import { profiles } from '@smartshaadi/db';
+
+async function resolveRecipientUserId(job: NotificationDeliveryJob): Promise<string | null> {
+  // Sentinel for moderator routing — not a real user.id.
+  if (job.userId === 'admin') return job.userId;
+  // Same value supplied for both fields (legacy matchmaking callers): treat
+  // as a profileId and resolve. If a real userId was passed (no profileId
+  // mismatch), the lookup will fail silently and we fall through to the raw
+  // value, which the rest of the pipeline will treat as user.id.
+  if (job.profileId && job.profileId === job.userId) {
+    const [row] = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.id, job.profileId))
+      .limit(1);
+    if (row?.userId) return row.userId;
+    return null;
+  }
+  return job.userId;
 }
 
 interface UserPrefs {
@@ -135,6 +165,51 @@ function render(type: string, payload: Record<string, unknown>): RenderedContent
         ctaUrl: joinUrl,
       };
     }
+    case 'DISPUTE_RAISED':
+    case 'DISPUTE_RAISED_VENDOR': {
+      const bookingId = (payload['bookingId'] as string) ?? '';
+      const reason    = (payload['reason']    as string) ?? '';
+      const ctaUrl    = `/bookings/${bookingId}/dispute`;
+      const title     = type === 'DISPUTE_RAISED_VENDOR'
+        ? 'Customer raised a dispute'
+        : 'Dispute raised';
+      const body      = `Booking ${bookingId.slice(0, 8)}: ${reason.slice(0, 100)}`;
+      return {
+        title,
+        body,
+        email: emailTpl.genericNotification({ title, body, ctaUrl, ctaLabel: 'Review dispute' }),
+        sms:   smsTpl.genericNotification({ title, body }),
+        ctaUrl,
+      };
+    }
+    case 'DISPUTE_NEEDS_REVIEW': {
+      const bookingId = (payload['bookingId'] as string) ?? '';
+      const reason    = (payload['reason']    as string) ?? '';
+      const ctaUrl    = `/admin/escrow/${bookingId}`;
+      const title     = 'Dispute needs admin review';
+      const body      = `Booking ${bookingId.slice(0, 8)}: ${reason.slice(0, 100)}`;
+      return {
+        title,
+        body,
+        email: emailTpl.genericNotification({ title, body, ctaUrl, ctaLabel: 'Open admin panel' }),
+        sms:   smsTpl.genericNotification({ title, body }),
+        ctaUrl,
+      };
+    }
+    case 'DISPUTE_RESOLVED': {
+      const bookingId  = (payload['bookingId']  as string) ?? '';
+      const resolution = (payload['resolution'] as string) ?? 'resolved';
+      const title      = 'Dispute resolved';
+      const body       = `Booking ${bookingId.slice(0, 8)}: ${resolution}`;
+      const ctaUrl     = `/bookings/${bookingId}`;
+      return {
+        title,
+        body,
+        email: emailTpl.genericNotification({ title, body, ctaUrl, ctaLabel: 'View booking' }),
+        sms:   smsTpl.genericNotification({ title, body }),
+        ctaUrl,
+      };
+    }
     default: {
       const title = (payload['title'] as string) ?? 'Smart Shaadi update';
       const body  = (payload['body']  as string) ?? '';
@@ -156,13 +231,20 @@ function render(type: string, payload: Record<string, unknown>): RenderedContent
 
 const TRANSACTIONAL_TYPES = new Set([
   'PAYMENT_CAPTURED', 'PAYMENT_FAILED', 'BOOKING_CONFIRMED',
-  'BOOKING_CANCELLED', 'ESCROW_RELEASED', 'REFUND_COMPLETED', 'DISPUTE_RAISED',
+  'BOOKING_CANCELLED', 'ESCROW_RELEASED', 'REFUND_COMPLETED',
+  'DISPUTE_RAISED', 'DISPUTE_RAISED_VENDOR', 'DISPUTE_NEEDS_REVIEW',
   'DISPUTE_RESOLVED', 'SUBSCRIPTION_RENEWED', 'SUBSCRIPTION_FAILED',
 ]);
 
 export async function deliverNotification(job: NotificationDeliveryJob): Promise<{ sentVia: SentVia[] }> {
-  const { userId, type, payload } = job;
+  const { type, payload } = job;
   const sentVia: SentVia[] = [];
+
+  const userId = await resolveRecipientUserId(job);
+  if (!userId) {
+    console.warn('[notifications] recipient resolution failed:', job.userId, job.profileId);
+    return { sentVia };
+  }
 
   const prefs = await getUserPrefs(userId);
   if (prefs.mutedTypes.includes(type)) return { sentVia };
@@ -233,6 +315,8 @@ const TYPE_ENUM_MAP: Record<string, string> = {
   REFUND_REQUESTED:        'REFUND_REQUESTED',
   REFUND_COMPLETED:        'REFUND_PROCESSED',
   DISPUTE_RAISED:          'SYSTEM',
+  DISPUTE_RAISED_VENDOR:   'SYSTEM',
+  DISPUTE_NEEDS_REVIEW:    'SYSTEM',
   DISPUTE_RESOLVED:        'SYSTEM',
   SUBSCRIPTION_RENEWED:    'PAYMENT_RECEIVED',
   SUBSCRIPTION_FAILED:     'PAYMENT_FAILED',

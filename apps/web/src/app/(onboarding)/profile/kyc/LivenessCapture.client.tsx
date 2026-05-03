@@ -55,6 +55,7 @@ export function LivenessCapture({ score }: Props) {
       recorderRef.current = rec;
       setPhase('recording');
     } catch (e) {
+      console.error('[LivenessCapture] camera/getUserMedia failed:', e);
       setError('Camera access denied. Allow camera permissions and retry.');
       setPhase('error');
     }
@@ -89,7 +90,8 @@ export function LivenessCapture({ score }: Props) {
         setError(res.error ?? 'Liveness check failed');
         setPhase('error');
       }
-    } catch {
+    } catch (e) {
+      console.error('[LivenessCapture] upload failed:', e);
       setError('Upload failed');
       setPhase('error');
     }
