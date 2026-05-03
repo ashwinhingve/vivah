@@ -168,7 +168,7 @@ export function MatchCard({ match }: MatchCardProps) {
         </div>
 
         {match.explainer?.reasons[0] ? (
-          <p className="line-clamp-1 text-[12px] text-slate-600">
+          <p className="line-clamp-1 text-[12px] text-muted-foreground">
             {match.explainer.reasons[0]}
           </p>
         ) : null}

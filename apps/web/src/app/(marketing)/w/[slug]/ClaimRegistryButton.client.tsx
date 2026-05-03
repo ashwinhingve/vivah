@@ -50,7 +50,7 @@ export function ClaimRegistryButton({ itemId, accent }: { itemId: string; accent
         className="text-xs px-3 py-1 rounded bg-[#0E7C7B] text-white disabled:opacity-50">
         OK
       </button>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

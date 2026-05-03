@@ -105,15 +105,15 @@ export default async function RentalsPage({ searchParams }: Props) {
 
         {/* Error state */}
         {!data && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-center">
-            <p className="text-sm font-medium text-red-700">Failed to load rental items.</p>
-            <p className="text-xs text-red-500 mt-1">Please refresh the page or try again later.</p>
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-center">
+            <p className="text-sm font-medium text-destructive">Failed to load rental items.</p>
+            <p className="text-xs text-destructive mt-1">Please refresh the page or try again later.</p>
           </div>
         )}
 
         {/* Empty state */}
         {data && items.length === 0 && (
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-8 text-center">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-8 text-center">
             <p className="text-lg font-semibold text-[#7B2D42]">No items found</p>
             <p className="text-sm text-[#64748B] mt-2">
               {category
@@ -145,7 +145,7 @@ export default async function RentalsPage({ searchParams }: Props) {
                   className={`min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     p === currentPage
                       ? 'bg-[#7B2D42] text-white'
-                      : 'bg-white border border-[#C5A47E]/40 text-[#64748B] hover:border-[#7B2D42]'
+                      : 'bg-surface border border-[#C5A47E]/40 text-[#64748B] hover:border-[#7B2D42]'
                   }`}
                   aria-current={p === currentPage ? 'page' : undefined}
                 >

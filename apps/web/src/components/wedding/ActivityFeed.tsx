@@ -35,7 +35,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
 
   if (entries.length === 0) {
     return (
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
         <History className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
         <p className="text-sm text-muted-foreground">No activity yet.</p>
       </div>
@@ -43,7 +43,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
   }
 
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
       <h3 className="font-medium text-sm text-[#7B2D42] mb-3 flex items-center gap-1.5">
         <History className="h-4 w-4" /> Recent activity
       </h3>

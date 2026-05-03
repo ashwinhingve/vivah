@@ -19,8 +19,8 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   PENDING:   { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
   CONFIRMED: { bg: 'bg-teal-100',   text: 'text-teal-800',   label: 'Confirmed' },
   ACTIVE:    { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Active' },
-  RETURNED:  { bg: 'bg-gray-100',   text: 'text-gray-600',   label: 'Returned' },
-  CANCELLED: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Cancelled' },
+  RETURNED:  { bg: 'bg-secondary',   text: 'text-muted-foreground',   label: 'Returned' },
+  CANCELLED: { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Cancelled' },
   OVERDUE:   { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Overdue' },
 };
 
@@ -65,14 +65,14 @@ export default async function MyRentalsPage() {
 
         {/* Error / empty state */}
         {!data && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-center">
-            <p className="text-sm font-medium text-red-700">Failed to load your bookings.</p>
-            <p className="text-xs text-red-500 mt-1">Please refresh or try again later.</p>
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-center">
+            <p className="text-sm font-medium text-destructive">Failed to load your bookings.</p>
+            <p className="text-xs text-destructive mt-1">Please refresh or try again later.</p>
           </div>
         )}
 
         {data && bookings.length === 0 && (
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-8 text-center space-y-3">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-8 text-center space-y-3">
             <p className="text-lg font-semibold text-[#7B2D42]">No rentals yet</p>
             <p className="text-sm text-[#64748B]">
               Browse our catalogue and rent decor, costumes, and more for your wedding.
@@ -94,7 +94,7 @@ export default async function MyRentalsPage() {
               return (
                 <li
                   key={booking.id}
-                  className="rounded-xl bg-white border border-[#C5A47E]/20 shadow-sm p-4 space-y-3"
+                  className="rounded-xl bg-surface border border-[#C5A47E]/20 shadow-sm p-4 space-y-3"
                 >
                   {/* Item name + status badge */}
                   <div className="flex items-start justify-between gap-2">

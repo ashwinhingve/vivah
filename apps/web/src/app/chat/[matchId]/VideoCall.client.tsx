@@ -19,8 +19,8 @@ function statusBadge(status: MeetingStatus) {
   const styles: Record<MeetingStatus, string> = {
     PROPOSED:  'bg-amber-100 text-amber-800',
     CONFIRMED: 'bg-green-100 text-green-800',
-    COMPLETED: 'bg-gray-100 text-gray-600',
-    CANCELLED: 'bg-red-100 text-red-700',
+    COMPLETED: 'bg-secondary text-muted-foreground',
+    CANCELLED: 'bg-destructive/15 text-destructive',
   };
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
@@ -182,7 +182,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <section className="border-t border-gray-100 bg-white px-4 py-4 space-y-4">
+    <section className="border-t border-border bg-surface px-4 py-4 space-y-4">
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2">
         <button
@@ -218,36 +218,36 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
       </div>
 
       {callError && (
-        <p role="alert" className="text-sm text-red-600 rounded-lg bg-red-50 px-3 py-2">
+        <p role="alert" className="text-sm text-destructive rounded-lg bg-destructive/10 px-3 py-2">
           {callError}
         </p>
       )}
 
       {/* Schedule form */}
       {showSchedule && (
-        <form onSubmit={handleSchedule} className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
+        <form onSubmit={handleSchedule} className="rounded-xl border border-border bg-secondary p-4 space-y-3">
           <h3 className="text-sm font-semibold text-[#0F172A]">Schedule a video call</h3>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="scheduled-at" className="text-xs font-medium text-gray-600">Date &amp; Time</label>
+            <label htmlFor="scheduled-at" className="text-xs font-medium text-muted-foreground">Date &amp; Time</label>
             <input
               id="scheduled-at"
               type="datetime-local"
               value={scheduledAt}
               onChange={e => setScheduledAt(e.target.value)}
               min={new Date().toISOString().slice(0, 16)}
-              className="min-h-[44px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
               required
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="duration" className="text-xs font-medium text-gray-600">Duration</label>
+            <label htmlFor="duration" className="text-xs font-medium text-muted-foreground">Duration</label>
             <select
               id="duration"
               value={durationMin}
               onChange={e => setDurationMin(Number(e.target.value))}
-              className="min-h-[44px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             >
               <option value={15}>15 minutes</option>
               <option value={30}>30 minutes</option>
@@ -259,7 +259,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="notes" className="text-xs font-medium text-gray-600">Notes (optional)</label>
+            <label htmlFor="notes" className="text-xs font-medium text-muted-foreground">Notes (optional)</label>
             <input
               id="notes"
               type="text"
@@ -267,12 +267,12 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               onChange={e => setScheduleNotes(e.target.value)}
               maxLength={500}
               placeholder="e.g. Let's talk about the family intro…"
-              className="min-h-[44px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E7C7B]"
             />
           </div>
 
           {scheduleError && (
-            <p role="alert" className="text-sm text-red-600 rounded-lg bg-red-50 px-3 py-2">
+            <p role="alert" className="text-sm text-destructive rounded-lg bg-destructive/10 px-3 py-2">
               {scheduleError}
             </p>
           )}
@@ -292,17 +292,17 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
         <h3 className="text-sm font-semibold text-[#0F172A] mb-2">Upcoming Meetings</h3>
 
         {loadingMeetings && (
-          <p className="text-sm text-gray-500 py-2">Loading meetings…</p>
+          <p className="text-sm text-muted-foreground py-2">Loading meetings…</p>
         )}
 
         {meetingsError && !loadingMeetings && (
-          <p role="alert" className="text-sm text-red-600 rounded-lg bg-red-50 px-3 py-2">
+          <p role="alert" className="text-sm text-destructive rounded-lg bg-destructive/10 px-3 py-2">
             {meetingsError}
           </p>
         )}
 
         {!loadingMeetings && !meetingsError && meetings.length === 0 && (
-          <p className="text-sm text-gray-400 py-2">No meetings scheduled yet.</p>
+          <p className="text-sm text-muted-foreground py-2">No meetings scheduled yet.</p>
         )}
 
         {!loadingMeetings && meetings.length > 0 && (
@@ -318,14 +318,14 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               return (
                 <li
                   key={meeting.id}
-                  className="rounded-xl border border-gray-200 bg-white p-3 space-y-2"
+                  className="rounded-xl border border-border bg-surface p-3 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium text-[#0F172A]">
                         {formatDateTime(meeting.scheduledAt)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {meeting.durationMin} min
                         {meeting.notes ? ` · ${meeting.notes}` : ''}
                       </p>
@@ -345,7 +345,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
                       <button
                         onClick={() => handleRespond(meeting.id, 'CANCELLED')}
                         disabled={isResponding}
-                        className="min-h-[44px] flex-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 transition-colors"
+                        className="min-h-[44px] flex-1 rounded-lg border border-destructive/40 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60 transition-colors"
                       >
                         {isResponding ? '…' : 'Decline'}
                       </button>

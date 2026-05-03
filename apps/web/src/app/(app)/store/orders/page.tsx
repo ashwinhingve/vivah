@@ -8,11 +8,11 @@ interface OrdersResponse {
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; cls: string }> = {
   PLACED:    { label: 'Placed',    cls: 'bg-amber-50  text-amber-700'    },
-  CONFIRMED: { label: 'Confirmed', cls: 'bg-blue-50   text-blue-700'     },
+  CONFIRMED: { label: 'Confirmed', cls: 'bg-teal/10   text-teal'     },
   SHIPPED:   { label: 'Shipped',   cls: 'bg-purple-50 text-purple-700'   },
   DELIVERED: { label: 'Delivered', cls: 'bg-emerald-50 text-emerald-700' },
-  CANCELLED: { label: 'Cancelled', cls: 'bg-gray-100  text-gray-500'     },
-  REFUNDED:  { label: 'Refunded',  cls: 'bg-gray-100  text-gray-500'     },
+  CANCELLED: { label: 'Cancelled', cls: 'bg-secondary  text-muted-foreground'     },
+  REFUNDED:  { label: 'Refunded',  cls: 'bg-secondary  text-muted-foreground'     },
 };
 
 export default async function OrdersPage() {
@@ -56,7 +56,7 @@ export default async function OrdersPage() {
                 <Link
                   key={order.id}
                   href={`/store/orders/${order.id}`}
-                  className="block bg-white border border-[#C5A47E]/20 rounded-xl p-4 hover:border-[#0E7C7B]/40 hover:shadow-sm transition-all"
+                  className="block bg-surface border border-[#C5A47E]/20 rounded-xl p-4 hover:border-[#0E7C7B]/40 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>

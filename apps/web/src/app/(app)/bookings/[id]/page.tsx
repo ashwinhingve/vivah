@@ -57,8 +57,8 @@ const STATUS_STYLES: Record<BookingStatus, string> = {
   PENDING:   'bg-amber-100 text-amber-800 border-amber-200',
   CONFIRMED: 'bg-teal-100 text-teal-800 border-teal-200',
   COMPLETED: 'bg-green-100 text-green-800 border-green-200',
-  CANCELLED: 'bg-gray-100 text-gray-600 border-gray-200',
-  DISPUTED:  'bg-red-100 text-red-700 border-red-200',
+  CANCELLED: 'bg-secondary text-muted-foreground border-border',
+  DISPUTED:  'bg-destructive/15 text-destructive border-destructive/30',
 };
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
@@ -86,7 +86,7 @@ export default async function BookingDetailPage({
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl space-y-5">
-        <Link href="/bookings" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary">
+        <Link href="/bookings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
           ← Back to Bookings
         </Link>
 
@@ -106,43 +106,43 @@ export default async function BookingDetailPage({
           />
         )}
 
-        <div className="rounded-xl border border-gray-100 bg-surface p-6 shadow-sm space-y-4">
+        <div className="rounded-xl border border-border bg-surface p-6 shadow-sm space-y-4">
           <div>
             <Link href={`/vendors/${booking.vendorId}`} className="text-xl font-bold text-primary hover:underline">
               {booking.vendorName}
             </Link>
-            <p className="text-xs text-gray-400 mt-0.5">Booking ID: {booking.id}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Booking ID: {booking.id}</p>
           </div>
 
           <dl className="divide-y divide-gray-100">
             <div className="flex items-center justify-between py-3">
-              <dt className="text-sm text-gray-500">Event Date</dt>
-              <dd className="text-sm font-medium text-gray-900">
+              <dt className="text-sm text-muted-foreground">Event Date</dt>
+              <dd className="text-sm font-medium text-foreground">
                 {new Date(booking.eventDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </dd>
             </div>
             {booking.ceremonyType && (
               <div className="flex items-center justify-between py-3">
-                <dt className="text-sm text-gray-500">Ceremony</dt>
-                <dd className="text-sm font-medium text-gray-900 capitalize">{booking.ceremonyType.toLowerCase().replace(/_/g, ' ')}</dd>
+                <dt className="text-sm text-muted-foreground">Ceremony</dt>
+                <dd className="text-sm font-medium text-foreground capitalize">{booking.ceremonyType.toLowerCase().replace(/_/g, ' ')}</dd>
               </div>
             )}
             {booking.guestCount && (
               <div className="flex items-center justify-between py-3">
-                <dt className="text-sm text-gray-500">Guest count</dt>
-                <dd className="text-sm font-medium text-gray-900">{booking.guestCount.toLocaleString('en-IN')}</dd>
+                <dt className="text-sm text-muted-foreground">Guest count</dt>
+                <dd className="text-sm font-medium text-foreground">{booking.guestCount.toLocaleString('en-IN')}</dd>
               </div>
             )}
             {booking.eventLocation && (
               <div className="flex items-center justify-between py-3 gap-3">
-                <dt className="text-sm text-gray-500 shrink-0">Location</dt>
-                <dd className="text-sm font-medium text-gray-900 text-right">{booking.eventLocation}</dd>
+                <dt className="text-sm text-muted-foreground shrink-0">Location</dt>
+                <dd className="text-sm font-medium text-foreground text-right">{booking.eventLocation}</dd>
               </div>
             )}
             {booking.packageName && (
               <div className="flex items-center justify-between py-3">
-                <dt className="text-sm text-gray-500">Package</dt>
-                <dd className="text-sm font-medium text-gray-900">
+                <dt className="text-sm text-muted-foreground">Package</dt>
+                <dd className="text-sm font-medium text-foreground">
                   {booking.packageName}
                   {booking.packagePrice != null && (
                     <span className="text-muted-foreground ml-2">{formatInr(booking.packagePrice)}</span>
@@ -151,26 +151,26 @@ export default async function BookingDetailPage({
               </div>
             )}
             <div className="flex items-center justify-between py-3">
-              <dt className="text-sm text-gray-500">Total</dt>
-              <dd className="text-lg font-bold text-gray-900">{formatInr(booking.totalAmount)}</dd>
+              <dt className="text-sm text-muted-foreground">Total</dt>
+              <dd className="text-lg font-bold text-foreground">{formatInr(booking.totalAmount)}</dd>
             </div>
             {booking.escrowAmount !== null && (
               <div className="flex items-center justify-between py-3">
-                <dt className="text-sm text-gray-500">Escrow Held</dt>
+                <dt className="text-sm text-muted-foreground">Escrow Held</dt>
                 <dd className="text-sm font-medium text-teal-700">{formatInr(booking.escrowAmount)}</dd>
               </div>
             )}
             {booking.paymentStatus && (
               <div className="flex items-center justify-between py-3">
-                <dt className="text-sm text-gray-500">Payment</dt>
-                <dd className="text-sm font-medium text-gray-700">{booking.paymentStatus}</dd>
+                <dt className="text-sm text-muted-foreground">Payment</dt>
+                <dd className="text-sm font-medium text-foreground">{booking.paymentStatus}</dd>
               </div>
             )}
           </dl>
         </div>
 
         {booking.addons && booking.addons.length > 0 && (
-          <div className="rounded-xl border border-gray-100 bg-surface p-5 shadow-sm">
+          <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
             <h2 className="text-base font-semibold text-primary mb-3">Add-ons</h2>
             <ul className="divide-y divide-gray-100">
               {booking.addons.map((a) => (
@@ -179,10 +179,10 @@ export default async function BookingDetailPage({
                     {a.name}
                     <span className="text-muted-foreground ml-2">×{a.quantity}</span>
                   </span>
-                  <span className="font-medium text-gray-900">{formatInr(a.unitPrice * a.quantity)}</span>
+                  <span className="font-medium text-foreground">{formatInr(a.unitPrice * a.quantity)}</span>
                 </li>
               ))}
-              <li className="flex items-center justify-between py-2 text-sm border-t-2 border-gray-200 mt-1 pt-2">
+              <li className="flex items-center justify-between py-2 text-sm border-t-2 border-border mt-1 pt-2">
                 <span className="font-semibold text-primary">Add-ons total</span>
                 <span className="font-bold text-primary">{formatInr(addonsTotal)}</span>
               </li>
@@ -206,7 +206,7 @@ export default async function BookingDetailPage({
           )}
           <Link
             href="/bookings"
-            className="rounded-lg border border-gray-200 bg-surface px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
           >
             Back to list
           </Link>

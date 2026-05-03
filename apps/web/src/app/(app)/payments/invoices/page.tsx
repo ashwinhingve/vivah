@@ -46,10 +46,10 @@ function formatDate(iso: string): string {
 }
 
 const STATUS_MAP: Record<InvoiceStatus, { bg: string; text: string; label: string }> = {
-  DRAFT:     { bg: 'bg-slate-100',  text: 'text-slate-600',  label: 'Draft' },
-  ISSUED:    { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'Issued' },
+  DRAFT:     { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Draft' },
+  ISSUED:    { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Issued' },
   PAID:      { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Paid' },
-  CANCELLED: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Cancelled' },
+  CANCELLED: { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Cancelled' },
   CREDITED:  { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Credited' },
 };
 
@@ -57,27 +57,27 @@ export default async function InvoicesPage() {
   const invoices = await fetchInvoices();
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Invoices</h1>
+          <h1 className="text-2xl font-bold text-primary">Invoices</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             GST-compliant invoices for your bookings and orders
           </p>
         </div>
 
         {invoices.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No invoices yet</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No invoices yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Invoices are generated when a booking or order is confirmed.
             </p>
           </div>
         ) : (
-          <div className="rounded-xl border overflow-hidden shadow-sm" style={{ borderColor: '#C5A47E' }}>
+          <div className="rounded-xl border overflow-hidden shadow-sm border-gold">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead style={{ background: '#FEF9F0' }}>
+                <thead className="bg-secondary">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Invoice No.</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Date</th>
@@ -87,9 +87,9 @@ export default async function InvoicesPage() {
                     <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y" style={{ borderColor: '#C5A47E22' }}>
+                <tbody className="divide-y border-gold/15">
                   {invoices.map(inv => {
-                    const badge = STATUS_MAP[inv.status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: inv.status };
+                    const badge = STATUS_MAP[inv.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: inv.status };
                     return (
                       <tr key={inv.id} className="bg-surface hover:bg-gold/5 transition-colors">
                         <td className="px-4 py-3 font-mono text-xs text-foreground font-medium">
@@ -112,8 +112,7 @@ export default async function InvoicesPage() {
                         <td className="px-4 py-3 text-center">
                           <Link
                             href={`/payments/invoices/${inv.id}`}
-                            className="text-xs font-medium hover:underline"
-                            style={{ color: '#0E7C7B' }}
+                            className="text-xs font-medium hover:underline text-teal"
                           >
                             View
                           </Link>

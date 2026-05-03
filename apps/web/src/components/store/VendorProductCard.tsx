@@ -8,14 +8,14 @@ interface VendorProductCardProps {
 export function VendorProductCard({ product }: VendorProductCardProps) {
   const stockBadge =
     product.stockQty === 0
-      ? { text: 'Out of Stock', cls: 'text-red-600 bg-red-50' }
+      ? { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' }
       : product.stockQty <= 10
       ? { text: `${product.stockQty} left`, cls: 'text-amber-700 bg-amber-50' }
       : { text: `${product.stockQty} in stock`, cls: 'text-emerald-700 bg-emerald-50' };
 
   return (
     <div
-      className={`bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden flex flex-col transition-opacity ${
+      className={`bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden flex flex-col transition-opacity ${
         !product.isActive ? 'opacity-60' : ''
       }`}
     >

@@ -45,7 +45,7 @@ export async function StrengthTipsPanel() {
     <Card className="space-y-3 p-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-amber-500" />
-        <h2 className="text-sm font-semibold text-slate-900">Boost your profile</h2>
+        <h2 className="text-sm font-semibold text-foreground">Boost your profile</h2>
         <span className="ml-auto text-xs text-muted-foreground">{data.completeness}% complete</span>
       </div>
       <ul className="space-y-2">

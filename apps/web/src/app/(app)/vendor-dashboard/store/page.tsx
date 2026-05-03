@@ -62,22 +62,22 @@ export default async function VendorStorePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Total</p>
             <p className="text-2xl font-bold font-heading text-[#7B2D42]">{totalProducts}</p>
             <p className="text-xs text-[#94A3B8]">products</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Active</p>
             <p className="text-2xl font-bold font-heading text-[#0E7C7B]">{activeProducts}</p>
             <p className="text-xs text-[#94A3B8]">listed</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Out of Stock</p>
-            <p className="text-2xl font-bold font-heading text-red-600">{outOfStock}</p>
+            <p className="text-2xl font-bold font-heading text-destructive">{outOfStock}</p>
             <p className="text-xs text-[#94A3B8]">need restocking</p>
           </div>
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
             <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">Revenue</p>
             <p className="text-2xl font-bold font-heading text-[#C5A47E]">—</p>
             <p className="text-xs text-[#94A3B8]">coming soon</p>
@@ -86,7 +86,7 @@ export default async function VendorStorePage() {
 
         {/* Product grid */}
         {products.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#C5A47E]/30 bg-white py-16 flex flex-col items-center gap-3 text-center">
+          <div className="rounded-xl border border-dashed border-[#C5A47E]/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-10 w-10 text-[#C5A47E]/40"

@@ -42,7 +42,7 @@ export default async function AdminEscrowPage() {
 
       {/* Empty state */}
       {(!disputes || disputes.length === 0) && (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm">
+        <div className="rounded-xl border border-border bg-surface p-12 text-center shadow-sm">
           <p className="font-medium text-[#0F172A]">No disputed bookings</p>
           <p className="mt-1 text-sm text-[#64748B]">
             All escrow disputes have been resolved or none have been raised yet.

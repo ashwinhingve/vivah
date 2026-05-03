@@ -43,7 +43,7 @@ export default async function FamilyPage() {
           </Card>
           <Card icon={<Sparkles className="h-4 w-4 text-[#0E7C7B]" />} title="Family signal score">
             <div className="text-2xl font-semibold">{score}<span className="text-base text-muted-foreground"> / 100</span></div>
-            <div className="h-1.5 bg-gray-100 rounded mt-2 overflow-hidden">
+            <div className="h-1.5 bg-secondary rounded mt-2 overflow-hidden">
               <div className="h-full bg-[#0E7C7B]" style={{ width: `${score}%` }} />
             </div>
           </Card>
@@ -57,7 +57,7 @@ export default async function FamilyPage() {
         </div>
 
         {/* Family bio summary */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
           <h3 className="font-medium text-sm text-[#7B2D42] mb-3">Family details</h3>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <Field label="Father">{section.fatherName ?? '—'}{section.fatherOccupation ? ` · ${section.fatherOccupation}` : ''}</Field>
@@ -101,7 +101,7 @@ export default async function FamilyPage() {
 
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
       <div className="flex items-center gap-1.5 mb-1.5">
         {icon}
         <span className="text-xs text-muted-foreground">{title}</span>

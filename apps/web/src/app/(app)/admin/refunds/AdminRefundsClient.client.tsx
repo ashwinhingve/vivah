@@ -90,10 +90,10 @@ export function AdminRefundsClient({ initialRefunds, initialStatus }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Refund Queue</h1>
+          <h1 className="text-2xl font-bold text-primary">Refund Queue</h1>
           <p className="mt-1 text-sm text-muted-foreground">Review and act on customer refund requests</p>
         </div>
 
@@ -118,8 +118,8 @@ export function AdminRefundsClient({ initialRefunds, initialStatus }: Props) {
         </div>
 
         {refunds.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No refunds in this queue</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No refunds in this queue</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {status === 'REQUESTED' ? 'All pending refunds have been processed.' : 'No refunds with this status.'}
             </p>
@@ -132,8 +132,7 @@ export function AdminRefundsClient({ initialRefunds, initialStatus }: Props) {
               return (
                 <div
                   key={refund.id}
-                  className="rounded-xl bg-surface border shadow-sm p-5"
-                  style={{ borderColor: '#C5A47E' }}
+                  className="rounded-xl bg-surface border shadow-sm p-5 border-gold"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
@@ -149,7 +148,7 @@ export function AdminRefundsClient({ initialRefunds, initialStatus }: Props) {
                         </p>
                       )}
                     </div>
-                    <p className="shrink-0 text-xl font-bold" style={{ color: '#7B2D42' }}>
+                    <p className="shrink-0 text-xl font-bold text-primary">
                       {formatINR(refund.amount)}
                     </p>
                   </div>
@@ -159,7 +158,7 @@ export function AdminRefundsClient({ initialRefunds, initialStatus }: Props) {
                   )}
 
                   {err && (
-                    <p className="mt-2 text-xs text-red-600">{err}</p>
+                    <p className="mt-2 text-xs text-destructive">{err}</p>
                   )}
 
                   {status === 'REQUESTED' && (

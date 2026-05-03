@@ -53,7 +53,7 @@ export default async function GuestsPage({ params }: PageProps) {
         </p>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
+        <div className="flex gap-1 bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           {[
             { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
             { href: `/weddings/${id}/guests/analytics`,  label: 'Analytics', active: false },
@@ -77,8 +77,8 @@ export default async function GuestsPage({ params }: PageProps) {
 
         {/* Error state */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-6">
-            <p className="text-red-700 font-medium">Could not load guests. Please try again.</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center mb-6">
+            <p className="text-destructive font-medium">Could not load guests. Please try again.</p>
           </div>
         )}
 

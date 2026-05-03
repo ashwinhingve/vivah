@@ -18,7 +18,7 @@ export default function StoreLoading() {
         {/* Grid skeleton */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white border border-[#C5A47E]/20 rounded-xl overflow-hidden">
+            <div key={i} className="bg-surface border border-[#C5A47E]/20 rounded-xl overflow-hidden">
               <div className="aspect-square bg-[#C5A47E]/10 animate-pulse" />
               <div className="p-3 space-y-2">
                 <div className="h-3 w-14 bg-[#C5A47E]/20 rounded-full animate-pulse" />

@@ -124,7 +124,7 @@ export function BookingForm({ item }: Props) {
       )}
 
       {error && (
-        <p className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg bg-destructive/10 border border-destructive/30 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}

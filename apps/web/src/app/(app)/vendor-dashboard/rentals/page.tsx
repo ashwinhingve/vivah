@@ -70,7 +70,7 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <StatCard label="Pending"   value={counts.pending}   color="text-amber-600"   sub="awaiting confirm" />
-          <StatCard label="Confirmed" value={counts.confirmed} color="text-blue-600"    sub="ready to hand off" />
+          <StatCard label="Confirmed" value={counts.confirmed} color="text-teal"    sub="ready to hand off" />
           <StatCard label="Active"    value={counts.active}    color="text-purple-600"  sub="out with customer" />
           <StatCard label="Returned"  value={counts.returned}  color="text-emerald-600" sub="completed" />
         </div>
@@ -88,7 +88,7 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
                 className={`px-4 py-2 text-sm rounded-full whitespace-nowrap transition-colors ${
                   isActive
                     ? 'bg-[#7B2D42] text-white'
-                    : 'bg-white text-[#64748B] border border-[#C5A47E]/30 hover:bg-[#FEFAF6]'
+                    : 'bg-surface text-[#64748B] border border-[#C5A47E]/30 hover:bg-[#FEFAF6]'
                 }`}
               >
                 {label}
@@ -98,7 +98,7 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-10 text-center">
+          <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-10 text-center">
             <p className="text-[#64748B]">No rental bookings match this filter.</p>
           </div>
         ) : (
@@ -117,7 +117,7 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
 
 function StatCard({ label, value, color, sub }: { label: string; value: number; color: string; sub: string }) {
   return (
-    <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-1">
+    <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-1">
       <p className="text-xs text-[#64748B] font-medium uppercase tracking-wide">{label}</p>
       <p className={`text-2xl font-bold font-heading ${color}`}>{value}</p>
       <p className="text-xs text-[#94A3B8]">{sub}</p>

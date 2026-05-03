@@ -10,11 +10,11 @@ interface PageProps {
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; cls: string }> = {
   PLACED:    { label: 'Placed',    cls: 'bg-amber-50  text-amber-700'    },
-  CONFIRMED: { label: 'Confirmed', cls: 'bg-blue-50   text-blue-700'     },
+  CONFIRMED: { label: 'Confirmed', cls: 'bg-teal/10   text-teal'     },
   SHIPPED:   { label: 'Shipped',   cls: 'bg-purple-50 text-purple-700'   },
   DELIVERED: { label: 'Delivered', cls: 'bg-emerald-50 text-emerald-700' },
-  CANCELLED: { label: 'Cancelled', cls: 'bg-gray-100  text-gray-500'     },
-  REFUNDED:  { label: 'Refunded',  cls: 'bg-gray-100  text-gray-500'     },
+  CANCELLED: { label: 'Cancelled', cls: 'bg-secondary  text-muted-foreground'     },
+  REFUNDED:  { label: 'Refunded',  cls: 'bg-secondary  text-muted-foreground'     },
 };
 
 const FULFILMENT_CONFIG: Record<FulfilmentStatus, { label: string; cls: string }> = {
@@ -46,7 +46,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Status card */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-xs text-[#64748B] font-medium">
@@ -71,7 +71,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Items */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
           <h2 className="font-heading text-[#7B2D42] font-semibold text-sm mb-3">Items</h2>
           <div className="space-y-3">
             {order.items.map(item => {
@@ -100,7 +100,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Price summary */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
           <h2 className="font-heading text-[#7B2D42] font-semibold text-sm mb-3">Order Summary</h2>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-[#64748B]">
@@ -121,7 +121,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Shipping address */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 mb-4">
           <h2 className="font-heading text-[#7B2D42] font-semibold text-sm mb-2">Shipping Address</h2>
           <div className="text-sm text-[#64748B] space-y-0.5">
             <p className="font-medium text-[#0F172A]">{order.shippingAddress.name}</p>
@@ -133,7 +133,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
         {/* Payment refs */}
         {(order.razorpayOrderId || order.razorpayPaymentId) && (
-          <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4">
+          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4">
             <h2 className="font-heading text-[#7B2D42] font-semibold text-sm mb-2">Payment</h2>
             <div className="text-xs text-[#64748B] space-y-1">
               {order.razorpayOrderId && (

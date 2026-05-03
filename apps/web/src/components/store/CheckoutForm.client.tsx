@@ -190,7 +190,7 @@ export function CheckoutForm() {
         <h2 className="font-heading text-[#7B2D42] font-semibold text-lg">Shipping Details</h2>
 
         {serverError && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
             {serverError}
           </div>
         )}
@@ -271,7 +271,7 @@ export function CheckoutForm() {
       </form>
 
       {/* Order summary sidebar */}
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-[#7B2D42] font-semibold text-base mb-3">Order Summary</h2>
 
         <div className="space-y-2.5 mb-4">
@@ -299,7 +299,7 @@ export function CheckoutForm() {
                 <button
                   type="button"
                   onClick={removePromo}
-                  className="text-[10px] text-muted-foreground hover:text-red-600 ml-1"
+                  className="text-[10px] text-muted-foreground hover:text-destructive ml-1"
                   aria-label="Remove promo"
                 >
                   ✕
@@ -334,7 +334,7 @@ export function CheckoutForm() {
               {promoOpen && (
                 <div className="mt-2 space-y-2">
                   {promoError && (
-                    <p className="text-xs text-red-600">{promoError}</p>
+                    <p className="text-xs text-destructive">{promoError}</p>
                   )}
                   <div className="flex gap-2">
                     <input
@@ -342,7 +342,7 @@ export function CheckoutForm() {
                       value={promoCode}
                       onChange={e => setPromoCode(e.target.value.toUpperCase())}
                       placeholder="PROMO CODE"
-                      className="flex-1 h-9 rounded-lg border border-[#C5A47E]/30 bg-white px-3 text-xs font-mono focus:outline-none focus:border-[#0E7C7B] uppercase"
+                      className="flex-1 h-9 rounded-lg border border-[#C5A47E]/30 bg-surface px-3 text-xs font-mono focus:outline-none focus:border-[#0E7C7B] uppercase"
                     />
                     <button
                       type="button"
@@ -393,13 +393,13 @@ function Field({ label, name, type, placeholder, value, error, onChange }: Field
         value={value}
         onChange={onChange}
         className={[
-          'w-full px-3 py-2.5 text-sm bg-white border rounded-lg outline-none min-h-[44px] transition-colors',
+          'w-full px-3 py-2.5 text-sm bg-surface border rounded-lg outline-none min-h-[44px] transition-colors',
           error
-            ? 'border-red-400 focus:ring-2 focus:ring-red-200'
+            ? 'border-destructive/60 focus:ring-2 focus:ring-red-200'
             : 'border-[#C5A47E]/30 focus:ring-2 focus:ring-[#0E7C7B]/30 focus:border-[#0E7C7B]',
         ].join(' ')}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }

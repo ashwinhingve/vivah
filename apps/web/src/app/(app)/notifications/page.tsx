@@ -72,7 +72,7 @@ export default async function NotificationsPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 p-12 text-center text-slate-500">
+        <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
           No notifications yet.
         </div>
       ) : (
@@ -85,16 +85,16 @@ export default async function NotificationsPage() {
               <li key={n.id}>
                 <Wrapper>
                   <article className={`rounded-xl border p-4 transition-colors ${
-                    n.read ? 'border-slate-200 bg-white' : 'border-[#1848C8]/30 bg-[#1848C8]/5'
-                  } hover:bg-slate-50`}>
+                    n.read ? 'border-border bg-surface' : 'border-[#1848C8]/30 bg-[#1848C8]/5'
+                  } hover:bg-secondary`}>
                     <div className="flex items-start gap-3">
                       <span className="text-2xl shrink-0" aria-hidden>{TYPE_ICON[n.type] ?? '🔔'}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2">
                           <h2 className="font-semibold text-[#0A1F4D] truncate">{n.title}</h2>
-                          <span className="text-xs text-slate-500 shrink-0">{formatAge(n.createdAt)}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">{formatAge(n.createdAt)}</span>
                         </div>
-                        <p className="mt-0.5 text-sm text-slate-700 line-clamp-2">{n.body}</p>
+                        <p className="mt-0.5 text-sm text-foreground line-clamp-2">{n.body}</p>
                       </div>
                     </div>
                   </article>

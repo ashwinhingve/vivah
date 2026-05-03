@@ -65,7 +65,7 @@ export function FamilyMembersClient({ initial }: Props) {
   }
 
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-sm text-[#7B2D42]">Family members</h3>
         <button
@@ -85,23 +85,23 @@ export function FamilyMembersClient({ initial }: Props) {
               onChange={(e) => setName(e.target.value)}
               placeholder="Full name *"
               required
-              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-white px-3 py-2 text-sm"
+              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm"
             />
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as FamilyRelationship)}
-              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-white px-3 py-2 text-sm"
+              className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm"
             >
               {RELATIONS.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-white px-3 py-2 text-sm" />
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-white px-3 py-2 text-sm" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm" />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm" />
           </div>
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Notes (optional)"
-            className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-white px-3 py-2 text-sm mb-2"
+            className="w-full min-h-[40px] rounded-lg border border-[#C5A47E]/40 bg-surface px-3 py-2 text-sm mb-2"
           />
           <label className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <input type="checkbox" checked={isManaging} onChange={(e) => setIsManaging(e.target.checked)} />
@@ -130,7 +130,7 @@ export function FamilyMembersClient({ initial }: Props) {
                   {m.phone && ` · ${m.phone}`}
                 </p>
               </div>
-              <button onClick={() => setDeletingId(m.id)} className="text-red-600 hover:bg-red-50 rounded p-1.5">
+              <button onClick={() => setDeletingId(m.id)} className="text-destructive hover:bg-destructive/10 rounded p-1.5">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </li>

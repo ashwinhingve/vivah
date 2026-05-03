@@ -30,9 +30,9 @@ const STATUS_TABS: { value: PayoutStatus | 'ALL'; label: string }[] = [
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
   SCHEDULED:  { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Scheduled' },
-  PROCESSING: { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'Processing' },
+  PROCESSING: { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Processing' },
   COMPLETED:  { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Completed' },
-  FAILED:     { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Failed' },
+  FAILED:     { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Failed' },
   ON_HOLD:    { bg: 'bg-orange-100', text: 'text-orange-700', label: 'On Hold' },
 };
 
@@ -99,10 +99,10 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Vendor Payouts</h1>
+          <h1 className="text-2xl font-bold text-primary">Vendor Payouts</h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage and process vendor payout disbursements</p>
         </div>
 
@@ -127,21 +127,20 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
         </div>
 
         {displayed.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No payouts found</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No payouts found</p>
             <p className="mt-1 text-sm text-muted-foreground">No payouts match the current filter.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {displayed.map(payout => {
-              const badge = STATUS_BADGE[payout.status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: payout.status };
+              const badge = STATUS_BADGE[payout.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: payout.status };
               const err   = errors[payout.id];
               const busy  = actingId === payout.id;
               return (
                 <div
                   key={payout.id}
-                  className="rounded-xl bg-surface border shadow-sm p-5"
-                  style={{ borderColor: '#C5A47E' }}
+                  className="rounded-xl bg-surface border shadow-sm p-5 border-gold"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -153,7 +152,7 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold" style={{ color: '#7B2D42' }}>{formatINR(payout.netAmount)}</p>
+                      <p className="text-lg font-bold text-primary">{formatINR(payout.netAmount)}</p>
                       <p className="text-xs text-muted-foreground">
                         Gross {formatINR(payout.grossAmount)} − Fee {formatINR(payout.platformFee)}
                       </p>
@@ -170,11 +169,11 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
                   </div>
 
                   {payout.failureReason && (
-                    <p className="mt-2 text-xs text-red-600">Reason: {payout.failureReason}</p>
+                    <p className="mt-2 text-xs text-destructive">Reason: {payout.failureReason}</p>
                   )}
 
                   {err && (
-                    <p className="mt-2 text-xs text-red-600">{err}</p>
+                    <p className="mt-2 text-xs text-destructive">{err}</p>
                   )}
 
                   <div className="mt-3 flex gap-2">

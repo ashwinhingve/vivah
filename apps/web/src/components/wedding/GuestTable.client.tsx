@@ -26,9 +26,9 @@ interface GuestTableProps {
 
 const RSVP_COLORS: Record<RsvpStatus, string> = {
   YES:     'bg-green-100 text-green-800',
-  NO:      'bg-red-100 text-red-700',
+  NO:      'bg-destructive/15 text-destructive',
   MAYBE:   'bg-amber-100 text-amber-800',
-  PENDING: 'bg-gray-100 text-gray-600',
+  PENDING: 'bg-secondary text-muted-foreground',
 };
 
 const MEAL_LABELS: Record<MealPref, string> = {
@@ -219,7 +219,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isImporting}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-white text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-60"
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-surface text-[#7B2D42] hover:bg-[#FEFAF6] disabled:opacity-60"
         >
           {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
           Import CSV
@@ -227,7 +227,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvFile} className="hidden" />
         <button
           onClick={handleCsvExport}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-white text-[#7B2D42] hover:bg-[#FEFAF6]"
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-[#C5A47E]/40 bg-surface text-[#7B2D42] hover:bg-[#FEFAF6]"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -238,7 +238,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
       {showForm && (
         <form
           onSubmit={handleAdd}
-          className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
+          className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <input name="name" type="text" placeholder="Full name *" value={form.name} onChange={handleFormChange} required className={inputCls} />
@@ -272,11 +272,11 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
 
       {/* Table */}
       {sorted.length === 0 ? (
-        <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-10 text-center">
+        <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-10 text-center">
           <p className="text-muted-foreground text-sm">{search ? 'No guests match your search.' : 'No guests added yet.'}</p>
         </div>
       ) : (
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6]">
@@ -290,7 +290,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
             </thead>
             <tbody>
               {sorted.map((guest, i) => (
-                <tr key={guest.id} className={`border-b border-[#C5A47E]/10 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-[#FEFAF6]/50'}`}>
+                <tr key={guest.id} className={`border-b border-[#C5A47E]/10 last:border-0 ${i % 2 === 0 ? 'bg-surface' : 'bg-[#FEFAF6]/50'}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       {guest.isVip && <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-500" aria-label="VIP" />}
@@ -333,7 +333,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                       <button
                         onClick={() => setDeleteGuest(guest)}
                         aria-label={`Delete ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-red-600 border border-red-200 hover:bg-red-50"
+                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-destructive border border-destructive/30 hover:bg-destructive/10"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>

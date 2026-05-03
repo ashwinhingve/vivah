@@ -60,7 +60,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
             rel="noopener noreferrer"
             download
             onClick={(e) => e.stopPropagation()}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-surface/10 hover:text-white"
             aria-label="Open original"
           >
             <Download className="h-5 w-5" />
@@ -69,7 +69,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-surface/10 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -96,7 +96,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
           type="button"
           onClick={(e) => { e.stopPropagation(); setIndex((i) => Math.max(0, i - 1)) }}
           aria-label="Previous photo"
-          className="absolute left-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+          className="absolute left-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-surface/10 text-white backdrop-blur transition-colors hover:bg-surface/20"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -106,7 +106,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
           type="button"
           onClick={(e) => { e.stopPropagation(); setIndex((i) => Math.min(keys.length - 1, i + 1)) }}
           aria-label="Next photo"
-          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-surface/10 text-white backdrop-blur transition-colors hover:bg-surface/20"
         >
           <ChevronRight className="h-6 w-6" />
         </button>

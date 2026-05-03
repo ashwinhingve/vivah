@@ -36,7 +36,7 @@ export function CartPageClient() {
         {items.map(item => (
           <div
             key={item.productId}
-            className="flex gap-4 bg-white border border-[#C5A47E]/20 rounded-xl p-4"
+            className="flex gap-4 bg-surface border border-[#C5A47E]/20 rounded-xl p-4"
           >
             {/* Image */}
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-[#FEFAF6]">
@@ -87,7 +87,7 @@ export function CartPageClient() {
 
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 transition-colors"
+                  className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-destructive/80 hover:bg-destructive/10 transition-colors"
                   aria-label="Remove item"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function CartPageClient() {
       </div>
 
       {/* Order summary */}
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-[#7B2D42] font-semibold text-base mb-4">Order Summary</h2>
 
         <div className="space-y-2 text-sm">

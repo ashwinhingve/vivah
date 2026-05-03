@@ -59,7 +59,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
         {props.proposedReason && (
           <p className="text-xs text-amber-800 mt-1 italic">"{props.proposedReason}"</p>
         )}
-        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         {props.proposedByYou ? (
           <button
             type="button"
@@ -113,7 +113,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
               placeholder="Reason for rescheduling (required)"
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
             />
-            {error && <p className="text-sm text-red-700">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"

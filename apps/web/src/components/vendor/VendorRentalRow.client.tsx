@@ -39,7 +39,7 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
   const to   = new Date(booking.toDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
   return (
-    <div className="rounded-xl border border-[#C5A47E]/30 bg-white p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-xl border border-[#C5A47E]/30 bg-surface p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="font-semibold text-[#0F172A]">{booking.itemName}</p>
         <p className="text-xs text-[#64748B]">
@@ -61,7 +61,7 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
           <span className="text-xs text-emerald-600 font-medium">Completed</span>
         )}
       </div>
-      {error && <p className="text-xs text-red-600 w-full">{error}</p>}
+      {error && <p className="text-xs text-destructive w-full">{error}</p>}
     </div>
   );
 }
@@ -69,12 +69,12 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
 function StatusBadge({ status }: { status: RentalBookingSummary['status'] }) {
   const map: Record<string, string> = {
     PENDING:   'bg-amber-100 text-amber-700',
-    CONFIRMED: 'bg-blue-100 text-blue-700',
+    CONFIRMED: 'bg-teal/10 text-teal',
     ACTIVE:    'bg-purple-100 text-purple-700',
     RETURNED:  'bg-emerald-100 text-emerald-700',
-    CANCELLED: 'bg-slate-100 text-slate-600',
+    CANCELLED: 'bg-secondary text-muted-foreground',
   };
-  const cls = map[status] ?? 'bg-slate-100 text-slate-600';
+  const cls = map[status] ?? 'bg-secondary text-muted-foreground';
   return (
     <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
       {status}

@@ -8,7 +8,7 @@ interface PageProps { params: Promise<{ id: string }> }
 const STATUS_COLORS: Record<string, string> = {
   AVAILABLE: 'bg-green-100 text-green-800',
   CLAIMED:   'bg-amber-100 text-amber-800',
-  PURCHASED: 'bg-blue-100 text-blue-800',
+  PURCHASED: 'bg-teal/10 text-teal',
 };
 
 export default async function RegistryPage({ params }: PageProps) {
@@ -28,7 +28,7 @@ export default async function RegistryPage({ params }: PageProps) {
         </div>
         <p className="text-sm text-muted-foreground mb-6">List items guests can claim — appears on your public wedding website if enabled.</p>
 
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
           {items.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-sm text-muted-foreground">No registry items yet.</p>
@@ -47,7 +47,7 @@ export default async function RegistryPage({ params }: PageProps) {
                     </div>
                   </div>
                   <form action={deleteRegistryItemAction.bind(null, id, i.id)}>
-                    <button type="submit" className="text-xs text-red-600 hover:underline">Remove</button>
+                    <button type="submit" className="text-xs text-destructive hover:underline">Remove</button>
                   </form>
                 </li>
               ))}
@@ -55,7 +55,7 @@ export default async function RegistryPage({ params }: PageProps) {
           )}
         </div>
 
-        <details className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
             <Plus className="h-4 w-4" /> Add registry item
           </summary>

@@ -40,7 +40,7 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
 
   if (filtered.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 p-12 text-center text-slate-500">
+      <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
         No {filter === 'OPEN' ? 'open' : ''} discrepancies. Settlements match local ledger.
       </div>
     );
@@ -51,16 +51,16 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
       <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => setFilter('OPEN')}
-          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'OPEN' ? 'bg-[#0A1F4D] text-white' : 'border border-slate-200'}`}
+          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'OPEN' ? 'bg-[#0A1F4D] text-white' : 'border border-border'}`}
         >Open ({items.filter(i => i.status === 'OPEN').length})</button>
         <button
           onClick={() => setFilter('ALL')}
-          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'ALL' ? 'bg-[#0A1F4D] text-white' : 'border border-slate-200'}`}
+          className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'ALL' ? 'bg-[#0A1F4D] text-white' : 'border border-border'}`}
         >All ({items.length})</button>
       </div>
       <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm">
-        <thead className="bg-slate-50 text-left text-xs font-medium uppercase text-slate-500">
+      <table className="min-w-full divide-y divide-slate-200 rounded-xl border border-border bg-surface shadow-sm">
+        <thead className="bg-secondary text-left text-xs font-medium uppercase text-muted-foreground">
           <tr>
             <th className="px-4 py-3">Payment ID</th>
             <th className="px-4 py-3">Field</th>
@@ -77,8 +77,8 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
               <td className="px-4 py-3 font-mono text-xs">{i.razorpayPaymentId ?? i.paymentId ?? '–'}</td>
               <td className="px-4 py-3">{i.field}</td>
               <td className="px-4 py-3">{i.expected ?? '–'}</td>
-              <td className="px-4 py-3 text-red-700">{i.actual ?? '–'}</td>
-              <td className="px-4 py-3 text-slate-500">{new Date(i.detectedAt).toLocaleString()}</td>
+              <td className="px-4 py-3 text-destructive">{i.actual ?? '–'}</td>
+              <td className="px-4 py-3 text-muted-foreground">{new Date(i.detectedAt).toLocaleString()}</td>
               <td className="px-4 py-3"><span className={i.status === 'OPEN' ? 'text-amber-700' : 'text-emerald-700'}>{i.status}</span></td>
               <td className="px-4 py-3">
                 {i.status === 'OPEN' ? (

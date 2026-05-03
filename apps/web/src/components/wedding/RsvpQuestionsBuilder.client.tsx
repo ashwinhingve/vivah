@@ -76,7 +76,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
   return (
     <div>
       {/* Add form */}
-      <form onSubmit={handleAdd} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
+      <form onSubmit={handleAdd} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
         <h3 className="font-medium text-sm text-[#7B2D42] mb-3">Add a question</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input
@@ -115,7 +115,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
       ) : (
         <ul className="space-y-2">
           {questions.map(q => (
-            <li key={q.id} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-3">
+            <li key={q.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{q.questionText}</p>
@@ -127,7 +127,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
                   <button onClick={() => toggleRequired(q)} className="text-xs text-muted-foreground hover:text-[#7B2D42] underline">
                     {q.isRequired ? 'Make optional' : 'Make required'}
                   </button>
-                  <button onClick={() => setDeletingId(q.id)} className="text-red-600 hover:bg-red-50 rounded p-1" aria-label="Delete">
+                  <button onClick={() => setDeletingId(q.id)} className="text-destructive hover:bg-destructive/10 rounded p-1" aria-label="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>

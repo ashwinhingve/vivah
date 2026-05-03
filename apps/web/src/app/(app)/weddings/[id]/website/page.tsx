@@ -36,7 +36,7 @@ export default async function WebsitePage({ params }: PageProps) {
           </div>
         )}
 
-        <form action={saveWebsiteAction.bind(null, id)} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-6 space-y-4">
+        <form action={saveWebsiteAction.bind(null, id)} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="URL slug *" name="slug" defaultValue={site?.slug ?? ''} placeholder="riya-arjun-2026" required pattern="[a-z0-9-]+" />
             <Field label="Title *" name="title" defaultValue={site?.title ?? ''} placeholder="Riya & Arjun" required />

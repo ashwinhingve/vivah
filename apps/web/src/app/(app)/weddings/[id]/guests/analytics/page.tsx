@@ -34,7 +34,7 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
         <RsvpDeadlineCard weddingId={id} initial={deadline} />
 
         {!analytics || analytics.totalGuests === 0 ? (
-          <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-10 text-center mt-6">
+          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-10 text-center mt-6">
             <p className="text-muted-foreground text-sm">No guests yet. Add some to see analytics.</p>
           </div>
         ) : (
@@ -86,7 +86,7 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
                     return (
                       <div key={t.date} className="flex items-center gap-2">
                         <span className="w-20 text-muted-foreground">{t.date}</span>
-                        <div className="flex-1 h-3 bg-gray-100 rounded overflow-hidden relative">
+                        <div className="flex-1 h-3 bg-secondary rounded overflow-hidden relative">
                           <div className="absolute inset-y-0 left-0 bg-[#C5A47E]/40" style={{ width: `${(t.sent / total) * 100}%` }} />
                           <div className="absolute inset-y-0 left-0 bg-[#0E7C7B]/70" style={{ width: `${(t.responded / total) * 100}%` }} />
                         </div>
@@ -125,7 +125,7 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
 
 function Stat({ label, value, subtle }: { label: string; value: number | string; subtle?: string }) {
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-2xl font-semibold text-[#0A1F4D]">{value}</div>
       {subtle && <div className="text-[11px] text-muted-foreground mt-0.5">{subtle}</div>}
@@ -135,7 +135,7 @@ function Stat({ label, value, subtle }: { label: string; value: number | string;
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4">
       <h3 className="font-medium text-sm text-[#7B2D42] mb-3">{title}</h3>
       {children}
     </div>
@@ -150,7 +150,7 @@ function Bar({ label, value, max, color = '#0A1F4D' }: { label: string; value: n
         <span>{label}</span>
         <span className="text-muted-foreground">{value} ({pct}%)</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded mt-1 overflow-hidden">
+      <div className="h-2 bg-secondary rounded mt-1 overflow-hidden">
         <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>

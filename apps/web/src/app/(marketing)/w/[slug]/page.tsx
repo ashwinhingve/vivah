@@ -66,7 +66,7 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
           <h2 className="font-heading text-2xl mb-6 text-center" style={{ color: accent }}>Schedule of Events</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {view.ceremonies.map((c, i) => (
-              <div key={i} className="bg-white border border-[#C5A47E]/20 rounded-xl p-5">
+              <div key={i} className="bg-surface border border-[#C5A47E]/20 rounded-xl p-5">
                 <p className="text-xs uppercase tracking-widest mb-1" style={{ color: muted }}>{c.type}</p>
                 <p className="font-semibold">{fmtDate(c.date)}</p>
                 {c.startTime && <p className="text-sm text-muted-foreground">{c.startTime}</p>}
@@ -98,7 +98,7 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
           <h2 className="font-heading text-2xl mb-6 text-center" style={{ color: accent }}>Gift Registry</h2>
           <div className="space-y-3">
             {view.registry.map(r => (
-              <div key={r.id} className="bg-white border border-[#C5A47E]/20 rounded-xl p-4 flex items-center gap-4">
+              <div key={r.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl p-4 flex items-center gap-4">
                 {r.imageUrl && (
                   <div className="h-16 w-16 relative rounded overflow-hidden shrink-0">
                     <Image src={r.imageUrl} alt="" fill className="object-cover" sizes="64px" unoptimized />

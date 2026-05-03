@@ -125,7 +125,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
 
   return (
     <>
-      <tr className="border-b border-gray-100 hover:bg-gray-50 transition">
+      <tr className="border-b border-border hover:bg-secondary transition">
         <td className="px-4 py-3 text-sm text-[#0F172A] font-mono">
           #{booking.bookingId.slice(0, 8).toUpperCase()}
         </td>
@@ -147,7 +147,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
             <select
               value={selected}
               onChange={(e) => { setSelected(e.target.value); setConfirming(false); setError(null); }}
-              className="min-h-[44px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#0F172A] focus:border-[#1848C8] focus:outline-none focus:ring-2 focus:ring-[#1848C8]/20"
+              className="min-h-[44px] rounded-lg border border-border bg-surface px-3 py-2 text-sm text-[#0F172A] focus:border-[#1848C8] focus:outline-none focus:ring-2 focus:ring-[#1848C8]/20"
             >
               <option value="">Select resolution…</option>
               {RESOLVE_OPTIONS.map((o) => (
@@ -163,7 +163,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
                 value={customRatio}
                 onChange={(e) => setCustomRatio(e.target.value)}
                 placeholder="Vendor %"
-                className="min-h-[44px] w-24 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#0F172A] focus:border-[#1848C8] focus:outline-none focus:ring-2 focus:ring-[#1848C8]/20"
+                className="min-h-[44px] w-24 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-[#0F172A] focus:border-[#1848C8] focus:outline-none focus:ring-2 focus:ring-[#1848C8]/20"
               />
             )}
 
@@ -183,21 +183,21 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
 
       {/* Preview + confirmation row */}
       {confirming && option && (
-        <tr className="bg-blue-50 border-b border-blue-100">
+        <tr className="bg-teal/10 border-b border-blue-100">
           <td colSpan={7} className="px-4 py-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-[#0F172A]">
                 <span className="font-semibold">Resolution preview:</span>{' '}
                 <span className="text-green-700">Vendor receives {formatInr(vendorPreview)}</span>
                 {' · '}
-                <span className="text-blue-700">Customer receives {formatInr(customerPreview)}</span>
+                <span className="text-teal">Customer receives {formatInr(customerPreview)}</span>
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setConfirming(false)}
                   disabled={loading}
-                  className="min-h-[44px] rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#0F172A] hover:bg-gray-50 transition disabled:opacity-50"
+                  className="min-h-[44px] rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#0F172A] hover:bg-secondary transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -212,7 +212,7 @@ export function ResolveDisputeRow({ booking, onResolved }: ResolveDisputeRowProp
               </div>
             </div>
             {error && (
-              <p className="mt-2 text-sm text-red-600">{error}</p>
+              <p className="mt-2 text-sm text-destructive">{error}</p>
             )}
           </td>
         </tr>

@@ -81,7 +81,7 @@ export default async function RentalDetailPage({ params }: Props) {
         </div>
 
         {/* Details card */}
-        <div className="rounded-xl shadow-sm bg-white p-5 space-y-4">
+        <div className="rounded-xl shadow-sm bg-surface p-5 space-y-4">
           {/* Category badge */}
           <span className="inline-flex rounded-full bg-[#C5A47E]/20 text-[#7B2D42] px-3 py-1 text-xs uppercase font-medium tracking-wide">
             {categoryLabel}
@@ -118,12 +118,12 @@ export default async function RentalDetailPage({ params }: Props) {
           <div className="flex items-center gap-2 rounded-lg px-3 py-2 bg-[#FEFAF6]">
             <span
               className={`h-2.5 w-2.5 rounded-full ${
-                isFullyBooked ? 'bg-red-500' : isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'
+                isFullyBooked ? 'bg-destructive' : isLimited ? 'bg-amber-500' : 'bg-[#0E7C7B]'
               }`}
               aria-hidden="true"
             />
             <span className={`text-sm font-medium ${
-              isFullyBooked ? 'text-red-700' : isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'
+              isFullyBooked ? 'text-destructive' : isLimited ? 'text-amber-700' : 'text-[#0E7C7B]'
             }`}>
               {isFullyBooked
                 ? 'Fully booked'
@@ -135,12 +135,12 @@ export default async function RentalDetailPage({ params }: Props) {
         </div>
 
         {/* Booking form */}
-        <div className="rounded-xl shadow-sm bg-white p-5 space-y-4">
+        <div className="rounded-xl shadow-sm bg-surface p-5 space-y-4">
           <h2 className="text-lg font-semibold text-[#0A1F4D]">Book this item</h2>
           {isFullyBooked ? (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-center">
-              <p className="text-sm font-semibold text-red-700">Fully booked</p>
-              <p className="text-xs text-red-500 mt-1">This item has no availability. Check back later.</p>
+            <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4 text-center">
+              <p className="text-sm font-semibold text-destructive">Fully booked</p>
+              <p className="text-xs text-destructive mt-1">This item has no availability. Check back later.</p>
             </div>
           ) : (
             <BookingForm item={item} />

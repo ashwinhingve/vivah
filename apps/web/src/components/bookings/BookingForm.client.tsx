@@ -301,7 +301,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
                   type="button"
                   onClick={() => removeAddon(a.id)}
                   aria-label="Remove add-on"
-                  className="col-span-1 inline-flex items-center justify-center text-muted-foreground hover:text-red-600"
+                  className="col-span-1 inline-flex items-center justify-center text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -332,7 +332,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
         <p className="text-xs text-muted-foreground mt-1">
           50% will be held in escrow and released 48 hours after the event.
         </p>
-        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         <button
           type="submit"
           disabled={pending || total <= 0 || !eventDate}

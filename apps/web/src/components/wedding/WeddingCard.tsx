@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
   PLANNING:  'bg-amber-100 text-amber-800',
   CONFIRMED: 'bg-green-100 text-green-800',
   COMPLETED: 'bg-[#0E7C7B]/10 text-[#0E7C7B]',
-  CANCELLED: 'bg-red-100 text-red-700',
+  CANCELLED: 'bg-destructive/15 text-destructive',
 };
 
 function formatDate(iso: string | null): string {
@@ -45,7 +45,7 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
 
   return (
     <Link href={`/weddings/${wedding.id}`}>
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 hover:shadow-md hover:border-[#C5A47E]/40 transition-all">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 hover:shadow-md hover:border-[#C5A47E]/40 transition-all">
         <div className="flex items-start justify-between mb-3">
           <h2 className="font-heading text-lg text-[#7B2D42] leading-snug">
             {wedding.venueName ?? 'Wedding'}
@@ -53,7 +53,7 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
           <span
             className={cn(
               'text-xs font-medium px-2.5 py-1 rounded-full',
-              STATUS_COLORS[wedding.status] ?? 'bg-gray-100 text-gray-700'
+              STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground'
             )}
           >
             {STATUS_LABELS[wedding.status] ?? wedding.status}

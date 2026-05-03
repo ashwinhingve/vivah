@@ -46,7 +46,7 @@ export default async function BudgetPage({ params }: PageProps) {
         </p>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
+        <div className="flex gap-1 bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
           {[
             { href: `/weddings/${id}/tasks`,  label: 'Tasks',  active: false },
             { href: `/weddings/${id}/budget`, label: 'Budget', active: true },
@@ -68,8 +68,8 @@ export default async function BudgetPage({ params }: PageProps) {
 
         {/* Error state */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <p className="text-red-700 font-medium">Could not load budget data. Please try again.</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
+            <p className="text-destructive font-medium">Could not load budget data. Please try again.</p>
           </div>
         )}
 
@@ -84,7 +84,7 @@ export default async function BudgetPage({ params }: PageProps) {
 
         {/* No plan yet */}
         {!error && !plan && (
-          <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center shadow-sm">
+          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center shadow-sm">
             <p className="text-muted-foreground font-medium">No wedding plan found.</p>
             <p className="text-muted-foreground text-sm mt-1">
               Create a wedding plan first to track your budget.

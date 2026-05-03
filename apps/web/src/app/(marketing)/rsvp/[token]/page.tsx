@@ -34,7 +34,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
 
         {/* Ceremonies card */}
         {ceremonies.length > 0 && (
-          <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
             <h2 className="font-semibold mb-3" style={{ color: accentColor }}>Schedule</h2>
             <ul className="divide-y divide-[#C5A47E]/10">
               {ceremonies.map((c, idx) => (
@@ -55,7 +55,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
         )}
 
         {/* RSVP form */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
           <h2 className="font-semibold mb-1" style={{ color: accentColor }}>Hello, {guest.name}!</h2>
           <p className="text-sm text-muted-foreground mb-5">Please RSVP below — we can&apos;t wait to celebrate with you.</p>
           <RsvpForm token={token} view={view} />

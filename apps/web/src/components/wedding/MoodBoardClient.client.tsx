@@ -43,7 +43,7 @@ export function MoodBoardClient({ weddingId, initialItems, addAction, deleteActi
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setFilter('ALL')}
-          className={`px-3 py-1 rounded-full text-xs font-medium border ${filter === 'ALL' ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-white text-muted-foreground border-[#C5A47E]/30'}`}
+          className={`px-3 py-1 rounded-full text-xs font-medium border ${filter === 'ALL' ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-surface text-muted-foreground border-[#C5A47E]/30'}`}
         >All ({initialItems.length})</button>
         {CATEGORIES.map(c => {
           const count = initialItems.filter(i => i.category === c).length;
@@ -51,14 +51,14 @@ export function MoodBoardClient({ weddingId, initialItems, addAction, deleteActi
             <button
               key={c}
               onClick={() => setFilter(c)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${filter === c ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-white text-muted-foreground border-[#C5A47E]/30'}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium border ${filter === c ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-surface text-muted-foreground border-[#C5A47E]/30'}`}
             >{c.toLowerCase()} {count > 0 && <span className="opacity-70">({count})</span>}</button>
           );
         })}
       </div>
 
       {/* Upload form */}
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
         <h3 className="font-semibold text-[#0A1F4D] mb-3">Add inspiration</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="sm:col-span-2">
@@ -88,13 +88,13 @@ export function MoodBoardClient({ weddingId, initialItems, addAction, deleteActi
 
       {/* Gallery */}
       {items.length === 0 ? (
-        <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
+        <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
           <p className="text-sm text-muted-foreground">No inspiration {filter !== 'ALL' ? `in ${filter.toLowerCase()}` : 'yet'}.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {items.map(item => (
-            <div key={item.id} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden group relative">
+            <div key={item.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden group relative">
               {item.url ? (
                 <div className="aspect-square relative">
                   <Image src={item.url} alt={item.caption ?? ''} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" unoptimized />

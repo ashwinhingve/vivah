@@ -130,7 +130,7 @@ export function LivenessCapture({ score }: Props) {
           <div className="aspect-square w-full max-w-xs mx-auto rounded-xl overflow-hidden bg-black relative">
             <video ref={videoRef} muted playsInline className="w-full h-full object-cover scale-x-[-1]" />
             <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-destructive text-white text-xs font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> REC
+              <span className="w-1.5 h-1.5 rounded-full bg-surface animate-pulse" /> REC
             </span>
           </div>
           <div className="space-y-2">

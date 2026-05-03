@@ -38,7 +38,7 @@ export default async function AdminRefundsPage({
   const token = cookieStore.get('better-auth.session_token')?.value;
   if (!token) {
     return (
-      <div className="min-h-screen px-4 py-16 text-center" style={{ background: '#FEFAF6' }}>
+      <div className="min-h-screen px-4 py-16 text-center bg-background">
         <p className="text-muted-foreground">Access denied.</p>
       </div>
     );

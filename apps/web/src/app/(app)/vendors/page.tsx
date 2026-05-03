@@ -100,8 +100,8 @@ export default async function VendorsPage({ searchParams }: PageProps) {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <p className="text-red-700 font-medium">Could not load vendors. Please try again.</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
+            <p className="text-destructive font-medium">Could not load vendors. Please try again.</p>
           </div>
         )}
 

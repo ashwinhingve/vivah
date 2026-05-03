@@ -36,7 +36,7 @@ export function DisputeTableClient({ disputes }: Props) {
     <>
       {/* Open count badge — updates as disputes are resolved */}
       <div className="mb-4 flex items-center gap-3">
-        <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+        <span className="inline-flex items-center rounded-full bg-destructive/15 px-3 py-1 text-sm font-semibold text-destructive">
           {openCount} open
         </span>
         {resolvedCount > 0 && (
@@ -58,14 +58,14 @@ export function DisputeTableClient({ disputes }: Props) {
       )}
 
       {/* Disputes table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
         {/* Mobile scroll hint */}
-        <div className="block sm:hidden px-4 py-2 text-xs text-[#64748B] bg-gray-50 border-b border-gray-100">
+        <div className="block sm:hidden px-4 py-2 text-xs text-[#64748B] bg-secondary border-b border-border">
           Scroll right to see all columns →
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-border bg-secondary">
               <tr>
                 <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
                   Booking

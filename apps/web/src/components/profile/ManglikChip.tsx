@@ -20,5 +20,5 @@ export function ManglikChip({ manglik, size = 'sm' }: Props) {
   if (manglik === 'PARTIAL') {
     return <span className={`rounded-full font-semibold border border-amber-300 text-amber-700 ${cls}`}>Partial Manglik</span>;
   }
-  return <span className={`rounded-full font-semibold bg-slate-100 text-slate-700 ${cls}`}>Non-Manglik</span>;
+  return <span className={`rounded-full font-semibold bg-secondary text-foreground ${cls}`}>Non-Manglik</span>;
 }

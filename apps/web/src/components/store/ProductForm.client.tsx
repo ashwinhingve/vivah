@@ -168,14 +168,14 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
   }
 
   const inputCls =
-    'w-full rounded-lg border border-[#C5A47E]/30 bg-white px-3 py-2.5 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors';
+    'w-full rounded-lg border border-[#C5A47E]/30 bg-surface px-3 py-2.5 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors';
   const labelCls = 'block text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-1';
-  const errorCls = 'mt-1 text-xs text-red-600';
+  const errorCls = 'mt-1 text-xs text-destructive';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {serverError && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
           {serverError}
         </div>
       )}
@@ -183,7 +183,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       {/* Name */}
       <div>
         <label htmlFor="pf-name" className={labelCls}>
-          Product Name <span className="text-red-500">*</span>
+          Product Name <span className="text-destructive">*</span>
         </label>
         <input
           id="pf-name"
@@ -217,7 +217,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       {/* Category */}
       <div>
         <label htmlFor="pf-category" className={labelCls}>
-          Category <span className="text-red-500">*</span>
+          Category <span className="text-destructive">*</span>
         </label>
         <select
           id="pf-category"
@@ -239,7 +239,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="pf-price" className={labelCls}>
-            Price (₹) <span className="text-red-500">*</span>
+            Price (₹) <span className="text-destructive">*</span>
           </label>
           <input
             id="pf-price"
@@ -275,7 +275,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="pf-stock" className={labelCls}>
-            Stock Qty <span className="text-red-500">*</span>
+            Stock Qty <span className="text-destructive">*</span>
           </label>
           <input
             id="pf-stock"
@@ -335,12 +335,12 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
           <p className="mt-2 text-xs text-[#64748B]">Uploading {uploadingCount}…</p>
         )}
         {uploadError && (
-          <p className="mt-2 text-xs text-red-600">{uploadError}</p>
+          <p className="mt-2 text-xs text-destructive">{uploadError}</p>
         )}
         {r2Keys.length > 0 && (
           <ul className="mt-3 space-y-1">
             {r2Keys.map(k => (
-              <li key={k} className="flex items-center justify-between rounded-md bg-white/60 px-2 py-1 text-xs text-[#0F172A]">
+              <li key={k} className="flex items-center justify-between rounded-md bg-surface/60 px-2 py-1 text-xs text-[#0F172A]">
                 <span className="truncate">{k.split('/').pop()}</span>
                 <button
                   type="button"

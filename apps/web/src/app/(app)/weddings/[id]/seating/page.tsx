@@ -43,7 +43,7 @@ export default async function SeatingPage({ params }: PageProps) {
           {/* Tables */}
           <div className="lg:col-span-2 space-y-4">
             {tables.length === 0 ? (
-              <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
+              <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
                 <Users className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No tables yet. Add your first table on the right.</p>
               </div>
@@ -51,14 +51,14 @@ export default async function SeatingPage({ params }: PageProps) {
               tables.map(t => {
                 const filled = t.assignedGuests.length;
                 return (
-                  <div key={t.id} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+                  <div key={t.id} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-[#0A1F4D]">{t.name}</h3>
                         <p className="text-xs text-muted-foreground">{t.shape.toLowerCase()} · {filled}/{t.capacity} seats</p>
                       </div>
                       <form action={deleteTableAction.bind(null, id, t.id)}>
-                        <button type="submit" className="text-xs text-red-600 hover:underline">Delete</button>
+                        <button type="submit" className="text-xs text-destructive hover:underline">Delete</button>
                       </form>
                     </div>
 
@@ -67,7 +67,7 @@ export default async function SeatingPage({ params }: PageProps) {
                         <li key={g.guestId} className="flex items-center justify-between text-sm bg-[#FEFAF6] rounded px-3 py-1.5">
                           <span>{g.guestName}</span>
                           <form action={unassignSeatAction.bind(null, id, t.id, g.guestId)}>
-                            <button type="submit" className="text-xs text-muted-foreground hover:text-red-600" aria-label="Unassign">
+                            <button type="submit" className="text-xs text-muted-foreground hover:text-destructive" aria-label="Unassign">
                               <X className="h-3 w-3" />
                             </button>
                           </form>
@@ -92,7 +92,7 @@ export default async function SeatingPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+            <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
               <h3 className="font-semibold text-[#0A1F4D] mb-3 flex items-center gap-2">
                 <Plus className="h-4 w-4" /> New table
               </h3>
@@ -111,7 +111,7 @@ export default async function SeatingPage({ params }: PageProps) {
               </form>
             </div>
 
-            <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+            <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
               <h3 className="font-semibold text-[#0A1F4D] mb-3">Unseated ({unseated.length})</h3>
               {unseated.length === 0 ? (
                 <p className="text-xs text-muted-foreground">All confirmed guests are seated.</p>

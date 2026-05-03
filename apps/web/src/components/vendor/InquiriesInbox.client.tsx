@@ -110,7 +110,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
                     i.status === 'NEW'       ? 'bg-amber-100 text-amber-700' :
                     i.status === 'REPLIED'   ? 'bg-teal/15 text-teal' :
                     i.status === 'CONVERTED' ? 'bg-green-100 text-green-700' :
-                                               'bg-gray-100 text-gray-500'
+                                               'bg-secondary text-muted-foreground'
                   }`}>{i.status}</span>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{i.message}</p>
@@ -163,7 +163,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal"
                 />
               </div>
-              {error && <p className="text-sm text-red-700">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"

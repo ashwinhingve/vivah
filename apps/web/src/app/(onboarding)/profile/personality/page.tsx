@@ -41,7 +41,7 @@ export default function PersonalityPage(): JSX.Element {
     <div className="mx-auto max-w-md p-5 space-y-6">
       <header>
         <h1 className="text-2xl font-semibold text-[#0A1F4D]">Tell us about yourself</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           Six quick sliders. Helps us find people who fit you.
         </p>
       </header>
@@ -49,8 +49,8 @@ export default function PersonalityPage(): JSX.Element {
       {AXES.map((axis) => (
         <div key={axis.key} className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium text-slate-700">{axis.label}</span>
-            <span className="text-xs text-slate-400">{vals[axis.key]}/7</span>
+            <span className="text-sm font-medium text-foreground">{axis.label}</span>
+            <span className="text-xs text-muted-foreground">{vals[axis.key]}/7</span>
           </div>
           <input
             type="range"
@@ -63,14 +63,14 @@ export default function PersonalityPage(): JSX.Element {
             }
             className="w-full accent-[#1848C8]"
           />
-          <div className="flex justify-between text-[11px] text-slate-500">
+          <div className="flex justify-between text-[11px] text-muted-foreground">
             <span>{axis.left}</span>
             <span>{axis.right}</span>
           </div>
         </div>
       ))}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button
         type="button"
@@ -94,7 +94,7 @@ export default function PersonalityPage(): JSX.Element {
       <button
         type="button"
         onClick={() => router.push('/profile/preferences')}
-        className="w-full text-sm text-slate-500 underline"
+        className="w-full text-sm text-muted-foreground underline"
       >
         Skip for now
       </button>

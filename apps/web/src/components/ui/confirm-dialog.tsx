@@ -1,76 +1,67 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ConfirmDialogProps {
-  open:        boolean
-  title:       string
-  description?: string
-  confirmLabel?: string
-  cancelLabel?:  string
-  destructive?: boolean
-  onConfirm:   () => void
-  onCancel:    () => void
+  open: boolean;
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 
+/**
+ * ConfirmDialog — thin wrapper around Radix Dialog.
+ * Focus trap, scroll lock, Escape, and overlay click-to-dismiss come free.
+ * Original API preserved so existing callsites need no changes.
+ */
 export function ConfirmDialog({
-  open, title, description, confirmLabel = 'Confirm', cancelLabel = 'Cancel',
-  destructive, onConfirm, onCancel,
+  open,
+  title,
+  description,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  destructive,
+  onConfirm,
+  onCancel,
 }: ConfirmDialogProps) {
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
-      if (e.key === 'Enter')  onConfirm()
-    }
-    document.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [open, onCancel, onConfirm])
-
-  if (!open) return null
-
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-[90] flex items-end justify-center bg-black/50 p-4 backdrop-blur-sm sm:items-center"
-      onClick={onCancel}
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onCancel();
+      }}
     >
-      <div
-        className="w-full max-w-sm rounded-2xl bg-surface p-5 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="font-heading text-base font-semibold text-[#0F172A]">{title}</h2>
-        {description ? (
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
-        ) : null}
-        <div className="mt-5 flex gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted"
-          >
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description ? <DialogDescription>{description}</DialogDescription> : null}
+        </DialogHeader>
+        <DialogFooter className="sm:justify-end">
+          <Button variant="outline" onClick={onCancel} type="button">
             {cancelLabel}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={destructive ? 'destructive' : 'default'}
             onClick={onConfirm}
+            type="button"
             autoFocus
-            className={cn(
-              'flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors',
-              destructive ? 'bg-destructive hover:bg-destructive/90' : 'bg-teal hover:bg-teal-hover',
-            )}
           >
             {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }

@@ -123,10 +123,10 @@ export function RsvpForm({ token, view }: Props) {
   if (deadlineClosed) {
     return (
       <div className="text-center py-8">
-        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-3">
-          <AlertTriangle className="h-6 w-6 text-red-700" />
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-destructive/15 mb-3">
+          <AlertTriangle className="h-6 w-6 text-destructive" />
         </div>
-        <p className="font-semibold text-red-700">RSVP closed</p>
+        <p className="font-semibold text-destructive">RSVP closed</p>
         <p className="text-sm text-muted-foreground mt-1">The RSVP deadline has passed. Please reach out to the couple directly.</p>
       </div>
     );
@@ -149,7 +149,7 @@ export function RsvpForm({ token, view }: Props) {
               key={s}
               type="button"
               onClick={() => setStatus(s)}
-              className={`flex-1 min-h-[44px] rounded-lg border text-sm font-medium ${status === s ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-white text-foreground border-[#C5A47E]/30'}`}
+              className={`flex-1 min-h-[44px] rounded-lg border text-sm font-medium ${status === s ? 'bg-[#7B2D42] text-white border-[#7B2D42]' : 'bg-surface text-foreground border-[#C5A47E]/30'}`}
             >
               {s === 'YES' ? "Yes, I'll be there" : s === 'NO' ? "Sorry, can't make it" : 'Maybe'}
             </button>
@@ -236,7 +236,7 @@ export function RsvpForm({ token, view }: Props) {
               {view.customQuestions.map(q => (
                 <div key={q.id}>
                   <label className="block text-xs font-medium mb-1">
-                    {q.questionText}{q.isRequired && <span className="text-red-600 ml-0.5">*</span>}
+                    {q.questionText}{q.isRequired && <span className="text-destructive ml-0.5">*</span>}
                   </label>
                   {q.questionType === 'TEXT' && (
                     <input
@@ -282,7 +282,7 @@ export function RsvpForm({ token, view }: Props) {
           className="w-full rounded-lg border border-[#C5A47E]/30 px-3 py-2 text-sm" />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button type="submit" disabled={isPending}
         className="w-full min-h-[48px] rounded-lg bg-[#7B2D42] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60">

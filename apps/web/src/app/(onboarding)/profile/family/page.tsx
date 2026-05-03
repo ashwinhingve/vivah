@@ -246,7 +246,7 @@ export default function FamilyPage() {
                     <button
                       type="button"
                       onClick={() => removeSibling(idx)}
-                      className="text-red-600 text-xs hover:underline"
+                      className="text-destructive text-xs hover:underline"
                     >
                       Remove
                     </button>

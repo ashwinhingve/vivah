@@ -46,7 +46,7 @@ async function fetchRelated(category: string, excludeId: string): Promise<Produc
 }
 
 function stockLabel(qty: number) {
-  if (qty === 0) return { text: 'Out of Stock', cls: 'text-red-600 bg-red-50' };
+  if (qty === 0) return { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' };
   if (qty < 5)  return { text: `Low Stock (${qty} left)`, cls: 'text-amber-700 bg-amber-50' };
   return { text: 'In Stock', cls: 'text-emerald-700 bg-emerald-50' };
 }
@@ -82,7 +82,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Image gallery */}
           <div className="space-y-2">
-            <div className="aspect-square rounded-xl overflow-hidden bg-white border border-[#C5A47E]/20">
+            <div className="aspect-square rounded-xl overflow-hidden bg-surface border border-[#C5A47E]/20">
               {images.length > 0 ? (
                 <img
                   src={`/api/r2/${encodeURIComponent(images[0]!)}`}

@@ -98,7 +98,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
       <form
         onSubmit={handleSave}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl rounded-2xl bg-white p-5 shadow-2xl my-4"
+        className="w-full max-w-2xl rounded-2xl bg-surface p-5 shadow-2xl my-4"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-base font-semibold text-[#7B2D42]">Edit guest</h2>

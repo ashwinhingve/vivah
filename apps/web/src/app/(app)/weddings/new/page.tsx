@@ -75,14 +75,14 @@ export default function NewWeddingPage() {
           Back to Weddings
         </Link>
 
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-6">
           <h1 className="font-heading text-2xl text-[#7B2D42] mb-1">Plan Your Wedding</h1>
           <p className="text-muted-foreground text-sm mb-6">
             Fill in the basics — you can update everything later.
           </p>
 
           {error && (
-            <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="mb-5 rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
               {error}
             </div>
           )}

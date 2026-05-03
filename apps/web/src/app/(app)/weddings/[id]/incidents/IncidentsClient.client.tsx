@@ -73,7 +73,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
       </div>
 
       {open ? (
-        <form onSubmit={submit} className="space-y-3 rounded-xl border border-foreground/10 bg-white p-4 shadow-sm">
+        <form onSubmit={submit} className="space-y-3 rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
           <div>
             <label htmlFor="inc-title" className="block text-xs font-medium text-foreground">Title</label>
             <input
@@ -111,7 +111,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
       ) : null}
 
       {incidents.length > 0 ? (
-        <ul className="divide-y divide-foreground/5 rounded-xl border border-foreground/10 bg-white shadow-sm">
+        <ul className="divide-y divide-foreground/5 rounded-xl border border-foreground/10 bg-surface shadow-sm">
           {incidents.map((i) => (
             <li key={i.id} className="flex items-start justify-between gap-3 p-4">
               <div>

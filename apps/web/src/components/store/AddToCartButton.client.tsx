@@ -38,7 +38,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       className={[
         'flex items-center justify-center gap-2 w-full min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
         isDisabled
-          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          ? 'bg-secondary text-muted-foreground cursor-not-allowed'
           : added
           ? 'bg-emerald-600 text-white'
           : 'bg-[#0E7C7B] text-white hover:bg-[#0E7C7B]/90 active:scale-95',

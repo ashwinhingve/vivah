@@ -129,12 +129,12 @@ export function AdminPromosClient({ initialPromos }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Promo Codes</h1>
+            <h1 className="text-2xl font-bold text-primary">Promo Codes</h1>
             <p className="mt-1 text-sm text-muted-foreground">Create and manage discount codes for customers</p>
           </div>
           <Button type="button" onClick={() => { setShowForm(v => !v); setError(null); }}>
@@ -146,13 +146,12 @@ export function AdminPromosClient({ initialPromos }: Props) {
         {showForm && (
           <form
             onSubmit={handleCreate}
-            className="mb-6 rounded-xl border shadow-sm p-5 space-y-4 bg-surface"
-            style={{ borderColor: '#C5A47E' }}
+            className="mb-6 rounded-xl border shadow-sm p-5 space-y-4 bg-surface border-gold"
           >
-            <h2 className="font-heading text-base font-semibold" style={{ color: '#7B2D42' }}>New Promo Code</h2>
+            <h2 className="font-heading text-base font-semibold text-primary">New Promo Code</h2>
 
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>
+              <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">{error}</div>
             )}
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -208,15 +207,15 @@ export function AdminPromosClient({ initialPromos }: Props) {
 
         {/* Promos table */}
         {promos.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No promo codes yet</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No promo codes yet</p>
             <p className="mt-1 text-sm text-muted-foreground">Create a discount code to attract more customers.</p>
           </div>
         ) : (
-          <div className="rounded-xl border overflow-hidden shadow-sm" style={{ borderColor: '#C5A47E' }}>
+          <div className="rounded-xl border overflow-hidden shadow-sm border-gold">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead style={{ background: '#FEF9F0' }}>
+                <thead className="bg-secondary">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Code</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Value</th>
@@ -226,7 +225,7 @@ export function AdminPromosClient({ initialPromos }: Props) {
                     <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground">Active</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y" style={{ borderColor: '#C5A47E22' }}>
+                <tbody className="divide-y border-gold/15">
                   {promos.map(promo => (
                     <tr key={promo.id} className="bg-surface hover:bg-gold/5 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs font-bold text-foreground">{promo.code}</td>
@@ -256,12 +255,12 @@ export function AdminPromosClient({ initialPromos }: Props) {
                           aria-label={promo.isActive ? 'Deactivate' : 'Activate'}
                           className={[
                             'relative inline-flex h-5 w-9 rounded-full transition-colors focus:outline-none',
-                            promo.isActive ? 'bg-teal' : 'bg-slate-300',
+                            promo.isActive ? 'bg-teal' : 'bg-border',
                             toggling === promo.code ? 'opacity-50' : '',
                           ].join(' ')}
                         >
                           <span className={[
-                            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
+                            'absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform',
                             promo.isActive ? 'translate-x-4' : 'translate-x-0.5',
                           ].join(' ')} />
                         </button>
@@ -292,7 +291,7 @@ function F({ label, name, type, placeholder, value, onChange, required }: FProps
   return (
     <div>
       <label className="block text-xs font-medium text-foreground mb-1" htmlFor={`pf-${name}`}>
-        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+        {label}{required && <span className="text-destructive ml-0.5">*</span>}
       </label>
       <input id={`pf-${name}`} name={name} type={type} placeholder={placeholder} value={value}
         onChange={onChange} required={required}

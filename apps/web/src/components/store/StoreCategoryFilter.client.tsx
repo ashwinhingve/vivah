@@ -41,7 +41,7 @@ export function StoreCategoryFilter({ activeCategory, searchQuery }: StoreCatego
           placeholder="Search products..."
           defaultValue={searchQuery}
           onChange={e => updateParam('search', e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[#C5A47E]/30 rounded-lg outline-none focus:ring-2 focus:ring-[#0E7C7B]/30 focus:border-[#0E7C7B] transition-colors min-h-[44px]"
+          className="w-full pl-9 pr-4 py-2.5 text-sm bg-surface border border-[#C5A47E]/30 rounded-lg outline-none focus:ring-2 focus:ring-[#0E7C7B]/30 focus:border-[#0E7C7B] transition-colors min-h-[44px]"
         />
       </div>
 
@@ -55,7 +55,7 @@ export function StoreCategoryFilter({ activeCategory, searchQuery }: StoreCatego
               'flex-shrink-0 text-xs font-medium px-3 py-2 rounded-lg min-h-[36px] transition-colors whitespace-nowrap',
               activeCategory === cat || (cat === 'All' && !activeCategory)
                 ? 'bg-[#0E7C7B] text-white'
-                : 'bg-white border border-[#C5A47E]/30 text-[#64748B] hover:border-[#0E7C7B]/50 hover:text-[#0E7C7B]'
+                : 'bg-surface border border-[#C5A47E]/30 text-[#64748B] hover:border-[#0E7C7B]/50 hover:text-[#0E7C7B]'
             )}
           >
             {cat}

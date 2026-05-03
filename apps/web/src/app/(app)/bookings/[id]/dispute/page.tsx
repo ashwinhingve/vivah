@@ -43,7 +43,7 @@ export default async function DisputePage({
   if (!DISPUTABLE_STATUSES.includes(booking.status)) {
     return (
       <div className="mx-auto max-w-lg px-4 py-12">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm text-center">
+        <div className="rounded-xl border border-border bg-surface p-6 shadow-sm text-center">
           <p className="text-[#0F172A] font-medium">
             This booking cannot be disputed
           </p>
@@ -85,7 +85,7 @@ export default async function DisputePage({
       </div>
 
       {/* Booking summary card */}
-      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-6 rounded-xl border border-border bg-surface p-4 shadow-sm">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div>
             <dt className="text-[#64748B]">Vendor</dt>
@@ -115,7 +115,7 @@ export default async function DisputePage({
       </div>
 
       {/* Dispute form (client component) */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
         <DisputeForm bookingId={id} />
       </div>
     </div>

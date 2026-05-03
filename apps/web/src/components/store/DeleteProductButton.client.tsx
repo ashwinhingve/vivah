@@ -57,12 +57,12 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
             type="button"
             onClick={handleDelete}
             disabled={loading}
-            className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-white bg-destructive rounded-lg hover:bg-destructive transition-colors disabled:opacity-50"
           >
             {loading ? 'Deleting…' : 'Yes, delete'}
           </button>
         </div>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }
@@ -71,7 +71,7 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+      className="min-h-[44px] px-3 py-1.5 text-xs font-semibold text-destructive border border-destructive/30 rounded-lg hover:bg-destructive/10 transition-colors"
     >
       Delete
     </button>

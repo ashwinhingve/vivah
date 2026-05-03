@@ -83,7 +83,7 @@ export function SendInvitations({
   };
 
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl p-5 mb-6">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-heading text-lg text-[#7B2D42]">Send Invitations</h2>
         <span className="text-xs text-[#64748B]">
@@ -130,7 +130,7 @@ export function SendInvitations({
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
+      {error && <p className="text-xs text-destructive mb-2">{error}</p>}
 
       <button
         type="button"

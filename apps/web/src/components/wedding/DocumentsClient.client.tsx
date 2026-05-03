@@ -46,7 +46,7 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
         <h3 className="font-semibold text-[#0A1F4D] mb-3">Upload document</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="sm:col-span-2">
@@ -68,12 +68,12 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
       </div>
 
       {initialDocs.length === 0 ? (
-        <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
+        <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
           <FileText className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">No documents yet.</p>
         </div>
       ) : (
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6] text-left">
@@ -96,7 +96,7 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
                   <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{d.fileSize ? `${Math.round(d.fileSize / 1024)} KB` : '—'}</td>
                   <td className="px-4 py-3 text-muted-foreground">{new Date(d.createdAt).toLocaleDateString('en-IN')}</td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => handleDelete(d.id)} className="text-xs text-red-600 hover:underline">Delete</button>
+                    <button onClick={() => handleDelete(d.id)} className="text-xs text-destructive hover:underline">Delete</button>
                   </td>
                 </tr>
               ))}

@@ -35,11 +35,11 @@ async function fetchRefunds(): Promise<RefundRecord[]> {
 
 const STATUS_MAP: Record<RefundStatus, { bg: string; text: string; label: string }> = {
   REQUESTED:  { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Requested' },
-  APPROVED:   { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'Approved' },
+  APPROVED:   { bg: 'bg-teal/10',   text: 'text-teal',   label: 'Approved' },
   PROCESSING: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Processing' },
   COMPLETED:  { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Completed' },
-  FAILED:     { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Failed' },
-  REJECTED:   { bg: 'bg-slate-100',  text: 'text-slate-600',  label: 'Rejected' },
+  FAILED:     { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Failed' },
+  REJECTED:   { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Rejected' },
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -73,18 +73,18 @@ export default async function RefundsPage() {
   const refunds = await fetchRefunds();
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Refund History</h1>
+          <h1 className="text-2xl font-bold text-primary">Refund History</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Track the status of your refund requests
           </p>
         </div>
 
         {refunds.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No refunds yet</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No refunds yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               You have not submitted any refund requests.
             </p>
@@ -92,12 +92,11 @@ export default async function RefundsPage() {
         ) : (
           <div className="space-y-4">
             {refunds.map(refund => {
-              const badge = STATUS_MAP[refund.status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: refund.status };
+              const badge = STATUS_MAP[refund.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: refund.status };
               return (
                 <div
                   key={refund.id}
-                  className="rounded-xl bg-surface border shadow-sm p-5"
-                  style={{ borderColor: '#C5A47E' }}
+                  className="rounded-xl bg-surface border shadow-sm p-5 border-gold"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -108,7 +107,7 @@ export default async function RefundsPage() {
                         Requested {formatDate(refund.requestedAt)}
                       </p>
                     </div>
-                    <p className="shrink-0 text-lg font-bold" style={{ color: '#7B2D42' }}>
+                    <p className="shrink-0 text-lg font-bold text-primary">
                       {formatINR(refund.amount)}
                     </p>
                   </div>
@@ -134,7 +133,7 @@ export default async function RefundsPage() {
                   )}
 
                   {refund.failureReason && (
-                    <p className="mt-2 text-xs text-red-600">
+                    <p className="mt-2 text-xs text-destructive">
                       Failure: {refund.failureReason}
                     </p>
                   )}

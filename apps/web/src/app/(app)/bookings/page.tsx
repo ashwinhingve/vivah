@@ -35,8 +35,8 @@ const STATUS_STYLES: Record<BookingStatus, string> = {
   PENDING:   'bg-amber-100 text-amber-800',
   CONFIRMED: 'bg-teal-100 text-teal-800',
   COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-gray-100 text-gray-600',
-  DISPUTED:  'bg-red-100 text-red-700',
+  CANCELLED: 'bg-secondary text-muted-foreground',
+  DISPUTED:  'bg-destructive/15 text-destructive',
 };
 
 function StatusBadge({ status }: { status: BookingStatus }) {
@@ -92,13 +92,13 @@ export default async function BookingsPage({ searchParams }: PageProps) {
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-primary sm:text-3xl">My Bookings</h1>
-            <p className="mt-1 text-sm text-gray-500">Track bookings, reschedule, and manage events.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Track bookings, reschedule, and manage events.</p>
           </div>
           <div className="flex gap-2 text-sm">
             <Link
               href={buildHref({ role: 'customer' })}
               className={`rounded-lg px-3 py-1.5 font-medium transition-colors ${
-                role === 'customer' ? 'bg-primary text-white' : 'bg-surface text-gray-600 hover:bg-gray-50 border border-gray-200'
+                role === 'customer' ? 'bg-primary text-white' : 'bg-surface text-muted-foreground hover:bg-secondary border border-border'
               }`}
             >
               As Customer
@@ -106,7 +106,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
             <Link
               href={buildHref({ role: 'vendor' })}
               className={`rounded-lg px-3 py-1.5 font-medium transition-colors ${
-                role === 'vendor' ? 'bg-primary text-white' : 'bg-surface text-gray-600 hover:bg-gray-50 border border-gray-200'
+                role === 'vendor' ? 'bg-primary text-white' : 'bg-surface text-muted-foreground hover:bg-secondary border border-border'
               }`}
             >
               As Vendor
@@ -143,9 +143,9 @@ export default async function BookingsPage({ searchParams }: PageProps) {
         </div>
 
         {bookingList.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-surface p-12 text-center">
-            <h3 className="text-base font-semibold text-gray-900">No bookings here</h3>
-            <p className="mt-1 text-sm text-gray-500">Try a different filter or browse vendors.</p>
+          <div className="rounded-xl border border-dashed border-border bg-surface p-12 text-center">
+            <h3 className="text-base font-semibold text-foreground">No bookings here</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Try a different filter or browse vendors.</p>
             <Link
               href="/vendors"
               className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#6a2538] transition-colors"
@@ -161,12 +161,12 @@ export default async function BookingsPage({ searchParams }: PageProps) {
               <Link
                 key={booking.id}
                 href={`/bookings/${booking.id}`}
-                className="block rounded-xl border border-gray-100 bg-surface p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="block rounded-xl border border-border bg-surface p-5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="truncate text-base font-semibold text-gray-900">{booking.vendorName}</span>
+                      <span className="truncate text-base font-semibold text-foreground">{booking.vendorName}</span>
                       <StatusBadge status={booking.status} />
                       {booking.proposedDate && (
                         <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700 text-xs px-2 py-0.5 font-medium">
@@ -174,9 +174,9 @@ export default async function BookingsPage({ searchParams }: PageProps) {
                         </span>
                       )}
                     </div>
-                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span>📅 {new Date(booking.eventDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                      <span className="font-medium text-gray-700">{formatInr(booking.totalAmount)}</span>
+                      <span className="font-medium text-foreground">{formatInr(booking.totalAmount)}</span>
                       {booking.escrowAmount !== null && booking.escrowAmount > 0 && (
                         <span className="text-teal-600">Escrow: {formatInr(booking.escrowAmount)}</span>
                       )}

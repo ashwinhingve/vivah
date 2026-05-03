@@ -122,9 +122,9 @@ export function AvailabilityCalendar({
             : isPast
               ? 'text-muted-foreground/40 cursor-not-allowed'
               : isBooked
-                ? 'bg-red-50 text-red-600 cursor-not-allowed'
+                ? 'bg-destructive/10 text-destructive cursor-not-allowed'
                 : isBlocked
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-secondary text-muted-foreground cursor-not-allowed'
                   : 'hover:bg-teal/10 cursor-pointer text-foreground';
 
           return (
@@ -147,10 +147,10 @@ export function AvailabilityCalendar({
           <span className="h-2.5 w-2.5 rounded-sm bg-teal" /> Selected
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-sm bg-red-50 border border-red-200" /> Booked
+          <span className="h-2.5 w-2.5 rounded-sm bg-destructive/10 border border-destructive/30" /> Booked
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-sm bg-gray-100 border border-gray-200" /> Blocked
+          <span className="h-2.5 w-2.5 rounded-sm bg-secondary border border-border" /> Blocked
         </span>
         {loading && <span>Loading…</span>}
       </div>

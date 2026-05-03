@@ -86,7 +86,7 @@ export function StatementDownloadModal({ onClose }: Props) {
 
         <div className="px-5 py-4 space-y-4">
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
               {error}
             </div>
           )}

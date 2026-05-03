@@ -48,7 +48,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
   return (
     <div>
       {/* Counter */}
-      <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
+      <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
         <div>
           <div className="text-3xl font-semibold text-[#0E7C7B]">{checkedIn}<span className="text-base text-muted-foreground"> / {guests.length}</span></div>
           <p className="text-xs text-muted-foreground">Guests checked in</p>
@@ -66,7 +66,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, phone, email"
-          className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-white pl-10 pr-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B]"
+          className="w-full min-h-[44px] rounded-lg border border-[#C5A47E]/40 bg-surface pl-10 pr-3 py-2.5 text-sm outline-none focus:border-[#0E7C7B]"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
             const arrived = !!g.arrivedAt;
             const pending = pendingId === g.id;
             return (
-              <li key={g.id} className={`bg-white border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-green-200' : 'border-[#C5A47E]/20'}`}>
+              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-green-200' : 'border-[#C5A47E]/20'}`}>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm flex items-center gap-1.5">
                     {arrived && <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />}

@@ -51,7 +51,7 @@ export default async function TimelinePage({ params }: PageProps) {
         </div>
 
         {dates.length === 0 ? (
-          <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
+          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center">
             <Clock className="h-10 w-10 text-[#C5A47E] mx-auto mb-3" />
             <p className="text-sm text-muted-foreground mb-4">No schedule events yet.</p>
             {cers.length > 0 ? (
@@ -67,7 +67,7 @@ export default async function TimelinePage({ params }: PageProps) {
         ) : (
           <div className="space-y-6">
             {dates.map(d => (
-              <div key={d} className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm">
+              <div key={d} className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm">
                 <div className="px-5 py-3 border-b border-[#C5A47E]/10 bg-[#FEFAF6]">
                   <p className="font-semibold text-[#0A1F4D]">{fmtDate(d)}</p>
                 </div>
@@ -88,7 +88,7 @@ export default async function TimelinePage({ params }: PageProps) {
                         {e.description && <p className="text-xs text-muted-foreground mt-1">{e.description}</p>}
                       </div>
                       <form action={deleteEventAction.bind(null, id, e.id)}>
-                        <button type="submit" className="text-xs text-red-600 hover:underline" aria-label="Delete">×</button>
+                        <button type="submit" className="text-xs text-destructive hover:underline" aria-label="Delete">×</button>
                       </form>
                     </li>
                   ))}
@@ -99,7 +99,7 @@ export default async function TimelinePage({ params }: PageProps) {
         )}
 
         {/* Add event */}
-        <details className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mt-6">
+        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mt-6">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
             <Plus className="h-4 w-4" /> Add event
           </summary>

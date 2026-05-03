@@ -22,7 +22,7 @@ export default async function MembersPage({ params }: PageProps) {
         <p className="text-sm text-muted-foreground mb-6">Invite family + planners to collaborate on this wedding.</p>
 
         {/* Members list */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
           <div className="px-5 py-3 border-b border-[#C5A47E]/10 flex items-center gap-2">
             <Users className="h-4 w-4 text-[#C5A47E]" />
             <h2 className="font-semibold text-[#0A1F4D]">Active members ({members.length})</h2>
@@ -48,7 +48,7 @@ export default async function MembersPage({ params }: PageProps) {
                   </form>
                   {m.role !== 'OWNER' && (
                     <form action={removeMemberAction.bind(null, id, m.id)}>
-                      <button type="submit" className="text-xs text-red-600 hover:underline">Remove</button>
+                      <button type="submit" className="text-xs text-destructive hover:underline">Remove</button>
                     </form>
                   )}
                 </div>
@@ -59,7 +59,7 @@ export default async function MembersPage({ params }: PageProps) {
 
         {/* Pending invites */}
         {invites.length > 0 && (
-          <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
+          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm mb-6">
             <div className="px-5 py-3 border-b border-[#C5A47E]/10 flex items-center gap-2">
               <Mail className="h-4 w-4 text-[#C5A47E]" />
               <h2 className="font-semibold text-[#0A1F4D]">Pending invites ({invites.filter(i => !i.acceptedAt).length})</h2>
@@ -78,7 +78,7 @@ export default async function MembersPage({ params }: PageProps) {
         )}
 
         {/* Invite form */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
           <h2 className="font-semibold text-[#0A1F4D] mb-3 flex items-center gap-2">
             <UserPlus className="h-4 w-4" /> Invite by email
           </h2>

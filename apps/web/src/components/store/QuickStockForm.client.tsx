@@ -79,7 +79,7 @@ export function QuickStockForm({ productId, currentStock }: QuickStockFormProps)
         <span className="text-xs text-emerald-600 font-medium">Updated!</span>
       )}
       {error && (
-        <span className="text-xs text-red-600">{error}</span>
+        <span className="text-xs text-destructive">{error}</span>
       )}
     </form>
   );

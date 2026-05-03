@@ -59,10 +59,10 @@ const CEREMONY_COLORS: Record<string, string> = {
   HALDI:      'bg-yellow-100 text-yellow-800',
   MEHNDI:     'bg-green-100 text-green-800',
   SANGEET:    'bg-purple-100 text-purple-800',
-  WEDDING:    'bg-red-100 text-red-800',
-  RECEPTION:  'bg-blue-100 text-blue-800',
+  WEDDING:    'bg-destructive/15 text-destructive',
+  RECEPTION:  'bg-teal/10 text-teal',
   ENGAGEMENT: 'bg-pink-100 text-pink-800',
-  OTHER:      'bg-gray-100 text-gray-700',
+  OTHER:      'bg-secondary text-foreground',
 };
 
 interface PageProps {
@@ -148,7 +148,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         </div>
 
         {/* Task progress bar */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="font-medium text-foreground">Overall Progress</span>
             <span className="text-[#0E7C7B] font-semibold">{pct}%</span>
@@ -163,7 +163,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
 
         {/* Muhurat card */}
         {muhuratSuggestions.length > 0 && (
-          <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
             <h2 className="font-semibold text-[#0A1F4D] mb-3 flex items-center gap-2">
               <span>Auspicious Dates (Muhurat)</span>
               {selectedMuhurat && (
@@ -214,7 +214,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         )}
 
         {/* Ceremonies section */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
           <h2 className="font-semibold text-[#0A1F4D] mb-3">Ceremonies</h2>
 
           {ceremonies.length === 0 ? (
@@ -250,7 +250,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                       </summary>
                       <form
                         action={updateCeremonyAction.bind(null, id, c.id)}
-                        className="absolute right-2 mt-1 z-10 w-64 rounded-lg border border-[#C5A47E]/30 bg-white p-3 space-y-2 shadow-lg"
+                        className="absolute right-2 mt-1 z-10 w-64 rounded-lg border border-[#C5A47E]/30 bg-surface p-3 space-y-2 shadow-lg"
                       >
                         <div>
                           <label className="block text-[10px] font-medium text-[#64748B] mb-1">Date</label>
@@ -356,7 +356,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         </div>
 
         {/* Tab nav — scrollable on mobile */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           <div className="flex gap-1 min-w-max">
             {tabs.map(({ href, label }) => (
               <Link
@@ -391,7 +391,7 @@ function StatCard({
   small?: boolean;
 }) {
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 flex flex-col gap-2">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 flex flex-col gap-2">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {icon}
         {label}

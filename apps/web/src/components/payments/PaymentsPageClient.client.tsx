@@ -57,8 +57,8 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> 
   PENDING:            { bg: 'bg-amber-100',  text: 'text-amber-800',  label: 'Pending' },
   CAPTURED:           { bg: 'bg-teal/10',    text: 'text-teal',       label: 'Captured' },
   RELEASED:           { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Released' },
-  REFUNDED:           { bg: 'bg-slate-100',  text: 'text-slate-600',  label: 'Refunded' },
-  FAILED:             { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Failed' },
+  REFUNDED:           { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Refunded' },
+  FAILED:             { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Failed' },
   PARTIALLY_REFUNDED: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Partly Refunded' },
 };
 
@@ -99,7 +99,7 @@ export function PaymentsPageClient({ payments }: Props) {
             className={[
               'flex-1 min-w-[72px] rounded-lg px-3 py-2 text-xs font-semibold transition-colors whitespace-nowrap',
               filter === tab.value
-                ? 'bg-white shadow-sm text-[#7B2D42]'
+                ? 'bg-surface shadow-sm text-[#7B2D42]'
                 : 'text-muted-foreground hover:text-foreground',
             ].join(' ')}
           >
@@ -125,7 +125,7 @@ export function PaymentsPageClient({ payments }: Props) {
       ) : (
         <div className="space-y-4">
           {filtered.map(payment => {
-            const badge = STATUS_BADGE[payment.status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: payment.status };
+            const badge = STATUS_BADGE[payment.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: payment.status };
             return (
               <div
                 key={payment.id}
@@ -174,7 +174,7 @@ export function PaymentsPageClient({ payments }: Props) {
                     <button
                       type="button"
                       onClick={() => setRefundTarget(payment)}
-                      className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium text-red-700 border-red-200 hover:bg-red-50 transition-colors"
+                      className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium text-destructive border-destructive/30 hover:bg-destructive/10 transition-colors"
                     >
                       Request Refund
                     </button>

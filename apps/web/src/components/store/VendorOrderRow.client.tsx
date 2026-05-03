@@ -26,7 +26,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const badge = statusBadge[status] ?? { text: status, cls: 'text-[#64748B] bg-gray-50 border border-gray-200' };
+  const badge = statusBadge[status] ?? { text: status, cls: 'text-[#64748B] bg-secondary border border-border' };
 
   async function markShipped() {
     if (!tracking.trim()) {
@@ -78,7 +78,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   }
 
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden">
       {/* Main row */}
       <div className="px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         {/* Left: product + customer info */}
@@ -171,7 +171,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
             <input
               id={`track-${item.id}`}
               type="text"
-              className="flex-1 rounded-lg border border-[#C5A47E]/30 bg-white px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors"
+              className="flex-1 rounded-lg border border-[#C5A47E]/30 bg-surface px-3 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#0E7C7B] focus:outline-none focus:ring-1 focus:ring-[#0E7C7B]/40 transition-colors"
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
               placeholder="e.g. DTDC123456789"
@@ -185,14 +185,14 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               {loading ? 'Saving…' : 'Confirm'}
             </button>
           </div>
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
       )}
 
       {/* Error outside ship form */}
       {error && !showShipForm && (
-        <div className="border-t border-red-100 px-4 py-2 bg-red-50">
-          <p className="text-xs text-red-600">{error}</p>
+        <div className="border-t border-destructive/20 px-4 py-2 bg-destructive/10">
+          <p className="text-xs text-destructive">{error}</p>
         </div>
       )}
 

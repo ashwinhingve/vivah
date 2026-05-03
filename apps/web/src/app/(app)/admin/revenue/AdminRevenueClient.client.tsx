@@ -54,12 +54,12 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
   const maxGross = daily.length > 0 ? Math.max(...daily.map(d => d.gross)) : 1;
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Revenue Dashboard</h1>
+            <h1 className="text-2xl font-bold text-primary">Revenue Dashboard</h1>
             <p className="mt-1 text-sm text-muted-foreground">Financial overview across all transactions</p>
           </div>
 
@@ -90,8 +90,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
             {KPI_CONFIG(summary).map(kpi => (
               <div
                 key={kpi.label}
-                className="rounded-xl bg-surface border shadow-sm px-4 py-4"
-                style={{ borderColor: '#C5A47E' }}
+                className="rounded-xl bg-surface border shadow-sm px-4 py-4 border-gold"
               >
                 <p className="text-xl font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground leading-tight">{kpi.label}</p>
@@ -99,15 +98,15 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
             ))}
           </div>
         ) : (
-          <div className="mb-6 rounded-xl border border-dashed py-10 text-center" style={{ borderColor: '#C5A47E' }}>
+          <div className="mb-6 rounded-xl border border-dashed py-10 text-center border-gold">
             <p className="text-sm text-muted-foreground">Revenue summary unavailable for this period.</p>
           </div>
         )}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Daily revenue chart */}
-          <div className="lg:col-span-2 rounded-xl border bg-surface shadow-sm p-5" style={{ borderColor: '#C5A47E' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#7B2D42' }}>Daily Gross Revenue</h2>
+          <div className="lg:col-span-2 rounded-xl border bg-surface shadow-sm p-5 border-gold">
+            <h2 className="text-sm font-semibold mb-4 text-primary">Daily Gross Revenue</h2>
             {daily.length === 0 ? (
               <p className="text-xs text-muted-foreground py-8 text-center">No data for this period.</p>
             ) : (
@@ -145,8 +144,8 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
           </div>
 
           {/* Liabilities */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5" style={{ borderColor: '#C5A47E' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#7B2D42' }}>Liabilities</h2>
+          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+            <h2 className="text-sm font-semibold mb-4 text-primary">Liabilities</h2>
             {liabilities.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No liabilities data.</p>
             ) : (
@@ -164,8 +163,8 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
 
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
           {/* Category breakdown */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5" style={{ borderColor: '#C5A47E' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#7B2D42' }}>Revenue by Category</h2>
+          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+            <h2 className="text-sm font-semibold mb-4 text-primary">Revenue by Category</h2>
             {categories.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No category data.</p>
             ) : (
@@ -189,8 +188,8 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
           </div>
 
           {/* Top vendors */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5" style={{ borderColor: '#C5A47E' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#7B2D42' }}>Top Vendors</h2>
+          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+            <h2 className="text-sm font-semibold mb-4 text-primary">Top Vendors</h2>
             {topVendors.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No vendor data.</p>
             ) : (

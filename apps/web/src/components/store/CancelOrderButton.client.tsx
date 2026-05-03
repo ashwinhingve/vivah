@@ -50,8 +50,8 @@ export function CancelOrderButton({ orderId }: CancelOrderButtonProps) {
         className={[
           'min-h-[44px] px-4 text-sm font-semibold rounded-lg border transition-colors disabled:opacity-60',
           confirm
-            ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
-            : 'bg-white text-red-600 border-red-300 hover:bg-red-50',
+            ? 'bg-destructive text-white border-destructive hover:bg-destructive'
+            : 'bg-surface text-destructive border-destructive/40 hover:bg-destructive/10',
         ].join(' ')}
       >
         {loading ? 'Cancelling…' : confirm ? 'Confirm Cancel' : 'Cancel Order'}
@@ -64,7 +64,7 @@ export function CancelOrderButton({ orderId }: CancelOrderButtonProps) {
           Keep order
         </button>
       )}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

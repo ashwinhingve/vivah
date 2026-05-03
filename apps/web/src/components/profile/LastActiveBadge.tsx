@@ -29,8 +29,8 @@ export function LastActiveBadge({ lastActiveAt, showPrecise = false }: Props) {
   const label = showPrecise ? formatDelta(delta) : 'Recently active';
   const isOnline = delta < 5 * 60_000 && showPrecise;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${isOnline ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${isOnline ? 'bg-emerald-100 text-emerald-700' : 'bg-secondary text-muted-foreground'}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-muted'}`} />
       {label}
     </span>
   );

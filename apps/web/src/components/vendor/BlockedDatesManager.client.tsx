@@ -83,7 +83,7 @@ export function BlockedDatesManager({ initial }: BlockedDatesManagerProps) {
             <Plus className="h-4 w-4" /> Block
           </button>
         </div>
-        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
       </div>
 
       {list.length === 0 ? (
@@ -104,7 +104,7 @@ export function BlockedDatesManager({ initial }: BlockedDatesManagerProps) {
                 type="button"
                 onClick={() => remove(d.id)}
                 aria-label="Remove blocked date"
-                className="rounded-lg p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                className="rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-4 w-4" />
               </button>

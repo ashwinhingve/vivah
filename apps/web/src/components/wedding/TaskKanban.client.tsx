@@ -16,7 +16,7 @@ const COLUMNS: { status: TaskStatus; label: string }[] = [
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
   LOW:    'text-green-700 bg-green-50',
   MEDIUM: 'text-amber-700 bg-amber-50',
-  HIGH:   'text-red-700 bg-red-50',
+  HIGH:   'text-destructive bg-destructive/10',
 };
 
 const STATUS_ORDER: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
@@ -137,10 +137,10 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
+          className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-4"
         >
           {createError && (
-            <p className="mb-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{createError}</p>
+            <p className="mb-3 text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{createError}</p>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
             <input
@@ -203,7 +203,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                   <div
                     key={task.id}
                     className={cn(
-                      'bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-3 transition-opacity',
+                      'bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-3 transition-opacity',
                       movingId === task.id && isPending ? 'opacity-40' : 'opacity-100'
                     )}
                   >

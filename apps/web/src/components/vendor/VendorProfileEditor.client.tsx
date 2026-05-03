@@ -135,7 +135,7 @@ export function VendorProfileEditor({ vendor }: VendorProfileEditorProps) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
       {success && <p className="text-sm text-success">Saved!</p>}
 
       <button

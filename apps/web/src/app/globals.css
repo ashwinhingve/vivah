@@ -98,6 +98,15 @@
     font-family: var(--font-body);
   }
 
+  /* A11y baseline — every focusable element gets a visible ring even when
+     the page-level component skips per-element focus-visible classes. Page
+     primitives (Button, Input, Tabs, etc.) override this naturally. */
+  *:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   /* Sections targeted by the sticky/fixed navbar's anchor links must offset
      so the section heading isn't tucked under the 64px navbar after scroll. */
   section[id] {

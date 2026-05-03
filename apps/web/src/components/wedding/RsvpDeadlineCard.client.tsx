@@ -32,7 +32,7 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
   const daysRemaining = deadline ? Math.max(0, Math.ceil((new Date(deadline).getTime() - Date.now()) / (24 * 60 * 60 * 1000))) : null;
 
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 mb-6">
       <h3 className="font-medium text-sm text-[#7B2D42] mb-3">RSVP Deadline</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>

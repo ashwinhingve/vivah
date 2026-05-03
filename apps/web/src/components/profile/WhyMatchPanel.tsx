@@ -13,12 +13,12 @@ export function WhyMatchPanel({ explainer, tier }: Props): JSX.Element | null {
   const locked = tier === 'FREE';
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
       <h3 className="mb-2 text-sm font-semibold text-[#0A1F4D]">Why you match</h3>
       <div className={locked ? 'pointer-events-none select-none blur-sm' : ''}>
         <ul className="space-y-1.5">
           {explainer.reasons.map((r, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+            <li key={i} className="flex items-start gap-2 text-sm text-foreground">
               <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {r}
             </li>

@@ -7,11 +7,11 @@ import type { WeddingSummary } from '@smartshaadi/types';
 import { createExpenseAction, deleteExpenseAction, recordPaymentAction } from './actions';
 
 const STATUS_COLORS: Record<string, string> = {
-  DRAFT:          'bg-gray-100 text-gray-700',
+  DRAFT:          'bg-secondary text-foreground',
   DUE:            'bg-amber-100 text-amber-800',
-  PARTIALLY_PAID: 'bg-blue-100 text-blue-800',
+  PARTIALLY_PAID: 'bg-teal/10 text-teal',
   PAID:           'bg-green-100 text-green-800',
-  CANCELLED:      'bg-red-100 text-red-700',
+  CANCELLED:      'bg-destructive/15 text-destructive',
 };
 
 function fmt(n: number): string {
@@ -54,17 +54,17 @@ export default async function ExpensesPage({ params }: PageProps) {
         </div>
 
         {overBudget && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
-              <p className="font-semibold text-red-800">Over budget</p>
-              <p className="text-sm text-red-700">Committed expenses exceed your total wedding budget.</p>
+              <p className="font-semibold text-destructive">Over budget</p>
+              <p className="text-sm text-destructive">Committed expenses exceed your total wedding budget.</p>
             </div>
           </div>
         )}
 
         {/* By category */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
           <h2 className="font-semibold text-[#0A1F4D] mb-3">By category</h2>
           <div className="space-y-2">
             {(summary?.byCategory ?? []).length === 0 && (
@@ -96,7 +96,7 @@ export default async function ExpensesPage({ params }: PageProps) {
 
         {/* Upcoming due */}
         {(summary?.upcomingDue ?? []).length > 0 && (
-          <div className="bg-white border border-amber-200 rounded-xl shadow-sm p-5 mb-6">
+          <div className="bg-surface border border-amber-200 rounded-xl shadow-sm p-5 mb-6">
             <h2 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" /> Upcoming payments
             </h2>
@@ -115,7 +115,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         )}
 
         {/* Expenses table */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden mb-6">
           <div className="flex items-center justify-between px-5 py-3 border-b border-[#C5A47E]/10">
             <h2 className="font-semibold text-[#0A1F4D]">All expenses ({expenses.length})</h2>
           </div>
@@ -159,14 +159,14 @@ export default async function ExpensesPage({ params }: PageProps) {
                       {e.status !== 'PAID' && e.status !== 'CANCELLED' && (
                         <details className="relative">
                           <summary className="text-xs font-medium text-[#0E7C7B] hover:underline cursor-pointer list-none">Pay</summary>
-                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-[#C5A47E]/30 bg-white p-3 space-y-2 shadow-lg">
+                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-[#C5A47E]/30 bg-surface p-3 space-y-2 shadow-lg">
                             <input name="amount" type="number" min="1" step="1" placeholder={`Up to ${e.amount - e.paid}`} className="w-full rounded border border-[#C5A47E]/30 px-2 py-1 text-xs" required />
                             <button type="submit" className="w-full rounded bg-[#0E7C7B] text-white text-xs py-1.5">Record</button>
                           </form>
                         </details>
                       )}
                       <form action={deleteExpenseAction.bind(null, id, e.id)}>
-                        <button type="submit" className="text-xs text-red-600 hover:underline" aria-label="Delete expense">×</button>
+                        <button type="submit" className="text-xs text-destructive hover:underline" aria-label="Delete expense">×</button>
                       </form>
                     </td>
                   </tr>
@@ -177,7 +177,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         </div>
 
         {/* Add expense */}
-        <details className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
             <Plus className="h-4 w-4" /> Add expense
           </summary>
@@ -204,7 +204,7 @@ export default async function ExpensesPage({ params }: PageProps) {
 function SummaryCard({ label, value, success, warning }: { label: string; value: string; success?: boolean; warning?: boolean }) {
   const color = success ? 'text-[#0E7C7B]' : warning ? 'text-amber-700' : 'text-[#7B2D42]';
   return (
-    <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
+    <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 text-center">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className={`font-semibold text-base ${color}`}>{value}</p>
     </div>

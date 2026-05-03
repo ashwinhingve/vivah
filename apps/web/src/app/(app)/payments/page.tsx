@@ -87,7 +87,7 @@ export default async function PaymentsPage() {
   const cookie = await getAuthHeader();
   if (!cookie) {
     return (
-      <div className="min-h-screen px-4 py-16 text-center" style={{ background: '#FEFAF6' }}>
+      <div className="min-h-screen px-4 py-16 text-center bg-background">
         <p className="text-muted-foreground">Please sign in to view your payment history.</p>
       </div>
     );
@@ -109,12 +109,12 @@ export default async function PaymentsPage() {
   const walletBalance = wallet ? parseFloat(wallet.balance) : 0;
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         {/* Page heading */}
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>
+            <h1 className="text-2xl font-bold text-primary">
               Payment History
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -124,15 +124,13 @@ export default async function PaymentsPage() {
           <div className="flex gap-2">
             <Link
               href="/payments/wallet"
-              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10"
-              style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary"
             >
               Wallet
             </Link>
             <Link
               href="/payments/refunds"
-              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10"
-              style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary"
             >
               Refunds
             </Link>
@@ -153,10 +151,9 @@ export default async function PaymentsPage() {
 
         {/* Escrow explanation */}
         <div
-          className="mt-8 rounded-xl border px-5 py-4 text-sm"
-          style={{ borderColor: '#C5A47E', background: '#FEF9F0' }}
+          className="mt-8 rounded-xl border px-5 py-4 text-sm border-gold bg-secondary"
         >
-          <p className="font-semibold" style={{ color: '#7B2D42' }}>
+          <p className="font-semibold text-primary">
             How Smart Shaadi Escrow Works
           </p>
           <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">

@@ -21,11 +21,11 @@ const DECLINE_REASONS: { value: string; label: string }[] = [
 ];
 
 const REPORT_CATEGORIES: { value: string; label: string; tone: string }[] = [
-  { value: 'HARASSMENT',            label: 'Harassment / abusive language', tone: 'text-red-600' },
+  { value: 'HARASSMENT',            label: 'Harassment / abusive language', tone: 'text-destructive' },
   { value: 'FAKE_PROFILE',          label: 'Fake or impersonated profile',  tone: 'text-amber-600' },
   { value: 'INAPPROPRIATE_CONTENT', label: 'Inappropriate photos / content', tone: 'text-amber-600' },
-  { value: 'SCAM',                  label: 'Scam / asking for money',        tone: 'text-red-600' },
-  { value: 'UNDERAGE',              label: 'Underage / minor',                tone: 'text-red-600' },
+  { value: 'SCAM',                  label: 'Scam / asking for money',        tone: 'text-destructive' },
+  { value: 'UNDERAGE',              label: 'Underage / minor',                tone: 'text-destructive' },
   { value: 'SPAM',                  label: 'Spam / repeated unwanted contact', tone: 'text-amber-600' },
   { value: 'OTHER',                 label: 'Other',                            tone: 'text-muted-foreground' },
 ];
@@ -34,9 +34,9 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   PENDING:   { label: 'Pending',   cls: 'bg-amber-50 text-amber-700' },
   ACCEPTED:  { label: 'Matched',   cls: 'bg-emerald-50 text-emerald-700' },
   DECLINED:  { label: 'Declined',  cls: 'bg-rose-50 text-rose-600' },
-  WITHDRAWN: { label: 'Withdrawn', cls: 'bg-slate-100 text-slate-500' },
-  BLOCKED:   { label: 'Blocked',   cls: 'bg-slate-100 text-slate-500' },
-  EXPIRED:   { label: 'Expired',   cls: 'bg-slate-100 text-slate-500' },
+  WITHDRAWN: { label: 'Withdrawn', cls: 'bg-secondary text-muted-foreground' },
+  BLOCKED:   { label: 'Blocked',   cls: 'bg-secondary text-muted-foreground' },
+  EXPIRED:   { label: 'Expired',   cls: 'bg-secondary text-muted-foreground' },
 };
 
 function getSessionToken(): string | null {
@@ -631,7 +631,7 @@ export default function RequestsPage() {
         </div>
 
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+          <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive flex items-center justify-between">
             {error}
             <button type="button" onClick={() => void load()} className="font-semibold underline">Retry</button>
           </div>

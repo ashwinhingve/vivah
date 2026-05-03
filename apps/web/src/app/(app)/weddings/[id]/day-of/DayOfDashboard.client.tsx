@@ -89,7 +89,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
 
       <section className="grid gap-4 lg:grid-cols-3">
         {/* Ceremonies */}
-        <div className="rounded-xl border border-foreground/10 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
           <h2 className="font-heading text-lg text-foreground">Ceremonies</h2>
           <ul className="mt-3 space-y-3">
             {snap.ceremonies.map((c) => {
@@ -139,7 +139,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
         </div>
 
         {/* Guest arrivals */}
-        <div className="rounded-xl border border-foreground/10 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
           <h2 className="font-heading text-lg text-foreground">Guest arrivals</h2>
           <p className="mt-3 text-4xl font-semibold text-foreground">
             {snap.guestArrivals.arrived}
@@ -152,7 +152,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
         </div>
 
         {/* Recent incidents */}
-        <div className="rounded-xl border border-foreground/10 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
           <h2 className="font-heading text-lg text-foreground">Recent incidents</h2>
           {snap.recentIncidents.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">No incidents reported. Smooth sailing.</p>
@@ -184,7 +184,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
       </section>
 
       {/* Vendor check-ins */}
-      <section className="mt-6 rounded-xl border border-foreground/10 bg-white p-4 shadow-sm">
+      <section className="mt-6 rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
         <h2 className="font-heading text-lg text-foreground">Vendor check-ins</h2>
         {snap.vendorCheckIns.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">No timeline events with vendors assigned.</p>

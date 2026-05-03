@@ -81,7 +81,7 @@ export default async function WalletPage() {
   const cookie = await getAuthCookie();
   if (!cookie) {
     return (
-      <div className="min-h-screen px-4 py-16 text-center" style={{ background: '#FEFAF6' }}>
+      <div className="min-h-screen px-4 py-16 text-center bg-background">
         <p className="text-muted-foreground">Please sign in to view your wallet.</p>
       </div>
     );
@@ -93,10 +93,10 @@ export default async function WalletPage() {
   ]);
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>My Wallet</h1>
+          <h1 className="text-2xl font-bold text-primary">My Wallet</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Balance, credits, and transaction history
           </p>
@@ -105,38 +105,36 @@ export default async function WalletPage() {
         {/* Balance card */}
         {wallet ? (
           <div
-            className="mb-6 rounded-2xl border p-6 text-center shadow-sm"
-            style={{ borderColor: '#C5A47E', background: '#FEF9F0' }}
+            className="mb-6 rounded-2xl border p-6 text-center shadow-sm border-gold bg-secondary"
           >
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
               Available Balance
             </p>
-            <p className="text-4xl font-bold" style={{ color: '#0E7C7B' }}>
+            <p className="text-4xl font-bold text-teal">
               {formatINR(wallet.balance)}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{wallet.currency}</p>
 
             <div className="mt-5 grid grid-cols-2 gap-4">
-              <div className="rounded-xl bg-white border px-4 py-3" style={{ borderColor: '#C5A47E' }}>
+              <div className="rounded-xl bg-surface border px-4 py-3 border-gold">
                 <p className="text-base font-bold text-green-700">{formatINR(wallet.lifetimeIn)}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Total credited</p>
               </div>
-              <div className="rounded-xl bg-white border px-4 py-3" style={{ borderColor: '#C5A47E' }}>
-                <p className="text-base font-bold" style={{ color: '#7B2D42' }}>{formatINR(wallet.lifetimeOut)}</p>
+              <div className="rounded-xl bg-surface border px-4 py-3 border-gold">
+                <p className="text-base font-bold text-primary">{formatINR(wallet.lifetimeOut)}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Total debited</p>
               </div>
             </div>
 
             {!wallet.isActive && (
-              <p className="mt-4 text-xs font-medium text-red-600">
+              <p className="mt-4 text-xs font-medium text-destructive">
                 This wallet has been deactivated. Contact support for assistance.
               </p>
             )}
           </div>
         ) : (
           <div
-            className="mb-6 rounded-xl border border-dashed py-10 text-center"
-            style={{ borderColor: '#C5A47E' }}
+            className="mb-6 rounded-xl border border-dashed py-10 text-center border-gold"
           >
             <p className="text-muted-foreground text-sm">Wallet information is not available.</p>
           </div>
@@ -144,22 +142,21 @@ export default async function WalletPage() {
 
         {/* Transaction ledger */}
         <div>
-          <h2 className="mb-3 text-base font-semibold" style={{ color: '#7B2D42' }}>
+          <h2 className="mb-3 text-base font-semibold text-primary">
             Transaction History
           </h2>
 
           {transactions.length === 0 ? (
             <div
-              className="rounded-xl border border-dashed py-12 text-center"
-              style={{ borderColor: '#C5A47E' }}
+              className="rounded-xl border border-dashed py-12 text-center border-gold"
             >
               <p className="text-sm text-muted-foreground">No wallet transactions yet.</p>
             </div>
           ) : (
-            <div className="rounded-xl border overflow-hidden" style={{ borderColor: '#C5A47E' }}>
+            <div className="rounded-xl border overflow-hidden border-gold">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead style={{ background: '#FEF9F0' }}>
+                  <thead className="bg-secondary">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Date</th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Description</th>
@@ -167,7 +164,7 @@ export default async function WalletPage() {
                       <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground">Balance after</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y" style={{ borderColor: '#C5A47E22' }}>
+                  <tbody className="divide-y border-gold/15">
                     {transactions.map(txn => (
                       <tr key={txn.id} className="bg-surface hover:bg-gold/5 transition-colors">
                         <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
@@ -184,7 +181,7 @@ export default async function WalletPage() {
                           )}
                         </td>
                         <td className="px-4 py-3 text-right text-xs font-semibold whitespace-nowrap">
-                          <span className={txn.type === 'CREDIT' ? 'text-green-700' : 'text-red-700'}>
+                          <span className={txn.type === 'CREDIT' ? 'text-green-700' : 'text-destructive'}>
                             {txn.type === 'CREDIT' ? '+' : '−'}{formatINR(txn.amount)}
                           </span>
                         </td>

@@ -15,10 +15,10 @@ export default async function PaymentSuccessPage({
         <h1 className="mb-2 text-2xl font-semibold text-emerald-900">Payment successful</h1>
         <p className="mb-6 text-emerald-800">Your transaction has been recorded. Thank you.</p>
         {params.paymentId ? (
-          <p className="mb-2 text-sm text-emerald-700">Payment ID: <code className="bg-white px-2 py-1 rounded">{params.paymentId}</code></p>
+          <p className="mb-2 text-sm text-emerald-700">Payment ID: <code className="bg-surface px-2 py-1 rounded">{params.paymentId}</code></p>
         ) : null}
         {params.bookingId ? (
-          <p className="mb-2 text-sm text-emerald-700">Booking: <code className="bg-white px-2 py-1 rounded">{params.bookingId.slice(0, 8)}…</code></p>
+          <p className="mb-2 text-sm text-emerald-700">Booking: <code className="bg-surface px-2 py-1 rounded">{params.bookingId.slice(0, 8)}…</code></p>
         ) : null}
         <div className="mt-6 flex justify-center gap-3">
           {params.bookingId ? (

@@ -24,8 +24,8 @@ function formatDate(iso: string): string {
 const STATUS_MAP: Record<PaymentLinkStatus, { bg: string; text: string; label: string }> = {
   ACTIVE:    { bg: 'bg-green-100',  text: 'text-green-800',  label: 'Active' },
   PAID:      { bg: 'bg-teal/10',    text: 'text-teal',       label: 'Paid' },
-  EXPIRED:   { bg: 'bg-slate-100',  text: 'text-slate-600',  label: 'Expired' },
-  CANCELLED: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Cancelled' },
+  EXPIRED:   { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Expired' },
+  CANCELLED: { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Cancelled' },
 };
 
 interface Props {
@@ -120,12 +120,12 @@ export function PaymentLinksClient({ initialLinks }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#7B2D42' }}>Payment Links</h1>
+            <h1 className="text-2xl font-bold text-primary">Payment Links</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Create and share payment links with your customers
             </p>
@@ -141,8 +141,7 @@ export function PaymentLinksClient({ initialLinks }: Props) {
         {/* New link success banner */}
         {newLink && (
           <div
-            className="mb-4 rounded-xl border px-5 py-4"
-            style={{ borderColor: '#0E7C7B', background: '#F0FDFB' }}
+            className="mb-4 rounded-xl border px-5 py-4 border-teal bg-teal/5"
           >
             <p className="text-sm font-semibold text-teal mb-1">Payment link created</p>
             <div className="flex items-center gap-2">
@@ -152,8 +151,7 @@ export function PaymentLinksClient({ initialLinks }: Props) {
               <button
                 type="button"
                 onClick={() => copyUrl(newLink)}
-                className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-teal/10"
-                style={{ borderColor: '#0E7C7B', color: '#0E7C7B' }}
+                className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-teal/10 border-teal text-teal"
               >
                 {copiedId === newLink.id ? 'Copied!' : 'Copy'}
               </button>
@@ -165,15 +163,14 @@ export function PaymentLinksClient({ initialLinks }: Props) {
         {showForm && (
           <form
             onSubmit={handleCreate}
-            className="mb-6 rounded-xl border shadow-sm p-5 space-y-4 bg-surface"
-            style={{ borderColor: '#C5A47E' }}
+            className="mb-6 rounded-xl border shadow-sm p-5 space-y-4 bg-surface border-gold"
           >
-            <h2 className="font-heading text-base font-semibold" style={{ color: '#7B2D42' }}>
+            <h2 className="font-heading text-base font-semibold text-primary">
               New Payment Link
             </h2>
 
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -201,8 +198,8 @@ export function PaymentLinksClient({ initialLinks }: Props) {
 
         {/* Links list */}
         {links.length === 0 ? (
-          <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: '#C5A47E' }}>
-            <p className="font-medium" style={{ color: '#7B2D42' }}>No payment links yet</p>
+          <div className="rounded-xl border border-dashed py-16 text-center border-gold">
+            <p className="font-medium text-primary">No payment links yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Create a link to request payment from a customer directly.
             </p>
@@ -210,13 +207,12 @@ export function PaymentLinksClient({ initialLinks }: Props) {
         ) : (
           <div className="space-y-4">
             {links.map(link => {
-              const badge = STATUS_MAP[link.status] ?? { bg: 'bg-slate-100', text: 'text-slate-600', label: link.status };
+              const badge = STATUS_MAP[link.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: link.status };
               const url   = link.razorpayShortUrl ?? `https://pay.smartshaadi.in/l/${link.shortId}`;
               return (
                 <div
                   key={link.id}
-                  className="rounded-xl bg-surface border shadow-sm p-5"
-                  style={{ borderColor: '#C5A47E' }}
+                  className="rounded-xl bg-surface border shadow-sm p-5 border-gold"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -229,7 +225,7 @@ export function PaymentLinksClient({ initialLinks }: Props) {
                         {link.expiresAt && ` · Expires ${formatDate(link.expiresAt)}`}
                       </p>
                     </div>
-                    <p className="shrink-0 text-lg font-bold" style={{ color: '#7B2D42' }}>
+                    <p className="shrink-0 text-lg font-bold text-primary">
                       {formatINR(link.amount)}
                     </p>
                   </div>
@@ -249,8 +245,7 @@ export function PaymentLinksClient({ initialLinks }: Props) {
                       <button
                         type="button"
                         onClick={() => copyUrl(link)}
-                        className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-teal/10"
-                        style={{ borderColor: '#0E7C7B', color: '#0E7C7B' }}
+                        className="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-teal/10 border-teal text-teal"
                       >
                         {copiedId === link.id ? 'Copied!' : 'Copy link'}
                       </button>
@@ -282,7 +277,7 @@ function FormField({ label, name, type, placeholder, value, onChange, required }
   return (
     <div>
       <label className="block text-xs font-medium text-foreground mb-1" htmlFor={name}>
-        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+        {label}{required && <span className="text-destructive ml-0.5">*</span>}
       </label>
       <input
         id={name}

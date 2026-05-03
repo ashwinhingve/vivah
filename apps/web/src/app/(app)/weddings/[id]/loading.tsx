@@ -14,13 +14,13 @@ export default function WeddingLoading() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 h-20"
+              className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-4 h-20"
             />
           ))}
         </div>
 
         {/* Progress bar */}
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5 mb-6">
           <div className="flex justify-between mb-2">
             <div className="h-4 w-32 rounded bg-[#F5EFE8]" />
             <div className="h-4 w-10 rounded bg-[#F5EFE8]" />
@@ -29,7 +29,7 @@ export default function WeddingLoading() {
         </div>
 
         {/* Tab nav */}
-        <div className="flex gap-1 bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
+        <div className="flex gap-1 bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-1 mb-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="flex-1 h-11 rounded-lg bg-[#F5EFE8]" />
           ))}

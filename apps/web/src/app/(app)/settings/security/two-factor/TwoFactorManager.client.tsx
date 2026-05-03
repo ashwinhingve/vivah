@@ -270,7 +270,7 @@ function QrCode({ value }: { value: string }) {
       width={200}
       height={200}
       alt="Authenticator QR code"
-      className="rounded-lg border border-border bg-white p-1"
+      className="rounded-lg border border-border bg-surface p-1"
     />
   );
 }

@@ -57,7 +57,7 @@ export function BookingQueueList({ initialBookings }: Props) {
   return (
     <div className="space-y-3">
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -88,7 +88,7 @@ export function BookingQueueList({ initialBookings }: Props) {
             <button
               onClick={() => void updateBooking(booking.id, 'cancel')}
               disabled={loading === booking.id}
-              className="px-3 py-1.5 rounded-lg border border-destructive/30 text-destructive text-xs font-semibold min-h-[36px] hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg border border-destructive/30 text-destructive text-xs font-semibold min-h-[36px] hover:bg-destructive/10 transition-colors disabled:opacity-50"
             >
               Decline
             </button>

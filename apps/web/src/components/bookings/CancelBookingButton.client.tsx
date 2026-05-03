@@ -48,7 +48,7 @@ export function CancelBookingButton({ bookingId, apiUrl, authToken }: Props) {
         className="w-full border border-border rounded-lg px-3 py-2 text-sm"
         maxLength={500}
       />
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-destructive text-sm">{error}</p>}
       <button
         type="submit"
         disabled={loading}

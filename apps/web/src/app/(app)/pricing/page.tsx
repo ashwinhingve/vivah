@@ -48,14 +48,14 @@ export default async function PricingPage() {
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold text-[#0A1F4D]">Choose your plan</h1>
-        <p className="mt-2 text-slate-600">Find your match. Plan your wedding. All in one place.</p>
+        <p className="mt-2 text-muted-foreground">Find your match. Plan your wedding. All in one place.</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map(plan => (
           <div
             key={plan.id}
-            className={`rounded-xl border bg-white p-6 shadow-sm ${plan.tier === 'PREMIUM' ? 'border-[#1848C8] ring-2 ring-[#1848C8]/20' : 'border-slate-200'}`}
+            className={`rounded-xl border bg-surface p-6 shadow-sm ${plan.tier === 'PREMIUM' ? 'border-[#1848C8] ring-2 ring-[#1848C8]/20' : 'border-border'}`}
           >
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-[#0A1F4D]">{plan.name}</h2>
@@ -64,10 +64,10 @@ export default async function PricingPage() {
               )}
             </div>
             <div className="mb-6">
-              <span className="text-3xl font-bold text-slate-900">₹{plan.amount.toLocaleString('en-IN')}</span>
-              {plan.amount > 0 && <span className="text-sm text-slate-500">{INTERVAL_LABELS[plan.interval]}</span>}
+              <span className="text-3xl font-bold text-foreground">₹{plan.amount.toLocaleString('en-IN')}</span>
+              {plan.amount > 0 && <span className="text-sm text-muted-foreground">{INTERVAL_LABELS[plan.interval]}</span>}
             </div>
-            <ul className="mb-6 space-y-2 text-sm text-slate-700">
+            <ul className="mb-6 space-y-2 text-sm text-foreground">
               {(Array.isArray(plan.features) ? plan.features as string[] : []).map((f, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <span className="text-emerald-600 mt-0.5">✓</span>
@@ -89,7 +89,7 @@ export default async function PricingPage() {
         ))}
       </div>
 
-      <p className="mt-12 text-center text-sm text-slate-500">
+      <p className="mt-12 text-center text-sm text-muted-foreground">
         All plans renew automatically. Cancel anytime from <a href="/settings/billing" className="text-[#1848C8] hover:underline">Billing</a>.
       </p>
     </main>

@@ -59,22 +59,20 @@ export default async function InvoiceDetailPage({
   const hasIgst = parseFloat(invoice.igst) > 0;
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 print:p-0" style={{ background: '#FEFAF6' }}>
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 print:p-0 bg-background">
       <div className="mx-auto max-w-3xl">
         {/* Back link — hidden on print */}
         <div className="mb-4 flex items-center justify-between print:hidden">
           <Link
             href="/payments/invoices"
-            className="text-sm font-medium hover:underline"
-            style={{ color: '#0E7C7B' }}
+            className="text-sm font-medium hover:underline text-teal"
           >
             ← Back to Invoices
           </Link>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gold/10 transition-colors"
-            style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gold/10 transition-colors border-gold text-primary"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -85,14 +83,13 @@ export default async function InvoiceDetailPage({
 
         {/* Invoice document */}
         <div
-          className="rounded-2xl border bg-white shadow-sm print:shadow-none print:rounded-none"
-          style={{ borderColor: '#C5A47E' }}
+          className="rounded-2xl border bg-surface shadow-sm print:shadow-none print:rounded-none border-gold"
         >
           {/* Header */}
-          <div className="px-8 pt-8 pb-6 border-b" style={{ borderColor: '#C5A47E' }}>
+          <div className="px-8 pt-8 pb-6 border-b border-gold">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xl font-bold" style={{ color: '#7B2D42' }}>Smart Shaadi</p>
+                <p className="text-xl font-bold text-primary">Smart Shaadi</p>
                 <p className="text-xs text-muted-foreground mt-0.5">National Smart Marriage Event Ecosystem</p>
               </div>
               <div className="text-right">
@@ -104,7 +101,7 @@ export default async function InvoiceDetailPage({
           </div>
 
           {/* Bill from / to */}
-          <div className="grid grid-cols-2 gap-6 px-8 py-6 border-b" style={{ borderColor: '#C5A47E' }}>
+          <div className="grid grid-cols-2 gap-6 px-8 py-6 border-b border-gold">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Bill From</p>
               <p className="text-sm font-medium text-foreground">{invoice.vendorName ?? 'Smart Shaadi Platform'}</p>
@@ -125,10 +122,10 @@ export default async function InvoiceDetailPage({
           </div>
 
           {/* Line items */}
-          <div className="px-8 py-6 border-b overflow-x-auto" style={{ borderColor: '#C5A47E' }}>
+          <div className="px-8 py-6 border-b overflow-x-auto border-gold">
             <table className="w-full text-sm min-w-[600px]">
               <thead>
-                <tr className="border-b" style={{ borderColor: '#C5A47E' }}>
+                <tr className="border-b border-gold">
                   <th className="pb-2 text-left text-xs font-semibold text-muted-foreground">Description</th>
                   {invoice.hsnCode && (
                     <th className="pb-2 text-left text-xs font-semibold text-muted-foreground">HSN</th>
@@ -141,7 +138,7 @@ export default async function InvoiceDetailPage({
               </thead>
               <tbody>
                 {invoice.lineItems.map((item, i) => (
-                  <tr key={i} className="border-b last:border-0" style={{ borderColor: '#C5A47E22' }}>
+                  <tr key={i} className="border-b last:border-0 border-gold/15">
                     <td className="py-2.5 text-xs text-foreground pr-4">{item.description}</td>
                     {invoice.hsnCode && (
                       <td className="py-2.5 text-xs text-muted-foreground font-mono">{item.hsnCode ?? '—'}</td>
@@ -200,8 +197,7 @@ export default async function InvoiceDetailPage({
                 <span className="text-foreground">{formatINR(invoice.totalTax)}</span>
               </div>
               <div
-                className="flex justify-between border-t pt-2 text-base font-bold"
-                style={{ borderColor: '#C5A47E', color: '#7B2D42' }}
+                className="flex justify-between border-t pt-2 text-base font-bold border-gold text-primary"
               >
                 <span>Total</span>
                 <span>{formatINR(invoice.totalAmount)}</span>
@@ -209,7 +205,7 @@ export default async function InvoiceDetailPage({
             </div>
 
             {invoice.notes && (
-              <div className="mt-6 rounded-lg px-4 py-3 text-xs text-muted-foreground" style={{ background: '#FEF9F0' }}>
+              <div className="mt-6 rounded-lg px-4 py-3 text-xs text-muted-foreground bg-secondary">
                 <span className="font-medium text-foreground">Note: </span>{invoice.notes}
               </div>
             )}

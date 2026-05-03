@@ -72,7 +72,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           className="block text-sm font-medium text-[#0F172A]"
         >
           Reason for dispute
-          <span className="ml-1 text-red-500" aria-hidden="true">*</span>
+          <span className="ml-1 text-destructive" aria-hidden="true">*</span>
         </label>
         <textarea
           id="dispute-reason"
@@ -81,7 +81,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           rows={5}
           maxLength={MAX_REASON}
           placeholder="Describe your issue clearly (minimum 10 characters)…"
-          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-[#0F172A] placeholder-[#64748B] shadow-sm outline-none ring-0 transition focus:border-[#1848C8] focus:ring-2 focus:ring-[#1848C8]/20 resize-none"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-[#0F172A] placeholder-[#64748B] shadow-sm outline-none ring-0 transition focus:border-[#1848C8] focus:ring-2 focus:ring-[#1848C8]/20 resize-none"
           disabled={loading}
           required
         />
@@ -101,7 +101,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
 
       {/* Error message */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -112,14 +112,14 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           type="button"
           onClick={() => router.back()}
           disabled={loading}
-          className="min-h-[44px] w-full rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-[#0F172A] transition hover:bg-gray-50 disabled:opacity-50 sm:w-auto"
+          className="min-h-[44px] w-full rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-[#0F172A] transition hover:bg-secondary disabled:opacity-50 sm:w-auto"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={!isValid || loading}
-          className="min-h-[44px] w-full rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          className="min-h-[44px] w-full rounded-lg bg-destructive px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-destructive disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {loading ? 'Raising dispute…' : 'Raise Dispute'}
         </button>

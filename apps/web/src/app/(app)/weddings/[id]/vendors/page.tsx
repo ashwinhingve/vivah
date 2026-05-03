@@ -11,11 +11,11 @@ const ROLES = ['PHOTOGRAPHER','VIDEOGRAPHER','CATERER','DECORATOR','MUSICIAN','D
 const STATUSES = ['SHORTLISTED','INQUIRED','BOOKED','CONFIRMED','CANCELLED'];
 
 const STATUS_COLORS: Record<string, string> = {
-  SHORTLISTED: 'bg-gray-100 text-gray-700',
-  INQUIRED:    'bg-blue-100 text-blue-800',
+  SHORTLISTED: 'bg-secondary text-foreground',
+  INQUIRED:    'bg-teal/10 text-teal',
   BOOKED:      'bg-amber-100 text-amber-800',
   CONFIRMED:   'bg-green-100 text-green-800',
-  CANCELLED:   'bg-red-100 text-red-700',
+  CANCELLED:   'bg-destructive/15 text-destructive',
 };
 
 export default async function VendorAssignmentsPage({ params }: PageProps) {
@@ -39,14 +39,14 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
         </div>
 
         {assignments.length === 0 ? (
-          <div className="bg-white border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center mb-6">
+          <div className="bg-surface border border-dashed border-[#C5A47E]/30 rounded-xl p-12 text-center mb-6">
             <p className="text-sm text-muted-foreground mb-4">No vendors shortlisted yet.</p>
             <Link href="/vendors" className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-[#0E7C7B] text-white text-sm font-medium">
               Browse vendor marketplace
             </Link>
           </div>
         ) : (
-          <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden mb-6">
+          <div className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden mb-6">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6] text-left">
@@ -78,7 +78,7 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
                     </td>
                     <td className="px-4 py-3">
                       <form action={removeAssignmentAction.bind(null, id, a.id)}>
-                        <button type="submit" className="text-xs text-red-600 hover:underline">Remove</button>
+                        <button type="submit" className="text-xs text-destructive hover:underline">Remove</button>
                       </form>
                     </td>
                   </tr>
@@ -88,7 +88,7 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
           </div>
         )}
 
-        <details className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
+        <details className="bg-surface border border-[#C5A47E]/20 rounded-xl shadow-sm p-5">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-[#7B2D42] list-none">
             <Plus className="h-4 w-4" /> Add vendor manually
           </summary>

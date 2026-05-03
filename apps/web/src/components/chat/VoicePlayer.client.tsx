@@ -95,7 +95,7 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
         className={cn(
           'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
           isSentByMe
-            ? 'bg-white/20 hover:bg-white/30 text-white'
+            ? 'bg-surface/20 hover:bg-surface/30 text-white'
             : 'bg-teal text-white hover:bg-teal-hover',
         )}
       >
@@ -119,8 +119,8 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
               className={cn(
                 'block w-[3px] rounded-full transition-colors',
                 filled
-                  ? isSentByMe ? 'bg-white' : 'bg-teal'
-                  : isSentByMe ? 'bg-white/40' : 'bg-muted-foreground/40',
+                  ? isSentByMe ? 'bg-surface' : 'bg-teal'
+                  : isSentByMe ? 'bg-surface/40' : 'bg-muted-foreground/40',
               )}
               style={{ height: `${Math.round(h * 22) + 4}px` }}
             />

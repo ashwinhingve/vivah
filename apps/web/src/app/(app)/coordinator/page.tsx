@@ -32,7 +32,7 @@ export default async function CoordinatorDashboardPage() {
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {weddings.map((w) => {
-            const accent = w.daysUntil !== null && w.daysUntil <= 7 ? 'border-amber-300 bg-amber-50' : 'border-foreground/10 bg-white';
+            const accent = w.daysUntil !== null && w.daysUntil <= 7 ? 'border-amber-300 bg-amber-50' : 'border-foreground/10 bg-surface';
             return (
               <li key={w.weddingId}>
                 <Link
