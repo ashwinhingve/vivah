@@ -270,18 +270,31 @@ AI_SERVICE_URL=http://localhost:8000
 All frontend work follows the Smart Shaadi design system. Do NOT deviate.
 
 ```
-Primary:    #0A1F4D (navy)   — headings, key actions
-Accent:     #1848C8 (blue)   — interactive elements
-Success:    #059669 (green)  — match scores, verified badges
-Warning:    #D97706 (amber)  — alerts, question boxes
-Background: White / #F8F9FC  — surfaces
-Text:       #0F172A / #64748B (muted)
+Primary:    #7B2D42 (Royal Burgundy) — headings, primary CTAs, brand marks
+Accent:     #0E7C7B (Peacock Teal)   — secondary CTAs, links, info badges
+Gold:       #C5A47E (Warm Gold)      — accents, dividers, premium / featured
+Gold-muted: #7A5F3A                  — secondary text on ivory (WCAG-AA)
+Success:    #059669 (green)          — verified, paid, completed
+Warning:    #D97706 (amber)          — pending KYC, deposit due
+Destructive:#DC2626                  — errors, refunds, blocks
+Background: #FEFAF6 (Warm Ivory)     — page background
+Surface:    #FFFFFF                  — card lift
+Text:       #2E2E38 / #6B6B76 (muted)
 
-Cards:        rounded-xl, shadow-sm, p-4 or p-5
-Buttons:      rounded-lg
-Badges:       rounded-full
+Heading font: Playfair Display (next/font/google, --font-heading, weight 500/600/700)
+Body font:    system-ui, -apple-system, "Segoe UI", sans-serif (--font-body) — fast on low-end Android, no extra payload
+Hindi font:   Noto Serif Devanagari (--font-hindi, loaded but unused — bilingual ready)
+
+Cards:         rounded-xl, shadow-card token, p-4 sm:p-6
+Buttons:       rounded-lg, h-11 default (44px touch target)
+Badges:        rounded-full
 Touch targets: min 44×44px
-Mobile-first: everything works at 375px width
+Mobile-first:  everything works at 360px width (Indian Android median)
+
+All colors live as Tailwind v4 @theme tokens in apps/web/src/app/globals.css.
+Use bg-primary / text-teal / border-gold / bg-background / text-gold-muted —
+never raw hex, never bg-white / bg-gray-* / text-blue-*.
+Shadows: shadow-card, shadow-card-hover, shadow-gold-glow (warm-toned tokens).
 ```
 
 **UI workflow for every component:**
