@@ -6,7 +6,7 @@
  */
 
 import { Router, type Response } from 'express';
-import { authenticate } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { AssignCoordinatorSchema } from '@smartshaadi/schemas';
 import * as coordinator from './coordinator.service.js';
@@ -24,7 +24,7 @@ function handle(res: Response, e: unknown, fallback: string): void {
 
 export const coordinatorRouter = Router();
 
-coordinatorRouter.get('/weddings', authenticate, async (req, res) => {
+coordinatorRouter.get('/weddings', authenticate, authorize(['EVENT_COORDINATOR', 'ADMIN']), async (req, res) => {
   try { ok(res, { weddings: await coordinator.listMyManagedWeddings(req.user!.id) }); }
   catch (e) { handle(res, e, 'COORD_LIST_ERROR'); }
 });

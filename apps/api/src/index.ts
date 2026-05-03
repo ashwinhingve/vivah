@@ -132,14 +132,28 @@ if (env.USE_MOCK_SERVICES) {
 app.post('/api/v1/payments/webhook', express.raw({ type: '*/*' }), (req, res) => {
   webhookHandler(req, res).catch((error: unknown) => {
     console.error('[payments/webhook] unhandled error:', error);
-    if (!res.headersSent) res.status(500).json({ success: false });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        data: null,
+        error: { code: 'INTERNAL', message: 'Webhook processing error' },
+        meta: { timestamp: new Date().toISOString() },
+      });
+    }
   });
 });
 
 app.post('/api/v1/store/webhook/razorpay', express.raw({ type: '*/*' }), (req, res) => {
   storeWebhookHandler(req, res).catch((error: unknown) => {
     console.error('[store/webhook/razorpay] unhandled error:', error);
-    if (!res.headersSent) res.status(500).json({ success: false });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        data: null,
+        error: { code: 'INTERNAL', message: 'Webhook processing error' },
+        meta: { timestamp: new Date().toISOString() },
+      });
+    }
   });
 });
 

@@ -25,7 +25,8 @@ export default async function AdminEscrowPage() {
     redirect('/login');
   }
 
-  const disputes = await fetchAuth<DisputedBookingRow[]>('/api/v1/admin/disputes');
+  const wrapped = await fetchAuth<{ disputes: DisputedBookingRow[] }>('/api/v1/admin/disputes');
+  const disputes = wrapped?.disputes ?? [];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">

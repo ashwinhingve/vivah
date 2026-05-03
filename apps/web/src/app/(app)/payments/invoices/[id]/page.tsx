@@ -125,8 +125,8 @@ export default async function InvoiceDetailPage({
           </div>
 
           {/* Line items */}
-          <div className="px-8 py-6 border-b" style={{ borderColor: '#C5A47E' }}>
-            <table className="w-full text-sm">
+          <div className="px-8 py-6 border-b overflow-x-auto" style={{ borderColor: '#C5A47E' }}>
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="border-b" style={{ borderColor: '#C5A47E' }}>
                   <th className="pb-2 text-left text-xs font-semibold text-muted-foreground">Description</th>

@@ -21,8 +21,8 @@ async function fetchNotifications(): Promise<NotificationRow[]> {
       headers: { cookie },
     });
     if (!res.ok) return [];
-    const json = await res.json() as { data?: NotificationRow[] };
-    return json.data ?? [];
+    const json = await res.json() as { data?: { items?: NotificationRow[] } };
+    return json.data?.items ?? [];
   } catch {
     return [];
   }

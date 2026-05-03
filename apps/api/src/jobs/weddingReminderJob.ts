@@ -18,7 +18,7 @@ import {
   markReminderFailed,
 } from '../weddings/reminders.service.js';
 import { db } from '../lib/db.js';
-import { weddings } from '@smartshaadi/db';
+import { weddings, profiles } from '@smartshaadi/db';
 import { eq } from 'drizzle-orm';
 
 const QUEUE_NAME = 'wedding-reminder';
@@ -35,12 +35,25 @@ export function registerWeddingReminderWorker(): Worker<WeddingReminderJob> {
 
       for (const r of due) {
         try {
-          // Look up wedding owner via profile
-          const [w] = await db.select({ profileId: weddings.profileId }).from(weddings).where(eq(weddings.id, r.weddingId)).limit(1);
-          // For now, fan-out to the in-app notification queue. The dispatcher
-          // worker downstream wires SMS/Email/WhatsApp adapters per channel.
+          // Resolve wedding → profile → Better Auth userId. Notifications
+          // route by userId; passing profileId or weddingId silently drops
+          // the message because the downstream dispatcher finds no recipient.
+          const [w] = await db
+            .select({ userId: profiles.userId })
+            .from(weddings)
+            .innerJoin(profiles, eq(profiles.id, weddings.profileId))
+            .where(eq(weddings.id, r.weddingId))
+            .limit(1);
+
+          if (!w?.userId) {
+            await markReminderFailed(r.id);
+            failed++;
+            console.warn(`[weddingReminder] no userId for wedding=${r.weddingId}, skipping reminder=${r.id}`);
+            continue;
+          }
+
           await queueNotification({
-            userId:  w?.profileId ?? r.weddingId,  // placeholder routing — production wires real audience
+            userId:  w.userId,
             type:    r.type,
             payload: { weddingId: r.weddingId, ceremonyId: r.ceremonyId, channel: r.channel },
           });

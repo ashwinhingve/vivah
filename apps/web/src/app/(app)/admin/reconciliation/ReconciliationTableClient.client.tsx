@@ -58,6 +58,7 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
           className={`px-3 py-1.5 rounded-lg text-sm ${filter === 'ALL' ? 'bg-[#0A1F4D] text-white' : 'border border-slate-200'}`}
         >All ({items.length})</button>
       </div>
+      <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm">
         <thead className="bg-slate-50 text-left text-xs font-medium uppercase text-slate-500">
           <tr>
@@ -92,6 +93,7 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

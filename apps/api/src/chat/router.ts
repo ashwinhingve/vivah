@@ -42,7 +42,7 @@ router.get(
 
     try {
       const items = await listConversations({ profileId, filter })
-      ok(res, items)
+      ok(res, { items })
     } catch (e) {
       console.error('[chat/conversations] list error:', e)
       err(res, 'INTERNAL_ERROR', 'Failed to fetch conversations', 500)

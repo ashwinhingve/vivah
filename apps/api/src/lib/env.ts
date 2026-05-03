@@ -92,6 +92,13 @@ const envSchema = z.object({
       message: 'MSG91_API_KEY must be set when USE_MOCK_SERVICES=false',
     });
   }
+  if (!data.RAZORPAY_WEBHOOK_SECRET && !data.RAZORPAY_WEBHOOK_SECRETS) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['RAZORPAY_WEBHOOK_SECRET'],
+      message: 'RAZORPAY_WEBHOOK_SECRET (or RAZORPAY_WEBHOOK_SECRETS for rotation) must be set when USE_MOCK_SERVICES=false — empty secret accepts any signature',
+    });
+  }
 }).superRefine((data, ctx) => {
   // AI service internal key — reject the placeholder default in production.
   // The ai-service validates this header on every internal call (M2.1);

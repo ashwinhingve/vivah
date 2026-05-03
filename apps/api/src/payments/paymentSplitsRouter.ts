@@ -1,9 +1,17 @@
 import { Router, type Request, type Response } from 'express';
+import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import { authorizeBookingAccess } from '../lib/bookingAccess.js';
 import { addSplit, listSplits, releaseSplit, disputeSplit } from './paymentSplits.js';
+
+const AddSplitBodySchema = z.object({
+  paymentId:   z.string().uuid().optional(),
+  vendorId:    z.string().uuid(),
+  amount:      z.number().positive(),
+  platformFee: z.number().min(0).default(0),
+});
 
 export const paymentSplitsRouter = Router();
 
@@ -44,17 +52,12 @@ paymentSplitsRouter.post(
       return;
     }
 
-    const { paymentId, vendorId, amount, platformFee } = req.body as {
-      paymentId?:  string;
-      vendorId:    string;
-      amount:      number;
-      platformFee: number;
-    };
-
-    if (!vendorId || amount === undefined || amount === null) {
-      err(res, 'VALIDATION_ERROR', 'vendorId and amount are required', 422);
+    const parsed = AddSplitBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid body', 422);
       return;
     }
+    const { paymentId, vendorId, amount, platformFee } = parsed.data;
 
     try {
       const split = await addSplit({
@@ -62,7 +65,7 @@ paymentSplitsRouter.post(
         ...(paymentId ? { paymentId } : {}),
         vendorId,
         amount,
-        platformFee: platformFee ?? 0,
+        platformFee,
       });
       ok(res, split, 201);
     } catch (e) {

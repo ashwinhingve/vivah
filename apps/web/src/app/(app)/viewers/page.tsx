@@ -87,7 +87,7 @@ export default async function ViewersPage() {
                   <Card key={v.viewerProfileId} className="overflow-hidden">
                     <div className="relative block aspect-[4/5]">
                       {photoUrl ? (
-                        <Image src={photoUrl} alt="" fill sizes="33vw" className="object-cover" />
+                        <Image src={photoUrl} alt={v.name ? `${v.name}'s profile photo` : 'Viewer profile photo'} fill sizes="33vw" className="object-cover" />
                       ) : (
                         <PhotoFallback name={v.name} />
                       )}

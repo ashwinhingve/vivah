@@ -22,8 +22,8 @@ escrowAdminRouter.get(
   authorize(['ADMIN']),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const rows = await getDisputedBookings(req.user!.id);
-      ok(res, rows);
+      const disputes = await getDisputedBookings(req.user!.id);
+      ok(res, { disputes });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to fetch disputed bookings';
       if (message.includes('Forbidden')) {

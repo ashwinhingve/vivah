@@ -128,8 +128,8 @@ export default async function AdminPage() {
           <h2 className="text-lg font-semibold text-primary font-heading mb-3">
             Recent Audit Logs
           </h2>
-          <div className="rounded-xl border border-gold/30 bg-surface overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="rounded-xl border border-gold/30 bg-surface overflow-x-auto">
+            <table className="w-full text-sm min-w-[480px]">
               <thead>
                 <tr className="border-b border-border bg-background">
                   <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">

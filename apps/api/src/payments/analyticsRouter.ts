@@ -8,7 +8,7 @@
  * GET /payments/admin/analytics/liabilities   → escrow + wallet open balances
  */
 import { Router, type Request, type Response } from 'express';
-import { authenticate } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import {
   getRevenueSummary,
@@ -34,27 +34,27 @@ const range = (req: Request) => ({
   toDate:   (req.query['toDate']   as string | undefined) ?? undefined,
 });
 
-analyticsRouter.get('/summary', authenticate, async (req: Request, res: Response) => {
+analyticsRouter.get('/summary', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const { fromDate, toDate } = range(req);
   try { ok(res, await getRevenueSummary(req.user!.id, fromDate, toDate)); } catch (e) { handle(res, e); }
 });
 
-analyticsRouter.get('/daily', authenticate, async (req: Request, res: Response) => {
+analyticsRouter.get('/daily', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const { fromDate, toDate } = range(req);
   try { ok(res, await getDailyRevenue(req.user!.id, fromDate, toDate)); } catch (e) { handle(res, e); }
 });
 
-analyticsRouter.get('/categories', authenticate, async (req: Request, res: Response) => {
+analyticsRouter.get('/categories', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const { fromDate, toDate } = range(req);
   try { ok(res, await getRevenueByCategory(req.user!.id, fromDate, toDate)); } catch (e) { handle(res, e); }
 });
 
-analyticsRouter.get('/top-vendors', authenticate, async (req: Request, res: Response) => {
+analyticsRouter.get('/top-vendors', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const { fromDate, toDate } = range(req);
   const limit = Math.min(50, parseInt((req.query['limit'] as string | undefined) ?? '10', 10) || 10);
   try { ok(res, await getTopVendorsByRevenue(req.user!.id, limit, fromDate, toDate)); } catch (e) { handle(res, e); }
 });
 
-analyticsRouter.get('/liabilities', authenticate, async (req: Request, res: Response) => {
+analyticsRouter.get('/liabilities', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   try { ok(res, await getOpenLiabilities(req.user!.id)); } catch (e) { handle(res, e); }
 });

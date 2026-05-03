@@ -82,7 +82,7 @@ export default function PhotoLightbox({ keys, activeKey, onClose }: PhotoLightbo
       >
         <Image
           src={url}
-          alt=""
+          alt="Shared photo (full size)"
           width={1600}
           height={1200}
           className="max-h-[88vh] w-auto max-w-full select-none object-contain"

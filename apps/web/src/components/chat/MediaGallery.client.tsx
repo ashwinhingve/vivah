@@ -92,7 +92,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
                       className="relative block aspect-square overflow-hidden rounded-md bg-surface-muted transition-transform active:scale-95"
                       aria-label="Open photo"
                     >
-                      <Image src={url} alt="" fill sizes="33vw" className="object-cover" />
+                      <Image src={url} alt="" aria-hidden="true" fill sizes="33vw" className="object-cover" />
                     </button>
                   ) : (
                     <a
@@ -101,8 +101,9 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
                       target="_blank"
                       rel="noopener noreferrer"
                       className="relative block aspect-square overflow-hidden rounded-md bg-surface-muted"
+                      aria-label="Open shared photo in new tab"
                     >
-                      <Image src={url} alt="" fill sizes="33vw" className="object-cover" />
+                      <Image src={url} alt="" aria-hidden="true" fill sizes="33vw" className="object-cover" />
                     </a>
                   )
                 })}

@@ -73,8 +73,8 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
           <p className="text-sm text-muted-foreground">No documents yet.</p>
         </div>
       ) : (
-        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white border border-[#C5A47E]/20 rounded-xl shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-[#C5A47E]/10 bg-[#FEFAF6] text-left">
                 <th className="px-4 py-2 font-medium text-muted-foreground">Label</th>

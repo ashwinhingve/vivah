@@ -71,6 +71,13 @@
       "when": 1777747344492,
       "tag": "0009_overjoyed_flatman",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1777795541185,
+      "tag": "0010_friendly_shadowcat",
+      "breakpoints": true
     }
   ]
 }

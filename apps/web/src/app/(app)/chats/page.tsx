@@ -19,8 +19,8 @@ async function fetchConversations(token: string, filter: Filter): Promise<ConvIt
       cache: 'no-store',
     })
     if (!res.ok) return []
-    const j = (await res.json()) as { success: boolean; data: ConvItem[] }
-    return j.success ? j.data : []
+    const j = (await res.json()) as { success: boolean; data: { items: ConvItem[] } }
+    return j.success ? (j.data?.items ?? []) : []
   } catch {
     return []
   }

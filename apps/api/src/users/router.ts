@@ -74,13 +74,13 @@ usersRouter.get('/me/notifications', authenticate, async (req: Request, res: Res
   const where = unreadOnly
     ? and(eq(notifications.userId, req.user!.id), eq(notifications.read, false))
     : eq(notifications.userId, req.user!.id);
-  const rows = await db
+  const items = await db
     .select()
     .from(notifications)
     .where(where)
     .orderBy(desc(notifications.createdAt))
     .limit(limit);
-  ok(res, rows);
+  ok(res, { items });
 });
 
 /** POST /me/notifications/:id/read — mark single notification read */

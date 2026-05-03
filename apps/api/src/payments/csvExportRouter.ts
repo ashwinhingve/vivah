@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate, authorize } from '../auth/middleware.js';
+import { err } from '../lib/response.js';
 import {
   exportPaymentsCsv,
   exportRefundsCsv,
@@ -26,21 +27,21 @@ function send(res: Response, filename: string, csv: string): void {
 }
 
 csvExportRouter.get('/payments.csv', authenticate, authorize(['ADMIN']), async (req, res) => {
-  const r = parseRange(req); if (!r) { res.status(400).send('from and to query params required'); return; }
+  const r = parseRange(req); if (!r) { err(res, 'VALIDATION_ERROR', 'from and to query params required', 400); return; }
   send(res, `payments_${r.from.toISOString().slice(0,10)}_${r.to.toISOString().slice(0,10)}.csv`, await exportPaymentsCsv(r));
 });
 
 csvExportRouter.get('/refunds.csv', authenticate, authorize(['ADMIN']), async (req, res) => {
-  const r = parseRange(req); if (!r) { res.status(400).send('from and to query params required'); return; }
+  const r = parseRange(req); if (!r) { err(res, 'VALIDATION_ERROR', 'from and to query params required', 400); return; }
   send(res, `refunds_${r.from.toISOString().slice(0,10)}_${r.to.toISOString().slice(0,10)}.csv`, await exportRefundsCsv(r));
 });
 
 csvExportRouter.get('/payouts.csv', authenticate, authorize(['ADMIN']), async (req, res) => {
-  const r = parseRange(req); if (!r) { res.status(400).send('from and to query params required'); return; }
+  const r = parseRange(req); if (!r) { err(res, 'VALIDATION_ERROR', 'from and to query params required', 400); return; }
   send(res, `payouts_${r.from.toISOString().slice(0,10)}_${r.to.toISOString().slice(0,10)}.csv`, await exportPayoutsCsv(r));
 });
 
 csvExportRouter.get('/revenue.csv', authenticate, authorize(['ADMIN']), async (req, res) => {
-  const r = parseRange(req); if (!r) { res.status(400).send('from and to query params required'); return; }
+  const r = parseRange(req); if (!r) { err(res, 'VALIDATION_ERROR', 'from and to query params required', 400); return; }
   send(res, `revenue_${r.from.toISOString().slice(0,10)}_${r.to.toISOString().slice(0,10)}.csv`, await exportRevenueCsv(r));
 });

@@ -724,6 +724,7 @@ export const vendors = pgTable('vendors', {
   categoryIdx:   index('vendor_category_idx').on(t.category),
   ratingIdx:     index('vendor_rating_idx').on(t.rating),
   popularityIdx: index('vendor_popularity_idx').on(t.totalReviews),
+  verifiedIdx:   index('vendor_verified_active_idx').on(t.verified, t.isActive),
 }));
 
 export const vendorServices = pgTable('vendor_services', {
@@ -824,7 +825,10 @@ export const escrowAccounts = pgTable('escrow_accounts', {
   releaseDueAt:     timestamp('release_due_at'),     // 48h after event completion
   releasedAt:       timestamp('released_at'),
   createdAt:        timestamp('created_at').defaultNow().notNull(),
-});
+}, (t) => ({
+  statusIdx:     index('escrow_status_idx').on(t.status),
+  releaseDueIdx: index('escrow_release_due_idx').on(t.releaseDueAt, t.status),
+}));
 
 // ── Vendor Reviews ────────────────────────────────────────────────────────────
 
@@ -934,7 +938,10 @@ export const weddings = pgTable('weddings', {
   status:             weddingStatusEnum('status').default('PLANNING').notNull(),
   createdAt:          timestamp('created_at').defaultNow().notNull(),
   updatedAt:          timestamp('updated_at').defaultNow().notNull(),
-});
+}, (t) => ({
+  profileIdx: index('weddings_profile_idx').on(t.profileId),
+  statusIdx:  index('weddings_status_idx').on(t.status),
+}));
 
 export const weddingMembers = pgTable('wedding_members', {
   id:           uuid('id').primaryKey().defaultRandom(),
@@ -945,6 +952,7 @@ export const weddingMembers = pgTable('wedding_members', {
   acceptedAt:   timestamp('accepted_at'),
 }, (t) => ({
   uniqueMember: uniqueIndex('unique_wedding_member').on(t.weddingId, t.userId),
+  userIdx:      index('wedding_member_user_idx').on(t.userId),
 }));
 
 export const weddingTasks = pgTable('wedding_tasks', {

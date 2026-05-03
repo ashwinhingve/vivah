@@ -153,12 +153,12 @@ type UserRole =
 
 ```
 PostgreSQL (via Drizzle ORM):
-  users, sessions, otp_verifications
+  user, session, verification          (Better Auth — singular names)
   profiles (metadata), profile_photos
   match_requests, match_scores, blocked_users
-  vendors, vendor_services, vendor_availability
-  bookings, booking_items
-  weddings, wedding_tasks, wedding_vendors
+  vendors, vendor_services, vendor_blocked_dates
+  bookings, booking_addons
+  weddings, wedding_tasks, wedding_vendor_assignments
   payments, escrow_accounts, payment_splits
   guests, invitations, guest_lists
   rental_items, rental_bookings
