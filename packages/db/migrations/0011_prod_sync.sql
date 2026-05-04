@@ -1,1 +1,0 @@
-ALTER TABLE "profile_sections" ADD COLUMN "personality" boolean DEFAULT false NOT NULL;
