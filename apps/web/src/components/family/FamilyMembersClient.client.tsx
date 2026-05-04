@@ -70,8 +70,7 @@ export function FamilyMembersClient({ initial }: Props) {
         <h3 className="font-medium text-sm text-primary">Family members</h3>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 text-xs px-3 min-h-[36px] rounded-lg text-white"
-          style={{ backgroundColor: 'var(--color-teal)' }}
+          className="flex items-center gap-1.5 text-xs px-3 min-h-[36px] rounded-lg text-white bg-teal"
         >
           <Plus className="h-3.5 w-3.5" /> Add
         </button>
@@ -109,7 +108,7 @@ export function FamilyMembersClient({ initial }: Props) {
           </label>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="min-h-[40px] px-3 rounded-lg border border-gold/40 text-xs text-muted-foreground">Cancel</button>
-            <button type="submit" disabled={adding} className="min-h-[40px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
+            <button type="submit" disabled={adding} className="min-h-[40px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5 bg-teal">
               {adding && <Loader2 className="h-3 w-3 animate-spin" />} Add member
             </button>
           </div>
@@ -119,7 +118,7 @@ export function FamilyMembersClient({ initial }: Props) {
       {members.length === 0 ? (
         <p className="text-sm text-muted-foreground py-4 text-center">No family members added.</p>
       ) : (
-        <ul className="divide-y divide-[#C5A47E]/10">
+        <ul className="divide-y divide-gold/10">
           {members.map((m) => (
             <li key={m.id} className="py-2.5 flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">

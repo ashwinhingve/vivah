@@ -37,7 +37,7 @@ export default async function PublicWebsitePage({ params, searchParams }: PagePr
   const muted  = view.theme?.accent ?? 'var(--color-gold)';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[320px] flex items-center justify-center overflow-hidden">
         {view.heroImageUrl ? (

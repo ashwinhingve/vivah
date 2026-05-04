@@ -13,7 +13,7 @@ export default async function MembersPage({ params }: PageProps) {
   const invites = i?.invites ?? [];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
         <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back
@@ -27,7 +27,7 @@ export default async function MembersPage({ params }: PageProps) {
             <Users className="h-4 w-4 text-gold" />
             <h2 className="font-semibold text-primary">Active members ({members.length})</h2>
           </div>
-          <ul className="divide-y divide-[#C5A47E]/10">
+          <ul className="divide-y divide-gold/10">
             {members.length === 0 && (
               <li className="px-5 py-6 text-center text-sm text-muted-foreground">No collaborators yet.</li>
             )}
@@ -64,7 +64,7 @@ export default async function MembersPage({ params }: PageProps) {
               <Mail className="h-4 w-4 text-gold" />
               <h2 className="font-semibold text-primary">Pending invites ({invites.filter(i => !i.acceptedAt).length})</h2>
             </div>
-            <ul className="divide-y divide-[#C5A47E]/10">
+            <ul className="divide-y divide-gold/10">
               {invites.filter(i => !i.acceptedAt).map(i => (
                 <li key={i.id} className="px-5 py-3 text-sm flex items-center justify-between">
                   <div>

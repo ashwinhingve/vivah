@@ -68,8 +68,7 @@ export function RsvpDeadlineCard({ weddingId, initial }: Props) {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5"
-          style={{ backgroundColor: 'var(--color-teal)' }}
+          className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5 bg-teal"
         >
           {isSaving && <Loader2 className="h-4 w-4 animate-spin" />} Save deadline
         </button>

@@ -114,7 +114,7 @@ export default async function BookingDetailPage({
             <p className="text-xs text-muted-foreground mt-0.5">Booking ID: {booking.id}</p>
           </div>
 
-          <dl className="divide-y divide-gray-100">
+          <dl className="divide-y divide-border">
             <div className="flex items-center justify-between py-3">
               <dt className="text-sm text-muted-foreground">Event Date</dt>
               <dd className="text-sm font-medium text-foreground">
@@ -172,7 +172,7 @@ export default async function BookingDetailPage({
         {booking.addons && booking.addons.length > 0 && (
           <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
             <h2 className="text-base font-semibold text-primary mb-3">Add-ons</h2>
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-border">
               {booking.addons.map((a) => (
                 <li key={a.id} className="flex items-center justify-between py-2 text-sm">
                   <span className="text-foreground">

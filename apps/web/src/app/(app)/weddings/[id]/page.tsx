@@ -100,7 +100,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Back + Header */}
         <div className="mb-2">

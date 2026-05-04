@@ -207,7 +207,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
 
         <div className="flex justify-end gap-2 mt-5">
           <button type="button" onClick={onCancel} className="min-h-[44px] px-4 rounded-lg border border-gold/40 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
-          <button type="submit" disabled={isSaving} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
+          <button type="submit" disabled={isSaving} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5 bg-teal">
             {isSaving && <Loader2 className="h-4 w-4 animate-spin" />} Save
           </button>
         </div>

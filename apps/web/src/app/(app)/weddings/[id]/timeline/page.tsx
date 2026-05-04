@@ -33,7 +33,7 @@ export default async function TimelinePage({ params }: PageProps) {
   const dates = [...byDate.keys()].sort();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back
@@ -71,7 +71,7 @@ export default async function TimelinePage({ params }: PageProps) {
                 <div className="px-5 py-3 border-b border-gold/10 bg-background">
                   <p className="font-semibold text-primary">{fmtDate(d)}</p>
                 </div>
-                <ol className="divide-y divide-[#C5A47E]/10">
+                <ol className="divide-y divide-gold/10">
                   {byDate.get(d)!.map(e => (
                     <li key={e.id} className="px-5 py-3 flex items-center gap-3">
                       <div className="text-right shrink-0 w-20">

@@ -210,8 +210,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         />
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors shrink-0"
-          style={{ backgroundColor: 'var(--color-teal)' }}
+          className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors shrink-0 bg-teal"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add Guest
@@ -263,7 +262,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           </div>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="min-h-[44px] px-4 rounded-lg border border-gold/40 text-sm text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
-            <button type="submit" disabled={isAdding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
+            <button type="submit" disabled={isAdding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5 bg-teal">
               {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Guest'}
             </button>
           </div>

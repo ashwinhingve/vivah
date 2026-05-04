@@ -1,6 +1,6 @@
 export default function WeddingLoading() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24 animate-pulse">
         {/* Back link skeleton */}
         <div className="h-4 w-28 rounded bg-secondary mb-6" />

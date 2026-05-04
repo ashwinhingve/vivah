@@ -18,7 +18,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
   const accentColor = wedding.primaryColor ?? 'var(--color-primary)';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-xl mx-auto px-4 py-12">
         {/* Hero */}
         <div className="text-center mb-8">
@@ -36,7 +36,7 @@ export default async function PublicRsvpPage({ params }: PageProps) {
         {ceremonies.length > 0 && (
           <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
             <h2 className="font-semibold mb-3" style={{ color: accentColor }}>Schedule</h2>
-            <ul className="divide-y divide-[#C5A47E]/10">
+            <ul className="divide-y divide-gold/10">
               {ceremonies.map((c, idx) => (
                 <li key={idx} className="py-2 flex items-center justify-between text-sm">
                   <div>

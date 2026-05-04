@@ -61,7 +61,7 @@ export default function PersonalityPage(): JSX.Element {
             onChange={(e) =>
               setVals((v) => ({ ...v, [axis.key]: Number(e.target.value) }))
             }
-            className="w-full accent-[#1848C8]"
+            className="w-full accent-primary"
           />
           <div className="flex justify-between text-[11px] text-muted-foreground">
             <span>{axis.left}</span>

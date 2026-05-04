@@ -15,7 +15,7 @@ export default async function FamilyPage() {
   const view = await fetchAuth<FamilyView>('/api/v1/profiles/me/family');
   if (!view) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Could not load family information.</p>
       </div>
     );
@@ -25,7 +25,7 @@ export default async function FamilyPage() {
   const score = inclinationScore ?? 0;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Dashboard

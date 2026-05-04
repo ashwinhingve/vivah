@@ -31,7 +31,7 @@ export function RentalCard({ item }: Props) {
   const isLimited     = item.stockQty <= 3;
 
   return (
-    <div className="rounded-xl shadow-sm bg-background p-4 flex flex-col gap-3">
+    <div className="rounded-xl border border-gold/20 bg-surface p-4 flex flex-col gap-3 shadow-card hover:shadow-[var(--shadow-card-hover)] transition-shadow">
       {/* Thumbnail placeholder (Phase 2: wire r2ImageKeys[0]) */}
       <div className="w-full aspect-[4/3] rounded-lg bg-gold/20 flex items-center justify-center overflow-hidden">
         {item.imageKeys[0] ? (

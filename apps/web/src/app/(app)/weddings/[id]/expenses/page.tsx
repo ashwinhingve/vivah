@@ -37,7 +37,7 @@ export default async function ExpensesPage({ params }: PageProps) {
   const overBudget = summary?.overBudget ?? false;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
         <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 transition-colors min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back to Wedding
@@ -100,7 +100,7 @@ export default async function ExpensesPage({ params }: PageProps) {
             <h2 className="font-semibold text-warning mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" /> Upcoming payments
             </h2>
-            <ul className="divide-y divide-[#C5A47E]/10">
+            <ul className="divide-y divide-gold/10">
               {summary!.upcomingDue.map(d => (
                 <li key={d.expenseId} className="py-2 flex items-center justify-between text-sm">
                   <div>

@@ -14,7 +14,7 @@ export default async function WeddingsPage() {
   const { weddings, error } = await fetchWeddings();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -26,8 +26,7 @@ export default async function WeddingsPage() {
           </div>
           <Link
             href="/weddings/new"
-            className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors"
-            style={{ backgroundColor: 'var(--color-teal)' }}
+            className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors bg-teal"
           >
             <PlusCircle className="h-4 w-4" aria-hidden="true" />
             New Wedding
@@ -53,8 +52,7 @@ export default async function WeddingsPage() {
             </p>
             <Link
               href="/weddings/new"
-              className="inline-flex items-center gap-2 min-h-[44px] px-6 py-2.5 rounded-lg text-white text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'var(--color-teal)' }}
+              className="inline-flex items-center gap-2 min-h-[44px] px-6 py-2.5 rounded-lg text-white text-sm font-medium transition-colors bg-teal"
             >
               <PlusCircle className="h-4 w-4" aria-hidden="true" />
               Plan Your Wedding

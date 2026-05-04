@@ -103,7 +103,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
           Required
         </label>
         <div className="mt-4 flex justify-end">
-          <button type="submit" disabled={adding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-teal)' }}>
+          <button type="submit" disabled={adding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5 bg-teal">
             {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add question
           </button>
         </div>

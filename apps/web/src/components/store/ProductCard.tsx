@@ -14,7 +14,7 @@ export function ProductCard({ product }: ProductCardProps) {
       : { text: 'In Stock', cls: 'text-success bg-success/10' };
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-card overflow-hidden flex flex-col">
       {/* Image */}
       <div className="relative aspect-square bg-background">
         {product.imageKey ? (

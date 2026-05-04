@@ -26,7 +26,7 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
   const photoUrl = resolvePhotoUrl(primaryPhoto?.r2Key);
 
   return (
-    <div className="bg-surface rounded-xl border border-border shadow-sm p-4 flex flex-col gap-3">
+    <div className="bg-surface rounded-xl border border-border shadow-card p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 bg-primary/10">
           {photoUrl ? (
