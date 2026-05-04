@@ -21,10 +21,14 @@
 ```
 Phase:     2 → COMPLETE ✅ + Multi-Event/Polish world-class upgrade landed
 Week:      10 → IN PROGRESS
-Focus:     Phase 3 — AI Intelligence Layer (next)
-Status:    Multi-Event coordinator suite + Polish baseline shipped (2026-05-01)
+Focus:     Phase 3 — AI Intelligence Layer (kickoff after this hardening pass)
+Status:    P0 security hardening sweep complete — all 10 review-doc P0s resolved (2026-05-04)
 Mocks:     USE_MOCK_SERVICES=true (swap after company registration)
-Last session: 2026-04-22 — Week 9 e-commerce store + Phase 2 QA audit complete
+Last session: 2026-05-04 — P0 hardening: closed SSRF DNS-rebinding gap (chat/linkPreview)
+  + booking double-book race (unique partial index `booking_active_unique_idx`,
+  23505 → BOOKING_CONFLICT). Verified other 8 P0s already fixed in Milestone A
+  (993b3bb) + May-3 webhook idempotency landing. All 511 tests green; type-check
+  8/8; lint clean. See docs/phase1-2-code-review.md for per-item resolution map.
   - Phase 0 single agent: ceremony types + muhurat schemas + deterministic escrow jobId (c493cd3)
   - Phase 1 agent team (3 teammates parallel):
       video-hardening (9673d3a): deterministic Redis room storage + 409 on duplicate + GET /rooms/:matchId + SCAN cursor loop + respondMeeting status/matchId guards + TTL from scheduledAt + VideoCall proposer profileId fix

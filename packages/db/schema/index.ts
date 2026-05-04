@@ -12,7 +12,7 @@ import {
   uniqueIndex, index,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { user } from './auth';
 
 // ── ENUMS ────────────────────────────────────────────────────────────────────
@@ -783,6 +783,13 @@ export const bookings = pgTable('bookings', {
   statusIdx:    index('booking_status_idx').on(t.status),
   weddingIdx:   index('booking_wedding_idx').on(t.weddingId),
   ceremonyIdx:  index('booking_ceremony_idx').on(t.ceremonyId),
+  // Defence-in-depth against booking double-book race: at most one active
+  // (PENDING / CONFIRMED) booking per vendor per date. Application-layer
+  // conflict check still runs first for clean errors; this catches the
+  // window between concurrent reads at READ COMMITTED isolation.
+  uniqueActiveBooking: uniqueIndex('booking_active_unique_idx')
+    .on(t.vendorId, t.eventDate)
+    .where(sql`status IN ('PENDING', 'CONFIRMED')`),
 }));
 
 // ── Booking add-ons / line items ──────────────────────────────────────────────

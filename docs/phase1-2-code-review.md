@@ -17,18 +17,20 @@
 | P3 (hygiene) | 20 |
 | **Total** | **~137** |
 
-### Top 10 must-fix before Phase 3
+### Top 10 must-fix before Phase 3 — ✅ ALL RESOLVED (2026-05-04)
 
-1. **Paise/rupees unit confusion** — 4 distinct call sites in payments + bookings + dispute paths credit/refund 100× wrong amount. (Payments P0-1..4)
-2. **Webhook raw-body fallback re-serialises with `JSON.stringify`** — silently fabricates HMAC for any payload that ever bypasses `express.raw()`. (Payments P0-6)
-3. **TOTP secret leaked to third-party QR generator** (`api.qrserver.com`) — every 2FA enrollment exposes the secret to a logged external service. (Frontend P0-1)
-4. **Session revocation accepts arbitrary token without ownership check** — any authenticated user can revoke any other user's sessions. (Auth P0-1)
-5. **Booking double-book guard is outside its insert transaction** — concurrent requests can both pass conflict check and both succeed. (Payments P0-5)
-6. **Order created but Razorpay `createOrder` failure leaves stock permanently reserved** — no rollback path; expiry job never enqueued. (Store P0-4)
-7. **`sendInvitations` returns RSVP tokens in API response** — any wedding EDITOR can impersonate every guest. (Wedding P0-2)
-8. **Socket `presence_update` broadcasts `profileId` to ALL connected sockets globally** — any logged-in user can harvest live presence of every active user. (Chat P0-1, P0-2)
-9. **`fetchLinkPreview` is unrestricted SSRF** — any auth'd user can fetch `http://169.254.169.254/...` etc. (Chat P1-3, treat as P0)
-10. **Mock-mode OTP returned in plaintext in API body** — if `USE_MOCK_SERVICES=true` ever ships to staging/prod, OTPs leak in response bodies. (Auth P0-2)
+> Status verified by direct re-inspection of working tree on 2026-05-04. Resolutions span Milestone A (`993b3bb`), the webhook idempotency landing on May 3, and the Phase-3 pre-flight hardening pass committed today.
+
+1. ✅ **FIXED** — **Paise/rupees unit confusion.** All 4 sites wrap with `rupeesToPaise()`. Webhook caller at `webhook.ts:153` converts paise→rupees before `creditWalletForTopup`. Verified: `wallet.ts:208`, `payments/service.ts:218`, `dispute.ts:365,420`, `bookings/service.ts:532`. *Resolved during Milestone A.*
+2. ✅ **FIXED** — **Webhook raw-body fallback.** `webhook.ts:62-78` hard-fails 500 when `req.body` is not Buffer/string. `express.raw({type:'*/*'})` mounted at `index.ts:134,148` BEFORE global `express.json()` at `index.ts:162`. *Resolved during May-3 webhook idempotency commit.*
+3. ✅ **FIXED** — **TOTP secret leak.** `TwoFactorManager.client.tsx` now uses local `qrcode` package; `QrCode` component renders to base64 data URL in-browser via `QRCode.toDataURL`. No third-party calls. *Resolved during Milestone A.*
+4. ✅ **FIXED** — **Session revocation ownership.** `securityRouter.ts:78-115` reads target session from DB, verifies `target.userId === req.user.id`, returns 403 on mismatch / 404 on not-found before invoking `auth.api.revokeSession`. *Resolved during Milestone A.*
+5. ✅ **FIXED** — **Booking double-book.** Conflict check + insert run inside `db.transaction` (`bookings/service.ts:138-216`). Defence-in-depth added today: unique partial index `booking_active_unique_idx ON (vendor_id, event_date) WHERE status IN ('PENDING','CONFIRMED')` (`packages/db/schema/index.ts:786-792`, migration `0011_easy_ultimo.sql`). Postgres `23505` translated to `BOOKING_CONFLICT` in `createBooking` and `acceptReschedule`. *Resolved in this commit.*
+6. ✅ **FIXED** — **Order rollback on Razorpay failure.** `store/order.service.ts:216-265` wraps Razorpay `createOrder` in try/catch + `rollbackPlacedOrder`. Expiry job scheduled via `orderExpiryQueue` (jobId `order-expiry-${id}`, 30-min delay); queue-add failure also triggers rollback. *Resolved during the May-2 stabilisation commit `91af951`.*
+7. ✅ **FIXED** — **RSVP token leak.** `SendInvitationsResult.details` only ever stores `{guestId, delivered}` or `{guestId, error}` — token used internally for DB write + delivery body, never returned. Verified: zero `.token` references at `sendInvitations` callsites in `apps/web`. *Resolved during Milestone A.*
+8. ✅ **FIXED** — **Socket presence broadcast scoping.** `chat/socket/handlers.ts` no longer emits `presence_update` globally on connect/disconnect. `emitPresenceToActiveRooms` fans out only to joined `matchRequestId` rooms (skips `socket.id` and `user:*`). `typing` event emits `profileId` only — `userId` never leaves server boundary. *Resolved during Milestone A.*
+9. ✅ **FIXED** — **`fetchLinkPreview` SSRF.** Hostname-regex blocklist still rejects literal IPs. New `resolveAndValidateHost` (`chat/linkPreview.ts:55-87`) DNS-resolves hostname and rejects if any address is non-`unicast` per `ipaddr.js`. Closes the DNS-rebinding gap. Fail-closed on DNS error. 9 new test cases. *Resolved in this commit.*
+10. ✅ **FIXED** — **Mock-mode OTP plaintext.** `securityRouter.ts:286` no longer returns `mockCode` in response body — logged to console only. *Resolved during Milestone A.*
 
 ---
 

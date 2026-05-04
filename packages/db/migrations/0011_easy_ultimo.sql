@@ -1,0 +1,2 @@
+ALTER TABLE "profile_sections" ADD COLUMN "personality" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "booking_active_unique_idx" ON "bookings" USING btree ("vendor_id","event_date") WHERE status IN ('PENDING', 'CONFIRMED');

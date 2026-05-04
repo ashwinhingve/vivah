@@ -78,6 +78,13 @@
       "when": 1777795541185,
       "tag": "0010_friendly_shadowcat",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1777920478076,
+      "tag": "0011_easy_ultimo",
+      "breakpoints": true
     }
   ]
 }

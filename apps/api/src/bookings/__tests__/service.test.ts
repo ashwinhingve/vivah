@@ -187,6 +187,53 @@ describe('bookings/service', () => {
       expect(result.status).toBe('PENDING');
       expect(result.totalAmount).toBe(50000);
     });
+
+    it('translates Postgres 23505 unique-violation to BOOKING_CONFLICT (race-loser path)', async () => {
+      // Application-level conflict check passes (no rows), but the partial
+      // unique index `booking_active_unique_idx` trips on insert because a
+      // concurrent transaction wrote first. The driver throws { code: '23505' }
+      // and the service must translate it.
+      mockSelect.mockImplementation(() => makeQueryChain([])); // no app-level conflict
+
+      const uniqueViolation = Object.assign(new Error('duplicate key value violates unique constraint "booking_active_unique_idx"'), { code: '23505' });
+      mockInsert.mockImplementation(() => ({
+        values:    vi.fn().mockReturnThis(),
+        returning: vi.fn().mockRejectedValue(uniqueViolation),
+      }));
+
+      const { createBooking } = await import('../service.js');
+
+      await expect(
+        createBooking(CUSTOMER_ID, {
+          vendorId:    VENDOR_ID,
+          eventDate:   EVENT_DATE,
+          totalAmount: 50000,
+        }),
+      ).rejects.toMatchObject({
+        code:    'BOOKING_CONFLICT',
+        message: expect.stringContaining('already booked'),
+      });
+    });
+
+    it('rethrows non-23505 errors without translation', async () => {
+      mockSelect.mockImplementation(() => makeQueryChain([]));
+
+      const otherError = Object.assign(new Error('connection terminated'), { code: '57P01' });
+      mockInsert.mockImplementation(() => ({
+        values:    vi.fn().mockReturnThis(),
+        returning: vi.fn().mockRejectedValue(otherError),
+      }));
+
+      const { createBooking } = await import('../service.js');
+
+      await expect(
+        createBooking(CUSTOMER_ID, {
+          vendorId:    VENDOR_ID,
+          eventDate:   EVENT_DATE,
+          totalAmount: 50000,
+        }),
+      ).rejects.toMatchObject({ code: '57P01' });
+    });
   });
 
   // ── confirmBooking: wrong vendor ───────────────────────────────────────────

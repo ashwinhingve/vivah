@@ -36,6 +36,19 @@ export class BookingError extends Error {
   }
 }
 
+// Postgres unique-violation. Translated to BOOKING_CONFLICT when the
+// `booking_active_unique_idx` partial index trips — closes the
+// READ-COMMITTED race where two concurrent createBooking transactions
+// both pass the application-level conflict check.
+function isUniqueViolation(e: unknown): boolean {
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    'code' in e &&
+    (e as { code?: unknown }).code === '23505'
+  );
+}
+
 // notificationsQueue + escrowReleaseQueue are shared singletons exported from
 // infrastructure/redis/queues.ts — never re-instantiate per-module.
 
@@ -120,9 +133,14 @@ export async function createBooking(
   input: CreateBookingInput,
 ): Promise<BookingSummary> {
   // Conflict + blocked-date check + insert all run inside the same
-  // transaction so concurrent calls race on the row read; one wins, the
-  // other sees the freshly-inserted PENDING row and aborts.
-  const inserted = await db.transaction(async (tx) => {
+  // transaction. The application-level conflict check gives a clean error
+  // for the common case; the `booking_active_unique_idx` partial index
+  // closes the residual READ-COMMITTED race where two concurrent
+  // transactions both read zero conflicts before either inserts. The
+  // 23505 thrown by the loser is translated to BOOKING_CONFLICT below.
+  let inserted;
+  try {
+    inserted = await db.transaction(async (tx) => {
     const conflicts = await tx
       .select({ id: bookings.id })
       .from(bookings)
@@ -191,6 +209,15 @@ export async function createBooking(
 
     return b;
   });
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      throw new BookingError(
+        'BOOKING_CONFLICT',
+        'This vendor is already booked for that date.',
+      );
+    }
+    throw e;
+  }
 
   // Notify vendor
   const [vendor] = await db
@@ -312,18 +339,32 @@ export async function acceptReschedule(
     throw new BookingError('FORBIDDEN', 'Counterparty must accept the reschedule.');
   }
 
-  const [updated] = await db
-    .update(bookings)
-    .set({
-      eventDate:      booking.proposedDate,
-      proposedDate:   null,
-      proposedBy:     null,
-      proposedReason: null,
-      proposedAt:     null,
-      updatedAt:      new Date(),
-    })
-    .where(eq(bookings.id, bookingId))
-    .returning();
+  // The eventDate change can trip the partial unique index if a new
+  // booking grabbed the proposed slot between propose-time conflict-check
+  // and accept-time. Translate 23505 → BOOKING_CONFLICT.
+  let updated;
+  try {
+    [updated] = await db
+      .update(bookings)
+      .set({
+        eventDate:      booking.proposedDate,
+        proposedDate:   null,
+        proposedBy:     null,
+        proposedReason: null,
+        proposedAt:     null,
+        updatedAt:      new Date(),
+      })
+      .where(eq(bookings.id, bookingId))
+      .returning();
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      throw new BookingError(
+        'BOOKING_CONFLICT',
+        'Vendor became unavailable on the proposed date before you accepted.',
+      );
+    }
+    throw e;
+  }
   if (!updated) throw new BookingError('UPDATE_FAILED', 'Failed to accept reschedule.');
 
   return toBookingSummary(updated);

@@ -9,6 +9,7 @@ import type { RequestHandler } from 'express';
 import { logger, type RequestLogger } from './logger.js';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- Express type augmentation requires namespace
   namespace Express {
     interface Request {
       id: string;

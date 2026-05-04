@@ -1,8 +1,12 @@
+import { lookup } from 'node:dns/promises'
+import ipaddr from 'ipaddr.js'
+import { isIP } from 'node:net'
 import type { LinkPreview } from '@smartshaadi/types'
 import { redis } from '../lib/redis.js'
 
 const URL_REGEX = /https?:\/\/[^\s<>"']+/i
 const CACHE_TTL_SEC = 60 * 60 * 24 // 24h
+const DNS_LOOKUP_TIMEOUT_MS = 2000
 
 // Block private / link-local / loopback ranges to prevent SSRF into cloud
 // metadata services (169.254.169.254), kubelets, internal RDS, etc.
@@ -24,6 +28,51 @@ const BLOCKED_HOST_PATTERNS: RegExp[] = [
 export function isSafeFetchHost(hostname: string): boolean {
   if (!hostname) return false
   return !BLOCKED_HOST_PATTERNS.some((p) => p.test(hostname))
+}
+
+/**
+ * True only when ipaddr.js classifies the address as public unicast.
+ * Rejects private, loopback, linkLocal, multicast, broadcast, reserved,
+ * unspecified, carrierGradeNat (v4) and uniqueLocal, ipv4Mapped, teredo,
+ * 6to4, rfc6052/6145 (v6).
+ */
+function isPublicUnicastIp(ip: string): boolean {
+  try {
+    const parsed = ipaddr.parse(ip)
+    return parsed.range() === 'unicast'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Resolve hostname → IPs and verify every result is public unicast. Closes
+ * the DNS-rebinding hole left by hostname-only regex blocklist: an attacker
+ * domain that resolves to 169.254.169.254 (or any RFC-1918) is rejected
+ * here even though the hostname itself looks innocent.
+ *
+ * Fail-closed: any DNS error or empty result returns false.
+ */
+export async function resolveAndValidateHost(hostname: string): Promise<boolean> {
+  // Fast-path: hostname is already a literal IP — no DNS round-trip needed.
+  // (`isSafeFetchHost` regex already catches common literals; this is
+  // defence-in-depth covering exotic forms like `0177.0.0.1`.)
+  if (isIP(hostname)) return isPublicUnicastIp(hostname)
+
+  let addrs: { address: string; family: number }[]
+  try {
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), DNS_LOOKUP_TIMEOUT_MS)
+    try {
+      addrs = await lookup(hostname, { all: true })
+    } finally {
+      clearTimeout(timer)
+    }
+  } catch {
+    return false
+  }
+  if (addrs.length === 0) return false
+  return addrs.every((a) => isPublicUnicastIp(a.address))
 }
 
 export function extractFirstUrl(text: string): string | null {
@@ -59,6 +108,9 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview | nu
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
   if (!isSafeFetchHost(url.hostname)) return null
+  // DNS-rebinding guard — hostname might be public-looking but resolve to
+  // an internal IP. Always do the lookup before fetch.
+  if (!(await resolveAndValidateHost(url.hostname))) return null
 
   const cacheKey = `linkPreview:${url.toString()}`
   try {
