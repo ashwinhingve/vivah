@@ -8,10 +8,12 @@ import { randomBytes } from 'crypto';
 import type { RequestHandler } from 'express';
 import { logger, type RequestLogger } from './logger.js';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    id: string;
-    log: RequestLogger;
+declare global {
+  namespace Express {
+    interface Request {
+      id: string;
+      log: RequestLogger;
+    }
   }
 }
 

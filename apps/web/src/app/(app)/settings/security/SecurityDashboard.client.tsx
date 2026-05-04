@@ -517,12 +517,12 @@ function ActivityCard({ events }: { events: EventRow[] }) {
 // ── Danger zone ─────────────────────────────────────────────────────────────
 
 function DangerZoneCard({ deletionRequestedAt }: { deletionRequestedAt: string | null }) {
-  if (deletionRequestedAt) return null;
   const [confirmText, setConfirmText] = useState('');
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  if (deletionRequestedAt) return null;
 
   const submit = async () => {
     if (confirmText.trim().toLowerCase() !== 'delete my account') {
