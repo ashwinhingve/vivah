@@ -670,6 +670,7 @@ export interface EnrichedRequest {
   createdAt:         string;
   // Counterparty:
   profileId:         string;
+  userId:            string | null;
   name:              string | null;
   age:               number | null;
   city:              string | null;
@@ -759,6 +760,7 @@ export async function getEnrichedRequests(
       expiresAt:         r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
       createdAt:         new Date(r.createdAt).toISOString(),
       profileId:         counterId,
+      userId:            p?.userId ?? null,
       name:              c?.personal?.fullName ?? null,
       age:               age && age > 0 ? age : null,
       city:              c?.location?.city ?? null,

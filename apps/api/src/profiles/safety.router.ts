@@ -77,21 +77,23 @@ safetyRouter.post(
 );
 
 /**
- * POST /api/v1/profiles/:targetUserId/safety-unlock
- * Request to unlock contact details for a matched profile.
- * Requires an ACCEPTED match between the two profiles.
+ * POST /api/v1/profiles/:otherUserId/safety-unlock
+ * Caller (me) unlocks their OWN contact details so :otherUserId can see them.
+ * Requires an ACCEPTED match between the two profiles. Both sides must call
+ * this endpoint independently before either can read the other's contact via
+ * GET /:otherUserId/contact (mutual-unlock policy, CLAUDE.md rule 5).
  */
 safetyRouter.post(
-  '/:targetUserId/safety-unlock',
+  '/:otherUserId/safety-unlock',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetUserId = req.params['targetUserId'];
-    if (!targetUserId) {
-      err(res, 'INVALID_PARAMS', 'targetUserId is required', 400);
+    const otherUserId = req.params['otherUserId'];
+    if (!otherUserId) {
+      err(res, 'INVALID_PARAMS', 'otherUserId is required', 400);
       return;
     }
 
-    const result = await requestContactUnlock(req.user!.id, targetUserId);
+    const result = await requestContactUnlock(req.user!.id, otherUserId);
 
     if (!result.success) {
       err(res, 'SAFETY_UNLOCK_FAILED', result.reason ?? 'Cannot unlock contact', 400);

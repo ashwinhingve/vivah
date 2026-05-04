@@ -77,37 +77,42 @@ export interface ContactResponse {
 }
 
 /**
- * Request to unlock contact details for a matched profile.
- * Both parties must have an ACCEPTED match request between their profiles.
- * Idempotent — calling twice for the same pair is safe.
+ * Caller (me) unlocks their OWN contact details so the other party can see them.
+ *
+ * Semantics: each side must call this independently — only the data owner can
+ * consent to expose their own phone/email (CLAUDE.md rule 5). `getContactIfVisible`
+ * then requires both sides to have unlocked before returning the values.
+ *
+ * Both parties must have an ACCEPTED match between their profiles. Idempotent
+ * on the unique `(profileId, unlockedFor)` pair index.
  */
-export async function requestContactUnlock(
-  requesterId: string,
-  targetUserId: string,
+export async function unlockMyContactFor(
+  callerUserId: string,
+  otherUserId: string,
 ): Promise<{ success: boolean; reason?: string }> {
-  if (requesterId === targetUserId) {
+  if (callerUserId === otherUserId) {
     return { success: false, reason: 'Cannot unlock contact for yourself' };
   }
 
   // Resolve profileIds for both users
-  const [requesterProfile] = await db
+  const [callerProfile] = await db
     .select({ id: profiles.id })
     .from(profiles)
-    .where(eq(profiles.userId, requesterId))
+    .where(eq(profiles.userId, callerUserId))
     .limit(1);
 
-  const [targetProfile] = await db
+  const [otherProfile] = await db
     .select({ id: profiles.id })
     .from(profiles)
-    .where(eq(profiles.userId, targetUserId))
+    .where(eq(profiles.userId, otherUserId))
     .limit(1);
 
-  if (!requesterProfile || !targetProfile) {
+  if (!callerProfile || !otherProfile) {
     return { success: false, reason: 'Profile not found' };
   }
 
-  const requesterId_profile = requesterProfile.id;
-  const targetId_profile    = targetProfile.id;
+  const callerId_profile = callerProfile.id;
+  const otherId_profile  = otherProfile.id;
 
   // Verify an ACCEPTED match exists between these two profiles (either direction)
   const [matchRow] = await db
@@ -118,12 +123,12 @@ export async function requestContactUnlock(
         eq(matchRequests.status, 'ACCEPTED'),
         or(
           and(
-            eq(matchRequests.senderId,   requesterId_profile),
-            eq(matchRequests.receiverId, targetId_profile),
+            eq(matchRequests.senderId,   callerId_profile),
+            eq(matchRequests.receiverId, otherId_profile),
           ),
           and(
-            eq(matchRequests.senderId,   targetId_profile),
-            eq(matchRequests.receiverId, requesterId_profile),
+            eq(matchRequests.senderId,   otherId_profile),
+            eq(matchRequests.receiverId, callerId_profile),
           ),
         ),
       ),
@@ -134,21 +139,30 @@ export async function requestContactUnlock(
     return { success: false, reason: 'No accepted match exists between these profiles' };
   }
 
-  // Insert unlock record (ignore conflict — already unlocked is fine)
+  // Insert "caller's contact is unlocked, viewable by other".
+  // Idempotent on the unique (profileId, unlockedFor) pair index.
   await db
     .insert(safetyModeUnlocks)
-    .values({ profileId: targetId_profile, unlockedFor: requesterId_profile })
+    .values({ profileId: callerId_profile, unlockedFor: otherId_profile })
     .onConflictDoNothing();
 
   return { success: true };
 }
 
+/** @deprecated Use {@link unlockMyContactFor}. Kept for legacy callers. */
+export const requestContactUnlock = unlockMyContactFor;
+
 /**
  * Returns contact details if the viewer is allowed to see them.
+ *
  * Visibility rules (in order):
  *   1. Viewer is the profile owner → always visible
  *   2. Target profile has safetyMode.contactHidden === false → visible
- *   3. A safetyModeUnlock record exists for (target, viewer) → visible
+ *      (target has chosen to publish their contact to anyone with an accepted match)
+ *   3. **Mutual unlock** — both sides have explicitly unlocked their own contact:
+ *      a. (profileId=target, unlockedFor=viewer) — target has revealed self to viewer
+ *      b. (profileId=viewer, unlockedFor=target) — viewer has revealed self to target
+ *      Both must be present before contact reveals.
  *   4. Otherwise → null (hidden)
  */
 export async function getContactIfVisible(
@@ -202,18 +216,25 @@ export async function getContactIfVisible(
 
   if (!viewerProfile) return null;
 
-  const [unlockRow] = await db
-    .select({ id: safetyModeUnlocks.id })
-    .from(safetyModeUnlocks)
-    .where(
-      and(
+  // Both directions required — caller cannot expose target unilaterally.
+  const [targetUnlockedForViewer, viewerUnlockedForTarget] = await Promise.all([
+    db.select({ id: safetyModeUnlocks.id })
+      .from(safetyModeUnlocks)
+      .where(and(
         eq(safetyModeUnlocks.profileId,   targetProfile.id),
         eq(safetyModeUnlocks.unlockedFor, viewerProfile.id),
-      ),
-    )
-    .limit(1);
+      ))
+      .limit(1),
+    db.select({ id: safetyModeUnlocks.id })
+      .from(safetyModeUnlocks)
+      .where(and(
+        eq(safetyModeUnlocks.profileId,   viewerProfile.id),
+        eq(safetyModeUnlocks.unlockedFor, targetProfile.id),
+      ))
+      .limit(1),
+  ]);
 
-  if (unlockRow) {
+  if (targetUnlockedForViewer[0] && viewerUnlockedForTarget[0]) {
     return { phoneNumber: targetUser.phoneNumber ?? null, email: targetUser.email ?? null };
   }
 

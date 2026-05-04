@@ -454,13 +454,76 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
       )}
 
       {r.status === 'ACCEPTED' && (
-        <Link
-          href={`/chats?match=${r.id}`}
-          className="block text-center w-full rounded-lg bg-teal text-white text-sm font-semibold py-2.5 hover:bg-teal-hover min-h-[44px] flex items-center justify-center gap-1.5"
-        >
-          <Heart className="h-4 w-4 fill-white" /> Open chat
-        </Link>
+        <div className="space-y-2">
+          <Link
+            href={`/chats?match=${r.id}`}
+            className="block text-center w-full rounded-lg bg-teal text-white text-sm font-semibold py-2.5 hover:bg-teal-hover min-h-[44px] flex items-center justify-center gap-1.5"
+          >
+            <Heart className="h-4 w-4 fill-white" /> Open chat
+          </Link>
+          {r.userId ? <RevealContactButton otherUserId={r.userId} /> : null}
+        </div>
       )}
+    </div>
+  );
+}
+
+interface RevealContactState {
+  loading: boolean;
+  /** Local mark — caller has unlocked their side. */
+  unlocked: boolean;
+  contact: { phoneNumber: string | null; email: string | null } | null;
+  message: string | null;
+}
+
+function RevealContactButton({ otherUserId }: { otherUserId: string }) {
+  const [state, setState] = useState<RevealContactState>({
+    loading: false, unlocked: false, contact: null, message: null,
+  });
+
+  async function unlockMine() {
+    setState((s) => ({ ...s, loading: true, message: null }));
+    const res = await apiFetch(`/api/v1/profiles/${otherUserId}/safety-unlock`, { method: 'POST' });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({})) as { error?: { message?: string } };
+      setState({ loading: false, unlocked: false, contact: null,
+        message: body.error?.message ?? 'Could not unlock — please retry' });
+      return;
+    }
+    // Then attempt to read contact — succeeds only when the other side has also unlocked.
+    const cRes = await apiFetch(`/api/v1/profiles/${otherUserId}/contact`);
+    if (cRes.ok) {
+      const body = await cRes.json() as { data: { phoneNumber: string | null; email: string | null } };
+      setState({ loading: false, unlocked: true, contact: body.data, message: null });
+      return;
+    }
+    setState({
+      loading: false, unlocked: true, contact: null,
+      message: 'Your side is unlocked. Waiting for the other person to unlock their contact.',
+    });
+  }
+
+  if (state.contact) {
+    return (
+      <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-foreground space-y-1">
+        <p className="font-medium text-success">Contact details unlocked</p>
+        {state.contact.phoneNumber ? <p>{state.contact.phoneNumber}</p> : null}
+        {state.contact.email ? <p>{state.contact.email}</p> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        onClick={unlockMine}
+        disabled={state.loading}
+        className="w-full rounded-lg border border-teal/40 text-teal text-sm font-semibold py-2 min-h-[44px] hover:bg-teal/5 transition-colors disabled:opacity-50"
+      >
+        {state.loading ? 'Unlocking…' : state.unlocked ? 'Awaiting their unlock…' : 'Reveal contact (mutual)'}
+      </button>
+      {state.message ? <p className="text-xs text-muted-foreground">{state.message}</p> : null}
     </div>
   );
 }

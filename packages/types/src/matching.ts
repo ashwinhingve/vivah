@@ -238,6 +238,8 @@ export interface EnrichedMatchRequest {
   expiresAt:         string | null;
   createdAt:         string;
   profileId:         string;
+  /** Counterparty's Better Auth user.id — needed for /safety-unlock and /contact. */
+  userId:            string | null;
   name:              string | null;
   age:               number | null;
   city:              string | null;

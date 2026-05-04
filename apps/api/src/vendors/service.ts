@@ -441,3 +441,80 @@ export async function getAvailability(
     blockedDates: blockedRows.map((r) => ({ date: r.date as string, reason: r.reason })),
   };
 }
+
+// ── Vendor packages CRUD ──────────────────────────────────────────────────────
+
+export interface VendorPackage {
+  name:        string;
+  price:       number;
+  priceUnit:   string;
+  inclusions?: string[] | undefined;
+  exclusions?: string[] | undefined;
+  photoKeys?:  string[] | undefined;
+}
+
+async function assertVendorOwner(vendorId: string, ownerUserId: string): Promise<void> {
+  const [row] = await db
+    .select({ userId: vendors.userId })
+    .from(vendors)
+    .where(eq(vendors.id, vendorId))
+    .limit(1);
+  if (!row)                       throw Object.assign(new Error('Vendor not found'), { code: 'VENDOR_NOT_FOUND' });
+  if (row.userId !== ownerUserId) throw Object.assign(new Error('Forbidden'),         { code: 'FORBIDDEN' });
+}
+
+export async function listVendorPackages(vendorId: string): Promise<VendorPackage[]> {
+  if (env.USE_MOCK_SERVICES) return [];
+  const doc = await VendorPortfolio.findOne({ vendorId }).lean();
+  return ((doc as { packages?: VendorPackage[] } | null)?.packages ?? []);
+}
+
+export async function addVendorPackage(
+  vendorId: string,
+  ownerUserId: string,
+  pkg: VendorPackage,
+): Promise<VendorPackage[]> {
+  await assertVendorOwner(vendorId, ownerUserId);
+  if (env.USE_MOCK_SERVICES) return [pkg];
+  const updated = await VendorPortfolio.findOneAndUpdate(
+    { vendorId },
+    { $push: { packages: pkg }, $setOnInsert: { vendorId } },
+    { upsert: true, new: true, lean: true },
+  );
+  return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
+}
+
+export async function updateVendorPackage(
+  vendorId: string,
+  ownerUserId: string,
+  index: number,
+  pkg: VendorPackage,
+): Promise<VendorPackage[]> {
+  await assertVendorOwner(vendorId, ownerUserId);
+  if (env.USE_MOCK_SERVICES) return [pkg];
+  const setKey = `packages.${index}`;
+  const updated = await VendorPortfolio.findOneAndUpdate(
+    { vendorId },
+    { $set: { [setKey]: pkg } },
+    { new: true, lean: true },
+  );
+  return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
+}
+
+export async function removeVendorPackage(
+  vendorId: string,
+  ownerUserId: string,
+  index: number,
+): Promise<VendorPackage[]> {
+  await assertVendorOwner(vendorId, ownerUserId);
+  if (env.USE_MOCK_SERVICES) return [];
+  // $unset by index then $pull nulls — Mongo idiom for splicing an array.
+  const setKey = `packages.${index}`;
+  await VendorPortfolio.updateOne({ vendorId }, { $unset: { [setKey]: 1 } });
+  const updated = await VendorPortfolio.findOneAndUpdate(
+    { vendorId },
+    { $pull: { packages: null as unknown as VendorPackage } },
+    { new: true, lean: true },
+  );
+  return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
+}

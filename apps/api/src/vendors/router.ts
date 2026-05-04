@@ -48,7 +48,13 @@ import {
   addService,
   getAvailability,
   incrementViewCount,
+  listVendorPackages,
+  addVendorPackage,
+  updateVendorPackage,
+  removeVendorPackage,
+  type VendorPackage,
 } from './service.js';
+import { z } from 'zod';
 import {
   listReviews,
   createReview,
@@ -338,5 +344,87 @@ vendorsRouter.post('/:id/services', authenticate, async (req, res) => {
     const msg = e instanceof Error ? e.message : '';
     if (/access denied/i.test(msg)) { err(res, 'FORBIDDEN', msg, 403); return; }
     handleError(res, e, 'SERVICE_CREATE_ERROR');
+  }
+});
+
+// ── Vendor packages CRUD ─────────────────────────────────────────────────────
+// GET    /vendors/:id/packages         (public)
+// POST   /vendors/:id/packages         (auth, vendor owner)
+// PUT    /vendors/:id/packages/:idx    (auth, vendor owner)
+// DELETE /vendors/:id/packages/:idx    (auth, vendor owner)
+
+const VendorPackageSchema = z.object({
+  name:       z.string().min(1).max(120),
+  price:      z.number().nonnegative().max(100_000_000),
+  priceUnit:  z.string().min(1).max(40).default('PER_EVENT'),
+  inclusions: z.array(z.string().min(1).max(280)).max(50).optional(),
+  exclusions: z.array(z.string().min(1).max(280)).max(50).optional(),
+  photoKeys:  z.array(z.string().min(1).max(500)).max(20).optional(),
+});
+type ParsedPackage = z.infer<typeof VendorPackageSchema>;
+const _ensure: (p: ParsedPackage) => VendorPackage = (p) => p;
+void _ensure;
+
+function packageOwnerError(res: Response, e: unknown): boolean {
+  const code = (e as { code?: string }).code;
+  if (code === 'VENDOR_NOT_FOUND') { err(res, 'NOT_FOUND',  'Vendor not found', 404); return true; }
+  if (code === 'FORBIDDEN')        { err(res, 'FORBIDDEN', 'Not vendor owner', 403); return true; }
+  return false;
+}
+
+vendorsRouter.get('/:id/packages', async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  try {
+    const pkgs = await listVendorPackages(id);
+    ok(res, { packages: pkgs });
+  } catch (e) { handleError(res, e, 'VENDOR_PACKAGES_ERROR'); }
+});
+
+vendorsRouter.post('/:id/packages', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  const parsed = VendorPackageSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const pkgs = await addVendorPackage(id, req.user!.id, parsed.data);
+    ok(res, { packages: pkgs }, 201);
+  } catch (e) {
+    if (packageOwnerError(res, e)) return;
+    handleError(res, e, 'VENDOR_PACKAGE_ADD_ERROR');
+  }
+});
+
+vendorsRouter.put('/:id/packages/:idx', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  const idxRaw = req.params['idx'];
+  const idx = idxRaw != null ? parseInt(idxRaw, 10) : NaN;
+  if (!id || !Number.isInteger(idx) || idx < 0) {
+    err(res, 'VALIDATION_ERROR', 'Vendor id and non-negative idx are required', 400); return;
+  }
+  const parsed = VendorPackageSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const pkgs = await updateVendorPackage(id, req.user!.id, idx, parsed.data);
+    ok(res, { packages: pkgs });
+  } catch (e) {
+    if (packageOwnerError(res, e)) return;
+    handleError(res, e, 'VENDOR_PACKAGE_UPDATE_ERROR');
+  }
+});
+
+vendorsRouter.delete('/:id/packages/:idx', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  const idxRaw = req.params['idx'];
+  const idx = idxRaw != null ? parseInt(idxRaw, 10) : NaN;
+  if (!id || !Number.isInteger(idx) || idx < 0) {
+    err(res, 'VALIDATION_ERROR', 'Vendor id and non-negative idx are required', 400); return;
+  }
+  try {
+    const pkgs = await removeVendorPackage(id, req.user!.id, idx);
+    ok(res, { packages: pkgs });
+  } catch (e) {
+    if (packageOwnerError(res, e)) return;
+    handleError(res, e, 'VENDOR_PACKAGE_DELETE_ERROR');
   }
 });
