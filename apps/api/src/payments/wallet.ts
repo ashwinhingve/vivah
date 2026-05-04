@@ -193,7 +193,8 @@ void and; // silence unused import warning if any
 export async function createWalletTopupOrder(userId: string, amount: number): Promise<{ orderId: string; amount: number }> {
   if (amount <= 0) throw new WalletError('BAD_REQUEST', 'Amount must be positive');
   const { createOrder } = await import('../lib/razorpay.js');
-  const order = await createOrder(amount * 100, 'INR', `wallet_topup_${userId}_${Date.now()}`, {
+  const { rupeesToPaise } = await import('../lib/money.js');
+  const order = await createOrder(rupeesToPaise(amount), 'INR', `wallet_topup_${userId}_${Date.now()}`, {
     kind:   'WALLET_TOPUP',
     userId,
   });
@@ -212,9 +213,11 @@ export async function creditWalletForTopup(userId: string, amount: number, razor
     .limit(1);
   if (existing) return { duplicate: true };
 
+  // amount arrives in rupees (webhook converts paise → rupees before calling).
+  // Wallet ledger stores rupees (decimal(12,2)), so write rupees verbatim.
   await creditWallet({
     userId,
-    amount:   amount * 100,
+    amount,
     reason:   'TOPUP',
     metadata: { razorpayPaymentId },
   });

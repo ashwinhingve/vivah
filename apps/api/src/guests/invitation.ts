@@ -20,7 +20,11 @@ const RSVP_BASE_URL = 'https://smartshaadi.co.in/rsvp';
 export interface SendInvitationsResult {
   sent:   number;
   failed: number;
-  details: Array<{ guestId: string; token?: string; error?: string }>;
+  // RSVP token is intentionally omitted — it grants RSVP-on-behalf-of-guest
+  // access and must only travel through the delivery channel (SMS / email).
+  // Returning it in the API response would let any wedding EDITOR impersonate
+  // every guest's RSVP.
+  details: Array<{ guestId: string; delivered?: boolean; error?: string }>;
 }
 
 export async function sendInvitations(
@@ -130,7 +134,7 @@ export async function sendInvitations(
         continue;
       }
 
-      details.push({ guestId, token });
+      details.push({ guestId, delivered: true });
       sent++;
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : 'Unknown error';

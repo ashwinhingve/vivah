@@ -15,6 +15,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { products, orders, orderItems, vendors } from '@smartshaadi/db';
 import * as razorpay from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import { orderExpiryQueue } from '../infrastructure/redis/queues.js';
 import { env } from '../lib/env.js';
 import type { OrderSummary, OrderDetail, OrderItemDetail, VendorOrderItem } from '@smartshaadi/types';
@@ -213,8 +214,21 @@ export async function createOrder(
     return insertedOrder as OrderRow;
   });
 
-  // Step 5: Outside tx — create Razorpay order (mock in dev)
-  const rpOrder = await razorpay.createOrder(Math.round(total * 100), 'INR', order.id);
+  // Step 5: Outside tx — create Razorpay order (mock in dev). On failure we
+  // MUST roll back the order + restore stock; otherwise the inventory stays
+  // reserved against an unreachable order with no expiry job scheduled.
+  let rpOrder;
+  try {
+    rpOrder = await razorpay.createOrder(rupeesToPaise(total), 'INR', order.id);
+  } catch (e) {
+    console.error('[store/createOrder] Razorpay createOrder failed — rolling back order + stock:', e);
+    await rollbackPlacedOrder(order.id);
+    throw makeError(
+      'PAYMENT_INIT_FAILED',
+      'Could not initialise payment. Order has been cancelled.',
+      502,
+    );
+  }
 
   // Step 6: Persist razorpayOrderId
   await db
@@ -223,8 +237,8 @@ export async function createOrder(
     .where(eq(orders.id, order.id));
 
   // Step 7: Schedule expiry — if the customer abandons payment, cancel the
-  // order in 30 minutes so reserved stock is returned. Deterministic jobId
-  // (no colons — BullMQ rejects them) prevents duplicate scheduling on retry.
+  // order in 30 minutes so reserved stock is returned. If the queue itself
+  // is unavailable we cannot guarantee cleanup, so roll back synchronously.
   if (!env.USE_MOCK_SERVICES) {
     try {
       await orderExpiryQueue.add(
@@ -238,7 +252,13 @@ export async function createOrder(
         },
       );
     } catch (e) {
-      console.error('[store/createOrder] failed to schedule expiry job:', e);
+      console.error('[store/createOrder] failed to schedule expiry job — rolling back:', e);
+      await rollbackPlacedOrder(order.id);
+      throw makeError(
+        'PAYMENT_INIT_FAILED',
+        'Could not schedule payment timeout. Order has been cancelled.',
+        503,
+      );
     }
   }
 
@@ -246,6 +266,39 @@ export async function createOrder(
     order:          toOrderSummary(order, input.items.length),
     razorpayOrderId: rpOrder.id,
   };
+}
+
+/**
+ * Roll back a freshly-PLACED order whose external setup (Razorpay /
+ * expiry-queue) failed. Cancels the order and restores stock atomically.
+ * Idempotent — safe to call from the catch path even if the order was
+ * already moved past PLACED by a concurrent operation.
+ */
+async function rollbackPlacedOrder(orderId: string): Promise<void> {
+  await db.transaction(async (tx) => {
+    const cancelled = await tx
+      .update(orders)
+      .set({ status: 'CANCELLED', updatedAt: new Date() })
+      .where(and(eq(orders.id, orderId), eq(orders.status, 'PLACED')))
+      .returning({ id: orders.id });
+
+    if (cancelled.length === 0) return; // already not-PLACED — nothing to restore
+
+    const itemRows = await tx
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+
+    for (const item of itemRows as OrderItemRow[]) {
+      await tx
+        .update(products)
+        .set({
+          stockQty:  sql`${products.stockQty} + ${item.quantity}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(products.id, item.productId));
+    }
+  });
 }
 
 // ── 2) confirmOrder (webhook handler) ────────────────────────────────────────

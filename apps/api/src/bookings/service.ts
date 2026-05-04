@@ -17,6 +17,7 @@ import type { BookingSummary, BookingAddon, BookingStatus } from '@smartshaadi/t
 import type { CreateBookingInput, RescheduleBookingInput } from '@smartshaadi/schemas';
 import { db } from '../lib/db.js';
 import { createRefund } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import {
   escrowReleaseQueue,
   notificationsQueue,
@@ -118,46 +119,45 @@ export async function createBooking(
   customerId: string,
   input: CreateBookingInput,
 ): Promise<BookingSummary> {
-  // Conflict check — same vendor + same eventDate already held (PENDING or
-  // CONFIRMED). A vendor cannot be double-booked.
-  const conflicts = await db
-    .select({ id: bookings.id })
-    .from(bookings)
-    .where(
-      and(
-        eq(bookings.vendorId, input.vendorId),
-        eq(bookings.eventDate, input.eventDate),
-        inArray(bookings.status, ['PENDING', 'CONFIRMED']),
-      ),
-    )
-    .limit(1);
-
-  if (conflicts.length > 0) {
-    throw new BookingError(
-      'BOOKING_CONFLICT',
-      'This vendor is already booked for that date.',
-    );
-  }
-
-  // Blocked-date check — vendor explicitly blocked this date
-  const blocked = await db
-    .select({ id: vendorBlockedDates.id, reason: vendorBlockedDates.reason })
-    .from(vendorBlockedDates)
-    .where(and(
-      eq(vendorBlockedDates.vendorId, input.vendorId),
-      eq(vendorBlockedDates.date, input.eventDate),
-    ))
-    .limit(1);
-
-  if (blocked.length > 0) {
-    throw new BookingError(
-      'BOOKING_CONFLICT',
-      blocked[0]?.reason ? `Vendor unavailable: ${blocked[0]?.reason}` : 'Vendor is unavailable on this date.',
-    );
-  }
-
-  // Insert booking + addons in a single transaction
+  // Conflict + blocked-date check + insert all run inside the same
+  // transaction so concurrent calls race on the row read; one wins, the
+  // other sees the freshly-inserted PENDING row and aborts.
   const inserted = await db.transaction(async (tx) => {
+    const conflicts = await tx
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.vendorId, input.vendorId),
+          eq(bookings.eventDate, input.eventDate),
+          inArray(bookings.status, ['PENDING', 'CONFIRMED']),
+        ),
+      )
+      .limit(1);
+
+    if (conflicts.length > 0) {
+      throw new BookingError(
+        'BOOKING_CONFLICT',
+        'This vendor is already booked for that date.',
+      );
+    }
+
+    const blocked = await tx
+      .select({ id: vendorBlockedDates.id, reason: vendorBlockedDates.reason })
+      .from(vendorBlockedDates)
+      .where(and(
+        eq(vendorBlockedDates.vendorId, input.vendorId),
+        eq(vendorBlockedDates.date, input.eventDate),
+      ))
+      .limit(1);
+
+    if (blocked.length > 0) {
+      throw new BookingError(
+        'BOOKING_CONFLICT',
+        blocked[0]?.reason ? `Vendor unavailable: ${blocked[0]?.reason}` : 'Vendor is unavailable on this date.',
+      );
+    }
+
     const [b] = await tx
       .insert(bookings)
       .values({
@@ -529,7 +529,7 @@ export async function cancelBooking(
   // Razorpay call outside the transaction — network I/O should never hold a DB lock.
   if (refundAttempt && escrow?.id) {
     try {
-      await createRefund(refundAttempt.paymentId, refundAttempt.amount);
+      await createRefund(refundAttempt.paymentId, rupeesToPaise(refundAttempt.amount));
       await db
         .update(escrowAccounts)
         .set({ status: 'RELEASED', released: String(refundAttempt.amount), releasedAt: new Date() })

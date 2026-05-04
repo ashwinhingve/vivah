@@ -241,6 +241,9 @@ export async function acceptRequest(
     throw serviceError('INVALID_STATUS', `Cannot accept a request with status ${request.status}`);
   }
 
+  // Optimistic lock — only flip PENDING → ACCEPTED. Two concurrent accepts
+  // would both pass the read-time guard above; the loser sees zero rows and
+  // exits BEFORE the duplicate Chat document is created.
   const [updated] = await db
     .update(matchRequests)
     .set({
@@ -250,10 +253,17 @@ export async function acceptRequest(
       seenAt:            request.seenAt ?? new Date(),
       updatedAt:         new Date(),
     })
-    .where(eq(matchRequests.id, requestId))
+    .where(and(
+      eq(matchRequests.id, requestId),
+      eq(matchRequests.status, 'PENDING'),
+    ))
     .returning();
 
-  if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to accept match request');
+  if (!updated) {
+    // Either the request changed status under us, or another caller won the
+    // race. Treat both as already-processed.
+    throw serviceError('ALREADY_PROCESSED', 'Match request was already processed');
+  }
 
   // Mongo Chat document — use mock store in dev
   if (env.USE_MOCK_SERVICES) {

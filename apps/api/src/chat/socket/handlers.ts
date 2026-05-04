@@ -50,14 +50,21 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       // Per-user room receives conversation_updated pushes regardless of
       // which conversation room the socket has currently joined.
       socket.join(`user:${cachedProfileId}`)
-      // Broadcast presence to all rooms this socket might join.
-      socket.broadcast.emit('presence_update', {
-        profileId:  cachedProfileId,
-        isOnline:   true,
-        lastSeenAt: null,
-      })
+      // No global presence broadcast on connect — leaks profileId of every
+      // online user to every other socket. Presence is emitted to each
+      // conversation room from `join_room` instead.
     }
     return cachedProfileId
+  }
+
+  function emitPresenceToActiveRooms(payload: { profileId: string; isOnline: boolean; lastSeenAt: string | null }): void {
+    const ownUserRoom = `user:${payload.profileId}`
+    for (const room of socket.rooms) {
+      // socket.rooms includes the auto-room socket.id and the per-user room;
+      // skip both — only fan out to conversation rooms the socket has joined.
+      if (room === socket.id || room === ownUserRoom) continue
+      socket.to(room).emit('presence_update', payload)
+    }
   }
 
   function emitConversationUpdated(
@@ -85,7 +92,9 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     clearInterval(heartbeat)
     if (cachedProfileId) {
       await markOffline(cachedProfileId)
-      socket.broadcast.emit('presence_update', {
+      // Only notify rooms this socket was actually a participant in — never
+      // global broadcast.
+      emitPresenceToActiveRooms({
         profileId:  cachedProfileId,
         isOnline:   false,
         lastSeenAt: new Date().toISOString(),
@@ -511,7 +520,9 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
 
   // ── typing ───────────────────────────────────────────────────────────────────
   socket.on('typing', ({ matchRequestId }: { matchRequestId: string }) => {
-    const profileId = cachedProfileId ?? null
-    socket.to(matchRequestId).emit('user_typing', { userId, profileId: profileId ?? '' })
+    const profileId = cachedProfileId ?? ''
+    // userId (Better Auth) must never leave the server boundary — only
+    // profileId is the public identifier seen by other participants.
+    socket.to(matchRequestId).emit('user_typing', { profileId })
   })
 }

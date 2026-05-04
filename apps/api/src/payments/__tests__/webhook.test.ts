@@ -104,6 +104,25 @@ beforeEach(() => {
 });
 
 describe('webhookHandler', () => {
+  it('returns 500 if raw body is not a Buffer (express.raw misconfigured)', async () => {
+    const { webhookHandler } = await import('../webhook.js');
+
+    // Simulate express.json having parsed the body before our handler ran.
+    const req = {
+      body: { event: 'payment.captured' },
+      headers: { 'x-razorpay-signature': 'whatever' },
+    } as Partial<Request>;
+    const { res, statusMock, jsonMock } = buildRes();
+
+    await webhookHandler(req as Request, res as Response);
+
+    expect(statusMock).toHaveBeenCalledWith(500);
+    expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      error: expect.stringMatching(/raw body/i),
+    }));
+  });
+
   it('returns 400 if signature header is missing', async () => {
     const { webhookHandler } = await import('../webhook.js');
 

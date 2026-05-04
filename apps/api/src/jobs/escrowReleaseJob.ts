@@ -18,6 +18,7 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import { appendAuditLog } from '../payments/service.js';
 import { connection } from '../infrastructure/redis/queues.js';
 
@@ -86,7 +87,8 @@ export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
       }
 
       // 3. Transfer funds to vendor via Razorpay (mock-safe — guarded in razorpay.ts)
-      await transferToVendor(vendorId, amount);
+      // amount is rupees; Razorpay requires paise.
+      await transferToVendor(vendorId, rupeesToPaise(amount));
 
       // 4. Update escrowAccounts: RELEASE_PENDING → RELEASED, releasedAmount = amount
       if (escrowId) {

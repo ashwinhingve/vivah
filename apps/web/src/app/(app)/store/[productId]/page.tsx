@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AddToCartButton } from '@/components/store/AddToCartButton.client';
 import { ProductGrid } from '@/components/store/ProductGrid';
@@ -74,7 +75,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="max-w-3xl mx-auto">
         {/* Breadcrumb */}
         <nav className="text-xs text-muted-foreground mb-4 flex items-center gap-1.5">
-          <a href="/store" className="hover:text-teal transition-colors">Store</a>
+          <Link href="/store" className="hover:text-teal transition-colors">Store</Link>
           <span>/</span>
           <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
         </nav>

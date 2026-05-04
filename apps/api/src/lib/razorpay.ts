@@ -14,12 +14,36 @@ import { createHmac, timingSafeEqual } from 'crypto';
 
 const USE_MOCK = env.USE_MOCK_SERVICES;
 
-let sdk: unknown | null = null;
-async function getSdk(): Promise<unknown> {
+// Minimal shape of the razorpay Node SDK we actually call. The official
+// `razorpay` package ships only partial types, so this internal interface
+// keeps the rest of the file fully typed without `any` casts.
+interface RazorpaySdk {
+  orders:        { create(opts: Record<string, unknown>): Promise<unknown> };
+  payments:      {
+    refund(paymentId: string, opts: Record<string, unknown>): Promise<unknown>;
+    fetch(paymentId: string): Promise<unknown>;
+  };
+  transfers:     { create(opts: Record<string, unknown>): Promise<unknown> };
+  paymentLink:   { create(opts: Record<string, unknown>): Promise<unknown> };
+  qrCode:        { create(opts: Record<string, unknown>): Promise<unknown> };
+  plans:         { create(opts: Record<string, unknown>): Promise<unknown> };
+  subscriptions: {
+    create(opts: Record<string, unknown>): Promise<unknown>;
+    cancel(id: string, atCycleEnd?: boolean): Promise<unknown>;
+    fetch(id: string): Promise<unknown>;
+  };
+}
+
+interface RazorpayCtor {
+  new (opts: { key_id: string; key_secret: string }): RazorpaySdk;
+}
+
+let sdk: RazorpaySdk | null = null;
+async function getSdk(): Promise<RazorpaySdk> {
   if (sdk) return sdk;
   if (USE_MOCK) throw new Error('Razorpay SDK not available in mock mode');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Razorpay = ((await import('razorpay')) as any).default;
+  const mod = (await import('razorpay')) as unknown as { default: RazorpayCtor };
+  const Razorpay = mod.default;
   sdk = new Razorpay({ key_id: env.RAZORPAY_KEY_ID, key_secret: env.RAZORPAY_KEY_SECRET });
   return sdk;
 }
@@ -97,7 +121,7 @@ export async function createOrder(
     return { id: `mock_order_${Date.now()}`, amount, currency, status: 'created' };
   }
   return withRetry(async () => {
-    const r = await (await getSdk() as any).orders.create({
+    const r = await (await getSdk()).orders.create({
       amount,
       currency,
       receipt,
@@ -153,7 +177,7 @@ export async function createRefund(
     return { id: `mock_refund_${Date.now()}`, amount, status: 'processed' };
   }
   return withRetry(async () => {
-    const r = await (await getSdk() as any).payments.refund(paymentId, {
+    const r = await (await getSdk()).payments.refund(paymentId, {
       amount,
       speed: 'normal',
       notes: notes ?? {},
@@ -171,7 +195,7 @@ export async function transferToVendor(
 ): Promise<RazorpayTransfer> {
   if (USE_MOCK) return { id: `mock_transfer_${Date.now()}`, amount, status: 'processed' };
   return withRetry(async () => {
-    const r = await (await getSdk() as any).transfers.create({
+    const r = await (await getSdk()).transfers.create({
       account:  vendorAccountId,
       amount,
       currency: 'INR',
@@ -212,7 +236,7 @@ export async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<Ra
           contact: args.customerPhone ?? '',
         }
       : undefined;
-    const r = await (await getSdk() as any).paymentLink.create({
+    const r = await (await getSdk()).paymentLink.create({
       amount:        args.amount,
       currency:      'INR',
       description:   args.description,
@@ -233,7 +257,7 @@ export async function createUpiQr(amount: number, name: string): Promise<{ id: s
     const id = `mock_qr_${Date.now()}`;
     return { id, qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?am=${amount}` };
   }
-  const r = await (await getSdk() as any).qrCode.create({
+  const r = await (await getSdk()).qrCode.create({
     type:        'upi_qr',
     name,
     usage:       'single_use',
@@ -260,7 +284,7 @@ export async function createPlan(input: {
       status:   'created',
     };
   }
-  const r = await (await getSdk() as any).plans.create({
+  const r = await (await getSdk()).plans.create({
     period:   input.period,
     interval: input.interval,
     item:     { name: input.name, amount: input.amount, currency: 'INR' },
@@ -283,7 +307,7 @@ export async function createSubscription(input: {
     };
   }
   return withRetry(async () => {
-    const r = await (await getSdk() as any).subscriptions.create({
+    const r = await (await getSdk()).subscriptions.create({
       plan_id:        input.planId,
       total_count:    input.totalCount ?? 12,
       customer_notify: input.customerNotify === false ? 0 : 1,
@@ -297,7 +321,7 @@ export async function cancelSubscription(subscriptionId: string, atCycleEnd = tr
   if (USE_MOCK) {
     return { id: subscriptionId, status: atCycleEnd ? 'active' : 'cancelled' };
   }
-  const r = await (await getSdk() as any).subscriptions.cancel(subscriptionId, atCycleEnd);
+  const r = await (await getSdk()).subscriptions.cancel(subscriptionId, atCycleEnd);
   return r as unknown as RazorpaySubscription;
 }
 
@@ -306,7 +330,7 @@ export async function fetchSubscription(subscriptionId: string): Promise<Razorpa
     return { id: subscriptionId, status: 'active' };
   }
   try {
-    const r = await (await getSdk() as any).subscriptions.fetch(subscriptionId);
+    const r = await (await getSdk()).subscriptions.fetch(subscriptionId);
     return r as unknown as RazorpaySubscription;
   } catch {
     return null;
@@ -318,7 +342,7 @@ export async function fetchSubscription(subscriptionId: string): Promise<Razorpa
 export async function fetchPayment(paymentId: string): Promise<{ id: string; status: string; amount: number; method?: string } | null> {
   if (USE_MOCK) return { id: paymentId, status: 'captured', amount: 0 };
   try {
-    const r = await (await getSdk() as any).payments.fetch(paymentId);
+    const r = await (await getSdk()).payments.fetch(paymentId);
     return r as unknown as { id: string; status: string; amount: number; method?: string };
   } catch {
     return null;

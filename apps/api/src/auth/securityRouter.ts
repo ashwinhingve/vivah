@@ -79,6 +79,24 @@ securityRouter.delete('/sessions/:token', authenticate, async (req: Request, res
   const token = req.params['token'];
   if (!token) { err(res, 'TOKEN_REQUIRED', 'Session token required', 400); return; }
   try {
+    // Better Auth's revokeSession revokes whichever row matches the token —
+    // it does NOT verify the caller owns it. Confirm ownership first or any
+    // authenticated user could revoke another user's sessions by guessing.
+    const [target] = await db
+      .select({ userId: sessionTable.userId })
+      .from(sessionTable)
+      .where(eq(sessionTable.token, token))
+      .limit(1);
+
+    if (!target) {
+      err(res, 'SESSION_NOT_FOUND', 'Session not found', 404);
+      return;
+    }
+    if (target.userId !== req.user!.id) {
+      err(res, 'FORBIDDEN', 'Cannot revoke another user\'s session', 403);
+      return;
+    }
+
     await auth.api.revokeSession({
       headers: fromNodeHeaders(req.headers),
       body: { token },

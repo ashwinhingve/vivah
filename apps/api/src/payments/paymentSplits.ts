@@ -3,6 +3,7 @@ import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 
 export interface AddSplitInput {
   bookingId:   string;
@@ -109,7 +110,7 @@ export async function releaseSplit(splitId: string): Promise<SplitRow> {
 
   try {
     if (!env.USE_MOCK_SERVICES) {
-      await transferToVendor(split.vendorId, amount);
+      await transferToVendor(split.vendorId, rupeesToPaise(amount));
     } else {
       console.info(`[splits:mock] transferToVendor ${split.vendorId} ₹${amount}`);
     }

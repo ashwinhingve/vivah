@@ -11,6 +11,7 @@ import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import { appendAuditLog } from './service.js';
 import { notificationsQueue } from '../infrastructure/redis/queues.js';
 import type { PayoutScheduleInput } from '@smartshaadi/schemas';
@@ -91,7 +92,7 @@ export async function processPayout(payoutId: string) {
   if (!payout) throw new PayoutError('INVALID_STATE', 'Payout not in a startable state');
 
   try {
-    const transferRef = await transferToVendor(payout.vendorId, parseFloat(payout.netAmount));
+    const transferRef = await transferToVendor(payout.vendorId, rupeesToPaise(parseFloat(payout.netAmount)));
     await db
       .update(schema.payouts)
       .set({

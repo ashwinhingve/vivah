@@ -5,6 +5,7 @@
  */
 
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BookingForm } from '@/components/rental/BookingForm.client';
 import type { RentalItem } from '@smartshaadi/types';
@@ -148,12 +149,12 @@ export default async function RentalDetailPage({ params }: Props) {
         </div>
 
         {/* Back link */}
-        <a
+        <Link
           href="/rentals"
           className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           ← Back to catalogue
-        </a>
+        </Link>
       </div>
     </div>
   );

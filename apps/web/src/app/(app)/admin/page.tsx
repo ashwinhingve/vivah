@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
@@ -116,9 +117,9 @@ export default async function AdminPage() {
                 </span>
               )}
             </h2>
-            <a href="/admin/kyc" className="text-xs font-semibold text-teal hover:text-teal-hover">
+            <Link href="/admin/kyc" className="text-xs font-semibold text-teal hover:text-teal-hover">
               Open full KYC console →
-            </a>
+            </Link>
           </div>
           <KycQueueTable initialRows={kycQueue} />
         </div>

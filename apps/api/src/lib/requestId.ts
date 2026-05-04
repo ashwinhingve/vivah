@@ -9,7 +9,6 @@ import type { RequestHandler } from 'express';
 import { logger, type RequestLogger } from './logger.js';
 
 declare module 'express-serve-static-core' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Request {
     id: string;
     log: RequestLogger;

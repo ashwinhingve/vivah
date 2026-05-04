@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 
@@ -21,7 +21,9 @@ function initPostHog(): void {
   initialized = true;
 }
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+// Reads search params — must live inside a Suspense boundary so static
+// prerender of pages above this provider does not bail out.
+function PageviewTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -37,5 +39,16 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     posthog.capture('$pageview', { $current_url: url });
   }, [pathname, searchParams]);
 
-  return <>{children}</>;
+  return null;
+}
+
+export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <PageviewTracker />
+      </Suspense>
+      {children}
+    </>
+  );
 }

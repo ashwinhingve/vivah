@@ -260,7 +260,8 @@ describe('requestRefund', () => {
 
     await requestRefund('user-abc', 'pay-2', { reason: 'Event cancelled' });
 
-    expect(mockCreateRefund).toHaveBeenCalledWith('pay_real_xyz', 5000);
+    // Razorpay requires paise — 5000 rupees → 500_000 paise.
+    expect(mockCreateRefund).toHaveBeenCalledWith('pay_real_xyz', 500_000);
     expect(mockDbUpdate).toHaveBeenCalled();
   });
 });

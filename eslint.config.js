@@ -1,5 +1,6 @@
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
+import nextPlugin from '@next/eslint-plugin-next';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -11,6 +12,19 @@ export default [
       '**/.next/**',
       '**/coverage/**',
     ],
+  },
+  {
+    files: ['apps/web/**/*.{ts,tsx,js,jsx}'],
+    plugins: {
+      '@next/next': nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+      // <img> is intentional in places where next/image is unsuitable
+      // (blob: previews, simple thumbnails). Downgrade to warning.
+      '@next/next/no-img-element': 'warn',
+    },
   },
   {
     files: ['**/*.ts', '**/*.tsx'],

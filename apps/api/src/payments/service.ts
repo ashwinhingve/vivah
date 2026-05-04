@@ -15,6 +15,7 @@ import {
   createOrder,
   createRefund,
 } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import type { PaymentOrder } from '@smartshaadi/types';
 import type { CreatePaymentInput, RefundInput } from '@smartshaadi/schemas';
 
@@ -97,7 +98,7 @@ export async function createPaymentOrder(
 
   // 5. Create Razorpay order. Razorpay requires amount in paise — multiply at
   // the integration boundary only. Elsewhere we store/return rupees.
-  const order = await createOrder(escrowAmount * 100, 'INR', booking.id);
+  const order = await createOrder(rupeesToPaise(escrowAmount), 'INR', booking.id);
 
   // 6. Insert payments row (amount stored in rupees)
   await db.insert(schema.payments).values({
@@ -214,8 +215,8 @@ export async function requestRefund(
     throw new Error('Payment has no Razorpay payment ID — cannot refund');
   }
 
-  // 2. Call Razorpay refund
-  await createRefund(payment.razorpayPaymentId, parseFloat(payment.amount));
+  // 2. Call Razorpay refund — Razorpay expects paise
+  await createRefund(payment.razorpayPaymentId, rupeesToPaise(parseFloat(payment.amount)));
 
   // 3. Update payment status → REFUNDED
   await db

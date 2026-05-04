@@ -58,12 +58,23 @@ interface WebhookPayload {
 const MAX_EVENT_AGE_SECONDS = 7 * 24 * 60 * 60;
 
 export async function webhookHandler(req: Request, res: Response): Promise<void> {
-  const rawBody =
-    Buffer.isBuffer(req.body)
-      ? req.body.toString('utf8')
-      : typeof req.body === 'string'
-        ? req.body
-        : JSON.stringify(req.body);
+  // Razorpay signs the exact request bytes. JSON.stringify of an
+  // already-parsed body cannot reproduce key order or whitespace, so the
+  // signature would silently fail (or worse, accept a fabricated payload if
+  // express.json() ran first). Hard-fail when the route is misconfigured.
+  let rawBody: string;
+  if (Buffer.isBuffer(req.body)) {
+    rawBody = req.body.toString('utf8');
+  } else if (typeof req.body === 'string') {
+    rawBody = req.body;
+  } else {
+    logger.error(
+      { bodyType: typeof req.body },
+      '[webhook] raw body unavailable — express.raw() not registered before express.json()',
+    );
+    res.status(500).json({ success: false, error: 'Webhook misconfigured: raw body unavailable' });
+    return;
+  }
 
   const signature = req.headers['x-razorpay-signature'];
   if (typeof signature !== 'string') {

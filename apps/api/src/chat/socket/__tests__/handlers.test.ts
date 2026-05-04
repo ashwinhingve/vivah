@@ -298,7 +298,9 @@ describe('registerChatHandlers', () => {
       const broadcastEvt = socket._toEmitted.find((e) => e.event === 'user_typing')
       expect(broadcastEvt).toBeDefined()
       expect(broadcastEvt!.room).toBe('match-abc')
-      expect((broadcastEvt!.data as { userId: string }).userId).toBe('user-1')
+      // userId (Better Auth) must never appear in socket payloads — only profileId
+      expect(broadcastEvt!.data).not.toHaveProperty('userId')
+      expect(broadcastEvt!.data).toHaveProperty('profileId')
 
       // Must NOT have been sent via io.to (which goes back to sender too)
       const ioEvt = io._toEmitted.find((e) => e.event === 'user_typing')

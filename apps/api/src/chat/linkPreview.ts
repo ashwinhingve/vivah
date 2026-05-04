@@ -4,6 +4,28 @@ import { redis } from '../lib/redis.js'
 const URL_REGEX = /https?:\/\/[^\s<>"']+/i
 const CACHE_TTL_SEC = 60 * 60 * 24 // 24h
 
+// Block private / link-local / loopback ranges to prevent SSRF into cloud
+// metadata services (169.254.169.254), kubelets, internal RDS, etc.
+const BLOCKED_HOST_PATTERNS: RegExp[] = [
+  /^localhost$/i,
+  /^0\.0\.0\.0$/,
+  /^127\./,
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^169\.254\./,           // link-local incl. AWS/GCP/Azure metadata
+  /^metadata\.google/i,
+  /^metadata\.googleapis/i,
+  /^\[?::1\]?$/,           // IPv6 loopback
+  /^\[?fc00:/i,            // IPv6 unique-local
+  /^\[?fe80:/i,            // IPv6 link-local
+]
+
+export function isSafeFetchHost(hostname: string): boolean {
+  if (!hostname) return false
+  return !BLOCKED_HOST_PATTERNS.some((p) => p.test(hostname))
+}
+
 export function extractFirstUrl(text: string): string | null {
   const m = text.match(URL_REGEX)
   return m ? m[0] : null
@@ -36,6 +58,7 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview | nu
     return null
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
+  if (!isSafeFetchHost(url.hostname)) return null
 
   const cacheKey = `linkPreview:${url.toString()}`
   try {

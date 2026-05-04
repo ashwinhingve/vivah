@@ -20,6 +20,7 @@ import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor, createRefund } from '../lib/razorpay.js';
+import { rupeesToPaise } from '../lib/money.js';
 import { appendAuditLog } from './service.js';
 import { escrowReleaseQueue, notificationsQueue } from '../infrastructure/redis/queues.js';
 import { notifyAdmins } from '../notifications/service.js';
@@ -318,7 +319,7 @@ export async function resolveDispute(
 
       try {
         if (!env.USE_MOCK_SERVICES) {
-          await transferToVendor(booking.vendorId, escrowTotal);
+          await transferToVendor(booking.vendorId, rupeesToPaise(escrowTotal));
         } else {
           logger.debug({ vendorId: booking.vendorId, amount: escrowTotal }, '[dispute:mock] transferToVendor');
         }
@@ -361,7 +362,7 @@ export async function resolveDispute(
       try {
         if (payment?.razorpayPaymentId) {
           if (!env.USE_MOCK_SERVICES) {
-            await createRefund(payment.razorpayPaymentId, escrowTotal);
+            await createRefund(payment.razorpayPaymentId, rupeesToPaise(escrowTotal));
           } else {
             logger.debug({ paymentId: payment.razorpayPaymentId, amount: escrowTotal }, '[dispute:mock] createRefund');
           }
@@ -401,7 +402,7 @@ export async function resolveDispute(
 
       try {
         if (!env.USE_MOCK_SERVICES) {
-          await transferToVendor(booking.vendorId, vendorAmount);
+          await transferToVendor(booking.vendorId, rupeesToPaise(vendorAmount));
         } else {
           logger.debug({ vendorId: booking.vendorId, amount: vendorAmount }, '[dispute:mock] transferToVendor');
         }
@@ -416,7 +417,7 @@ export async function resolveDispute(
       try {
         if (payment?.razorpayPaymentId && customerAmount > 0) {
           if (!env.USE_MOCK_SERVICES) {
-            await createRefund(payment.razorpayPaymentId, customerAmount);
+            await createRefund(payment.razorpayPaymentId, rupeesToPaise(customerAmount));
           } else {
             logger.debug({ paymentId: payment.razorpayPaymentId, amount: customerAmount }, '[dispute:mock] createRefund');
           }

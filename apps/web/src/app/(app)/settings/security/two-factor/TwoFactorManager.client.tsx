@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import QRCode from 'qrcode';
 import { ShieldCheck, ShieldOff, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -255,18 +256,33 @@ function DisableCard({
   );
 }
 
-// ── QR code (no extra dep — render via google chart fallback) ───────────────
-// Better Auth returns an otpauth:// URI; we encode that as a QR via a lightweight
-// image route. Using a public chart server keeps the bundle small. The URI
-// contains the secret, so this image must NEVER be cached or stored — render
-// from the client at request time.
+// QR rendered locally from the otpauth:// URI. The URI contains the TOTP
+// secret — it MUST NEVER be sent to a third-party service (P0 audit fix).
+// `qrcode` runs entirely in-browser and outputs a base64 PNG data URL.
 
 function QrCode({ value }: { value: string }) {
-  const url = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(value)}`;
-  // eslint-disable-next-line @next/next/no-img-element
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    QRCode.toDataURL(value, { width: 200, margin: 1 })
+      .then((url) => { if (alive) setDataUrl(url); })
+      .catch(() => { if (alive) setDataUrl(null); });
+    return () => { alive = false; };
+  }, [value]);
+  if (!dataUrl) {
+    return (
+      <div
+        role="status"
+        aria-label="Generating authenticator QR code"
+        className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border border-border bg-surface"
+      >
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
   return (
     <img
-      src={url}
+      src={dataUrl}
       width={200}
       height={200}
       alt="Authenticator QR code"

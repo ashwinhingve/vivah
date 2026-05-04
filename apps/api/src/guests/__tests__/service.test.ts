@@ -381,9 +381,11 @@ describe('sendInvitations (mock mode)', () => {
 
     expect(result.sent).toBe(1);
     expect(result.failed).toBe(0);
-    expect(result.details[0]?.token).toBeDefined();
-    // Delivery now flows through SES/MSG91 providers; mock mode returns ok
-    // without leaking the rsvp token to stdout.
+    expect(result.details[0]?.delivered).toBe(true);
+    // RSVP token is intentionally omitted from the API response — it would
+    // let the caller impersonate every guest's RSVP. Tokens travel only
+    // through the delivery channel (SMS / email).
+    expect(result.details[0]).not.toHaveProperty('token');
   });
 
   it('returns failed count for guest not in list', async () => {
