@@ -254,14 +254,27 @@ export async function confirmOrder(
   razorpayOrderId: string,
   razorpayPaymentId: string,
 ): Promise<void> {
-  await db
+  // Guarded update — only flip PLACED → CONFIRMED. A late or replayed webhook
+  // arriving after the order was cancelled or already confirmed is a no-op.
+  const updated = await db
     .update(orders)
     .set({
       status:            'CONFIRMED',
       razorpayPaymentId,
       updatedAt:         new Date(),
     })
-    .where(eq(orders.razorpayOrderId, razorpayOrderId));
+    .where(and(
+      eq(orders.razorpayOrderId, razorpayOrderId),
+      eq(orders.status, 'PLACED'),
+    ))
+    .returning({ id: orders.id, prevStatus: orders.status });
+
+  if (updated.length === 0) {
+    console.warn(
+      '[store/confirmOrder] webhook for order not in PLACED state — ignored',
+      { razorpayOrderId },
+    );
+  }
 }
 
 // ── 3) getMyOrders ────────────────────────────────────────────────────────────
@@ -339,41 +352,46 @@ export async function getOrderDetail(userId: string, orderId: string): Promise<O
 // ── 5) cancelOrder ────────────────────────────────────────────────────────────
 
 export async function cancelOrder(userId: string, orderId: string): Promise<void> {
-  // Fetch order + items (outside tx — validation only)
-  const orderRows = await db
-    .select()
+  // 404 vs 409 disambiguation needs a pre-read; this read is for error shape
+  // only. The actual cancellation gate lives inside the transaction with a
+  // status guard in the WHERE clause to prevent TOCTOU double-restore.
+  const existing = await db
+    .select({ status: orders.status })
     .from(orders)
     .where(and(eq(orders.id, orderId), eq(orders.customerId, userId)))
     .limit(1);
 
-  if (orderRows.length === 0) {
+  if (existing.length === 0) {
     throw makeError('NOT_FOUND', 'Order not found', 404);
   }
 
-  const order = orderRows[0] as OrderRow;
-
-  if (order.status !== 'PLACED' && order.status !== 'CONFIRMED') {
-    throw makeError(
-      'INVALID_STATE',
-      `Order cannot be cancelled — current status: ${order.status}`,
-      409,
-    );
-  }
-
-  const itemRows = await db
-    .select()
-    .from(orderItems)
-    .where(eq(orderItems.orderId, orderId));
-
-  // Cancel + restore stock inside a transaction
   await db.transaction(async (tx) => {
-    // Cancel the order
-    await tx
+    // Cancel only when status is still PLACED or CONFIRMED. Concurrent calls
+    // race here; whichever commits first wins, the second sees zero rows.
+    const cancelled = await tx
       .update(orders)
       .set({ status: 'CANCELLED', updatedAt: new Date() })
-      .where(and(eq(orders.id, orderId), eq(orders.customerId, userId)));
+      .where(and(
+        eq(orders.id, orderId),
+        eq(orders.customerId, userId),
+        inArray(orders.status, ['PLACED', 'CONFIRMED']),
+      ))
+      .returning({ id: orders.id });
 
-    // Restore stock for each item
+    if (cancelled.length === 0) {
+      throw makeError(
+        'INVALID_STATE',
+        'Order cannot be cancelled — already cancelled or shipped',
+        409,
+      );
+    }
+
+    // Stock restore runs only on the winning cancellation.
+    const itemRows = await tx
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+
     for (const item of itemRows as OrderItemRow[]) {
       await tx
         .update(products)
@@ -416,15 +434,24 @@ export async function shipOrderItem(
     throw makeError('FORBIDDEN', 'Order item not found or you do not own it', 403);
   }
 
-  // Update fulfilment status
-  await db
+  // Guarded update — only PENDING items can ship. Prevents flipping CANCELLED
+  // or already-SHIPPED items back into the SHIPPED state.
+  const updated = await db
     .update(orderItems)
     .set({
       fulfilmentStatus: 'SHIPPED',
       trackingNumber:   input.trackingNumber,
       updatedAt:        new Date(),
     })
-    .where(eq(orderItems.id, orderItemId));
+    .where(and(
+      eq(orderItems.id, orderItemId),
+      eq(orderItems.fulfilmentStatus, 'PENDING'),
+    ))
+    .returning({ id: orderItems.id });
+
+  if (updated.length === 0) {
+    throw makeError('INVALID_STATE', 'Item is not in PENDING state', 409);
+  }
 
   // Check if ALL items in the order are now SHIPPED → update order status
   const orderId = (itemRows[0] as OrderItemRow).orderId;
@@ -458,10 +485,19 @@ export async function deliverOrderItem(
     throw makeError('FORBIDDEN', 'Order item not found or you do not own it', 403);
   }
 
-  await db
+  // Guarded update — only SHIPPED items can transition to DELIVERED.
+  const updated = await db
     .update(orderItems)
     .set({ fulfilmentStatus: 'DELIVERED', updatedAt: new Date() })
-    .where(eq(orderItems.id, orderItemId));
+    .where(and(
+      eq(orderItems.id, orderItemId),
+      eq(orderItems.fulfilmentStatus, 'SHIPPED'),
+    ))
+    .returning({ id: orderItems.id });
+
+  if (updated.length === 0) {
+    throw makeError('INVALID_STATE', 'Item is not in SHIPPED state', 409);
+  }
 
   const orderId = (itemRows[0] as OrderItemRow).orderId;
   await maybeAdvanceOrderStatus(orderId, 'DELIVERED', 'DELIVERED' as const);

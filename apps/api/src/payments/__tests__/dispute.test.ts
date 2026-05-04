@@ -48,6 +48,7 @@ vi.mock('@smartshaadi/db', () => ({
   bookings:           { id: 'bookings.id', customerId: 'bookings.customerId', status: 'bookings.status', totalAmount: 'bookings.totalAmount', vendorId: 'bookings.vendorId', createdAt: 'bookings.createdAt', updatedAt: 'bookings.updatedAt' },
   escrowAccounts:     { id: 'escrowAccounts.id', bookingId: 'escrowAccounts.bookingId', status: 'escrowAccounts.status', totalHeld: 'escrowAccounts.totalHeld', released: 'escrowAccounts.released', releasedAt: 'escrowAccounts.releasedAt' },
   payments:           { id: 'payments.id', bookingId: 'payments.bookingId', status: 'payments.status', razorpayPaymentId: 'payments.razorpayPaymentId' },
+  vendors:            { id: 'vendors.id', userId: 'vendors.userId' },
   user:               { id: 'user.id', role: 'user.role', name: 'user.name' },
   auditLogs:          { id: 'auditLogs.id', eventType: 'auditLogs.eventType', entityType: 'auditLogs.entityType', entityId: 'auditLogs.entityId', actorId: 'auditLogs.actorId', payload: 'auditLogs.payload', contentHash: 'auditLogs.contentHash', prevHash: 'auditLogs.prevHash', createdAt: 'auditLogs.createdAt' },
   disputeResolutions: { id: 'disputeResolutions.id', bookingId: 'disputeResolutions.bookingId', resolutionId: 'disputeResolutions.resolutionId', outcome: 'disputeResolutions.outcome', amountVendor: 'disputeResolutions.amountVendor', amountCustomer: 'disputeResolutions.amountCustomer', resolvedBy: 'disputeResolutions.resolvedBy', resolvedAt: 'disputeResolutions.resolvedAt' },
@@ -115,6 +116,13 @@ vi.mock('../service.js', () => ({
   appendAuditLog: mockAppendAuditLog,
 }));
 
+// notifyAdmins fan-out is tested separately; stub here so dispute tests do
+// not need to mock the admin user.role select chain.
+const mockNotifyAdmins = vi.fn().mockResolvedValue({ enqueued: 1 });
+vi.mock('../../notifications/service.js', () => ({
+  notifyAdmins: mockNotifyAdmins,
+}));
+
 // ── DB chain helpers ──────────────────────────────────────────────────────────
 
 function makeSelect(rows: unknown[]) {
@@ -166,6 +174,11 @@ beforeEach(() => {
   mockGetJob.mockResolvedValue(null);
   // Default tx.execute (FOR UPDATE): booking lock returns CONFIRMED row.
   mockTxExecute.mockResolvedValue({ rows: [{ id: 'bk-1', status: 'CONFIRMED', vendor_id: 'v-1' }] });
+  // Default db.select: empty result. Tests stack mockImplementationOnce calls
+  // for the rows they expect; anything past that (e.g., vendor lookup that
+  // happens after a full success path) safely returns []. Without this,
+  // mockImplementationOnce queues from prior tests can leak across cases.
+  mockDbSelect.mockImplementation(makeSelect([]));
 });
 
 // ── raiseDispute tests ────────────────────────────────────────────────────────
@@ -199,7 +212,7 @@ describe('raiseDispute', () => {
     ).rejects.toThrow('Invalid state');
   });
 
-  it('calls Bull cancel BEFORE status update (ordering test)', async () => {
+  it('calls Bull cancel AFTER status update commits (ordering test)', async () => {
     const { raiseDispute } = await import('../dispute.js');
 
     const callOrder: string[] = [];
@@ -227,6 +240,9 @@ describe('raiseDispute', () => {
       )
       .mockImplementationOnce(
         makeSelect([{ id: 'esc-3', bookingId: 'bk-3', status: 'HELD', totalHeld: '5000' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ userId: 'vendor-user-id-3' }]),
       );
 
     await raiseDispute('user-abc', 'bk-3', { reason: 'Vendor did not show up to the event' });
@@ -234,7 +250,10 @@ describe('raiseDispute', () => {
     const cancelIdx = callOrder.indexOf('jobRemove');
     const updateIdx = callOrder.indexOf('statusUpdate');
     expect(cancelIdx).toBeGreaterThanOrEqual(0);
-    expect(updateIdx).toBeGreaterThan(cancelIdx);
+    expect(updateIdx).toBeGreaterThanOrEqual(0);
+    // Cancel now happens AFTER the transaction commits — protects against
+    // tx rollback orphaning the auto-release Bull job.
+    expect(cancelIdx).toBeGreaterThan(updateIdx);
   });
 
   it('appends audit_log with DISPUTE_RAISED after raising dispute', async () => {
@@ -246,6 +265,9 @@ describe('raiseDispute', () => {
       )
       .mockImplementationOnce(
         makeSelect([{ id: 'esc-4', bookingId: 'bk-4', status: 'HELD', totalHeld: '5000' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ userId: 'vendor-user-id-4' }]),
       );
 
     await raiseDispute('user-abc', 'bk-4', { reason: 'The decorations were completely wrong' });
@@ -269,11 +291,65 @@ describe('raiseDispute', () => {
       )
       .mockImplementationOnce(
         makeSelect([{ id: 'esc-5', bookingId: 'bk-5', status: 'HELD', totalHeld: '5000' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ userId: 'vendor-user-id-5' }]),
       );
 
     const result = await raiseDispute('user-abc', 'bk-5', { reason: 'Service was not delivered at all' });
 
     expect(result).toEqual({ success: true, bookingId: 'bk-5', status: 'DISPUTED' });
+  });
+
+  it('routes vendor notification to vendors.userId, not vendors.id', async () => {
+    const { raiseDispute } = await import('../dispute.js');
+
+    mockDbSelect
+      .mockImplementationOnce(
+        makeSelect([{ id: 'bk-6', customerId: 'user-abc', status: 'CONFIRMED', totalAmount: '10000', vendorId: 'v-uuid-6' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ id: 'esc-6', bookingId: 'bk-6', status: 'HELD', totalHeld: '5000' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ userId: 'vendor-user-text-id' }]),
+      );
+
+    await raiseDispute('user-abc', 'bk-6', { reason: 'Service was not delivered' });
+
+    // Vendor notification job receives the resolved vendors.userId (TEXT user.id),
+    // not the raw vendors.id (UUID).
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'DISPUTE_RAISED_VENDOR',
+      expect.objectContaining({ userId: 'vendor-user-text-id' }),
+    );
+  });
+
+  it('admin notification fans out via notifyAdmins, not direct queue.add', async () => {
+    const { raiseDispute } = await import('../dispute.js');
+
+    mockDbSelect
+      .mockImplementationOnce(
+        makeSelect([{ id: 'bk-7', customerId: 'user-abc', status: 'CONFIRMED', totalAmount: '10000', vendorId: 'v-7' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ id: 'esc-7', bookingId: 'bk-7', status: 'HELD', totalHeld: '5000' }]),
+      )
+      .mockImplementationOnce(
+        makeSelect([{ userId: 'vendor-user-7' }]),
+      );
+
+    await raiseDispute('user-abc', 'bk-7', { reason: 'Late delivery' });
+
+    expect(mockNotifyAdmins).toHaveBeenCalledWith(
+      'DISPUTE_NEEDS_REVIEW',
+      expect.objectContaining({ bookingId: 'bk-7', customerId: 'user-abc' }),
+    );
+    // Confirm we did NOT enqueue DISPUTE_NEEDS_REVIEW directly to the customer's userId.
+    const directAdminCall = mockQueueAdd.mock.calls.find(
+      (c) => c[0] === 'DISPUTE_NEEDS_REVIEW' && (c[1] as { userId?: string })?.userId === 'user-abc',
+    );
+    expect(directAdminCall).toBeUndefined();
   });
 });
 

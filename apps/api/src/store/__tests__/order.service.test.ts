@@ -154,6 +154,8 @@ import {
   createOrder,
   cancelOrder,
   shipOrderItem,
+  deliverOrderItem,
+  confirmOrder,
   getMyOrders,
   getOrderDetail,
 } from '../order.service.js';
@@ -327,14 +329,13 @@ describe('cancelOrder', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it('cancels a PLACED order and restores stock', async () => {
-    // Fetch order
-    mockSelect
-      .mockReturnValueOnce(makeSelectChain([orderRow]))           // fetch order
-      .mockReturnValueOnce(makeSelectChain([orderItemRow]));      // fetch items
+    // Pre-tx existence read
+    mockSelect.mockReturnValueOnce(makeSelectChain([{ status: 'PLACED' }]));
 
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        update: vi.fn().mockImplementation(() => makeUpdateChain([])),
+        update: vi.fn().mockImplementation(() => makeUpdateChain([{ id: ORDER_ID }])),
+        select: vi.fn().mockReturnValue(makeSelectChain([orderItemRow])),
       };
       return cb(tx);
     });
@@ -347,31 +348,36 @@ describe('cancelOrder', () => {
     const item1 = { ...orderItemRow, id: 'item-1', productId: 'prod-1', quantity: 2 };
     const item2 = { ...orderItemRow, id: 'item-2', productId: 'prod-2', quantity: 3 };
 
-    mockSelect
-      .mockReturnValueOnce(makeSelectChain([orderRow]))
-      .mockReturnValueOnce(makeSelectChain([item1, item2]));
+    mockSelect.mockReturnValueOnce(makeSelectChain([{ status: 'PLACED' }]));
 
     let updateCallCount = 0;
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
       const tx = {
         update: vi.fn().mockImplementation(() => {
           updateCallCount++;
-          return makeUpdateChain([]);
+          // First call = cancel order (returning row), next two = stock restore
+          return makeUpdateChain(updateCallCount === 1 ? [{ id: ORDER_ID }] : []);
         }),
+        select: vi.fn().mockReturnValue(makeSelectChain([item1, item2])),
       };
       return cb(tx);
     });
 
     await cancelOrder(USER_ID, ORDER_ID);
 
-    // First update: cancel order status; next 2 updates: restore stock for each item
     expect(updateCallCount).toBe(3);
   });
 
   it('rejects cancellation of DELIVERED order (INVALID_STATE)', async () => {
-    mockSelect.mockReturnValueOnce(
-      makeSelectChain([{ ...orderRow, status: 'DELIVERED' }]),
-    );
+    mockSelect.mockReturnValueOnce(makeSelectChain([{ status: 'DELIVERED' }]));
+
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
+      const tx = {
+        update: vi.fn().mockReturnValue(makeUpdateChain([])), // 0 rows → status guard rejects
+        select: vi.fn().mockReturnValue(makeSelectChain([])),
+      };
+      return cb(tx);
+    });
 
     await expect(cancelOrder(USER_ID, ORDER_ID)).rejects.toMatchObject({
       code: 'INVALID_STATE',
@@ -383,6 +389,31 @@ describe('cancelOrder', () => {
 
     await expect(cancelOrder(USER_ID, 'nonexistent-order')).rejects.toMatchObject({
       code: 'NOT_FOUND',
+    });
+  });
+
+  it('TOCTOU: concurrent cancel — second caller hits 409, stock restored only once', async () => {
+    // Both callers pass the pre-tx existence read.
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([{ status: 'PLACED' }]))
+      .mockReturnValueOnce(makeSelectChain([{ status: 'PLACED' }]));
+
+    // First tx wins (returns row), second tx loses (returns empty).
+    let txInvocation = 0;
+    mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
+      txInvocation++;
+      const tx = {
+        update: vi.fn().mockReturnValue(
+          makeUpdateChain(txInvocation === 1 ? [{ id: ORDER_ID }] : []),
+        ),
+        select: vi.fn().mockReturnValue(makeSelectChain([orderItemRow])),
+      };
+      return cb(tx);
+    });
+
+    await expect(cancelOrder(USER_ID, ORDER_ID)).resolves.toBeUndefined();
+    await expect(cancelOrder(USER_ID, ORDER_ID)).rejects.toMatchObject({
+      code: 'INVALID_STATE',
     });
   });
 });
@@ -400,8 +431,8 @@ describe('shipOrderItem', () => {
         { fulfilmentStatus: 'SHIPPED' },
       ]));
     mockUpdate
-      .mockReturnValueOnce(makeUpdateChain([]))   // update item to SHIPPED
-      .mockReturnValueOnce(makeUpdateChain([]));  // update order status
+      .mockReturnValueOnce(makeUpdateChain([{ id: ORDER_ITEM_ID }]))   // update item to SHIPPED
+      .mockReturnValueOnce(makeUpdateChain([]));                       // update order status
 
     await expect(
       shipOrderItem(USER_ID, ORDER_ITEM_ID, { trackingNumber: 'TRACK123' }),
@@ -425,6 +456,74 @@ describe('shipOrderItem', () => {
     await expect(
       shipOrderItem('not-a-vendor', ORDER_ITEM_ID, { trackingNumber: 'TRACK123' }),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('rejects shipping a CANCELLED or already-SHIPPED item (INVALID_STATE)', async () => {
+    // Vendor lookup + ownership read pass; item is technically owned but
+    // the status guard in WHERE blocks the update — returning() is empty.
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([vendorRow]))
+      .mockReturnValueOnce(makeSelectChain([{ ...orderItemRow, fulfilmentStatus: 'CANCELLED' }]));
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([])); // 0 rows updated
+
+    await expect(
+      shipOrderItem(USER_ID, ORDER_ITEM_ID, { trackingNumber: 'TRACK123' }),
+    ).rejects.toMatchObject({ code: 'INVALID_STATE' });
+  });
+});
+
+// ── deliverOrderItem ─────────────────────────────────────────────────────────
+
+describe('deliverOrderItem', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('delivers a SHIPPED item when called by owning vendor', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([vendorRow]))
+      .mockReturnValueOnce(makeSelectChain([{ ...orderItemRow, fulfilmentStatus: 'SHIPPED' }]))
+      .mockReturnValueOnce(makeSelectChain([{ fulfilmentStatus: 'DELIVERED' }]));
+    mockUpdate
+      .mockReturnValueOnce(makeUpdateChain([{ id: ORDER_ITEM_ID }]))
+      .mockReturnValueOnce(makeUpdateChain([]));
+
+    await expect(deliverOrderItem(USER_ID, ORDER_ITEM_ID)).resolves.toBeUndefined();
+  });
+
+  it('rejects delivering a PENDING item (must be SHIPPED first)', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([vendorRow]))
+      .mockReturnValueOnce(makeSelectChain([orderItemRow]));
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([])); // status guard rejects
+
+    await expect(deliverOrderItem(USER_ID, ORDER_ITEM_ID)).rejects.toMatchObject({
+      code: 'INVALID_STATE',
+    });
+  });
+});
+
+// ── confirmOrder (webhook handler) ───────────────────────────────────────────
+
+describe('confirmOrder', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('flips PLACED → CONFIRMED on a valid webhook', async () => {
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([{ id: ORDER_ID, prevStatus: 'PLACED' }]));
+
+    await expect(confirmOrder('rp_order_x', 'rp_pay_x')).resolves.toBeUndefined();
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('logs and ignores webhook on a non-PLACED order (e.g., already CANCELLED)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([])); // 0 rows updated
+
+    await confirmOrder('rp_order_y', 'rp_pay_y');
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('webhook for order not in PLACED state'),
+      expect.objectContaining({ razorpayOrderId: 'rp_order_y' }),
+    );
+    warn.mockRestore();
   });
 });
 

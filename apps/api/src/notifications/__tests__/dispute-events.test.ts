@@ -45,6 +45,10 @@ function makeWhereChain() {
   return obj;
 }
 
+vi.mock('../../infrastructure/redis/queues.js', () => ({
+  notificationsQueue: { add: vi.fn().mockResolvedValue(undefined) },
+}));
+
 vi.mock('../../lib/db.js', () => ({
   db: {
     select: vi.fn(() => ({

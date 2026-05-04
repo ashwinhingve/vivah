@@ -22,6 +22,7 @@ import * as schema from '@smartshaadi/db';
 import { transferToVendor, createRefund } from '../lib/razorpay.js';
 import { appendAuditLog } from './service.js';
 import { escrowReleaseQueue, notificationsQueue } from '../infrastructure/redis/queues.js';
+import { notifyAdmins } from '../notifications/service.js';
 import type { DisputeEscrowInput } from '@smartshaadi/schemas';
 import { logger } from '../lib/logger.js';
 
@@ -65,10 +66,9 @@ export async function raiseDispute(
     throw new Error('Forbidden: booking does not belong to this user');
   }
 
-  // 2. Cancel pending Bull job BEFORE entering the transaction
-  await cancelEscrowReleaseJob(bookingId);
-
-  // 3. Transaction with SELECT … FOR UPDATE to prevent concurrent double-dispute
+  // 2. Transaction with SELECT … FOR UPDATE to prevent concurrent double-dispute.
+  //    Bull job cancellation is deferred to AFTER commit so a rolled-back
+  //    transaction does not orphan the escrow auto-release.
   let vendorId: string;
 
   await db.transaction(async (tx) => {
@@ -135,22 +135,36 @@ export async function raiseDispute(
     });
   });
 
-  // 4. Enqueue notifications AFTER txn commits — non-blocking, fire-and-forget
-  void notificationsQueue
-    .add('DISPUTE_RAISED_VENDOR', {
-      type:    'DISPUTE_RAISED_VENDOR',
-      userId:  vendorId!,
-      payload: { bookingId, vendorId: vendorId!, reason: input.reason },
-    })
-    .catch((e) => console.warn('[dispute] vendor notification queue error:', e));
+  // 4. Cancel the pending escrow auto-release Bull job AFTER commit.
+  //    Deterministic job ID `escrow-release-${bookingId}` makes this idempotent.
+  await cancelEscrowReleaseJob(bookingId);
 
-  void notificationsQueue
-    .add('DISPUTE_NEEDS_REVIEW', {
-      type:    'DISPUTE_NEEDS_REVIEW',
-      userId:  userId,
-      payload: { bookingId, customerId: userId, reason: input.reason },
-    })
-    .catch((e) => console.warn('[dispute] admin notification queue error:', e));
+  // 5. Enqueue notifications. Vendor recipient is the user.id behind vendors.id.
+  const [vendorRow] = await db
+    .select({ userId: schema.vendors.userId })
+    .from(schema.vendors)
+    .where(eq(schema.vendors.id, vendorId!))
+    .limit(1);
+
+  if (vendorRow?.userId) {
+    void notificationsQueue
+      .add('DISPUTE_RAISED_VENDOR', {
+        type:    'DISPUTE_RAISED_VENDOR',
+        userId:  vendorRow.userId,
+        payload: { bookingId, vendorId: vendorId!, reason: input.reason },
+      })
+      .catch((e) => console.warn('[dispute] vendor notification queue error:', e));
+  } else {
+    console.warn('[dispute] vendor user lookup failed', { vendorId: vendorId! });
+  }
+
+  // Admin fan-out — replaces the broken `'admin'` sentinel pattern.
+  void notifyAdmins('DISPUTE_NEEDS_REVIEW', {
+    bookingId,
+    customerId: userId,
+    vendorId:   vendorId!,
+    reason:     input.reason,
+  }).catch((e) => console.warn('[dispute] admin notification fan-out error:', e));
 
   return { success: true, bookingId, status: 'DISPUTED' };
 }

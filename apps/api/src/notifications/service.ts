@@ -14,6 +14,7 @@ import {
   notificationPreferences,
   deviceTokens,
 } from '@smartshaadi/db';
+import { notificationsQueue } from '../infrastructure/redis/queues.js';
 import { sendPush } from './providers/fcm.js';
 import { sendEmail } from './providers/ses.js';
 import { sendSms } from './providers/msg91.js';
@@ -59,13 +60,10 @@ export interface NotificationDeliveryJob {
 import { profiles } from '@smartshaadi/db';
 
 async function resolveRecipientUserId(job: NotificationDeliveryJob): Promise<string | null> {
-  // Sentinel for moderator routing — not a real user.id.
-  if (job.userId === 'admin') return job.userId;
-  // Same value supplied for both fields (legacy matchmaking callers): treat
-  // as a profileId and resolve. If a real userId was passed (no profileId
-  // mismatch), the lookup will fail silently and we fall through to the raw
-  // value, which the rest of the pipeline will treat as user.id.
-  if (job.profileId && job.profileId === job.userId) {
+  // When profileId is supplied, resolve it to user.id regardless of whether
+  // userId matches — matchmaking callers historically passed both fields
+  // equal to the same profile UUID; newer callers may pass distinct values.
+  if (job.profileId) {
     const [row] = await db
       .select({ userId: profiles.userId })
       .from(profiles)
@@ -75,6 +73,36 @@ async function resolveRecipientUserId(job: NotificationDeliveryJob): Promise<str
     return null;
   }
   return job.userId;
+}
+
+/**
+ * Fan-out helper for moderator/admin notifications. Queries the `user` table
+ * for every ADMIN-role account and enqueues one delivery job per admin.
+ * Use this for DISPUTE_NEEDS_REVIEW, PROFILE_REPORTED_MODERATION, and any
+ * other event that should reach the admin queue rather than a single user.
+ */
+export async function notifyAdmins(
+  type: NotificationType | string,
+  payload: Record<string, unknown>,
+): Promise<{ enqueued: number }> {
+  const admins = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.role, 'ADMIN'));
+
+  if (admins.length === 0) {
+    console.warn('[notifications] notifyAdmins: no ADMIN users in database', { type });
+    return { enqueued: 0 };
+  }
+
+  await Promise.all(
+    admins.map((a) =>
+      notificationsQueue
+        .add(type, { type, userId: a.id, payload })
+        .catch((e) => console.warn('[notifications] notifyAdmins enqueue failed:', a.id, e)),
+    ),
+  );
+  return { enqueued: admins.length };
 }
 
 interface UserPrefs {
