@@ -125,7 +125,7 @@ export default async function RentalsPage({ searchParams }: Props) {
 
         {/* Grid */}
         {items.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {items.map((item) => (
               <RentalCard key={item.id} item={item} />
             ))}
@@ -142,7 +142,7 @@ export default async function RentalsPage({ searchParams }: Props) {
                 <a
                   key={p}
                   href={`/rentals?${pqs.toString()}`}
-                  className={`min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                  className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     p === currentPage
                       ? 'bg-primary text-white'
                       : 'bg-surface border border-gold/40 text-muted-foreground hover:border-primary'
