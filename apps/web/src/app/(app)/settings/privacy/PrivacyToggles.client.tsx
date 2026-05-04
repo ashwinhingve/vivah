@@ -4,22 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Loader2, Check, Shield, Sparkles, Lock, ShieldX } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-
-type AllowMessageFrom = 'EVERYONE' | 'VERIFIED_ONLY' | 'SAME_COMMUNITY' | 'ACCEPTED_ONLY';
-type PrivacyPreset   = 'CONSERVATIVE' | 'BALANCED' | 'OPEN';
-
-interface SafetyMode {
-  contactHidden?:        boolean;
-  photoHidden?:          boolean;
-  incognito?:            boolean;
-  showLastActive?:       boolean;
-  showReadReceipts?:     boolean;
-  photoBlurUntilUnlock?: boolean;
-  hideFromSearch?:       boolean;
-  allowMessageFrom?:     AllowMessageFrom;
-}
+import {
+  updatePrivacyTogglesAction,
+  applyPrivacyPresetAction,
+  type AllowMessageFrom,
+  type PrivacyPreset,
+  type SafetyMode,
+} from './actions';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -82,46 +73,28 @@ export function PrivacyToggles({ initial }: { initial: SafetyMode }) {
   async function persist(next: SafetyMode) {
     setState('saving');
     setErrorMsg(null);
-    try {
-      const res = await fetch(`${API_URL}/api/v1/profiles/me/safety-mode`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(next),
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        setErrorMsg(body.error ?? 'Could not save settings');
-        setState('error');
-        return;
-      }
-      setState('saved');
-      setTimeout(() => setState('idle'), 1500);
-    } catch {
-      setErrorMsg('Network error — please try again');
+    const result = await updatePrivacyTogglesAction(next);
+    if (!result.ok) {
+      setErrorMsg(result.error);
       setState('error');
+      return;
     }
+    setState('saved');
+    setTimeout(() => setState('idle'), 1500);
   }
 
   async function applyPreset(preset: PrivacyPreset) {
     setState('saving');
     setErrorMsg(null);
-    try {
-      const res = await fetch(`${API_URL}/api/v1/profiles/me/safety-mode/preset`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preset }),
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('preset failed');
-      const body = (await res.json()) as { success: boolean; data: { safetyMode: SafetyMode } };
-      setMode({ ...mode, ...body.data.safetyMode });
-      setState('saved');
-      setTimeout(() => setState('idle'), 1500);
-    } catch {
-      setErrorMsg('Could not apply preset');
+    const result = await applyPrivacyPresetAction(preset);
+    if (!result.ok) {
+      setErrorMsg(result.error);
       setState('error');
+      return;
     }
+    setMode({ ...mode, ...result.safetyMode });
+    setState('saved');
+    setTimeout(() => setState('idle'), 1500);
   }
 
   function update<K extends keyof SafetyMode>(key: K, next: SafetyMode[K]) {

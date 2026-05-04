@@ -20,6 +20,8 @@ import {
   Shield,
   Heart,
   MessageCircle,
+  Sparkles,
+  Bell,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -28,25 +30,29 @@ import { cn } from '@/lib/utils';
 type NavItem = { href: string; label: string; Icon: LucideIcon };
 
 const INDIVIDUAL_PRIMARY: NavItem[] = [
-  { href: '/feed',      label: 'Matches', Icon: Home },
-  { href: '/vendors',   label: 'Vendors', Icon: Search },
-  { href: '/weddings',  label: 'Wedding', Icon: Cake },
-  { href: '/dashboard', label: 'Profile', Icon: User },
+  { href: '/feed',      label: 'Discover',    Icon: Home },
+  { href: '/requests',  label: 'Requests',    Icon: Heart },
+  { href: '/matches',   label: 'Connections', Icon: Sparkles },
+  { href: '/weddings',  label: 'Wedding',     Icon: Cake },
+  { href: '/dashboard', label: 'Profile',     Icon: User },
 ];
 
 const INDIVIDUAL_MORE: NavItem[] = [
-  { href: '/chats',            label: 'Chats',      Icon: MessageCircle },
-  { href: '/likes',            label: 'Likes',      Icon: Heart },
-  { href: '/shortlist',        label: 'Shortlist',  Icon: Bookmark },
-  { href: '/viewers',          label: 'Viewed Me',  Icon: Eye },
-  { href: '/settings/privacy', label: 'Privacy',    Icon: Shield },
-  { href: '/store',            label: 'Shop',       Icon: ShoppingBag },
-  { href: '/rentals',          label: 'Rentals',    Icon: Package },
-  { href: '/bookings',         label: 'Bookings',   Icon: Calendar },
-  { href: '/payments',         label: 'Payments',   Icon: ShoppingCart },
-  { href: '/payments/wallet',  label: 'Wallet',     Icon: Package },
-  { href: '/payments/invoices',label: 'Invoices',   Icon: Bookmark },
-  { href: '/payments/refunds', label: 'Refunds',    Icon: Shield },
+  { href: '/chats',                       label: 'Chats',         Icon: MessageCircle },
+  { href: '/notifications',               label: 'Notifications', Icon: Bell },
+  { href: '/vendors',                     label: 'Vendors',       Icon: Search },
+  { href: '/likes',                       label: 'Likes',         Icon: Heart },
+  { href: '/shortlist',                   label: 'Shortlist',     Icon: Bookmark },
+  { href: '/viewers',                     label: 'Viewed Me',     Icon: Eye },
+  { href: '/settings/privacy',            label: 'Privacy',       Icon: Shield },
+  { href: '/settings/security/two-factor',label: 'Security',      Icon: Shield },
+  { href: '/store',                       label: 'Shop',          Icon: ShoppingBag },
+  { href: '/rentals',                     label: 'Rentals',       Icon: Package },
+  { href: '/bookings',                    label: 'Bookings',      Icon: Calendar },
+  { href: '/payments',                    label: 'Payments',      Icon: ShoppingCart },
+  { href: '/payments/wallet',             label: 'Wallet',        Icon: Package },
+  { href: '/payments/invoices',           label: 'Invoices',      Icon: Bookmark },
+  { href: '/payments/refunds',            label: 'Refunds',       Icon: Shield },
 ];
 
 const VENDOR_NAV: NavItem[] = [

@@ -1,17 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-
-interface Prefs {
-  push:       boolean;
-  sms:        boolean;
-  email:      boolean;
-  inApp:      boolean;
-  marketing:  boolean;
-  mutedTypes: string[];
-}
-
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+import { updateNotificationPrefsAction, type NotificationPrefs as Prefs } from './actions';
 
 const CHANNELS: Array<{ key: keyof Prefs; label: string; description: string }> = [
   { key: 'push',      label: 'Push notifications', description: 'Real-time alerts on your phone or browser' },
@@ -40,17 +30,8 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
     setPrefs(next);
     setSaved(false);
     startTransition(async () => {
-      try {
-        await fetch(`${API_URL}/api/v1/users/me/notification-preferences`, {
-          method:      'PUT',
-          credentials: 'include',
-          headers:     { 'Content-Type': 'application/json' },
-          body:        JSON.stringify(next),
-        });
-        setSaved(true);
-      } catch {
-        /* noop */
-      }
+      const result = await updateNotificationPrefsAction(next);
+      if (result.ok) setSaved(true);
     });
   }
 
@@ -62,10 +43,10 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-surface p-6 shadow-card">
         <h2 className="mb-1 text-lg font-semibold text-primary">Channels</h2>
         <p className="mb-4 text-sm text-muted-foreground">Choose how you want to be notified.</p>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {CHANNELS.map(c => (
             <label key={c.key} className="flex items-center justify-between gap-4 py-3">
               <div>
@@ -76,17 +57,17 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
                 type="checkbox"
                 checked={prefs[c.key] as boolean}
                 onChange={(e) => update({ [c.key]: e.currentTarget.checked } as Partial<Prefs>)}
-                className="h-5 w-5 accent-[#1848C8]"
+                className="h-5 w-5 accent-primary"
               />
             </label>
           ))}
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-surface p-6 shadow-card">
         <h2 className="mb-1 text-lg font-semibold text-primary">Mute specific events</h2>
         <p className="mb-4 text-sm text-muted-foreground">Even with channels enabled, these specific events will not notify you.</p>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {MUTABLE_EVENTS.map(e => {
             const muted = prefs.mutedTypes.includes(e.key);
             return (
@@ -97,7 +78,7 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
                   checked={muted}
                   onChange={() => toggleMuted(e.key)}
                   aria-label={`Mute ${e.label}`}
-                  className="h-5 w-5 accent-red-500"
+                  className="h-5 w-5 accent-destructive"
                 />
               </label>
             );
