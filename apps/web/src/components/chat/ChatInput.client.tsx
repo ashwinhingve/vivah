@@ -200,7 +200,7 @@ export default function ChatInput({
             type="button"
             onClick={editing ? onCancelEdit : onCancelReply}
             aria-label="Cancel"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted"
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -240,7 +240,7 @@ export default function ChatInput({
             type="button"
             onClick={() => setEmojiOpen((o) => !o)}
             aria-label="Emoji"
-            className="absolute right-2 top-1.5 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
+            className="absolute right-2 top-1.5 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
           >
             <Smile className="h-4 w-4" />
           </button>
@@ -257,7 +257,7 @@ export default function ChatInput({
                   type="button"
                   onClick={() => { insertEmoji(e); setEmojiOpen(false) }}
                   aria-label={`Insert ${e}`}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-lg leading-none hover:bg-surface-muted"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-lg leading-none hover:bg-surface-muted"
                 >
                   {e}
                 </button>

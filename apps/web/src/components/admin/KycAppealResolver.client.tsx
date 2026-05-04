@@ -72,11 +72,11 @@ export function KycAppealResolver({ appeal }: { appeal: Appeal }) {
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => void decide('UPHOLD')} disabled={!!busy}
-              className="bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[40px] disabled:opacity-50 transition-colors">
+              className="bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[44px] disabled:opacity-50 transition-colors">
               {busy === 'UPHOLD' ? 'Upholding…' : 'Uphold (re-verify)'}
             </button>
             <button onClick={() => void decide('DENY')} disabled={!!busy}
-              className="border border-destructive/30 text-destructive font-semibold rounded-lg px-3 py-2 text-sm min-h-[40px] hover:bg-destructive/5 disabled:opacity-50 transition-colors">
+              className="border border-destructive/30 text-destructive font-semibold rounded-lg px-3 py-2 text-sm min-h-[44px] hover:bg-destructive/5 disabled:opacity-50 transition-colors">
               {busy === 'DENY' ? 'Denying…' : 'Deny'}
             </button>
           </div>

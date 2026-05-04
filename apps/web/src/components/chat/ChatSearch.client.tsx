@@ -82,7 +82,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
           onClick={() => step(-1)}
           disabled={results.length === 0}
           aria-label="Previous match"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-background disabled:opacity-30"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-background disabled:opacity-30"
         >
           <ChevronUp className="h-4 w-4" />
         </button>
@@ -91,7 +91,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
           onClick={() => step(1)}
           disabled={results.length === 0}
           aria-label="Next match"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-background disabled:opacity-30"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-background disabled:opacity-30"
         >
           <ChevronDown className="h-4 w-4" />
         </button>
@@ -99,7 +99,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
           type="button"
           onClick={onClose}
           aria-label="Close search"
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-background"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-background"
         >
           <X className="h-4 w-4" />
         </button>

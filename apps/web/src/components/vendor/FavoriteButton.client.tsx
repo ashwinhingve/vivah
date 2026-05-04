@@ -40,10 +40,10 @@ export function FavoriteButton({ vendorId, initialFavorite = false, className = 
       disabled={pending}
       aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
       aria-pressed={isFav}
-      className={`min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-full border border-gold/40 bg-surface hover:bg-gold/10 transition-colors disabled:opacity-50 ${className}`}
+      className={`min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-full border border-gold/40 bg-surface hover:bg-gold/10 transition-colors disabled:opacity-50 ${className}`}
     >
       <Heart
-        className={`h-5 w-5 ${isFav ? 'fill-rose-500 text-destructive' : 'text-foreground'}`}
+        className={`h-5 w-5 ${isFav ? 'fill-destructive text-destructive' : 'text-foreground'}`}
         aria-hidden="true"
       />
     </button>

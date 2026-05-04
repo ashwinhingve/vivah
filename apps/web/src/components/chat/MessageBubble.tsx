@@ -197,7 +197,7 @@ function MessageBubbleInner({
               type="button"
               onClick={() => setPickerOpen(true)}
               aria-label="Add reaction"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
             >
               <span className="text-base leading-none">😊</span>
             </button>
@@ -206,7 +206,7 @@ function MessageBubbleInner({
                 type="button"
                 onClick={() => onEdit(message)}
                 aria-label="Edit"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
               >
                 <Pencil className="h-3.5 w-3.5" />
               </button>
@@ -215,7 +215,7 @@ function MessageBubbleInner({
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-label="More"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
             </button>

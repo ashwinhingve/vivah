@@ -17,6 +17,7 @@ const SEGMENTS: {
   { key: 'family',      label: 'Family',      href: '/profile/family'      },
   { key: 'career',      label: 'Career',      href: '/profile/career'      },
   { key: 'lifestyle',   label: 'Lifestyle',   href: '/profile/lifestyle'   },
+  { key: 'personality', label: 'Personality', href: '/profile/personality' },
   { key: 'horoscope',   label: 'Horoscope',   href: '/profile/horoscope'   },
   { key: 'preferences', label: 'Preferences', href: '/profile/preferences' },
 ];

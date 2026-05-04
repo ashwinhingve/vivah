@@ -19,7 +19,7 @@ export default async function SeatingPage({ params }: PageProps) {
   const unseated = guests.filter(g => !seatedIds.has(g.id) && g.rsvpStatus === 'YES');
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-8 pb-24">
         <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
           <ArrowLeft className="h-4 w-4" /> Back
@@ -32,7 +32,7 @@ export default async function SeatingPage({ params }: PageProps) {
           </div>
           {tables.length > 0 && unseated.length > 0 && (
             <form action={autoAssignAction.bind(null, id)}>
-              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
+              <button type="submit" className="flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
                 <Sparkles className="h-4 w-4" /> Auto-assign
               </button>
             </form>
@@ -78,10 +78,10 @@ export default async function SeatingPage({ params }: PageProps) {
 
                     {filled < t.capacity && unseated.length > 0 && (
                       <form action={assignSeatAction.bind(null, id, t.id)} className="flex gap-2">
-                        <select name="guestId" className="flex-1 min-h-[36px] rounded border border-gold/30 px-2 py-1 text-xs">
+                        <select name="guestId" className="flex-1 min-h-[44px] rounded border border-gold/30 px-2 py-1 text-xs">
                           {unseated.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                         </select>
-                        <button type="submit" className="min-h-[36px] px-3 rounded bg-teal text-white text-xs">Seat</button>
+                        <button type="submit" className="min-h-[44px] px-3 rounded bg-teal text-white text-xs">Seat</button>
                       </form>
                     )}
                   </div>
@@ -97,17 +97,17 @@ export default async function SeatingPage({ params }: PageProps) {
                 <Plus className="h-4 w-4" /> New table
               </h3>
               <form action={createTableAction.bind(null, id)} className="space-y-3">
-                <input name="name" placeholder="Table name" required className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
+                <input name="name" placeholder="Table name" required className="w-full min-h-[44px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
                 <div className="grid grid-cols-2 gap-2">
-                  <input name="capacity" type="number" min="2" max="50" defaultValue={8} className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
-                  <select name="shape" className="w-full min-h-[36px] rounded border border-gold/30 px-3 py-1.5 text-sm">
+                  <input name="capacity" type="number" min="2" max="50" defaultValue={8} className="w-full min-h-[44px] rounded border border-gold/30 px-3 py-1.5 text-sm" />
+                  <select name="shape" className="w-full min-h-[44px] rounded border border-gold/30 px-3 py-1.5 text-sm">
                     <option value="ROUND">Round</option>
                     <option value="RECT">Rectangle</option>
                     <option value="SQUARE">Square</option>
                     <option value="OVAL">Oval</option>
                   </select>
                 </div>
-                <button type="submit" className="w-full min-h-[40px] rounded-lg bg-primary text-white text-sm font-semibold">Add table</button>
+                <button type="submit" className="w-full min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Add table</button>
               </form>
             </div>
 

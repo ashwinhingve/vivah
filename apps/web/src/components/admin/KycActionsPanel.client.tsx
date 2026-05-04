@@ -61,12 +61,12 @@ export function KycActionsPanel({ profileId, status }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <button onClick={() => void call(`/api/v1/admin/kyc/${profileId}/approve`, note ? { note } : {})}
           disabled={!!busy || inactive}
-          className="bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[40px] disabled:opacity-50 transition-colors">
+          className="bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[44px] disabled:opacity-50 transition-colors">
           {busy?.endsWith('approve') ? 'Approving…' : 'Approve KYC'}
         </button>
         <button onClick={() => void call(`/api/v1/admin/kyc/${profileId}/reject`, note ? { note } : {})}
           disabled={!!busy || inactive}
-          className="border border-destructive/30 text-destructive font-semibold rounded-lg px-3 py-2 text-sm min-h-[40px] hover:bg-destructive/5 disabled:opacity-50 transition-colors">
+          className="border border-destructive/30 text-destructive font-semibold rounded-lg px-3 py-2 text-sm min-h-[44px] hover:bg-destructive/5 disabled:opacity-50 transition-colors">
           {busy?.endsWith('reject') ? 'Rejecting…' : 'Reject KYC'}
         </button>
       </div>
@@ -92,7 +92,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
             void call(`/api/v1/admin/kyc/${profileId}/request-info`, { note, requiredDocs });
           }}
           disabled={!!busy || inactive}
-          className="w-full bg-warning hover:bg-warning/90 text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[40px] disabled:opacity-50 transition-colors">
+          className="w-full bg-warning hover:bg-warning/90 text-white font-semibold rounded-lg px-3 py-2 text-sm min-h-[44px] disabled:opacity-50 transition-colors">
           {busy?.endsWith('request-info') ? 'Sending…' : 'Request info from user'}
         </button>
       </div>

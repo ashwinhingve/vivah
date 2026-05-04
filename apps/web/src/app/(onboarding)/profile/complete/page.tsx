@@ -24,13 +24,25 @@ async function getProfileData() {
 }
 
 const SECTION_LABELS: Record<string, string> = {
-  personal: 'Personal details',
-  photos: 'Profile photos',
-  family: 'Family information',
-  career: 'Career & education',
-  lifestyle: 'Lifestyle preferences',
-  horoscope: 'Horoscope details',
+  personal:    'Personal details',
+  photos:      'Profile photos',
+  family:      'Family information',
+  career:      'Career & education',
+  lifestyle:   'Lifestyle preferences',
+  personality: 'Personality',
+  horoscope:   'Horoscope details',
   preferences: 'Partner preferences',
+};
+
+const SECTION_HREFS: Record<string, string> = {
+  personal:    '/profile/personal',
+  photos:      '/profile/photos',
+  family:      '/profile/family',
+  career:      '/profile/career',
+  lifestyle:   '/profile/lifestyle',
+  personality: '/profile/personality',
+  horoscope:   '/profile/horoscope',
+  preferences: '/profile/preferences',
 };
 
 export default async function ProfileCompletePage() {
@@ -78,17 +90,28 @@ export default async function ProfileCompletePage() {
 
         {/* Incomplete sections list */}
         {incomplete.length > 0 && (
-          <div className="bg-surface rounded-xl border border-border p-4">
+          <div className="bg-surface rounded-xl border border-border p-4 shadow-card">
             <h2 className="font-heading text-base font-semibold text-primary mb-3">
               Complete these sections
             </h2>
-            <ul className="space-y-2">
-              {incomplete.map(([key, label]) => (
-                <li key={key} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0" />
-                  {label}
-                </li>
-              ))}
+            <ul className="space-y-1">
+              {incomplete.map(([key, label]) => {
+                const href = SECTION_HREFS[key] ?? '/dashboard';
+                return (
+                  <li key={key}>
+                    <Link
+                      href={href}
+                      className="group flex items-center justify-between gap-2 rounded-lg px-2 py-2 min-h-[44px] text-sm text-muted-foreground transition-colors hover:bg-gold/5 hover:text-primary focus:outline-none focus:ring-2 focus:ring-teal"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0 group-hover:border-teal transition-colors" />
+                        {label}
+                      </span>
+                      <span className="text-muted-foreground/60 group-hover:text-primary">›</span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
