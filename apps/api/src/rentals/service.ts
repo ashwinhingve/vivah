@@ -452,6 +452,10 @@ export async function returnRentalItem(
     .where(and(eq(rentalBookings.id, rentalBookingId), eq(rentalBookings.status, 'ACTIVE')))
     .returning();
 
+  if (updated.length === 0) {
+    throw makeError('CONFLICT', 'Rental booking not found or already returned', 409);
+  }
+
   const row = updated[0] as RentalBookingRow;
   return toBookingSummary({ ...row, itemName: (item as RentalItemRow).name });
 }

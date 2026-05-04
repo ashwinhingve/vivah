@@ -528,6 +528,20 @@ describe('returnRentalItem', () => {
       code: 'INVALID_STATE',
     });
   });
+
+  it('crash-guards on race: returns CONFLICT 409 when concurrent return already won', async () => {
+    // Pre-read sees ACTIVE; the WHERE-status guard inside UPDATE rejects.
+    mockSelect.mockReturnValueOnce(makeSelectChainResolvable([{
+      booking:      { ...bookingRow, status: 'ACTIVE' },
+      item:         itemRow,
+      vendorUserId: USER_ID,
+    }]));
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([])); // 0 rows updated
+
+    await expect(returnRentalItem(USER_ID, BOOKING_ID)).rejects.toMatchObject({
+      code: 'CONFLICT',
+    });
+  });
 });
 
 // ── getMyRentalBookings ───────────────────────────────────────────────────────

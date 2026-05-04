@@ -197,6 +197,11 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
   const preferences =
     (doc?.partnerPreferences as Record<string, unknown> | undefined)?.ageRange != null;
 
+  // Personality: complete when the user has saved the Big-Five style
+  // personalityScores section (sub-document under ProfileContent).
+  const personalityDoc = doc?.personalityScores as Record<string, unknown> | undefined;
+  const personality = personalityDoc != null && Object.keys(personalityDoc).length > 0;
+
   // 3. Get the profileId (uuid) from the profiles table — needed for photos count + upsert
   const profileRows = await db
     .select({ id: profiles.id })
@@ -225,6 +230,7 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
       horoscope,
       photos,
       preferences,
+      personality,
     })
     .onConflictDoUpdate({
       target: profileSections.profileId,
@@ -236,20 +242,23 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
         horoscope,
         photos,
         preferences,
+        personality,
         updatedAt: new Date(),
       },
     });
 
-  // 4. Compute weighted score
-  // personal=20, photos=20, family=15, career=15, lifestyle=10, horoscope=10, preferences=10
+  // 4. Compute weighted score (totals 100)
+  // personal=15, photos=20, family=10, career=15, lifestyle=10,
+  // horoscope=10, preferences=10, personality=10
   const score =
-    (personal ? 20 : 0) +
+    (personal ? 15 : 0) +
     (photos ? 20 : 0) +
-    (family ? 15 : 0) +
+    (family ? 10 : 0) +
     (career ? 15 : 0) +
     (lifestyle ? 10 : 0) +
     (horoscope ? 10 : 0) +
-    (preferences ? 10 : 0);
+    (preferences ? 10 : 0) +
+    (personality ? 10 : 0);
 
   // 5. Update profiles.profileCompleteness
   await db

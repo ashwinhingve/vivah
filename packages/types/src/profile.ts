@@ -302,6 +302,7 @@ export interface ProfileSectionCompletion {
   horoscope: boolean;
   photos: boolean;
   preferences: boolean;
+  personality: boolean;
   score: number; // 0-100
 }
 

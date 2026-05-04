@@ -318,7 +318,7 @@ describe('computeAndUpdateCompleteness', () => {
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
-    expect(score).toBe(20);  // personal=20
+    expect(score).toBe(15);  // personal=15
   });
 
   it('computes score correctly when personal, family, and career are filled', async () => {
@@ -334,7 +334,7 @@ describe('computeAndUpdateCompleteness', () => {
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
-    expect(score).toBe(20 + 15 + 15);  // personal + family + career = 50
+    expect(score).toBe(15 + 10 + 15);  // personal + family + career = 40
   });
 
   it('computes score correctly when all sections are filled', async () => {
@@ -347,13 +347,14 @@ describe('computeAndUpdateCompleteness', () => {
       lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'NEVER' },
       horoscope: { rashi: 'Aries' },
       partnerPreferences: { ageRange: { min: 25, max: 30 } },
+      personalityScores: { openness: 0.7, conscientiousness: 0.8, extraversion: 0.5, agreeableness: 0.6, neuroticism: 0.3 },
     };
     setupProfileContentFindOne(doc);
     setupSelectReturns([{ id: mockProfileId }], [{ value: 1 }]);
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
-    expect(score).toBe(20 + 20 + 15 + 15 + 10 + 10 + 10);  // All sections + photos = 100
+    expect(score).toBe(15 + 20 + 10 + 15 + 10 + 10 + 10 + 10);  // All sections + photos = 100
   });
 
   it('preserves existing photos value when recomputing', async () => {
@@ -366,7 +367,20 @@ describe('computeAndUpdateCompleteness', () => {
     setupInsertOk();
     setupUpdateOk();
     const score = await computeAndUpdateCompleteness(mockUserId);
-    expect(score).toBe(20 + 20);  // personal + photos
+    expect(score).toBe(15 + 20);  // personal + photos = 35
+  });
+
+  it('counts personality complete when personalityScores has any keys', async () => {
+    const doc = {
+      userId: mockUserId,
+      personalityScores: { openness: 0.7 },
+    };
+    setupProfileContentFindOne(doc);
+    setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
+    setupInsertOk();
+    setupUpdateOk();
+    const score = await computeAndUpdateCompleteness(mockUserId);
+    expect(score).toBe(10);  // personality only
   });
 
   it('updates both profileSections and profiles table', async () => {

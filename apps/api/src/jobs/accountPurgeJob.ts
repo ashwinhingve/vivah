@@ -38,8 +38,8 @@ export async function purgeExpiredDeletions(): Promise<number> {
 let worker: Worker<AccountPurgeJob> | null = null;
 let queue: Queue<AccountPurgeJob> | null = null;
 
-export function startAccountPurgeWorker(): void {
-  if (worker) return;
+export function startAccountPurgeWorker(): { close(): Promise<void> } {
+  if (worker) return { close: () => stopAccountPurgeWorker() };
   queue = new Queue<AccountPurgeJob>(QUEUE_NAME, { connection });
   worker = new Worker<AccountPurgeJob>(
     QUEUE_NAME,
@@ -58,6 +58,7 @@ export function startAccountPurgeWorker(): void {
     { scheduledAt: new Date().toISOString() },
     { repeat: { every: REPEAT_EVERY_MS }, removeOnComplete: { count: 50 }, removeOnFail: { count: 50 } },
   );
+  return { close: () => stopAccountPurgeWorker() };
 }
 
 export async function stopAccountPurgeWorker(): Promise<void> {

@@ -10,6 +10,7 @@ import {
   pgTable, pgEnum, uuid, varchar, text, boolean,
   timestamp, date, integer, decimal, jsonb,
   uniqueIndex, index,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { user } from './auth';
@@ -466,6 +467,7 @@ export const profileSections = pgTable('profile_sections', {
   horoscope:   boolean('horoscope').notNull().default(false),
   photos:      boolean('photos').notNull().default(false),
   preferences: boolean('preferences').notNull().default(false),
+  personality: boolean('personality').notNull().default(false),
   updatedAt:   timestamp('updated_at').defaultNow().notNull(),
 });
 
@@ -755,8 +757,8 @@ export const bookings = pgTable('bookings', {
   customerId:     text('customer_id').notNull().references(() => user.id),
   vendorId:       uuid('vendor_id').notNull().references(() => vendors.id),
   serviceId:      uuid('service_id').references(() => vendorServices.id),
-  weddingId:      uuid('wedding_id').references((): any => weddings.id, { onDelete: 'set null' }),
-  ceremonyId:     uuid('ceremony_id').references((): any => ceremonies.id, { onDelete: 'set null' }),
+  weddingId:      uuid('wedding_id').references((): AnyPgColumn => weddings.id, { onDelete: 'set null' }),
+  ceremonyId:     uuid('ceremony_id').references((): AnyPgColumn => ceremonies.id, { onDelete: 'set null' }),
   eventDate:      date('event_date').notNull(),
   ceremonyType:   ceremonyTypeEnum('ceremony_type').notNull().default('WEDDING'),
   status:         bookingStatusEnum('status').default('PENDING').notNull(),

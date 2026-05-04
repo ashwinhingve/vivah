@@ -158,6 +158,7 @@ export async function submitRsvp(
     .where(and(eq(rsvpTokens.token, token), gt(rsvpTokens.expiresAt, new Date())))
     .limit(1);
   if (!t) throw appErr('Invalid or expired token', 'INVALID_TOKEN', 404);
+  if (t.usedAt) throw appErr('RSVP already submitted', 'RSVP_ALREADY_USED', 410);
 
   // Resolve weddingId for deadline check + activity log
   const [g0] = await db.select({ guestListId: guests.guestListId }).from(guests).where(eq(guests.id, t.guestId)).limit(1);

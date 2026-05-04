@@ -58,8 +58,8 @@ async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
   return { rashi, nakshatra, manglik };
 }
 
-export function startGunaRecalcWorker(): Worker<MatchComputeJob> {
-  return new Worker<MatchComputeJob>(
+export function startGunaRecalcWorker(): { close(): Promise<void> } {
+  const w = new Worker<MatchComputeJob>(
     'match-compute',
     async (job) => {
       // Sort IDs alphabetically — must match scorer.ts key convention
@@ -83,4 +83,5 @@ export function startGunaRecalcWorker(): Worker<MatchComputeJob> {
     },
     { connection },
   );
+  return { close: () => w.close() };
 }

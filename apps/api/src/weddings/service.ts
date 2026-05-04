@@ -836,12 +836,14 @@ export async function selectMuhurat(
     mockSavePlan(weddingId, plan);
     return updated;
   } else {
-    // In real mode: unset all, then set the matching one
+    // In real mode: unset all, then set the matching one. If the date wasn't
+    // among prior suggestions (no match for $.date), append it instead — mirror
+    // the mock path so the user-selected date is always persisted.
     await WeddingPlan.findOneAndUpdate(
       { weddingId },
       { $set: { 'muhuratDates.$[].selected': false } },
     );
-    await WeddingPlan.findOneAndUpdate(
+    const matched = await WeddingPlan.findOneAndUpdate(
       { weddingId, 'muhuratDates.date': input.date },
       {
         $set: {
@@ -852,6 +854,21 @@ export async function selectMuhurat(
       },
       { new: true },
     );
+    if (!matched) {
+      await WeddingPlan.findOneAndUpdate(
+        { weddingId },
+        {
+          $push: {
+            muhuratDates: {
+              date:     input.date,
+              muhurat:  input.muhurat,
+              tithi:    input.tithi ?? null,
+              selected: true,
+            },
+          },
+        },
+      );
+    }
     const doc = await WeddingPlan.findOne({ weddingId }).lean();
     return ((doc?.muhuratDates ?? []) as MuhuratDate[]);
   }

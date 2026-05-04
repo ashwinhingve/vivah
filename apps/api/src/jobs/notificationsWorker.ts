@@ -9,8 +9,12 @@ import { deliverNotification, type NotificationDeliveryJob } from '../notificati
 
 let workerInstance: Worker | null = null;
 
-export function startNotificationsWorker(): Worker {
-  if (workerInstance) return workerInstance;
+export interface ClosableWorker { close(): Promise<void> }
+
+export function startNotificationsWorker(): ClosableWorker {
+  if (workerInstance) {
+    return { close: () => stopNotificationsWorker() };
+  }
 
   const w = new Worker<NotificationDeliveryJob>(
     'notifications',
@@ -35,7 +39,7 @@ export function startNotificationsWorker(): Worker {
 
   workerInstance = w;
   console.log('[notifications-worker] started');
-  return w;
+  return { close: () => stopNotificationsWorker() };
 }
 
 export async function stopNotificationsWorker(): Promise<void> {

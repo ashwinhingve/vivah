@@ -367,10 +367,10 @@ async function bootstrap(): Promise<void> {
   // Workers that return their handle are tracked for graceful drain on SIGTERM.
   const workers: Array<{ close(): Promise<void> }> = [];
   if (!env.USE_MOCK_SERVICES) {
-    void startGunaRecalcWorker();
+    workers.push(startGunaRecalcWorker());
     workers.push(registerEscrowReleaseWorker());
     workers.push(registerOrderExpiryWorker());
-    startAccountPurgeWorker();
+    workers.push(startAccountPurgeWorker());
     workers.push(registerMatchRequestExpiryWorker());
     void scheduleMatchRequestExpiryJob();
     workers.push(registerWeddingReminderWorker());
@@ -380,7 +380,7 @@ async function bootstrap(): Promise<void> {
     workers.push(registerThankYouWorker());
     workers.push(registerTokenCleanupWorker());
     void scheduleTokenCleanupJob();
-    startNotificationsWorker();
+    workers.push(startNotificationsWorker());
     workers.push(registerInvitationBlastWorker());
     workers.push(registerAuditChainVerifierWorker());
     void scheduleAuditChainVerifierJob();
@@ -411,11 +411,6 @@ async function bootstrap(): Promise<void> {
           workers.map((w) => w.close().catch((e) => console.warn('worker.close failed', e))),
         );
       }
-
-      try {
-        const { stopAccountPurgeWorker } = await import('./jobs/accountPurgeJob.js');
-        await stopAccountPurgeWorker();
-      } catch { /* not registered in mock */ }
 
       try {
         const { redis } = await import('./lib/redis.js');
