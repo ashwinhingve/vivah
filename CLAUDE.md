@@ -73,6 +73,31 @@ pnpm db:studio      # Open Drizzle Studio visual browser
 
 ---
 
+## Production Deploy & DB Sync
+
+**Hosts**
+- Web: Vercel (auto-deploys `main` push)
+- API: Railway / Docker (auto-deploys `main` push, builder runs `tsc` then runs `dist/src/index.js`)
+- Postgres: Railway-managed; public proxy at `shortline.proxy.rlwy.net:<port>`
+
+**Schema sync workflow** (when prod DB drifts from `packages/db/schema/`)
+- **Run from Windows PowerShell, not WSL** — this dev box's WSL2 cannot reach the Railway proxy IPs (ETIMEDOUT). Schema ops, drizzle-studio, ad-hoc psql must run from native Windows shell.
+- PowerShell env-var syntax: `$env:DATABASE_URL = '...'` (single line — newlines become part of the value if split). Cleanup: `Remove-Item Env:\DATABASE_URL`.
+- `pnpm install` once on the Windows side too — `node_modules` from WSL is not visible to Windows pnpm.
+
+**`drizzle-kit push` failure modes**
+- **Error 42P16 `column "id" is in a primary key`**: drizzle wants to widen/alter a PK-bound column (typically Better Auth `user`/`session`/`account`/`verification`/`two_factor` tables — text-id types). It blindly emits `ALTER COLUMN` without first dropping the PK, so it crashes. Do **not** force this. Fall back to:
+  1. `pnpm --filter @smartshaadi/db exec drizzle-kit push --verbose 2>&1 | Out-File push.log` — capture full SQL plan.
+  2. Inspect `push.log`, identify safe additive statements (CREATE TABLE / ADD COLUMN / CREATE INDEX), skip the destructive ALTERs on Better Auth PK columns.
+  3. Apply selected statements via `psql` directly.
+- `drizzle-kit generate` writes an empty `.sql` file when local schema matches drizzle's last meta snapshot. It will **not** detect prod-DB drift — only `push` does.
+
+**Push-pipeline credentials**
+- Both `git push` (when WSL session runs `gh auth login` first) and Railway/Vercel CI auto-build on `main`. Pushing without `gh auth` fails with "could not read Username for 'https://github.com'" — switch to SSH remote or run `gh auth login` to fix.
+- Never paste a prod `DATABASE_URL` containing the password into chat — rotate immediately if leaked.
+
+---
+
 ## Tech Stack (Full)
 
 ```
