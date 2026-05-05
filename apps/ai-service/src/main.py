@@ -137,7 +137,7 @@ def health() -> dict[str, object]:
             "version": "3.0.0",
             "models": {
                 "guna_milan": "deterministic",
-                "coach": "pending_phase_1",
+                "coach": "llm_sonnet",
                 "emotional": "pending_week10_day3",
             },
         },
