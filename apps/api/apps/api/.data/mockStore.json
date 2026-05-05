@@ -3,9 +3,9 @@
     "userId": "NMw5fOIcEFWk8s0TS8KLBtQVB9Qg9nEw",
     "personal": {
       "fullName": "ASHWIN HINGVE",
-      "dob": "2005-08-24T00:00:00.000Z",
+      "dob": "2005-08-20T00:00:00.000Z",
       "gender": "MALE",
-      "height": 173,
+      "height": 168,
       "maritalStatus": "NEVER_MARRIED",
       "motherTongue": "Hindi",
       "religion": "Hindu"
@@ -13,61 +13,11 @@
     "location": {
       "city": "bhopal"
     },
-    "aboutMe": "hiii",
-    "family": {
-      "fatherName": "hemraj",
-      "fatherOccupation": "Passed Away",
-      "motherName": "geeta",
-      "motherOccupation": "housemaker",
-      "familyType": "NUCLEAR",
-      "familyValues": "MODERATE",
-      "familyStatus": "MIDDLE_CLASS",
-      "nativePlace": "Betul, Madhya Pradesh",
-      "familyAbout": "hiii"
-    },
-    "education": {
-      "degree": "B.Tech.",
-      "college": "IES college of technology",
-      "fieldOfStudy": "Computer Science",
-      "year": 2005
-    },
-    "profession": {
-      "occupation": "software engineer",
-      "employer": "freelencer",
-      "incomeRange": "< 3 LPA",
-      "workLocation": "bhopal",
-      "employerType": "SELF_EMPLOYED",
-      "designation": "full end-to-end product builder"
-    },
-    "lifestyle": {
-      "diet": "VEG",
-      "smoking": "NEVER",
-      "drinking": "NEVER",
-      "hobbies": [
-        "Music",
-        "Cooking",
-        "Reading",
-        "Dancing",
-        "Travelling",
-        "Movies",
-        "Fitness",
-        "Cycling",
-        "Photography"
-      ],
-      "hyperNicheTags": [
-        "career-first",
-        "entrepreneur",
-        "spiritual",
-        "environmentalist",
-        "fitness-enthusiast",
-        "traveller"
-      ],
-      "languagesSpoken": [
-        "Hindi",
-        "English"
-      ],
-      "fitnessLevel": "ACTIVE"
-    },
+    "aboutMe": "hii",
+    "family": {},
+    "education": {},
+    "profession": {},
+    "lifestyle": {},
     "horoscope": {
       "rashi": "MESH",
       "nakshatra": "ASHWINI",
@@ -78,18 +28,18 @@
     },
     "partnerPreferences": {
       "ageRange": {
-        "min": 18,
-        "max": 28
+        "min": 22,
+        "max": 35
       },
       "heightRange": {
-        "min": 140,
-        "max": 210
+        "min": 150,
+        "max": 185
       },
       "religion": [
         "Hindu"
       ],
-      "openToInterfaith": true,
-      "openToInterCaste": true,
+      "openToInterfaith": false,
+      "openToInterCaste": false,
       "maritalStatus": [
         "NEVER_MARRIED"
       ],
@@ -100,6 +50,16 @@
         "NON_VEG",
         "EGGETARIAN"
       ]
+    },
+    "safetyMode": {
+      "contactHidden": true,
+      "photoHidden": false,
+      "incognito": false,
+      "showLastActive": true,
+      "showReadReceipts": true,
+      "photoBlurUntilUnlock": false,
+      "hideFromSearch": false,
+      "allowMessageFrom": "EVERYONE"
     }
   },
   "seed-compatible-001": {
@@ -549,6 +509,76 @@
           "selected": true
         }
       ]
+    }
+  },
+  "wedding_plan:13777462-d4a0-488e-962a-cda8acd8cb4c": {
+    "userId": "wedding_plan:13777462-d4a0-488e-962a-cda8acd8cb4c",
+    "plan": {
+      "weddingId": "13777462-d4a0-488e-962a-cda8acd8cb4c",
+      "theme": {
+        "name": null,
+        "colorPalette": [],
+        "style": null
+      },
+      "budget": {
+        "total": 190000,
+        "currency": "INR",
+        "categories": [
+          {
+            "name": "Venue",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Catering",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Decoration",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Photography",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Music",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Mehendi",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Makeup",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Invitation",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Transport",
+            "allocated": 0,
+            "spent": 0
+          },
+          {
+            "name": "Miscellaneous",
+            "allocated": 0,
+            "spent": 0
+          }
+        ]
+      },
+      "ceremonies": [],
+      "checklist": [],
+      "muhuratDates": []
     }
   }
 }
