@@ -129,6 +129,17 @@ def health() -> dict[str, object]:
         log.error("health_import_failed", error=str(exc))
         status = "degraded"
 
+    # Emotional Score sentiment loader probe — never triggers a load (cheap).
+    try:
+        from src.services.sentiment_model import is_pipeline_loaded
+
+        emotional_status = (
+            "huggingface_loaded" if is_pipeline_loaded() else "huggingface_unavailable"
+        )
+    except Exception as exc:  # noqa: BLE001
+        log.error("sentiment_health_probe_failed", error=str(exc))
+        emotional_status = "huggingface_unavailable"
+
     return {
         "success": True,
         "data": {
@@ -138,7 +149,7 @@ def health() -> dict[str, object]:
             "models": {
                 "guna_milan": "deterministic",
                 "coach": "llm_sonnet",
-                "emotional": "pending_week10_day3",
+                "emotional": emotional_status,
             },
         },
         "error": None,
