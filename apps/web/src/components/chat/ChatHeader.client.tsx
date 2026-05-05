@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import SmartSuggestions from './SmartSuggestions.client'
+import EmotionalScoreBadge from './EmotionalScoreBadge.client'
 
 interface ChatHeaderProps {
   matchId:        string
@@ -194,6 +195,8 @@ export default function ChatHeader({
           </p>
         </div>
       </Link>
+
+      <EmotionalScoreBadge matchId={matchId} />
 
       <button
         type="button"
