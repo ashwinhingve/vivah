@@ -3,21 +3,17 @@
 # Deploys as a separate Railway service from `api`. The api service calls
 # ai-service over the internal Railway network using AI_SERVICE_URL +
 # AI_SERVICE_INTERNAL_KEY (env vars in api's service config).
+#
+# Root Directory must be set to `apps/ai-service` in Railway dashboard.
+# Paths below are relative to that root directory.
 
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "apps/ai-service/Dockerfile"
-buildContext = "apps/ai-service"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "uvicorn src.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "sh -c 'uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}'"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
-
-[[services]]
-name = "ai-service"
-
-[services.deploy]
-region = "ap-south-1"

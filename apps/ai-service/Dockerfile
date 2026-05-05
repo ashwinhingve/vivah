@@ -39,4 +39,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl --fail http://localhost:8000/health || exit 1
 
 # uvicorn in single-worker mode; scale via Railway replicas, not workers
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "/dev/null"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-config /dev/null"]
