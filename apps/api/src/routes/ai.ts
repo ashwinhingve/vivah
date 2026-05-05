@@ -17,8 +17,10 @@ import { profiles, matchRequests } from '@smartshaadi/db';
 import { resolveProfileId } from '../lib/profile.js';
 import {
   getConversationSuggestions,
+  getEmotionalScore,
   type ProfileSnapshot,
   type CoachResponse,
+  type EmotionalScoreResponse,
 } from '../services/aiService.js';
 import { ProfileContent as _ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
@@ -251,6 +253,183 @@ aiRouter.post(
       // Unexpected error — still fall back gracefully rather than 500ing
       console.error('[ai/coach/suggest] unexpected error:', e);
       ok(res, FALLBACK_RESPONSE);
+    }
+  }),
+);
+
+// ── Emotional Score constants ──────────────────────────────────────────────────
+
+const EMOTIONAL_RATE_LIMIT = 60;
+const EMOTIONAL_RATE_WINDOW_SEC = 3600; // 1 hour
+const EMOTIONAL_CACHE_TTL_SEC   = 86400; // 24 hours
+const EMOTIONAL_7DAY_TTL_SEC    = 7 * 24 * 3600;
+
+const EMOTIONAL_FALLBACK: EmotionalScoreResponse & { fallback: boolean } = {
+  score:        50,
+  label:        'STEADY',
+  trend:        'stable',
+  breakdown:    { sentiment: 50, enthusiasm: 50, engagement: 50, curiosity: 50 },
+  last_updated: new Date().toISOString(),
+  fallback:     true,
+};
+
+async function checkEmotionalRateLimit(
+  userId: string,
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: EMOTIONAL_RATE_LIMIT - 1 };
+  }
+  const key = `emotional:rl:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, EMOTIONAL_RATE_WINDOW_SEC);
+    return { allowed: count <= EMOTIONAL_RATE_LIMIT, remaining: Math.max(0, EMOTIONAL_RATE_LIMIT - count) };
+  } catch {
+    return { allowed: true, remaining: 0 };
+  }
+}
+
+// ── GET /api/v1/ai/emotional-score/:matchId ────────────────────────────────────
+
+aiRouter.get(
+  '/emotional-score/:matchId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const { matchId } = req.params;
+
+    // ── Rate limit ──────────────────────────────────────────────────────────
+    const { allowed, remaining } = await checkEmotionalRateLimit(userId);
+    if (!allowed) {
+      res.setHeader('X-RateLimit-Limit', EMOTIONAL_RATE_LIMIT);
+      res.setHeader('X-RateLimit-Remaining', 0);
+      err(res, 'RATE_LIMIT_EXCEEDED', 'Too many emotional score requests. Try again later.', 429);
+      return;
+    }
+    res.setHeader('X-RateLimit-Limit', EMOTIONAL_RATE_LIMIT);
+    res.setHeader('X-RateLimit-Remaining', remaining);
+
+    // ── Validate matchId ────────────────────────────────────────────────────
+    const uuidParse = z.string().uuid().safeParse(matchId);
+    if (!uuidParse.success) {
+      err(res, 'VALIDATION_ERROR', 'matchId must be a valid UUID', 400);
+      return;
+    }
+    const safeMatchId = uuidParse.data;
+
+    // ── Resolve userId → profileId (CLAUDE.md rule 12) ─────────────────────
+    const [callerPgProfile] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1);
+
+    if (!callerPgProfile) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // ── Verify match participation ──────────────────────────────────────────
+    const [match] = await db
+      .select({
+        id:         matchRequests.id,
+        senderId:   matchRequests.senderId,
+        receiverId: matchRequests.receiverId,
+        status:     matchRequests.status,
+      })
+      .from(matchRequests)
+      .where(
+        and(
+          eq(matchRequests.id, safeMatchId),
+          eq(matchRequests.status, 'ACCEPTED'),
+          or(
+            eq(matchRequests.senderId, callerPgProfile.id),
+            eq(matchRequests.receiverId, callerPgProfile.id),
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (!match) {
+      err(res, 'FORBIDDEN', 'You are not a participant in this match or match is not accepted', 403);
+      return;
+    }
+
+    // ── Try Redis cache ─────────────────────────────────────────────────────
+    const cacheKey = `emotional:${safeMatchId}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached) as EmotionalScoreResponse;
+        ok(res, { ...parsed, cached: true });
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // ── Fetch last 20 messages ──────────────────────────────────────────────
+    let messages: Array<{ sender: 'A' | 'B'; text: string; timestamp: string }> = [];
+    try {
+      const internalBase = env.API_BASE_URL ?? 'http://localhost:4000';
+      const msgRes = await fetch(
+        `${internalBase}/internal/chat/${safeMatchId}/messages?limit=20`,
+        {
+          headers: { 'X-Internal-Key': env.AI_SERVICE_INTERNAL_KEY },
+          signal: AbortSignal.timeout(5_000),
+        },
+      );
+      if (msgRes.ok) {
+        const body = await msgRes.json() as { data?: { messages?: typeof messages } };
+        messages = body.data?.messages ?? [];
+      }
+    } catch {
+      // Non-fatal — use empty messages (will return neutral score)
+    }
+
+    // ── Fetch 7-day rolling avg ─────────────────────────────────────────────
+    let historicalAvg: number | null = null;
+    try {
+      const avgKey = `emotional:${safeMatchId}:7day_avg`;
+      const avgRaw = await redis.get(avgKey);
+      if (avgRaw) historicalAvg = parseFloat(avgRaw);
+    } catch {
+      // Non-fatal
+    }
+
+    // ── Call AI service ─────────────────────────────────────────────────────
+    try {
+      const scoreResult = await getEmotionalScore(safeMatchId, messages, historicalAvg);
+
+      // Cache result 24h
+      try {
+        await redis.set(cacheKey, JSON.stringify(scoreResult), 'EX', EMOTIONAL_CACHE_TTL_SEC);
+
+        // Update 7-day rolling avg via sorted set: member=timestamp, score=score value
+        const avgZKey = `emotional:${safeMatchId}:7day_scores`;
+        const nowMs   = Date.now();
+        const cutoffMs = nowMs - EMOTIONAL_7DAY_TTL_SEC * 1000;
+        await redis.zadd(avgZKey, nowMs, `${nowMs}:${scoreResult.score}`);
+        await redis.zremrangebyscore(avgZKey, '-inf', cutoffMs);
+
+        // Compute running avg and store as simple key for fast lookup
+        const allMembers = await redis.zrange(avgZKey, 0, -1);
+        if (allMembers.length > 0) {
+          const scores = allMembers.map((m) => {
+            const parts = (m as string).split(':');
+            return parseFloat(parts[1] ?? '50');
+          });
+          const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+          await redis.set(`emotional:${safeMatchId}:7day_avg`, avg.toFixed(2), 'EX', EMOTIONAL_7DAY_TTL_SEC);
+        }
+      } catch {
+        // Cache write failure — still return result
+      }
+
+      ok(res, { ...scoreResult, cached: false });
+    } catch {
+      // Graceful fallback — never 500 on AI service failure
+      ok(res, { ...EMOTIONAL_FALLBACK, last_updated: new Date().toISOString() });
     }
   }),
 );

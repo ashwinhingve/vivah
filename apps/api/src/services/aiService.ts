@@ -50,6 +50,55 @@ export type ConversationMessage = {
   timestamp: string;
 };
 
+// ── Emotional Score ───────────────────────────────────────────────────────────
+
+export interface EmotionalBreakdown {
+  sentiment:   number;
+  enthusiasm:  number;
+  engagement:  number;
+  curiosity:   number;
+}
+
+export interface EmotionalScoreResponse {
+  score:        number;
+  label:        'WARM' | 'STEADY' | 'COOLING';
+  trend:        'improving' | 'stable' | 'declining';
+  breakdown:    EmotionalBreakdown;
+  last_updated: string;
+}
+
+/**
+ * Call the ai-service /ai/emotional/score endpoint.
+ * Throws AppError('AI_SERVICE_UNAVAILABLE') on non-2xx or timeout.
+ * Callers must catch and return the STEADY/stable fallback.
+ */
+export async function getEmotionalScore(
+  matchId: string,
+  messages: ConversationMessage[],
+  historicalAvg: number | null = null,
+): Promise<EmotionalScoreResponse> {
+  const response = await fetch(`${env.AI_SERVICE_URL}/ai/emotional/score`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Internal-Key': env.AI_SERVICE_INTERNAL_KEY,
+    },
+    body: JSON.stringify({
+      match_id:       matchId,
+      messages,
+      historical_avg: historicalAvg,
+    }),
+    // 8s — model inference is fast (<100ms), safety margin for network
+    signal: AbortSignal.timeout(8_000),
+  });
+
+  if (!response.ok) {
+    throw makeAppError('AI_SERVICE_UNAVAILABLE', 'Emotional score temporarily unavailable', 503);
+  }
+
+  return response.json() as Promise<EmotionalScoreResponse>;
+}
+
 // ── Conversation Coach ────────────────────────────────────────────────────────
 
 /**

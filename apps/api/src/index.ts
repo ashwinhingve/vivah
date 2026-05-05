@@ -55,6 +55,10 @@ import {
   registerAuditChainVerifierWorker,
   scheduleAuditChainVerifierJob,
 } from './jobs/auditChainVerifierJob.js';
+import {
+  registerEmotionalScoreWorker,
+  scheduleEmotionalScoreJob,
+} from './jobs/emotionalScoreJob.js';
 import { metricsMiddleware, metricsHandler } from './lib/metrics.js';
 import { registerOrderExpiryWorker } from './jobs/orderExpiryJob.js';
 import { startAccountPurgeWorker } from './jobs/accountPurgeJob.js';
@@ -393,6 +397,8 @@ async function bootstrap(): Promise<void> {
     workers.push(registerInvitationBlastWorker());
     workers.push(registerAuditChainVerifierWorker());
     void scheduleAuditChainVerifierJob();
+    workers.push(registerEmotionalScoreWorker());
+    void scheduleEmotionalScoreJob();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.
