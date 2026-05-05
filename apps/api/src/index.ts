@@ -74,6 +74,8 @@ import {
   scheduleTokenCleanupJob,
 } from './jobs/tokenCleanupJob.js';
 import { devRouter } from './dev/router.js';
+import { internalRouter } from './routes/internal.js';
+import { aiRouter } from './routes/ai.js';
 import { env } from './lib/env.js';
 import { err as errResponse } from './lib/response.js';
 import { logger } from './lib/logger.js';
@@ -284,6 +286,13 @@ app.use('/api/v1/payments', reconciliationRouter);
 app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/admin', escrowAdminRouter);
+
+// Internal service-to-service routes — NO session middleware, authenticated via
+// X-Internal-Key header only. Must be mounted WITHOUT cors/session wrappers.
+app.use('/internal', internalRouter);
+
+// AI feature routes (Conversation Coach, etc.) — require Better Auth session.
+app.use('/api/v1/ai', aiRouter);
 
 // Dev-only routes — mount synchronously BEFORE the 404/error handlers so errors
 // thrown by dev handlers reach the global error middleware.
