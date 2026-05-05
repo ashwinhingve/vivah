@@ -79,7 +79,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run database migrations (test DB)
-        run: pnpm db:migrate
+        run: pnpm --filter @smartshaadi/db exec drizzle-kit migrate
         env:
           DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
 
