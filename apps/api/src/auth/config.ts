@@ -117,11 +117,12 @@ export const auth = betterAuth({
         recordAuthEvent({ userId: null, type: AuthEventType.OTP_SENT, ipAddress: ip, userAgent: ua, metadata: { phone } });
 
         if (env.USE_MOCK_SERVICES) {
-          console.info(`[MOCK OTP] ${phone}: ${code} → overriding with 123456`);
-          // Better Auth already stored the random OTP; replace with 123456 so
-          // the fixed mock code always works during development.
+          const mockCode = env.MOCK_OTP_VALUE;
+          console.info(`[MOCK OTP] ${phone}: ${code} → overriding with ${mockCode}`);
+          // Better Auth already stored the random OTP; replace with the mock
+          // value so the configured code always works in mock mode.
           await db.execute(
-            sql`UPDATE verification SET value = '123456:0' WHERE identifier = ${phone}`,
+            sql`UPDATE verification SET value = ${`${mockCode}:0`} WHERE identifier = ${phone}`,
           );
           return;
         }

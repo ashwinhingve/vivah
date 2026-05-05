@@ -23,6 +23,12 @@ const envSchema = z.object({
   // Swap to real by removing this var (or setting to false) — no code change needed.
   USE_MOCK_SERVICES: z.string().default('false').transform(v => v === 'true'),
 
+  // Mock OTP override value — defaults to 123456 for local dev / tests.
+  // Set to a random hard-to-guess value (e.g. `openssl rand -hex 4`) in any
+  // deployed env where USE_MOCK_SERVICES=true is still set, otherwise anyone
+  // who knows a phone number can sign in with the literal '123456'.
+  MOCK_OTP_VALUE: z.string().default('123456'),
+
   MSG91_API_KEY:      z.string().default(''),
   MSG91_TEMPLATE_ID:  z.string().default(''),
 
