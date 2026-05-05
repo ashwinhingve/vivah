@@ -31,7 +31,7 @@ from src.services.guna_milan import (
 
 # TestClient sends X-Internal-Key on every request — matches the middleware
 # default key so existing route tests keep working without per-test boilerplate.
-client = TestClient(app, headers={"X-Internal-Key": "internal-key-change-in-prod"})
+client = TestClient(app, headers={"X-Internal-Key": "dev-internal-key-change-in-prod"})
 
 
 # ---------------------------------------------------------------------------

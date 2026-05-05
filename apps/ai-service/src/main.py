@@ -14,6 +14,9 @@ import logging
 import os
 import sys
 
+
+from dotenv import load_dotenv
+load_dotenv()
 import structlog
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
