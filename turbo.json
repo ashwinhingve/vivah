@@ -1,6 +1,21 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "REDIS_URL",
+    "JWT_ACCESS_SECRET",
+    "JWT_REFRESH_SECRET",
+    "BETTER_AUTH_SECRET",
+    "AI_SERVICE_URL",
+    "AI_SERVICE_API_KEY",
+    "AI_SERVICE_INTERNAL_KEY",
+    "ANTHROPIC_API_KEY",
+    "HELICONE_API_KEY",
+    "USE_MOCK_SERVICES",
+    "NEXT_PUBLIC_API_URL"
+  ],
   "tasks": {
     "dev": {
       "persistent": true,
@@ -26,20 +41,25 @@
       "dependsOn": ["^build"]
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:generate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:migrate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:seed": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:studio": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DATABASE_URL"]
     },
     "clean": {
       "cache": false
