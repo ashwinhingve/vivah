@@ -17,17 +17,23 @@ import {
   X,
   Bookmark,
   Eye,
+  EyeOff,
   Shield,
   Heart,
   MessageCircle,
   Sparkles,
   Bell,
+  Wallet,
+  FileText,
+  Receipt,
+  UserCog,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
 type NavItem = { href: string; label: string; Icon: LucideIcon };
+type NavGroup = { title: string; items: NavItem[] };
 
 const INDIVIDUAL_PRIMARY: NavItem[] = [
   { href: '/feed',      label: 'Discover',    Icon: Home },
@@ -37,23 +43,51 @@ const INDIVIDUAL_PRIMARY: NavItem[] = [
   { href: '/dashboard', label: 'Profile',     Icon: User },
 ];
 
-const INDIVIDUAL_MORE: NavItem[] = [
-  { href: '/chats',                       label: 'Chats',         Icon: MessageCircle },
-  { href: '/notifications',               label: 'Notifications', Icon: Bell },
-  { href: '/vendors',                     label: 'Vendors',       Icon: Search },
-  { href: '/likes',                       label: 'Likes',         Icon: Heart },
-  { href: '/shortlist',                   label: 'Shortlist',     Icon: Bookmark },
-  { href: '/viewers',                     label: 'Viewed Me',     Icon: Eye },
-  { href: '/settings/privacy',            label: 'Privacy',       Icon: Shield },
-  { href: '/settings/security/two-factor',label: 'Security',      Icon: Shield },
-  { href: '/store',                       label: 'Shop',          Icon: ShoppingBag },
-  { href: '/rentals',                     label: 'Rentals',       Icon: Package },
-  { href: '/bookings',                    label: 'Bookings',      Icon: Calendar },
-  { href: '/payments',                    label: 'Payments',      Icon: ShoppingCart },
-  { href: '/payments/wallet',             label: 'Wallet',        Icon: Package },
-  { href: '/payments/invoices',           label: 'Invoices',      Icon: Bookmark },
-  { href: '/payments/refunds',            label: 'Refunds',       Icon: Shield },
+const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
+  {
+    title: 'Social',
+    items: [
+      { href: '/chats',         label: 'Chats',         Icon: MessageCircle },
+      { href: '/notifications', label: 'Notifications', Icon: Bell },
+      { href: '/likes',         label: 'Likes',         Icon: Heart },
+      { href: '/shortlist',     label: 'Shortlist',     Icon: Bookmark },
+      { href: '/viewers',       label: 'Viewed Me',     Icon: Eye },
+    ],
+  },
+  {
+    title: 'Discover',
+    items: [
+      { href: '/vendors', label: 'Vendors', Icon: Search },
+    ],
+  },
+  {
+    title: 'Shop',
+    items: [
+      { href: '/store',    label: 'Shop',     Icon: ShoppingBag },
+      { href: '/rentals',  label: 'Rentals',  Icon: Package },
+      { href: '/bookings', label: 'Bookings', Icon: Calendar },
+    ],
+  },
+  {
+    title: 'Money',
+    items: [
+      { href: '/payments',          label: 'Payments', Icon: ShoppingCart },
+      { href: '/payments/wallet',   label: 'Wallet',   Icon: Wallet },
+      { href: '/payments/invoices', label: 'Invoices', Icon: FileText },
+      { href: '/payments/refunds',  label: 'Refunds',  Icon: Receipt },
+    ],
+  },
+  {
+    title: 'Settings',
+    items: [
+      { href: '/profile/personal',             label: 'Edit Profile', Icon: UserCog },
+      { href: '/settings/privacy',             label: 'Privacy',      Icon: EyeOff },
+      { href: '/settings/security/two-factor', label: 'Security',     Icon: Shield },
+    ],
+  },
 ];
+
+const INDIVIDUAL_MORE: NavItem[] = INDIVIDUAL_MORE_GROUPS.flatMap((g) => g.items);
 
 const VENDOR_NAV: NavItem[] = [
   { href: '/vendor-dashboard',        label: 'Home',     Icon: Home },
@@ -192,14 +226,22 @@ export function AppNav() {
                   aria-hidden="true"
                 />
               ) : null}
-              <MoreHorizontal
-                className={cn(
-                  'h-5 w-5 transition-transform',
-                  moreOpen ? 'rotate-90 scale-110' : 'scale-100 group-hover:scale-105'
-                )}
-                strokeWidth={moreActive || moreOpen ? 2.5 : 1.75}
-                aria-hidden="true"
-              />
+              {moreOpen ? (
+                <X
+                  className="h-5 w-5 scale-110 transition-transform"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+              ) : (
+                <MoreHorizontal
+                  className={cn(
+                    'h-5 w-5 transition-transform',
+                    'scale-100 group-hover:scale-105'
+                  )}
+                  strokeWidth={moreActive ? 2.5 : 1.75}
+                  aria-hidden="true"
+                />
+              )}
               <span
                 className={cn(
                   'text-[10px] leading-none',
@@ -264,37 +306,46 @@ export function AppNav() {
                       Everything else
                     </h2>
                   </div>
-                  <ul className="px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-                    {moreItems.map(({ href, label, Icon }) => {
-                      const active = isActive(pathname, href);
-                      return (
-                        <li key={href}>
-                          <Link
-                            href={href}
-                            role="menuitem"
-                            aria-current={active ? 'page' : undefined}
-                            className={cn(
-                              'flex min-h-[56px] items-center gap-3 rounded-xl px-3 py-3 transition-colors',
-                              active
-                                ? 'bg-teal/10 text-teal'
-                                : 'text-foreground hover:bg-gold/10'
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                'flex h-10 w-10 items-center justify-center rounded-lg',
-                                active ? 'bg-teal/15 text-teal' : 'bg-gold/10 text-primary'
-                              )}
-                              aria-hidden="true"
-                            >
-                              <Icon className="h-5 w-5" strokeWidth={1.75} />
-                            </span>
-                            <span className="text-sm font-medium">{label}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="max-h-[70vh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+                    {INDIVIDUAL_MORE_GROUPS.map((group) => (
+                      <section key={group.title} className="mt-2 first:mt-0">
+                        <h3 className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                          {group.title}
+                        </h3>
+                        <ul>
+                          {group.items.map(({ href, label, Icon }) => {
+                            const active = isActive(pathname, href);
+                            return (
+                              <li key={href}>
+                                <Link
+                                  href={href}
+                                  role="menuitem"
+                                  aria-current={active ? 'page' : undefined}
+                                  className={cn(
+                                    'flex min-h-[56px] items-center gap-3 rounded-xl px-3 py-3 transition-colors',
+                                    active
+                                      ? 'bg-teal/10 text-teal'
+                                      : 'text-foreground hover:bg-gold/10'
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      'flex h-10 w-10 items-center justify-center rounded-lg',
+                                      active ? 'bg-teal/15 text-teal' : 'bg-gold/10 text-primary'
+                                    )}
+                                    aria-hidden="true"
+                                  >
+                                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                                  </span>
+                                  <span className="text-sm font-medium">{label}</span>
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             </>

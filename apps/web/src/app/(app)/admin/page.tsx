@@ -55,12 +55,13 @@ export default async function AdminPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  // Role guard — middleware already verified ADMIN/SUPPORT; redirect only if
+  // Role guard — middleware already verified ADMIN; redirect only if
   // /api/auth/me positively identifies a non-admin role (prevents a loop when
-  // the API is unreachable and fetchAuth returns null).
+  // the API is unreachable and fetchAuth returns null). SUPPORT now has its
+  // own console at /support.
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
-  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') {
-    redirect('/dashboard');
+  if (me && me.role !== 'ADMIN') {
+    redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   const [kycData, stats] = await Promise.all([

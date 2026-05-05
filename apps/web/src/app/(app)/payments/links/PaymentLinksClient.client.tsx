@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { PaymentLinkRecord, PaymentLinkStatus } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { Container, EmptyState, PageHeader, Section } from '@/components/shared';
+import { extractErrorMessage } from '@/lib/api-envelope';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -99,9 +100,9 @@ export function PaymentLinksClient({ initialLinks }: Props) {
           bookingId: form.bookingId.trim() || undefined,
         }),
       });
-      const json = (await res.json()) as { success: boolean; data?: PaymentLinkRecord; error?: string };
+      const json = (await res.json()) as { success: boolean; data?: PaymentLinkRecord };
       if (!res.ok || !json.success || !json.data) {
-        setError(json.error ?? 'Failed to create payment link.');
+        setError(extractErrorMessage(json, 'Failed to create payment link.'));
         return;
       }
       setLinks((prev) => [json.data!, ...prev]);

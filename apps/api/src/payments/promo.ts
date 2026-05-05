@@ -194,3 +194,17 @@ export async function adminDeactivatePromo(adminId: string, code: string) {
     .set({ isActive: false })
     .where(eq(schema.promoCodes.code, code.toUpperCase()));
 }
+
+export async function adminActivatePromo(adminId: string, code: string) {
+  const [admin] = await db
+    .select({ role: schema.user.role })
+    .from(schema.user)
+    .where(eq(schema.user.id, adminId))
+    .limit(1);
+  if (!admin || admin.role !== 'ADMIN') throw new PromoError('FORBIDDEN', 'Admin role required');
+
+  await db
+    .update(schema.promoCodes)
+    .set({ isActive: true })
+    .where(eq(schema.promoCodes.code, code.toUpperCase()));
+}

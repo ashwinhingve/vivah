@@ -11,6 +11,7 @@ import {
   PageHeader,
   Section,
 } from '@/components/shared';
+import { extractErrorMessage } from '@/lib/api-envelope';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -95,7 +96,7 @@ export function AdminPromosClient({ initialPromos }: Props) {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/api/v1/payments/promos`, {
+      const res = await fetch(`${API_URL}/api/v1/payments/promos/admin/create`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -114,9 +115,9 @@ export function AdminPromosClient({ initialPromos }: Props) {
           firstTimeUserOnly: form.firstTimeOnly,
         }),
       });
-      const json = (await res.json()) as { success: boolean; data?: PromoCodeRecord; error?: string };
+      const json = (await res.json()) as { success: boolean; data?: PromoCodeRecord };
       if (!res.ok || !json.success || !json.data) {
-        setError(json.error ?? 'Failed to create promo code.');
+        setError(extractErrorMessage(json, 'Failed to create promo code.'));
         return;
       }
       setPromos((prev) => [json.data!, ...prev]);

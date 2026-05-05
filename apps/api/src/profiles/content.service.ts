@@ -46,17 +46,25 @@ async function upsertSection(
   section: ContentSection,
   data: object,
 ): Promise<ProfileContentResponse> {
+  let result: ProfileContentResponse;
   if (env.USE_MOCK_SERVICES) {
-    return mockUpsert(userId, section, data) as unknown as ProfileContentResponse;
+    result = mockUpsert(userId, section, data) as unknown as ProfileContentResponse;
+  } else {
+    const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
+    const doc = await model.findOneAndUpdate(
+      { userId },
+      { $set: { [section]: data } },
+      { new: true, upsert: true, lean: true },
+    );
+    result = doc as unknown as ProfileContentResponse;
   }
-  const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
-  const doc = await model.findOneAndUpdate(
-    { userId },
-    { $set: { [section]: data } },
-    { new: true, upsert: true, lean: true },
-  );
-  // lean() returns a plain JS object; cast to our response type
-  return doc as unknown as ProfileContentResponse;
+  // Single-section saves must refresh profileSections + profiles.profileCompleteness;
+  // bulkUpdateContent already calls computeAndUpdateCompleteness explicitly. Run as
+  // a non-blocking side effect so the save response doesn't wait on Postgres writes.
+  void computeAndUpdateCompleteness(userId).catch((e) => {
+    console.error('[content.service] completeness recompute failed:', e);
+  });
+  return result;
 }
 
 /** Fetch the full ProfileContent document for a user. Returns null if not yet created. */
@@ -142,16 +150,22 @@ export async function updateAboutMe(
   userId: string,
   aboutMe: string,
 ): Promise<ProfileContentResponse> {
+  let result: ProfileContentResponse;
   if (env.USE_MOCK_SERVICES) {
-    return mockUpsertField(userId, 'aboutMe', aboutMe) as unknown as ProfileContentResponse;
+    result = mockUpsertField(userId, 'aboutMe', aboutMe) as unknown as ProfileContentResponse;
+  } else {
+    const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
+    const doc = await model.findOneAndUpdate(
+      { userId },
+      { $set: { aboutMe } },
+      { new: true, upsert: true, lean: true },
+    );
+    result = doc as unknown as ProfileContentResponse;
   }
-  const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
-  const doc = await model.findOneAndUpdate(
-    { userId },
-    { $set: { aboutMe } },
-    { new: true, upsert: true, lean: true },
-  );
-  return doc as unknown as ProfileContentResponse;
+  void computeAndUpdateCompleteness(userId).catch((e) => {
+    console.error('[content.service] completeness recompute failed:', e);
+  });
+  return result;
 }
 
 /**

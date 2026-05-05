@@ -1,11 +1,20 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { fetchManagedWeddings } from '@/lib/wedding-api';
+import { fetchAuth } from '@/lib/server-fetch';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { CalendarCheck } from 'lucide-react';
 
 export const metadata = { title: 'Coordinator Dashboard' };
 
 export default async function CoordinatorDashboardPage() {
+  // Role guard — middleware does the same check, but the page guard prevents
+  // any leak if matcher config drifts. Mirrors apps/web/src/app/(app)/admin/page.tsx.
+  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
+  if (me && me.role !== 'EVENT_COORDINATOR' && me.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
   const data = await fetchManagedWeddings();
   const weddings = data?.weddings ?? [];
 

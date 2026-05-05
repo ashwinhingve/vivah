@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateProductSchema } from '@smartshaadi/schemas';
 import type { CreateProductInput } from '@smartshaadi/schemas';
+import { extractErrorMessage } from '@/lib/api-envelope';
 
 const CATEGORIES = [
   'Gifts',
@@ -45,14 +46,21 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
   const [r2Keys, setR2Keys] = useState<string[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   async function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
+    const input = e.target;
+    const files = input.files;
     if (!files || files.length === 0) return;
+    // Capture count BEFORE we reset the input — `files` is a live FileList that
+    // some browsers invalidate after `input.value = ''`, which leaves the
+    // counter stuck > 0 and disables both the file picker and the submit button.
+    const count = files.length;
+    const fileArray = Array.from(files);
     setUploadError(null);
-    setUploadingCount(n => n + files.length);
+    setUploadingCount((n) => n + count);
     try {
-      for (const file of Array.from(files)) {
+      for (const file of fileArray) {
         const presign = await fetch(`${API_URL}/api/v1/storage/upload-url`, {
           method:      'POST',
           credentials: 'include',
@@ -76,14 +84,18 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
           body:    file,
         });
         if (!put.ok) throw new Error(`Upload failed (${put.status})`);
-        setR2Keys(prev => [...prev, presignJson.data!.r2Key]);
+        setR2Keys((prev) => [...prev, presignJson.data!.r2Key]);
       }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
-      setUploadingCount(n => Math.max(0, n - files.length));
-      e.target.value = '';
+      setUploadingCount((n) => Math.max(0, n - count));
+      input.value = '';
     }
+  }
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
   }
 
   function removeKey(key: string) {
@@ -136,10 +148,9 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       const json = (await res.json()) as {
         success: boolean;
         data?:   { id: string };
-        error?:  string;
       };
       if (!json.success) {
-        setServerError(json.error ?? 'Something went wrong. Please try again.');
+        setServerError(extractErrorMessage(json, 'Something went wrong. Please try again.'));
         return;
       }
 
@@ -324,6 +335,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
       <div className="rounded-xl border border-dashed border-gold/40 bg-background px-4 py-5">
         <label className={labelCls}>Product Images</label>
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
@@ -338,20 +350,30 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
           <p className="mt-2 text-xs text-destructive">{uploadError}</p>
         )}
         {r2Keys.length > 0 && (
-          <ul className="mt-3 space-y-1">
-            {r2Keys.map(k => (
-              <li key={k} className="flex items-center justify-between rounded-md bg-surface/60 px-2 py-1 text-xs text-foreground">
-                <span className="truncate">{k.split('/').pop()}</span>
-                <button
-                  type="button"
-                  onClick={() => removeKey(k)}
-                  className="ml-3 text-primary hover:underline"
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="mt-3 space-y-1">
+              {r2Keys.map(k => (
+                <li key={k} className="flex items-center justify-between rounded-md bg-surface/60 px-2 py-1 text-xs text-foreground">
+                  <span className="truncate">{k.split('/').pop()}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeKey(k)}
+                    className="ml-3 text-primary hover:underline"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={openFilePicker}
+              disabled={uploadingCount > 0}
+              className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-teal/30 bg-teal/5 px-3 py-1.5 text-xs font-semibold text-teal hover:bg-teal/10 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + Add more images
+            </button>
+          </>
         )}
         <p className="mt-3 text-[11px] text-muted-foreground">
           Images upload directly to Cloudflare R2. First image becomes the product thumbnail.

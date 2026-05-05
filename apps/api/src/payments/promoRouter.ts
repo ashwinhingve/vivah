@@ -15,6 +15,7 @@ import {
   listActivePromos,
   adminCreatePromo,
   adminDeactivatePromo,
+  adminActivatePromo,
   PromoError,
 } from './promo.js';
 
@@ -60,5 +61,14 @@ promoRouter.post('/admin/deactivate/:code', authenticate, authorize(['ADMIN']), 
   try {
     await adminDeactivatePromo(req.user!.id, code);
     ok(res, { deactivated: true });
+  } catch (e) { handle(res, e); }
+});
+
+promoRouter.post('/admin/activate/:code', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
+  const code = req.params['code'];
+  if (!code) return err(res, 'VALIDATION_ERROR', 'code required', 422);
+  try {
+    await adminActivatePromo(req.user!.id, code);
+    ok(res, { activated: true });
   } catch (e) { handle(res, e); }
 });

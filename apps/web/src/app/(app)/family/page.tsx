@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowLeft, ShieldCheck, Users, Sparkles } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { FamilyMembersClient } from '@/components/family/FamilyMembersClient.client';
@@ -12,6 +13,13 @@ const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
 };
 
 export default async function FamilyPage() {
+  // Role guard — middleware does the same check, but the page guard prevents
+  // any leak if matcher config drifts.
+  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
+  if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
   const view = await fetchAuth<FamilyView>('/api/v1/profiles/me/family');
   if (!view) {
     return (

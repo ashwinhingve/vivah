@@ -8,6 +8,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/vendor-dashboard') ||
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/support') ||
     pathname.startsWith('/feed') ||
     pathname.startsWith('/vendors') ||
     pathname.startsWith('/bookings') ||
@@ -66,7 +67,16 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/vendor-dashboard') && role !== 'VENDOR') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    if (pathname.startsWith('/admin') && role !== 'ADMIN' && role !== 'SUPPORT') {
+    if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (pathname.startsWith('/support') && role !== 'SUPPORT' && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (pathname.startsWith('/coordinator') && role !== 'EVENT_COORDINATOR' && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (pathname.startsWith('/family') && role !== 'FAMILY_MEMBER' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
@@ -74,8 +84,17 @@ export async function middleware(request: NextRequest) {
     if (pathname === '/dashboard' && role === 'VENDOR') {
       return NextResponse.redirect(new URL('/vendor-dashboard', request.url));
     }
-    if (pathname === '/dashboard' && (role === 'ADMIN' || role === 'SUPPORT')) {
+    if (pathname === '/dashboard' && role === 'ADMIN') {
       return NextResponse.redirect(new URL('/admin', request.url));
+    }
+    if (pathname === '/dashboard' && role === 'SUPPORT') {
+      return NextResponse.redirect(new URL('/support', request.url));
+    }
+    if (pathname === '/dashboard' && role === 'EVENT_COORDINATOR') {
+      return NextResponse.redirect(new URL('/coordinator', request.url));
+    }
+    if (pathname === '/dashboard' && role === 'FAMILY_MEMBER') {
+      return NextResponse.redirect(new URL('/family', request.url));
     }
   } else if (
     pathname.startsWith('/login') ||
@@ -100,6 +119,7 @@ export const config = {
     '/dashboard/:path*',
     '/vendor-dashboard/:path*',
     '/admin/:path*',
+    '/support/:path*',
     '/feed/:path*',
     '/vendors/:path*',
     '/vendor/:path*',

@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { extractErrorMessage, type ApiError } from '@/lib/api-envelope';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -24,7 +25,7 @@ export type CreateWeddingState =
 interface CreateWeddingResponse {
   success: boolean;
   data?:   { id: string };
-  error?:  string;
+  error?:  ApiError | string;
 }
 
 export async function createWeddingAction(
@@ -58,7 +59,10 @@ export async function createWeddingAction(
   }
 
   if (!json.success || !json.data?.id) {
-    return { status: 'error', message: json.error ?? 'Could not create wedding. Please try again.' };
+    return {
+      status: 'error',
+      message: extractErrorMessage(json, 'Could not create wedding. Please try again.'),
+    };
   }
 
   redirect(`/weddings/${json.data.id}`);

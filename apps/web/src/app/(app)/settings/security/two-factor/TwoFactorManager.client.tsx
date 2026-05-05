@@ -29,7 +29,11 @@ export function TwoFactorManager({ initialEnabled }: Props) {
     setBusy(true);
     setError(null);
     try {
-      const result = await authClient.twoFactor.enable({ password: '' });
+      // Server is configured with `allowPasswordless: true` (apps/api/src/auth/config.ts:150).
+      // Empty password trips Better Auth validation; omitting the field skips it.
+      const result = await authClient.twoFactor.enable(
+        {} as Parameters<typeof authClient.twoFactor.enable>[0],
+      );
       if (result.error) {
         setError(result.error.message ?? 'Could not enable 2FA');
         return;
