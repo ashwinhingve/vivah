@@ -15,7 +15,7 @@ export function getIO(): Server | null {
 async function attachRedisAdapter(io: Server): Promise<void> {
   if (!env.REDIS_URL) return
   try {
-    const pubClient = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, lazyConnect: true })
+    const pubClient = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, lazyConnect: true, family: 0 })
     const subClient = pubClient.duplicate()
     await Promise.all([pubClient.connect(), subClient.connect()])
     io.adapter(createAdapter(pubClient, subClient))

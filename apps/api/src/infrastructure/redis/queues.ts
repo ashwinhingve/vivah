@@ -17,6 +17,8 @@ export const connection = {
   url: env.REDIS_URL,
   enableOfflineQueue: false,
   maxRetriesPerRequest: null as unknown as number,
+  // Railway private hostnames are AAAA-only — see lib/redis.ts comment.
+  family: 0,
 };
 
 /** Default retry options for enqueued jobs. */
