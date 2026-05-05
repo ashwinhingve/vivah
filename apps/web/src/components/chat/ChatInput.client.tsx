@@ -58,6 +58,20 @@ export default function ChatInput({
     setShowSmartReplies(content.trim().length === 0 && !reply && !editing)
   }, [content, reply, editing])
 
+  // Conversation Coach: SmartSuggestions panel (rendered in ChatHeader) dispatches
+  // a `coach:populate` event when the user picks a chip; we mirror it into the
+  // textarea. ChatInput owns `content` locally — this is the cross-sibling bridge.
+  useEffect(() => {
+    function onPopulate(e: Event) {
+      const ce = e as CustomEvent<{ matchId: string; text: string }>
+      if (ce.detail?.matchId !== matchId) return
+      setContent(ce.detail.text)
+      textareaRef.current?.focus()
+    }
+    window.addEventListener('coach:populate', onPopulate)
+    return () => window.removeEventListener('coach:populate', onPopulate)
+  }, [matchId])
+
   const emitTyping = useCallback(() => {
     if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current)
     typingDebounceRef.current = setTimeout(() => {

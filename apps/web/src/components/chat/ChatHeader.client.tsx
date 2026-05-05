@@ -5,13 +5,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft, MoreVertical, Search as SearchIcon, BellOff, Bell,
-  Archive, ArchiveRestore, ImageIcon, Flag, Ban, Pin, PinOff,
+  Archive, ArchiveRestore, ImageIcon, Flag, Ban, Pin, PinOff, Lightbulb,
 } from 'lucide-react'
 import type { ConversationParticipantPreview } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import SmartSuggestions from './SmartSuggestions.client'
 
 interface ChatHeaderProps {
   matchId:        string
@@ -44,6 +45,7 @@ export default function ChatHeader({
   const [pinned, setPinned] = useState(initialPinned)
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState<null | { kind: 'report' | 'block' }>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => { setMuted(initialMuted) }, [initialMuted])
@@ -202,6 +204,16 @@ export default function ChatHeader({
         <SearchIcon className="h-5 w-5" />
       </button>
 
+      <button
+        type="button"
+        onClick={() => setShowSuggestions(true)}
+        aria-label="Smart Suggestions"
+        title="Smart Suggestions"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-teal transition-colors hover:bg-teal/10"
+      >
+        <Lightbulb className="h-5 w-5" />
+      </button>
+
       <div className="relative">
         <button
           type="button"
@@ -272,6 +284,12 @@ export default function ChatHeader({
         destructive
         onConfirm={blockUser}
         onCancel={() => setConfirm(null)}
+      />
+
+      <SmartSuggestions
+        matchId={matchId}
+        isOpen={showSuggestions}
+        onClose={() => setShowSuggestions(false)}
       />
     </header>
   )
