@@ -4,15 +4,20 @@ Horoscope router — Guna Milan (Ashtakoot) compatibility calculation.
 Route: POST /ai/horoscope/guna
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from src.deps.auth import verify_internal_key
 from src.schemas.horoscope import GunaInput, GunaResultResponse
 from src.services.guna_milan import calculator
 
 router = APIRouter(prefix="/ai/horoscope", tags=["horoscope"])
 
 
-@router.post("/guna", response_model=GunaResultResponse)
+@router.post(
+    "/guna",
+    response_model=GunaResultResponse,
+    dependencies=[Depends(verify_internal_key)],
+)
 def calculate_guna_milan(payload: GunaInput) -> dict:
     """
     Calculate Ashtakoot Guna Milan score for two horoscope profiles.

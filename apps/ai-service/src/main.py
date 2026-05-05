@@ -60,7 +60,10 @@ app = FastAPI(
 
 
 # ── X-Internal-Key auth middleware ───────────────────────────────────────────
-INTERNAL_KEY = os.getenv("AI_SERVICE_INTERNAL_KEY", "internal-key-change-in-prod")
+INTERNAL_KEY = (
+    os.getenv("AI_SERVICE_API_KEY")
+    or os.getenv("AI_SERVICE_INTERNAL_KEY", "internal-key-change-in-prod")
+)
 PUBLIC_PATHS = {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}
 
 
@@ -107,8 +110,35 @@ app.include_router(horoscope_router)
 # ── Health + readiness ───────────────────────────────────────────────────────
 @app.get("/health")
 def health() -> dict[str, object]:
-    """Liveness probe — process is up."""
-    return {"success": True, "data": {"status": "ok"}, "error": None, "meta": None}
+    """
+    Liveness probe — process is up + Phase 3 model registry.
+
+    Always returns HTTP 200. status="degraded" when a critical import fails so
+    Railway/load-balancers don't loop-restart the pod for a recoverable issue.
+    """
+    status = "ok"
+    try:
+        # Smoke that the deterministic engine module is importable.
+        from src.services.guna_milan import calculator  # noqa: F401
+    except Exception as exc:  # noqa: BLE001
+        log.error("health_import_failed", error=str(exc))
+        status = "degraded"
+
+    return {
+        "success": True,
+        "data": {
+            "status": status,
+            "phase": 3,
+            "version": "3.0.0",
+            "models": {
+                "guna_milan": "deterministic",
+                "coach": "pending_phase_1",
+                "emotional": "pending_week10_day3",
+            },
+        },
+        "error": None,
+        "meta": None,
+    }
 
 
 @app.get("/ready")
