@@ -131,12 +131,15 @@ def health() -> dict[str, object]:
         log.error("health_import_failed", error=str(exc))
         status = "degraded"
 
-    # Emotional Score sentiment loader probe — never triggers a load (cheap).
+    # Emotional Score sentiment loader probe — first call triggers lazy load,
+    # subsequent calls return the cached pipeline via `_load_attempted` guard.
     try:
-        from src.services.sentiment_model import is_pipeline_loaded
+        from src.services.sentiment_model import load_sentiment_pipeline
 
         emotional_status = (
-            "huggingface_loaded" if is_pipeline_loaded() else "huggingface_unavailable"
+            "huggingface_loaded"
+            if load_sentiment_pipeline() is not None
+            else "huggingface_unavailable"
         )
     except Exception as exc:  # noqa: BLE001
         log.error("sentiment_health_probe_failed", error=str(exc))
