@@ -139,3 +139,74 @@ export async function getConversationSuggestions(
 
   return response.json() as Promise<CoachResponse>;
 }
+
+// ── Divorce Probability Indicator (DPI) ───────────────────────────────────────
+
+export interface DpiFeaturePayload {
+  age_gap_years: number;
+  education_gap: number;
+  income_disparity_pct: number;
+  family_values_alignment: number;
+  lifestyle_compatibility: number;
+  communication_score: number;
+  guna_milan_score: number;
+  geographic_distance_km: number;
+  religion_caste_match: number;
+  preference_match_pct: number;
+}
+
+export interface DpiTopFactor {
+  factor: string;
+  weight: number;
+  direction: string;
+}
+
+export interface DpiResponse {
+  score: number;
+  level: 'LOW' | 'MEDIUM' | 'HIGH';
+  label: string;
+  narrative: string;
+  suggestion: string;
+  top_factors: DpiTopFactor[];
+  shared_strengths: string[];
+  disclaimer: string;
+  computed_at: string;
+  fallback?: boolean;
+}
+
+/**
+ * Call the ai-service /ai/dpi/compute endpoint.
+ * Uses a 15s timeout — Opus 4.7 narrative generation is ~3-5s slower than Sonnet.
+ * Throws AppError('AI_SERVICE_UNAVAILABLE') on non-2xx or timeout.
+ * Callers must catch and return a graceful fallback instead of re-throwing.
+ */
+export async function getDivorceProbability(
+  requestingUserId: string,
+  matchId: string,
+  features: DpiFeaturePayload,
+  profileSummaries: { a: string; b: string },
+  sharedStrengths: string[],
+): Promise<DpiResponse> {
+  const response = await fetch(`${env.AI_SERVICE_URL}/ai/dpi/compute`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Internal-Key': env.AI_SERVICE_INTERNAL_KEY,
+    },
+    body: JSON.stringify({
+      requesting_user_id: requestingUserId,
+      match_id: matchId,
+      features,
+      profile_summaries: profileSummaries,
+      shared_strengths: sharedStrengths,
+    }),
+    // 15s timeout — Opus 4.7 narrative is ~3-5s; safety margin for network
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) {
+    throw makeAppError('AI_SERVICE_UNAVAILABLE', 'Divorce indicator temporarily unavailable', 503);
+  }
+
+  return response.json() as Promise<DpiResponse>;
+}
