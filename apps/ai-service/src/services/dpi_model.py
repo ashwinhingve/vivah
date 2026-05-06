@@ -25,7 +25,12 @@ from src.services.dpi_training import (
 
 LEVEL_THRESHOLDS: tuple[float, float] = (0.30, 0.55)
 
+# Predictor: CalibratedClassifierCV wrapping LogisticRegression — used for the
+# final, realistic probability score. Lacks a stable single coef_/intercept_.
 _model: Any = None
+# Explainer: plain LogisticRegression on the full training set — used solely
+# to derive factor_contributions and the top_3_factors list.
+_explainer: Any = None
 _metadata: dict | None = None
 
 
@@ -43,10 +48,11 @@ def load_model(
     metadata_path: str | Path = DEFAULT_METADATA_PATH,
 ) -> None:
     """
-    Load the cached model. If absent on disk → train first, then load.
-    Idempotent — subsequent calls return immediately.
+    Load the cached calibrated predictor + explainer bundle. If absent on
+    disk → train first, then load. Idempotent — subsequent calls return
+    immediately.
     """
-    global _model, _metadata
+    global _model, _explainer, _metadata
     if _model is not None:
         return
 
@@ -56,7 +62,10 @@ def load_model(
     if not model_path.exists():
         train_model(save_path=model_path, metadata_path=metadata_path)
 
-    _model = joblib.load(model_path)
+    bundle = joblib.load(model_path)
+    _model = bundle["calibrated"]
+    _explainer = bundle["explainer"]
+
     if metadata_path.exists():
         _metadata = json.loads(metadata_path.read_text())
     else:
@@ -90,7 +99,7 @@ def predict(features: dict) -> dict:
     proba = _model.predict_proba(x.reshape(1, -1))[0, 1]
     score = float(proba)
 
-    coef = _model.coef_[0]
+    coef = _explainer.coef_[0]
     contributions = {name: float(coef[i] * x[i]) for i, name in enumerate(FEATURE_NAMES)}
     top_3 = sorted(contributions, key=lambda k: abs(contributions[k]), reverse=True)[:3]
 

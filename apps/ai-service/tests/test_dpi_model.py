@@ -25,9 +25,11 @@ from src.services.dpi_training import (
 def _reset_dpi_singleton():
     """Each test starts with a cold module-level cache."""
     dpi_model._model = None
+    dpi_model._explainer = None
     dpi_model._metadata = None
     yield
     dpi_model._model = None
+    dpi_model._explainer = None
     dpi_model._metadata = None
 
 
@@ -118,17 +120,23 @@ def test_predict_high_risk_inputs_yield_high_score(trained_paths):
 # ── 8 ────────────────────────────────────────────────────────────────────────
 def test_predict_factor_contributions_sum_to_score(trained_paths):
     """
-    Linear contributions are pre-sigmoid. Sigmoid(sum + intercept) ≈ score.
+    Linear contributions come from the plain explainer LR (interpretable
+    coef_). Sigmoid(sum + explainer_intercept) reconstructs the explainer's
+    raw probability — the calibrated predictor's `score` is allowed to differ
+    from this raw value.
     """
     model_path, meta_path = trained_paths
     dpi_model.load_model(model_path=model_path, metadata_path=meta_path)
     feats = {k: 0.4 for k in FEATURE_NAMES}
     out = dpi_model.predict(feats)
 
-    intercept = float(dpi_model._model.intercept_[0])
+    intercept = float(dpi_model._explainer.intercept_[0])
     total = sum(out["factor_contributions"].values()) + intercept
     reconstructed = 1.0 / (1.0 + math.exp(-total))
-    assert abs(reconstructed - out["score"]) < 1e-6
+
+    x = np.array([feats[k] for k in FEATURE_NAMES]).reshape(1, -1)
+    raw_explainer_proba = float(dpi_model._explainer.predict_proba(x)[0, 1])
+    assert abs(reconstructed - raw_explainer_proba) < 1e-6
 
 
 # ── 9 ────────────────────────────────────────────────────────────────────────

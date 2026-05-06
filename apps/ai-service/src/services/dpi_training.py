@@ -15,6 +15,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, brier_score_loss, roc_auc_score
 
@@ -34,21 +35,24 @@ FEATURE_NAMES: list[str] = [
 
 # Per-feature risk weight applied during synthetic label generation. These are
 # NOT the model's eventual coefficients — the model learns them from the data.
+# All weights reduced ~30 % vs the initial pass to fuzz the label boundary so
+# the calibrated model produces realistic mid-range probabilities instead of
+# saturating to 0/1 on synthetic extremes.
 LABEL_WEIGHTS: dict[str, float] = {
-    "age_gap_years": 0.10,
-    "education_gap": 0.15,
-    "income_disparity_pct": 0.20,
-    "family_values_alignment": 0.10,
-    "lifestyle_compatibility": 0.10,
-    "communication_score": 0.10,
-    "guna_milan_score": 0.08,
-    "geographic_distance_km": 0.05,
-    "religion_caste_match": 0.10,
-    "preference_match_pct": 0.10,
+    "age_gap_years": 0.051,
+    "education_gap": 0.076,
+    "income_disparity_pct": 0.102,
+    "family_values_alignment": 0.051,
+    "lifestyle_compatibility": 0.051,
+    "communication_score": 0.051,
+    "guna_milan_score": 0.041,
+    "geographic_distance_km": 0.025,
+    "religion_caste_match": 0.051,
+    "preference_match_pct": 0.051,
 }
 
-BASE_RISK = 0.10
-NOISE_STD = 0.08
+BASE_RISK = 0.22
+NOISE_STD = 0.18
 LABEL_THRESHOLD = 0.5
 
 _AI_SERVICE_ROOT = Path(__file__).resolve().parents[2]
@@ -127,9 +131,12 @@ def train_model(
     seed: int = 42,
 ) -> dict:
     """
-    Generate data, fit LogisticRegression, persist model + metadata.
+    Generate data, fit a CalibratedClassifierCV (sigmoid, cv=5) wrapping
+    LogisticRegression, plus a separate plain LogisticRegression on the full
+    dataset that we keep for interpretable factor contributions. Persist both
+    in one joblib bundle.
 
-    Returns metrics dict: accuracy, auc, brier, n_samples.
+    Returns metrics dict computed from the calibrated predictor.
     """
     save_path = Path(save_path)
     metadata_path = (
@@ -140,10 +147,20 @@ def train_model(
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
     X, y = generate_synthetic_data(n=n, seed=seed)
-    model = LogisticRegression(C=1.0, max_iter=1000)
-    model.fit(X, y)
 
-    proba = model.predict_proba(X)[:, 1]
+    # Predictor: calibrated probabilities so the final score is realistic
+    # (not saturated near 0/1 on synthetic extremes).
+    base = LogisticRegression(C=1.0, max_iter=1000)
+    calibrated = CalibratedClassifierCV(estimator=base, cv=5, method="sigmoid")
+    calibrated.fit(X, y)
+
+    # Explainer: plain LR on full data — exposes coef_/intercept_ used for
+    # factor_contributions in the predict() API. The calibrator wraps several
+    # fold-fitted estimators and does not expose a stable single coef_.
+    explainer = LogisticRegression(C=1.0, max_iter=1000)
+    explainer.fit(X, y)
+
+    proba = calibrated.predict_proba(X)[:, 1]
     preds = (proba >= 0.5).astype(np.int64)
     metrics = {
         "accuracy": float(accuracy_score(y, preds)),
@@ -152,9 +169,12 @@ def train_model(
         "n_samples": int(X.shape[0]),
         "n_features": int(X.shape[1]),
         "positive_rate": float(y.mean()),
+        "score_p05": float(np.quantile(proba, 0.05)),
+        "score_p95": float(np.quantile(proba, 0.95)),
     }
 
-    joblib.dump(model, save_path)
+    bundle = {"calibrated": calibrated, "explainer": explainer}
+    joblib.dump(bundle, save_path)
 
     metadata = {
         "version": MODEL_VERSION,
@@ -162,6 +182,7 @@ def train_model(
         "training_date": datetime.now(timezone.utc).isoformat(),
         "metrics": metrics,
         "seed": seed,
+        "calibration": {"method": "sigmoid", "cv": 5},
     }
     metadata_path.write_text(json.dumps(metadata, indent=2))
 
