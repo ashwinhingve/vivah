@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
+import { TopNav } from '@/components/layout/TopNav.client';
 import { CartButton } from '@/components/store/CartButton.client';
 import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
@@ -24,6 +25,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           >
             Smart Shaadi
           </Link>
+          <TopNav />
           <div className="flex items-center gap-1.5 sm:gap-3">
             {process.env.NODE_ENV === 'development' && (
               <div className="hidden md:flex items-center gap-2">

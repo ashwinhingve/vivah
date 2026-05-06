@@ -2,8 +2,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { BudgetTracker } from '@/components/wedding/BudgetTracker';
+import { BudgetDonut, type BudgetSlice } from '@/components/wedding/BudgetDonut';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingPlan, WeddingSummary } from '@smartshaadi/types';
+
+const SLICE_COLORS = [
+  'var(--primary)',
+  'var(--teal)',
+  'var(--gold)',
+  'var(--success)',
+  'var(--warning)',
+  'var(--gold-muted)',
+] as const;
 
 async function fetchPlan(weddingId: string): Promise<{
   plan: WeddingPlan | null;
@@ -75,11 +85,28 @@ export default async function BudgetPage({ params }: PageProps) {
 
         {/* Budget Tracker */}
         {!error && plan && (
-          <BudgetTracker
-            total={plan.budget.total}
-            currency={plan.budget.currency}
-            categories={plan.budget.categories}
-          />
+          <>
+            {plan.budget.categories.length > 0 && (
+              <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-5 shadow-sm">
+                <h2 className="mb-4 font-heading text-lg font-semibold text-primary">
+                  Spend by category
+                </h2>
+                <BudgetDonut
+                  totalBudget={plan.budget.total}
+                  slices={plan.budget.categories.map((c, i): BudgetSlice => ({
+                    label: c.name,
+                    amount: c.spent,
+                    color: SLICE_COLORS[i % SLICE_COLORS.length]!,
+                  }))}
+                />
+              </div>
+            )}
+            <BudgetTracker
+              total={plan.budget.total}
+              currency={plan.budget.currency}
+              categories={plan.budget.categories}
+            />
+          </>
         )}
 
         {/* No plan yet */}

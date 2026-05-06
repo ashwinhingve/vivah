@@ -93,7 +93,7 @@ export default async function ProfileViewPage({ params }: Props) {
   const gunaScore = profile.horoscope?.gunaScore ?? null;
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="pb-28">
       <div className="mx-auto max-w-lg">
 
         {/* ── Profile Hero ────────────────────────────────── */}

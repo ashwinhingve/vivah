@@ -59,6 +59,12 @@
   --color-text-muted:           #6B6B76;
   --color-text-on-dark:         #F0EBE4;
 
+  /* Scaffold/design-system aliases — short fg-N names mirror text-* tokens */
+  --color-fg-1:                 #2E2E38;
+  --color-fg-2:                 #6B6B76;
+  --color-fg-3:                 #9B9BA5;
+  --color-bg:                   #FEFAF6;
+
   /* ── Borders ────────────────────────────────────────────────────────────── */
   --color-border:               #E8E0D8;
   --color-border-light:         #F0EBE4;
@@ -83,6 +89,38 @@
   --shadow-card:         0 1px 2px 0 rgba(123, 45, 66, 0.04);
   --shadow-card-hover:   0 10px 24px -8px rgba(123, 45, 66, 0.14), 0 4px 8px -4px rgba(123, 45, 66, 0.08);
   --shadow-gold-glow:    0 0 0 1px rgba(197, 164, 126, 0.25), 0 8px 20px -6px rgba(197, 164, 126, 0.28);
+}
+
+/* =============================================================================
+   Scaffold bare-CSS-var aliases.
+   Tailwind v4 @theme above generates utility classes (bg-primary, text-fg-2,
+   etc.) but does NOT expose tokens under bare `--name` references for inline
+   `style="stroke: var(--success)"` or `shadow-[var(--shadow-sm)]`.
+   These aliases bridge the gap so design-system primitives (GunaScoreRing,
+   BudgetDonut, FamilyPanel) work without modification.
+   ============================================================================= */
+
+:root {
+  --bg:            #FEFAF6;
+  --fg-1:          #2E2E38;
+  --fg-2:          #6B6B76;
+  --fg-3:          #9B9BA5;
+  --surface:       #FFFFFF;
+  --surface-muted: #F8F5F0;
+  --border:        #E8E0D8;
+  --border-light:  #F0EBE4;
+  --primary:       #7B2D42;
+  --gold:          #C5A47E;
+  --gold-muted:    #7A5F3A;
+  --peach:         #F4D9C2;
+  --teal:          #0E7C7B;
+  --teal-hover:    #149998;
+  --success:       #059669;
+  --warning:       #D97706;
+  --error:         #DC2626;
+  --shadow-sm:     0 1px 2px 0 rgba(123, 45, 66, 0.04);
+  --shadow-md:     0 6px 14px -4px rgba(123, 45, 66, 0.10), 0 2px 4px -2px rgba(123, 45, 66, 0.06);
+  --shadow-lg:     0 18px 40px -12px rgba(123, 45, 66, 0.18), 0 6px 14px -6px rgba(123, 45, 66, 0.10);
 }
 
 /* =============================================================================
