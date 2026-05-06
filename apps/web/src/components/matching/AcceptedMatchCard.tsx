@@ -74,6 +74,13 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
           Open Chat
         </Link>
       </div>
+
+      <Link
+        href={`/matches/${request.id}/compatibility`}
+        className="text-xs text-teal hover:underline self-start"
+      >
+        View compatibility analysis →
+      </Link>
     </div>
   );
 }

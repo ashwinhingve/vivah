@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import type { CoachResponse, EmotionalScore } from '@smartshaadi/types';
+import type { CoachResponse, DpiResponse, EmotionalScore } from '@smartshaadi/types';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -44,6 +44,23 @@ export async function fetchEmotionalScore(matchId: string): Promise<EmotionalSco
     });
     if (!res.ok) return null;
     const json = (await res.json()) as { success?: boolean; data?: EmotionalScore };
+    return json.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchDpi(matchId: string): Promise<DpiResponse | null> {
+  try {
+    const store = await cookies();
+    const token = store.get('better-auth.session_token')?.value ?? '';
+    const res = await fetch(`${API_BASE}/api/v1/ai/divorce-indicator/${matchId}`, {
+      method: 'GET',
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success?: boolean; data?: DpiResponse };
     return json.data ?? null;
   } catch {
     return null;

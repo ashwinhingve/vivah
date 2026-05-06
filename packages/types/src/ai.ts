@@ -26,3 +26,20 @@ export interface EmotionalScore {
   last_updated: string;
   fallback?: boolean;
 }
+
+export interface DpiFactorContribution {
+  factor: string;
+  contribution: number;
+  direction: 'protective' | 'concern' | 'neutral';
+}
+
+export interface DpiResponse {
+  score: number;
+  level: 'LOW' | 'MEDIUM' | 'HIGH';
+  label: string;
+  narrative: string;
+  suggestion: string;
+  top_factors: DpiFactorContribution[];
+  disclaimer: string;
+  fallback?: boolean;
+}
