@@ -56,6 +56,7 @@ else:
 from src.routers.horoscope import router as horoscope_router
 from src.routers.coach import router as coach_router
 from src.routers.emotional import router as emotional_router
+from src.routers.dpi import router as dpi_router
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -112,6 +113,7 @@ app.add_middleware(InternalKeyAuthMiddleware)
 app.include_router(horoscope_router)
 app.include_router(coach_router)
 app.include_router(emotional_router)
+app.include_router(dpi_router)
 
 
 # ── Health + readiness ───────────────────────────────────────────────────────
