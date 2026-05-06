@@ -145,6 +145,16 @@ def health() -> dict[str, object]:
         log.error("sentiment_health_probe_failed", error=str(exc))
         emotional_status = "huggingface_unavailable"
 
+    # DPI sklearn model probe — first call lazy-loads (auto-trains if absent).
+    try:
+        from src.services.dpi_model import load_model as load_dpi_model
+
+        load_dpi_model()
+        dpi_status = "sklearn_loaded"
+    except Exception as exc:  # noqa: BLE001
+        log.error("dpi_health_probe_failed", error=str(exc))
+        dpi_status = "sklearn_unavailable"
+
     return {
         "success": True,
         "data": {
@@ -155,6 +165,7 @@ def health() -> dict[str, object]:
                 "guna_milan": "deterministic",
                 "coach": "llm_sonnet",
                 "emotional": emotional_status,
+                "dpi": dpi_status,
             },
         },
         "error": None,
