@@ -132,47 +132,64 @@ async def test_top_factors_max_3_returned():
 
 
 @pytest.mark.asyncio
-async def test_factor_direction_protective_for_negative_contribution():
-    """Test 6: contribution < -0.05 → direction == 'protective'."""
-    fc = {
-        "age_gap_years": -0.20,
-        "education_gap": 0.0,
-        "income_disparity_pct": 0.0,
-        "family_values_alignment": 0.0,
-        "lifestyle_compatibility": 0.0,
-        "communication_score": 0.0,
-        "guna_milan_score": 0.0,
-        "geographic_distance_km": 0.0,
-        "religion_caste_match": 0.0,
-        "preference_match_pct": 0.0,
-    }
+async def test_factor_direction_protective_for_low_feature_value():
+    """Test 6: top factor with input feature_value < 0.30 → 'protective'.
+
+    Contribution sign is intentionally positive here — the classifier must
+    look at the input feature value, not the contribution.
+    """
+    req = _BASE_REQUEST.model_copy(
+        update={
+            "features": _BASE_REQUEST.features.model_copy(
+                update={"age_gap_years": 0.10}
+            )
+        }
+    )
+    fc = {name: 0.0 for name in _LOW_FEATURES.model_dump()}
+    fc["age_gap_years"] = 0.20  # positive contribution — irrelevant under new rule
     model_result = _make_predict_result(0.15, "LOW", fc, ["age_gap_years"])
     with patch("src.services.dpi_service.predict", return_value=model_result):
-        result = await compute_dpi(_BASE_REQUEST, anthropic_client=None, use_mock=True)
+        result = await compute_dpi(req, anthropic_client=None, use_mock=True)
     factor = next(f for f in result.top_factors if f.factor == "age_gap_years")
     assert factor.direction == "protective"
 
 
 @pytest.mark.asyncio
-async def test_factor_direction_concern_for_positive_contribution():
-    """Test 7: contribution > +0.05 → direction == 'concern'."""
-    fc = {
-        "age_gap_years": 0.0,
-        "education_gap": 0.0,
-        "income_disparity_pct": 0.0,
-        "family_values_alignment": 0.0,
-        "lifestyle_compatibility": 0.0,
-        "communication_score": 0.30,
-        "guna_milan_score": 0.0,
-        "geographic_distance_km": 0.0,
-        "religion_caste_match": 0.0,
-        "preference_match_pct": 0.0,
-    }
+async def test_factor_direction_concern_for_high_feature_value():
+    """Test 7: top factor with input feature_value > 0.55 → 'concern'."""
+    req = _BASE_REQUEST.model_copy(
+        update={
+            "features": _BASE_REQUEST.features.model_copy(
+                update={"communication_score": 0.90}
+            )
+        }
+    )
+    fc = {name: 0.0 for name in _LOW_FEATURES.model_dump()}
+    fc["communication_score"] = 0.30
     model_result = _make_predict_result(0.60, "HIGH", fc, ["communication_score"])
     with patch("src.services.dpi_service.predict", return_value=model_result):
-        result = await compute_dpi(_BASE_REQUEST, anthropic_client=None, use_mock=True)
+        result = await compute_dpi(req, anthropic_client=None, use_mock=True)
     factor = next(f for f in result.top_factors if f.factor == "communication_score")
     assert factor.direction == "concern"
+
+
+@pytest.mark.asyncio
+async def test_factor_direction_neutral_for_midband_feature_value():
+    """Boundary pin: feature_value in [0.30, 0.55] → 'neutral'."""
+    req = _BASE_REQUEST.model_copy(
+        update={
+            "features": _BASE_REQUEST.features.model_copy(
+                update={"income_disparity_pct": 0.45}
+            )
+        }
+    )
+    fc = {name: 0.0 for name in _LOW_FEATURES.model_dump()}
+    fc["income_disparity_pct"] = 0.10
+    model_result = _make_predict_result(0.40, "MEDIUM", fc, ["income_disparity_pct"])
+    with patch("src.services.dpi_service.predict", return_value=model_result):
+        result = await compute_dpi(req, anthropic_client=None, use_mock=True)
+    factor = next(f for f in result.top_factors if f.factor == "income_disparity_pct")
+    assert factor.direction == "neutral"
 
 
 @pytest.mark.asyncio

@@ -198,12 +198,19 @@ async def compute_dpi(
     # ── 3. Top 3 factor direction classification ─────────────────────────────
     top_3_names: list[str] = model_result["top_3_factors"]
 
+    # Direction reflects the INPUT feature value (how risky this factor reads
+    # for this pair), not the contribution sign. All features are normalised
+    # to [0, 1] with positive coefficients, so contribution sign is monotonic
+    # in the feature value and gives the same answer for every factor —
+    # producing the "Strong Foundation + 3 concerns" UX bug. Banding tracks
+    # LEVEL_THRESHOLDS in dpi_model.py so direction language matches the gauge.
     top_factors: list[DpiFactorContribution] = []
     for name in top_3_names[:3]:
         contrib = factor_contributions.get(name, 0.0)
-        if contrib < -0.05:
+        feature_value = float(features_dict.get(name, 0.5))
+        if feature_value < 0.30:
             direction = "protective"
-        elif contrib > 0.05:
+        elif feature_value > 0.55:
             direction = "concern"
         else:
             direction = "neutral"
