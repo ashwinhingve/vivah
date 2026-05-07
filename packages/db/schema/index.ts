@@ -381,6 +381,35 @@ export const familyStatusEnum = pgEnum('family_status', [
   'AFFLUENT',
 ]);
 
+export const parentsLivingSituationEnum = pgEnum('parents_living_situation', [
+  'YES_COMMITTED',
+  'OPEN',
+  'NO_OBJECTION',
+  'PREFER_SEPARATE',
+]);
+
+export const familyDecisionInvolvementEnum = pgEnum('family_decision_involvement', [
+  'HIGH_COLLABORATIVE',
+  'CONSULTATIVE',
+  'INFORMED_ONLY',
+  'INDEPENDENT',
+]);
+
+export const culturalEventsAttendanceEnum = pgEnum('cultural_events_attendance', [
+  'ALWAYS',
+  'IMPORTANT_ONLY',
+  'OCCASIONALLY',
+  'RARELY',
+]);
+
+export const religiousObservanceWithFamilyEnum = pgEnum('religious_observance_with_family', [
+  'VERY_ACTIVE_TOGETHER',
+  'ACTIVE_INDIVIDUALLY',
+  'OCCASIONAL',
+  'PERSONAL_ONLY',
+  'NOT_PRACTICING',
+]);
+
 export const rashiEnum = pgEnum('rashi', [
   'MESH','VRISHABHA','MITHUN','KARK','SINGH','KANYA',
   'TULA','VRISHCHIK','DHANU','MAKAR','KUMBH','MEEN',

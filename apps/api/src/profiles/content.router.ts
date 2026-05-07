@@ -181,6 +181,10 @@ profileContentRouter.put(
     if (parsed.data.familyType != null) input.familyType = parsed.data.familyType;
     if (parsed.data.familyValues != null) input.familyValues = parsed.data.familyValues;
     if (parsed.data.familyStatus != null) input.familyStatus = parsed.data.familyStatus;
+    if (parsed.data.parentsLivingSituation != null) input.parentsLivingSituation = parsed.data.parentsLivingSituation;
+    if (parsed.data.familyDecisionInvolvement != null) input.familyDecisionInvolvement = parsed.data.familyDecisionInvolvement;
+    if (parsed.data.culturalEventsAttendance != null) input.culturalEventsAttendance = parsed.data.culturalEventsAttendance;
+    if (parsed.data.religiousObservanceWithFamily != null) input.religiousObservanceWithFamily = parsed.data.religiousObservanceWithFamily;
     if (parsed.data.nativePlace != null) input.nativePlace = parsed.data.nativePlace;
     if (parsed.data.familyAbout != null) input.familyAbout = parsed.data.familyAbout;
     if (parsed.data.photoR2Key != null) input.photoR2Key = parsed.data.photoR2Key;

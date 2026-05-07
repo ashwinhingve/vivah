@@ -103,6 +103,14 @@ export async function updateFamily(_prev: unknown, formData: FormData): Promise<
   if (familyValues) payload.familyValues = familyValues;
   const familyStatus = formData.get('familyStatus');
   if (familyStatus) payload.familyStatus = familyStatus;
+  const parentsLivingSituation = formData.get('parentsLivingSituation');
+  if (parentsLivingSituation) payload.parentsLivingSituation = parentsLivingSituation;
+  const familyDecisionInvolvement = formData.get('familyDecisionInvolvement');
+  if (familyDecisionInvolvement) payload.familyDecisionInvolvement = familyDecisionInvolvement;
+  const culturalEventsAttendance = formData.get('culturalEventsAttendance');
+  if (culturalEventsAttendance) payload.culturalEventsAttendance = culturalEventsAttendance;
+  const religiousObservanceWithFamily = formData.get('religiousObservanceWithFamily');
+  if (religiousObservanceWithFamily) payload.religiousObservanceWithFamily = religiousObservanceWithFamily;
   const nativePlace = formData.get('nativePlace');
   if (nativePlace) payload.nativePlace = nativePlace;
   const familyAbout = formData.get('familyAbout');

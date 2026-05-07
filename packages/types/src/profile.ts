@@ -151,6 +151,10 @@ export interface FamilySection {
   familyType?: 'JOINT' | 'NUCLEAR' | 'EXTENDED';
   familyValues?: 'TRADITIONAL' | 'MODERATE' | 'LIBERAL';
   familyStatus?: 'MIDDLE_CLASS' | 'UPPER_MIDDLE' | 'AFFLUENT';
+  parentsLivingSituation?: 'YES_COMMITTED' | 'OPEN' | 'NO_OBJECTION' | 'PREFER_SEPARATE';
+  familyDecisionInvolvement?: 'HIGH_COLLABORATIVE' | 'CONSULTATIVE' | 'INFORMED_ONLY' | 'INDEPENDENT';
+  culturalEventsAttendance?: 'ALWAYS' | 'IMPORTANT_ONLY' | 'OCCASIONALLY' | 'RARELY';
+  religiousObservanceWithFamily?: 'VERY_ACTIVE_TOGETHER' | 'ACTIVE_INDIVIDUALLY' | 'OCCASIONAL' | 'PERSONAL_ONLY' | 'NOT_PRACTICING';
   nativePlace?: string;
   familyAbout?: string;
   photoR2Key?: string;

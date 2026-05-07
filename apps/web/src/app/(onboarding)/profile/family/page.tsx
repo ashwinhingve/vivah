@@ -28,6 +28,10 @@ interface ProfileSnapshot {
     familyType?: string;
     familyValues?: string;
     familyStatus?: string;
+    parentsLivingSituation?: string;
+    familyDecisionInvolvement?: string;
+    culturalEventsAttendance?: string;
+    religiousObservanceWithFamily?: string;
     nativePlace?: string;
     familyAbout?: string;
     photoR2Key?: string;
@@ -183,6 +187,99 @@ export default function FamilyPage() {
                     name="familyStatus"
                     value={v}
                     defaultChecked={f?.familyStatus === v}
+                    className="accent-teal"
+                  />
+                  <span className="text-sm text-foreground">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Living arrangement with parents</label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {[
+                ['YES_COMMITTED', 'Plan to live with them'],
+                ['OPEN', 'Open to living with them'],
+                ['NO_OBJECTION', 'No objection if needed'],
+                ['PREFER_SEPARATE', 'Prefer separate homes'],
+              ].map(([v, label]) => (
+                <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
+                  <input
+                    type="radio"
+                    name="parentsLivingSituation"
+                    value={v}
+                    defaultChecked={f?.parentsLivingSituation === v}
+                    className="accent-teal"
+                  />
+                  <span className="text-sm text-foreground">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Family involvement in major life decisions</label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {[
+                ['HIGH_COLLABORATIVE', 'We decide together'],
+                ['CONSULTATIVE', 'I consult them on important things'],
+                ['INFORMED_ONLY', 'I keep them informed'],
+                ['INDEPENDENT', 'I make my own decisions'],
+              ].map(([v, label]) => (
+                <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
+                  <input
+                    type="radio"
+                    name="familyDecisionInvolvement"
+                    value={v}
+                    defaultChecked={f?.familyDecisionInvolvement === v}
+                    className="accent-teal"
+                  />
+                  <span className="text-sm text-foreground">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Attendance at family/cultural events</label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {[
+                ['ALWAYS', 'Attend them all'],
+                ['IMPORTANT_ONLY', 'Attend important ones'],
+                ['OCCASIONALLY', 'Attend occasionally'],
+                ['RARELY', 'Rarely attend'],
+              ].map(([v, label]) => (
+                <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
+                  <input
+                    type="radio"
+                    name="culturalEventsAttendance"
+                    value={v}
+                    defaultChecked={f?.culturalEventsAttendance === v}
+                    className="accent-teal"
+                  />
+                  <span className="text-sm text-foreground">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Religious practice with family</label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {[
+                ['VERY_ACTIVE_TOGETHER', 'Very active together'],
+                ['ACTIVE_INDIVIDUALLY', 'Active individually'],
+                ['OCCASIONAL', 'Occasional'],
+                ['PERSONAL_ONLY', 'Personal practice only'],
+                ['NOT_PRACTICING', 'Not practicing'],
+              ].map(([v, label]) => (
+                <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
+                  <input
+                    type="radio"
+                    name="religiousObservanceWithFamily"
+                    value={v}
+                    defaultChecked={f?.religiousObservanceWithFamily === v}
                     className="accent-teal"
                   />
                   <span className="text-sm text-foreground">{label}</span>

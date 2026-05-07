@@ -69,6 +69,10 @@ const profileContentSchema = new Schema(
       familyType:   String,   // JOINT | NUCLEAR | EXTENDED
       familyValues: String,   // TRADITIONAL | MODERATE | LIBERAL
       familyStatus: String,   // MIDDLE_CLASS | UPPER_MIDDLE | AFFLUENT
+      parentsLivingSituation:        String,  // YES_COMMITTED | OPEN | NO_OBJECTION | PREFER_SEPARATE
+      familyDecisionInvolvement:     String,  // HIGH_COLLABORATIVE | CONSULTATIVE | INFORMED_ONLY | INDEPENDENT
+      culturalEventsAttendance:      String,  // ALWAYS | IMPORTANT_ONLY | OCCASIONALLY | RARELY
+      religiousObservanceWithFamily: String,  // VERY_ACTIVE_TOGETHER | ACTIVE_INDIVIDUALLY | OCCASIONAL | PERSONAL_ONLY | NOT_PRACTICING
       nativePlace:  String,
       familyAbout:  String,
       photoR2Key:   String,

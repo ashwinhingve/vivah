@@ -313,6 +313,10 @@ export async function bulkUpdateContent(
     if (data.family.familyType != null) familyInput.familyType = data.family.familyType;
     if (data.family.familyValues != null) familyInput.familyValues = data.family.familyValues;
     if (data.family.familyStatus != null) familyInput.familyStatus = data.family.familyStatus;
+    if (data.family.parentsLivingSituation != null) familyInput.parentsLivingSituation = data.family.parentsLivingSituation;
+    if (data.family.familyDecisionInvolvement != null) familyInput.familyDecisionInvolvement = data.family.familyDecisionInvolvement;
+    if (data.family.culturalEventsAttendance != null) familyInput.culturalEventsAttendance = data.family.culturalEventsAttendance;
+    if (data.family.religiousObservanceWithFamily != null) familyInput.religiousObservanceWithFamily = data.family.religiousObservanceWithFamily;
     if (data.family.nativePlace != null) familyInput.nativePlace = data.family.nativePlace;
     if (data.family.familyAbout != null) familyInput.familyAbout = data.family.familyAbout;
     content = await updateFamily(userId, familyInput as FamilySection);

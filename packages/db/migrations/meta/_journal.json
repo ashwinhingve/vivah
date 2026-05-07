@@ -85,6 +85,13 @@
       "when": 1777920478076,
       "tag": "0011_easy_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1778148424377,
+      "tag": "0012_gigantic_boomer",
+      "breakpoints": true
     }
   ]
 }
