@@ -19,11 +19,14 @@ import {
   getConversationSuggestions,
   getEmotionalScore,
   getDivorceProbability,
+  getFiiCompatibility,
   type ProfileSnapshot,
   type CoachResponse,
   type EmotionalScoreResponse,
   type DpiResponse,
+  type FiiCompatibilityResponse,
 } from '../services/aiService.js';
+import { extractFiiSignals } from '../services/fiiScore.js';
 import {
   DpiPrivacyError,
   assertRequesterParticipation,
@@ -703,5 +706,281 @@ aiRouter.get(
     logger.info({ dpi: sanitizeForLogging(dpiResult, userId) }, 'dpi.computed');
 
     ok(res, dpiResult);
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FII (Family Inclination Index) routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FII_SCORE_RATE_LIMIT      = 60;   // 60 per user per hour
+const FII_COMPAT_RATE_LIMIT     = 30;   // 30 per user per hour
+const FII_RATE_WINDOW_SEC       = 3600; // 1 hour
+const FII_CACHE_TTL_SEC         = 86400;         // 24h — template path
+const FII_LLM_CACHE_TTL_SEC     = 3600;          // 1h — Sonnet path
+const FII_SCORE_CACHE_TTL_SEC   = 86400;         // 24h
+
+// Score-only label bands (used when ai-service doesn't return one)
+function fiiLabel(score: number): string {
+  if (score >= 80) return 'Very High Family Inclination';
+  if (score >= 60) return 'High Family Inclination';
+  if (score >= 40) return 'Moderate Family Inclination';
+  if (score >= 20) return 'Low Family Inclination';
+  return 'Minimal Family Inclination';
+}
+
+// ── Rate limit helpers (Redis INCR + EXPIRE, mirror DPI/Emotional pattern) ───
+
+async function checkFiiScoreRateLimit(
+  userId: string,
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: FII_SCORE_RATE_LIMIT - 1 };
+  }
+  const key = `fii:score:rate:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, FII_RATE_WINDOW_SEC);
+    return { allowed: count <= FII_SCORE_RATE_LIMIT, remaining: Math.max(0, FII_SCORE_RATE_LIMIT - count) };
+  } catch {
+    return { allowed: true, remaining: FII_SCORE_RATE_LIMIT - 1 };
+  }
+}
+
+async function checkFiiCompatRateLimit(
+  userId: string,
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: FII_COMPAT_RATE_LIMIT - 1 };
+  }
+  const key = `fii:compat:rate:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, FII_RATE_WINDOW_SEC);
+    return { allowed: count <= FII_COMPAT_RATE_LIMIT, remaining: Math.max(0, FII_COMPAT_RATE_LIMIT - count) };
+  } catch {
+    return { allowed: true, remaining: FII_COMPAT_RATE_LIMIT - 1 };
+  }
+}
+
+// ── GET /api/v1/ai/fii/score/:profileId ──────────────────────────────────────
+
+aiRouter.get(
+  '/fii/score/:profileId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const { profileId } = req.params;
+
+    // Validate profileId is a UUID
+    const uuidParse = z.string().uuid().safeParse(profileId);
+    if (!uuidParse.success) {
+      err(res, 'VALIDATION_ERROR', 'profileId must be a valid UUID', 400);
+      return;
+    }
+    const safeProfileId = uuidParse.data;
+
+    // Rate limit: 60/hour
+    const rl = await checkFiiScoreRateLimit(userId);
+    if (!rl.allowed) {
+      err(res, 'RATE_LIMIT_EXCEEDED', 'FII score rate limit reached. Try again later.', 429);
+      return;
+    }
+
+    // Verify profile exists
+    const [profileRow] = await db
+      .select({ id: profiles.id, userId: profiles.userId, familyInclinationScore: profiles.familyInclinationScore })
+      .from(profiles)
+      .where(eq(profiles.id, safeProfileId))
+      .limit(1);
+
+    if (!profileRow) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // Cache lookup: fii:profile:{profileId}
+    const cacheKey = `fii:profile:${safeProfileId}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        ok(res, JSON.parse(cached) as { score: number; label: string; breakdown: object });
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // Use stored score (persisted by scoreFamilySection / recompute-score endpoint)
+    const storedScore = profileRow.familyInclinationScore ?? 0;
+    const label = fiiLabel(storedScore);
+
+    // Build breakdown from signals for richer response
+    let breakdown: object;
+    try {
+      const signals = await extractFiiSignals(profileRow.userId);
+      breakdown = signals;
+    } catch {
+      breakdown = {};
+    }
+
+    const result = { score: storedScore, label, breakdown };
+
+    // Cache 24h
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', FII_SCORE_CACHE_TTL_SEC);
+    } catch {
+      // Cache write failure — still return result
+    }
+
+    ok(res, result);
+  }),
+);
+
+// ── GET /api/v1/ai/fii/compatibility/:matchId ─────────────────────────────────
+
+aiRouter.get(
+  '/fii/compatibility/:matchId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const { matchId } = req.params;
+
+    // Validate matchId
+    const uuidParse = z.string().uuid().safeParse(matchId);
+    if (!uuidParse.success) {
+      err(res, 'VALIDATION_ERROR', 'matchId must be a valid UUID', 400);
+      return;
+    }
+    const safeMatchId = uuidParse.data;
+
+    // ?detailed=true → use_llm_narrative=true (Sonnet path)
+    const detailed = req.query['detailed'] === 'true';
+
+    // Rate limit: 30/hour
+    const rl = await checkFiiCompatRateLimit(userId);
+    if (!rl.allowed) {
+      err(res, 'RATE_LIMIT_EXCEEDED', 'FII compatibility rate limit reached. Try again later.', 429);
+      return;
+    }
+
+    // Resolve userId → profileId (Rule 12)
+    const requesterProfileId = await resolveProfileId(userId);
+    if (!requesterProfileId) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // Verify match exists and requester is a participant (either side)
+    const [matchRow] = await db
+      .select({
+        id:         matchRequests.id,
+        senderId:   matchRequests.senderId,
+        receiverId: matchRequests.receiverId,
+        status:     matchRequests.status,
+      })
+      .from(matchRequests)
+      .where(
+        and(
+          eq(matchRequests.id, safeMatchId),
+          eq(matchRequests.status, 'ACCEPTED'),
+          or(
+            eq(matchRequests.senderId, requesterProfileId),
+            eq(matchRequests.receiverId, requesterProfileId),
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (!matchRow) {
+      err(res, 'MATCH_NOT_FOUND', 'Match not found or access denied', 403);
+      return;
+    }
+
+    const otherProfileId =
+      matchRow.senderId === requesterProfileId
+        ? matchRow.receiverId
+        : matchRow.senderId;
+
+    // Cache: fii:match:{matchId}:{sonnet|template} — match-scoped, NOT requester-scoped
+    const cacheKey = `fii:match:${safeMatchId}:${detailed ? 'sonnet' : 'template'}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        ok(res, JSON.parse(cached) as FiiCompatibilityResponse);
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // Fetch userId values for both profiles (needed for extractFiiSignals)
+    const [pgA] = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.id, requesterProfileId))
+      .limit(1);
+
+    const [pgB] = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.id, otherProfileId))
+      .limit(1);
+
+    if (!pgA || !pgB) {
+      err(res, 'PROFILE_NOT_FOUND', 'One or both profiles not found', 404);
+      return;
+    }
+
+    // Extract FII signals for both profiles
+    const [signalsA, signalsB] = await Promise.all([
+      extractFiiSignals(pgA.userId),
+      extractFiiSignals(pgB.userId),
+    ]);
+
+    // Call AI service — fallback gracefully if unavailable
+    let compatResult: FiiCompatibilityResponse;
+    try {
+      compatResult = await getFiiCompatibility(
+        signalsA,
+        signalsB,
+        'Profile A',    // masked names — never expose real names/IDs to AI service
+        'Profile B',
+        detailed,
+      );
+    } catch (e) {
+      const appErr = e as { code?: string };
+      if (
+        appErr.code === 'AI_SERVICE_UNAVAILABLE' ||
+        (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+      ) {
+        // Graceful fallback — compute locally from signals
+        const { computeFiiScoreFromSignals } = await import('../services/fiiScore.js');
+        const scoreA = computeFiiScoreFromSignals(signalsA);
+        const scoreB = computeFiiScoreFromSignals(signalsB);
+        const compatScore = Math.round((scoreA + scoreB) / 2);
+        compatResult = {
+          compatibility_score: compatScore,
+          label:               fiiLabel(compatScore),
+          narrative:           'Family alignment assessment temporarily unavailable.',
+          breakdown:           signalsA, // return requester's signals as breakdown
+          computed_at:         new Date().toISOString(),
+          use_llm_narrative:   false,
+          fallback:            true,
+        };
+      } else {
+        throw e;
+      }
+    }
+
+    // Cache: 24h for template path, 1h for Sonnet path
+    const ttl = detailed ? FII_LLM_CACHE_TTL_SEC : FII_CACHE_TTL_SEC;
+    try {
+      await redis.set(cacheKey, JSON.stringify(compatResult), 'EX', ttl);
+    } catch {
+      // Cache write failure — still return result
+    }
+
+    ok(res, compatResult);
   }),
 );

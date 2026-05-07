@@ -210,3 +210,71 @@ export async function getDivorceProbability(
 
   return response.json() as Promise<DpiResponse>;
 }
+
+// ── Family Inclination Index (FII) ───────────────────────────────────────────
+
+export interface FiiSignals {
+  family_type_preference:    number; // 0-100
+  family_values_orientation: number;
+  parents_living_intent:     number;
+  family_decisions:          number;
+  cultural_events:           number;
+  siblings_engagement:       number;
+  religious_practice:        number;
+}
+
+export interface FiiBreakdown {
+  family_type_preference:    number;
+  family_values_orientation: number;
+  parents_living_intent:     number;
+  family_decisions:          number;
+  cultural_events:           number;
+  siblings_engagement:       number;
+  religious_practice:        number;
+}
+
+export interface FiiCompatibilityResponse {
+  compatibility_score: number;       // 0-100
+  label:               string;       // e.g. "High Family Alignment"
+  narrative:           string;
+  breakdown:           FiiBreakdown;
+  computed_at:         string;
+  use_llm_narrative:   boolean;
+  fallback?:           boolean;
+}
+
+/**
+ * Call the ai-service POST /ai/fii/compatibility endpoint.
+ * Uses an 8s timeout — template path <100ms; LLM path 2-3s.
+ * Throws AppError('AI_SERVICE_UNAVAILABLE') on non-2xx or timeout.
+ */
+export async function getFiiCompatibility(
+  profileA: FiiSignals,
+  profileB: FiiSignals,
+  profileANameMasked: string,
+  profileBNameMasked: string,
+  useLlmNarrative: boolean = false,
+): Promise<FiiCompatibilityResponse> {
+  const response = await fetch(`${env.AI_SERVICE_URL}/ai/fii/compatibility`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':   'application/json',
+      'X-Internal-Key': env.AI_SERVICE_INTERNAL_KEY,
+    },
+    body: JSON.stringify({
+      profile_a:           profileA,
+      profile_b:           profileB,
+      profile_a_name:      profileANameMasked,
+      profile_b_name:      profileBNameMasked,
+      use_llm_narrative:   useLlmNarrative,
+    }),
+    // 8s timeout — template path <100ms; Sonnet LLM path ~2-3s
+    signal: AbortSignal.timeout(8_000),
+  });
+
+  if (!response.ok) {
+    throw makeAppError('AI_SERVICE_UNAVAILABLE', 'FII compatibility service temporarily unavailable', 503);
+  }
+
+  return response.json() as Promise<FiiCompatibilityResponse>;
+}

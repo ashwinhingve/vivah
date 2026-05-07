@@ -26,6 +26,7 @@ import type {
   UpdateFamilyMemberInput,
 } from '@smartshaadi/schemas';
 import { getMyProfileContent } from './content.service.js';
+import { encodeFamilySignals, computeFiiScoreFromSignals } from '../services/fiiScore.js';
 
 interface AppError extends Error { code: string; status: number; }
 function appErr(msg: string, code: string, status: number): AppError {
@@ -156,27 +157,26 @@ export async function requestFamilyVerification(userId: string): Promise<FamilyV
 // ── Family Inclination Score ──────────────────────────────────────────────────
 
 /**
- * Heuristic 0–100 scoring how complete the family signal is on a profile.
- * Used to surface "well-described family" as a soft signal in matchmaking.
- * Driven entirely by what the user has filled in — no privacy leak.
+ * Family Inclination Index (FII) scorer — 0-100 integer.
+ *
+ * Replaces the old completeness heuristic with a 7-signal weighted score
+ * measuring the user's family-life inclination (not profile completeness).
+ *
+ * Weights (must sum to 1.00):
+ *   family_type_preference    0.20
+ *   family_values_orientation 0.15
+ *   parents_living_intent     0.18
+ *   family_decisions          0.15
+ *   cultural_events           0.12
+ *   siblings_engagement       0.07
+ *   religious_practice        0.13
+ *
+ * Null/missing fields contribute 0 to the weighted sum (NOT a default of 50).
+ * The memberCount parameter is kept for signature compatibility but unused.
  */
-export function scoreFamilySection(section: FamilySection | null | undefined, memberCount: number): number {
-  if (!section) return Math.min(memberCount * 10, 30);
-
-  let score = 0;
-  if (section.fatherName) score += 10;
-  if (section.fatherOccupation) score += 5;
-  if (section.motherName) score += 10;
-  if (section.motherOccupation) score += 5;
-  if (section.siblings && section.siblings.length > 0) score += Math.min(section.siblings.length * 5, 15);
-  if (section.familyType) score += 5;
-  if (section.familyValues) score += 5;
-  if (section.familyStatus) score += 5;
-  if (section.nativePlace) score += 5;
-  if (section.familyAbout && section.familyAbout.length > 50) score += 10;
-  if (section.photoR2Key) score += 10;
-  score += Math.min(memberCount * 5, 15);
-  return Math.min(score, 100);
+export function scoreFamilySection(section: FamilySection | null | undefined, _memberCount: number): number {
+  const signals = encodeFamilySignals(section);
+  return computeFiiScoreFromSignals(signals);
 }
 
 export async function computeFamilyInclinationScore(userId: string): Promise<number> {
