@@ -10,7 +10,13 @@ import { Router, raw, type Request, type Response } from 'express';
 import { createReadStream, existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, resolve, relative, sep } from 'node:path';
 
-const MOCK_R2_ROOT = resolve(process.cwd(), 'apps/api/.data/mock-r2');
+// CWD-independent: turbo / pnpm --filter launch the api with cwd=apps/api,
+// so resolving against cwd alone produced apps/api/apps/api/.data/mock-r2
+// (bogus). Match the apiRoot logic used in lib/mockStore.ts.
+const _cwd = process.cwd();
+const _cwdNorm = _cwd.replace(/\\/g, '/');
+const _apiRoot = _cwdNorm.endsWith('/apps/api') ? _cwd : resolve(_cwd, 'apps/api');
+const MOCK_R2_ROOT = resolve(_apiRoot, '.data/mock-r2');
 
 function safeKeyToPath(rawKey: string): string | null {
   const key = decodeURIComponent(rawKey).replace(/^\/+/, '');

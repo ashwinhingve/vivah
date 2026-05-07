@@ -384,6 +384,9 @@ export async function savePersonalityAction(p: {
       const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
       return { ok: false, error: json.error?.message ?? 'Save failed' };
     }
+    revalidatePath('/profile');
+    revalidatePath('/dashboard');
+    revalidatePath('/profile/personality');
     return { ok: true };
   } catch {
     return { ok: false, error: 'Network error' };

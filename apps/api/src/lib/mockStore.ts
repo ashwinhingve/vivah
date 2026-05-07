@@ -7,7 +7,22 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const STORE_FILE = resolve(process.cwd(), 'apps/api/.data/mockStore.json');
+// Anchor to the api package root regardless of process.cwd(). Turborepo and
+// `pnpm --filter` launch the api with cwd=apps/api, so resolving against cwd
+// alone produced apps/api/apps/api/.data/mockStore.json (bogus). Saves landed
+// in one location, reads after a restart hit another, and the dashboard
+// rendered an empty profile. MOCK_STORE_PATH lets tests override.
+function resolveStoreFile(): string {
+  if (process.env['MOCK_STORE_PATH']) {
+    return resolve(process.env['MOCK_STORE_PATH']);
+  }
+  const cwd = process.cwd();
+  const cwdNorm = cwd.replace(/\\/g, '/');
+  const apiRoot = cwdNorm.endsWith('/apps/api') ? cwd : resolve(cwd, 'apps/api');
+  return resolve(apiRoot, '.data/mockStore.json');
+}
+
+const STORE_FILE = resolveStoreFile();
 
 function loadFromDisk(): Map<string, Record<string, unknown>> {
   try {
