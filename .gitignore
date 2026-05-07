@@ -80,3 +80,6 @@ test-results/
 # Claude Code session state (local-only, not source)
 .claude/scheduled_tasks.lock
 .claude/transcripts/
+
+# Prevent re-occurrence of CWD bug — these paths should never exist
+apps/api/apps/api/
