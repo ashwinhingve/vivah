@@ -33,13 +33,13 @@ COMPAT_LABELS = [
 class FiiSignals(BaseModel):
     """Seven weighted signals — each 0 (low family inclination) to 100 (high)."""
 
-    joint_family_preference: int = Field(ge=0, le=100)
-    parents_living_with: int = Field(ge=0, le=100)
-    family_decision_involvement: int = Field(ge=0, le=100)
-    family_events_priority: int = Field(ge=0, le=100)
-    siblings_relationship_strength: int = Field(ge=0, le=100)
-    religious_practice_with_family: int = Field(ge=0, le=100)
-    geographic_proximity_to_family: int = Field(ge=0, le=100)
+    family_type_preference: int = Field(ge=0, le=100)
+    family_values_orientation: int = Field(ge=0, le=100)
+    parents_living_intent: int = Field(ge=0, le=100)
+    family_decisions: int = Field(ge=0, le=100)
+    cultural_events: int = Field(ge=0, le=100)
+    siblings_engagement: int = Field(ge=0, le=100)
+    religious_practice: int = Field(ge=0, le=100)
 
 
 class FiiProfileScore(BaseModel):

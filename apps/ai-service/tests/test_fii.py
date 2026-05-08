@@ -29,33 +29,33 @@ from src.services.fii_service import (
 # ---------------------------------------------------------------------------
 
 _ALL_MAX = FiiSignals(
-    joint_family_preference=100,
-    parents_living_with=100,
-    family_decision_involvement=100,
-    family_events_priority=100,
-    siblings_relationship_strength=100,
-    religious_practice_with_family=100,
-    geographic_proximity_to_family=100,
+    family_type_preference=100,
+    family_values_orientation=100,
+    parents_living_intent=100,
+    family_decisions=100,
+    cultural_events=100,
+    siblings_engagement=100,
+    religious_practice=100,
 )
 
 _ALL_MIN = FiiSignals(
-    joint_family_preference=0,
-    parents_living_with=0,
-    family_decision_involvement=0,
-    family_events_priority=0,
-    siblings_relationship_strength=0,
-    religious_practice_with_family=0,
-    geographic_proximity_to_family=0,
+    family_type_preference=0,
+    family_values_orientation=0,
+    parents_living_intent=0,
+    family_decisions=0,
+    cultural_events=0,
+    siblings_engagement=0,
+    religious_practice=0,
 )
 
 _MID = FiiSignals(
-    joint_family_preference=50,
-    parents_living_with=50,
-    family_decision_involvement=50,
-    family_events_priority=50,
-    siblings_relationship_strength=50,
-    religious_practice_with_family=50,
-    geographic_proximity_to_family=50,
+    family_type_preference=50,
+    family_values_orientation=50,
+    parents_living_intent=50,
+    family_decisions=50,
+    cultural_events=50,
+    siblings_engagement=50,
+    religious_practice=50,
 )
 
 

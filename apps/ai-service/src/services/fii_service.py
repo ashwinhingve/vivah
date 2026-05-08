@@ -36,13 +36,13 @@ log = structlog.get_logger("fii_service")
 # ---------------------------------------------------------------------------
 
 WEIGHTS: dict[str, float] = {
-    "joint_family_preference": 0.20,
-    "parents_living_with": 0.18,
-    "family_decision_involvement": 0.15,
-    "family_events_priority": 0.12,
-    "siblings_relationship_strength": 0.12,
-    "religious_practice_with_family": 0.13,
-    "geographic_proximity_to_family": 0.10,
+    "family_type_preference": 0.20,
+    "family_values_orientation": 0.15,
+    "parents_living_intent": 0.18,
+    "family_decisions": 0.15,
+    "cultural_events": 0.12,
+    "siblings_engagement": 0.07,
+    "religious_practice": 0.13,
 }
 
 assert abs(sum(WEIGHTS.values()) - 1.0) < 0.01, (
