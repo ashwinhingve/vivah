@@ -23,6 +23,11 @@ const envSchema = z.object({
   // Swap to real by removing this var (or setting to false) — no code change needed.
   USE_MOCK_SERVICES: z.string().default('false').transform(v => v === 'true'),
 
+  // MongoDB live override: when 'true', connect to MongoDB even if USE_MOCK_SERVICES=true.
+  // Lets us use real Mongo Atlas in production while keeping OTP/Razorpay/etc. mocked
+  // until those provider registrations are completed.
+  MONGO_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // Mock OTP override value — defaults to 123456 for local dev / tests.
   // Set to a random hard-to-guess value (e.g. `openssl rand -hex 4`) in any
   // deployed env where USE_MOCK_SERVICES=true is still set, otherwise anyone

@@ -9,8 +9,13 @@ let connected = false;
  */
 export async function connectMongo(): Promise<void> {
   if (connected) return;
-  if (env.USE_MOCK_SERVICES) {
-    console.info('ℹ️  MongoDB skipped (USE_MOCK_SERVICES=true)');
+
+  // MongoDB connects when:
+  //   - MONGO_LIVE=true (explicit override — real Atlas while other services stay mocked)
+  //   - OR USE_MOCK_SERVICES is not true (default real-services mode)
+  const shouldSkip = env.USE_MOCK_SERVICES && !env.MONGO_LIVE;
+  if (shouldSkip) {
+    console.info('ℹ️  MongoDB skipped (USE_MOCK_SERVICES=true, MONGO_LIVE not set)');
     return;
   }
 
