@@ -1,6 +1,6 @@
 import { eq, or, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { env, shouldUseMockMongo } from '../lib/env.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import { profiles, matchRequests, safetyModeUnlocks, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
@@ -63,7 +63,7 @@ export async function applyPrivacyPreset(
 }
 
 export async function getSafetyMode(userId: string): Promise<SafetyModeInput> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     return (mockGet(userId)?.['safetyMode'] as SafetyModeInput | undefined) ?? {};
   }
   const model = ProfileContent as unknown as Model<{ userId: string; safetyMode?: SafetyModeInput }>;

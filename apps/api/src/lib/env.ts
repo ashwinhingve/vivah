@@ -156,3 +156,12 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+/**
+ * Single source of truth for whether profile services should write to
+ * the in-memory mockStore vs the real MongoDB Atlas connection.
+ *
+ * - true  → write to mockStore.json (USE_MOCK_SERVICES=true AND MONGO_LIVE not set)
+ * - false → write to MongoDB via mongoose (default real-services mode, OR MONGO_LIVE=true override)
+ */
+export const shouldUseMockMongo = env.USE_MOCK_SERVICES && !env.MONGO_LIVE;

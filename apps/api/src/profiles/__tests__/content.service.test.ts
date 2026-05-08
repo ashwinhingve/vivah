@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Model } from 'mongoose';
 
-vi.mock('../../lib/env.js', () => ({ env: { USE_MOCK_SERVICES: false } }));
+vi.mock('../../lib/env.js', () => ({ env: { USE_MOCK_SERVICES: false }, shouldUseMockMongo: false }));
 
 vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
   ProfileContent: {} as unknown as Model<{ userId: string; [key: string]: unknown }>,

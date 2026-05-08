@@ -1,6 +1,6 @@
 // apps/api/src/profiles/preferences.service.ts
 
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertDotFields, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
@@ -18,7 +18,7 @@ export async function updatePartnerPreferences(
     if (val != null) setFields[`partnerPreferences.${key}`] = val;
   }
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockUpsertDotFields(userId, setFields);
     return (doc['partnerPreferences'] as PartnerPreferencesSection) ?? {};
   }
@@ -36,7 +36,7 @@ export async function updatePartnerPreferences(
 export async function getPartnerPreferences(
   userId: string,
 ): Promise<PartnerPreferencesSection | null> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(userId);
     return doc ? (doc['partnerPreferences'] as PartnerPreferencesSection) : null;
   }

@@ -1,6 +1,6 @@
 // apps/api/src/profiles/content.service.ts
 
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertField, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
@@ -47,7 +47,7 @@ async function upsertSection(
   data: object,
 ): Promise<ProfileContentResponse> {
   let result: ProfileContentResponse;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     result = mockUpsert(userId, section, data) as unknown as ProfileContentResponse;
   } else {
     const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
@@ -71,7 +71,7 @@ async function upsertSection(
 export async function getMyProfileContent(
   userId: string,
 ): Promise<ProfileContentResponse | null> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     return mockGet(userId) as unknown as ProfileContentResponse | null;
   }
   const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
@@ -151,7 +151,7 @@ export async function updateAboutMe(
   aboutMe: string,
 ): Promise<ProfileContentResponse> {
   let result: ProfileContentResponse;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     result = mockUpsertField(userId, 'aboutMe', aboutMe) as unknown as ProfileContentResponse;
   } else {
     const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;
@@ -176,7 +176,7 @@ export async function updateAboutMe(
 export async function computeAndUpdateCompleteness(userId: string): Promise<number> {
   // 1. Fetch ProfileContent (mock store or MongoDB)
   let doc: Record<string, unknown> | null;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     doc = mockGet(userId);
   } else {
     const model = ProfileContent as unknown as Model<{ userId: string; [key: string]: unknown }>;

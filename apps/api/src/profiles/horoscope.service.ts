@@ -1,6 +1,6 @@
 // apps/api/src/profiles/horoscope.service.ts
 
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertDotFields, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
@@ -18,7 +18,7 @@ export async function updateHoroscope(
     if (val != null) setFields[`horoscope.${key}`] = val;
   }
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     return mockUpsertDotFields(userId, setFields) as unknown as ProfileContentResponse;
   }
 
@@ -32,7 +32,7 @@ export async function updateHoroscope(
 }
 
 export async function getHoroscope(userId: string): Promise<HoroscopeSection | null> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(userId);
     return doc ? (doc['horoscope'] as HoroscopeSection) : null;
   }

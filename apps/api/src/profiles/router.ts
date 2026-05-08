@@ -24,7 +24,7 @@ import { getPresignedUploadUrl } from '../storage/service.js';
 import { requireTier } from '../auth/requireTier.js';
 import { computeStrengthTips } from './strengthTips.js';
 import { profilePhotos, profileSections } from '@smartshaadi/db';
-import { env as envBag } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 
@@ -337,7 +337,7 @@ profilesRouter.get('/me/strength-tips', authenticate, asyncHandler(async (req: R
   const [sections] = await db.select().from(profileSections).where(eq(profileSections.profileId, profile.id)).limit(1);
   type Doc = { personal?: unknown; horoscope?: unknown; partnerPreferences?: unknown; lifestyle?: unknown; family?: unknown; profession?: unknown; aboutMe?: string };
   let content: Doc | null;
-  if (envBag.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     content = mockGet(profile.userId) as Doc | null;
   } else {
     const Content = ProfileContent as unknown as { findOne: (filter: object) => { lean: () => Promise<Doc | null> } };
