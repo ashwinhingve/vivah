@@ -10,7 +10,7 @@ const ACTIONS: readonly Action[] = [
   { href: '/shortlist',      label: 'My Shortlist',     desc: 'Profiles you saved',         icon: Bookmark },
   { href: '/viewers',        label: 'Viewed You',       desc: 'See who visited recently',   icon: Eye },
   { href: '/bookings',       label: 'My Bookings',      desc: 'Wedding vendor bookings',    icon: Calendar },
-  { href: '/profile/create', label: 'Edit Profile',     desc: 'Update your profile',        icon: UserCog },
+  { href: '/profile/personal', label: 'Edit Profile',     desc: 'Update your profile',        icon: UserCog },
 ] as const;
 
 export function QuickActions() {
