@@ -52,6 +52,7 @@ vi.mock('@smartshaadi/db', () => ({
 
 vi.mock('../../lib/env.js', () => ({
   env: { USE_MOCK_SERVICES: true },
+  shouldUseMockMongo: true,
 }));
 
 // ── Mock WeddingPlan Mongoose model ───────────────────────────────────────────

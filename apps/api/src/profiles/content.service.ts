@@ -4,6 +4,7 @@ import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertField, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
+import { bustOwnFeedCache } from '../lib/redis.js';
 
 function mockUpsert(userId: string, section: string, data: object): Record<string, unknown> {
   return mockUpsertField(userId, section, data);
@@ -64,6 +65,7 @@ async function upsertSection(
   void computeAndUpdateCompleteness(userId).catch((e) => {
     console.error('[content.service] completeness recompute failed:', e);
   });
+  await bustOwnFeedCache(userId);
   return result;
 }
 
@@ -165,6 +167,7 @@ export async function updateAboutMe(
   void computeAndUpdateCompleteness(userId).catch((e) => {
     console.error('[content.service] completeness recompute failed:', e);
   });
+  await bustOwnFeedCache(userId);
   return result;
 }
 

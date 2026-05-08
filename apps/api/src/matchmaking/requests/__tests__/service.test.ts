@@ -42,6 +42,7 @@ vi.mock('bullmq', () => ({
 
 vi.mock('../../../lib/env.js', () => ({
   env: { REDIS_URL: 'redis://localhost:6379', USE_MOCK_SERVICES: true },
+  shouldUseMockMongo: true,
 }));
 
 vi.mock('../../../infrastructure/mongo/models/Chat.js', () => ({

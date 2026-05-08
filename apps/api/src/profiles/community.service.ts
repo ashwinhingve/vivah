@@ -5,6 +5,7 @@ import { profiles, communityZones } from '@smartshaadi/db';
 import { eq } from 'drizzle-orm';
 import type { CommunityZoneData } from '@smartshaadi/types';
 import type { UpdateCommunityZoneInput } from '@smartshaadi/schemas';
+import { bustOwnFeedCache } from '../lib/redis.js';
 
 /** Resolve the profile UUID from a user UUID. Returns null if the profile doesn't exist. */
 async function getProfileId(userId: string): Promise<string | null> {
@@ -69,5 +70,6 @@ export async function updateCommunityZone(
     .onConflictDoUpdate({ target: communityZones.profileId, set: setValue })
     .returning();
 
+  await bustOwnFeedCache(userId);
   return rows[0] ? mapToResponse(rows[0]) : null;
 }

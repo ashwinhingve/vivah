@@ -14,7 +14,7 @@
 
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { weddings, weddingTasks, profiles, guestLists, ceremonies } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
@@ -151,7 +151,7 @@ export async function createWedding(
 
   let plan: WeddingPlanType;
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     plan = mockSavePlan(weddingRow.id, defaultPlan);
   } else {
     const doc = await WeddingPlan.create({
@@ -278,7 +278,7 @@ export async function getWedding(
   // Fetch MongoDB plan
   let plan: WeddingPlanType | null = null;
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     plan = mockGetPlan(weddingId);
   } else {
     const doc = await WeddingPlan.findOne({ weddingId }).lean();
@@ -355,7 +355,7 @@ export async function updateBudget(
   const row = await resolveOwnedWedding(userId, weddingId);
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const existing = mockGetPlan(weddingId);
     const plan: WeddingPlanType = existing ?? {
       weddingId,
@@ -627,7 +627,7 @@ export async function addCeremony(
   const ceremony = mapCeremonyRow(inserted);
 
   // Sync ceremonies array to MongoDB / mockStore
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const existing = mockGetPlan(weddingId);
     const plan: WeddingPlanType = existing ?? {
       weddingId,
@@ -805,7 +805,7 @@ export async function selectMuhurat(
     .set({ weddingDate: input.date, updatedAt: new Date() })
     .where(eq(weddings.id, weddingId));
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const existing = mockGetPlan(weddingId);
     const plan: WeddingPlanType = existing ?? {
       weddingId,

@@ -3,6 +3,7 @@
 import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertDotFields, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { bustOwnFeedCache } from '../lib/redis.js';
 import type { Model } from 'mongoose';
 import type { HoroscopeSection, ProfileContentResponse } from '@smartshaadi/types';
 import type { UpdateHoroscopeInput } from '@smartshaadi/schemas';
@@ -19,7 +20,9 @@ export async function updateHoroscope(
   }
 
   if (shouldUseMockMongo) {
-    return mockUpsertDotFields(userId, setFields) as unknown as ProfileContentResponse;
+    const result = mockUpsertDotFields(userId, setFields) as unknown as ProfileContentResponse;
+    await bustOwnFeedCache(userId);
+    return result;
   }
 
   const model = ProfileContent as unknown as Model<MongoDoc>;
@@ -28,6 +31,7 @@ export async function updateHoroscope(
     { $set: setFields },
     { new: true, upsert: true, lean: true },
   );
+  await bustOwnFeedCache(userId);
   return doc as unknown as ProfileContentResponse;
 }
 

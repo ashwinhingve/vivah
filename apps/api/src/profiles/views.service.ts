@@ -10,7 +10,7 @@
 
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { profiles, profilePhotos } from '@smartshaadi/db';
 import { profileViews } from '@smartshaadi/db';
@@ -44,7 +44,7 @@ type SafetyModeDoc = {
 };
 
 async function loadSafetyMode(userId: string): Promise<{ incognito: boolean }> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(userId) as SafetyModeDoc | null;
     return { incognito: doc?.safetyMode?.incognito === true };
   }
@@ -56,7 +56,7 @@ async function loadSafetyMode(userId: string): Promise<{ incognito: boolean }> {
 }
 
 async function loadPersonalContent(userId: string): Promise<Pick<SafetyModeDoc, 'personal' | 'location'>> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(userId) as SafetyModeDoc | null;
     return { personal: doc?.personal ?? null, location: doc?.location ?? null };
   }

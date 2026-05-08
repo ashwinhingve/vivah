@@ -10,7 +10,7 @@
 
 import { eq, and, desc, asc, sql, gt } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import {
   weddingExpenses,
   weddings,
@@ -217,7 +217,7 @@ export async function recordPayment(
 }
 
 async function getBudgetTotals(weddingId: string): Promise<{ total: number; categories: BudgetCategory[] }> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const raw = mockGet(`wedding_plan:${weddingId}`);
     const plan = (raw?.['plan'] as { budget?: { total?: number; categories?: BudgetCategory[] } } | undefined);
     return {

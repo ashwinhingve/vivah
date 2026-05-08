@@ -13,7 +13,7 @@
  *   Rule 11 — every Mongoose call has USE_MOCK_SERVICES guard
  *   Rule 4  — no `any`; unknown narrowed explicitly
  */
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent as _ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { FamilySection } from '@smartshaadi/types';
@@ -158,7 +158,7 @@ export function computeFiiScoreFromSignals(signals: FiiSignals): number {
 export async function extractFiiSignals(userId: string): Promise<FiiSignals> {
   let familySection: FamilySection | null = null;
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(userId) as Record<string, unknown> | null;
     if (doc?.['family']) {
       familySection = doc['family'] as FamilySection;

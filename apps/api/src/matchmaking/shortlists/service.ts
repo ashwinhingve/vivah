@@ -12,7 +12,7 @@
 
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
-import { env } from '../../lib/env.js';
+import { shouldUseMockMongo } from '../../lib/env.js';
 import { shortlists, profiles, profilePhotos } from '@smartshaadi/db';
 import { ProfileContent as ProfileContentModel } from '../../infrastructure/mongo/models/ProfileContent.js';
 
@@ -216,7 +216,7 @@ async function enrichOne(row: RawShortlistRow): Promise<ShortlistItem> {
   let age: number | null = null;
   let city: string | null = null;
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     // In mock mode, MongoDB is not connected — return null fields
     name = null;
     age = null;

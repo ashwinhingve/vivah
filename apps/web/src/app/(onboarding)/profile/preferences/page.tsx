@@ -43,7 +43,7 @@ interface ProfileSnapshot {
 
 export default function PreferencesPage() {
   const [state, formAction] = useActionState(updatePreferences, undefined);
-  const [ageMin, setAgeMin] = useState(22);
+  const [ageMin, setAgeMin] = useState(18);
   const [ageMax, setAgeMax] = useState(35);
   const [heightMin, setHeightMin] = useState(150);
   const [heightMax, setHeightMax] = useState(185);

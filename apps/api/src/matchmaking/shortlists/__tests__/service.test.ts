@@ -19,6 +19,7 @@ vi.mock('drizzle-orm', () => ({
 
 vi.mock('../../../lib/env.js', () => ({
   env: { USE_MOCK_SERVICES: true },
+  shouldUseMockMongo: true,
 }));
 
 vi.mock('../../../infrastructure/mongo/models/ProfileContent.js', () => ({

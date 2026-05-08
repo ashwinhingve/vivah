@@ -152,6 +152,22 @@ export async function completeAadhaarVerification(
   });
 
   await runRiskPass(profile.id, userId, ipAddress, device);
+
+  // Mock-mode auto-VERIFY: real KYC providers run a risk pass that lifts approved
+  // profiles to VERIFIED, but the mock pipeline can land in MANUAL_REVIEW and stay
+  // there forever — blocking discovery for every test user. When USE_MOCK_SERVICES
+  // is on we treat a successful Aadhaar mock as full verification.
+  if (env.USE_MOCK_SERVICES) {
+    await db.update(profiles)
+      .set({ verificationStatus: 'VERIFIED', updatedAt: new Date() })
+      .where(eq(profiles.id, profile.id));
+    try {
+      await redis.del(`match_feed:${userId}`);
+    } catch (e) {
+      console.error('[kyc] mock auto-VERIFY feed bust failed:', e);
+    }
+  }
+
   return { duplicateFlag, duplicateReason };
 }
 

@@ -2,6 +2,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { profiles, profilePhotos, profileSections } from '@smartshaadi/db';
 import { getPhotoUrls } from '../storage/service.js';
+import { bustOwnFeedCache } from '../lib/redis.js';
 import type { PhotoUploadInput, PhotoReorderInput, SetPrimaryPhotoInput } from '@smartshaadi/schemas';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -116,6 +117,8 @@ export async function addProfilePhoto(
 
   // 9. Generate presigned GET URL
   const [url] = await getPhotoUrls([newPhoto.r2Key]);
+
+  await bustOwnFeedCache(userId);
 
   // 10. Return PhotoResult
   return {
@@ -233,6 +236,8 @@ export async function deleteProfilePhoto(
 
   // 7. Recalculate completeness
   await recalculateScore(profile.id);
+
+  await bustOwnFeedCache(userId);
 }
 
 /**
@@ -318,6 +323,8 @@ export async function setPrimaryPhoto(
       .set({ isPrimary: true })
       .where(eq(profilePhotos.id, data.photoId));
   });
+
+  await bustOwnFeedCache(userId);
 }
 
 // ── Private helpers ────────────────────────────────────────────────────────────

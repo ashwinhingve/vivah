@@ -29,7 +29,7 @@ import {
 } from './diversity.js';
 import { haversineKm } from '../lib/geocode.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 
@@ -175,7 +175,7 @@ type ContentDoc = {
 };
 
 async function loadContentForUser(uid: string): Promise<ContentDoc | null> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(uid) as ContentDoc | null;
     return doc ?? null;
   }
@@ -605,7 +605,7 @@ export async function computeAndCacheFeed(
       let city = item.city;
 
       if (uid) {
-        if (env.USE_MOCK_SERVICES) {
+        if (shouldUseMockMongo) {
           const mockDoc = mockGet(uid);
           const mock = mockDoc?.['personal'] as { fullName?: string; dob?: string } | undefined;
           const mockLoc = mockDoc?.['location'] as { city?: string } | undefined;

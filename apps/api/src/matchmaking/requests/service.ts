@@ -16,7 +16,7 @@
 
 import { eq, or, and, desc, sql, inArray, gt, lt } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
-import { env } from '../../lib/env.js';
+import { shouldUseMockMongo } from '../../lib/env.js';
 import { mockUpsertField, mockGet } from '../../lib/mockStore.js';
 import {
   matchRequests,
@@ -266,7 +266,7 @@ export async function acceptRequest(
   }
 
   // Mongo Chat document — use mock store in dev
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     mockUpsertField(requestId, 'chat', {
       participants:    [request.senderId, request.receiverId],
       matchRequestId:  requestId,
@@ -427,7 +427,7 @@ export async function blockUser(
 
   // Deactivate impacted chats
   if (affected.length > 0) {
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       for (const r of affected) {
         const stored = mockGet(r.id);
         const chat = (stored?.['chat'] as Record<string, unknown> | undefined) ?? {};
@@ -497,7 +497,7 @@ export async function listBlockedUsers(callerProfileId: string): Promise<Blocked
   type ContentDoc = { personal?: { fullName?: string } };
   const nameByUser = new Map<string, string>();
   const userIds = rows.map((r) => r.userId).filter((u): u is string => Boolean(u));
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     for (const uid of userIds) {
       const doc = mockGet(uid) as ContentDoc | null;
       if (doc?.personal?.fullName) nameByUser.set(uid, doc.personal.fullName);
@@ -736,7 +736,7 @@ export async function getEnrichedRequests(
   };
   const userIds = profileRows.map((p) => p.userId);
   const contentByUserId = new Map<string, ContentDoc>();
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     for (const uid of userIds) {
       const doc = mockGet(uid) as ContentDoc | null;
       if (doc) contentByUserId.set(uid, doc);
@@ -832,7 +832,7 @@ export async function getWhoLikedMe(
   };
   const userIds = profileRows.map((p) => p.userId);
   const contentByUserId = new Map<string, ContentDoc>();
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     for (const uid of userIds) {
       const doc = mockGet(uid) as ContentDoc | null;
       if (doc) contentByUserId.set(uid, doc);

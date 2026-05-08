@@ -3,6 +3,7 @@
 import { shouldUseMockMongo } from '../lib/env.js';
 import { mockUpsertDotFields, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { bustOwnFeedCache } from '../lib/redis.js';
 import type { Model } from 'mongoose';
 import type { PartnerPreferencesSection } from '@smartshaadi/types';
 import type { UpdatePartnerPreferencesInput } from '@smartshaadi/schemas';
@@ -20,6 +21,7 @@ export async function updatePartnerPreferences(
 
   if (shouldUseMockMongo) {
     const doc = mockUpsertDotFields(userId, setFields);
+    await bustOwnFeedCache(userId);
     return (doc['partnerPreferences'] as PartnerPreferencesSection) ?? {};
   }
 
@@ -30,6 +32,7 @@ export async function updatePartnerPreferences(
     { new: true, upsert: true, lean: true },
   ) as MongoDoc | null;
   const prefs = doc?.partnerPreferences as PartnerPreferencesSection | undefined;
+  await bustOwnFeedCache(userId);
   return prefs ?? {};
 }
 

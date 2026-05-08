@@ -13,3 +13,16 @@ export const redis = new Redis(env.REDIS_URL, {
 redis.on('error', (err: Error) => {
   console.error('Redis connection error:', err.message);
 });
+
+/**
+ * Targeted invalidation of one user's pre-computed match feed cache.
+ * Called from profile/preferences/KYC save paths so the next /matchmaking/feed
+ * call rebuilds with the user's latest data instead of returning a 24h stale entry.
+ */
+export async function bustOwnFeedCache(userId: string): Promise<void> {
+  try {
+    await redis.del(`match_feed:${userId}`);
+  } catch (e) {
+    console.error('[redis] bustOwnFeedCache failed:', e);
+  }
+}

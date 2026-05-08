@@ -1,9 +1,10 @@
 import { eq, or, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env, shouldUseMockMongo } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import { profiles, matchRequests, safetyModeUnlocks, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { bustOwnFeedCache } from '../lib/redis.js';
 import type { Model } from 'mongoose';
 
 export type AllowMessageFrom = 'EVERYONE' | 'VERIFIED_ONLY' | 'SAME_COMMUNITY' | 'ACCEPTED_ONLY';
@@ -194,7 +195,7 @@ export async function getContactIfVisible(
 
   // Rule 2: safetyMode.contactHidden flag
   let contactHidden = true;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const doc = mockGet(targetUserId);
     contactHidden = (doc?.['safetyMode'] as { contactHidden?: boolean } | undefined)?.contactHidden ?? true;
   } else {
@@ -249,10 +250,11 @@ export async function updateSafetyMode(
   userId: string,
   input: SafetyModeInput,
 ): Promise<{ safetyMode: SafetyModeInput }> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     const existing = (mockGet(userId)?.['safetyMode'] as SafetyModeInput | undefined) ?? {};
     const merged = { ...existing, ...input };
     mockUpsertField(userId, 'safetyMode', merged);
+    await bustOwnFeedCache(userId);
     return { safetyMode: merged };
   }
 
@@ -264,5 +266,6 @@ export async function updateSafetyMode(
     { $set: { safetyMode: merged }, $setOnInsert: { userId } },
     { upsert: true },
   );
+  await bustOwnFeedCache(userId);
   return { safetyMode: merged };
 }

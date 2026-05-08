@@ -49,6 +49,7 @@ vi.mock('../../storage/service.js', () => ({
 
 vi.mock('../../lib/env.js', () => ({
   env: { USE_MOCK_SERVICES: true },
+  shouldUseMockMongo: true,
 }));
 
 vi.mock('../../lib/mockStore.js', () => ({
