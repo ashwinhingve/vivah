@@ -194,7 +194,10 @@ matchRequestsRouter.get(
   async (req: Request, res: Response): Promise<void> => {
     const parsed = PaginationQuery.safeParse(req.query);
     if (!parsed.success) {
-      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid query params', 400);
+      console.error('[requests/received] validation failed:', JSON.stringify(parsed.error.issues), 'query:', req.query);
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid query params', 400, {
+        issues: parsed.error.issues,
+      });
       return;
     }
     const profileId = await resolveProfileId(req.user!.id);
@@ -203,6 +206,7 @@ matchRequestsRouter.get(
       const result = await getReceivedRequests(profileId, parsed.data.page, parsed.data.limit);
       ok(res, result);
     } catch (error) {
+      console.error('[requests/received]', error);
       handleServiceError(res, error);
     }
   },

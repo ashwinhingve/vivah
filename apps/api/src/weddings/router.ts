@@ -58,6 +58,7 @@ weddingRouter.get(
       const weddings = await listUserWeddings(req.user!.id);
       ok(res, { weddings });
     } catch (e) {
+      console.error('[weddings:list]', e);
       const message = e instanceof Error ? e.message : 'Failed to list weddings';
       err(res, 'WEDDING_LIST_ERROR', message, 500);
     }

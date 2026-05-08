@@ -49,7 +49,9 @@ function handleError(res: Response, error: unknown): void {
     err(res, error.code, error.message, status);
     return;
   }
-  err(res, 'INTERNAL_ERROR', 'An unexpected error occurred', 500);
+  console.error('[bookings:internal]', error);
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+  err(res, 'INTERNAL_ERROR', message, 500);
 }
 
 // ── POST /bookings ─────────────────────────────────────────────────────────────
