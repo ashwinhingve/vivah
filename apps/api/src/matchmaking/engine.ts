@@ -404,6 +404,8 @@ export async function computeAndCacheFeed(
   // Dynamically import schema to avoid circular deps in tests
   const { profiles, blockedUsers, profilePhotos } = await import('@smartshaadi/db');
 
+  console.info('[feed][start] computeAndCacheFeed', { userId });
+
   // 1. Get user's own profile row
   const userRows = await db
     .select()
@@ -411,7 +413,10 @@ export async function computeAndCacheFeed(
     .where(eq(profiles.userId, userId))
     .limit(1) as unknown[];
 
+  console.info('[feed][step1] user profile fetch', { userId, found: userRows.length });
+
   if (userRows.length === 0) {
+    console.info('[feed][exit1] no profile row for userId — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -447,12 +452,25 @@ export async function computeAndCacheFeed(
     .where(and(eq(profiles.isActive, true), eq(profiles.verificationStatus, 'VERIFIED')))
     .limit(500) as unknown[];
 
+  console.info('[feed][step2] candidate query (active+VERIFIED) rows', {
+    userId,
+    rawCount: candidateRows.length,
+    blockedSetSize: blockedSet.size,
+  });
+
   // Filter out blocked / self
   const eligibleRowsRaw = (candidateRows as ProfileRow[]).filter(
     (r) => !blockedSet.has(r.id),
   );
 
+  console.info('[feed][step3] after blocked/self filter', {
+    userId,
+    count: eligibleRowsRaw.length,
+    droppedByBlock: candidateRows.length - eligibleRowsRaw.length,
+  });
+
   if (eligibleRowsRaw.length === 0) {
+    console.info('[feed][exit3] no candidates after blocked/self filter — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -512,7 +530,14 @@ export async function computeAndCacheFeed(
     return !(sm?.incognito || sm?.hideFromSearch);
   });
 
+  console.info('[feed][step4] after safety (incognito/hideFromSearch) filter', {
+    userId,
+    count: eligibleRows.length,
+    droppedBySafety: eligibleRowsEnriched.length - eligibleRows.length,
+  });
+
   if (eligibleRows.length === 0) {
+    console.info('[feed][exit4] no candidates after safety filter — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -524,12 +549,60 @@ export async function computeAndCacheFeed(
   // 5. Apply hard filters (bilateral)
   const userFilterProfile = toFilterProfile(userProfileData);
   const candidateFilterProfiles = candidateProfiles.map(toFilterProfile);
+
+  // Per-filter trace on FIRST candidate so we can see exactly which check
+  // returns false. Single rich log line per /feed request.
+  if (candidateFilterProfiles.length > 0) {
+    const sample = candidateFilterProfiles[0]!;
+    console.info('[feed][debug] user vs first candidate (pre-filter snapshot)', {
+      userId,
+      candidateId:        sample.id,
+      userAge:            userFilterProfile.age,
+      candAge:            sample.age,
+      userPrefAge:        { min: userFilterProfile.preferences.ageMin, max: userFilterProfile.preferences.ageMax },
+      candPrefAge:        { min: sample.preferences.ageMin, max: sample.preferences.ageMax },
+      userReligion:       userFilterProfile.religion,
+      candReligion:       sample.religion,
+      userPrefReligion:   userFilterProfile.preferences.religion,
+      candPrefReligion:   sample.preferences.religion,
+      userOpenInterfaith: userFilterProfile.preferences.openToInterfaith,
+      candOpenInterfaith: sample.preferences.openToInterfaith,
+      userCity:           userFilterProfile.city,
+      userState:          userFilterProfile.state,
+      candCity:           sample.city,
+      candState:          sample.state,
+      userMaxDist:        userFilterProfile.preferences.maxDistanceKm,
+      candMaxDist:        sample.preferences.maxDistanceKm,
+      userMustHave:       userFilterProfile.preferences.mustHave,
+      candMustHave:       sample.preferences.mustHave,
+      userIncome:         { min: userFilterProfile.incomeMin, max: userFilterProfile.incomeMax },
+      candIncome:         { min: sample.incomeMin, max: sample.incomeMax },
+      userManglik:        userFilterProfile.manglik,
+      candManglik:        sample.manglik,
+      userCaste:          userFilterProfile.caste,
+      candCaste:          sample.caste,
+      userOpenInterCaste: userFilterProfile.preferences.openToInterCaste,
+      candOpenInterCaste: sample.preferences.openToInterCaste,
+      userCoords:         { lat: userFilterProfile.latitude, lng: userFilterProfile.longitude },
+      candCoords:         { lat: sample.latitude, lng: sample.longitude },
+    });
+  }
+
   const passedFilterProfiles = applyHardFilters(userFilterProfile, candidateFilterProfiles);
 
   const passedIds = new Set(passedFilterProfiles.map((p) => p.id));
   const filteredProfiles = candidateProfiles.filter((p) => passedIds.has(p.id));
 
+  console.info('[feed][step5] after applyHardFilters (bilateral)', {
+    userId,
+    countIn:  candidateFilterProfiles.length,
+    countOut: filteredProfiles.length,
+    droppedByFilters: candidateFilterProfiles.length - filteredProfiles.length,
+    passedIds: Array.from(passedIds),
+  });
+
   if (filteredProfiles.length === 0) {
+    console.info('[feed][exit5] all candidates rejected by hard filters — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -674,6 +747,8 @@ export async function computeAndCacheFeed(
 
   // 10. Cache result
   await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify(reranked));
+
+  console.info('[feed][done] feed computed and cached', { userId, finalCount: reranked.length });
 
   return reranked;
 }
