@@ -5,6 +5,7 @@ import { fetchAuth } from '@/lib/server-fetch';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { ManglikChip } from '@/components/profile/ManglikChip';
 import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
+import { FiiCardBadge } from '@/components/fii/FiiCardBadge.client';
 
 interface Props {
   request: MatchRequest;
@@ -75,12 +76,15 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
         </Link>
       </div>
 
-      <Link
-        href={`/matches/${request.id}/compatibility`}
-        className="text-xs text-teal hover:underline self-start"
-      >
-        View compatibility analysis →
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={`/matches/${request.id}/compatibility`}
+          className="text-xs text-teal hover:underline"
+        >
+          View compatibility analysis →
+        </Link>
+        <FiiCardBadge matchId={request.id} />
+      </div>
     </div>
   );
 }

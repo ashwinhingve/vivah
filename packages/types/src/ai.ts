@@ -43,3 +43,43 @@ export interface DpiResponse {
   disclaimer: string;
   fallback?: boolean;
 }
+
+export interface FiiBreakdown {
+  family_type_preference: number;
+  family_values_orientation: number;
+  parents_living_intent: number;
+  family_decisions: number;
+  cultural_events: number;
+  siblings_engagement: number;
+  religious_practice: number;
+}
+
+export type FiiLabel =
+  | 'Independent'
+  | 'Independent-Leaning'
+  | 'Balanced'
+  | 'Family-Oriented'
+  | 'Family-First';
+
+export type FiiCompatibilityLabel =
+  | 'Highly Aligned'
+  | 'Mostly Aligned'
+  | 'Worth Discussing'
+  | 'Different Outlooks';
+
+export interface FiiProfileScore {
+  score: number;
+  label: FiiLabel;
+  breakdown: FiiBreakdown;
+}
+
+export interface FiiCompatibility {
+  profile_a_score: FiiProfileScore;
+  profile_b_score: FiiProfileScore;
+  delta: number;
+  compatibility: FiiCompatibilityLabel;
+  compatibility_color: string;
+  narrative: string;
+  discussion_starter: string;
+  narrative_source: 'template' | 'sonnet';
+}

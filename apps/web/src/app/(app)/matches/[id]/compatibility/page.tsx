@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { CompatibilityDisclaimer } from '@/components/dpi/CompatibilityDisclaimer';
 import { CompatibilityGauge } from '@/components/dpi/CompatibilityGauge.client';
+import { FiiDetailPanel } from '@/components/fii/FiiDetailPanel.client';
 
 export const metadata = { title: 'Compatibility Analysis — Smart Shaadi' };
 
@@ -36,6 +37,8 @@ export default async function CompatibilityPage({ params }: PageProps) {
         <Suspense fallback={<GaugeSkeleton />}>
           <CompatibilityGauge matchId={id} />
         </Suspense>
+
+        <FiiDetailPanel matchId={id} />
       </div>
     </main>
   );
