@@ -284,6 +284,103 @@ describe('weddings/service — updateBudget', () => {
   });
 });
 
+describe('weddings/service — getBudget', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('returns total + bucketed allocations + spent + remaining', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding();
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))     // resolve profile
+      .mockReturnValueOnce(buildSelectChain([weddingRow]))  // fetch wedding
+      .mockReturnValueOnce(buildSelectChain([]))            // task statuses
+      .mockReturnValueOnce(buildSelectChain([{ id: 'gl-1' }])); // guest list
+
+    _mockStore.set('wedding_plan:wedding-1', {
+      plan: {
+        weddingId: 'wedding-1',
+        theme:     { name: null, colorPalette: [], style: null },
+        budget: {
+          total:    2_500_000,
+          currency: 'INR',
+          categories: [
+            { name: 'Decoration',    allocated: 300_000, spent: 150_000 },
+            { name: 'Catering',      allocated: 800_000, spent: 120_000 },
+            { name: 'Photography',   allocated: 250_000, spent: 250_000 },
+            { name: 'Venue',         allocated: 600_000, spent: 0 },
+            { name: 'Music',         allocated: 100_000, spent: 0 },
+            { name: 'Clothing',      allocated: 150_000, spent: 75_000 },
+            { name: 'Jewellery',     allocated: 200_000, spent: 0 },
+            { name: 'Miscellaneous', allocated: 100_000, spent: 25_000 },
+          ],
+        },
+        ceremonies: [], checklist: [], muhuratDates: [],
+      },
+    });
+
+    const { getBudget } = await import('../service.js');
+    const result = await getBudget('user-1', 'wedding-1');
+
+    expect(result).not.toBeNull();
+    expect(result!.total).toBe(1_500_000); // budgetTotal from PG row beats plan.total
+    expect(result!.allocations).toEqual({
+      decor:       300_000,
+      catering:    800_000,
+      photography: 250_000,
+      venue:       600_000,
+      music:       100_000,
+      misc:        450_000, // Clothing + Jewellery + Miscellaneous bucketed under misc
+    });
+    expect(result!.spent).toBe(620_000);
+    expect(result!.remaining).toBe(880_000);
+  });
+
+  it('returns null when wedding not found', async () => {
+    const profile = makeProfile();
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([])); // wedding not found
+
+    const { getBudget } = await import('../service.js');
+    const result = await getBudget('user-1', 'missing-wedding');
+
+    expect(result).toBeNull();
+  });
+
+  it('falls back to plan.total when budgetTotal is null', async () => {
+    const profile    = makeProfile();
+    const weddingRow = makeWedding({ budgetTotal: null });
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]))
+      .mockReturnValueOnce(buildSelectChain([]))
+      .mockReturnValueOnce(buildSelectChain([{ id: 'gl-1' }]));
+
+    _mockStore.set('wedding_plan:wedding-1', {
+      plan: {
+        weddingId: 'wedding-1',
+        theme:     { name: null, colorPalette: [], style: null },
+        budget:    { total: 999_000, currency: 'INR', categories: [] },
+        ceremonies: [], checklist: [], muhuratDates: [],
+      },
+    });
+
+    const { getBudget } = await import('../service.js');
+    const result = await getBudget('user-1', 'wedding-1');
+
+    expect(result).not.toBeNull();
+    expect(result!.total).toBe(999_000);
+    expect(result!.spent).toBe(0);
+    expect(result!.remaining).toBe(999_000);
+  });
+});
+
 describe('weddings/service — getTaskBoard', () => {
   beforeEach(() => {
     vi.clearAllMocks();

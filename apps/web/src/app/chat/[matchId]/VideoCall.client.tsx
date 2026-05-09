@@ -115,11 +115,15 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ matchId, durationMin: 60 }),
       });
-      const json = (await res.json()) as { success: boolean; data: { roomUrl: string }; error?: { message: string } };
+      const json = (await res.json()) as { success: boolean; data: { roomUrl: string; isMock?: boolean }; error?: { message: string } };
       if (!json.success || !json.data?.roomUrl) {
         throw new Error(json.error?.message ?? 'Could not start call');
       }
-      window.open(json.data.roomUrl, '_blank', 'noopener,noreferrer');
+      if (json.data.isMock) {
+        setCallError('Mock video room created — real Daily.co flips on with API key. Room URL: ' + json.data.roomUrl);
+      } else {
+        window.open(json.data.roomUrl, '_blank', 'noopener,noreferrer');
+      }
     } catch (e) {
       setCallError((e as Error).message);
     } finally {

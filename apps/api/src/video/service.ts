@@ -187,6 +187,7 @@ export async function createVideoRoom(
     token:     '',
     expiresAt: room.expiresAt,
     matchId:   input.matchId,
+    isMock:    room.isMock ?? false,
   };
 }
 

@@ -378,6 +378,63 @@ export async function updateBudget(
   }
 }
 
+// ── getBudget ─────────────────────────────────────────────────────────────────
+
+export interface WeddingBudgetSummary {
+  total: number;
+  allocations: {
+    decor: number;
+    catering: number;
+    photography: number;
+    venue: number;
+    music: number;
+    misc: number;
+  };
+  spent: number;
+  remaining: number;
+}
+
+const ALLOCATION_BUCKETS: Record<keyof WeddingBudgetSummary['allocations'], string[]> = {
+  decor:       ['Decoration', 'Decor'],
+  catering:    ['Catering'],
+  photography: ['Photography'],
+  venue:       ['Venue'],
+  music:       ['Music'],
+  misc:        ['Miscellaneous', 'Misc', 'Mehendi', 'Makeup', 'Invitation', 'Transport', 'Clothing', 'Jewellery'],
+};
+
+export async function getBudget(
+  userId: string,
+  weddingId: string,
+): Promise<WeddingBudgetSummary | null> {
+  const wedding = await getWedding(userId, weddingId);
+  if (!wedding) return null;
+
+  const categories: BudgetCategory[] = wedding.plan?.budget?.categories ?? [];
+  const sumAllocated = (names: string[]) => categories
+    .filter((c) => names.includes(c.name))
+    .reduce((s, c) => s + (Number(c.allocated) || 0), 0);
+
+  const allocations: WeddingBudgetSummary['allocations'] = {
+    decor:       sumAllocated(ALLOCATION_BUCKETS.decor),
+    catering:    sumAllocated(ALLOCATION_BUCKETS.catering),
+    photography: sumAllocated(ALLOCATION_BUCKETS.photography),
+    venue:       sumAllocated(ALLOCATION_BUCKETS.venue),
+    music:       sumAllocated(ALLOCATION_BUCKETS.music),
+    misc:        sumAllocated(ALLOCATION_BUCKETS.misc),
+  };
+
+  const allocationsTotal = Object.values(allocations).reduce((s, v) => s + v, 0);
+  const planTotal = wedding.plan?.budget?.total ?? 0;
+  const rowTotal = wedding.budgetTotal ?? 0;
+  const total = rowTotal || planTotal || allocationsTotal;
+
+  const spent = categories.reduce((s, c) => s + (Number(c.spent) || 0), 0);
+  const remaining = Math.max(0, total - spent);
+
+  return { total, allocations, spent, remaining };
+}
+
 // ── getTaskBoard ──────────────────────────────────────────────────────────────
 
 export async function getTaskBoard(

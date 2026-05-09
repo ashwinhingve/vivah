@@ -24,6 +24,7 @@ interface MessageBubbleProps {
   otherFirstName?:   string | null
   highlight?:        boolean
   pending?:          boolean
+  translatedContent?: string
   onReply:           (m: ChatMessage) => void
   onReact:           (messageId: string, emoji: string) => void
   onUnreact:         (messageId: string, emoji: string) => void
@@ -37,7 +38,7 @@ interface MessageBubbleProps {
 const URL_RE = /(https?:\/\/[^\s]+)/i
 
 function MessageBubbleInner({
-  message, currentUserId, currentProfileId, otherFirstName, highlight, pending,
+  message, currentUserId, currentProfileId, otherFirstName, highlight, pending, translatedContent,
   onReply, onReact, onUnreact, onEdit, onDelete, onForward, onCopy, onPhotoTap,
 }: MessageBubbleProps) {
   const isSent = message.senderId === currentUserId || message.senderId === currentProfileId
@@ -177,8 +178,16 @@ function MessageBubbleInner({
               <ReplyQuote reply={message.replyTo} currentProfileId={currentProfileId ?? ''} variant="bubble" otherName={otherFirstName ?? null} />
             ) : null}
             <p className="break-words whitespace-pre-wrap">
-              {renderTextWithLinks(message.content, isSent)}
+              {renderTextWithLinks(translatedContent ?? message.content, isSent)}
             </p>
+            {translatedContent ? (
+              <span className={cn(
+                'mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
+                isSent ? 'bg-white/20 text-white/85' : 'bg-gold/20 text-gold-muted',
+              )}>
+                translated
+              </span>
+            ) : null}
             {message.linkPreview ? (
               <LinkPreviewCard preview={message.linkPreview} isSentByMe={isSent} />
             ) : null}

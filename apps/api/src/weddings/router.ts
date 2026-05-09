@@ -8,6 +8,7 @@
  * POST   /weddings/:id/tasks               → createTask
  * PUT    /weddings/:id/tasks/:taskId       → updateTask
  * DELETE /weddings/:id/tasks/:taskId       → deleteTask
+ * GET    /weddings/:id/budget              → getBudget
  * PUT    /weddings/:id/budget              → updateBudget
  * POST   /weddings/:id/checklist/generate  → autoGenerateChecklist
  *
@@ -30,6 +31,7 @@ import {
 import {
   createWedding,
   getWedding,
+  getBudget,
   updateWedding,
   updateBudget,
   getTaskBoard,
@@ -262,9 +264,9 @@ weddingRouter.get(
     const id = req.params['id'];
     if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
     try {
-      const wedding = await getWedding(req.user!.id, id);
-      if (!wedding) { err(res, 'NOT_FOUND', 'Wedding not found', 404); return; }
-      ok(res, { categories: wedding.plan?.budget?.categories ?? [] });
+      const summary = await getBudget(req.user!.id, id);
+      if (!summary) { err(res, 'NOT_FOUND', 'Wedding not found', 404); return; }
+      ok(res, summary);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to get budget';
       err(res, 'BUDGET_GET_ERROR', message, 500);

@@ -5,6 +5,7 @@ export interface VideoRoom {
   token:     string;
   expiresAt: string;
   matchId:   string;
+  isMock?:   boolean;
 }
 
 export interface MeetingSchedule {

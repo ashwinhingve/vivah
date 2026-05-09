@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { PostHogProvider } from '@/components/providers/PostHogProvider.client';
+import { DemoPill } from '@/components/shared/DemoPill';
 // Validates NEXT_PUBLIC_* on first server render — bad deploy fails fast.
 import '@/lib/env';
 import './globals.css';
@@ -48,7 +49,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <PostHogProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            {children}
+            <DemoPill />
+          </ToastProvider>
         </PostHogProvider>
       </body>
     </html>

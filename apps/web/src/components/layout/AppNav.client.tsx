@@ -89,6 +89,26 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
 
 const INDIVIDUAL_MORE: NavItem[] = INDIVIDUAL_MORE_GROUPS.flatMap((g) => g.items);
 
+// Demo-mode route blocklist — hidden when NEXT_PUBLIC_DEMO_MODE === 'true'.
+// Prefix-match: any href starting with one of these is filtered out.
+const DEMO_HIDDEN_PREFIXES = [
+  '/store',
+  '/rentals',
+  '/admin',
+  '/vendor-dashboard',
+] as const;
+
+function isDemoMode(): boolean {
+  return process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
+}
+
+function filterForDemo<T extends { href: string }>(items: T[]): T[] {
+  if (!isDemoMode()) return items;
+  return items.filter(
+    (i) => !DEMO_HIDDEN_PREFIXES.some((p) => i.href === p || i.href.startsWith(`${p}/`)),
+  );
+}
+
 const VENDOR_NAV: NavItem[] = [
   { href: '/vendor-dashboard',        label: 'Home',     Icon: Home },
   { href: '/bookings',                label: 'Bookings', Icon: Calendar },
@@ -138,14 +158,15 @@ export function AppNav() {
   }, [moreOpen]);
 
   const showMore = role === 'INDIVIDUAL';
-  const primary = showMore
+  const primaryRaw = showMore
     ? INDIVIDUAL_PRIMARY
     : role === 'VENDOR'
       ? VENDOR_NAV
       : (role === 'ADMIN' || role === 'SUPPORT')
         ? ADMIN_NAV
         : INDIVIDUAL_PRIMARY;
-  const moreItems = showMore ? INDIVIDUAL_MORE : [];
+  const primary = filterForDemo(primaryRaw);
+  const moreItems = showMore ? filterForDemo(INDIVIDUAL_MORE) : [];
   const moreActive = showMore && moreItems.some(i => isActive(pathname, i.href));
 
   return (

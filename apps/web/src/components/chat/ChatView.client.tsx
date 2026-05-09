@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, Loader2 } from 'lucide-react'
+import { ArrowDown, Languages, Loader2 } from 'lucide-react'
 import type {
   ChatMessage,
   ConversationParticipantPreview,
@@ -72,6 +72,9 @@ export default function ChatView({
   const [forwardTarget, setForwardTarget] = useState<ChatMessage | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [lightboxKey, setLightboxKey] = useState<string | null>(null)
+  const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [translateOn, setTranslateOn] = useState(false)
+  const [translating, setTranslating] = useState(false)
 
   const contextSocket = useChatSocket()
   const socketRef = useRef<Socket | null>(null)
@@ -407,6 +410,50 @@ export default function ChatView({
   }
 
   const otherProfileId = initialOther?.profileId ?? null
+
+  const handleTranslateToggle = useCallback(async () => {
+    if (translateOn) {
+      setTranslateOn(false)
+      return
+    }
+    const apiBase = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000/api/v1'
+    const devanagariRe = /[ऀ-ॿ]/
+    const candidates = messages.filter(
+      (m) => m.type === 'TEXT' && m.content && devanagariRe.test(m.content) && !translations[m._id],
+    )
+    if (candidates.length === 0) {
+      setTranslateOn(true)
+      return
+    }
+    setTranslating(true)
+    try {
+      const next: Record<string, string> = { ...translations }
+      await Promise.all(
+        candidates.map(async (m) => {
+          try {
+            const res = await fetch(`${apiBase}/chat/translate`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: m.content, targetLang: 'en' }),
+            })
+            if (!res.ok) return
+            const json = (await res.json()) as { success: boolean; data?: { translatedText: string } }
+            if (json.success && json.data?.translatedText) {
+              next[m._id] = json.data.translatedText
+            }
+          } catch {
+            /* swallow per-message failures */
+          }
+        }),
+      )
+      setTranslations(next)
+      setTranslateOn(true)
+    } finally {
+      setTranslating(false)
+    }
+  }, [translateOn, messages, translations])
+
   const photoKeys = useMemo(
     () => messages.filter((m) => m.type === 'PHOTO' && m.photoKey).map((m) => m.photoKey as string),
     [messages],
@@ -424,6 +471,23 @@ export default function ChatView({
         initialArchived={initialSettings?.archived ?? false}
         initialPinned={initialSettings?.pinned ?? false}
       />
+      <div className="flex items-center justify-end gap-2 border-b border-gold/10 bg-surface/70 px-3 py-1.5">
+        <button
+          type="button"
+          onClick={handleTranslateToggle}
+          disabled={translating}
+          aria-pressed={translateOn}
+          className={cn(
+            'inline-flex min-h-[32px] items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-60',
+            translateOn
+              ? 'border-teal/50 bg-teal/10 text-teal'
+              : 'border-gold/30 bg-surface text-muted-foreground hover:border-teal/40 hover:text-teal',
+          )}
+        >
+          {translating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Languages className="h-3.5 w-3.5" />}
+          {translateOn ? 'Show original' : 'Translate Hindi → English'}
+        </button>
+      </div>
       <ChatSearch
         open={searchOpen}
         matchId={matchId}
@@ -480,6 +544,7 @@ export default function ChatView({
                 otherFirstName={initialOther?.firstName ?? null}
                 highlight={highlightId === g.msg!._id}
                 pending={g.msg!.pending}
+                translatedContent={translateOn ? translations[g.msg!._id] : undefined}
                 onReply={onReply}
                 onReact={onReact}
                 onUnreact={onUnreact}

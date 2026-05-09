@@ -12,6 +12,7 @@ export interface DailyRoom {
   url:       string;
   createdAt: string;
   expiresAt: string;
+  isMock?:   boolean;
 }
 
 export async function createRoom(
@@ -26,6 +27,7 @@ export async function createRoom(
       url:       `https://smartshaadi.daily.co/${mockName}`,
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + expiryMinutes * 60000).toISOString(),
+      isMock:    true,
     };
   }
   const res = await fetch('https://api.daily.co/v1/rooms', {
