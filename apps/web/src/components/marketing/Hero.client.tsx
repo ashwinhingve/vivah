@@ -82,29 +82,37 @@ export default function Hero() {
           <motion.p
             variants={itemVariants}
             aria-hidden="true"
-            className="text-xs font-semibold uppercase tracking-widest text-white/80 border-l-2 border-gold pl-3 mb-6"
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/95 border-l-2 border-gold pl-3 mb-6"
           >
-            India&apos;s Most Trusted AI Matrimonial Platform
+            EST. 2026 · INDIA
           </motion.p>
 
-          <motion.h1
-            variants={itemVariants}
-            className="text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] text-white font-[family-name:var(--font-heading)] [text-shadow:_0_2px_24px_rgba(0,0,0,0.4)]"
-          >
-            Find Your Perfect
-            <br />
-            <span className="italic text-peach">Life Partner</span>
-            <br />
-            With Your Family
-          </motion.h1>
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-8 -left-2 select-none text-[7rem] md:text-[10rem] lg:text-[12rem] leading-none text-gold/10 font-[family-name:var(--font-hindi)]"
+            >
+              विवाह
+            </span>
+            <motion.h1
+              variants={itemVariants}
+              className="relative text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] text-white font-[family-name:var(--font-heading)] [text-shadow:_0_2px_24px_rgba(0,0,0,0.4)]"
+            >
+              Where families find
+              <br />
+              <span className="italic text-peach underline decoration-gold decoration-2 underline-offset-[12px]">
+                their forever.
+              </span>
+            </motion.h1>
+          </div>
 
           <motion.p
             variants={itemVariants}
-            className="mt-6 text-base md:text-lg text-white/85 max-w-xl leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.4)]"
+            className="mt-8 text-base md:text-lg text-white/85 max-w-xl leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.4)]"
           >
-            Smart Shaadi combines AI-powered compatibility matching with
-            traditional family values. Guna Milan, horoscope matching, and
-            verified profiles — all in one trusted platform.
+            Smart Shaadi brings together verified matchmaking, family-led
+            decisions, Vedic Guna Milan compatibility, and end-to-end wedding
+            planning — built for Indian families, not dating culture.
           </motion.p>
 
           <motion.ul
@@ -130,16 +138,16 @@ export default function Hero() {
             className="mt-10 flex flex-col sm:flex-row gap-3"
           >
             <Link
-              href="/register"
+              href="/login"
               className="inline-flex items-center justify-center w-full sm:w-auto bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
             >
-              Find Your Match →
+              Start your journey →
             </Link>
             <Link
-              href="/register?mode=family"
+              href="#how-it-works"
               className="inline-flex items-center justify-center w-full sm:w-auto border-2 border-surface/70 text-white hover:bg-surface/10 hover:border-surface font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 backdrop-blur-sm"
             >
-              For Parents &amp; Families
+              How it works
             </Link>
           </motion.div>
 

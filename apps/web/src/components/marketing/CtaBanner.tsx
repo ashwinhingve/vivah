@@ -37,21 +37,21 @@ export default function CtaBanner() {
           India&apos;s Smartest Matrimonial Platform
         </p>
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white font-[family-name:var(--font-heading)] [text-shadow:_0_2px_24px_rgba(0,0,0,0.4)]">
-          Your Perfect Match
+          A wedding worth waiting for.
           <br />
-          <span className="italic text-peach">is Waiting.</span>
+          <span className="italic text-peach">A platform worth trusting.</span>
         </h2>
         <p className="text-white/90 mt-6 leading-relaxed text-base md:text-lg [text-shadow:_0_1px_12px_rgba(0,0,0,0.4)]">
-          Join our growing community of verified families. Free to join,
+          Join the community of verified families. Free to join,
           private by default, family-first by design.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/register"
+            href="/login"
             className="inline-flex items-center justify-center bg-surface text-teal font-semibold rounded-lg px-8 py-4 min-h-[52px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
           >
-            Create Free Profile
+            Begin your journey
           </Link>
           <a
             href="#how-it-works"
