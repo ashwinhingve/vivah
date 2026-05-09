@@ -1,18 +1,5 @@
-import { seedAuthUsers } from './auth.js';
-import { seedProfileContent } from './profiles.js';
-import { seedVendors } from './vendors.js';
-import { seedBookings } from './bookings.js';
+import { seedFullDemo } from './full-demo.js';
 
-async function main() {
-  console.info('🌱 Seeding database...');
-  await seedAuthUsers();
-  await seedProfileContent();
-  await seedVendors();
-  await seedBookings();
-  console.info('✅ Seed complete');
-}
-
-main().catch((e) => {
-  console.error('❌ Seed failed:', e);
-  process.exit(1);
-});
+seedFullDemo()
+  .then(() => process.exit(0))
+  .catch((e) => { console.error('❌ Seed failed:', e); process.exit(1); });

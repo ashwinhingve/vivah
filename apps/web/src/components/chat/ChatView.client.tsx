@@ -477,6 +477,7 @@ export default function ChatView({
           onClick={handleTranslateToggle}
           disabled={translating}
           aria-pressed={translateOn}
+          title="Hindi-English translation — preview (full integration in next phase)"
           className={cn(
             'inline-flex min-h-[32px] items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-60',
             translateOn

@@ -9,6 +9,8 @@ import Pricing from '@/components/marketing/Pricing';
 import CtaBanner from '@/components/marketing/CtaBanner';
 import Footer from '@/components/marketing/Footer';
 
+const isDemoMode = process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
+
 export default function LandingPage() {
   return (
     <>
@@ -20,7 +22,7 @@ export default function LandingPage() {
         <FeaturesGrid />
         <TrustSection />
         <Testimonials />
-        <Pricing />
+        {!isDemoMode && <Pricing />}
         <CtaBanner />
       </main>
       <Footer />
