@@ -42,23 +42,34 @@ matchmakingRouter.get(
     }
 
     const userId = req.user!.id;
+    // ?refresh=1 bypasses Redis cache and recomputes from PG+Mongo. Lets a
+    // user (or operator) trigger a fresh compute after editing partner
+    // preferences without having to wait for the 24h TTL or shell-bust the
+    // match_feed:* key by hand.
+    const refresh =
+      req.query['refresh'] === '1' ||
+      req.query['refresh'] === 'true' ||
+      req.query['refresh'] === 'yes';
 
     try {
-      // Try cache first
-      const cached = await getCachedFeed(userId, redis);
-      if (cached !== null) {
-        ok(res, { items: cached, total: cached.length, page: 1, limit: cached.length }, 200, {
-          page: 1, limit: cached.length, total: cached.length,
-        });
-        return;
+      if (!refresh) {
+        const cached = await getCachedFeed(userId, redis);
+        if (cached !== null) {
+          ok(res, { items: cached, total: cached.length, page: 1, limit: cached.length }, 200, {
+            page: 1, limit: cached.length, total: cached.length,
+          });
+          return;
+        }
+      } else {
+        console.info('[feed][router] refresh=1 — bypassing cache', { userId });
       }
 
-      // Cache miss — compute fresh feed
       const feed = await computeAndCacheFeed(userId, db, redis);
       ok(res, { items: feed, total: feed.length, page: 1, limit: feed.length }, 200, {
         page: 1, limit: feed.length, total: feed.length,
       });
     } catch (e) {
+      console.error('[feed][router] computeAndCacheFeed threw', { userId, error: e });
       const message = e instanceof Error ? e.message : 'Failed to load feed';
       err(res, 'FEED_ERROR', message, 500);
     }

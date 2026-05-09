@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Heart, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, Sparkles, ArrowRight, AlertTriangle } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchCard } from '@/components/matchmaking/MatchCard';
 import { Button } from '@/components/ui/button';
@@ -12,36 +12,63 @@ interface MeResponse {
   profileCompleteness: number;
 }
 
-async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
+interface FetchResult<T> {
+  data: T | null;
+  status: number;
+  error: string | null;
+}
+
+async function fetchAuth<T>(path: string, token: string): Promise<FetchResult<T>> {
   try {
     const res = await fetch(`${API_URL}${path}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { success: boolean; data: T };
-    return json.success ? json.data : null;
-  } catch {
-    return null;
+    const text = await res.text();
+    let json: { success?: boolean; data?: T; error?: { message?: string } } = {};
+    try { json = text ? JSON.parse(text) : {}; } catch { /* non-JSON body */ }
+    if (!res.ok) {
+      return {
+        data: null,
+        status: res.status,
+        error: json.error?.message ?? `HTTP ${res.status}`,
+      };
+    }
+    return {
+      data: json.success ? (json.data ?? null) : null,
+      status: res.status,
+      error: json.success ? null : (json.error?.message ?? 'API returned success=false'),
+    };
+  } catch (e) {
+    return {
+      data: null,
+      status: 0,
+      error: e instanceof Error ? e.message : 'fetch failed',
+    };
   }
 }
 
-export default async function MatchFeedPage() {
+interface PageProps {
+  searchParams?: Promise<{ refresh?: string }>;
+}
+
+export default async function MatchFeedPage({ searchParams }: PageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
+  const sp = (await searchParams) ?? {};
+  const refresh = sp.refresh === '1' || sp.refresh === 'true';
+  const feedPath = refresh ? '/api/v1/matchmaking/feed?refresh=1' : '/api/v1/matchmaking/feed';
 
-  const [feed, me] = await Promise.all([
-    fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(
-      '/api/v1/matchmaking/feed',
-      token,
-    ),
+  const [feedRes, meRes] = await Promise.all([
+    fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(feedPath, token),
     fetchAuth<MeResponse>('/api/v1/profiles/me', token),
   ]);
 
-  // Accept either shape — new envelope has { items, total, ... }; legacy cached
-  // data may still be a raw array.
-  const items: MatchFeedItem[] = Array.isArray(feed) ? feed : (feed?.items ?? []);
-  const completeness = me?.profileCompleteness ?? 0;
+  const feedFailed = feedRes.error !== null;
+  const items: MatchFeedItem[] = Array.isArray(feedRes.data)
+    ? feedRes.data
+    : (feedRes.data?.items ?? []);
+  const completeness = meRes.data?.profileCompleteness ?? 0;
   const profileReady = completeness >= 40;
 
   return (
@@ -66,7 +93,23 @@ export default async function MatchFeedPage() {
           ) : null}
         </div>
 
-        {items.length === 0 ? (
+        {feedFailed ? (
+          <EmptyState
+            icon={AlertTriangle}
+            title="Couldn't load your matches"
+            description={`The match feed API returned an error (${feedRes.status}: ${feedRes.error}). Try refreshing the page or check the API status.`}
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button asChild>
+                  <Link href="/feed?refresh=1">Force Refresh</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/dashboard">Back to Dashboard</Link>
+                </Button>
+              </div>
+            }
+          />
+        ) : items.length === 0 ? (
           profileReady ? (
             <EmptyState
               icon={Heart}
@@ -75,13 +118,13 @@ export default async function MatchFeedPage() {
               action={
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <Button asChild>
-                    <Link href="/requests">
-                      Check Requests
+                    <Link href="/feed?refresh=1">
+                      Refresh Feed
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href="/vendors">Browse Vendors</Link>
+                    <Link href="/requests">Check Requests</Link>
                   </Button>
                 </div>
               }
