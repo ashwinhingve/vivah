@@ -1,0 +1,1 @@
+ALTER TABLE "guests" ADD COLUMN "historical_attendance_rate" numeric(3, 2);

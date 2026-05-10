@@ -1046,6 +1046,7 @@ export const guests = pgTable('guests', {
   arrivedAt:          timestamp('arrived_at'),
   checkedInBy:        text('checked_in_by').references(() => user.id),
   notes:              text('notes'),
+  historicalAttendanceRate: decimal('historical_attendance_rate', { precision: 3, scale: 2 }),  // FAQ: rolling attended/invited rate from past ceremonies; null = unknown
   createdAt:          timestamp('created_at').defaultNow().notNull(),
   updatedAt:          timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
