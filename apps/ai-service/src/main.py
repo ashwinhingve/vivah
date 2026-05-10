@@ -41,14 +41,20 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.fastapi import FastApiIntegration
 
+    try:
+        traces_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
+    except ValueError:
+        traces_rate = 0.1
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        traces_sample_rate=0.05,
+        traces_sample_rate=traces_rate,
         send_default_pii=False,
         integrations=[FastApiIntegration()],
-        environment=os.getenv("NODE_ENV", "development"),
+        environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("NODE_ENV", "development")),
+        release=os.getenv("GIT_COMMIT_SHA") or None,
     )
-    log.info("sentry_initialized")
+    log.info("sentry_initialized", traces_sample_rate=traces_rate)
 else:
     log.info("sentry_skipped", reason="SENTRY_DSN unset")
 
