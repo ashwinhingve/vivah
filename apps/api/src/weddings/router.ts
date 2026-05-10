@@ -488,3 +488,183 @@ weddingRouter.put(
     }
   },
 );
+
+// ── FAQ (Function Attendance Quotient) endpoints ──────────────────────────────
+
+import { redis } from '../lib/redis.js';
+import { requireRole } from './access.js';
+import { extract, extractAllForWedding } from '../services/faqFeatures.js';
+import { predictBatch } from '../services/faqService.js';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// ── GET /weddings/:weddingId/ceremonies/:ceremonyId/faq ───────────────────────
+
+weddingRouter.get(
+  '/:weddingId/ceremonies/:ceremonyId/faq',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { weddingId, ceremonyId } = req.params;
+    if (!weddingId || !ceremonyId) {
+      err(res, 'VALIDATION_ERROR', 'Missing weddingId or ceremonyId', 400); return;
+    }
+
+    const userId = req.user!.id;
+
+    // Access check
+    try {
+      await requireRole(weddingId, userId, 'ANY');
+    } catch (e) {
+      const appErr = e as { code?: string; status?: number; message?: string };
+      err(res, appErr.code ?? 'FORBIDDEN', appErr.message ?? 'Forbidden', appErr.status ?? 403);
+      return;
+    }
+
+    // UUID validation
+    if (!UUID_RE.test(weddingId) || !UUID_RE.test(ceremonyId)) {
+      err(res, 'VALIDATION_ERROR', 'Invalid UUID format', 400); return;
+    }
+
+    // Rate limit: 30 requests per user per hour
+    const rlKey = `faq:rl:${userId}`;
+    const count = await redis.incr(rlKey);
+    if (count === 1) await redis.expire(rlKey, 3600);
+    if (count > 30) {
+      err(res, 'RATE_LIMITED', 'Too many FAQ requests', 429); return;
+    }
+
+    // Cache check
+    const cacheKey = `faq:wedding:${weddingId}:ceremony:${ceremonyId}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      ok(res, JSON.parse(cached) as Record<string, unknown>); return;
+    }
+
+    // Extract features + predict
+    const items = await extract(weddingId, ceremonyId);
+
+    if (items.length === 0) {
+      err(res, 'NOT_FOUND', 'Ceremony not found or has no invited guests', 404); return;
+    }
+
+    const predictions = await predictBatch(items);
+
+    // Build counts for confidence bands
+    let high = 0, medium = 0, low = 0;
+    let expectedAttendance = 0;
+
+    for (const p of predictions) {
+      expectedAttendance += p.predictedProbability;
+      if (p.confidenceBand === 'high')   high++;
+      else if (p.confidenceBand === 'medium') medium++;
+      else low++;
+    }
+
+    // Determine ceremony_type from first item (all rows share the same ceremony)
+    const ceremonyType = items[0]?.input.ceremony_type ?? 'wedding';
+
+    const payload = {
+      ceremony_id:   ceremonyId,
+      ceremony_type: ceremonyType,
+      total_invited: predictions.length,
+      predictions: predictions.map((p) => ({
+        guest_id:              p.guestId,
+        guest_name:            items.find((i) => i.guestId === p.guestId)?.guestName ?? '',
+        predicted_probability: p.predictedProbability,
+        confidence_band:       p.confidenceBand,
+        rsvp_response:         p.rsvpResponse,
+      })),
+      summary: {
+        expected_attendance:    expectedAttendance,
+        high_confidence_count:  high,
+        medium_confidence_count: medium,
+        low_confidence_count:   low,
+      },
+    };
+
+    await redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
+    ok(res, payload);
+  },
+);
+
+// ── GET /weddings/:weddingId/faq/summary ─────────────────────────────────────
+
+weddingRouter.get(
+  '/:weddingId/faq/summary',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { weddingId } = req.params;
+    if (!weddingId) {
+      err(res, 'VALIDATION_ERROR', 'Missing weddingId', 400); return;
+    }
+
+    const userId = req.user!.id;
+
+    // Access check
+    try {
+      await requireRole(weddingId, userId, 'ANY');
+    } catch (e) {
+      const appErr = e as { code?: string; status?: number; message?: string };
+      err(res, appErr.code ?? 'FORBIDDEN', appErr.message ?? 'Forbidden', appErr.status ?? 403);
+      return;
+    }
+
+    // UUID validation
+    if (!UUID_RE.test(weddingId)) {
+      err(res, 'VALIDATION_ERROR', 'Invalid UUID format', 400); return;
+    }
+
+    // Rate limit: 30 requests per user per hour (shared with per-ceremony endpoint)
+    const rlKey = `faq:rl:${userId}`;
+    const count = await redis.incr(rlKey);
+    if (count === 1) await redis.expire(rlKey, 3600);
+    if (count > 30) {
+      err(res, 'RATE_LIMITED', 'Too many FAQ requests', 429); return;
+    }
+
+    // Cache check
+    const cacheKey = `faq:wedding:${weddingId}:summary`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      ok(res, JSON.parse(cached) as Record<string, unknown>); return;
+    }
+
+    // Extract all ceremonies for wedding
+    const ceremoniesMap = await extractAllForWedding(weddingId);
+
+    const ceremonySummaries: Array<{
+      ceremony_id:              string;
+      ceremony_type:            string;
+      total_invited:            number;
+      expected_attendance:      number;
+      estimated_catering_count: number;
+    }> = [];
+
+    for (const [cId, rows] of ceremoniesMap.entries()) {
+      if (rows.length === 0) continue;
+
+      const preds = await predictBatch(rows);
+
+      const expectedAttendance = preds.reduce(
+        (sum, p) => sum + p.predictedProbability,
+        0,
+      );
+
+      ceremonySummaries.push({
+        ceremony_id:              cId,
+        ceremony_type:            rows[0]?.input.ceremony_type ?? 'wedding',
+        total_invited:            preds.length,
+        expected_attendance:      expectedAttendance,
+        estimated_catering_count: Math.ceil(expectedAttendance * 1.1),
+      });
+    }
+
+    const payload = {
+      wedding_id: weddingId,
+      ceremonies: ceremonySummaries,
+    };
+
+    await redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
+    ok(res, payload);
+  },
+);
