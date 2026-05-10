@@ -61,6 +61,10 @@ import {
   scheduleEmotionalScoreJob,
 } from './jobs/emotionalScoreJob.js';
 import {
+  registerExpireGracePeriodsWorker,
+  scheduleExpireGracePeriodsJob,
+} from './jobs/expireGracePeriodsJob.js';
+import {
   registerHistoricalAttendanceWorker,
   scheduleHistoricalAttendanceJob,
 } from './jobs/historicalAttendanceJob.js';
@@ -407,6 +411,8 @@ async function bootstrap(): Promise<void> {
     void scheduleEmotionalScoreJob();
     workers.push(registerHistoricalAttendanceWorker());
     void scheduleHistoricalAttendanceJob();
+    workers.push(registerExpireGracePeriodsWorker());
+    void scheduleExpireGracePeriodsJob();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.

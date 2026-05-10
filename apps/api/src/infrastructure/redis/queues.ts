@@ -158,3 +158,11 @@ export const invitationBlastQueue = new Queue<InvitationBlastJob>(
   'invitation-blast',
   { connection },
 );
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ExpireGracePeriodsJob {}
+
+export const expireGracePeriodsQueue = new Queue<ExpireGracePeriodsJob>(
+  'expire-grace-periods',
+  { connection },
+);
