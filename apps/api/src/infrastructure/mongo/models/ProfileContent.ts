@@ -11,7 +11,7 @@ import { Schema, model, models } from 'mongoose';
 
 const profileContentSchema = new Schema(
   {
-    userId: { type: String, required: true, unique: true, index: true },
+    userId: { type: String, required: true, unique: true },
 
     personal: {
       fullName:      String,

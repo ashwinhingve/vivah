@@ -87,7 +87,7 @@ const ChatSchema = new mongoose.Schema(
 )
 
 ChatSchema.index({ participants: 1 })
-ChatSchema.index({ matchRequestId: 1 })
+// matchRequestId already gets a unique index from the field-level `unique: true`
 ChatSchema.index({ 'messages._id': 1 })
 
 export const Chat = mongoose.model('Chat', ChatSchema)

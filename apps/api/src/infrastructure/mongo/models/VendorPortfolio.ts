@@ -2,7 +2,7 @@ import { mongoose } from '../index.js'
 
 const vendorPortfolioSchema = new mongoose.Schema(
   {
-    vendorId: { type: String, required: true, unique: true, index: true },
+    vendorId: { type: String, required: true, unique: true },
 
     about:   String,
     tagline: String,
