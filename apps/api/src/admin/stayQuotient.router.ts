@@ -31,8 +31,8 @@ export const stayQuotientAdminRouter = Router();
 // (admin tooling, not user-facing AI inference).
 const STAY_RATE_LIMIT = 60;
 const STAY_RATE_WINDOW_SEC = 3600; // 1 hour
-const STAY_USER_CACHE_TTL_SEC = 3600;
-const STAY_AT_RISK_CACHE_TTL_SEC = 1800;
+const STAY_USER_CACHE_TTL_SEC = 3600;     // 1h — matches AI-inference standard
+const STAY_AT_RISK_CACHE_TTL_SEC = 1800;  // 30m — matches admin-query standard
 const AT_RISK_CANDIDATE_CAP = 100;
 
 interface AppErrorish extends Error {

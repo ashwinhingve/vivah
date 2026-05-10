@@ -20,9 +20,11 @@ import { getFiiCompatibility } from '../services/aiService.js';
 const QUEUE_NAME          = 'dpi-refresh-nightly'; // reuse existing queue
 const REPEAT_KEY          = 'fii-refresh-nightly-cron';
 const CRON_UTC            = '30 21 * * *';           // 3:30am IST
-const CACHE_TTL_SEC       = 86400;                   // 24h
+// AI-inference standard is 1h; FII mirrors the 24h cache used in the route
+// (trait-level signal, low drift). MIN_TTL is a refresh-skip floor, not a TTL.
+const CACHE_TTL_SEC       = 86400;                   // 24h — matches route FII_CACHE_TTL_SEC
 const CACHE_MIN_TTL_SEC   = 12 * 3600;              // skip if still fresh (12h)
-const SCORE_CACHE_TTL_SEC = 86400;                   // 24h
+const SCORE_CACHE_TTL_SEC = 86400;                   // 24h — matches route FII_SCORE_CACHE_TTL_SEC
 const CONCURRENCY         = 5;
 const SEVEN_DAYS_MS       = 7 * 24 * 3600 * 1000;
 

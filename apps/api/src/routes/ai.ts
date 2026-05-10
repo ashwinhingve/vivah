@@ -278,7 +278,11 @@ aiRouter.post(
 // spend bound.
 const EMOTIONAL_RATE_LIMIT = 60;
 const EMOTIONAL_RATE_WINDOW_SEC = 3600; // 1 hour
-const EMOTIONAL_CACHE_TTL_SEC   = 86400; // 24 hours
+// AI-inference cache standard is 1h; emotional score is cached 24h because
+// the underlying ai-service computation is weekly-scheduled and the signal
+// doesn't shift mid-day. 7day rolling window is a moving-average store, not
+// a cache.
+const EMOTIONAL_CACHE_TTL_SEC   = 86400; // 24 hours — slow-moving signal
 const EMOTIONAL_7DAY_TTL_SEC    = 7 * 24 * 3600;
 
 const EMOTIONAL_FALLBACK: EmotionalScoreResponse & { fallback: boolean } = {
@@ -455,6 +459,8 @@ aiRouter.get(
 // AI-inference standard is 30/hour. DPI uses 5/DAY because it's a sensitive
 // mental-health-adjacent indicator and we cap exposure to avoid score-shopping.
 const DPI_RATE_LIMIT     = 5;   // 5 per user per DAY (stricter than other routes)
+// AI-inference cache standard is 1h; DPI is cached 24h because results are
+// stable per-user/day and the rate limit (5/day) makes a longer cache cheap.
 const DPI_CACHE_TTL_SEC  = 86400; // 24 hours
 
 const DPI_DISCLAIMER =
@@ -724,9 +730,13 @@ aiRouter.get(
 const FII_SCORE_RATE_LIMIT      = 60;   // 60/user/hour — local model, no LLM cost
 const FII_COMPAT_RATE_LIMIT     = 30;   // 30/user/hour — Sonnet narrative path is expensive
 const FII_RATE_WINDOW_SEC       = 3600; // 1 hour
-const FII_CACHE_TTL_SEC         = 86400;         // 24h — template path
-const FII_LLM_CACHE_TTL_SEC     = 3600;          // 1h — Sonnet path
-const FII_SCORE_CACHE_TTL_SEC   = 86400;         // 24h
+// AI-inference cache standard is 1h. FII compat template path is 24h
+// because the template is deterministic over stable inputs (no LLM); the
+// Sonnet path matches the standard 1h. Score is 24h — trait-level signal,
+// doesn't drift hour-to-hour.
+const FII_CACHE_TTL_SEC         = 86400;         // 24h — deterministic template path
+const FII_LLM_CACHE_TTL_SEC     = 3600;          // 1h  — matches AI standard (Sonnet path)
+const FII_SCORE_CACHE_TTL_SEC   = 86400;         // 24h — trait-level, low drift
 
 // Score-only label bands (used when ai-service doesn't return one)
 function fiiLabel(score: number): string {

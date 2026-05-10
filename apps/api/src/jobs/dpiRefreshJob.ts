@@ -25,7 +25,9 @@ const ProfileContent = _ProfileContent as unknown as IProfileContentModel;
 const QUEUE_NAME     = 'dpi-refresh-nightly';
 const REPEAT_KEY     = 'dpi-refresh-nightly-cron';
 const CRON_UTC       = '0 21 * * *'; // 3am IST
-const CACHE_TTL_SEC  = 86400;        // 24h
+// AI-inference standard is 1h; DPI mirrors the 24h cache used in the route
+// handler — refreshes are weekly/scheduled, not on-demand.
+const CACHE_TTL_SEC  = 86400;        // 24h — matches route DPI_CACHE_TTL_SEC
 const CACHE_MIN_TTL  = 12 * 3600;   // 12h — skip if still fresh
 const CONCURRENCY    = 3;
 const SEVEN_DAYS_MS  = 7 * 24 * 3600 * 1000;

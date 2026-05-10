@@ -7,6 +7,8 @@ import { callAiService } from '../lib/ai.js';
 import { getMyProfileContent } from '../profiles/content.service.js';
 import { connection, type MatchComputeJob } from '../infrastructure/redis/queues.js';
 
+// 7d — Guna scores are deterministic per-pair Vedic math; no need to refresh
+// faster than the weekly match-score cycle described in CLAUDE.md.
 const GUNA_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 const NEUTRAL_SCORE = 18; // guna-milan midpoint when horoscope data is missing
 

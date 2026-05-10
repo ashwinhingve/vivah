@@ -35,7 +35,7 @@ import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js
 
 // ── Feed cache key ────────────────────────────────────────────────────────────
 
-const FEED_CACHE_TTL = 86400; // 24 hours
+const FEED_CACHE_TTL = 86400; // 24h — matches feed-cache standard
 
 function feedKey(userId: string): string {
   return `match_feed:${userId}`;
