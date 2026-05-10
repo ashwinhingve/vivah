@@ -15,6 +15,7 @@ RelationshipType = Literal["close_family", "extended_family", "friend", "colleag
 RsvpResponse = Literal["yes", "no", "maybe", "pending"]
 CeremonyType = Literal["sangeet", "mehndi", "wedding", "reception"]
 ConfidenceBand = Literal["high", "medium", "low"]
+Direction = Literal["attend", "skip", "uncertain"]
 
 
 class FaqInput(BaseModel):
@@ -41,5 +42,6 @@ class FaqResponse(BaseModel):
     ceremony_id: str
     predicted_probability: float
     confidence_band: ConfidenceBand
+    direction: Direction
     feature_contributions: List[FaqContribution]
     model_version: str

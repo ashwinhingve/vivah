@@ -131,24 +131,44 @@ def encode_features(input_dict: dict) -> np.ndarray:
     return np.array(vector, dtype=np.float64).reshape(1, 14)
 
 
-def _confidence_band(features: dict) -> str:
+def _confidence_band(proba: float) -> str:
     """
-    Determine confidence band based on RSVP + historical availability.
+    Direction-aware confidence band based on calibrated probability.
 
-    high   — RSVP is definitive (yes/no) OR maybe with historical data
-    low    — pending RSVP AND no historical data
-    medium — all other combinations
+    Treats absence as a confident signal symmetrically with attendance:
+    a 0.04 probability is "high confidence will skip", not "low".
+
+      >= 0.85           high   (high confidence will attend)
+      0.55 .. 0.85      medium (likely attend)
+      0.35 .. 0.55      low    (uncertain — central band)
+      0.15 .. 0.35      medium (likely skip)
+      <  0.15           high   (high confidence will skip)
     """
-    rsvp = features.get("rsvp_response", "pending")
-    historical = features.get("historical_attendance_rate")
-
-    if rsvp in {"yes", "no"}:
+    if proba >= 0.85:
         return "high"
-    if rsvp == "maybe" and historical is not None:
-        return "high"
-    if rsvp == "pending" and historical is None:
+    if proba >= 0.55:
+        return "medium"
+    if proba >= 0.35:
         return "low"
-    return "medium"
+    if proba >= 0.15:
+        return "medium"
+    return "high"
+
+
+def _direction(proba: float) -> str:
+    """
+    Attendance direction. Uncertain band is checked first so the central
+    [0.40, 0.60] window does not silently flip on small probability shifts.
+
+      0.40 .. 0.60   uncertain
+      > 0.60         attend
+      < 0.40         skip
+    """
+    if 0.40 <= proba <= 0.60:
+        return "uncertain"
+    if proba > 0.60:
+        return "attend"
+    return "skip"
 
 
 def predict(features: dict) -> dict:
@@ -161,6 +181,7 @@ def predict(features: dict) -> dict:
       {
         "predicted_probability": float (0..1, calibrated),
         "confidence_band": "high" | "medium" | "low",
+        "direction": "attend" | "skip" | "uncertain",
         "feature_contributions": [
             {"feature": str, "value": float, "contribution": float}
             ...14 items...
@@ -185,11 +206,13 @@ def predict(features: dict) -> dict:
         for i in range(14)
     ]
 
-    band = _confidence_band(features)
+    band = _confidence_band(proba)
+    direction = _direction(proba)
 
     return {
         "predicted_probability": proba,
         "confidence_band": band,
+        "direction": direction,
         "feature_contributions": contributions,
         "model_version": "faq-v1.0",
     }

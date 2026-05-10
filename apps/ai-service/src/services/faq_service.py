@@ -24,6 +24,7 @@ async def compute_faq(request: FaqRequest) -> FaqResponse:
         ceremony_id=request.ceremony_id,
         predicted_probability=result["predicted_probability"],
         confidence_band=result["confidence_band"],
+        direction=result["direction"],
         feature_contributions=[
             FaqContribution(**c) for c in result["feature_contributions"]
         ],

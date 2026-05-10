@@ -86,6 +86,8 @@ export interface FiiCompatibility {
 
 export type FaqConfidenceBand = 'high' | 'medium' | 'low';
 
+export type FaqDirection = 'attend' | 'skip' | 'uncertain';
+
 export type FaqCeremonyType = 'sangeet' | 'mehndi' | 'wedding' | 'reception';
 
 export type FaqRsvpResponse = 'yes' | 'no' | 'maybe' | 'pending';
@@ -95,6 +97,7 @@ export interface FaqGuestPrediction {
   guest_name: string;
   predicted_probability: number;
   confidence_band: FaqConfidenceBand;
+  direction: FaqDirection;
   rsvp_response: FaqRsvpResponse;
 }
 

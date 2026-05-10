@@ -196,7 +196,7 @@ def test_predict_no_rsvp_low_probability(trained_paths):
     )
 
 
-# ── Test 9: maybe RSVP + history gives mid-range probability ──────────────
+# ── Test 9: maybe RSVP + history yields band+direction consistent with proba ──
 
 
 def test_predict_maybe_with_history(trained_paths):
@@ -206,47 +206,46 @@ def test_predict_maybe_with_history(trained_paths):
     features = _base_features(rsvp_response="maybe", historical_attendance_rate=0.6)
     result = faq_model.predict(features)
 
-    # Calibrated GBM on small training set can output anywhere in (0, 1);
-    # just verify it is NOT as extreme as a clear yes/no signal.
     proba = result["predicted_probability"]
     assert 0.0 < proba < 1.0, f"maybe+history proba should be in open (0,1), got {proba}"
-    # Confidence band should be "high" because maybe + historical_rate present
-    assert result["confidence_band"] == "high", (
-        f"maybe+history should yield 'high' band, got '{result['confidence_band']}'"
-    )
+    assert result["confidence_band"] in {"high", "medium", "low"}
+    assert result["direction"] in {"attend", "skip", "uncertain"}
+    # Band/direction must be consistent with the calibrated proba
+    assert result["confidence_band"] == faq_model._confidence_band(proba)
+    assert result["direction"] == faq_model._direction(proba)
 
 
-# ── Test 10: pending + no history → low confidence band ───────────────────
+# ── Test 10: yes RSVP yields attend direction ─────────────────────────────
 
 
-def test_predict_pending_no_history(trained_paths):
+def test_predict_yes_rsvp_attend_direction(trained_paths):
     model_path, meta_path = trained_paths
     faq_model.load_model(model_path=model_path, metadata_path=meta_path)
 
-    features = _base_features(rsvp_response="pending", historical_attendance_rate=None)
+    features = _base_features(rsvp_response="yes")
     result = faq_model.predict(features)
 
-    assert result["confidence_band"] == "low", (
-        f"pending + no history should be 'low', got '{result['confidence_band']}'"
+    assert result["direction"] == "attend", (
+        f"yes RSVP should yield direction='attend', got '{result['direction']}'"
     )
 
 
-# ── Test 11: pending + with history → medium confidence band ──────────────
+# ── Test 11: no RSVP yields skip direction ────────────────────────────────
 
 
-def test_predict_pending_with_history(trained_paths):
+def test_predict_no_rsvp_skip_direction(trained_paths):
     model_path, meta_path = trained_paths
     faq_model.load_model(model_path=model_path, metadata_path=meta_path)
 
-    features = _base_features(rsvp_response="pending", historical_attendance_rate=0.7)
+    features = _base_features(rsvp_response="no")
     result = faq_model.predict(features)
 
-    assert result["confidence_band"] == "medium", (
-        f"pending + history should be 'medium', got '{result['confidence_band']}'"
+    assert result["direction"] == "skip", (
+        f"no RSVP should yield direction='skip', got '{result['direction']}'"
     )
 
 
-# ── Test 12: yes RSVP → high confidence band ──────────────────────────────
+# ── Test 12: yes RSVP → high confidence band (will attend) ─────────────────
 
 
 def test_confidence_band_yes_is_high(trained_paths):
@@ -256,19 +255,36 @@ def test_confidence_band_yes_is_high(trained_paths):
     features = _base_features(rsvp_response="yes")
     result = faq_model.predict(features)
 
+    # yes RSVP yields proba >= 0.85 → band="high" (will attend)
     assert result["confidence_band"] == "high"
 
 
-# ── Test 13: pending + no history → low confidence band (unit test) ───────
+# ── Test 13: _confidence_band + _direction unit tests ─────────────────────
 
 
-def test_confidence_band_pending_no_history_is_low():
-    """Unit test _confidence_band directly — no model load needed."""
-    band = faq_model._confidence_band({
-        "rsvp_response": "pending",
-        "historical_attendance_rate": None,
-    })
-    assert band == "low"
+def test_confidence_band_direction_unit():
+    """Unit-test the probability-based band and direction helpers directly."""
+    # High confidence will attend
+    assert faq_model._confidence_band(0.92) == "high"
+    assert faq_model._direction(0.92) == "attend"
+
+    # High confidence will skip
+    assert faq_model._confidence_band(0.04) == "high"
+    assert faq_model._direction(0.04) == "skip"
+
+    # Likely attend (medium band, attend direction)
+    assert faq_model._confidence_band(0.70) == "medium"
+    assert faq_model._direction(0.70) == "attend"
+
+    # Likely skip (medium band, skip direction)
+    assert faq_model._confidence_band(0.20) == "medium"
+    assert faq_model._direction(0.20) == "skip"
+
+    # Central uncertain band — always direction="uncertain"
+    assert faq_model._confidence_band(0.50) == "low"
+    assert faq_model._direction(0.50) == "uncertain"
+    assert faq_model._direction(0.40) == "uncertain"
+    assert faq_model._direction(0.60) == "uncertain"
 
 
 # ── Test 14: predict returns exactly 14 contributions ─────────────────────
@@ -310,11 +326,12 @@ def test_predict_response_shape(trained_paths):
 
     result = faq_model.predict(_base_features())
 
-    required_keys = {"predicted_probability", "confidence_band", "feature_contributions", "model_version"}
+    required_keys = {"predicted_probability", "confidence_band", "direction", "feature_contributions", "model_version"}
     assert required_keys.issubset(result.keys()), f"Missing keys: {required_keys - result.keys()}"
     assert result["model_version"] == "faq-v1.0"
     assert 0.0 <= result["predicted_probability"] <= 1.0
     assert result["confidence_band"] in {"high", "medium", "low"}
+    assert result["direction"] in {"attend", "skip", "uncertain"}
 
 
 # ── Test 17 (bonus): close_family > colleague attendance probability ───────

@@ -13,17 +13,21 @@ import type { FaqFeatureRow } from './faqFeatures.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+export type FaqDirection = 'attend' | 'skip' | 'uncertain';
+
 export interface FaqPrediction {
   guestId:              string;
   ceremonyId:           string;
   predictedProbability: number;
   confidenceBand:       'high' | 'medium' | 'low';
+  direction:            FaqDirection;
   rsvpResponse:         string;
 }
 
 interface AiServiceFaqResponse {
   predicted_probability: number;
   confidence_band:       'high' | 'medium' | 'low';
+  direction:             FaqDirection;
 }
 
 // ── Error helper ──────────────────────────────────────────────────────────────
@@ -56,24 +60,29 @@ function stubPrediction(item: FaqFeatureRow): FaqPrediction {
 
   let predictedProbability: number;
   let confidenceBand: 'high' | 'medium' | 'low';
+  let direction: FaqDirection;
 
   switch (rsvp) {
     case 'yes':
       predictedProbability = 0.92;
       confidenceBand       = 'high';
+      direction            = 'attend';
       break;
     case 'no':
       predictedProbability = 0.04;
       confidenceBand       = 'high';
+      direction            = 'skip';
       break;
     case 'maybe':
       predictedProbability = 0.55;
       confidenceBand       = 'medium';
+      direction            = 'uncertain';
       break;
     case 'pending':
     default:
       predictedProbability = 0.40;
-      confidenceBand       = 'medium';
+      confidenceBand       = 'low';
+      direction            = 'uncertain';
       break;
   }
 
@@ -82,6 +91,7 @@ function stubPrediction(item: FaqFeatureRow): FaqPrediction {
     ceremonyId:           item.ceremonyId,
     predictedProbability,
     confidenceBand,
+    direction,
     rsvpResponse:         rsvp,
   };
 }
@@ -119,6 +129,7 @@ async function predictOne(item: FaqFeatureRow): Promise<FaqPrediction> {
     ceremonyId:           item.ceremonyId,
     predictedProbability: data.predicted_probability,
     confidenceBand:       data.confidence_band,
+    direction:            data.direction,
     rsvpResponse:         item.input.rsvp_response,
   };
 }

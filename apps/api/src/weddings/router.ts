@@ -572,6 +572,7 @@ weddingRouter.get(
         guest_name:            items.find((i) => i.guestId === p.guestId)?.guestName ?? '',
         predicted_probability: p.predictedProbability,
         confidence_band:       p.confidenceBand,
+        direction:             p.direction,
         rsvp_response:         p.rsvpResponse,
       })),
       summary: {

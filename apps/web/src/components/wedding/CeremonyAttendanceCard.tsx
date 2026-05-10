@@ -13,10 +13,14 @@ const CEREMONY_LABEL: Record<FaqCeremonyType, string> = {
   reception: 'Reception',
 };
 
+// Bands are direction-aware: "high" means confident in attendance OR confident
+// in absence; "medium" means leaning; "low" is the central uncertain region.
+// Per-guest direction (attend/skip/uncertain) is surfaced on the guest detail
+// view; this summary aggregates only by confidence.
 const BAND_LABEL: Record<FaqConfidenceBand, string> = {
-  high: 'high-confidence',
-  medium: 'medium',
-  low: 'low (uncertain)',
+  high: 'definite (attend or skip)',
+  medium: 'leaning',
+  low: 'uncertain',
 };
 
 const BAND_BAR_CLASS: Record<FaqConfidenceBand, string> = {
