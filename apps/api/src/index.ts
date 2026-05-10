@@ -47,6 +47,7 @@ import { reconciliationRouter } from './payments/reconciliationRouter.js';
 import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
+import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
 import { webhookHandler } from './payments/webhook.js';
 import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
@@ -294,6 +295,7 @@ app.use('/api/v1/payments', reconciliationRouter);
 app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/admin', escrowAdminRouter);
+app.use('/api/v1/admin', stayQuotientAdminRouter);
 
 // Internal service-to-service routes — NO session middleware, authenticated via
 // X-Internal-Key header only. Must be mounted WITHOUT cors/session wrappers.
