@@ -232,3 +232,70 @@ describe('mustHave diet', () => {
     expect(applyHardFilters(u, [candPass, candFail])).toHaveLength(1);
   });
 });
+
+// ── Income filter (bilateral preference vs own) ──────────────────────────────
+//
+// Regression for the production bug where two verified test users with
+// permissive preferences ("0-100 LPA") still failed the income filter because
+// the old check compared own range vs own range. The corrected filter compares
+// each side's *partner preference* against the other side's own income.
+
+describe('income filter (bilateral preference)', () => {
+  // Helper that mirrors UserA (5-10 LPA earner) vs UserB (< 3 LPA earner) with
+  // both setting permissive 0-100 LPA partner preferences.
+  const userA_5to10: ProfileWithPreferences = {
+    id: 'A',
+    age: 30,
+    religion: 'Hindu',
+    city: 'Bhopal',
+    state: 'Madhya Pradesh',
+    incomeMin: 41667,   // 5 LPA / 12
+    incomeMax: 83333,   // 10 LPA / 12
+    preferences: {
+      ageMin: 18,
+      ageMax: 75,
+      religion: ['Hindu'],
+      openToInterfaith: true,
+      city: 'Bhopal',
+      state: 'Madhya Pradesh',
+      incomeMin: 0,
+      incomeMax: 833333,  // 100 LPA / 12
+      openToInterCaste: true,
+      maxDistanceKm: 10000,
+    },
+  };
+  const userB_lt3: ProfileWithPreferences = {
+    ...userA_5to10,
+    id: 'B',
+    incomeMin: 25000,   // < 3 LPA → ~25000
+    incomeMax: 25000,
+  };
+
+  it('passes when both sides have permissive prefs (production scenario)', () => {
+    expect(applyHardFilters(userA_5to10, [userB_lt3])).toHaveLength(1);
+    expect(applyHardFilters(userB_lt3, [userA_5to10])).toHaveLength(1);
+  });
+
+  it("rejects when user's pref does not include candidate's income", () => {
+    const strict: ProfileWithPreferences = {
+      ...userA_5to10,
+      preferences: { ...userA_5to10.preferences, incomeMin: 50000, incomeMax: 100000 },
+    };
+    // userB earns 25000 — outside strict.prefs [50000, 100000]
+    expect(applyHardFilters(strict, [userB_lt3])).toHaveLength(0);
+  });
+
+  it("rejects when candidate's pref does not include user's income (bilateral)", () => {
+    const strictCand: ProfileWithPreferences = {
+      ...userB_lt3,
+      preferences: { ...userB_lt3.preferences, incomeMin: 100000, incomeMax: 200000 },
+    };
+    // userA earns 41667-83333 — outside strictCand.prefs [100000, 200000]
+    expect(applyHardFilters(userA_5to10, [strictCand])).toHaveLength(0);
+  });
+
+  it('passes when ranges are equal', () => {
+    const same: ProfileWithPreferences = { ...userA_5to10, id: 'C' };
+    expect(applyHardFilters(userA_5to10, [same])).toHaveLength(1);
+  });
+});

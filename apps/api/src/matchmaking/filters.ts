@@ -139,16 +139,26 @@ function passesDistanceFilter(
   return sameCity || sameState;
 }
 
-// ── Income: ranges must overlap ──────────────────────────────────────────────
+// ── Income (bilateral preference vs own income) ──────────────────────────────
+//
+// Each side's partnerPreferences.incomeRange specifies what *partner* income is
+// acceptable. The check is bilateral: candidate's own income must overlap user's
+// pref range AND user's own income must overlap candidate's pref range.
+//
+// preferences.incomeMin/Max default to {0, 999999} when no range is set
+// (parseIncomeRange in engine.ts), making the filter permissive by default.
 
 function passesIncomeFilter(
   user: ProfileWithPreferences,
   candidate: ProfileWithPreferences,
 ): boolean {
-  return (
-    user.incomeMin <= candidate.incomeMax &&
-    user.incomeMax >= candidate.incomeMin
-  );
+  const userPrefVsCandIncome =
+    candidate.incomeMax >= user.preferences.incomeMin &&
+    candidate.incomeMin <= user.preferences.incomeMax;
+  const candPrefVsUserIncome =
+    user.incomeMax >= candidate.preferences.incomeMin &&
+    user.incomeMin <= candidate.preferences.incomeMax;
+  return userPrefVsCandIncome && candPrefVsUserIncome;
 }
 
 // ── Education (mustHave-gated) ───────────────────────────────────────────────

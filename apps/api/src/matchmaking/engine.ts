@@ -550,44 +550,6 @@ export async function computeAndCacheFeed(
   const userFilterProfile = toFilterProfile(userProfileData);
   const candidateFilterProfiles = candidateProfiles.map(toFilterProfile);
 
-  // Per-filter trace on FIRST candidate so we can see exactly which check
-  // returns false. Single rich log line per /feed request.
-  if (candidateFilterProfiles.length > 0) {
-    const sample = candidateFilterProfiles[0]!;
-    console.info('[feed][debug] user vs first candidate (pre-filter snapshot)', {
-      userId,
-      candidateId:        sample.id,
-      userAge:            userFilterProfile.age,
-      candAge:            sample.age,
-      userPrefAge:        { min: userFilterProfile.preferences.ageMin, max: userFilterProfile.preferences.ageMax },
-      candPrefAge:        { min: sample.preferences.ageMin, max: sample.preferences.ageMax },
-      userReligion:       userFilterProfile.religion,
-      candReligion:       sample.religion,
-      userPrefReligion:   userFilterProfile.preferences.religion,
-      candPrefReligion:   sample.preferences.religion,
-      userOpenInterfaith: userFilterProfile.preferences.openToInterfaith,
-      candOpenInterfaith: sample.preferences.openToInterfaith,
-      userCity:           userFilterProfile.city,
-      userState:          userFilterProfile.state,
-      candCity:           sample.city,
-      candState:          sample.state,
-      userMaxDist:        userFilterProfile.preferences.maxDistanceKm,
-      candMaxDist:        sample.preferences.maxDistanceKm,
-      userMustHave:       userFilterProfile.preferences.mustHave,
-      candMustHave:       sample.preferences.mustHave,
-      userIncome:         { min: userFilterProfile.incomeMin, max: userFilterProfile.incomeMax },
-      candIncome:         { min: sample.incomeMin, max: sample.incomeMax },
-      userManglik:        userFilterProfile.manglik,
-      candManglik:        sample.manglik,
-      userCaste:          userFilterProfile.caste,
-      candCaste:          sample.caste,
-      userOpenInterCaste: userFilterProfile.preferences.openToInterCaste,
-      candOpenInterCaste: sample.preferences.openToInterCaste,
-      userCoords:         { lat: userFilterProfile.latitude, lng: userFilterProfile.longitude },
-      candCoords:         { lat: sample.latitude, lng: sample.longitude },
-    });
-  }
-
   const passedFilterProfiles = applyHardFilters(userFilterProfile, candidateFilterProfiles);
 
   const passedIds = new Set(passedFilterProfiles.map((p) => p.id));
