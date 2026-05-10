@@ -218,7 +218,7 @@ describe('registerChatHandlers', () => {
           $push: expect.objectContaining({ messages: expect.any(Object) }),
           $set: expect.objectContaining({ lastMessage: expect.any(Object) }),
         }),
-        expect.objectContaining({ new: true }),
+        expect.objectContaining({ returnDocument: 'after' }),
       )
 
       const roomEmit = io._toEmitted.find((e) => e.event === 'message_received')

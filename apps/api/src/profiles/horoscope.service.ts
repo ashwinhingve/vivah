@@ -29,7 +29,7 @@ export async function updateHoroscope(
   const doc = await model.findOneAndUpdate(
     { userId },
     { $set: setFields },
-    { new: true, upsert: true, lean: true },
+    { returnDocument: 'after', upsert: true, lean: true },
   );
   await bustOwnFeedCache(userId);
   return doc as unknown as ProfileContentResponse;

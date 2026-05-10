@@ -237,7 +237,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
               lastMessage: { content, sentAt, senderId: profileId, type },
             },
           },
-          { new: true },
+          { returnDocument: 'after' },
         )
         if (!updated) { socket.emit('error', { message: 'Conversation not found' }); return }
         const msgs = (updated.messages as unknown as ChatMessageDoc[] | undefined) ?? []
@@ -405,7 +405,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       const result = await Chat.findOneAndUpdate(
         { matchRequestId, 'messages._id': messageId },
         { $push: { 'messages.$.reactions': { profileId, emoji, at } } },
-        { new: true },
+        { returnDocument: 'after' },
       ).lean()
       const updated = (result?.messages as unknown as ChatMessageDoc[] | undefined)?.find(
         (m) => String(m._id) === messageId,
@@ -435,7 +435,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       const result = await Chat.findOneAndUpdate(
         { matchRequestId, 'messages._id': messageId },
         { $pull: { 'messages.$.reactions': { profileId } } },
-        { new: true },
+        { returnDocument: 'after' },
       ).lean()
       const updated = (result?.messages as unknown as ChatMessageDoc[] | undefined)?.find(
         (m) => String(m._id) === messageId,

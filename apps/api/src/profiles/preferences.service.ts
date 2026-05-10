@@ -29,7 +29,7 @@ export async function updatePartnerPreferences(
   const doc = await model.findOneAndUpdate(
     { userId },
     { $set: setFields },
-    { new: true, upsert: true, lean: true },
+    { returnDocument: 'after', upsert: true, lean: true },
   ) as MongoDoc | null;
   const prefs = doc?.partnerPreferences as PartnerPreferencesSection | undefined;
   await bustOwnFeedCache(userId);

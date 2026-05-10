@@ -393,7 +393,7 @@ router.patch(
       const updated = await Chat.findOneAndUpdate(
         { matchRequestId: matchId, participants: profileId },
         update,
-        { new: true },
+        { returnDocument: 'after' },
       ).lean()
       if (!updated) { err(res, 'NOT_FOUND', 'Conversation not found', 404); return }
       ok(res, {

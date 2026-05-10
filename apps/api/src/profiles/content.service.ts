@@ -55,7 +55,7 @@ async function upsertSection(
     const doc = await model.findOneAndUpdate(
       { userId },
       { $set: { [section]: data } },
-      { new: true, upsert: true, lean: true },
+      { returnDocument: 'after', upsert: true, lean: true },
     );
     result = doc as unknown as ProfileContentResponse;
   }
@@ -160,7 +160,7 @@ export async function updateAboutMe(
     const doc = await model.findOneAndUpdate(
       { userId },
       { $set: { aboutMe } },
-      { new: true, upsert: true, lean: true },
+      { returnDocument: 'after', upsert: true, lean: true },
     );
     result = doc as unknown as ProfileContentResponse;
   }

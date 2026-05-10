@@ -127,7 +127,7 @@ export async function seedProfileContent(): Promise<SeedResult> {
       continue;
     }
     const content = buildContent(i, userId);
-    await model.findOneAndUpdate({ userId }, { $set: content }, { upsert: true, new: true });
+    await model.findOneAndUpdate({ userId }, { $set: content }, { upsert: true, returnDocument: 'after' });
     created++;
   }
   return { created, skipped, total: rows.length };

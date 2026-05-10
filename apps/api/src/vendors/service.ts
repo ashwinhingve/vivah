@@ -479,7 +479,7 @@ export async function addVendorPackage(
   const updated = await VendorPortfolio.findOneAndUpdate(
     { vendorId },
     { $push: { packages: pkg }, $setOnInsert: { vendorId } },
-    { upsert: true, new: true, lean: true },
+    { upsert: true, returnDocument: 'after', lean: true },
   );
   return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
 }
@@ -496,7 +496,7 @@ export async function updateVendorPackage(
   const updated = await VendorPortfolio.findOneAndUpdate(
     { vendorId },
     { $set: { [setKey]: pkg } },
-    { new: true, lean: true },
+    { returnDocument: 'after', lean: true },
   );
   return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
 }
@@ -514,7 +514,7 @@ export async function removeVendorPackage(
   const updated = await VendorPortfolio.findOneAndUpdate(
     { vendorId },
     { $pull: { packages: null as unknown as VendorPackage } },
-    { new: true, lean: true },
+    { returnDocument: 'after', lean: true },
   );
   return ((updated as { packages?: VendorPackage[] } | null)?.packages ?? []);
 }

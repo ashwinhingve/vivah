@@ -372,7 +372,7 @@ export async function updateBudget(
     await WeddingPlan.findOneAndUpdate(
       { weddingId },
       { $set: { 'budget.categories': input.categories } },
-      { new: true },
+      { returnDocument: 'after' },
     );
     return input.categories;
   }
@@ -717,7 +717,7 @@ export async function addCeremony(
           },
         },
       },
-      { new: true },
+      { returnDocument: 'after' },
     );
   }
 
@@ -909,7 +909,7 @@ export async function selectMuhurat(
           'muhuratDates.$.tithi':    input.tithi ?? null,
         },
       },
-      { new: true },
+      { returnDocument: 'after' },
     );
     if (!matched) {
       await WeddingPlan.findOneAndUpdate(
