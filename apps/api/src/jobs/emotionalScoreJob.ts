@@ -131,7 +131,14 @@ export function registerEmotionalScoreWorker(): Worker<EmotionalScoreNightlyJob>
       );
       return { processed, failed, durationMs };
     },
-    { connection, concurrency: 1 }, // outer concurrency=1; inner batch controls parallelism
+    {
+      connection,
+      // Outer concurrency=1; inner batch controls parallelism (BATCH_SIZE).
+      concurrency:  1,
+      // 5min execution timeout — covers nightly emotional refresh batches;
+      // renewed by BullMQ until handler returns.
+      lockDuration: 300_000,
+    },
   );
 
   worker.on('failed', (job, jobErr) => {
@@ -149,7 +156,9 @@ export async function scheduleEmotionalScoreJob(): Promise<void> {
     REPEAT_KEY,
     { scheduledAt: new Date().toISOString() },
     {
-      repeat: { pattern: CRON_UTC },
+      repeat:           { pattern: CRON_UTC },
+      attempts:         3,
+      backoff:          { type: 'exponential', delay: 60_000 },
       removeOnComplete: { count: 50 },
       removeOnFail:     { count: 50 },
     },

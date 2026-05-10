@@ -78,7 +78,13 @@ export function registerHistoricalAttendanceWorker(): Worker<HistoricalAttendanc
 
       return { updated, durationMs };
     },
-    { connection, concurrency: CONCURRENCY },
+    {
+      connection,
+      // Single SQL UPDATE per nightly tick — concurrency rarely matters.
+      concurrency:  CONCURRENCY,
+      // 5min execution timeout for the aggregation UPDATE.
+      lockDuration: 300_000,
+    },
   );
 
   worker.on('failed', (job, jobErr) => {
@@ -98,6 +104,8 @@ export async function scheduleHistoricalAttendanceJob(): Promise<void> {
     { scheduledAt: new Date().toISOString() },
     {
       repeat:           { pattern: CRON_UTC },
+      attempts:         3,
+      backoff:          { type: 'exponential', delay: 60_000 },
       removeOnComplete: { count: 50 },
       removeOnFail:     { count: 50 },
     },
