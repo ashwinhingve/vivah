@@ -58,6 +58,7 @@ from src.routers.coach import router as coach_router
 from src.routers.emotional import router as emotional_router
 from src.routers.dpi import router as dpi_router
 from src.routers.fii import router as fii_router
+from src.routers.faq import router as faq_router
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -116,6 +117,7 @@ app.include_router(coach_router)
 app.include_router(emotional_router)
 app.include_router(dpi_router)
 app.include_router(fii_router)
+app.include_router(faq_router)
 
 
 # ── Health + readiness ───────────────────────────────────────────────────────
@@ -159,6 +161,16 @@ def health() -> dict[str, object]:
         log.error("dpi_health_probe_failed", error=str(exc))
         dpi_status = "sklearn_unavailable"
 
+    # FAQ GradientBoosting model probe — first call lazy-loads (auto-trains if absent).
+    try:
+        from src.services.faq_model import load_model as load_faq_model
+
+        load_faq_model()
+        faq_status = "sklearn_loaded"
+    except Exception as exc:  # noqa: BLE001
+        log.error("faq_health_probe_failed", error=str(exc))
+        faq_status = "sklearn_unavailable"
+
     return {
         "success": True,
         "data": {
@@ -170,6 +182,7 @@ def health() -> dict[str, object]:
                 "coach": "llm_sonnet",
                 "emotional": emotional_status,
                 "dpi": dpi_status,
+                "faq": faq_status,
             },
         },
         "error": None,
