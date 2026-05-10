@@ -52,7 +52,9 @@ const CoachSuggestSchema = z.object({
 });
 
 // ── Rate limit helper (10 req/user/hour via Redis INCR/EXPIRE) ────────────────
-
+// AI-inference standard is 30/hour. Coach is held to 10/hour because every
+// call is a full Sonnet completion — the strictest per-request cost on the
+// platform, so the cap exists to bound spend.
 const COACH_RATE_LIMIT = 10;
 const COACH_RATE_WINDOW_SEC = 3600; // 1 hour
 
@@ -271,7 +273,9 @@ aiRouter.post(
 );
 
 // ── Emotional Score constants ──────────────────────────────────────────────────
-
+// AI-inference standard is 30/hour. Emotional is at 60/hour because the score
+// is a local sentiment model lookup with no LLM cost — capacity bound, not
+// spend bound.
 const EMOTIONAL_RATE_LIMIT = 60;
 const EMOTIONAL_RATE_WINDOW_SEC = 3600; // 1 hour
 const EMOTIONAL_CACHE_TTL_SEC   = 86400; // 24 hours
@@ -448,7 +452,8 @@ aiRouter.get(
 );
 
 // ── DPI constants ─────────────────────────────────────────────────────────────
-
+// AI-inference standard is 30/hour. DPI uses 5/DAY because it's a sensitive
+// mental-health-adjacent indicator and we cap exposure to avoid score-shopping.
 const DPI_RATE_LIMIT     = 5;   // 5 per user per DAY (stricter than other routes)
 const DPI_CACHE_TTL_SEC  = 86400; // 24 hours
 
@@ -713,8 +718,11 @@ aiRouter.get(
 // FII (Family Inclination Index) routes
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FII_SCORE_RATE_LIMIT      = 60;   // 60 per user per hour
-const FII_COMPAT_RATE_LIMIT     = 30;   // 30 per user per hour
+// AI-inference standard is 30/hour. FII Score is 60/hour because it runs a
+// local FII scoring model with no LLM cost (matches Emotional). FII Compat is
+// 30/hour because it can take the Sonnet-narrative path which is expensive.
+const FII_SCORE_RATE_LIMIT      = 60;   // 60/user/hour — local model, no LLM cost
+const FII_COMPAT_RATE_LIMIT     = 30;   // 30/user/hour — Sonnet narrative path is expensive
 const FII_RATE_WINDOW_SEC       = 3600; // 1 hour
 const FII_CACHE_TTL_SEC         = 86400;         // 24h — template path
 const FII_LLM_CACHE_TTL_SEC     = 3600;          // 1h — Sonnet path

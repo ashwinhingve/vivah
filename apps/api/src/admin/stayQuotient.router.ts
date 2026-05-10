@@ -27,8 +27,10 @@ import {
 
 export const stayQuotientAdminRouter = Router();
 
+// Admin-endpoint standard: 60/user/hour. Stay Quotient inherits the standard
+// (admin tooling, not user-facing AI inference).
 const STAY_RATE_LIMIT = 60;
-const STAY_RATE_WINDOW_SEC = 3600;
+const STAY_RATE_WINDOW_SEC = 3600; // 1 hour
 const STAY_USER_CACHE_TTL_SEC = 3600;
 const STAY_AT_RISK_CACHE_TTL_SEC = 1800;
 const AT_RISK_CANDIDATE_CAP = 100;

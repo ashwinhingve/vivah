@@ -525,7 +525,7 @@ weddingRouter.get(
       err(res, 'VALIDATION_ERROR', 'Invalid UUID format', 400); return;
     }
 
-    // Rate limit: 30 requests per user per hour
+    // Rate limit: 30/user/hour — matches AI-inference standard.
     const rlKey = `faq:rl:${userId}`;
     const count = await redis.incr(rlKey);
     if (count === 1) await redis.expire(rlKey, 3600);
