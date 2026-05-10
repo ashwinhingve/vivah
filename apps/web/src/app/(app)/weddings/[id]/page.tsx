@@ -89,6 +89,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
     { href: `/weddings/${id}/budget`,    label: 'Budget' },
     { href: `/weddings/${id}/expenses`,  label: 'Expenses' },
     { href: `/weddings/${id}/guests`,    label: 'Guests' },
+    { href: `/weddings/${id}/catering`,  label: 'Catering' },
     { href: `/weddings/${id}/seating`,   label: 'Seating' },
     { href: `/weddings/${id}/timeline`,  label: 'Schedule' },
     { href: `/weddings/${id}/vendors`,   label: 'Vendors' },

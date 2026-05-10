@@ -17,6 +17,7 @@ import type {
   GuestRich, RsvpAnalytics, RsvpDeadline, RsvpCustomQuestion,
   GuestAddress, GuestCeremonyPref,
   FamilyView, FamilyMember, FamilyVerification,
+  FaqWeddingSummary, FaqCeremonyResult,
 } from '@smartshaadi/types';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -144,4 +145,21 @@ export async function fetchPublicWebsite(slug: string, password?: string): Promi
   } catch {
     return null;
   }
+}
+
+// ─── FAQ (Function Attendance Quotient) ────────────────────────────────
+
+export async function fetchFaqSummary(
+  weddingId: string
+): Promise<FaqWeddingSummary | null> {
+  return fetchAuth<FaqWeddingSummary>(`/api/v1/weddings/${weddingId}/faq/summary`);
+}
+
+export async function fetchFaqForCeremony(
+  weddingId: string,
+  ceremonyId: string
+): Promise<FaqCeremonyResult | null> {
+  return fetchAuth<FaqCeremonyResult>(
+    `/api/v1/weddings/${weddingId}/ceremonies/${ceremonyId}/faq`
+  );
 }
