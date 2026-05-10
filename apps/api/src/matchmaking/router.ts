@@ -22,6 +22,7 @@ import {
   CompatibilityScoreQuerySchema,
 } from '@smartshaadi/schemas';
 import { profiles } from '@smartshaadi/db';
+import { env } from '../lib/env.js';
 import { matchRequestsRouter } from './requests/router.js';
 import { shortlistsRouter } from './shortlists/router.js';
 import { getWhoLikedMe } from './requests/service.js';
@@ -61,7 +62,7 @@ matchmakingRouter.get(
           return;
         }
       } else {
-        console.info('[feed][router] refresh=1 — bypassing cache', { userId });
+        if (env.FEED_DEBUG) console.info('[feed][router] refresh=1 — bypassing cache', { userId });
       }
 
       const feed = await computeAndCacheFeed(userId, db, redis);

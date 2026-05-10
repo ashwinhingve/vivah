@@ -81,6 +81,10 @@ const envSchema = z.object({
 
   // /metrics endpoint bearer token. Empty = open access (only safe in mock/dev).
   METRICS_TOKEN: z.string().default(''),
+
+  // Verbose [feed] tracing in matchmaking engine — flip true on Railway when
+  // debugging feed composition. Off in prod by default to keep logs clean.
+  FEED_DEBUG: z.string().default('false').transform(v => v === 'true'),
 }).superRefine((data, ctx) => {
   // Real-mode guard — placeholders would silently call external services with
   // fake tokens and 401 in production. Force explicit configuration.

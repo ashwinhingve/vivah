@@ -29,7 +29,7 @@ import {
 } from './diversity.js';
 import { haversineKm } from '../lib/geocode.js';
 import { matchComputeQueue } from '../infrastructure/redis/queues.js';
-import { shouldUseMockMongo } from '../lib/env.js';
+import { env, shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 
@@ -404,7 +404,7 @@ export async function computeAndCacheFeed(
   // Dynamically import schema to avoid circular deps in tests
   const { profiles, blockedUsers, profilePhotos } = await import('@smartshaadi/db');
 
-  console.info('[feed][start] computeAndCacheFeed', { userId });
+  if (env.FEED_DEBUG) console.info('[feed][start] computeAndCacheFeed', { userId });
 
   // 1. Get user's own profile row
   const userRows = await db
@@ -413,10 +413,10 @@ export async function computeAndCacheFeed(
     .where(eq(profiles.userId, userId))
     .limit(1) as unknown[];
 
-  console.info('[feed][step1] user profile fetch', { userId, found: userRows.length });
+  if (env.FEED_DEBUG) console.info('[feed][step1] user profile fetch', { userId, found: userRows.length });
 
   if (userRows.length === 0) {
-    console.info('[feed][exit1] no profile row for userId — empty feed cached', { userId });
+    if (env.FEED_DEBUG) console.info('[feed][exit1] no profile row for userId — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -452,7 +452,7 @@ export async function computeAndCacheFeed(
     .where(and(eq(profiles.isActive, true), eq(profiles.verificationStatus, 'VERIFIED')))
     .limit(500) as unknown[];
 
-  console.info('[feed][step2] candidate query (active+VERIFIED) rows', {
+  if (env.FEED_DEBUG) console.info('[feed][step2] candidate query (active+VERIFIED) rows', {
     userId,
     rawCount: candidateRows.length,
     blockedSetSize: blockedSet.size,
@@ -463,14 +463,14 @@ export async function computeAndCacheFeed(
     (r) => !blockedSet.has(r.id),
   );
 
-  console.info('[feed][step3] after blocked/self filter', {
+  if (env.FEED_DEBUG) console.info('[feed][step3] after blocked/self filter', {
     userId,
     count: eligibleRowsRaw.length,
     droppedByBlock: candidateRows.length - eligibleRowsRaw.length,
   });
 
   if (eligibleRowsRaw.length === 0) {
-    console.info('[feed][exit3] no candidates after blocked/self filter — empty feed cached', { userId });
+    if (env.FEED_DEBUG) console.info('[feed][exit3] no candidates after blocked/self filter — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -530,14 +530,14 @@ export async function computeAndCacheFeed(
     return !(sm?.incognito || sm?.hideFromSearch);
   });
 
-  console.info('[feed][step4] after safety (incognito/hideFromSearch) filter', {
+  if (env.FEED_DEBUG) console.info('[feed][step4] after safety (incognito/hideFromSearch) filter', {
     userId,
     count: eligibleRows.length,
     droppedBySafety: eligibleRowsEnriched.length - eligibleRows.length,
   });
 
   if (eligibleRows.length === 0) {
-    console.info('[feed][exit4] no candidates after safety filter — empty feed cached', { userId });
+    if (env.FEED_DEBUG) console.info('[feed][exit4] no candidates after safety filter — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -555,7 +555,7 @@ export async function computeAndCacheFeed(
   const passedIds = new Set(passedFilterProfiles.map((p) => p.id));
   const filteredProfiles = candidateProfiles.filter((p) => passedIds.has(p.id));
 
-  console.info('[feed][step5] after applyHardFilters (bilateral)', {
+  if (env.FEED_DEBUG) console.info('[feed][step5] after applyHardFilters (bilateral)', {
     userId,
     countIn:  candidateFilterProfiles.length,
     countOut: filteredProfiles.length,
@@ -564,7 +564,7 @@ export async function computeAndCacheFeed(
   });
 
   if (filteredProfiles.length === 0) {
-    console.info('[feed][exit5] all candidates rejected by hard filters — empty feed cached', { userId });
+    if (env.FEED_DEBUG) console.info('[feed][exit5] all candidates rejected by hard filters — empty feed cached', { userId });
     await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify([]));
     return [];
   }
@@ -710,7 +710,7 @@ export async function computeAndCacheFeed(
   // 10. Cache result
   await redis.setex(feedKey(userId), FEED_CACHE_TTL, JSON.stringify(reranked));
 
-  console.info('[feed][done] feed computed and cached', { userId, finalCount: reranked.length });
+  if (env.FEED_DEBUG) console.info('[feed][done] feed computed and cached', { userId, finalCount: reranked.length });
 
   return reranked;
 }
