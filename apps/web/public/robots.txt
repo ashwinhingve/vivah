@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /dashboard
+Disallow: /feed
+Disallow: /chat
+Disallow: /api/
+Disallow: /actions/
+
+Sitemap: https://smartshaadi.in/sitemap.xml
