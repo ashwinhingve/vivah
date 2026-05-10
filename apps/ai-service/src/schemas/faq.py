@@ -25,10 +25,9 @@ class FaqInput(BaseModel):
     historical_attendance_rate: Optional[float] = Field(default=None, ge=0, le=1)
 
 
-class FaqRequest(BaseModel):
+class FaqRequest(FaqInput):
     guest_id: str
     ceremony_id: str
-    features: FaqInput
 
 
 class FaqContribution(BaseModel):

@@ -17,7 +17,7 @@ async def compute_faq(request: FaqRequest) -> FaqResponse:
     Raises ValueError if feature encoding fails (malformed input that
     bypassed Pydantic validation should not reach here).
     """
-    result = predict(request.features.model_dump())
+    result = predict(request.model_dump(exclude={"guest_id", "ceremony_id"}))
 
     return FaqResponse(
         guest_id=request.guest_id,
