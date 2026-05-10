@@ -6,21 +6,21 @@
  * tracing.
  */
 import * as Sentry from '@sentry/node';
+import { env } from './env.js';
 import { logger } from './logger.js';
 
 let initialized = false;
 
 export function initSentry(): void {
-  const dsn = process.env['SENTRY_DSN'];
-  if (!dsn) {
+  if (!env.SENTRY_DSN) {
     logger.info('[sentry] DSN not configured; error capture disabled');
     return;
   }
   if (initialized) return;
   const opts: Parameters<typeof Sentry.init>[0] = {
-    dsn,
-    environment:      process.env['NODE_ENV'] ?? 'development',
-    tracesSampleRate: Number(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0.05'),
+    dsn:              env.SENTRY_DSN,
+    environment:      env.SENTRY_ENVIRONMENT,
+    tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
     sendDefaultPii:   false,
   };
   const release = process.env['GIT_COMMIT_SHA'];

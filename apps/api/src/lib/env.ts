@@ -59,6 +59,11 @@ const envSchema = z.object({
 
   DAILY_CO_API_KEY: z.string().default('mock-daily-key'),
 
+  // Sentry — error tracking. DSN unset = no-op (see lib/sentry.ts).
+  SENTRY_DSN:                z.string().default(''),
+  SENTRY_ENVIRONMENT:        z.string().default('development'),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+
   RAZORPAY_KEY_ID:          z.string().default(''),
   RAZORPAY_KEY_SECRET:      z.string().default(''),
   RAZORPAY_WEBHOOK_SECRET:  z.string().default(''),
