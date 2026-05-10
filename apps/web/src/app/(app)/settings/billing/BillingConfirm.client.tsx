@@ -1,0 +1,68 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { subscribeToPlanAction } from './actions';
+
+interface Props {
+  planCode:  string;
+  planName:  string;
+  amount:    number;
+  interval:  string;
+  features:  string[];
+  isMock:    boolean;
+}
+
+export function BillingConfirm({ planCode, planName, amount, interval, features, isMock }: Props) {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const onConfirm = () => {
+    setError(null);
+    startTransition(async () => {
+      const result = await subscribeToPlanAction(planCode);
+      if (result && 'ok' in result && !result.ok) setError(result.error);
+    });
+  };
+
+  return (
+    <div className="mx-auto max-w-md rounded-xl border border-gold/40 bg-surface p-8 shadow-card">
+      {isMock ? (
+        <div className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
+          Test Mode — no real charge will be made
+        </div>
+      ) : null}
+
+      <h2 className="mb-1 text-2xl font-semibold text-primary">{planName}</h2>
+      <p className="mb-6 text-3xl font-bold text-foreground">
+        ₹{amount.toLocaleString('en-IN')}
+        <span className="ml-2 text-sm font-normal text-muted-foreground">/ {interval}</span>
+      </p>
+
+      {features.length > 0 ? (
+        <ul className="mb-6 space-y-2 text-sm text-foreground">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2">
+              <span className="mt-0.5 text-success">✓</span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onConfirm}
+        disabled={pending}
+        className="w-full rounded-lg bg-teal px-4 py-3 font-semibold text-white transition hover:bg-teal/90 disabled:opacity-60"
+      >
+        {pending ? 'Processing…' : 'Confirm & Pay'}
+      </button>
+
+      {error ? (
+        <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
