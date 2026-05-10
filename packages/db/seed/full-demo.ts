@@ -18,7 +18,7 @@ import mongoose, { Schema, model, models } from 'mongoose';
 import {
   user, profiles, profilePhotos, vendors, vendorServices, vendorEventTypes,
   matchScores, matchRequests, weddings, ceremonies, weddingTasks,
-  guestLists, guests, notifications,
+  guestLists, guests, notifications, plans,
 } from '../schema/index.js';
 
 config({ path: resolve(__dirname, '../../../.env') });
@@ -180,6 +180,62 @@ const VENDORS: Vendor[] = [
 ];
 
 // ── Wipe demo data (preserve user/profiles to keep IDs stable) ───────────────
+// ── Plans (subscription tiers, reference data — wipeDemo skips) ─────────────
+const PLAN_ROWS = [
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+    code: 'STANDARD_M',
+    name: 'Standard Monthly',
+    tier: 'STANDARD' as const,
+    interval: 'MONTHLY' as const,
+    amount: '999.00',
+    razorpayPlanId: 'mock_plan_standard_monthly',
+    features: ['Unlimited matches', 'Basic filters', 'Chat'],
+    active: true,
+  },
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
+    code: 'STANDARD_Y',
+    name: 'Standard Yearly',
+    tier: 'STANDARD' as const,
+    interval: 'YEARLY' as const,
+    amount: '8999.00',
+    razorpayPlanId: 'mock_plan_standard_yearly',
+    features: ['Unlimited matches', 'Basic filters', 'Chat', '2 months free'],
+    active: true,
+  },
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+    code: 'PREMIUM_M',
+    name: 'Premium Monthly',
+    tier: 'PREMIUM' as const,
+    interval: 'MONTHLY' as const,
+    amount: '2499.00',
+    razorpayPlanId: 'mock_plan_premium_monthly',
+    features: ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access'],
+    active: true,
+  },
+  {
+    id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+    code: 'PREMIUM_Y',
+    name: 'Premium Yearly',
+    tier: 'PREMIUM' as const,
+    interval: 'YEARLY' as const,
+    amount: '22999.00',
+    razorpayPlanId: 'mock_plan_premium_yearly',
+    features: ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access', '2 months free'],
+    active: true,
+  },
+];
+
+async function seedPlans() {
+  console.info('💎 seeding plans...');
+  for (const row of PLAN_ROWS) {
+    await db.insert(plans).values(row).onConflictDoNothing();
+  }
+  console.info(`  ✅ Plans: ${PLAN_ROWS.length}`);
+}
+
 async function wipeDemo() {
   console.info('🧹 wiping demo tables...');
   // Bulk CASCADE truncate — covers all FK chains. Order doesn't matter with CASCADE.
@@ -780,6 +836,7 @@ async function seedMongo() {
 // ── Main ─────────────────────────────────────────────────────────────────────
 export async function seedFullDemo(): Promise<void> {
   console.info('🌱 Smart Shaadi — Full Demo Seed');
+  await seedPlans();
   await wipeDemo();
   await seedUsers();
   await seedVendors();
