@@ -59,6 +59,7 @@ from src.routers.emotional import router as emotional_router
 from src.routers.dpi import router as dpi_router
 from src.routers.fii import router as fii_router
 from src.routers.faq import router as faq_router
+from src.routers.stay import router as stay_router
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -118,6 +119,7 @@ app.include_router(emotional_router)
 app.include_router(dpi_router)
 app.include_router(fii_router)
 app.include_router(faq_router)
+app.include_router(stay_router)
 
 
 # ── Health + readiness ───────────────────────────────────────────────────────
@@ -171,6 +173,16 @@ def health() -> dict[str, object]:
         log.error("faq_health_probe_failed", error=str(exc))
         faq_status = "sklearn_unavailable"
 
+    # Stay Quotient sklearn model probe — first call lazy-loads (auto-trains if absent).
+    try:
+        from src.services.stay_model import load_model as load_stay_model
+
+        load_stay_model()
+        stay_status = "sklearn_loaded"
+    except Exception as exc:  # noqa: BLE001
+        log.error("stay_health_probe_failed", error=str(exc))
+        stay_status = "sklearn_unavailable"
+
     return {
         "success": True,
         "data": {
@@ -183,6 +195,7 @@ def health() -> dict[str, object]:
                 "emotional": emotional_status,
                 "dpi": dpi_status,
                 "faq": faq_status,
+                "stay": stay_status,
             },
         },
         "error": None,
