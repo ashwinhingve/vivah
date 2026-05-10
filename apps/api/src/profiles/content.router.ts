@@ -13,6 +13,7 @@ import type {
 } from '@smartshaadi/types';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
+import { getStateForCity } from '../lib/geocode.js';
 import {
   UpdatePersonalSchema,
   UpdateEducationSchema,
@@ -213,6 +214,14 @@ profileContentRouter.put(
     if (parsed.data.state != null) input.state = parsed.data.state;
     if (parsed.data.country != null) input.country = parsed.data.country;
     if (parsed.data.pincode != null) input.pincode = parsed.data.pincode;
+
+    // upsertSection $set replaces the whole `location` subdoc, so a missing
+    // state would silently wipe any prior value. Derive from the city table
+    // before persisting when the client did not pass one.
+    if ((input.state == null || input.state === '') && input.city) {
+      const derived = getStateForCity(input.city);
+      if (derived) input.state = derived;
+    }
 
     const content = await updateLocation(req.user!.id, input);
     ok(res, content);

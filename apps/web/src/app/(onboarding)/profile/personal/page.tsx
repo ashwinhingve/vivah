@@ -18,6 +18,17 @@ const MOTHER_TONGUES = [
   'Malayalam', 'Punjabi', 'Bengali', 'Odia', 'Assamese', 'English', 'Other',
 ];
 
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  // Union Territories
+  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
+];
+
 const HEIGHTS_FT = [4, 5, 6, 7];
 const HEIGHTS_IN = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
@@ -31,7 +42,7 @@ interface ProfileSnapshot {
     religion?: string;
     motherTongue?: string;
   };
-  location?: { city?: string };
+  location?: { city?: string; state?: string };
   aboutMe?: string;
 }
 
@@ -207,15 +218,30 @@ export default function PersonalPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Current City</label>
-              <input
-                name="currentCity"
-                type="text"
-                defaultValue={profile?.location?.city ?? ''}
-                className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="e.g. Pune, Maharashtra"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">Current City</label>
+                <input
+                  name="currentCity"
+                  type="text"
+                  defaultValue={profile?.location?.city ?? ''}
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
+                  placeholder="e.g. Pune"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">State</label>
+                <select
+                  name="currentState"
+                  defaultValue={profile?.location?.state ?? ''}
+                  className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
+                >
+                  <option value="">Select state</option>
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>

@@ -54,9 +54,13 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   }
 
   const currentCity = formData.get('currentCity');
-  if (currentCity) {
+  const currentState = formData.get('currentState');
+  if (currentCity || currentState) {
+    const locPayload: Record<string, unknown> = {};
+    if (currentCity)  locPayload['city']  = currentCity;
+    if (currentState) locPayload['state'] = currentState;
     try {
-      const locRes = await apiPut('/api/v1/profiles/me/content/location', { city: currentCity }, token);
+      const locRes = await apiPut('/api/v1/profiles/me/content/location', locPayload, token);
       if (!locRes.ok) {
         const json = (await locRes.json().catch(() => ({}))) as { error?: { message?: string } };
         return { error: json.error?.message ?? 'Could not save location. Please try again.' };

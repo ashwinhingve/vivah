@@ -58,7 +58,43 @@ const STATE_CENTROIDS: Record<string, Coords> = {
   jammuandkashmir:{ lat: 33.7782, lng: 76.5762 },
 };
 
+// Map of common Indian city → state name (for backfill + server-side derivation
+// when the client omits state). Keys must match CITY_TABLE keys (normalized).
+const CITY_STATE_TABLE: Record<string, string> = {
+  mumbai:    'Maharashtra',
+  pune:      'Maharashtra',
+  nagpur:    'Maharashtra',
+  delhi:     'Delhi',
+  newdelhi:  'Delhi',
+  bangalore: 'Karnataka',
+  bengaluru: 'Karnataka',
+  hyderabad: 'Telangana',
+  chennai:   'Tamil Nadu',
+  kolkata:   'West Bengal',
+  ahmedabad: 'Gujarat',
+  surat:     'Gujarat',
+  jaipur:    'Rajasthan',
+  lucknow:   'Uttar Pradesh',
+  indore:    'Madhya Pradesh',
+  bhopal:    'Madhya Pradesh',
+  patna:     'Bihar',
+  chandigarh:'Chandigarh',
+  gurgaon:   'Haryana',
+  gurugram:  'Haryana',
+  noida:     'Uttar Pradesh',
+};
+
 const NORM = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '');
+
+/**
+ * Look up the state name for a known Indian city. Returns undefined when the
+ * city is not in CITY_STATE_TABLE — callers should treat absence as "leave
+ * state untouched". The match is case/whitespace-insensitive.
+ */
+export function getStateForCity(city: string | null | undefined): string | undefined {
+  if (!city) return undefined;
+  return CITY_STATE_TABLE[NORM(city)];
+}
 const cache = new Map<string, Coords | null>();
 const MAX_CACHE = 1000;
 
