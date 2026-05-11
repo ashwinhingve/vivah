@@ -13,3 +13,4 @@ export * from './entitlements.js';
 export * from './payments.js';
 export * from './socket.js';
 export * from './ai.js';
+export * from './events.js';

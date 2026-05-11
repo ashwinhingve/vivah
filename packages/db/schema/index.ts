@@ -189,6 +189,7 @@ export const ceremonyTypeEnum = pgEnum('ceremony_type', [
   'CORPORATE',
   'FESTIVAL',
   'COMMUNITY',
+  'COMMUNITY_EVENT',
   'GOVERNMENT',
   'SCHOOL',
   'OTHER',

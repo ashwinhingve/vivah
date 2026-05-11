@@ -1,0 +1,1 @@
+ALTER TYPE "public"."ceremony_type" ADD VALUE 'COMMUNITY_EVENT' BEFORE 'GOVERNMENT';
