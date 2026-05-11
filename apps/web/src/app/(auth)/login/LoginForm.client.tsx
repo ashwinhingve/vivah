@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2, Phone } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -103,9 +104,9 @@ export default function LoginForm() {
 
       <p className="text-center text-xs text-muted-foreground">
         New to Smart Shaadi?{' '}
-        <a href="/register" className="font-semibold text-teal underline-offset-4 hover:underline">
+        <Link href="/register" className="font-semibold text-teal underline-offset-4 hover:underline">
           Create account
-        </a>
+        </Link>
       </p>
     </form>
   );

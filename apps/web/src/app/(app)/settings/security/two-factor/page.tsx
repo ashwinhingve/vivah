@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ShieldCheck } from 'lucide-react';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
@@ -48,12 +49,12 @@ export default async function TwoFactorPage() {
 
         <TwoFactorManager initialEnabled={overview?.twoFactor.enabled ?? false} />
 
-        <a
+        <Link
           href="/settings/security"
           className="inline-block text-sm text-muted-foreground underline-offset-4 hover:underline"
         >
           ← Back to Security
-        </a>
+        </Link>
       </div>
     </main>
   );

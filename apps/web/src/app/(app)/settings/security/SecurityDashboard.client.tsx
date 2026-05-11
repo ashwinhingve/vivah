@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   KeyRound, Smartphone, History, Trash2, ShieldCheck, ShieldOff,
@@ -243,7 +244,7 @@ function TwoFactorCard({ enabled }: { enabled: boolean }) {
               </p>
             </div>
             <Button asChild size="sm" variant={enabled ? 'outline' : 'default'}>
-              <a href="/settings/security/two-factor">{enabled ? 'Manage' : 'Enable'}</a>
+              <Link href="/settings/security/two-factor">{enabled ? 'Manage' : 'Enable'}</Link>
             </Button>
           </div>
         </div>

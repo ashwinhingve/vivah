@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2, Sparkles, User, Users, Store, ClipboardCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -172,9 +173,9 @@ export default function RegisterForm() {
 
       <p className="text-center text-xs text-muted-foreground">
         Already registered?{' '}
-        <a href="/login" className="font-semibold text-teal underline-offset-4 hover:underline">
+        <Link href="/login" className="font-semibold text-teal underline-offset-4 hover:underline">
           Sign in
-        </a>
+        </Link>
       </p>
     </form>
   );

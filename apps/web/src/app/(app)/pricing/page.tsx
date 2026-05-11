@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import Link from 'next/link';
 
 interface Plan {
   id:       string;
@@ -75,7 +76,7 @@ export default async function PricingPage() {
                 </li>
               ))}
             </ul>
-            <a
+            <Link
               href={plan.amount === 0 ? '/dashboard' : `/settings/billing?plan=${plan.code}`}
               className={`block w-full text-center min-h-[44px] py-2.5 rounded-lg font-medium transition-colors ${
                 plan.tier === 'PREMIUM'
@@ -84,13 +85,13 @@ export default async function PricingPage() {
               }`}
             >
               {plan.amount === 0 ? 'Continue free' : 'Choose plan'}
-            </a>
+            </Link>
           </div>
         ))}
       </div>
 
       <p className="mt-12 text-center text-sm text-muted-foreground">
-        All plans renew automatically. Cancel anytime from <a href="/settings/billing" className="text-teal hover:underline">Billing</a>.
+        All plans renew automatically. Cancel anytime from <Link href="/settings/billing" className="text-teal hover:underline">Billing</Link>.
       </p>
     </main>
   );
