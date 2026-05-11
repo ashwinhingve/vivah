@@ -13,6 +13,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 
 
 from dotenv import load_dotenv
@@ -245,7 +246,11 @@ def ready() -> dict[str, object]:
 
 
 # ── Forced-error endpoint for Sentry smoke ───────────────────────────────────
+# Gated by SENTRY_TEST_ENABLED env var (default false → 404). Flip true
+# temporarily in a deployed env to verify Sentry capture, then flip back.
 @app.get("/__forced_error")
 def forced_error() -> dict[str, object]:
     """Test endpoint — raises so Sentry receives a sample event."""
-    raise HTTPException(status_code=500, detail="forced error for Sentry smoke test")
+    if os.getenv("SENTRY_TEST_ENABLED", "false").lower() != "true":
+        raise HTTPException(status_code=404, detail="Not Found")
+    raise RuntimeError(f"Sentry test from ai-service — {datetime.now(timezone.utc).isoformat()}")

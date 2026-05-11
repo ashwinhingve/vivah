@@ -314,6 +314,19 @@ if (env.NODE_ENV === 'development') {
   app.use('/api/v1/dev', devRouter);
 }
 
+// Sentry verification endpoint — throws an uncaught error so we can confirm
+// Sentry's express integration is capturing exceptions in deployed envs.
+// Gated by SENTRY_TEST_ENABLED. Default false → returns 404, keeping the
+// route inert in real prod traffic.
+app.get('/api/v1/sentry-test', (_req: Request, res: Response): void => {
+  if (!env.SENTRY_TEST_ENABLED) {
+    errResponse(res, 'NOT_FOUND', 'Route not found', 404);
+    return;
+  }
+  res.locals['sentryTest'] = true;
+  throw new Error(`Sentry test event — safe to ignore: ${new Date().toISOString()}`);
+});
+
 // ── 404 catch-all ─────────────────────────────────────────────────────────────
 // Unknown paths must return the standard envelope, not Express's raw HTML.
 app.use((req: Request, res: Response): void => {

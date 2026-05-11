@@ -90,6 +90,11 @@ const envSchema = z.object({
   // Verbose [feed] tracing in matchmaking engine — flip true on Railway when
   // debugging feed composition. Off in prod by default to keep logs clean.
   FEED_DEBUG: z.string().default('false').transform(v => v === 'true'),
+
+  // Sentry verification endpoints — flip true temporarily to confirm Sentry
+  // is capturing exceptions in a deployed env, then flip back to false.
+  // When false, /api/v1/sentry-test and /__forced_error return 404.
+  SENTRY_TEST_ENABLED: z.string().default('false').transform(v => v === 'true'),
 }).superRefine((data, ctx) => {
   // Real-mode guard — placeholders would silently call external services with
   // fake tokens and 401 in production. Force explicit configuration.
