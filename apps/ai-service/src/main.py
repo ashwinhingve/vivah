@@ -67,6 +67,7 @@ from src.routers.dpi import router as dpi_router
 from src.routers.fii import router as fii_router
 from src.routers.faq import router as faq_router
 from src.routers.stay import router as stay_router
+from src.routers.translate import router as translate_router
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -127,6 +128,7 @@ app.include_router(dpi_router)
 app.include_router(fii_router)
 app.include_router(faq_router)
 app.include_router(stay_router)
+app.include_router(translate_router)
 
 
 # ── Health + readiness ───────────────────────────────────────────────────────
