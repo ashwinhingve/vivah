@@ -1391,6 +1391,9 @@ export {
 // ── Profile of the Day (daily spotlight) ─────────────────────────────────────
 export { profileOfDay } from './profileOfDay';
 
+// ── Behavior Tracking (rollup of MongoDB behavior_events) ─────────────────────
+export { userBehaviorSummary } from './behaviorSummary';
+
 // ── Wedding Planning Extras (expenses, timeline, seating, docs, etc.) ───────
 export {
   // enums

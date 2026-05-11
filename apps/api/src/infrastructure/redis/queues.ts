@@ -166,3 +166,19 @@ export const expireGracePeriodsQueue = new Queue<ExpireGracePeriodsJob>(
   'expire-grace-periods',
   { connection },
 );
+
+/** Payload for a single captured behavior event (request observation). */
+export interface BehaviorEventJob {
+  userId:      string;
+  route:       string;
+  method:      string;
+  statusCode:  number;
+  durationMs:  number;
+  ts:          string;
+  meta?:       Record<string, unknown>;
+}
+
+export const behaviorEventQueue = new Queue<BehaviorEventJob>(
+  'behavior-event',
+  { connection },
+);

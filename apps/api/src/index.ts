@@ -95,6 +95,12 @@ import { logger } from './lib/logger.js';
 import { requestIdMiddleware } from './lib/requestId.js';
 import { initSentry, setupSentryErrorHandler, captureException } from './lib/sentry.js';
 import { applyGlobalRateLimit } from './lib/rateLimit.js';
+import { behaviorCaptureMiddleware } from './behavior/middleware.js';
+import { registerBehaviorEventWorker } from './behavior/worker.js';
+import {
+  registerBehaviorAggregateWorker,
+  scheduleBehaviorAggregateJob,
+} from './jobs/behaviorAggregateJob.js';
 
 initSentry();
 
@@ -179,6 +185,7 @@ app.use(express.json({ limit: '50kb' }));
 // ── Routes ─────────────────────────────────────────────────────────────────────
 
 app.use(metricsMiddleware);
+app.use(behaviorCaptureMiddleware);
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
@@ -436,6 +443,9 @@ async function bootstrap(): Promise<void> {
     void scheduleHistoricalAttendanceJob();
     workers.push(registerExpireGracePeriodsWorker());
     void scheduleExpireGracePeriodsJob();
+    workers.push(registerBehaviorEventWorker());
+    workers.push(registerBehaviorAggregateWorker());
+    void scheduleBehaviorAggregateJob();
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.
