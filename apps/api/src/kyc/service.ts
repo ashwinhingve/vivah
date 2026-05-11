@@ -20,6 +20,8 @@ import { env } from '../lib/env.js';
 import { recordKycAuditEvent } from './audit.js';
 import { checkKycRateLimit } from './rateLimit.js';
 import { assessRisk, computeLevel, describeLevels } from './risk.js';
+import { recordDuplicateSignals, checkForDuplicates } from './duplicateCheck.js';
+import { user as userTable } from '@smartshaadi/db';
 
 const DEFAULT_KYC_VALIDITY_DAYS = 365;
 
@@ -152,6 +154,26 @@ export async function completeAadhaarVerification(
   });
 
   await runRiskPass(profile.id, userId, ipAddress, device);
+
+  // Cross-account duplicate detection: phone hash + Aadhaar ref + face similarity.
+  // Augments (does not replace) the IP/UA-based flag set above.
+  try {
+    const [u] = await db
+      .select({ phoneNumber: userTable.phoneNumber })
+      .from(userTable)
+      .where(eq(userTable.id, userId))
+      .limit(1);
+    const dupInput: Parameters<typeof recordDuplicateSignals>[0] = {
+      userId,
+      profileId:    profile.id,
+      aadhaarRefId: verifyResult.refId,
+      ...(u?.phoneNumber ? { phone: u.phoneNumber } : {}),
+    };
+    await recordDuplicateSignals(dupInput);
+    await checkForDuplicates(dupInput);
+  } catch (e) {
+    console.error('[kyc] duplicate cross-account check failed:', e);
+  }
 
   // Mock-mode auto-VERIFY: real KYC providers run a risk pass that lifts approved
   // profiles to VERIFIED, but the mock pipeline can land in MANUAL_REVIEW and stay

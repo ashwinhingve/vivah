@@ -1,4 +1,4 @@
-import { RekognitionClient, DetectFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
+import { RekognitionClient, DetectFacesCommand, CompareFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../lib/env.js';
 import type { PhotoAnalysis } from '@smartshaadi/types';
@@ -82,3 +82,32 @@ export async function analyzePhoto(r2Key: string): Promise<PhotoAnalysis> {
     analyzedAt: new Date().toISOString(),
   };
 }
+
+/**
+ * Compare two face images by R2 key. Returns top-match similarity in [0..1]
+ * or 0 when no faces match. Used by duplicate-account detection to compare
+ * a new signup selfie against the existing verified-selfie pool.
+ *
+ * Mock mode returns 0 (no match) — deterministic for tests.
+ */
+export async function compareFaces(sourceR2Key: string, targetR2Key: string): Promise<number> {
+  if (process.env['USE_MOCK_SERVICES'] === 'true') return 0;
+
+  const [sourceBytes, targetBytes] = await Promise.all([
+    fetchImageBytes(sourceR2Key),
+    fetchImageBytes(targetR2Key),
+  ]);
+
+  const result = await getRekognition().send(new CompareFacesCommand({
+    SourceImage:        { Bytes: sourceBytes },
+    TargetImage:        { Bytes: targetBytes },
+    SimilarityThreshold: 70,
+  }));
+
+  const top = (result.FaceMatches ?? [])
+    .map((m) => m.Similarity ?? 0)
+    .sort((a, b) => b - a)[0];
+
+  return top ? top / 100 : 0;
+}
+
