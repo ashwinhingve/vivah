@@ -44,6 +44,33 @@ Last session: 2026-05-04 — P0 hardening: closed SSRF DNS-rebinding gap (chat/l
 
 ---
 
+## Current Production State (as of 2026-05-10)
+
+```
+Phase 3: 6 of 6 features shipped
+  - Conversation Coach (Sonnet)
+  - Emotional Score (HuggingFace XLM-RoBERTa)
+  - DPI (Calibrated LogReg)
+  - FII (7-signal weighted + Sonnet narrative)
+  - FAQ (Calibrated Gradient Boosting)
+  - Stay Quotient (Calibrated LogReg)
+
+Phase 4 Day 1: Subscriptions
+  - Mock Razorpay live (env-flag controlled)
+  - 4 plans seeded (Standard M/Y + Premium M/Y)
+  - /settings/billing page wired
+  - expireGracePeriods cron at 02:00 IST
+
+Phase 4 Day 2: Auto-SEO + Sentry
+  - 22 programmatic SEO routes (6 communities + 10 cities + 6 castes)
+  - Sentry wired across api / ai-service / web (DSN env vars + auth token in Vercel)
+
+Phase 4 Day 3: docs + BetterStack monitor setup (manual)
+  - See docs/monitoring/betterstack-setup.md
+```
+
+---
+
 ## Repository Structure
 
 ```
@@ -271,6 +298,46 @@ AI_SERVICE_URL=http://localhost:8000
 - Do NOT make blocking LLM calls inside request handlers — use Bull queues
 - Do NOT store sensitive data in localStorage — use httpOnly cookies for tokens
 - Do NOT skip writing tests for: Guna Milan algorithm, escrow logic, payment webhooks
+
+---
+
+## Phase 3 + 4 Patterns
+
+### Env-flag conventions
+
+| Flag | Purpose |
+|------|---------|
+| `USE_MOCK_SERVICES` | Global mock master switch |
+| `MONGO_LIVE` | Real MongoDB vs in-memory mock store |
+| `RAZORPAY_LIVE` | Real Razorpay SDK vs mock (Phase 4 Day 1) |
+| `FEED_DEBUG` | Verbose matchmaking feed logs |
+| `SENTRY_DSN` / `SENTRY_ENVIRONMENT` / `SENTRY_TRACES_SAMPLE_RATE` | Production error tracking |
+| `SENTRY_TEST_ENABLED` | Gates `/sentry-test` verification endpoint (Window B) |
+
+### AI service architecture (6 features in Phase 3)
+
+- Bundle shape: `{classifier, explainer, feature_names, feature_groups, version}`
+- Synthetic data generation lives in `apps/ai-service/services/*_training.py`
+- `CalibratedClassifierCV` wraps the base estimator for probability outputs
+- Direction-aware confidence bands — pattern established in commit `2695839` (FAQ)
+
+### Schema-mismatch warning
+
+Agents spawning model-call payloads sometimes wrap fields in `{"features": {...}}` while the api sends flat fields. Always pin payload shape in the spawn prompt — schema drift between agent assumptions and live api is the most common Phase 3 regression.
+
+### WSL DrvFs quirks
+
+- `tsx watch` is flaky on DrvFs mounts — fall back to `pnpm build && node dist` when reloads stop firing
+- Bash `!` history expansion mangles JS like `if (!doc)` in inline `-c` strings — use heredocs (`bash <<'EOF' ... EOF`)
+
+### Production verification rituals
+
+- All AI endpoints return `401` when called without auth — easy smoke check
+- `GET /health` returns `200` and includes a `"models"` map on ai-service
+- Redis match-feed cache must be busted manually after data fixes:
+  ```bash
+  redis-cli -u $REDIS_URL DEL match_feed:{userId}
+  ```
 
 ---
 
