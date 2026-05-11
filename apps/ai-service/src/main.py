@@ -245,12 +245,14 @@ def ready() -> dict[str, object]:
     )
 
 
-# ── Forced-error endpoint for Sentry smoke ───────────────────────────────────
-# Gated by SENTRY_TEST_ENABLED env var (default false → 404). Flip true
-# temporarily in a deployed env to verify Sentry capture, then flip back.
+# ── Sentry verification endpoint ─────────────────────────────────────────────
+# Gated behind SENTRY_TEST_ENABLED env flag (default false → 404).
+# Enable ONLY for production deploy verification, then disable.
+# SECURITY: This endpoint raises an unhandled exception — never expose
+# publicly without the flag gate. Leaving SENTRY_TEST_ENABLED=true in prod
+# gives any caller a one-shot 5xx generator and pollutes Sentry signal.
 @app.get("/__forced_error")
 def forced_error() -> dict[str, object]:
-    """Test endpoint — raises so Sentry receives a sample event."""
     if os.getenv("SENTRY_TEST_ENABLED", "false").lower() != "true":
         raise HTTPException(status_code=404, detail="Not Found")
     raise RuntimeError(f"Sentry test from ai-service — {datetime.now(timezone.utc).isoformat()}")
