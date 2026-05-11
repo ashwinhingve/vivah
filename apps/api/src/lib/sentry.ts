@@ -6,6 +6,7 @@
  * tracing.
  */
 import * as Sentry from '@sentry/node';
+import type { Express } from 'express';
 import { env } from './env.js';
 import { logger } from './logger.js';
 
@@ -28,6 +29,12 @@ export function initSentry(): void {
   Sentry.init(opts);
   initialized = true;
   logger.info('[sentry] initialized');
+}
+
+export function setupSentryErrorHandler(app: Express): void {
+  if (!initialized) return;
+  Sentry.setupExpressErrorHandler(app);
+  logger.info('[sentry] express error handler registered');
 }
 
 export function captureException(error: unknown, ctx?: Record<string, unknown>): void {

@@ -93,7 +93,7 @@ import { env } from './lib/env.js';
 import { err as errResponse } from './lib/response.js';
 import { logger } from './lib/logger.js';
 import { requestIdMiddleware } from './lib/requestId.js';
-import { initSentry, captureException } from './lib/sentry.js';
+import { initSentry, setupSentryErrorHandler, captureException } from './lib/sentry.js';
 import { applyGlobalRateLimit } from './lib/rateLimit.js';
 
 initSentry();
@@ -332,6 +332,11 @@ app.get('/api/v1/sentry-test', (_req: Request, res: Response): void => {
 app.use((req: Request, res: Response): void => {
   errResponse(res, 'NOT_FOUND', `Route not found: ${req.method} ${req.path}`, 404);
 });
+
+// ── Sentry error handler ──────────────────────────────────────────────────────
+// Must run before the custom error middleware so Sentry captures the error
+// before the catch-all converts it to a 500 envelope.
+setupSentryErrorHandler(app);
 
 // ── Global error handler ──────────────────────────────────────────────────────
 // Catches sync throws and any error forwarded via next(err). Handles common
