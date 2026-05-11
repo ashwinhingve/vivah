@@ -50,6 +50,23 @@ vi.mock('../../lib/mockStore.js', () => ({
   mockUpsertField: vi.fn(),
 }));
 
+// Mock the Mongoose ProfileContent model. The engine has two ProfileContent.findOne
+// paths (loadContentForUser and the feed-enrichment block) that are gated by
+// `shouldUseMockMongo` from env.js. Because vi.mock hoisting can race with
+// env.js's module-load-time evaluation of process.env, that gate sometimes
+// resolves false in this test even though setupFiles set USE_MOCK_SERVICES=true.
+// To keep tests independent of env-load ordering, route the model's findOne
+// through the same mockStoreGet stub used for the mockStore path. Both code
+// paths then read from one source of truth, so test assertions hold whichever
+// branch the gate resolves to.
+vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
+  ProfileContent: {
+    findOne: vi.fn((filter: { userId?: string } = {}) => ({
+      lean: () => Promise.resolve(filter.userId ? mockStoreGet(filter.userId) : null),
+    })),
+  },
+}));
+
 import type Redis from 'ioredis';
 import { getCachedFeed, computeAndCacheFeed } from '../engine.js';
 import { applyHardFilters } from '../filters.js';
