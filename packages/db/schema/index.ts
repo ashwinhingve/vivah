@@ -364,6 +364,19 @@ export const smokingDrinkingEnum = pgEnum('smoking_drinking', [
   'REGULARLY',
 ]);
 
+export const lifestyleTagEnum = pgEnum('lifestyle_tag', [
+  'vegetarian',
+  'career-first',
+  'spiritual',
+  'entrepreneur',
+  'travel-enthusiast',
+  'fitness-focused',
+  'creative',
+  'family-oriented',
+  'introvert',
+  'extrovert',
+]);
+
 export const familyTypeEnum = pgEnum('family_type', [
   'JOINT',
   'NUCLEAR',
@@ -453,6 +466,7 @@ export const profiles = pgTable('profiles', {
   videoIntroKey:            varchar('video_intro_key', { length: 500 }),
   latitude:                 decimal('latitude',  { precision: 9, scale: 6 }),
   longitude:                decimal('longitude', { precision: 9, scale: 6 }),
+  lifestyleTags:            lifestyleTagEnum('lifestyle_tags').array(),
 }, (t) => ({
   userIdx: index('profiles_user_idx').on(t.userId),
   statusIdx: index('profiles_status_idx').on(t.verificationStatus),

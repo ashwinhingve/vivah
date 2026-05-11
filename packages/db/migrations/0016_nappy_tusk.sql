@@ -1,0 +1,2 @@
+CREATE TYPE "public"."lifestyle_tag" AS ENUM('vegetarian', 'career-first', 'spiritual', 'entrepreneur', 'travel-enthusiast', 'fitness-focused', 'creative', 'family-oriented', 'introvert', 'extrovert');--> statement-breakpoint
+ALTER TABLE "profiles" ADD COLUMN "lifestyle_tags" "lifestyle_tag"[];

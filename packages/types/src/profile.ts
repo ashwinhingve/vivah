@@ -217,6 +217,18 @@ export interface LocationSection {
   pincode?: string;
 }
 
+export type LifestyleTag =
+  | 'vegetarian'
+  | 'career-first'
+  | 'spiritual'
+  | 'entrepreneur'
+  | 'travel-enthusiast'
+  | 'fitness-focused'
+  | 'creative'
+  | 'family-oriented'
+  | 'introvert'
+  | 'extrovert';
+
 export interface LifestyleSection {
   diet?: 'VEG' | 'NON_VEG' | 'JAIN' | 'VEGAN' | 'EGGETARIAN';
   smoking?: 'NEVER' | 'OCCASIONALLY' | 'REGULARLY';
@@ -224,6 +236,7 @@ export interface LifestyleSection {
   hobbies?: string[];
   interests?: string[];
   hyperNicheTags?: string[];
+  lifestyleTags?: LifestyleTag[];
   languagesSpoken?: string[];
   ownHouse?: boolean;
   ownCar?: boolean;

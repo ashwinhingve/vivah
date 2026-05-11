@@ -129,6 +129,13 @@ export const HYPER_NICHE_TAGS = [
   'joint-family', 'nuclear-family', 'pet-lover', 'minimalist',
 ] as const;
 
+export const LIFESTYLE_TAGS = [
+  'vegetarian', 'career-first', 'spiritual', 'entrepreneur',
+  'travel-enthusiast', 'fitness-focused', 'creative',
+  'family-oriented', 'introvert', 'extrovert',
+] as const;
+export type LifestyleTag = (typeof LIFESTYLE_TAGS)[number];
+
 export const UpdateLifestyleSchema = z.object({
   diet:               z.enum(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN']).optional(),
   smoking:            z.enum(['NEVER', 'OCCASIONALLY', 'REGULARLY']).optional(),
@@ -136,6 +143,7 @@ export const UpdateLifestyleSchema = z.object({
   hobbies:            z.array(z.string().max(100)).optional(),
   interests:          z.array(z.string().max(100)).optional(),
   hyperNicheTags:     z.array(z.enum(HYPER_NICHE_TAGS)).optional(),
+  lifestyleTags:      z.array(z.enum(LIFESTYLE_TAGS)).max(10).optional(),
   languagesSpoken:    z.array(z.string().max(30)).max(10).optional(),
   ownHouse:           z.boolean().optional(),
   ownCar:             z.boolean().optional(),
