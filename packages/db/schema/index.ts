@@ -1407,6 +1407,7 @@ export { profileOfDay } from './profileOfDay';
 
 // ── Behavior Tracking (rollup of MongoDB behavior_events) ─────────────────────
 export { userBehaviorSummary } from './behaviorSummary';
+export { userReputationSignals } from './reputationSignals';
 
 // ── Cross-Account Duplicate Signals (KYC duplicate detection) ─────────────────
 export { userDuplicateSignals } from './duplicateSignals';

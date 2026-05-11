@@ -6,7 +6,8 @@
  * Populated nightly by behaviorAggregateJob; consumed by ML feature pipelines.
  */
 
-import { pgTable, text, date, integer, decimal, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, text, date, integer, decimal, timestamp, jsonb, uniqueIndex } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { user } from './auth';
 
 export const userBehaviorSummary = pgTable('user_behavior_summary', {
@@ -18,6 +19,7 @@ export const userBehaviorSummary = pgTable('user_behavior_summary', {
   scrollDepthAvg:        decimal('scroll_depth_avg', { precision: 5, scale: 4 }).notNull().default('0'),
   photoExpansionCount:   integer('photo_expansion_count').notNull().default(0),
   totalRequestCount:     integer('total_request_count').notNull().default(0),
+  hourlyActivityHist:    jsonb('hourly_activity_hist').notNull().default(sql`'[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]'::jsonb`),
   updatedAt:             timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   userDayUniq: uniqueIndex('user_behavior_summary_user_day_uniq').on(t.userId, t.day),
