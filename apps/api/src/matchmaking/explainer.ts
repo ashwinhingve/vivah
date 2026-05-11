@@ -78,6 +78,8 @@ function reasonFor(
       return 'Strong preference match';
     case 'personalityFit':
       return 'Compatible personalities';
+    case 'behaviourCompatibility':
+      return 'Similar activity patterns';
   }
 }
 
@@ -95,6 +97,8 @@ function caveatFor(dim: DimKey): string {
       return 'Limited preference overlap';
     case 'personalityFit':
       return 'Different personalities';
+    case 'behaviourCompatibility':
+      return 'Different activity patterns';
   }
 }
 
@@ -107,10 +111,11 @@ export function explainMatch(
   const dims = Object.keys(score.breakdown) as DimKey[];
 
   const ranked = dims
-    .map((d) => ({
-      d,
-      ratio: score.breakdown[d].score / Math.max(1, score.breakdown[d].max),
-    }))
+    .flatMap((d) => {
+      const cell = score.breakdown[d];
+      if (!cell) return [];
+      return [{ d, ratio: cell.score / Math.max(1, cell.max) }];
+    })
     .sort((a, b) => b.ratio - a.ratio);
 
   const reasons: string[] = [];

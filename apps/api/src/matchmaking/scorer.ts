@@ -13,6 +13,8 @@ import type {
 } from '@smartshaadi/types';
 import type Redis from 'ioredis';
 import { scorePersonality } from './personality.js';
+import type { BehaviourRollup } from './behaviourFeatures.js';
+import { isColdStart } from './behaviourFeatures.js';
 
 export interface ProfileData {
   id: string
@@ -276,6 +278,49 @@ function scorePreferenceOverlap(
   return Math.round(ratio * 20);
 }
 
+// ── Behaviour compatibility ──────────────────────────────────────────────────
+
+export interface BehaviourCompatResult {
+  score:     number;   // 0..100
+  coldStart: boolean;
+}
+
+export function scoreBehaviourCompat(
+  userRollup: BehaviourRollup | undefined,
+  candidateRollup: BehaviourRollup | undefined,
+): BehaviourCompatResult {
+  if (isColdStart(userRollup) || isColdStart(candidateRollup)) {
+    return { score: 50, coldStart: true };
+  }
+  // Both rollups present at this point.
+  const u = userRollup as BehaviourRollup;
+  const c = candidateRollup as BehaviourRollup;
+
+  const activityCompat = Math.max(0, 1 - Math.abs(u.activityLevel - c.activityLevel));
+
+  const uSum = u.hourlyHist.reduce((s, v) => s + v, 0);
+  const cSum = c.hourlyHist.reduce((s, v) => s + v, 0);
+  let timingCompat = 0.5;
+  if (uSum > 0 && cSum > 0) {
+    timingCompat = 0;
+    for (let h = 0; h < 24; h++) {
+      const up = (u.hourlyHist[h] ?? 0) / uSum;
+      const cp = (c.hourlyHist[h] ?? 0) / cSum;
+      timingCompat += Math.min(up, cp);
+    }
+  }
+
+  const engagementCompat = Math.max(
+    0,
+    1 - Math.abs(u.messageFrequency - c.messageFrequency) / 10,
+  );
+
+  const score = Math.round(
+    (0.4 * activityCompat + 0.4 * timingCompat + 0.2 * engagementCompat) * 100,
+  );
+  return { score, coldStart: false };
+}
+
 // ── Main export ──────────────────────────────────────────────────────────────
 
 export async function scoreCandidate(
@@ -284,6 +329,8 @@ export async function scoreCandidate(
   userProfile: ProfileData,
   candidateProfile: ProfileData,
   redis: Redis,
+  userBehaviour?: BehaviourRollup,
+  candidateBehaviour?: BehaviourRollup,
 ): Promise<CompatibilityScore> {
   const flags: string[] = [];
 
@@ -318,6 +365,12 @@ export async function scoreCandidate(
   // Normalise guna to 0–5 bonus
   const gunaBonus = Math.round((gunaScore / 36) * 5);
 
+  // Behaviour bonus: 0..10 derived from 0..100 behaviour score. Counts as
+  // ~10% weight on the rawTotal sum (cap remains 100 via Math.min below).
+  const behaviour = scoreBehaviourCompat(userBehaviour, candidateBehaviour);
+  const behaviourBonus = Math.round((behaviour.score / 100) * 10);
+  if (behaviour.coldStart) flags.push('behaviour_cold_start');
+
   const breakdown: CompatibilityBreakdown = {
     demographicAlignment:   { score: demographicScore,        max: 20 },
     lifestyleCompatibility: { score: lifestyleScore,          max: 15 },
@@ -325,11 +378,12 @@ export async function scoreCandidate(
     familyValues:           { score: familyScore,             max: 15 },
     preferenceOverlap:      { score: preferenceScore,         max: 20 },
     personalityFit:         { score: personalityResult.score, max: 15 },
+    behaviourCompatibility: { score: behaviour.score,         max: 10, coldStart: behaviour.coldStart },
   };
 
   const rawTotal =
     demographicScore + lifestyleScore + careerScore + familyScore +
-    preferenceScore + personalityResult.score + gunaBonus;
+    preferenceScore + personalityResult.score + gunaBonus + behaviourBonus;
   const totalScore = Math.min(100, rawTotal);
 
   let tier: CompatibilityScore['tier'];

@@ -14,6 +14,7 @@ export interface CompatibilityBreakdown {
   familyValues:           { score: number; max: 15 }
   preferenceOverlap:      { score: number; max: 20 }
   personalityFit:         { score: number; max: 15 }
+  behaviourCompatibility?: { score: number; max: 10; coldStart: boolean }
 }
 
 export interface MatchExplainer {

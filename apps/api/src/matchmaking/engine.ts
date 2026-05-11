@@ -21,6 +21,7 @@ import type Redis from 'ioredis';
 import { eq, and, inArray } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
+import { getBehaviourRollup, type BehaviourRollup } from './behaviourFeatures.js';
 import { explainMatch } from './explainer.js';
 import {
   mmrRerank,
@@ -339,6 +340,8 @@ export async function scoreAndRank(
   redis: Redis,
   photoMap: Map<string, string | null>,
   createdAtMap?: Map<string, Date | null>,
+  userBehaviour?: BehaviourRollup,
+  behaviourByProfileId?: Map<string, BehaviourRollup>,
 ): Promise<MatchFeedItem[]> {
   const now = Date.now();
   const scored = await Promise.all(
@@ -349,6 +352,8 @@ export async function scoreAndRank(
         userProfile,
         candidate,
         redis,
+        userBehaviour,
+        behaviourByProfileId?.get(candidate.id),
       );
 
       const createdAt = createdAtMap?.get(candidate.id) ?? null;
@@ -621,7 +626,29 @@ export async function computeAndCacheFeed(
     ),
   );
 
-  const ranked = await scoreAndRank(userId, filteredProfiles, userProfileData, redis, photoMap, createdAtMap);
+  // Bulk-fetch behaviour rollups for both the viewer and all candidates so
+  // scoreBehaviourCompat can read activity_level / message_frequency / hourly
+  // histogram per pair.
+  const candidateUserIds = Array.from(userIdMap.values());
+  const rollupUserIds = Array.from(new Set([userId, ...candidateUserIds]));
+  const rollupByUserId = await getBehaviourRollup(rollupUserIds);
+  const userBehaviour = rollupByUserId.get(userId);
+  const behaviourByProfileId = new Map<string, BehaviourRollup>();
+  for (const [profileId, uid] of userIdMap.entries()) {
+    const r = rollupByUserId.get(uid);
+    if (r) behaviourByProfileId.set(profileId, r);
+  }
+
+  const ranked = await scoreAndRank(
+    userId,
+    filteredProfiles,
+    userProfileData,
+    redis,
+    photoMap,
+    createdAtMap,
+    userBehaviour,
+    behaviourByProfileId,
+  );
 
   // Shortlisted set — which candidates has the viewer already saved?
   const shortlistRows = await (db as unknown as DrizzleDB)

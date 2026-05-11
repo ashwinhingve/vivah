@@ -11,6 +11,15 @@ vi.mock('@smartshaadi/db', () => ({
   safetyModeUnlocks: { profileId: {}, unlockedFor: {} },
   shortlists:        { profileId: {}, targetProfileId: {} },
   communityZones:    { profileId: {}, community: {}, subCommunity: {}, caste: {}, gotra: {}, motherTongue: {}, gotraExclusionEnabled: {} },
+  userBehaviorSummary: {
+    userId: {}, day: {}, profileViewCount: {}, browseQueryCount: {},
+    messageCount: {}, hourlyActivityHist: {},
+  },
+}));
+
+vi.mock('../behaviourFeatures.js', () => ({
+  getBehaviourRollup: vi.fn().mockResolvedValue(new Map()),
+  isColdStart: () => true,
 }));
 
 // Mock the scorer so we get deterministic scores in engine tests
