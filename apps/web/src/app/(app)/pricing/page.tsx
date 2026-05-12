@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 interface Plan {
   id:       string;
@@ -28,28 +29,83 @@ async function fetchPlans(): Promise<Plan[]> {
   }
 }
 
-const FALLBACK_PLANS: Plan[] = [
-  { id: 'fallback-free',     code: 'FREE',           name: 'Free',           tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 0,    features: ['Browse profiles', '5 daily likes', 'Basic filters'] },
-  { id: 'fallback-standard', code: 'STANDARD_M',     name: 'Standard',       tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 999,  features: ['Unlimited likes', 'See who liked you', 'Advanced filters', 'Priority support'] },
-  { id: 'fallback-premium',  code: 'PREMIUM_M',      name: 'Premium',        tier: 'PREMIUM' as const,  interval: 'MONTHLY' as const,  amount: 1999, features: ['Everything in Standard', 'Verified badge', 'AI-curated matches', 'Read receipts', 'Incognito browsing'] },
-  { id: 'fallback-premium-y', code: 'PREMIUM_Y',     name: 'Premium Annual', tier: 'PREMIUM' as const,  interval: 'YEARLY' as const,   amount: 19990,features: ['All Premium features', '2 months free', 'Concierge matchmaker', 'Personal brand photoshoot voucher'] },
-];
-
-const INTERVAL_LABELS: Record<Plan['interval'], string> = {
-  MONTHLY:   '/month',
-  QUARTERLY: '/quarter',
-  YEARLY:    '/year',
-};
+function buildFallbackPlans(t: (key: string) => string): Plan[] {
+  return [
+    {
+      id: 'fallback-free',
+      code: 'FREE',
+      name: t('fallback.freeName'),
+      tier: 'STANDARD',
+      interval: 'MONTHLY',
+      amount: 0,
+      features: [
+        t('fallback.features.browseProfiles'),
+        t('fallback.features.dailyLikes'),
+        t('fallback.features.basicFilters'),
+      ],
+    },
+    {
+      id: 'fallback-standard',
+      code: 'STANDARD_M',
+      name: t('fallback.standardName'),
+      tier: 'STANDARD',
+      interval: 'MONTHLY',
+      amount: 999,
+      features: [
+        t('fallback.features.unlimitedLikes'),
+        t('fallback.features.seeWhoLiked'),
+        t('fallback.features.advancedFilters'),
+        t('fallback.features.prioritySupport'),
+      ],
+    },
+    {
+      id: 'fallback-premium',
+      code: 'PREMIUM_M',
+      name: t('fallback.premiumName'),
+      tier: 'PREMIUM',
+      interval: 'MONTHLY',
+      amount: 1999,
+      features: [
+        t('fallback.features.everythingStandard'),
+        t('fallback.features.verifiedBadge'),
+        t('fallback.features.aiMatches'),
+        t('fallback.features.readReceipts'),
+        t('fallback.features.incognito'),
+      ],
+    },
+    {
+      id: 'fallback-premium-y',
+      code: 'PREMIUM_Y',
+      name: t('fallback.premiumAnnualName'),
+      tier: 'PREMIUM',
+      interval: 'YEARLY',
+      amount: 19990,
+      features: [
+        t('fallback.features.allPremium'),
+        t('fallback.features.twoMonthsFree'),
+        t('fallback.features.concierge'),
+        t('fallback.features.photoshoot'),
+      ],
+    },
+  ];
+}
 
 export default async function PricingPage() {
+  const t = await getTranslations('pricing');
   const fetched = await fetchPlans();
-  const plans = fetched.length > 0 ? fetched : FALLBACK_PLANS;
+  const plans = fetched.length > 0 ? fetched : buildFallbackPlans(t);
+
+  const intervalLabels: Record<Plan['interval'], string> = {
+    MONTHLY:   t('interval.monthly'),
+    QUARTERLY: t('interval.quarterly'),
+    YEARLY:    t('interval.yearly'),
+  };
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-primary">Choose your plan</h1>
-        <p className="mt-2 text-muted-foreground">Find your match. Plan your wedding. All in one place.</p>
+        <h1 className="text-3xl font-bold text-primary">{t('header.title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('header.subtitle')}</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -61,12 +117,12 @@ export default async function PricingPage() {
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-primary">{plan.name}</h2>
               {plan.tier === 'PREMIUM' && (
-                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-teal/10 text-teal">Most popular</span>
+                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-teal/10 text-teal">{t('badge.mostPopular')}</span>
               )}
             </div>
             <div className="mb-6">
               <span className="text-3xl font-bold text-foreground">₹{plan.amount.toLocaleString('en-IN')}</span>
-              {plan.amount > 0 && <span className="text-sm text-muted-foreground">{INTERVAL_LABELS[plan.interval]}</span>}
+              {plan.amount > 0 && <span className="text-sm text-muted-foreground">{intervalLabels[plan.interval]}</span>}
             </div>
             <ul className="mb-6 space-y-2 text-sm text-foreground">
               {(Array.isArray(plan.features) ? plan.features as string[] : []).map((f, i) => (
@@ -84,14 +140,20 @@ export default async function PricingPage() {
                   : 'border border-primary text-primary hover:bg-primary/5'
               }`}
             >
-              {plan.amount === 0 ? 'Continue free' : 'Choose plan'}
+              {plan.amount === 0 ? t('cta.free') : t('cta.paid')}
             </Link>
           </div>
         ))}
       </div>
 
       <p className="mt-12 text-center text-sm text-muted-foreground">
-        All plans renew automatically. Cancel anytime from <Link href="/settings/billing" className="text-teal hover:underline">Billing</Link>.
+        {t.rich('footer', {
+          billingLink: (chunks) => (
+            <Link href="/settings/billing" className="text-teal hover:underline">
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </main>
   );
