@@ -90,6 +90,7 @@ import {
 import { devRouter } from './dev/router.js';
 import { internalRouter } from './routes/internal.js';
 import { aiRouter } from './routes/ai.js';
+import { registerP3Routes, registerP3Workers } from './routes/_p3Register.js';
 import { env } from './lib/env.js';
 import { err as errResponse } from './lib/response.js';
 import { logger } from './lib/logger.js';
@@ -317,6 +318,9 @@ app.use('/internal', internalRouter);
 // AI feature routes (Conversation Coach, etc.) — require Better Auth session.
 app.use('/api/v1/ai', aiRouter);
 
+// Phase 3 P3 Lite — Matrimony AI Assistant + Vendor Engine foundation.
+registerP3Routes(app);
+
 // Dev-only routes — mount synchronously BEFORE the 404/error handlers so errors
 // thrown by dev handlers reach the global error middleware.
 if (env.NODE_ENV === 'development') {
@@ -448,6 +452,7 @@ async function bootstrap(): Promise<void> {
     workers.push(registerBehaviorEventWorker());
     workers.push(registerBehaviorAggregateWorker());
     void scheduleBehaviorAggregateJob();
+    registerP3Workers(workers);
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.

@@ -6,6 +6,7 @@ import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
 import { TopNav } from '@/components/layout/TopNav.client';
 import { CartButton } from '@/components/store/CartButton.client';
+import { AssistantToggle } from '@/components/assistant/AssistantToggle.client';
 import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
@@ -40,6 +41,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       </header>
       {children}
       <AppNav />
+      <AssistantToggle />
     </div>
   );
 }

@@ -71,6 +71,7 @@ from src.routers.translate import router as translate_router
 from src.routers.reputation import router as reputation_router
 from src.routers.profile_optimizer import router as profile_optimizer_router
 from src.routers.marriage_readiness import router as marriage_readiness_router
+from src.routers._p3_register import register_p3_routers
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -135,6 +136,7 @@ app.include_router(translate_router)
 app.include_router(reputation_router)
 app.include_router(profile_optimizer_router)
 app.include_router(marriage_readiness_router)
+register_p3_routers(app)
 
 
 # ── Health + readiness ───────────────────────────────────────────────────────
