@@ -11,7 +11,7 @@
  */
 
 import {
-  pgTable, text, boolean, timestamp, jsonb,
+  pgTable, text, boolean, timestamp, jsonb, integer,
   uniqueIndex, index,
 } from 'drizzle-orm/pg-core';
 
@@ -34,6 +34,9 @@ export const user = pgTable('user', {
 
   // twoFactor plugin
   twoFactorEnabled:    boolean('two_factor_enabled').notNull().default(false),
+
+  // Referral credits balance (Tier 3 Track 1)
+  referralCredits:     integer('referral_credits').notNull().default(0),
 
   // Soft delete (30-day grace period before purge)
   deletionRequestedAt: timestamp('deletion_requested_at'),

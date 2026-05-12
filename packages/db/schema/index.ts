@@ -1270,6 +1270,37 @@ export const rentalBookings = pgTable('rental_bookings', {
   customerIdx: index('rental_bookings_customer_idx').on(t.customerId),
 }));
 
+// ── REFERRAL PROGRAMME (Tier 3 Track 1) ──────────────────────────────────────
+
+export const referralCodes = pgTable('referral_codes', {
+  id:           uuid('id').primaryKey().defaultRandom(),
+  ownerUserId:  text('owner_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  code:         varchar('code', { length: 12 }).notNull().unique(),
+  usesCount:    integer('uses_count').notNull().default(0),
+  isActive:     boolean('is_active').notNull().default(true),
+  createdAt:    timestamp('created_at').notNull().defaultNow(),
+  expiresAt:    timestamp('expires_at'),
+}, (t) => ({
+  ownerIdx: uniqueIndex('referral_codes_owner_idx').on(t.ownerUserId),
+  codeIdx:  index('referral_codes_code_idx').on(t.code),
+}));
+
+export const referrals = pgTable('referrals', {
+  id:                  uuid('id').primaryKey().defaultRandom(),
+  codeId:              uuid('code_id').notNull().references(() => referralCodes.id, { onDelete: 'cascade' }),
+  referrerUserId:      text('referrer_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  referredUserId:      text('referred_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  status:              varchar('status', { length: 20 }).notNull().default('SIGNED_UP'),
+  rewardCredited:      boolean('reward_credited').notNull().default(false),
+  rewardAmountCredits: integer('reward_amount_credits').notNull().default(0),
+  createdAt:           timestamp('created_at').notNull().defaultNow(),
+  convertedAt:         timestamp('converted_at'),
+}, (t) => ({
+  referrerIdx: index('referrals_referrer_idx').on(t.referrerUserId),
+  referredIdx: uniqueIndex('referrals_referred_idx').on(t.referredUserId),
+  codeIdx:     index('referrals_code_idx').on(t.codeId),
+}));
+
 // ── RELATIONS ─────────────────────────────────────────────────────────────────
 
 export const userRelations = relations(user, ({ one, many }) => ({
