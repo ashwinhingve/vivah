@@ -10,6 +10,7 @@
  */
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { Heart, ShieldCheck, Eye, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markDivorceeOnboardingDone } from '@/app/(onboarding)/divorcee-widow/actions';
@@ -58,10 +59,10 @@ export function DivorceeWidowOnboarding({ isWidowed }: DivorceeWidowOnboardingPr
           Your profile is ready. Head to your feed to start discovering compatible matches.
         </p>
         <Button asChild className="mt-2 min-h-[44px]">
-          <a href="/feed">
+          <Link href="/feed">
             Go to My Matches
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </a>
+          </Link>
         </Button>
       </div>
     );

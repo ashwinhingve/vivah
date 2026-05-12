@@ -204,7 +204,7 @@ function LeadRow({ lead }: { lead: VendorLeadRow }) {
         <p className="mt-2 text-sm text-text/90 line-clamp-3">{lead.message}</p>
       ) : null}
       {lead.feeStatus === 'REFUNDED' && lead.refundReason ? (
-        <p className="mt-2 text-xs text-amber-700">Refunded — {lead.refundReason}</p>
+        <p className="mt-2 text-xs text-warning">Refunded — {lead.refundReason}</p>
       ) : null}
     </li>
   );
