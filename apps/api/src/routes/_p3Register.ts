@@ -8,12 +8,21 @@
  * index.ts.
  */
 import type { Express } from 'express';
+import type { Worker } from 'bullmq';
 import { assistantRouter } from './assistant.js';
+import { vendorEngineRouter } from './vendorEngine.js';
+import {
+  registerVendorAvailabilityRefreshWorker,
+  scheduleVendorAvailabilityRefreshJob,
+} from '../jobs/vendorAvailabilityRefreshJob.js';
 
 export function registerP3Routes(app: Express): void {
   app.use('/api/v1/assistant', assistantRouter);
+  app.use('/api/v1/vendor-engine', vendorEngineRouter);
 }
 
-export function registerP3Workers(_workers: Array<{ close(): Promise<void> }>): void {
-  // No P3 workers yet — vendor utilization refresh ships in the next P3 module.
+export function registerP3Workers(workers: Array<{ close(): Promise<void> }>): void {
+  const worker: Worker = registerVendorAvailabilityRefreshWorker();
+  workers.push(worker);
+  void scheduleVendorAvailabilityRefreshJob();
 }
