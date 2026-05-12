@@ -5,7 +5,7 @@
  * activity-compat, timing-compat (hourly hist overlap), engagement-compat,
  * and the cold-start fallback.
  */
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { scoreBehaviourCompat } from '../matchmaking/scorer.js';
 import type { BehaviourRollup } from '../matchmaking/behaviourFeatures.js';
 

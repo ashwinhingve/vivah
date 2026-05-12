@@ -16,24 +16,6 @@ export const EVENT_TYPES = [
 
 export type EventType = (typeof EVENT_TYPES)[number];
 
-export const VENDOR_CATEGORIES = [
-  'PHOTOGRAPHY',
-  'VIDEOGRAPHY',
-  'CATERING',
-  'DECORATION',
-  'VENUE',
-  'MAKEUP',
-  'JEWELLERY',
-  'CLOTHING',
-  'MUSIC',
-  'LIGHTING',
-  'SECURITY',
-  'TRANSPORT',
-  'PRIEST',
-  'SOUND',
-  'EVENT_HOSTING',
-  'RENTAL',
-  'OTHER',
-] as const;
-
-export type VendorCategory = (typeof VENDOR_CATEGORIES)[number];
+// Vendor categories are defined in vendor.ts (single source of truth) and
+// re-exported from index.ts. The duplicate here used to collide and break
+// `tsc` (TS2308) at the package's barrel export.
