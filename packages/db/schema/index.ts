@@ -467,6 +467,7 @@ export const profiles = pgTable('profiles', {
   latitude:                 decimal('latitude',  { precision: 9, scale: 6 }),
   longitude:                decimal('longitude', { precision: 9, scale: 6 }),
   lifestyleTags:            lifestyleTagEnum('lifestyle_tags').array(),
+  displayReadinessScore:    boolean('display_readiness_score').default(false).notNull(), // user-controlled display toggle for Marriage Readiness Score
 }, (t) => ({
   userIdx: index('profiles_user_idx').on(t.userId),
   statusIdx: index('profiles_status_idx').on(t.verificationStatus),
@@ -498,6 +499,7 @@ export const communityZones = pgTable('community_zones', {
   motherTongue:  varchar('mother_tongue', { length: 50 }),   // primary mother tongue
   preferredLang: varchar('preferred_lang', { length: 10 }).default('hi'), // preferred UI/comm language
   lgbtqProfile:  boolean('lgbtq_profile').default(false),
+  divorceeSupport_enabled: boolean('divorcee_support_enabled').notNull().default(false),
   updatedAt:     timestamp('updated_at').defaultNow().notNull(),
 });
 
@@ -512,6 +514,7 @@ export const profileSections = pgTable('profile_sections', {
   photos:      boolean('photos').notNull().default(false),
   preferences: boolean('preferences').notNull().default(false),
   personality: boolean('personality').notNull().default(false),
+  divorceeOnboardingDone: boolean('divorcee_onboarding_done').notNull().default(false),
   updatedAt:   timestamp('updated_at').defaultNow().notNull(),
 });
 
