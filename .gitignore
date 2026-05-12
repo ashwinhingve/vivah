@@ -80,6 +80,12 @@ test-results/
 # Claude Code session state (local-only, not source)
 .claude/scheduled_tasks.lock
 .claude/transcripts/
+.claude/worktrees/
+
+# Teammate completion sentinels (transient orchestration markers)
+.ai-modules-done
+.divorcee-done
+*.done-sentinel
 
 # Prevent re-occurrence of CWD bug — these paths should never exist
 apps/api/apps/api/
