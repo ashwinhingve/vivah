@@ -11,6 +11,7 @@ import type { Express } from 'express';
 import type { Worker } from 'bullmq';
 import { assistantRouter } from './assistant.js';
 import { vendorEngineRouter } from './vendorEngine.js';
+import { vendorLeadsRouter, vendorLeadsAdminRouter } from './vendorLeads.js';
 import {
   registerVendorAvailabilityRefreshWorker,
   scheduleVendorAvailabilityRefreshJob,
@@ -19,6 +20,8 @@ import {
 export function registerP3Routes(app: Express): void {
   app.use('/api/v1/assistant', assistantRouter);
   app.use('/api/v1/vendor-engine', vendorEngineRouter);
+  app.use('/api/v1/vendor-leads', vendorLeadsRouter);
+  app.use('/api/v1/admin',        vendorLeadsAdminRouter);
 }
 
 export function registerP3Workers(workers: Array<{ close(): Promise<void> }>): void {
