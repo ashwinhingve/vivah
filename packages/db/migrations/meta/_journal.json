@@ -169,6 +169,13 @@
 			"when": 1778675120000,
 			"tag": "0023_gdpr_consent_and_export",
 			"breakpoints": true
+		},
+		{
+			"idx": 24,
+			"version": "7",
+			"when": 1778675180000,
+			"tag": "0024_family_compatibility_and_parent_mode",
+			"breakpoints": true
 		}
 	]
 }

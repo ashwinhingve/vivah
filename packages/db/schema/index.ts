@@ -8,7 +8,7 @@
 
 import {
   pgTable, pgEnum, uuid, varchar, text, boolean,
-  timestamp, date, integer, decimal, jsonb,
+  timestamp, date, integer, smallint, decimal, jsonb,
   uniqueIndex, index,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
@@ -694,14 +694,17 @@ export const matchRequests = pgTable('match_requests', {
 }));
 
 export const matchScores = pgTable('match_scores', {
-  id:             uuid('id').primaryKey().defaultRandom(),
-  profileA:       uuid('profile_a').notNull().references(() => profiles.id),
-  profileB:       uuid('profile_b').notNull().references(() => profiles.id),
-  totalScore:     integer('total_score').notNull(),    // 0-100
-  breakdown:      jsonb('breakdown'),                  // per-dimension scores
-  gunaMilanScore: integer('guna_milan_score'),         // 0-36
-  computedAt:     timestamp('computed_at').defaultNow().notNull(),
-  updatedAt:      timestamp('updated_at').defaultNow().notNull(),
+  id:                  uuid('id').primaryKey().defaultRandom(),
+  profileA:            uuid('profile_a').notNull().references(() => profiles.id),
+  profileB:            uuid('profile_b').notNull().references(() => profiles.id),
+  totalScore:          integer('total_score').notNull(),    // 0-100
+  breakdown:           jsonb('breakdown'),                  // per-dimension scores
+  gunaMilanScore:      integer('guna_milan_score'),         // 0-36
+  familyJointScore:    smallint('family_joint_score'),      // 0-100, nullable when no family signals
+  familySignalCount:   smallint('family_signal_count').default(0),
+  familyAgreementPct:  smallint('family_agreement_pct'),    // 0-100
+  computedAt:          timestamp('computed_at').defaultNow().notNull(),
+  updatedAt:           timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   pairIdx: uniqueIndex('score_pair_idx').on(t.profileA, t.profileB),
 }));
@@ -1498,6 +1501,12 @@ export {
   familyMembers, familyVerifications,
   familyRelationshipEnum, familyVerificationBadgeEnum,
 } from './familyExtras';
+
+export {
+  parentChildLinks, familyMatchRatings, parentDraftedActions,
+  parentLinkRelationshipEnum, parentLinkPermissionEnum, parentLinkConsentEnum,
+  parentActionTypeEnum, parentActionStatusEnum,
+} from './familyMode';
 
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
