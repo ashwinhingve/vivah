@@ -766,6 +766,8 @@ export const vendors = pgTable('vendors', {
   favoriteCount:  integer('favorite_count').default(0).notNull(),
   commissionPct:  decimal('commission_pct', { precision: 5, scale: 2 }).default('3.00').notNull(),
   bankVerificationStatus: varchar('bank_verification_status', { length: 16 }).default('PENDING').notNull(),
+  leadFeePerInquiryInr: integer('lead_fee_per_inquiry_inr').default(100).notNull(),
+  leadFeeEnabled:       boolean('lead_fee_enabled').default(true).notNull(),
   createdAt:      timestamp('created_at').defaultNow().notNull(),
   updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
@@ -795,6 +797,33 @@ export const vendorEventTypes = pgTable('vendor_event_types', {
   available:  boolean('available').default(true).notNull(),
 }, (t) => ({
   uniqueVendorEvent: uniqueIndex('unique_vendor_event').on(t.vendorId, t.eventType),
+}));
+
+// ── Vendor Leads (Tier 3 Track 2 — pay-per-lead) ──────────────────────────────
+// Customer inquiry sent to a vendor profile. Charges per qualified lead,
+// distinct from booking commission. Wallet debited on admin qualification.
+export const vendorLeads = pgTable('vendor_leads', {
+  id:              uuid('id').primaryKey().defaultRandom(),
+  vendorId:        uuid('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  inquirerUserId:  text('inquirer_user_id').notNull().references(() => user.id),
+  eventType:       ceremonyTypeEnum('event_type').notNull(),
+  eventDate:       timestamp('event_date'),
+  eventLocation:   varchar('event_location', { length: 200 }),
+  message:         text('message'),
+  feeChargedInr:   integer('fee_charged_inr').default(100).notNull(),
+  // PENDING | QUALIFIED | CHARGED | REFUNDED | CANCELLED | PENDING_PAYMENT
+  feeStatus:       varchar('fee_status', { length: 20 }).default('PENDING').notNull(),
+  chargedAt:       timestamp('charged_at'),
+  refundReason:    text('refund_reason'),
+  // null until reviewed: HIGH | MEDIUM | LOW | SPAM
+  leadQuality:     varchar('lead_quality', { length: 20 }),
+  createdAt:       timestamp('created_at').defaultNow().notNull(),
+  updatedAt:       timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  vendorIdx:       index('vendor_leads_vendor_idx').on(t.vendorId),
+  inquirerIdx:     index('vendor_leads_inquirer_idx').on(t.inquirerUserId),
+  statusIdx:       index('vendor_leads_status_idx').on(t.feeStatus),
+  createdAtIdx:    index('vendor_leads_created_idx').on(t.createdAt),
 }));
 
 // ── Bookings ──────────────────────────────────────────────────────────────────
