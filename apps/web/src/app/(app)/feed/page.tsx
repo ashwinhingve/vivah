@@ -5,11 +5,19 @@ import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchCard } from '@/components/matchmaking/MatchCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
+import { MaritalStatusFilterToggle } from '@/components/feed/MaritalStatusFilterToggle.client';
+import { FilterSheet } from '@/components/shared/FilterSheet.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
+type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
+
 interface MeResponse {
   profileCompleteness: number;
+}
+
+interface PrefsResponse {
+  maritalStatus?: MaritalStatusValue[];
 }
 
 interface FetchResult<T> {
@@ -59,9 +67,10 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const refresh = sp.refresh === '1' || sp.refresh === 'true';
   const feedPath = refresh ? '/api/v1/matchmaking/feed?refresh=1' : '/api/v1/matchmaking/feed';
 
-  const [feedRes, meRes] = await Promise.all([
+  const [feedRes, meRes, prefsRes] = await Promise.all([
     fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(feedPath, token),
     fetchAuth<MeResponse>('/api/v1/profiles/me', token),
+    fetchAuth<PrefsResponse>('/api/v1/profiles/me/preferences', token),
   ]);
 
   const feedFailed = feedRes.error !== null;
@@ -70,10 +79,23 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
     : (feedRes.data?.items ?? []);
   const completeness = meRes.data?.profileCompleteness ?? 0;
   const profileReady = completeness >= 40;
+  const maritalPrefs = prefsRes.data?.maritalStatus ?? [];
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-8">
+        <div className="flex gap-6">
+          {/* Sidebar filter — desktop inline, mobile bottom-sheet */}
+          <FilterSheet
+            title="Filters"
+            description="Refine your match feed"
+            desktopInline
+          >
+            <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
+          </FilterSheet>
+
+          {/* Main feed column */}
+          <div className="min-w-0 flex-1 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-primary">Your Matches</h1>
@@ -156,6 +178,8 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             ))}
           </div>
         )}
+          </div>{/* end main feed column */}
+        </div>{/* end flex gap-6 */}
       </div>
     </main>
   );

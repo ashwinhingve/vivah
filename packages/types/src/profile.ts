@@ -306,6 +306,8 @@ export interface PartnerPreferencesSection {
   openToInterCaste?: boolean;
   maritalStatus?: ('NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED')[];
   partnerDescription?: string;
+  /** Private note from the divorcee/widow onboarding journey — never shown to other users. */
+  divorceeNote?: string;
   maxDistanceKm?: number;
   mustHave?: MustHaveFlags;
   personalityIdeal?: PersonalityIdeal;
@@ -320,6 +322,7 @@ export interface ProfileSectionCompletion {
   photos: boolean;
   preferences: boolean;
   personality: boolean;
+  divorceeOnboardingDone?: boolean;
   score: number; // 0-100
 }
 

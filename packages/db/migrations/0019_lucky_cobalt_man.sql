@@ -1,0 +1,2 @@
+ALTER TABLE "community_zones" ADD COLUMN "divorcee_support_enabled" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "profile_sections" ADD COLUMN "divorcee_onboarding_done" boolean DEFAULT false NOT NULL;

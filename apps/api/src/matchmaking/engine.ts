@@ -16,6 +16,7 @@ import type {
   PersonalityProfile,
   MustHaveFlags,
   PersonalityIdeal,
+  MaritalStatus,
 } from '@smartshaadi/types';
 import type Redis from 'ioredis';
 import { eq, and, inArray } from 'drizzle-orm';
@@ -69,9 +70,10 @@ interface ProfileRow {
   longitude?:   number | string | null
   personality?: PersonalityProfile | null
   personal?:    {
-    fullName?:  string | null
-    dob?:       Date | null
-    religion?:  string | null
+    fullName?:     string | null
+    dob?:          Date | null
+    religion?:     string | null
+    maritalStatus?: MaritalStatus | null
   } | null
   location?: {
     city?:  string | null
@@ -106,6 +108,7 @@ interface ProfileRow {
     maxDistanceKm?:   number | null
     mustHave?:        MustHaveFlags | null
     personalityIdeal?: PersonalityIdeal | null
+    maritalStatus?:   MaritalStatus[] | null
   } | null
   horoscope?: {
     manglik?: 'YES' | 'NO' | 'PARTIAL' | null
@@ -117,7 +120,9 @@ interface ProfileRow {
     gotra?:        string | null
     motherTongue?: string | null
     gotraExclusionEnabled?: boolean | null
+    divorceeSupport?: boolean | null
   } | null
+  maritalStatus?: MaritalStatus | null
 }
 
 // ── Drizzle-compatible interface (duck-typed for testability) ─────────────────
@@ -207,6 +212,13 @@ export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
   const horoscope = doc.horoscope ?? row.horoscope;
   if (horoscope !== undefined) enriched.horoscope = horoscope;
   if (row.community !== undefined) enriched.community = row.community;
+  // maritalStatus lives in MongoDB personal section — read via the merged personal doc
+  const mergedPersonal = doc.personal ?? row.personal;
+  const maritalStatus =
+    (mergedPersonal as { maritalStatus?: MaritalStatus | null } | undefined)?.maritalStatus
+    ?? row.maritalStatus
+    ?? null;
+  enriched.maritalStatus = maritalStatus;
   const personality = doc.personality ?? row.personality;
   if (personality !== undefined && personality !== null) enriched.personality = personality;
   if (row.latitude  !== undefined) enriched.latitude  = row.latitude;
@@ -249,6 +261,9 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
     gotra:        row.community?.gotra ?? null,
     gotraExclusionEnabled: row.community?.gotraExclusionEnabled ?? true,
     community:    row.community?.community ?? null,
+    maritalStatus: (row.maritalStatus ?? null) as MaritalStatus | null,
+    preferredMaritalStatuses: (row.partnerPreferences?.maritalStatus as MaritalStatus[] | undefined) ?? null,
+    divorceeSupport: row.community?.divorceeSupport === true,
     lastActiveAt: row.lastActiveAt instanceof Date ? row.lastActiveAt.toISOString() : (row.lastActiveAt ?? null),
     premiumTier:  row.premiumTier ?? 'FREE',
     latitude:     Number.isFinite(lat as number) ? lat : null,
@@ -292,6 +307,9 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
     longitude:  p.longitude ?? null,
     education:  p.education,
     diet:       p.diet,
+    maritalStatus:            p.maritalStatus ?? null,
+    preferredMaritalStatuses: p.preferredMaritalStatuses ?? null,
+    divorceeSupport:          p.divorceeSupport ?? false,
     preferences: {
       ageMin:          p.preferences.ageMin,
       ageMax:          p.preferences.ageMax,
@@ -499,6 +517,7 @@ export async function computeAndCacheFeed(
     gotra: string | null;
     motherTongue: string | null;
     gotraExclusionEnabled: boolean | null;
+    divorceeSupport_enabled?: boolean | null;
   }>) {
     czMap.set(raw.profileId, {
       community:    raw.community,
@@ -507,6 +526,7 @@ export async function computeAndCacheFeed(
       gotra:        raw.gotra,
       motherTongue: raw.motherTongue,
       gotraExclusionEnabled: raw.gotraExclusionEnabled,
+      divorceeSupport: raw.divorceeSupport_enabled === true,
     });
   }
   const userCz = czMap.get(userProfileId);

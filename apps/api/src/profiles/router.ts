@@ -229,6 +229,36 @@ profilesRouter.get('/me/viewers', authenticate, asyncHandler(async (req: Request
   ok(res, { viewers, total: viewers.length });
 }));
 
+// ── Divorcee/Widow onboarding flag ───────────────────────────────────────────
+// PUT /api/v1/profiles/me/sections/divorcee-onboarding
+// Marks the one-time onboarding journey as completed.
+profilesRouter.put(
+  '/me/sections/divorcee-onboarding',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+
+    // CLAUDE.md rule 12: resolve userId → profileId
+    const [row] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1);
+
+    if (!row) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    await db
+      .update(profileSections)
+      .set({ divorceeOnboardingDone: true, updatedAt: new Date() })
+      .where(eq(profileSections.profileId, row.id));
+
+    ok(res, { divorceeOnboardingDone: true });
+  }),
+);
+
 // Mount content sub-router — MUST be before /:id to prevent route conflict
 profilesRouter.use('/me/content', profileContentRouter);
 

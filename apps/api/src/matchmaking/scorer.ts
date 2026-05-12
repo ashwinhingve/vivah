@@ -10,6 +10,7 @@ import type {
   PersonalityProfile,
   MustHaveFlags,
   PersonalityIdeal,
+  MaritalStatus,
 } from '@smartshaadi/types';
 import type Redis from 'ioredis';
 import { scorePersonality } from './personality.js';
@@ -36,6 +37,9 @@ export interface ProfileData {
   gotra?: string | null
   gotraExclusionEnabled?: boolean
   community?: string | null
+  maritalStatus?: MaritalStatus | null
+  preferredMaritalStatuses?: MaritalStatus[] | null
+  divorceeSupport?: boolean
   lastActiveAt?: string | null
   premiumTier?: 'FREE' | 'STANDARD' | 'PREMIUM'
   latitude?: number | null

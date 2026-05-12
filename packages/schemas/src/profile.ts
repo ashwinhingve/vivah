@@ -231,6 +231,7 @@ export const UpdatePartnerPreferencesSchema = z.object({
   openToInterCaste:   z.boolean().optional(),
   maritalStatus:      z.array(z.enum(['NEVER_MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED'])).optional(),
   partnerDescription: z.string().max(1000).optional(),
+  divorceeNote:       z.string().max(500).optional(),
   maxDistanceKm:      z.number().int().min(5).max(2000).optional(),
   mustHave:           MustHaveFlagsSchema.optional(),
   personalityIdeal:   PersonalityIdealSchema.optional(),

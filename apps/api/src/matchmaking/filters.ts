@@ -5,6 +5,7 @@
 
 import type { MustHaveFlags } from '@smartshaadi/types';
 import { haversineKm } from '../lib/geocode.js';
+import { passesMaritalStatusFilter, type MaritalStatusValue } from './filters/maritalStatusFilter.js';
 
 export interface ProfileWithPreferences {
   id: string
@@ -22,6 +23,9 @@ export interface ProfileWithPreferences {
   longitude?: number | null
   education?: string
   diet?: string
+  maritalStatus?: MaritalStatusValue | null
+  preferredMaritalStatuses?: MaritalStatusValue[] | null
+  divorceeSupport?: boolean
   preferences: {
     ageMin: number
     ageMax: number
@@ -64,7 +68,8 @@ function passesAllFilters(
     passesDietFilter(user, candidate) &&
     passesCasteFilter(user, candidate) &&
     passesGotraFilter(user, candidate) &&
-    passesManglikFilter(user, candidate)
+    passesManglikFilter(user, candidate) &&
+    passesMaritalStatusFilter(user, candidate)
   );
 }
 
