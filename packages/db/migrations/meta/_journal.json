@@ -162,6 +162,13 @@
 			"when": 1778675060000,
 			"tag": "0022_vendor_leads",
 			"breakpoints": true
+		},
+		{
+			"idx": 23,
+			"version": "7",
+			"when": 1778675120000,
+			"tag": "0023_gdpr_consent_and_export",
+			"breakpoints": true
 		}
 	]
 }

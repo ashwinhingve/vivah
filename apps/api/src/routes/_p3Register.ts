@@ -13,11 +13,13 @@ import { assistantRouter } from './assistant.js';
 import { vendorEngineRouter } from './vendorEngine.js';
 import { referralRouter } from './referral.js';
 import { vendorLeadsRouter, vendorLeadsAdminRouter } from './vendorLeads.js';
+import { gdprRouter } from './gdpr.js';
 
 import {
   registerVendorAvailabilityRefreshWorker,
   scheduleVendorAvailabilityRefreshJob,
 } from '../jobs/vendorAvailabilityRefreshJob.js';
+import { startDataExportWorker } from '../jobs/dataExportJob.js';
 
 export function registerP3Routes(app: Express): void {
   app.use('/api/v1/assistant', assistantRouter);
@@ -25,10 +27,13 @@ export function registerP3Routes(app: Express): void {
   app.use('/api/v1/referral', referralRouter);
   app.use('/api/v1/vendor-leads', vendorLeadsRouter);
   app.use('/api/v1/admin', vendorLeadsAdminRouter);
+  app.use('/api/v1/gdpr', gdprRouter);
 }
 
 export function registerP3Workers(workers: Array<{ close(): Promise<void> }>): void {
   const worker: Worker = registerVendorAvailabilityRefreshWorker();
   workers.push(worker);
   void scheduleVendorAvailabilityRefreshJob();
+
+  workers.push(startDataExportWorker());
 }

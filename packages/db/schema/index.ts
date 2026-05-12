@@ -1498,3 +1498,46 @@ export {
   familyMembers, familyVerifications,
   familyRelationshipEnum, familyVerificationBadgeEnum,
 } from './familyExtras';
+
+// ── GDPR — consent ledger + data export requests ─────────────────────────────
+//
+// consent_ledger is append-only: every consent record is a new row. When a
+// user withdraws consent we set withdrawn_at on the existing row AND insert a
+// new row with consent_given=false, preserving the full audit trail. Use the
+// MAX(consented_at) WHERE withdrawn_at IS NULL pattern to read the current
+// active consent for a given (user, type).
+//
+// data_export_requests tracks GDPR Article 15 access requests. A nightly
+// worker aggregates user data, uploads to R2, and marks the row READY with
+// a presigned download URL valid for 7 days.
+
+export const consentLedger = pgTable('consent_ledger', {
+  id:             uuid('id').primaryKey().defaultRandom(),
+  userId:         text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  consentType:    varchar('consent_type', { length: 50 }).notNull(),
+  consentVersion: varchar('consent_version', { length: 20 }).notNull(),
+  consentGiven:   boolean('consent_given').notNull(),
+  consentedAt:    timestamp('consented_at').notNull().defaultNow(),
+  ipAddress:      varchar('ip_address', { length: 64 }),
+  userAgent:      text('user_agent'),
+  withdrawnAt:    timestamp('withdrawn_at'),
+}, (t) => ({
+  userIdx: index('consent_ledger_user_idx').on(t.userId),
+  typeIdx: index('consent_ledger_type_idx').on(t.userId, t.consentType),
+}));
+
+export const dataExportRequests = pgTable('data_export_requests', {
+  id:                 uuid('id').primaryKey().defaultRandom(),
+  userId:             text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  status:             varchar('status', { length: 20 }).notNull().default('PENDING'),
+  requestedAt:        timestamp('requested_at').notNull().defaultNow(),
+  completedAt:        timestamp('completed_at'),
+  downloadUrl:        varchar('download_url', { length: 500 }),
+  downloadExpiresAt:  timestamp('download_expires_at'),
+  fileSizeBytes:      integer('file_size_bytes'),
+  r2Key:              varchar('r2_key', { length: 300 }),
+  error:              text('error'),
+}, (t) => ({
+  userIdx:   index('data_export_user_idx').on(t.userId),
+  statusIdx: index('data_export_status_idx').on(t.status),
+}));
