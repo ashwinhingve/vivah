@@ -16,6 +16,20 @@ import { db } from '../lib/db.js';
 import { profiles, matchRequests } from '@smartshaadi/db';
 import { resolveProfileId } from '../lib/profile.js';
 import {
+  extractProfileOptimizerFeatures,
+} from '../services/profileOptimizerFeatures.js';
+import {
+  getProfileOptimizerScore,
+  type ProfileOptimizerResponse,
+} from '../services/profileOptimizerService.js';
+import {
+  extractMarriageReadinessFeatures,
+} from '../services/marriageReadinessFeatures.js';
+import {
+  getMarriageReadinessScore,
+  type MarriageReadinessResponse,
+} from '../services/marriageReadinessService.js';
+import {
   getConversationSuggestions,
   getEmotionalScore,
   getDivorceProbability,
@@ -1000,5 +1014,339 @@ aiRouter.get(
     }
 
     ok(res, compatResult);
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile Optimizer routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+// AI-inference standard is 30/hour. Profile optimizer is rule-based (no LLM),
+// so 30/hour matches the standard.
+const PROFILE_OPTIMIZER_RATE_LIMIT = 30;
+const PROFILE_OPTIMIZER_RATE_WINDOW_SEC = 3600; // 1 hour
+const PROFILE_OPTIMIZER_CACHE_TTL_SEC = 3600;   // 1 hour
+
+async function checkProfileOptimizerRateLimit(
+  userId: string,
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: PROFILE_OPTIMIZER_RATE_LIMIT - 1 };
+  }
+  const key = `profile_optimizer:rl:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, PROFILE_OPTIMIZER_RATE_WINDOW_SEC);
+    return {
+      allowed: count <= PROFILE_OPTIMIZER_RATE_LIMIT,
+      remaining: Math.max(0, PROFILE_OPTIMIZER_RATE_LIMIT - count),
+    };
+  } catch {
+    return { allowed: true, remaining: 0 };
+  }
+}
+
+// ── GET /api/v1/ai/profile-optimizer/:userId ──────────────────────────────────
+
+aiRouter.get(
+  '/profile-optimizer/:userId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const requestingUserId = req.user!.id;
+    const { userId: targetUserId } = req.params;
+
+    // Validate userId param is a non-empty string
+    if (!targetUserId || targetUserId.trim() === '') {
+      err(res, 'VALIDATION_ERROR', 'userId is required', 400);
+      return;
+    }
+
+    // Auth: owner or ADMIN
+    const isAdmin = req.user!.role === 'ADMIN';
+    if (requestingUserId !== targetUserId && !isAdmin) {
+      err(res, 'FORBIDDEN', 'You can only view your own profile optimizer score', 403);
+      return;
+    }
+
+    // Rate limit: 30/hour
+    const rl = await checkProfileOptimizerRateLimit(requestingUserId);
+    if (!rl.allowed) {
+      res.setHeader('X-RateLimit-Limit', PROFILE_OPTIMIZER_RATE_LIMIT);
+      res.setHeader('X-RateLimit-Remaining', 0);
+      err(res, 'RATE_LIMIT_EXCEEDED', 'Profile optimizer rate limit reached. Try again later.', 429);
+      return;
+    }
+    res.setHeader('X-RateLimit-Limit', PROFILE_OPTIMIZER_RATE_LIMIT);
+    res.setHeader('X-RateLimit-Remaining', rl.remaining);
+
+    // Redis cache check
+    const cacheKey = `profile_optimizer:user:${targetUserId}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        ok(res, { ...(JSON.parse(cached) as ProfileOptimizerResponse), cached: true });
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // CLAUDE.md Rule 12: resolve userId → profileId
+    const profileId = await resolveProfileId(targetUserId);
+    if (!profileId) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // Extract features from DB + MongoDB
+    let features: Awaited<ReturnType<typeof extractProfileOptimizerFeatures>>;
+    try {
+      features = await extractProfileOptimizerFeatures(targetUserId, profileId);
+    } catch (e) {
+      const appErr = e as { code?: string; status?: number; message?: string };
+      err(
+        res,
+        appErr.code ?? 'FEATURE_EXTRACTION_ERROR',
+        appErr.message ?? 'Failed to extract profile features',
+        appErr.status ?? 500,
+      );
+      return;
+    }
+
+    // Call AI service
+    let result: ProfileOptimizerResponse;
+    try {
+      result = await getProfileOptimizerScore({
+        user_id: targetUserId,
+        photo_count: features.photo_count,
+        has_primary_photo: features.has_primary_photo,
+        bio_text: features.bio_text,
+        profile_completeness: features.profile_completeness,
+      });
+    } catch (e) {
+      const appErr = e as { code?: string };
+      if (
+        appErr.code === 'AI_SERVICE_UNAVAILABLE' ||
+        (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+      ) {
+        err(res, 'AI_SERVICE_UNAVAILABLE', 'Profile optimizer service temporarily unavailable', 503);
+        return;
+      }
+      throw e;
+    }
+
+    // Cache 1h
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', PROFILE_OPTIMIZER_CACHE_TTL_SEC);
+    } catch {
+      // Cache write failure — still return result
+    }
+
+    ok(res, { ...result, cached: false });
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Marriage Readiness routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MARRIAGE_READINESS_RATE_LIMIT = 30;
+const MARRIAGE_READINESS_RATE_WINDOW_SEC = 3600; // 1 hour
+const MARRIAGE_READINESS_CACHE_TTL_SEC = 3600;   // 1 hour
+
+async function checkMarriageReadinessRateLimit(
+  userId: string,
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: MARRIAGE_READINESS_RATE_LIMIT - 1 };
+  }
+  const key = `marriage_readiness:rl:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, MARRIAGE_READINESS_RATE_WINDOW_SEC);
+    return {
+      allowed: count <= MARRIAGE_READINESS_RATE_LIMIT,
+      remaining: Math.max(0, MARRIAGE_READINESS_RATE_LIMIT - count),
+    };
+  } catch {
+    return { allowed: true, remaining: 0 };
+  }
+}
+
+// ── GET /api/v1/ai/marriage-readiness/:userId ─────────────────────────────────
+// OWNER ONLY — per agreement, this is user-controlled (NOT accessible by admin).
+
+aiRouter.get(
+  '/marriage-readiness/:userId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const requestingUserId = req.user!.id;
+    const { userId: targetUserId } = req.params;
+
+    if (!targetUserId || targetUserId.trim() === '') {
+      err(res, 'VALIDATION_ERROR', 'userId is required', 400);
+      return;
+    }
+
+    // OWNER ONLY — no admin exception per agreement
+    if (requestingUserId !== targetUserId) {
+      err(res, 'FORBIDDEN', 'Marriage Readiness Score is personal — only you can view your own', 403);
+      return;
+    }
+
+    // Rate limit: 30/hour
+    const rl = await checkMarriageReadinessRateLimit(requestingUserId);
+    if (!rl.allowed) {
+      res.setHeader('X-RateLimit-Limit', MARRIAGE_READINESS_RATE_LIMIT);
+      res.setHeader('X-RateLimit-Remaining', 0);
+      err(res, 'RATE_LIMIT_EXCEEDED', 'Marriage readiness rate limit reached. Try again later.', 429);
+      return;
+    }
+    res.setHeader('X-RateLimit-Limit', MARRIAGE_READINESS_RATE_LIMIT);
+    res.setHeader('X-RateLimit-Remaining', rl.remaining);
+
+    // Redis cache check
+    const cacheKey = `marriage_readiness:user:${targetUserId}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        // Also fetch display_allowed from DB (may have changed)
+        const [profileRow] = await db
+          .select({ displayReadinessScore: profiles.displayReadinessScore })
+          .from(profiles)
+          .where(eq(profiles.userId, targetUserId))
+          .limit(1);
+
+        ok(res, {
+          ...(JSON.parse(cached) as MarriageReadinessResponse),
+          display_allowed: profileRow?.displayReadinessScore ?? false,
+          cached: true,
+        });
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // CLAUDE.md Rule 12: resolve userId → profileId
+    const profileId = await resolveProfileId(targetUserId);
+    if (!profileId) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // Fetch display toggle from DB
+    const [profileRow] = await db
+      .select({ displayReadinessScore: profiles.displayReadinessScore })
+      .from(profiles)
+      .where(eq(profiles.id, profileId))
+      .limit(1);
+
+    if (!profileRow) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // Extract features
+    let features: Awaited<ReturnType<typeof extractMarriageReadinessFeatures>>;
+    try {
+      features = await extractMarriageReadinessFeatures(targetUserId, profileId);
+    } catch (e) {
+      const appErr = e as { code?: string; status?: number; message?: string };
+      err(
+        res,
+        appErr.code ?? 'FEATURE_EXTRACTION_ERROR',
+        appErr.message ?? 'Failed to extract readiness features',
+        appErr.status ?? 500,
+      );
+      return;
+    }
+
+    // Call AI service
+    let result: MarriageReadinessResponse;
+    try {
+      result = await getMarriageReadinessScore({
+        user_id: targetUserId,
+        avg_msg_count_per_conv: features.avg_msg_count_per_conv,
+        avg_msg_length: features.avg_msg_length,
+        profile_completeness: features.profile_completeness,
+        age_pref_set: features.age_pref_set,
+        religion_pref_set: features.religion_pref_set,
+        distance_pref_set: features.distance_pref_set,
+        education_pref_set: features.education_pref_set,
+        lifestyle_pref_set: features.lifestyle_pref_set,
+      });
+    } catch (e) {
+      const appErr = e as { code?: string };
+      if (
+        appErr.code === 'AI_SERVICE_UNAVAILABLE' ||
+        (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+      ) {
+        err(res, 'AI_SERVICE_UNAVAILABLE', 'Marriage readiness service temporarily unavailable', 503);
+        return;
+      }
+      throw e;
+    }
+
+    // Cache 1h
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', MARRIAGE_READINESS_CACHE_TTL_SEC);
+    } catch {
+      // Cache write failure — still return result
+    }
+
+    ok(res, {
+      ...result,
+      display_allowed: profileRow.displayReadinessScore,
+      cached: false,
+    });
+  }),
+);
+
+// ── PATCH /api/v1/ai/marriage-readiness/:userId/display ───────────────────────
+// OWNER ONLY — updates display_readiness_score toggle on profiles table.
+
+const DisplayToggleSchema = z.object({
+  display: z.boolean(),
+});
+
+aiRouter.patch(
+  '/marriage-readiness/:userId/display',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const requestingUserId = req.user!.id;
+    const { userId: targetUserId } = req.params;
+
+    if (!targetUserId || targetUserId.trim() === '') {
+      err(res, 'VALIDATION_ERROR', 'userId is required', 400);
+      return;
+    }
+
+    // OWNER ONLY
+    if (requestingUserId !== targetUserId) {
+      err(res, 'FORBIDDEN', 'You can only update your own display toggle', 403);
+      return;
+    }
+
+    const parsed = DisplayToggleSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid request body', 400);
+      return;
+    }
+    const { display } = parsed.data;
+
+    // CLAUDE.md Rule 12: resolve userId → profileId
+    const profileId = await resolveProfileId(targetUserId);
+    if (!profileId) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    await db
+      .update(profiles)
+      .set({ displayReadinessScore: display })
+      .where(eq(profiles.id, profileId));
+
+    ok(res, { user_id: targetUserId, display_allowed: display });
   }),
 );
