@@ -14,6 +14,7 @@ import { vendorEngineRouter } from './vendorEngine.js';
 import { referralRouter } from './referral.js';
 import { vendorLeadsRouter, vendorLeadsAdminRouter } from './vendorLeads.js';
 import { gdprRouter } from './gdpr.js';
+import { familyModeRouter } from './familyMode.js';
 
 import {
   registerVendorAvailabilityRefreshWorker,
@@ -28,6 +29,7 @@ export function registerP3Routes(app: Express): void {
   app.use('/api/v1/vendor-leads', vendorLeadsRouter);
   app.use('/api/v1/admin', vendorLeadsAdminRouter);
   app.use('/api/v1/gdpr', gdprRouter);
+  app.use('/api/v1/family-mode', familyModeRouter);
 }
 
 export function registerP3Workers(workers: Array<{ close(): Promise<void> }>): void {
