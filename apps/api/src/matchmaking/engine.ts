@@ -34,6 +34,7 @@ import { matchComputeQueue } from '../infrastructure/redis/queues.js';
 import { env, shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { batchComputeJointScores } from '../services/familyCompatService.js';
 
 // ── Feed cache key ────────────────────────────────────────────────────────────
 
@@ -410,6 +411,23 @@ export async function scoreAndRank(
       return feedItem;
     }),
   );
+
+  // P3 Family Compatibility: enrich feed items with joint family score where
+  // family ratings exist. Best-effort — failures here must not break the feed.
+  try {
+    const candidateIds = scored.map((s) => s.profileId);
+    const joints = await batchComputeJointScores(userProfile.id, candidateIds);
+    for (const item of scored) {
+      const j = joints.get(item.profileId);
+      if (j && j.familySignalCount > 0) {
+        item.familyJointScore   = j.jointScore;
+        item.familySignalCount  = j.familySignalCount;
+        item.familyAgreementPct = j.agreementPct;
+      }
+    }
+  } catch {
+    /* non-fatal */
+  }
 
   return scored.sort((a, b) => b.compatibility.totalScore - a.compatibility.totalScore);
 }

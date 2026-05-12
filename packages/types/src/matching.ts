@@ -191,6 +191,9 @@ export interface MatchFeedItem {
   premiumTier?:       'FREE' | 'STANDARD' | 'PREMIUM'
   distanceKm?:        number | null
   explainer?:         MatchExplainer | null
+  familyJointScore?:  number | null
+  familySignalCount?: number
+  familyAgreementPct?: number | null
 }
 
 export type MatchRequestStatus =
