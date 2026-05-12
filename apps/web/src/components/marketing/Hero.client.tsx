@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ShieldCheck, Lock, Star, ChevronDown } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import { HERO_BG } from '@/lib/marketing-images';
 
 const avatars = [
@@ -29,7 +28,6 @@ const itemVariants = {
 
 export default function Hero() {
   const reduce = useReducedMotion();
-  const t = useTranslations('home');
 
   return (
     <section
@@ -86,7 +84,7 @@ export default function Hero() {
             aria-hidden="true"
             className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/95 border-l-2 border-gold pl-3 mb-6"
           >
-            {t('eyebrow')}
+            EST. 2026 · INDIA
           </motion.p>
 
           <div className="relative">
@@ -94,16 +92,16 @@ export default function Hero() {
               aria-hidden="true"
               className="pointer-events-none absolute -top-8 -left-2 select-none text-[7rem] md:text-[10rem] lg:text-[12rem] leading-none text-gold/10 font-[family-name:var(--font-hindi)]"
             >
-              {t('decorativeMark')}
+              विवाह
             </span>
             <motion.h1
               variants={itemVariants}
               className="relative text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] text-white font-[family-name:var(--font-heading)] [text-shadow:_0_2px_24px_rgba(0,0,0,0.4)]"
             >
-              {t('headlineLead')}
+              Where families find
               <br />
               <span className="italic text-peach underline decoration-gold decoration-2 underline-offset-[12px]">
-                {t('headlineEmphasis')}
+                their forever.
               </span>
             </motion.h1>
           </div>
@@ -112,7 +110,9 @@ export default function Hero() {
             variants={itemVariants}
             className="mt-8 text-base md:text-lg text-white/85 max-w-xl leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.4)]"
           >
-            {t('subhead')}
+            Smart Shaadi brings together verified matchmaking, family-led
+            decisions, Vedic Guna Milan compatibility, and end-to-end wedding
+            planning — built for Indian families, not dating culture.
           </motion.p>
 
           <motion.ul
@@ -121,15 +121,15 @@ export default function Hero() {
           >
             <li className="text-xs text-white/85 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-gold" aria-hidden="true" />
-              {t('trust.aadhaar')}
+              Aadhaar Verified Profiles
             </li>
             <li className="text-xs text-white/85 flex items-center gap-1.5">
               <Lock className="w-4 h-4 text-gold" aria-hidden="true" />
-              {t('trust.safetyMode')}
+              Safety Mode Enabled
             </li>
             <li className="text-xs text-white/85 flex items-center gap-1.5">
               <Star className="w-4 h-4 text-gold" aria-hidden="true" />
-              {t('trust.gunaMilan')}
+              36-Point Guna Milan AI
             </li>
           </motion.ul>
 
@@ -141,13 +141,13 @@ export default function Hero() {
               href="/login"
               className="inline-flex items-center justify-center w-full sm:w-auto bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
             >
-              {t('cta.primary')}
+              Start your journey →
             </Link>
             <Link
               href="#how-it-works"
               className="inline-flex items-center justify-center w-full sm:w-auto border-2 border-surface/70 text-white hover:bg-surface/10 hover:border-surface font-semibold rounded-lg px-8 py-4 text-base min-h-[52px] transition-all duration-200 backdrop-blur-sm"
             >
-              {t('cta.secondary')}
+              How it works
             </Link>
           </motion.div>
 
@@ -155,7 +155,7 @@ export default function Hero() {
             variants={itemVariants}
             className="text-xs text-white/60 mt-3"
           >
-            {t('cta.subline')}
+            Free to join · No credit card · 2 min setup
           </motion.p>
 
           <motion.div
@@ -174,7 +174,8 @@ export default function Hero() {
               ))}
             </div>
             <p className="text-sm text-white/80">
-              {t('social.caption')}
+              Growing community of
+              <br className="sm:hidden" /> verified families
             </p>
           </motion.div>
         </motion.div>
@@ -184,7 +185,7 @@ export default function Hero() {
       {!reduce ? (
         <motion.a
           href="#stats"
-          aria-label={t('social.scrollHint')}
+          aria-label="Scroll to next section"
           className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white transition-colors"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity }}

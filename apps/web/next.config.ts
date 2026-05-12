@@ -1,8 +1,5 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
-import createNextIntlPlugin from 'next-intl/plugin';
-
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@smartshaadi/types', '@smartshaadi/schemas'],
@@ -27,7 +24,7 @@ const sentryEnabled =
   !!process.env['SENTRY_ORG'] &&
   !!process.env['SENTRY_PROJECT'];
 
-const finalConfig = sentryEnabled
+export default sentryEnabled
   ? withSentryConfig(nextConfig, {
       silent:                !process.env['CI'],
       org:                   process.env['SENTRY_ORG'],
@@ -37,5 +34,3 @@ const finalConfig = sentryEnabled
       disableLogger:         true,
     })
   : nextConfig;
-
-export default withNextIntl(finalConfig);

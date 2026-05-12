@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Heart, Sparkles, ArrowRight, AlertTriangle } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchCard } from '@/components/matchmaking/MatchCard';
 import { Button } from '@/components/ui/button';
@@ -62,7 +61,6 @@ interface PageProps {
 }
 
 export default async function MatchFeedPage({ searchParams }: PageProps) {
-  const t = await getTranslations('feed');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const sp = (await searchParams) ?? {};
@@ -83,22 +81,14 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const profileReady = completeness >= 40;
   const maritalPrefs = prefsRes.data?.maritalStatus ?? [];
 
-  const subtitle = items.length > 0
-    ? (items.length === 1
-        ? t('header.countSingular', { count: items.length })
-        : t('header.countPlural', { count: items.length }))
-    : profileReady
-      ? t('header.warming')
-      : t('header.completeProfile');
-
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-5xl px-4 py-8">
         <div className="flex gap-6">
           {/* Sidebar filter — desktop inline, mobile bottom-sheet */}
           <FilterSheet
-            title={t('filters.title')}
-            description={t('filters.description')}
+            title="Filters"
+            description="Refine your match feed"
             desktopInline
           >
             <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
@@ -108,15 +98,19 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           <div className="min-w-0 flex-1 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-primary">{t('header.title')}</h1>
+            <h1 className="font-heading text-2xl font-bold text-primary">Your Matches</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {subtitle}
+              {items.length > 0
+                ? `${items.length} compatible profile${items.length !== 1 ? 's' : ''} found`
+                : profileReady
+                  ? 'Warming up your recommendations'
+                  : 'Complete your profile to see matches'}
             </p>
           </div>
           {profileReady ? (
             <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
-              {t('header.profileBadge', { percent: completeness })}
+              {completeness}% profile
             </span>
           ) : null}
         </div>
@@ -124,18 +118,15 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         {feedFailed ? (
           <EmptyState
             icon={AlertTriangle}
-            title={t('errors.title')}
-            description={t('errors.description', {
-              status: feedRes.status,
-              message: feedRes.error ?? '',
-            })}
+            title="Couldn't load your matches"
+            description={`The match feed API returned an error (${feedRes.status}: ${feedRes.error}). Try refreshing the page or check the API status.`}
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
-                  <Link href="/feed?refresh=1">{t('errors.forceRefresh')}</Link>
+                  <Link href="/feed?refresh=1">Force Refresh</Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="/dashboard">{t('errors.backToDashboard')}</Link>
+                  <Link href="/dashboard">Back to Dashboard</Link>
                 </Button>
               </div>
             }
@@ -144,18 +135,18 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           profileReady ? (
             <EmptyState
               icon={Heart}
-              title={t('empty.warming.title')}
-              description={t('empty.warming.description')}
+              title="No matches yet — we're tuning your feed"
+              description="Your profile looks great. We're matching you against fresh profiles as they join. New recommendations appear weekly. Meanwhile, you can browse vendors or review match requests."
               action={
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <Button asChild>
                     <Link href="/feed?refresh=1">
-                      {t('empty.warming.refresh')}
+                      Refresh Feed
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href="/requests">{t('empty.warming.checkRequests')}</Link>
+                    <Link href="/requests">Check Requests</Link>
                   </Button>
                 </div>
               }
@@ -163,12 +154,12 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           ) : (
             <EmptyState
               icon={Sparkles}
-              title={t('empty.incomplete.title')}
-              description={t('empty.incomplete.description', { percent: completeness })}
+              title="Complete your profile to unlock matches"
+              description={`Your profile is ${completeness}% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.`}
               action={
                 <Button asChild>
                   <Link href="/profile/personal">
-                    {t('empty.incomplete.cta')}
+                    Complete Profile
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
@@ -179,7 +170,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           <div
             role="feed"
             aria-busy="false"
-            aria-label={t('ariaLabel', { count: items.length })}
+            aria-label={`${items.length} match suggestions`}
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           >
             {items.map((item) => (

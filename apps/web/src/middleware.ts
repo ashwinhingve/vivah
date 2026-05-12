@@ -1,59 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import createIntlMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
 import { hasSessionCookie } from '@/lib/auth/session-cookie';
 
-const intlMiddleware = createIntlMiddleware(routing);
-
-const PROTECTED_PREFIXES = [
-  '/dashboard',
-  '/vendor-dashboard',
-  '/admin',
-  '/support',
-  '/feed',
-  '/vendors',
-  '/vendor',
-  '/bookings',
-  '/chat',
-  '/matches',
-  '/profile',
-  '/wedding',
-  '/weddings',
-  '/payments',
-  '/likes',
-  '/shortlist',
-  '/requests',
-  '/notifications',
-  '/settings',
-  '/pricing',
-  '/store',
-  '/rentals',
-  '/viewers',
-  '/coordinator',
-  '/family',
-] as const;
-
-const GUEST_ONLY_PREFIXES = ['/login', '/verify', '/register'] as const;
-
-function stripLocale(pathname: string): string {
-  return pathname.replace(/^\/(en|hi)(?=\/|$)/, '') || '/';
-}
-
-function hasPrefix(path: string, prefix: string): boolean {
-  return path === prefix || path.startsWith(`${prefix}/`);
-}
-
 export async function middleware(request: NextRequest) {
-  // 1. Run locale routing first. If next-intl issues a redirect (unknown
-  //    locale, prefix normalisation), honor it before our auth logic.
-  const intlResponse = intlMiddleware(request);
-  if (intlResponse.status >= 300 && intlResponse.status < 400) {
-    return intlResponse;
-  }
+  const { pathname } = request.nextUrl;
 
-  const pathname = stripLocale(request.nextUrl.pathname);
-
-  if (PROTECTED_PREFIXES.some((p) => hasPrefix(pathname, p))) {
+  if (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/vendor-dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/support') ||
+    pathname.startsWith('/feed') ||
+    pathname.startsWith('/vendors') ||
+    pathname.startsWith('/bookings') ||
+    pathname.startsWith('/chat') ||
+    pathname.startsWith('/matches') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/wedding') ||
+    pathname.startsWith('/payments') ||
+    pathname.startsWith('/likes') ||
+    pathname.startsWith('/shortlist') ||
+    pathname.startsWith('/requests') ||
+    pathname.startsWith('/notifications') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/store') ||
+    pathname.startsWith('/rentals') ||
+    pathname.startsWith('/viewers') ||
+    pathname.startsWith('/coordinator') ||
+    pathname.startsWith('/family') ||
+    pathname.startsWith('/weddings') ||
+    pathname.startsWith('/vendor')
+  ) {
     let role = 'INDIVIDUAL';
     let sessionOk = false;
 
@@ -82,9 +59,11 @@ export async function middleware(request: NextRequest) {
       if (!hasCookie) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
-      return intlResponse;
+      // API down but cookie exists — let request through, page will handle auth
+      return NextResponse.next();
     }
 
+    // Guard role-specific dashboards against wrong roles
     if (pathname.startsWith('/vendor-dashboard') && role !== 'VENDOR') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
@@ -101,6 +80,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
+    // Redirect /dashboard to the correct role dashboard
     if (pathname === '/dashboard' && role === 'VENDOR') {
       return NextResponse.redirect(new URL('/vendor-dashboard', request.url));
     }
@@ -116,8 +96,13 @@ export async function middleware(request: NextRequest) {
     if (pathname === '/dashboard' && role === 'FAMILY_MEMBER') {
       return NextResponse.redirect(new URL('/family', request.url));
     }
-  } else if (GUEST_ONLY_PREFIXES.some((p) => hasPrefix(pathname, p))) {
-    if (hasSessionCookie(request.cookies)) {
+  } else if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/verify') ||
+    pathname.startsWith('/register')
+  ) {
+    const hasCookie = hasSessionCookie(request.cookies);
+    if (hasCookie) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   } else if (pathname.startsWith('/account/recovery')) {
@@ -126,9 +111,39 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return intlResponse;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
+  matcher: [
+    '/dashboard/:path*',
+    '/vendor-dashboard/:path*',
+    '/admin/:path*',
+    '/support/:path*',
+    '/feed/:path*',
+    '/vendors/:path*',
+    '/vendor/:path*',
+    '/bookings/:path*',
+    '/chat/:path*',
+    '/matches/:path*',
+    '/profile/:path*',
+    '/wedding/:path*',
+    '/weddings/:path*',
+    '/payments/:path*',
+    '/likes/:path*',
+    '/shortlist/:path*',
+    '/requests/:path*',
+    '/notifications/:path*',
+    '/settings/:path*',
+    '/pricing',
+    '/store/:path*',
+    '/rentals/:path*',
+    '/viewers/:path*',
+    '/coordinator/:path*',
+    '/family/:path*',
+    '/login',
+    '/verify',
+    '/register',
+    '/account/recovery',
+  ],
 };

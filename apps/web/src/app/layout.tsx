@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
 import { ToastProvider } from '@/components/ui/toast';
 import { PostHogProvider } from '@/components/providers/PostHogProvider.client';
 import { DemoPill } from '@/components/shared/DemoPill';
@@ -40,12 +38,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang={locale} className={`${playfair.variable} ${notoDevanagari.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${notoDevanagari.variable}`}>
       <body className="bg-background text-foreground antialiased overflow-x-clip font-body">
         <a
           href="#main-content"
@@ -53,14 +48,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         >
           Skip to content
         </a>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <PostHogProvider>
-            <ToastProvider>
-              {children}
-              <DemoPill />
-            </ToastProvider>
-          </PostHogProvider>
-        </NextIntlClientProvider>
+        <PostHogProvider>
+          <ToastProvider>
+            {children}
+            <DemoPill />
+          </ToastProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
