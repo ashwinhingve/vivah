@@ -10,7 +10,8 @@ import { eq, and, or } from 'drizzle-orm';
 import { authenticate } from '../auth/middleware.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 import { ok, err } from '../lib/response.js';
-import { env } from '../lib/env.js';
+import { env, shouldUseMockMongo } from '../lib/env.js';
+import { mockGet } from '../lib/mockStore.js';
 import { redis } from '../lib/redis.js';
 import { db } from '../lib/db.js';
 import { profiles, matchRequests } from '@smartshaadi/db';
@@ -620,8 +621,13 @@ aiRouter.get(
     }
 
     // ── Enrich with MongoDB content ──────────────────────────────────────────
+    // Reads must align with content.service.ts writes (shouldUseMockMongo gate).
+    // Returning {} unconditionally in mock mode dropped real profile data and
+    // produced low-quality DPI scores that surfaced as canned-looking output.
     async function fetchContent(pgUserId: string): Promise<DpiProfileContent> {
-      if (env.USE_MOCK_SERVICES) return {};
+      if (shouldUseMockMongo) {
+        return (mockGet(pgUserId) ?? {}) as DpiProfileContent;
+      }
       try {
         const content = await (ProfileContent as { findOne: (q: object) => { select: (f: string) => { lean: () => Promise<unknown> } } })
           .findOne({ userId: pgUserId })
