@@ -24,7 +24,7 @@ export type CreateWeddingState =
 
 interface CreateWeddingResponse {
   success: boolean;
-  data?:   { id: string };
+  data?:   { wedding?: { id: string } };
   error?:  ApiError | string;
 }
 
@@ -58,12 +58,13 @@ export async function createWeddingAction(
     return { status: 'error', message: 'Network error. Please check your connection and try again.' };
   }
 
-  if (!json.success || !json.data?.id) {
+  const newWeddingId = json.data?.wedding?.id;
+  if (!json.success || !newWeddingId) {
     return {
       status: 'error',
       message: extractErrorMessage(json, 'Could not create wedding. Please try again.'),
     };
   }
 
-  redirect(`/weddings/${json.data.id}`);
+  redirect(`/weddings/${newWeddingId}`);
 }
