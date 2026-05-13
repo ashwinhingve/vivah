@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import { profiles, profilePhotos, profileSections, communityZones, user } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
@@ -164,10 +164,13 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
     .from(communityZones)
     .where(eq(communityZones.profileId, profile.id));
 
-  // Fetch MongoDB content (or mock store in dev)
+  // Fetch MongoDB content (or mock store in dev). Reads MUST match writes:
+  // content.service.ts gates writes on `shouldUseMockMongo` (USE_MOCK_SERVICES &&
+  // !MONGO_LIVE). If we used `env.USE_MOCK_SERVICES` here, MONGO_LIVE=true would
+  // direct writes to Mongo while reads still hit mockStore → empty profile tabs.
   type MongoDoc = { userId: string; [key: string]: unknown };
   let contentDoc: MongoDoc | null;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     contentDoc = mockGet(profile.userId) as MongoDoc | null;
   } else {
     const contentModel = ProfileContent as unknown as Model<MongoDoc>;
@@ -317,10 +320,13 @@ export async function getProfileById(
     ...(urls[i] != null ? { url: urls[i] as string } : {}),
   }));
 
-  // Fetch MongoDB content (or mock store in dev)
+  // Fetch MongoDB content (or mock store in dev). Reads MUST match writes:
+  // content.service.ts gates writes on `shouldUseMockMongo` (USE_MOCK_SERVICES &&
+  // !MONGO_LIVE). If we used `env.USE_MOCK_SERVICES` here, MONGO_LIVE=true would
+  // direct writes to Mongo while reads still hit mockStore → empty profile tabs.
   type MongoDoc = { userId: string; [key: string]: unknown };
   let contentDoc: MongoDoc | null;
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     contentDoc = mockGet(profile.userId) as MongoDoc | null;
   } else {
     const contentModel = ProfileContent as unknown as Model<MongoDoc>;
@@ -375,7 +381,7 @@ export async function savePersonality(
   userId: string,
   personality: PersonalityProfile,
 ): Promise<void> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockMongo) {
     mockUpsertField(userId, "personality", personality);
     return;
   }
