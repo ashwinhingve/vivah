@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, type JSX } from 'react';
+import { useState, useEffect, useTransition, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 import { savePersonalityAction } from '../actions';
 
@@ -12,6 +12,8 @@ interface PersonalityState {
   ambitiousBalanced: number;
   familyIndependent: number;
 }
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const AXES: Array<{ key: keyof PersonalityState; label: string; left: string; right: string }> = [
   { key: 'introvertExtrovert', label: 'Social energy',     left: 'Introvert',    right: 'Extrovert' },
@@ -31,11 +33,35 @@ const DEFAULTS: PersonalityState = {
   familyIndependent: 4,
 };
 
+function isPersonalityState(value: unknown): value is Partial<PersonalityState> {
+  return typeof value === 'object' && value !== null;
+}
+
 export default function PersonalityPage(): JSX.Element {
   const router = useRouter();
   const [vals, setVals] = useState<PersonalityState>(DEFAULTS);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/profiles/me`, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (!res.ok) return;
+        const json = (await res.json()) as { success: boolean; data?: { personality?: unknown } };
+        if (!cancelled && json.success && isPersonalityState(json.data?.personality)) {
+          setVals((v) => ({ ...v, ...(json.data!.personality as Partial<PersonalityState>) }));
+        }
+      } catch {
+        // Keep DEFAULTS — server roundtrip not critical for first paint.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="mx-auto max-w-md p-5 space-y-6">

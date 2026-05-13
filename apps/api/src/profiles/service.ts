@@ -189,6 +189,7 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
     ...(contentDoc?.lifestyle          != null && { lifestyle:          contentDoc.lifestyle          as LifestyleSection }),
     ...(contentDoc?.horoscope          != null && { horoscope:          contentDoc.horoscope          as HoroscopeSection }),
     ...(contentDoc?.partnerPreferences != null && { partnerPreferences: contentDoc.partnerPreferences as PartnerPreferencesSection }),
+    ...(contentDoc?.personality        != null && { personality:        contentDoc.personality        as PersonalityProfile }),
     ...(typeof contentDoc?.aboutMe === 'string' && { aboutMe: contentDoc.aboutMe }),
     ...(communityRow != null && {
       community:     communityRow.community,
@@ -360,6 +361,7 @@ export async function getProfileById(
     ...(contentDoc?.lifestyle   != null && { lifestyle:          contentDoc.lifestyle   as LifestyleSection }),
     ...(contentDoc?.horoscope   != null && { horoscope:          contentDoc.horoscope   as HoroscopeSection }),
     ...(contentDoc?.partnerPreferences != null && { partnerPreferences: contentDoc.partnerPreferences as PartnerPreferencesSection }),
+    ...(contentDoc?.personality        != null && { personality:        contentDoc.personality        as PersonalityProfile }),
     ...(typeof contentDoc?.aboutMe === 'string' && { aboutMe: contentDoc.aboutMe }),
     ...(sectionsRow != null && {
       sectionCompletion: {
