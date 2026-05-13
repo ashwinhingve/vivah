@@ -15,8 +15,14 @@ function getSessionToken(): string | null {
 
 type Status = 'idle' | 'loading' | 'sent' | 'error';
 
-export function SendInterestButton({ profileId }: { profileId: string }) {
-  const [status, setStatus] = useState<Status>('idle');
+export function SendInterestButton({
+  profileId,
+  initialSent = false,
+}: {
+  profileId: string;
+  initialSent?: boolean;
+}) {
+  const [status, setStatus] = useState<Status>(initialSent ? 'sent' : 'idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleClick() {

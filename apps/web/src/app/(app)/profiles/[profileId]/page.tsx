@@ -28,6 +28,32 @@ async function getProfile(profileId: string): Promise<ProfileDetailResponse | nu
   }
 }
 
+async function hasSentInterestTo(receiverProfileId: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value;
+  if (!token) return false;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/matchmaking/requests/sent?page=1&limit=100`, {
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return false;
+    const json = (await res.json()) as {
+      success: boolean;
+      data?: { requests?: Array<{ receiverId?: string; status?: string }> };
+    };
+    if (!json.success) return false;
+    return (json.data?.requests ?? []).some(
+      (r) =>
+        r.receiverId === receiverProfileId &&
+        r.status !== 'WITHDRAWN' &&
+        r.status !== 'EXPIRED',
+    );
+  } catch {
+    return false;
+  }
+}
+
 interface MatchScoreSlice { explainer: MatchExplainer | null; distanceKm: number | null }
 
 async function getMatchScore(profileId: string): Promise<MatchScoreSlice | null> {
@@ -68,10 +94,11 @@ interface Props {
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const [profile, entitlements, matchScore] = await Promise.all([
+  const [profile, entitlements, matchScore, interestAlreadySent] = await Promise.all([
     getProfile(profileId),
     getEntitlementsForCurrentUser(),
     getMatchScore(profileId),
+    hasSentInterestTo(profileId),
   ]);
   if (!profile) notFound();
 
@@ -233,7 +260,7 @@ export default async function ProfileViewPage({ params }: Props) {
       {!isSelf && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-border px-4 py-3 shadow-2xl">
           <div className="mx-auto max-w-lg flex items-center gap-3">
-            <SendInterestButton profileId={profileId} />
+            <SendInterestButton profileId={profileId} initialSent={interestAlreadySent} />
             <button
               type="button"
               aria-label="Bookmark profile"
