@@ -2,7 +2,7 @@
 
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { env } from '../lib/env.js';
+import { env, shouldUseMockR2 } from '../lib/env.js';
 
 const r2 = new S3Client({
   region: 'auto',
@@ -18,7 +18,7 @@ const r2 = new S3Client({
  * When USE_MOCK_SERVICES=true, returns a stable mock URL without calling R2.
  */
 export async function getPhotoUrl(r2Key: string, expiresIn = 900): Promise<string> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockR2) {
     return `${env.API_BASE_URL}/__mock-r2/${r2Key}`;
   }
   const command = new GetObjectCommand({ Bucket: env.CLOUDFLARE_R2_BUCKET, Key: r2Key });
@@ -43,7 +43,7 @@ export async function getPresignedUploadUrl(
   const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
   const r2Key = `${folder}/${Date.now()}-${sanitized}`;
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockR2) {
     return {
       uploadUrl: `${env.API_BASE_URL}/__mock-r2/upload/${r2Key}`,
       r2Key,

@@ -28,6 +28,10 @@ const envSchema = z.object({
   // until those provider registrations are completed.
   MONGO_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // R2 live override: when 'true', use real Cloudflare R2 even if USE_MOCK_SERVICES=true.
+  // Lets us flip photos to real R2 in production without dropping the global mock flag.
+  R2_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // Mock OTP override value — defaults to 123456 for local dev / tests.
   // Set to a random hard-to-guess value (e.g. `openssl rand -hex 4`) in any
   // deployed env where USE_MOCK_SERVICES=true is still set, otherwise anyone
@@ -179,3 +183,11 @@ export const env = parsed.data;
  * - false → write to MongoDB via mongoose (default real-services mode, OR MONGO_LIVE=true override)
  */
 export const shouldUseMockMongo = env.USE_MOCK_SERVICES && !env.MONGO_LIVE;
+
+/**
+ * Mirror of shouldUseMockMongo for R2 photo storage.
+ *
+ * - true  → presigned URLs route through /__mock-r2/* on the API host
+ * - false → real Cloudflare R2 presigned URLs (default real-services, OR R2_LIVE=true override)
+ */
+export const shouldUseMockR2 = env.USE_MOCK_SERVICES && !env.R2_LIVE;

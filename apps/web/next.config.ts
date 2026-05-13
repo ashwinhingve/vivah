@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.pexels.com' },
       { protocol: 'https', hostname: '**.r2.cloudflarestorage.com' },
       { protocol: 'https', hostname: '**.r2.dev' },
+      { protocol: 'https', hostname: 'api.smartshaadi.co.in' },
+      { protocol: 'https', hostname: '**.smartshaadi.co.in' },
       { protocol: 'http',  hostname: 'localhost' },
       { protocol: 'http',  hostname: '127.0.0.1' },
     ],
