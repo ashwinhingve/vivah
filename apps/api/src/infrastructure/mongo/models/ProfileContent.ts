@@ -136,6 +136,17 @@ const profileContentSchema = new Schema(
       unlockedWith:  [String],       // profile IDs that can see contact
     },
 
+    // 7-point sliders set on /profile/personality. Must be declared so Mongoose
+    // strict mode does not silently drop the field on $set during save.
+    personality: {
+      introvertExtrovert: Number,
+      traditionalModern:  Number,
+      plannerSpontaneous: Number,
+      religiousSecular:   Number,
+      ambitiousBalanced:  Number,
+      familyIndependent:  Number,
+    },
+
     aboutMe:              String,    // Free text bio
     partnerDescription:   String,    // Free text ideal partner description
 
