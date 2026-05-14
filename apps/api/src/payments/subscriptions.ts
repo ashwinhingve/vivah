@@ -29,6 +29,67 @@ function err(message: string, code: string, status: number): ServiceError {
   return Object.assign(new Error(message), { code, status });
 }
 
+// Mirror of packages/db/seed/full-demo.ts PLAN_ROWS. Inserted on demand when
+// the plans table is empty so deployments work without a separate seed run.
+const DEFAULT_PLAN_ROWS = [
+  {
+    id:             'aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+    code:           'STANDARD_M',
+    name:           'Standard Monthly',
+    tier:           'STANDARD' as const,
+    interval:       'MONTHLY' as const,
+    amount:         '999.00',
+    razorpayPlanId: 'mock_plan_standard_monthly',
+    features:       ['Unlimited matches', 'Basic filters', 'Chat'],
+    active:         true,
+  },
+  {
+    id:             'aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
+    code:           'STANDARD_Y',
+    name:           'Standard Yearly',
+    tier:           'STANDARD' as const,
+    interval:       'YEARLY' as const,
+    amount:         '8999.00',
+    razorpayPlanId: 'mock_plan_standard_yearly',
+    features:       ['Unlimited matches', 'Basic filters', 'Chat', '2 months free'],
+    active:         true,
+  },
+  {
+    id:             'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+    code:           'PREMIUM_M',
+    name:           'Premium Monthly',
+    tier:           'PREMIUM' as const,
+    interval:       'MONTHLY' as const,
+    amount:         '2499.00',
+    razorpayPlanId: 'mock_plan_premium_monthly',
+    features:       ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access'],
+    active:         true,
+  },
+  {
+    id:             'aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+    code:           'PREMIUM_Y',
+    name:           'Premium Yearly',
+    tier:           'PREMIUM' as const,
+    interval:       'YEARLY' as const,
+    amount:         '22999.00',
+    razorpayPlanId: 'mock_plan_premium_yearly',
+    features:       ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access', '2 months free'],
+    active:         true,
+  },
+];
+
+let plansSeeded = false;
+async function ensurePlansSeeded(): Promise<void> {
+  if (plansSeeded) return;
+  if (process.env['NODE_ENV'] === 'test') { plansSeeded = true; return; }
+  const [existing] = await db.select({ id: plans.id }).from(plans).limit(1);
+  if (existing) { plansSeeded = true; return; }
+  for (const row of DEFAULT_PLAN_ROWS) {
+    await db.insert(plans).values(row).onConflictDoNothing();
+  }
+  plansSeeded = true;
+}
+
 export async function listPlans(): Promise<Array<{
   id:       string;
   code:     string;
@@ -38,6 +99,7 @@ export async function listPlans(): Promise<Array<{
   amount:   number;
   features: unknown;
 }>> {
+  await ensurePlansSeeded();
   const rows = await db.select().from(plans).where(eq(plans.active, true));
   return rows.map(r => ({
     id:       r.id,
@@ -83,6 +145,7 @@ export async function startSubscription(userId: string, planCode: string): Promi
   shortUrl:           string | null;
   status:             string;
 }> {
+  await ensurePlansSeeded();
   const [plan] = await db.select().from(plans).where(eq(plans.code, planCode));
   if (!plan) throw err('Plan not found', 'NOT_FOUND', 404);
   if (!plan.active) throw err('Plan is inactive', 'INACTIVE', 410);
