@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { ProfileImage } from '@/components/ui/ProfileImage.client'
 import Link from 'next/link'
 import {
   ArrowLeft, MoreVertical, Search as SearchIcon, BellOff, Bell,
@@ -162,19 +162,18 @@ export default function ChatHeader({
         aria-label="View profile"
       >
         <div className="relative shrink-0">
-          {photoUrl ? (
-            <Image
-              src={photoUrl}
-              alt={initialOther?.firstName ?? 'Participant'}
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal">
-              {initial}
-            </div>
-          )}
+          <ProfileImage
+            src={photoUrl}
+            alt={initialOther?.firstName ?? 'Participant'}
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover"
+            fallback={
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal">
+                {initial}
+              </div>
+            }
+          />
           <span
             aria-label={isOnline ? 'Online' : 'Offline'}
             className={cn(

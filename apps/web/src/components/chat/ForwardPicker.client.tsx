@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { ProfileImage } from '@/components/ui/ProfileImage.client'
 import { X, Forward, Loader2 } from 'lucide-react'
 import type { ChatMessage, ConversationParticipantPreview } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'
@@ -139,20 +139,19 @@ export default function ForwardPicker({
                         'flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-surface-muted disabled:opacity-50',
                       )}
                     >
-                      {photoUrl ? (
-                        <Image
-                          src={photoUrl}
-                          alt=""
-                          aria-hidden="true"
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 shrink-0 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal">
-                          {initial}
-                        </div>
-                      )}
+                      <ProfileImage
+                        src={photoUrl}
+                        alt=""
+                        aria-hidden="true"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 shrink-0 rounded-full object-cover"
+                        fallback={
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal">
+                            {initial}
+                          </div>
+                        }
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
                           {t.other?.firstName ?? 'Match'}

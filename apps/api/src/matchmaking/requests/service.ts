@@ -871,6 +871,39 @@ export async function getWhoLikedMe(
   return { items, total: items.length };
 }
 
+// ── Match status with a specific profile ──────────────────────────────────────
+
+export type MatchRelationStatus = 'none' | 'sent_pending' | 'received_pending' | 'matched';
+
+export interface MatchStatusResult {
+  status: MatchRelationStatus;
+  requestId: string | null;
+}
+
+export async function getMatchStatusWith(
+  myProfileId: string,
+  otherProfileId: string,
+): Promise<MatchStatusResult> {
+  const rows = await db
+    .select({ id: matchRequests.id, senderId: matchRequests.senderId, status: matchRequests.status })
+    .from(matchRequests)
+    .where(and(
+      or(
+        and(eq(matchRequests.senderId, myProfileId), eq(matchRequests.receiverId, otherProfileId)),
+        and(eq(matchRequests.senderId, otherProfileId), eq(matchRequests.receiverId, myProfileId)),
+      ),
+      inArray(matchRequests.status, ['PENDING', 'ACCEPTED'] as MatchRequestStatus[]),
+    ))
+    .limit(1);
+
+  if (rows.length === 0) return { status: 'none', requestId: null };
+  const row = rows[0]!;
+
+  if (row.status === 'ACCEPTED') return { status: 'matched', requestId: row.id };
+  if (row.senderId === myProfileId) return { status: 'sent_pending', requestId: row.id };
+  return { status: 'received_pending', requestId: row.id };
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 async function fetchRequest(requestId: string): Promise<MatchRequest> {

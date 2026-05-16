@@ -39,6 +39,7 @@ import {
   getReceivedRequests,
   getSentRequests,
   getEnrichedRequests,
+  getMatchStatusWith,
   type ServiceError,
 } from './service.js';
 
@@ -227,6 +228,25 @@ matchRequestsRouter.get(
     if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
     try {
       const result = await getSentRequests(profileId, parsed.data.page, parsed.data.limit);
+      ok(res, result);
+    } catch (error) {
+      handleServiceError(res, error);
+    }
+  },
+);
+
+// ── GET /requests/status/:profileId ──────────────────────────────────────────
+
+matchRequestsRouter.get(
+  '/requests/status/:profileId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = z.string().uuid().safeParse(req.params['profileId']);
+    if (!parsed.success) { err(res, 'VALIDATION_ERROR', 'profileId must be a valid UUID', 400); return; }
+    const myProfileId = await resolveProfileId(req.user!.id);
+    if (!myProfileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
+    try {
+      const result = await getMatchStatusWith(myProfileId, parsed.data);
       ok(res, result);
     } catch (error) {
       handleServiceError(res, error);

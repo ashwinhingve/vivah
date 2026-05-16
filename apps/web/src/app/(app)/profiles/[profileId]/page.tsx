@@ -5,7 +5,7 @@ import { CompatibilityDisplay } from '@/components/profile/CompatibilityDisplay'
 import { ProfileTabs } from '@/components/profile/ProfileTabs.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ContactSection } from '@/components/profile/ContactSection';
-import { SendInterestButton } from '@/components/matching/SendInterestButton.client';
+import { MatchActionBar } from '@/components/matching/MatchActionBar.client';
 import type { ProfileDetailResponse, MatchExplainer } from '@smartshaadi/types';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { SimilarProfiles } from '@/components/matchmaking/SimilarProfiles';
@@ -28,29 +28,25 @@ async function getProfile(profileId: string): Promise<ProfileDetailResponse | nu
   }
 }
 
-async function hasSentInterestTo(receiverProfileId: string): Promise<boolean> {
+async function getMatchStatusWithProfile(
+  profileId: string,
+): Promise<{ status: 'none' | 'sent_pending' | 'received_pending' | 'matched'; requestId: string | null }> {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
-  if (!token) return false;
+  if (!token) return { status: 'none', requestId: null };
   try {
-    const res = await fetch(`${API_URL}/api/v1/matchmaking/requests/sent?page=1&limit=100`, {
+    const res = await fetch(`${API_URL}/api/v1/matchmaking/requests/status/${profileId}`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache: 'no-store',
     });
-    if (!res.ok) return false;
+    if (!res.ok) return { status: 'none', requestId: null };
     const json = (await res.json()) as {
       success: boolean;
-      data?: { requests?: Array<{ receiverId?: string; status?: string }> };
+      data?: { status: 'none' | 'sent_pending' | 'received_pending' | 'matched'; requestId: string | null };
     };
-    if (!json.success) return false;
-    return (json.data?.requests ?? []).some(
-      (r) =>
-        r.receiverId === receiverProfileId &&
-        r.status !== 'WITHDRAWN' &&
-        r.status !== 'EXPIRED',
-    );
+    return json.success && json.data ? json.data : { status: 'none', requestId: null };
   } catch {
-    return false;
+    return { status: 'none', requestId: null };
   }
 }
 
@@ -94,11 +90,11 @@ interface Props {
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const [profile, entitlements, matchScore, interestAlreadySent] = await Promise.all([
+  const [profile, entitlements, matchScore, matchStatus] = await Promise.all([
     getProfile(profileId),
     getEntitlementsForCurrentUser(),
     getMatchScore(profileId),
-    hasSentInterestTo(profileId),
+    getMatchStatusWithProfile(profileId),
   ]);
   if (!profile) notFound();
 
@@ -260,7 +256,11 @@ export default async function ProfileViewPage({ params }: Props) {
       {!isSelf && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-border px-4 py-3 shadow-2xl">
           <div className="mx-auto max-w-lg flex items-center gap-3">
-            <SendInterestButton profileId={profileId} initialSent={interestAlreadySent} />
+            <MatchActionBar
+                profileId={profileId}
+                initialStatus={isSelf ? 'none' : matchStatus.status}
+                requestId={matchStatus.requestId}
+              />
             <button
               type="button"
               aria-label="Bookmark profile"
