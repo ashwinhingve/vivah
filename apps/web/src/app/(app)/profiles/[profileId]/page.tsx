@@ -254,7 +254,7 @@ export default async function ProfileViewPage({ params }: Props) {
 
       {/* ── Sticky Bottom Action Bar (non-self only) ────── */}
       {!isSelf && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-border px-4 py-3 shadow-2xl">
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface border-t border-border px-4 py-3 shadow-2xl">
           <div className="mx-auto max-w-lg flex items-center gap-3">
             <MatchActionBar
                 profileId={profileId}
