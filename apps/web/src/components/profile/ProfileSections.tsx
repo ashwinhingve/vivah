@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import type {
   PersonalSection,
   FamilySection,
@@ -22,14 +19,22 @@ interface Props {
   kundliUrl?: string | null;
 }
 
-type Tab = 'Personal' | 'Family' | 'Career' | 'Lifestyle' | 'Horoscope' | 'Preferences';
-const TABS: Tab[] = ['Personal', 'Family', 'Career', 'Lifestyle', 'Horoscope', 'Preferences'];
-
 function cmToFtIn(cm: number): string {
   const totalInches = Math.round(cm / 2.54);
   const ft = Math.floor(totalInches / 12);
   const inches = totalInches % 12;
   return `${ft}'${inches}"`;
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
+      <div className="px-4 pt-4 pb-3 border-b border-border">
+        <h2 className="text-base font-semibold text-primary font-heading">{title}</h2>
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -55,10 +60,7 @@ function Chip({ label, teal }: { label: string; teal?: boolean }) {
   );
 }
 
-function PersonalTab({ personal }: { personal?: PersonalSection }) {
-  if (!personal) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No personal details added yet.</p>;
-  }
+function PersonalSection_({ personal }: { personal: PersonalSection }) {
   return (
     <div>
       {personal.height && <DetailRow label="Height" value={cmToFtIn(personal.height)} />}
@@ -77,10 +79,7 @@ function PersonalTab({ personal }: { personal?: PersonalSection }) {
   );
 }
 
-function FamilyTab({ family }: { family?: FamilySection }) {
-  if (!family) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No family details added yet.</p>;
-  }
+function FamilySection_({ family }: { family: FamilySection }) {
   return (
     <div>
       {family.familyType && <DetailRow label="Family Type" value={family.familyType} />}
@@ -96,7 +95,10 @@ function FamilyTab({ family }: { family?: FamilySection }) {
         <DetailRow label="Mother's Occupation" value={family.motherOccupation} />
       )}
       {family.siblings && family.siblings.length > 0 && (
-        <DetailRow label="Siblings" value={`${family.siblings.length} sibling${family.siblings.length > 1 ? 's' : ''}`} />
+        <DetailRow
+          label="Siblings"
+          value={`${family.siblings.length} sibling${family.siblings.length > 1 ? 's' : ''}`}
+        />
       )}
       {family.familyAbout && (
         <p className="mt-3 text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
@@ -107,16 +109,13 @@ function FamilyTab({ family }: { family?: FamilySection }) {
   );
 }
 
-function CareerTab({
+function CareerSection_({
   education,
   profession,
 }: {
   education?: EducationSection;
   profession?: ProfessionSection;
 }) {
-  if (!education && !profession) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No career details added yet.</p>;
-  }
   return (
     <div>
       {education?.degree && <DetailRow label="Degree" value={education.degree} />}
@@ -138,34 +137,32 @@ function CareerTab({
   );
 }
 
-function LifestyleTab({ lifestyle }: { lifestyle?: LifestyleSection }) {
-  if (!lifestyle) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No lifestyle details added yet.</p>;
-  }
+function LifestyleSection_({ lifestyle }: { lifestyle: LifestyleSection }) {
   return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {lifestyle.diet && <Chip label={lifestyle.diet} teal />}
-        {lifestyle.smoking && lifestyle.smoking !== 'NEVER' && (
-          <Chip label={`Smoking: ${lifestyle.smoking.toLowerCase()}`} />
-        )}
-        {lifestyle.drinking && lifestyle.drinking !== 'NEVER' && (
-          <Chip label={`Drinking: ${lifestyle.drinking.toLowerCase()}`} />
-        )}
-        {lifestyle.fitnessLevel && <Chip label={lifestyle.fitnessLevel} />}
-        {lifestyle.ownHouse && <Chip label="Owns house" teal />}
-        {lifestyle.ownCar && <Chip label="Owns car" />}
-        {lifestyle.hobbies?.map((h) => <Chip key={h} label={h} teal />)}
-        {lifestyle.interests?.map((i) => <Chip key={i} label={i} />)}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {lifestyle.diet && <Chip label={lifestyle.diet} teal />}
+      {lifestyle.smoking && lifestyle.smoking !== 'NEVER' && (
+        <Chip label={`Smoking: ${lifestyle.smoking.toLowerCase()}`} />
+      )}
+      {lifestyle.drinking && lifestyle.drinking !== 'NEVER' && (
+        <Chip label={`Drinking: ${lifestyle.drinking.toLowerCase()}`} />
+      )}
+      {lifestyle.fitnessLevel && <Chip label={lifestyle.fitnessLevel} />}
+      {lifestyle.ownHouse && <Chip label="Owns house" teal />}
+      {lifestyle.ownCar && <Chip label="Owns car" />}
+      {lifestyle.hobbies?.map((h) => <Chip key={h} label={h} teal />)}
+      {lifestyle.interests?.map((i) => <Chip key={i} label={i} />)}
     </div>
   );
 }
 
-function HoroscopeTab({ horoscope, kundliUrl }: { horoscope?: HoroscopeSection; kundliUrl?: string | null }) {
-  if (!horoscope) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No horoscope details added yet.</p>;
-  }
+function HoroscopeSection_({
+  horoscope,
+  kundliUrl,
+}: {
+  horoscope: HoroscopeSection;
+  kundliUrl?: string | null;
+}) {
   return (
     <div className="space-y-4">
       <div>
@@ -175,7 +172,9 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope?: HoroscopeSection; 
         {horoscope.tob && <DetailRow label="Time of Birth" value={horoscope.tob} />}
         {horoscope.manglik && (
           <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border-light last:border-0">
-            <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">Manglik</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wide shrink-0 pt-0.5">
+              Manglik
+            </span>
             <span
               className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                 horoscope.manglik === 'YES'
@@ -205,10 +204,11 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope?: HoroscopeSection; 
   );
 }
 
-function PreferencesTab({ partnerPreferences }: { partnerPreferences?: PartnerPreferencesSection }) {
-  if (!partnerPreferences) {
-    return <p className="text-sm text-muted-foreground py-4 text-center">No partner preferences added yet.</p>;
-  }
+function PreferencesSection_({
+  partnerPreferences,
+}: {
+  partnerPreferences: PartnerPreferencesSection;
+}) {
   return (
     <div>
       {partnerPreferences.ageRange && (
@@ -227,10 +227,16 @@ function PreferencesTab({ partnerPreferences }: { partnerPreferences?: PartnerPr
         <DetailRow label="Manglik" value={partnerPreferences.manglik.replace(/_/g, ' ')} />
       )}
       {partnerPreferences.openToInterCaste != null && (
-        <DetailRow label="Inter-caste" value={partnerPreferences.openToInterCaste ? 'Open' : 'Same community only'} />
+        <DetailRow
+          label="Inter-caste"
+          value={partnerPreferences.openToInterCaste ? 'Open' : 'Same community only'}
+        />
       )}
       {partnerPreferences.openToInterfaith != null && (
-        <DetailRow label="Inter-faith" value={partnerPreferences.openToInterfaith ? 'Open' : 'Same religion only'} />
+        <DetailRow
+          label="Inter-faith"
+          value={partnerPreferences.openToInterfaith ? 'Open' : 'Same religion only'}
+        />
       )}
       {partnerPreferences.religion && partnerPreferences.religion.length > 0 && (
         <DetailRow label="Religion" value={partnerPreferences.religion.join(', ')} />
@@ -250,7 +256,7 @@ function PreferencesTab({ partnerPreferences }: { partnerPreferences?: PartnerPr
   );
 }
 
-export function ProfileTabs({
+export function ProfileSections({
   personal,
   family,
   education,
@@ -260,37 +266,40 @@ export function ProfileTabs({
   partnerPreferences,
   kundliUrl,
 }: Props) {
-  const [active, setActive] = useState<Tab>('Personal');
+  const hasCareer = !!(education || profession);
 
   return (
-    <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
-      {/* Tab bar */}
-      <div className="flex border-b border-border overflow-x-auto scrollbar-hide">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActive(tab)}
-            className={`flex-1 min-w-[80px] py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-              active === tab
-                ? 'text-primary border-b-2 border-primary bg-background'
-                : 'text-muted-foreground hover:text-foreground hover:bg-background'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      <div className="p-4">
-        {active === 'Personal' && <PersonalTab personal={personal} />}
-        {active === 'Family' && <FamilyTab family={family} />}
-        {active === 'Career' && <CareerTab education={education} profession={profession} />}
-        {active === 'Lifestyle' && <LifestyleTab lifestyle={lifestyle} />}
-        {active === 'Horoscope' && <HoroscopeTab horoscope={horoscope} kundliUrl={kundliUrl} />}
-        {active === 'Preferences' && <PreferencesTab partnerPreferences={partnerPreferences} />}
-      </div>
+    <div className="space-y-4">
+      {personal && (
+        <Section title="Personal">
+          <PersonalSection_ personal={personal} />
+        </Section>
+      )}
+      {family && (
+        <Section title="Family">
+          <FamilySection_ family={family} />
+        </Section>
+      )}
+      {hasCareer && (
+        <Section title="Career">
+          <CareerSection_ education={education} profession={profession} />
+        </Section>
+      )}
+      {lifestyle && (
+        <Section title="Lifestyle">
+          <LifestyleSection_ lifestyle={lifestyle} />
+        </Section>
+      )}
+      {horoscope && (
+        <Section title="Horoscope">
+          <HoroscopeSection_ horoscope={horoscope} kundliUrl={kundliUrl} />
+        </Section>
+      )}
+      {partnerPreferences && (
+        <Section title="Partner Preferences">
+          <PreferencesSection_ partnerPreferences={partnerPreferences} />
+        </Section>
+      )}
     </div>
   );
 }

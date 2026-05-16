@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { ProfileHero } from '@/components/profile/ProfileHero';
 import { CompatibilityDisplay } from '@/components/profile/CompatibilityDisplay';
-import { ProfileTabs } from '@/components/profile/ProfileTabs.client';
+import { ProfileSections } from '@/components/profile/ProfileSections';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ContactSection } from '@/components/profile/ContactSection';
 import { MatchActionBar } from '@/components/matching/MatchActionBar.client';
@@ -225,8 +225,8 @@ export default async function ProfileViewPage({ params }: Props) {
             </div>
           )}
 
-          {/* ── Tabbed Details ─────────────────────────────── */}
-          <ProfileTabs
+          {/* ── Profile Sections ───────────────────────────── */}
+          <ProfileSections
             personal={profile.personal}
             family={profile.family}
             education={profile.education}
