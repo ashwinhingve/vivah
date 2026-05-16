@@ -4,7 +4,7 @@ import { profiles, profilePhotos, user } from '@smartshaadi/db'
 import { db } from '../lib/db.js'
 import { Chat } from '../infrastructure/mongo/models/Chat.js'
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js'
-import { env } from '../lib/env.js'
+import { shouldUseMockMongo } from '../lib/env.js'
 import { mockGet } from '../lib/mockStore.js'
 import { getPresenceMany } from './presence.js'
 import type { ConversationListItem, ConversationParticipantPreview } from '@smartshaadi/types'
@@ -49,7 +49,7 @@ async function buildParticipantPreviews(
   for (const p of photoRows) photoByProfile.set(p.profileId, p.r2Key)
 
   let contentByUser = new Map<string, { city: string | null; dob: Date | null; firstName: string | null }>()
-  if (!env.USE_MOCK_SERVICES) {
+  if (!shouldUseMockMongo) {
     const userIds = profileRows.map((r) => r.userId)
     if (userIds.length > 0) {
       const model = ProfileContent as unknown as Model<{
@@ -146,7 +146,7 @@ export async function listConversations(
 ): Promise<ConversationListItem[]> {
   const { profileId, filter = 'all' } = opts
 
-  if (env.USE_MOCK_SERVICES) return []
+  if (shouldUseMockMongo) return []
 
   const docs = (await Chat.find({ participants: profileId })
     .select(

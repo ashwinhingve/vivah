@@ -1,6 +1,6 @@
 import type { Namespace, Socket } from 'socket.io'
 import { Chat } from '../../infrastructure/mongo/models/Chat.js'
-import { env } from '../../lib/env.js'
+import { shouldUseMockMongo } from '../../lib/env.js'
 import { mockGet } from '../../lib/mockStore.js'
 import { notificationsQueue } from '../../infrastructure/redis/queues.js'
 import { resolveProfileId } from '../../lib/profile.js'
@@ -103,7 +103,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   })
 
   async function loadParticipants(matchRequestId: string): Promise<string[]> {
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       const stored = mockGet(matchRequestId)
       const chat = stored?.['chat'] as { participants?: string[] } | undefined
       return chat?.participants ?? []
@@ -178,7 +178,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     const sentAt = new Date()
 
     let replyTo: { messageId: string; senderId: string; type: string; preview: string } | null = null
-    if (replyToId && !env.USE_MOCK_SERVICES) {
+    if (replyToId && !shouldUseMockMongo) {
       try {
         const src = await Chat.findOne({ matchRequestId })
           .select('messages._id messages.senderId messages.content messages.type messages.deletedAt')
@@ -227,7 +227,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     }
 
     let savedId: string | null = null
-    if (!env.USE_MOCK_SERVICES) {
+    if (!shouldUseMockMongo) {
       try {
         const updated = await Chat.findOneAndUpdate(
           { matchRequestId, participants: profileId },
@@ -315,7 +315,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     if (typeof content !== 'string' || !content.trim() || content.length > 4000) {
       socket.emit('error', { message: 'Invalid edit content' }); return
     }
-    if (env.USE_MOCK_SERVICES) return
+    if (shouldUseMockMongo) return
 
     try {
       const chat = await Chat.findOne({ matchRequestId })
@@ -350,7 +350,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageId: string }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
-    if (env.USE_MOCK_SERVICES) return
+    if (shouldUseMockMongo) return
 
     try {
       const chat = await Chat.findOne({ matchRequestId })
@@ -393,7 +393,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     if (!ALLOWED_REACTIONS.has(emoji)) {
       socket.emit('error', { message: 'Reaction not allowed' }); return
     }
-    if (env.USE_MOCK_SERVICES) return
+    if (shouldUseMockMongo) return
 
     try {
       // Replace any existing reaction by this profile, then add new one.
@@ -429,7 +429,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageId: string }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
-    if (env.USE_MOCK_SERVICES) return
+    if (shouldUseMockMongo) return
 
     try {
       const result = await Chat.findOneAndUpdate(
@@ -460,7 +460,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
     if (!Array.isArray(messageIds) || messageIds.length === 0) return
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       io.to(matchRequestId).emit('message_delivered', { messageIds, profileId })
       return
     }
@@ -485,7 +485,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     if (!profileId) return
 
     const readAt = new Date()
-    if (!env.USE_MOCK_SERVICES) {
+    if (!shouldUseMockMongo) {
       try {
         await Chat.updateOne(
           { matchRequestId },

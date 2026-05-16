@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { authenticate } from '../auth/middleware.js'
 import { Chat } from '../infrastructure/mongo/models/Chat.js'
-import { env } from '../lib/env.js'
+import { shouldUseMockMongo } from '../lib/env.js'
 import { ok, err } from '../lib/response.js'
 import { getPresignedUploadUrl } from '../storage/service.js'
 import { resolveProfileId } from '../lib/profile.js'
@@ -59,7 +59,7 @@ router.get(
     const profileId = await requireProfileId(req, res)
     if (!profileId) return
     const exclude = (req.query['exclude'] as string | undefined) ?? ''
-    if (env.USE_MOCK_SERVICES) { ok(res, []); return }
+    if (shouldUseMockMongo) { ok(res, []); return }
 
     try {
       const docs = await Chat.find({ participants: profileId })
@@ -107,7 +107,7 @@ router.get(
     const page = Math.max(1, Number(req.query['page']) || 1)
     const limit = Math.min(100, Math.max(1, Number(req.query['limit']) || 50))
 
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       ok(res, { messages: [], total: 0, other: null }, 200, { page, limit })
       return
     }
@@ -157,7 +157,7 @@ router.get(
     const q = ((req.query['q'] as string | undefined) ?? '').trim().toLowerCase()
     if (q.length < 2) { ok(res, []); return }
 
-    if (env.USE_MOCK_SERVICES) { ok(res, []); return }
+    if (shouldUseMockMongo) { ok(res, []); return }
 
     try {
       const chat = await Chat.findOne({
@@ -202,7 +202,7 @@ router.get(
     if (!profileId) return
 
     const { matchId } = req.params as { matchId: string }
-    if (env.USE_MOCK_SERVICES) { ok(res, { photos: [], voices: [] }); return }
+    if (shouldUseMockMongo) { ok(res, { photos: [], voices: [] }); return }
 
     try {
       const chat = await Chat.findOne({
@@ -276,7 +276,7 @@ router.post(
       return
     }
 
-    if (!env.USE_MOCK_SERVICES) {
+    if (!shouldUseMockMongo) {
       try {
         const chat = await Chat.findOne({
           matchRequestId: matchId,
@@ -326,7 +326,7 @@ router.post(
       return
     }
 
-    if (!env.USE_MOCK_SERVICES) {
+    if (!shouldUseMockMongo) {
       const chat = await Chat.findOne({
         matchRequestId: matchId,
         participants: profileId,
@@ -368,7 +368,7 @@ router.patch(
       err(res, 'VALIDATION_ERROR', 'Invalid settings payload', 400)
       return
     }
-    if (env.USE_MOCK_SERVICES) { ok(res, { ...parsed.data }); return }
+    if (shouldUseMockMongo) { ok(res, { ...parsed.data }); return }
 
     const adds: Record<string, string> = {}
     const removes: Record<string, string> = {}
@@ -428,7 +428,7 @@ router.post(
       err(res, 'VALIDATION_ERROR', 'Invalid forward payload', 400)
       return
     }
-    if (env.USE_MOCK_SERVICES) { ok(res, { forwarded: true }); return }
+    if (shouldUseMockMongo) { ok(res, { forwarded: true }); return }
 
     try {
       const source = await Chat.findOne({
@@ -495,7 +495,7 @@ router.get(
     if (!profileId) return
 
     const { matchId } = req.params as { matchId: string }
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       ok(res, generateSmartReplies(profileId, []))
       return
     }
@@ -536,7 +536,7 @@ router.post(
       return
     }
 
-    if (env.USE_MOCK_SERVICES) {
+    if (shouldUseMockMongo) {
       ok(res, { text: parsed.data.text, target: parsed.data.target, mocked: true })
       return
     }
@@ -585,7 +585,7 @@ router.post(
       err(res, 'VALIDATION_ERROR', 'Reason required', 400); return
     }
 
-    if (env.USE_MOCK_SERVICES) { ok(res, { reported: true }); return }
+    if (shouldUseMockMongo) { ok(res, { reported: true }); return }
 
     try {
       // Soft-flag the conversation. A dedicated moderation table can ingest
