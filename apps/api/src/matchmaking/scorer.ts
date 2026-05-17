@@ -82,7 +82,7 @@ const EDUCATION_TIERS: Record<string, number> = {
 };
 
 function educationTier(education: string): number {
-  return EDUCATION_TIERS[education.toLowerCase()] ?? 3;
+  return EDUCATION_TIERS[(education ?? '').toLowerCase()] ?? 3;
 }
 
 // ── Occupation categories ────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ const OCCUPATION_CATEGORIES: Record<string, string> = {
 };
 
 function occupationCategory(occupation: string): string {
-  return OCCUPATION_CATEGORIES[occupation.toLowerCase()] ?? 'other';
+  return OCCUPATION_CATEGORIES[(occupation ?? '').toLowerCase()] ?? 'other';
 }
 
 // ── Income bracket ───────────────────────────────────────────────────────────
@@ -141,11 +141,11 @@ function scoreDemographicAlignment(
   else if (ageDiff <= 10) score += 2;
 
   // Religion (max 8)
-  if (user.religion === candidate.religion) score += 8;
+  if (!!user.religion && !!candidate.religion && user.religion === candidate.religion) score += 8;
 
   // Location (max 6 → split city/state, but cap dimension at 25)
-  const sameCity  = user.city.toLowerCase() === candidate.city.toLowerCase();
-  const sameState = user.state.toLowerCase() === candidate.state.toLowerCase();
+  const sameCity  = !!user.city && !!candidate.city && user.city.toLowerCase() === candidate.city.toLowerCase();
+  const sameState = !!user.state && !!candidate.state && user.state.toLowerCase() === candidate.state.toLowerCase();
   if (sameCity)        score += 4;
   else if (sameState)  score += 2;
 
@@ -382,7 +382,7 @@ export async function scoreCandidate(
     familyValues:           { score: familyScore,             max: 15 },
     preferenceOverlap:      { score: preferenceScore,         max: 20 },
     personalityFit:         { score: personalityResult.score, max: 15 },
-    behaviourCompatibility: { score: behaviour.score,         max: 10, coldStart: behaviour.coldStart },
+    behaviourCompatibility: { score: behaviour.score,         max: 100, coldStart: behaviour.coldStart },
   };
 
   const rawTotal =
