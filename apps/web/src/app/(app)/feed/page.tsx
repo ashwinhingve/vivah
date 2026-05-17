@@ -2,11 +2,12 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Heart, Sparkles, ArrowRight, AlertTriangle } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
-import { MatchCard } from '@/components/matchmaking/MatchCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
 import { MaritalStatusFilterToggle } from '@/components/feed/MaritalStatusFilterToggle.client';
 import { FilterSheet } from '@/components/shared/FilterSheet.client';
+import { AnimatedFeedGrid } from '@/components/matchmaking/AnimatedFeedGrid.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -96,7 +97,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
 
           {/* Main feed column */}
           <div className="min-w-0 flex-1 space-y-6">
-        <div className="flex items-center justify-between">
+        <FadeUp delay={0} className="flex items-center justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-primary">Your Matches</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -113,7 +114,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
               {completeness}% profile
             </span>
           ) : null}
-        </div>
+        </FadeUp>
 
         {feedFailed ? (
           <EmptyState
@@ -167,16 +168,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             />
           )
         ) : (
-          <div
-            role="feed"
-            aria-busy="false"
-            aria-label={`${items.length} match suggestions`}
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {items.map((item) => (
-              <MatchCard key={item.profileId} match={item} />
-            ))}
-          </div>
+          <AnimatedFeedGrid matches={items} />
         )}
           </div>{/* end main feed column */}
         </div>{/* end flex gap-6 */}

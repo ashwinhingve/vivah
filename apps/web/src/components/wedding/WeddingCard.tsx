@@ -45,9 +45,9 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
 
   return (
     <Link href={`/weddings/${wedding.id}`}>
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 hover:shadow-md hover:border-gold/40 transition-all">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 hover:shadow-md hover:border-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
         <div className="flex items-start justify-between mb-3">
-          <h2 className="font-heading text-lg text-primary leading-snug">
+          <h2 className="font-heading text-lg text-primary leading-snug group-hover:text-primary-hover transition-colors">
             {wedding.venueName ?? 'Wedding'}
           </h2>
           <span

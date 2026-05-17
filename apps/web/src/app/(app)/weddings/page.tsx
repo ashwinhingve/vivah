@@ -3,6 +3,8 @@ import { PlusCircle, Calendar } from 'lucide-react';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary } from '@smartshaadi/types';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 
 async function fetchWeddings(): Promise<{ weddings: WeddingSummary[]; error: boolean }> {
   const data = await fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings');
@@ -17,7 +19,7 @@ export default async function WeddingsPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <FadeUp delay={0} className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-heading text-primary">My Wedding</h1>
             <p className="text-muted-foreground mt-0.5 text-sm">
@@ -26,12 +28,12 @@ export default async function WeddingsPage() {
           </div>
           <Link
             href="/weddings/new"
-            className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors bg-teal"
+            className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors bg-teal hover:bg-teal-hover active:scale-[0.97]"
           >
             <PlusCircle className="h-4 w-4" aria-hidden="true" />
             New Wedding
           </Link>
-        </div>
+        </FadeUp>
 
         {/* Error state */}
         {error && (
@@ -62,11 +64,11 @@ export default async function WeddingsPage() {
 
         {/* Wedding list */}
         {!error && weddings.length > 0 && (
-          <div className="grid gap-4">
+          <StaggerList className="grid gap-4">
             {weddings.map((w) => (
               <WeddingCard key={w.id} wedding={w} />
             ))}
-          </div>
+          </StaggerList>
         )}
       </div>
     </div>

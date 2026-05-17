@@ -11,6 +11,8 @@ import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
 import type { ProfileSectionCompletion, BookingSummary, WeddingSummary } from '@smartshaadi/types';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,7 +81,7 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <FadeUp delay={0} className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-primary font-heading">Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Welcome back to Smart Shaadi</p>
@@ -90,10 +92,10 @@ export default async function DashboardPage() {
               {tier}
             </span>
           )}
-        </div>
+        </FadeUp>
 
-        {/* 4-card stats */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {/* 4-card stats — staggered entrance */}
+        <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatsCard
             label="Active Matches"
             value={upcomingBookings}
@@ -122,10 +124,10 @@ export default async function DashboardPage() {
             icon={Gauge}
             variant={completeness >= 70 ? 'success' : 'teal'}
           />
-        </div>
+        </StaggerList>
 
         {/* My Wedding */}
-        <div>
+        <FadeUp delay={0.1}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-primary font-heading">My Wedding</h2>
             {myWedding && (
@@ -148,41 +150,45 @@ export default async function DashboardPage() {
               }
             />
           )}
-        </div>
+        </FadeUp>
 
         {/* Strength tips — shows top 5 actionable improvements */}
-        <StrengthTipsPanel />
+        <FadeUp delay={0.15}>
+          <StrengthTipsPanel />
+        </FadeUp>
 
         {/* Completeness bar + CTA */}
-        {sections ? (
-          <CompletenessBar sections={sections} />
-        ) : (
-          <div className="relative overflow-hidden rounded-xl border border-gold/30 bg-gradient-to-br from-surface via-surface to-gold/10 p-5 shadow-card">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gold/20 blur-2xl"
-            />
-            <div className="relative flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Sparkles className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-heading text-base font-semibold text-primary">
-                  Complete your profile
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  A complete profile gets 3× more matches
-                </p>
-                <Button asChild size="sm" className="mt-3">
-                  <Link href="/profile/personal">Start Profile →</Link>
-                </Button>
+        <FadeUp delay={0.2}>
+          {sections ? (
+            <CompletenessBar sections={sections} />
+          ) : (
+            <div className="relative overflow-hidden rounded-xl border border-gold/30 bg-gradient-to-br from-surface via-surface to-gold/10 p-5 shadow-card">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gold/20 blur-2xl"
+              />
+              <div className="relative flex items-start gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-heading text-base font-semibold text-primary">
+                    Complete your profile
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    A complete profile gets 3× more matches
+                  </p>
+                  <Button asChild size="sm" className="mt-3">
+                    <Link href="/profile/personal">Start Profile →</Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </FadeUp>
 
         {/* Recommended Matches */}
-        <div>
+        <FadeUp delay={0.22}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-primary font-heading">Recommended for You</h2>
             {feed.length > 0 && (
@@ -209,7 +215,7 @@ export default async function DashboardPage() {
               description="No matches yet — we're tuning your feed and will have suggestions shortly."
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <StaggerList className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {feed.slice(0, 3).map((item) => (
                 <MatchCard
                   key={item.profileId}
@@ -221,15 +227,19 @@ export default async function DashboardPage() {
                   gunaPending={item.compatibility?.flags?.includes('guna_pending')}
                 />
               ))}
-            </div>
+            </StaggerList>
           )}
-        </div>
+        </FadeUp>
 
         {/* Quick actions */}
-        <QuickActions />
+        <FadeUp delay={0.28}>
+          <QuickActions />
+        </FadeUp>
 
         {/* Activity feed */}
-        <ActivityFeed />
+        <FadeUp delay={0.32}>
+          <ActivityFeed />
+        </FadeUp>
       </div>
 
       {/* Mobile FAB — sits above bottom nav (nav is ~64px incl. safe-area) */}

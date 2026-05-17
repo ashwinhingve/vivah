@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { Calendar, MapPin, Users, CheckSquare, ArrowLeft, Wallet } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 import {
   createCeremonyAction,
   deleteCeremonyAction,
@@ -123,8 +125,8 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+        {/* Stat cards — staggered entrance */}
+        <StaggerList className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
           <StatCard
             icon={<Calendar className="h-5 w-5 text-gold" />}
             label="Wedding Date"
@@ -146,10 +148,11 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             label="Budget"
             value={formatCurrency(wedding.budgetTotal)}
           />
-        </div>
+        </StaggerList>
 
         {/* Task progress bar */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+        <FadeUp delay={0.15} className="mb-6">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="font-medium text-foreground">Overall Progress</span>
             <span className="text-teal font-semibold">{pct}%</span>
@@ -161,10 +164,12 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             />
           </div>
         </div>
+        </FadeUp>
 
         {/* Muhurat card */}
         {muhuratSuggestions.length > 0 && (
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+          <FadeUp delay={0.2} className="mb-6">
+          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
             <h2 className="font-semibold text-primary mb-3 flex items-center gap-2">
               <span>Auspicious Dates (Muhurat)</span>
               {selectedMuhurat && (
@@ -212,10 +217,12 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
               ))}
             </div>
           </div>
+          </FadeUp>
         )}
 
         {/* Ceremonies section */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+        <FadeUp delay={0.25} className="mb-6">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
           <h2 className="font-semibold text-primary mb-3">Ceremonies</h2>
 
           {ceremonies.length === 0 ? (
@@ -355,8 +362,10 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             </form>
           </details>
         </div>
+        </FadeUp>
 
         {/* Tab nav — scrollable on mobile */}
+        <FadeUp delay={0.3}>
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           <div className="flex gap-1 min-w-max">
             {tabs.map(({ href, label }) => (
@@ -370,6 +379,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             ))}
           </div>
         </div>
+        </FadeUp>
 
         {/* Quick-access hint */}
         <p className="text-center text-xs text-muted-foreground">
