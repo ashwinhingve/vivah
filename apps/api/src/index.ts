@@ -80,6 +80,7 @@ import {
   registerWeddingReminderWorker,
   scheduleWeddingReminderJob,
 } from './jobs/weddingReminderJob.js';
+import { registerWeddingCompletionWorker } from './jobs/weddingCompletionJob.js';
 import { registerRsvpReminderWorker } from './jobs/rsvpReminderJob.js';
 import { registerSaveTheDateWorker } from './jobs/saveTheDateJob.js';
 import { registerThankYouWorker } from './jobs/thankYouJob.js';
@@ -434,6 +435,7 @@ async function bootstrap(): Promise<void> {
     void scheduleMatchRequestExpiryJob();
     workers.push(registerWeddingReminderWorker());
     void scheduleWeddingReminderJob();
+    workers.push(registerWeddingCompletionWorker());
     workers.push(registerRsvpReminderWorker());
     workers.push(registerSaveTheDateWorker());
     workers.push(registerThankYouWorker());

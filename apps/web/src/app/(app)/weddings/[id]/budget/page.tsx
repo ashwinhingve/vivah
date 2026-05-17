@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { BudgetTracker } from '@/components/wedding/BudgetTracker';
+import { BudgetEditor } from '@/components/wedding/BudgetEditor.client';
 import { BudgetDonut, type BudgetSlice } from '@/components/wedding/BudgetDonut';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingPlan, WeddingSummary } from '@smartshaadi/types';
@@ -58,9 +58,9 @@ export default async function BudgetPage({ params }: PageProps) {
         {/* Tab nav */}
         <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6">
           {[
-            { href: `/weddings/${id}/tasks`,  label: 'Tasks',  active: false },
-            { href: `/weddings/${id}/budget`, label: 'Budget', active: true },
-            { href: `/weddings/${id}/guests`, label: 'Guests', active: false },
+            { href: `/weddings/${id}/tasks?from=budget`,  label: 'Tasks',  active: false },
+            { href: `/weddings/${id}/budget`,             label: 'Budget', active: true },
+            { href: `/weddings/${id}/guests?from=budget`, label: 'Guests', active: false },
           ].map(({ href, label, active }) => (
             <Link
               key={href}
@@ -101,7 +101,8 @@ export default async function BudgetPage({ params }: PageProps) {
                 />
               </div>
             )}
-            <BudgetTracker
+            <BudgetEditor
+              weddingId={id}
               total={plan.budget.total}
               currency={plan.budget.currency}
               categories={plan.budget.categories}

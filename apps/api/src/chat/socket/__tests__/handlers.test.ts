@@ -1,13 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // ── Mock env ──────────────────────────────────────────────────────────────────
-vi.mock('../../../lib/env.js', () => ({
-  env: {
+vi.mock('../../../lib/env.js', () => {
+  const env = {
     USE_MOCK_SERVICES: false,
+    MONGO_LIVE: false,
     JWT_SECRET: 'test-secret-32-chars-minimum-here',
     WEB_URL: 'http://localhost:3000',
-  },
-}))
+  }
+  return {
+    env,
+    // Derived flag the chat handlers key off (matches lib/env.ts:
+    // USE_MOCK_SERVICES && !MONGO_LIVE). Getter stays reactive to tests
+    // that flip env.USE_MOCK_SERVICES at runtime.
+    get shouldUseMockMongo() {
+      return env.USE_MOCK_SERVICES && !env.MONGO_LIVE
+    },
+  }
+})
 
 // ── Mock Chat model ───────────────────────────────────────────────────────────
 const { mockFindOne, mockFindOneAndUpdate, mockUpdateOne } = vi.hoisted(() => ({

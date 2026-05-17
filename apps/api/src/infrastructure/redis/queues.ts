@@ -149,6 +149,22 @@ export const weddingReminderQueue = new Queue<WeddingReminderJob>(
   { connection },
 );
 
+/**
+ * Delayed wedding-completion job — fires the day after the wedding date and
+ * flips status PLANNING/CONFIRMED → COMPLETED. Enqueued with deterministic
+ * jobId `wedding-complete-${weddingId}` so it can be replaced when the date
+ * changes and never double-scheduled.
+ */
+export interface WeddingCompletionJob {
+  weddingId:   string;
+  weddingDate: string; // YYYY-MM-DD the job was scheduled for
+}
+
+export const weddingCompletionQueue = new Queue<WeddingCompletionJob>(
+  'wedding-completion',
+  { connection },
+);
+
 /** Invitation blast — periodic worker pulling pending invitations. */
 export interface InvitationBlastJob {
   scheduledAt: string;

@@ -1,7 +1,25 @@
 import { z } from 'zod';
 
+/**
+ * A YYYY-MM-DD calendar date that must be strictly in the future.
+ * Compared against the start of *today* so a wedding scheduled for today
+ * is rejected (you cannot plan an event that has already begun).
+ */
+const futureDateString = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine(
+    (d) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return new Date(`${d}T00:00:00`) > today;
+    },
+    { message: 'Wedding date must be in the future' },
+  );
+
 export const CreateWeddingSchema = z.object({
-  weddingDate:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  weddingName:  z.string().min(1).max(255).optional(),
+  weddingDate:  futureDateString.optional(),
   venueName:    z.string().max(255).optional(),
   venueCity:    z.string().max(100).optional(),
   venueAddress: z.string().max(500).optional(),
@@ -104,24 +122,35 @@ export type RsvpUpdateInput       = z.infer<typeof RsvpUpdateSchema>;
 export type SendInvitationsInput  = z.infer<typeof SendInvitationsSchema>;
 export type BulkImportGuestsInput = z.infer<typeof BulkImportGuestsSchema>;
 
-export const CreateCeremonySchema = z.object({
-  type:           z.enum(['HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION', 'ENGAGEMENT', 'OTHER']),
-  date:           z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+export const CeremonyTypeEnum = z.enum([
+  'HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION',
+  'ENGAGEMENT', 'TILAK', 'SAGAN', 'OTHER',
+]);
+
+const CeremonyBaseSchema = z.object({
+  type:           CeremonyTypeEnum,
+  // Free-text name when type === 'OTHER' (e.g. "Manda", "Dulhasar").
+  customTypeName: z.string().min(1).max(100).optional(),
+  date:           futureDateString.optional(),
   venue:          z.string().max(255).optional(),
   venueAddress:   z.string().max(500).optional(),
   startTime:      z.string().regex(/^\d{2}:\d{2}$/).optional(),
-  endTime:        z.string().regex(/^\d{2}:\d{2}$/).optional(),
   dressCode:      z.string().max(100).optional(),
   expectedGuests: z.number().int().min(0).max(10000).optional(),
   isPublic:       z.boolean().optional(),
   notes:          z.string().max(1000).optional(),
 });
 
+export const CreateCeremonySchema = CeremonyBaseSchema.refine(
+  (c) => c.type !== 'OTHER' || (c.customTypeName != null && c.customTypeName.trim().length > 0),
+  { message: 'customTypeName is required when ceremony type is OTHER', path: ['customTypeName'] },
+);
+
 export const UpdateCeremonyStatusSchema = z.object({
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']),
 });
 
-export const UpdateCeremonySchema = CreateCeremonySchema.partial();
+export const UpdateCeremonySchema = CeremonyBaseSchema.partial();
 
 export const SelectMuhuratSchema = z.object({
   date:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

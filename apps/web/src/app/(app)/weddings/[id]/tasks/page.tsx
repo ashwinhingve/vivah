@@ -22,21 +22,28 @@ async function fetchTasks(weddingId: string): Promise<WeddingTask[]> {
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ from?: string }>;
 }
 
-export default async function TasksPage({ params }: PageProps) {
+export default async function TasksPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { from } = (await searchParams) ?? {};
   const tasks = await fetchTasks(id);
+
+  const back =
+    from === 'budget'
+      ? { href: `/weddings/${id}/budget`, label: 'Budget' }
+      : { href: `/weddings/${id}`, label: 'Overview' };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
         <Link
-          href={`/weddings/${id}`}
+          href={back.href}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Overview
+          {back.label}
         </Link>
 
         <h1 className="font-heading text-2xl text-primary mb-1">Tasks</h1>

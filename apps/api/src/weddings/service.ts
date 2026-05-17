@@ -12,12 +12,16 @@
  * autoGenerateChecklist — bulk-insert default tasks by months-until-wedding
  */
 
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { shouldUseMockMongo } from '../lib/env.js';
+import { shouldUseMockMongo, env } from '../lib/env.js';
 import { weddings, weddingTasks, profiles, guestLists, ceremonies } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
+import {
+  scheduleWeddingCompletion,
+  cancelWeddingCompletion,
+} from '../jobs/weddingCompletionJob.js';
 import type {
   WeddingSummary,
   WeddingTask,
@@ -83,6 +87,24 @@ function mockSavePlan(weddingId: string, plan: WeddingPlanType): WeddingPlanType
   return (saved?.['plan'] ?? plan) as WeddingPlanType;
 }
 
+// ── Completion-job helpers ─────────────────────────────────────────────────────
+// Redis/BullMQ is not available in mock mode (USE_MOCK_SERVICES=true). Guard
+// every enqueue so dev/test runs never crash on a missing Redis connection.
+
+function safeScheduleCompletion(weddingId: string, weddingDate: string | null): void {
+  if (env.USE_MOCK_SERVICES || !weddingDate) return;
+  void scheduleWeddingCompletion(weddingId, weddingDate).catch((e) => {
+    console.warn(`[weddings] failed to schedule completion for ${weddingId}:`, (e as Error).message);
+  });
+}
+
+function safeCancelCompletion(weddingId: string): void {
+  if (env.USE_MOCK_SERVICES) return;
+  void cancelWeddingCompletion(weddingId).catch((e) => {
+    console.warn(`[weddings] failed to cancel completion for ${weddingId}:`, (e as Error).message);
+  });
+}
+
 // ── Row mappers ────────────────────────────────────────────────────────────────
 
 function mapTaskRow(row: TaskRow): WeddingTask {
@@ -120,9 +142,12 @@ export async function createWedding(
     .insert(weddings)
     .values({
       profileId:   profile.id,
+      // weddingName is the couple/event title — stored separately from venueName.
+      title:       input.weddingName ?? input.title ?? null,
       weddingDate: input.weddingDate ?? null,
       venueName:   input.venueName ?? null,
       venueCity:   input.venueCity ?? null,
+      venueAddress: input.venueAddress ?? null,
       budgetTotal: input.budgetTotal != null ? String(input.budgetTotal) : null,
       status:      'PLANNING',
     })
@@ -182,6 +207,8 @@ export async function createWedding(
     } catch {
       // non-fatal — user can generate later via explicit endpoint
     }
+    // Schedule auto-completion for the day after the wedding.
+    safeScheduleCompletion(weddingRow.id, input.weddingDate);
   }
 
   return { wedding: weddingRow, plan, tasksCreated };
@@ -203,7 +230,7 @@ export async function listUserWeddings(
   const rows = await db
     .select()
     .from(weddings)
-    .where(eq(weddings.profileId, profile.id));
+    .where(and(eq(weddings.profileId, profile.id), isNull(weddings.deletedAt)));
 
   if (rows.length === 0) return [];
 
@@ -216,9 +243,11 @@ export async function listUserWeddings(
 
     results.push({
       id:          row.id,
+      weddingName: row.title ?? null,
       weddingDate: row.weddingDate ?? null,
       venueName:   row.venueName,
       venueCity:   row.venueCity,
+      venueAddress: row.venueAddress ?? null,
       budgetTotal: row.budgetTotal != null ? Number(row.budgetTotal) : null,
       status:      row.status as WeddingSummary['status'],
       taskProgress: {
@@ -250,7 +279,11 @@ export async function getWedding(
   const [row] = await db
     .select()
     .from(weddings)
-    .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, profile.id)))
+    .where(and(
+      eq(weddings.id, weddingId),
+      eq(weddings.profileId, profile.id),
+      isNull(weddings.deletedAt),
+    ))
     .limit(1);
 
   if (!row) return null;
@@ -304,8 +337,10 @@ export async function getWedding(
 
   const summary: WeddingSummary & { plan: WeddingPlanType | null } = {
     id:          row.id,
+    weddingName: row.title ?? null,
     weddingDate: row.weddingDate ?? null,
     venueName:   row.venueName ?? null,
+    venueAddress: row.venueAddress ?? null,
     venueCity:   row.venueCity ?? null,
     budgetTotal: row.budgetTotal != null ? parseFloat(row.budgetTotal) : null,
     status:      row.status as WeddingSummary['status'],
@@ -328,9 +363,12 @@ export async function updateWedding(
   if (!row) return null;
 
   const updates: Partial<WeddingRow> = {};
+  if (input.weddingName !== undefined) updates.title       = input.weddingName ?? null;
+  else if (input.title  !== undefined) updates.title       = input.title       ?? null;
   if (input.weddingDate !== undefined) updates.weddingDate = input.weddingDate ?? null;
   if (input.venueName   !== undefined) updates.venueName   = input.venueName   ?? null;
   if (input.venueCity   !== undefined) updates.venueCity   = input.venueCity   ?? null;
+  if (input.venueAddress !== undefined) updates.venueAddress = input.venueAddress ?? null;
   if (input.budgetTotal !== undefined) {
     updates.budgetTotal = input.budgetTotal != null ? String(input.budgetTotal) : null;
   }
@@ -342,7 +380,54 @@ export async function updateWedding(
     .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, row.profileId)))
     .returning();
 
+  // Re-schedule the auto-completion job when the date moves.
+  if (updated && input.weddingDate !== undefined) {
+    if (input.weddingDate) safeScheduleCompletion(weddingId, input.weddingDate);
+    else safeCancelCompletion(weddingId);
+  }
+
   return updated ?? null;
+}
+
+// ── cancelWedding ─────────────────────────────────────────────────────────────
+
+export async function cancelWedding(
+  userId: string,
+  weddingId: string,
+): Promise<WeddingRow | null> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) return null;
+
+  const [updated] = await db
+    .update(weddings)
+    .set({ status: 'CANCELLED', updatedAt: new Date() })
+    .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, row.profileId)))
+    .returning();
+
+  // A cancelled wedding should never auto-complete.
+  safeCancelCompletion(weddingId);
+
+  return updated ?? null;
+}
+
+// ── deleteWedding (soft delete) ───────────────────────────────────────────────
+
+export async function deleteWedding(
+  userId: string,
+  weddingId: string,
+): Promise<boolean> {
+  const row = await resolveOwnedWedding(userId, weddingId);
+  if (!row) return false;
+
+  const deleted = await db
+    .update(weddings)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, row.profileId)))
+    .returning({ id: weddings.id });
+
+  safeCancelCompletion(weddingId);
+
+  return deleted.length > 0;
 }
 
 // ── updateBudget ──────────────────────────────────────────────────────────────
@@ -625,7 +710,11 @@ async function resolveOwnedWedding(
   const [row] = await db
     .select()
     .from(weddings)
-    .where(and(eq(weddings.id, weddingId), eq(weddings.profileId, profile.id)))
+    .where(and(
+      eq(weddings.id, weddingId),
+      eq(weddings.profileId, profile.id),
+      isNull(weddings.deletedAt),
+    ))
     .limit(1);
 
   return row ?? null;
@@ -641,6 +730,7 @@ function mapCeremonyRow(row: CeremonyRow): Ceremony {
     id:             row.id,
     weddingId:      row.weddingId,
     type:           row.type as Ceremony['type'],
+    customTypeName: row.customTypeName ?? null,
     status:         row.status as Ceremony['status'],
     date:           row.date ?? null,
     venue:          row.venue ?? null,
@@ -670,12 +760,16 @@ export async function addCeremony(
     .insert(ceremonies)
     .values({
       weddingId,
-      type:      input.type,
-      date:      input.date ?? null,
-      venue:     input.venue ?? null,
-      startTime: input.startTime ?? null,
-      endTime:   input.endTime ?? null,
-      notes:     input.notes ?? null,
+      type:           input.type,
+      customTypeName: input.type === 'OTHER' ? input.customTypeName ?? null : null,
+      date:           input.date ?? null,
+      venue:          input.venue ?? null,
+      venueAddress:   input.venueAddress ?? null,
+      startTime:      input.startTime ?? null,
+      dressCode:      input.dressCode ?? null,
+      expectedGuests: input.expectedGuests ?? null,
+      isPublic:       input.isPublic ?? false,
+      notes:          input.notes ?? null,
     })
     .returning();
 
@@ -697,10 +791,11 @@ export async function addCeremony(
     plan.ceremonies = [
       ...plan.ceremonies,
       {
-        type:  ceremony.type,
-        date:  ceremony.date,
-        venue: ceremony.venue,
-        notes: ceremony.notes,
+        type:           ceremony.type,
+        customTypeName: ceremony.customTypeName,
+        date:           ceremony.date,
+        venue:          ceremony.venue,
+        notes:          ceremony.notes,
       },
     ];
     mockSavePlan(weddingId, plan);
@@ -710,10 +805,11 @@ export async function addCeremony(
       {
         $push: {
           ceremonies: {
-            type:  ceremony.type,
-            date:  ceremony.date,
-            venue: ceremony.venue,
-            notes: ceremony.notes,
+            type:           ceremony.type,
+            customTypeName: ceremony.customTypeName,
+            date:           ceremony.date,
+            venue:          ceremony.venue,
+            notes:          ceremony.notes,
           },
         },
       },
@@ -736,11 +832,19 @@ export async function updateCeremony(
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const updates: Partial<CeremonyRow> = {};
-  if (input.type      !== undefined) updates.type      = input.type;
+  if (input.type      !== undefined) {
+    updates.type = input.type;
+    // Switching away from OTHER clears any stale custom label.
+    if (input.type !== 'OTHER') updates.customTypeName = null;
+  }
+  if (input.customTypeName !== undefined) updates.customTypeName = input.customTypeName ?? null;
   if (input.date      !== undefined) updates.date      = input.date ?? null;
   if (input.venue     !== undefined) updates.venue     = input.venue ?? null;
+  if (input.venueAddress !== undefined) updates.venueAddress = input.venueAddress ?? null;
   if (input.startTime !== undefined) updates.startTime = input.startTime ?? null;
-  if (input.endTime   !== undefined) updates.endTime   = input.endTime ?? null;
+  if (input.dressCode !== undefined) updates.dressCode = input.dressCode ?? null;
+  if (input.expectedGuests !== undefined) updates.expectedGuests = input.expectedGuests ?? null;
+  if (input.isPublic  !== undefined) updates.isPublic  = input.isPublic ?? false;
   if (input.notes     !== undefined) updates.notes     = input.notes ?? null;
 
   const [updated] = await db

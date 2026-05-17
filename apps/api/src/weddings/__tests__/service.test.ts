@@ -22,9 +22,11 @@ vi.mock('../../lib/db.js', () => ({ db: mockDb }));
 vi.mock('drizzle-orm', () => {
   const stub = (..._args: unknown[]) => ({ _sql: true });
   return {
-    eq:  stub,
-    and: stub,
-    sql: Object.assign(stub, { raw: stub }),
+    eq:     stub,
+    and:    stub,
+    isNull: stub,
+    inArray: stub,
+    sql:    Object.assign(stub, { raw: stub }),
   };
 });
 
@@ -53,6 +55,17 @@ vi.mock('@smartshaadi/db', () => ({
 vi.mock('../../lib/env.js', () => ({
   env: { USE_MOCK_SERVICES: true },
   shouldUseMockMongo: true,
+}));
+
+// ── Mock wedding-completion job (avoids BullMQ/Redis import side-effects) ──────
+
+const scheduleWeddingCompletion = vi.fn(async () => undefined);
+const cancelWeddingCompletion   = vi.fn(async () => undefined);
+
+vi.mock('../../jobs/weddingCompletionJob.js', () => ({
+  scheduleWeddingCompletion,
+  cancelWeddingCompletion,
+  registerWeddingCompletionWorker: vi.fn(),
 }));
 
 // ── Mock WeddingPlan Mongoose model ───────────────────────────────────────────
@@ -518,15 +531,15 @@ describe('weddings/service — addCeremony', () => {
     const profile    = makeProfile();
     const weddingRow = makeWedding();
     const ceremonyRow = {
-      id:        'ceremony-1',
-      weddingId: 'wedding-1',
-      type:      'HALDI',
-      date:      '2027-02-12',
-      venue:     'The Rooftop Garden',
-      startTime: '10:00',
-      endTime:   '13:00',
-      notes:     null,
-      createdAt: new Date(),
+      id:             'ceremony-1',
+      weddingId:      'wedding-1',
+      type:           'HALDI',
+      customTypeName: null,
+      date:           '2027-02-12',
+      venue:          'The Rooftop Garden',
+      startTime:      '10:00',
+      notes:          null,
+      createdAt:      new Date(),
     };
 
     // resolveOwnedWedding: profile + wedding
@@ -543,7 +556,6 @@ describe('weddings/service — addCeremony', () => {
       date:      '2027-02-12',
       venue:     'The Rooftop Garden',
       startTime: '10:00',
-      endTime:   '13:00',
     });
 
     expect(result.id).toBe('ceremony-1');
@@ -703,5 +715,88 @@ describe('weddings/service — getMuhuratSuggestions', () => {
       return dow === 0 || dow === 6; // Sunday or Saturday
     });
     expect(hasWeekend).toBe(true);
+  });
+});
+
+// ── cancelWedding / deleteWedding ─────────────────────────────────────────────
+
+function buildUpdateChain(returnValue: unknown[]) {
+  const chain: Record<string, unknown> = {};
+  chain.set       = vi.fn().mockReturnValue(chain);
+  chain.where     = vi.fn().mockReturnValue(chain);
+  chain.returning = vi.fn().mockResolvedValue(returnValue);
+  return chain;
+}
+
+describe('weddings/service — cancelWedding', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('sets status to CANCELLED for an owned wedding', async () => {
+    const profile = makeProfile();
+    const weddingRow = makeWedding();
+    const cancelledRow = { ...weddingRow, status: 'CANCELLED' };
+
+    // resolveOwnedWedding: profile + wedding
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]));
+    mockDb.update.mockReturnValueOnce(buildUpdateChain([cancelledRow]));
+
+    const { cancelWedding } = await import('../service.js');
+    const result = await cancelWedding('user-1', 'wedding-1');
+
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe('CANCELLED');
+  });
+
+  it('returns null when the wedding is not owned', async () => {
+    const profile = makeProfile();
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([])); // no wedding
+
+    const { cancelWedding } = await import('../service.js');
+    expect(await cancelWedding('user-1', 'bad-wedding')).toBeNull();
+  });
+});
+
+describe('weddings/service — deleteWedding (soft delete)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    _mockStore.clear();
+  });
+
+  it('soft-deletes an owned wedding and returns true', async () => {
+    const profile = makeProfile();
+    const weddingRow = makeWedding();
+
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([weddingRow]));
+    const updateChain = buildUpdateChain([{ id: 'wedding-1' }]);
+    mockDb.update.mockReturnValueOnce(updateChain);
+
+    const { deleteWedding } = await import('../service.js');
+    const ok = await deleteWedding('user-1', 'wedding-1');
+
+    expect(ok).toBe(true);
+    // deletedAt must be stamped in the update payload.
+    const setArg = (updateChain.set as ReturnType<typeof vi.fn>).mock.calls[0]![0] as {
+      deletedAt?: Date;
+    };
+    expect(setArg.deletedAt).toBeInstanceOf(Date);
+  });
+
+  it('returns false when the wedding is not owned', async () => {
+    const profile = makeProfile();
+    mockDb.select
+      .mockReturnValueOnce(buildSelectChain([profile]))
+      .mockReturnValueOnce(buildSelectChain([])); // no wedding
+
+    const { deleteWedding } = await import('../service.js');
+    expect(await deleteWedding('user-1', 'bad-wedding')).toBe(false);
   });
 });

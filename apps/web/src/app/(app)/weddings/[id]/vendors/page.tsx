@@ -3,6 +3,7 @@ import { ArrowLeft, Briefcase, Plus } from 'lucide-react';
 import { fetchVendorAssignments } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { Ceremony } from '@smartshaadi/types';
+import { VendorPicker } from '@/components/wedding/VendorPicker.client';
 import { assignVendorAction, updateAssignmentAction, removeAssignmentAction } from './actions';
 
 interface PageProps { params: Promise<{ id: string }> }
@@ -96,10 +97,7 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
             Tip: browse the vendor marketplace and copy a vendor ID, or use this form to assign a role to an already-shortlisted vendor.
           </p>
           <form action={assignVendorAction.bind(null, id)} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Vendor ID *</label>
-              <input name="vendorId" required placeholder="UUID" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
-            </div>
+            <VendorPicker />
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Role *</label>
               <select name="role" required className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm">

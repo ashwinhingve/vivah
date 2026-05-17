@@ -54,9 +54,11 @@ export type GuestAgeGroup = typeof GuestAgeGroup[keyof typeof GuestAgeGroup];
 
 export interface WeddingSummary {
   id:           string;
+  weddingName:  string | null;
   weddingDate:  string | null;
   venueName:    string | null;
   venueCity:    string | null;
+  venueAddress: string | null;
   budgetTotal:  number | null;
   status:       WeddingStatus;
   taskProgress: { total: number; done: number };
@@ -93,10 +95,11 @@ export interface WeddingPlan {
     categories: BudgetCategory[];
   };
   ceremonies: {
-    type:  string;
-    date:  string | null;
-    venue: string | null;
-    notes: string | null;
+    type:           string;
+    customTypeName: string | null;
+    date:           string | null;
+    venue:          string | null;
+    notes:          string | null;
   }[];
   checklist: {
     item:    string;
@@ -147,6 +150,8 @@ export const CeremonyType = {
   WEDDING:    'WEDDING',
   RECEPTION:  'RECEPTION',
   ENGAGEMENT: 'ENGAGEMENT',
+  TILAK:      'TILAK',
+  SAGAN:      'SAGAN',
   OTHER:      'OTHER',
 } as const;
 export type CeremonyType = typeof CeremonyType[keyof typeof CeremonyType];
@@ -163,6 +168,8 @@ export interface Ceremony {
   id:             string;
   weddingId:      string;
   type:           CeremonyType;
+  /** User-supplied label when type === 'OTHER' (e.g. "Manda"). */
+  customTypeName: string | null;
   status:         CeremonyStatus;
   date:           string | null;
   venue:          string | null;

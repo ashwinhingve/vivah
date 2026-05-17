@@ -33,14 +33,18 @@ export async function createWeddingAction(
   formData: FormData,
 ): Promise<CreateWeddingState> {
   const body: Record<string, unknown> = {};
-  const weddingDate = trim(formData.get('weddingDate'));
-  const venueName   = trim(formData.get('venueName'));
-  const venueCity   = trim(formData.get('venueCity'));
-  const budgetTotal = trim(formData.get('budgetTotal'));
+  const weddingName  = trim(formData.get('weddingName'));
+  const weddingDate  = trim(formData.get('weddingDate'));
+  const venueName    = trim(formData.get('venueName'));
+  const venueCity    = trim(formData.get('venueCity'));
+  const venueAddress = trim(formData.get('venueAddress'));
+  const budgetTotal  = trim(formData.get('budgetTotal'));
 
-  if (weddingDate) body['weddingDate'] = weddingDate;
-  if (venueName)   body['venueName']   = venueName;
-  if (venueCity)   body['venueCity']   = venueCity;
+  if (weddingName)  body['weddingName']  = weddingName;
+  if (weddingDate)  body['weddingDate']  = weddingDate;
+  if (venueName)    body['venueName']    = venueName;
+  if (venueCity)    body['venueCity']    = venueCity;
+  if (venueAddress) body['venueAddress'] = venueAddress;
   if (budgetTotal && !Number.isNaN(parseFloat(budgetTotal))) {
     body['budgetTotal'] = parseFloat(budgetTotal);
   }

@@ -4,6 +4,8 @@
  * POST   /weddings                         → createWedding
  * GET    /weddings/:id                     → getWedding
  * PUT    /weddings/:id                     → updateWedding
+ * PATCH  /weddings/:id/cancel              → cancelWedding (status = CANCELLED)
+ * DELETE /weddings/:id                     → deleteWedding (soft delete)
  * GET    /weddings/:id/tasks               → getTaskBoard
  * POST   /weddings/:id/tasks               → createTask
  * PUT    /weddings/:id/tasks/:taskId       → updateTask
@@ -33,6 +35,8 @@ import {
   getWedding,
   getBudget,
   updateWedding,
+  cancelWedding,
+  deleteWedding,
   updateBudget,
   getTaskBoard,
   createTask,
@@ -144,6 +148,52 @@ weddingRouter.put(
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to update wedding';
       err(res, 'WEDDING_UPDATE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── PATCH /weddings/:id/cancel ────────────────────────────────────────────────
+
+weddingRouter.patch(
+  '/:id/cancel',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    try {
+      const result = await cancelWedding(req.user!.id, id);
+      if (!result) {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404);
+        return;
+      }
+      ok(res, result);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to cancel wedding';
+      err(res, 'WEDDING_CANCEL_ERROR', message, 500);
+    }
+  },
+);
+
+// ── DELETE /weddings/:id (soft delete) ────────────────────────────────────────
+
+weddingRouter.delete(
+  '/:id',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const id = req.params['id'];
+    if (!id) { err(res, 'VALIDATION_ERROR', 'Missing wedding id', 400); return; }
+
+    try {
+      const deleted = await deleteWedding(req.user!.id, id);
+      if (!deleted) {
+        err(res, 'NOT_FOUND', 'Wedding not found', 404);
+        return;
+      }
+      ok(res, { deleted: true });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to delete wedding';
+      err(res, 'WEDDING_DELETE_ERROR', message, 500);
     }
   },
 );

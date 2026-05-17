@@ -5,12 +5,31 @@ import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
+import { CeremonyForm } from './CeremonyForm.client';
+import { WeddingHeaderActions } from './WeddingHeaderActions.client';
 import {
   createCeremonyAction,
   deleteCeremonyAction,
   updateCeremonyAction,
   selectMuhuratAction,
+  updateWeddingAction,
+  cancelWeddingAction,
+  deleteWeddingAction,
 } from './actions';
+
+const STATUS_LABELS: Record<string, string> = {
+  PLANNING:  'Planning',
+  CONFIRMED: 'Confirmed',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  PLANNING:  'bg-warning/15 text-warning',
+  CONFIRMED: 'bg-success/15 text-success',
+  COMPLETED: 'bg-teal/10 text-teal',
+  CANCELLED: 'bg-destructive/15 text-destructive',
+};
 
 type WeddingDetail = WeddingSummary & { plan?: WeddingPlan };
 
@@ -54,6 +73,8 @@ const CEREMONY_LABELS: Record<string, string> = {
   WEDDING:    'Wedding',
   RECEPTION:  'Reception',
   ENGAGEMENT: 'Engagement',
+  TILAK:      'Tilak',
+  SAGAN:      'Sagan',
   OTHER:      'Other',
 };
 
@@ -64,8 +85,16 @@ const CEREMONY_COLORS: Record<string, string> = {
   WEDDING:    'bg-destructive/15 text-destructive',
   RECEPTION:  'bg-teal/10 text-teal',
   ENGAGEMENT: 'bg-primary/15 text-primary',
+  TILAK:      'bg-gold/15 text-gold-muted',
+  SAGAN:      'bg-gold/15 text-gold-muted',
   OTHER:      'bg-secondary text-foreground',
 };
+
+/** Display name for a ceremony — OTHER types show the user's custom label. */
+function ceremonyLabel(c: { type: string; customTypeName: string | null }): string {
+  if (c.type === 'OTHER' && c.customTypeName) return c.customTypeName;
+  return CEREMONY_LABELS[c.type] ?? c.type;
+}
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -85,21 +114,22 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   const selectedMuhurat = muhuratSuggestions.find((d) => d.selected);
+  const today = new Date().toISOString().slice(0, 10);
 
   const tabs = [
-    { href: `/weddings/${id}/tasks`,     label: 'Tasks' },
-    { href: `/weddings/${id}/budget`,    label: 'Budget' },
-    { href: `/weddings/${id}/expenses`,  label: 'Expenses' },
-    { href: `/weddings/${id}/guests`,    label: 'Guests' },
-    { href: `/weddings/${id}/catering`,  label: 'Catering' },
-    { href: `/weddings/${id}/seating`,   label: 'Seating' },
-    { href: `/weddings/${id}/timeline`,  label: 'Schedule' },
-    { href: `/weddings/${id}/vendors`,   label: 'Vendors' },
-    { href: `/weddings/${id}/moodboard`, label: 'Mood Board' },
-    { href: `/weddings/${id}/documents`, label: 'Docs' },
-    { href: `/weddings/${id}/registry`,  label: 'Registry' },
-    { href: `/weddings/${id}/website`,   label: 'Website' },
-    { href: `/weddings/${id}/members`,   label: 'Members' },
+    { href: `/weddings/${id}/tasks`,     label: 'Tasks',      desc: 'Checklist & task assignments' },
+    { href: `/weddings/${id}/budget`,    label: 'Budget',     desc: 'Allocate & track spend by category' },
+    { href: `/weddings/${id}/expenses`,  label: 'Expenses',   desc: 'Log payments & receipts' },
+    { href: `/weddings/${id}/guests`,    label: 'Guests',     desc: 'Guest list, RSVP & meal preferences' },
+    { href: `/weddings/${id}/catering`,  label: 'Catering',   desc: 'Menu & headcount estimates' },
+    { href: `/weddings/${id}/seating`,   label: 'Seating',    desc: 'Tables & seat assignments' },
+    { href: `/weddings/${id}/timeline`,  label: 'Schedule',   desc: 'Day-of timeline & run sheet' },
+    { href: `/weddings/${id}/vendors`,   label: 'Vendors',    desc: 'Assigned vendors for your wedding' },
+    { href: `/weddings/${id}/moodboard`, label: 'Mood Board', desc: 'Save inspiration photos & color palette' },
+    { href: `/weddings/${id}/documents`, label: 'Docs',       desc: 'Contracts, permits & invoices' },
+    { href: `/weddings/${id}/registry`,  label: 'Registry',   desc: 'Gift registry & wishlist' },
+    { href: `/weddings/${id}/website`,   label: 'Website',    desc: 'Public wedding microsite' },
+    { href: `/weddings/${id}/members`,   label: 'Members',    desc: 'Collaborators & access' },
   ];
 
   return (
@@ -114,15 +144,44 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             All Weddings
           </Link>
-          <h1 className="font-heading text-2xl text-primary">
-            {wedding.venueName ?? 'Wedding Plan'}
-          </h1>
-          {wedding.venueCity && (
-            <p className="text-muted-foreground text-sm mt-0.5 flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-              {wedding.venueCity}
-            </p>
-          )}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-heading text-2xl text-primary">
+                  {wedding.weddingName ?? wedding.venueName ?? 'Wedding Plan'}
+                </h1>
+                <span
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                    STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground'
+                  }`}
+                >
+                  {STATUS_LABELS[wedding.status] ?? wedding.status}
+                </span>
+              </div>
+              {wedding.venueName && wedding.weddingName && (
+                <p className="text-muted-foreground text-sm mt-0.5">{wedding.venueName}</p>
+              )}
+              {wedding.venueCity && (
+                <p className="text-muted-foreground text-sm mt-0.5 flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
+                  {wedding.venueCity}
+                </p>
+              )}
+            </div>
+            <WeddingHeaderActions
+              wedding={{
+                weddingName:  wedding.weddingName ?? null,
+                weddingDate:  wedding.weddingDate ?? null,
+                venueName:    wedding.venueName ?? null,
+                venueCity:    wedding.venueCity ?? null,
+                venueAddress: wedding.venueAddress ?? null,
+                budgetTotal:  wedding.budgetTotal ?? null,
+              }}
+              editAction={updateWeddingAction.bind(null, id)}
+              cancelAction={cancelWeddingAction.bind(null, id)}
+              deleteAction={deleteWeddingAction.bind(null, id)}
+            />
+          </div>
         </div>
 
         {/* Stat cards — staggered entrance */}
@@ -169,16 +228,17 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         {/* Muhurat card */}
         {muhuratSuggestions.length > 0 && (
           <FadeUp delay={0.2} className="mb-6">
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
-            <h2 className="font-semibold text-primary mb-3 flex items-center gap-2">
-              <span>Auspicious Dates (Muhurat)</span>
+          <details className="group bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+            <summary className="cursor-pointer list-none font-semibold text-primary flex items-center gap-2">
+              <span className="text-base leading-none text-muted-foreground group-open:rotate-90 transition-transform">›</span>
+              <span>Auspicious Dates</span>
               {selectedMuhurat && (
                 <span className="text-xs font-normal text-success bg-success/10 rounded-full px-2 py-0.5 border border-success/30">
                   Selected
                 </span>
               )}
-            </h2>
-            <div className="space-y-2">
+            </summary>
+            <div className="space-y-2 mt-3">
               {muhuratSuggestions.map((d) => (
                 <div
                   key={d.date}
@@ -216,7 +276,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                 </div>
               ))}
             </div>
-          </div>
+          </details>
           </FadeUp>
         )}
 
@@ -237,16 +297,14 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                     className="flex items-start gap-3 rounded-lg border border-gold/20 px-4 py-3"
                   >
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${colorClass}`}>
-                      {CEREMONY_LABELS[c.type] ?? c.type}
+                      {ceremonyLabel(c)}
                     </span>
                     <div className="min-w-0 flex-1">
                       {c.date && (
                         <p className="text-sm font-medium text-foreground">{formatDate(c.date)}</p>
                       )}
                       {c.startTime && (
-                        <p className="text-xs text-muted-foreground">
-                          {c.startTime}{c.endTime ? ` – ${c.endTime}` : ''}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{c.startTime}</p>
                       )}
                       {c.venue && (
                         <p className="text-xs text-muted-foreground">{c.venue}</p>
@@ -260,19 +318,19 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                         action={updateCeremonyAction.bind(null, id, c.id)}
                         className="absolute right-2 mt-1 z-10 w-64 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg"
                       >
+                        {c.type === 'OTHER' && (
+                          <div>
+                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Ceremony Name</label>
+                            <input name="customTypeName" type="text" defaultValue={c.customTypeName ?? ''} placeholder="e.g. Manda" className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
+                          </div>
+                        )}
                         <div>
                           <label className="block text-[10px] font-medium text-muted-foreground mb-1">Date</label>
-                          <input name="date" type="date" defaultValue={c.date ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
+                          <input name="date" type="date" min={today} defaultValue={c.date ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Start</label>
-                            <input name="startTime" type="time" defaultValue={c.startTime ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">End</label>
-                            <input name="endTime" type="time" defaultValue={c.endTime ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                          </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-muted-foreground mb-1">Start</label>
+                          <input name="startTime" type="time" defaultValue={c.startTime ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
                         </div>
                         <div>
                           <label className="block text-[10px] font-medium text-muted-foreground mb-1">Venue</label>
@@ -284,7 +342,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                     <form action={deleteCeremonyAction.bind(null, id, c.id)}>
                       <button
                         type="submit"
-                        aria-label={`Delete ${CEREMONY_LABELS[c.type] ?? c.type} ceremony`}
+                        aria-label={`Delete ${ceremonyLabel(c)} ceremony`}
                         className="text-xs font-medium min-h-[32px] px-2 rounded-md border border-transparent text-muted-foreground hover:text-primary hover:border-gold/30 transition-colors"
                       >
                         Delete
@@ -297,70 +355,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           )}
 
           {/* Add Ceremony form */}
-          <details className="group">
-            <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-hover min-h-[44px]">
-              <span className="text-lg leading-none group-open:rotate-45 transition-transform">+</span>
-              Add Ceremony
-            </summary>
-            <form
-              action={createCeremonyAction.bind(null, id)}
-              className="mt-3 space-y-3"
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Type</label>
-                  <select
-                    name="type"
-                    required
-                    className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  >
-                    {Object.entries(CEREMONY_LABELS).map(([val, label]) => (
-                      <option key={val} value={val}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Date</label>
-                  <input
-                    type="date"
-                    name="date"
-                    className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Start Time</label>
-                  <input
-                    type="time"
-                    name="startTime"
-                    className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">End Time</label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1">Venue</label>
-                <input
-                  type="text"
-                  name="venue"
-                  placeholder="e.g. The Rooftop Garden"
-                  className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <button
-                type="submit"
-                className="min-h-[44px] px-5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors"
-              >
-                Add Ceremony
-              </button>
-            </form>
-          </details>
+          <CeremonyForm action={createCeremonyAction.bind(null, id)} />
         </div>
         </FadeUp>
 
@@ -368,13 +363,14 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         <FadeUp delay={0.3}>
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           <div className="flex gap-1 min-w-max">
-            {tabs.map(({ href, label }) => (
+            {tabs.map(({ href, label, desc }) => (
               <Link
                 key={href}
                 href={href}
-                className="text-center min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-primary hover:bg-background transition-colors whitespace-nowrap"
+                className="min-h-[44px] px-4 py-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-colors whitespace-nowrap flex flex-col items-start justify-center"
               >
-                {label}
+                <span className="text-sm font-medium leading-tight">{label}</span>
+                <span className="text-[11px] text-muted-foreground/80 leading-tight">{desc}</span>
               </Link>
             ))}
           </div>

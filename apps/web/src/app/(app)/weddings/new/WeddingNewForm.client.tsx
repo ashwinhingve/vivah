@@ -29,6 +29,7 @@ function SubmitButton() {
 
 export function WeddingNewForm() {
   const [state, formAction] = useActionState(createWeddingAction, initialState);
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <form action={formAction} className="space-y-5">
@@ -39,6 +40,20 @@ export function WeddingNewForm() {
       )}
 
       <div>
+        <label htmlFor="weddingName" className="block text-sm font-medium text-foreground mb-1.5">
+          Wedding Name
+        </label>
+        <input
+          id="weddingName"
+          name="weddingName"
+          type="text"
+          placeholder="e.g. Priya & Rahul"
+          className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
+        />
+        <p className="mt-1 text-xs text-muted-foreground">The couple or event title — separate from the venue.</p>
+      </div>
+
+      <div>
         <label htmlFor="weddingDate" className="block text-sm font-medium text-foreground mb-1.5">
           Wedding Date
         </label>
@@ -46,8 +61,10 @@ export function WeddingNewForm() {
           id="weddingDate"
           name="weddingDate"
           type="date"
+          min={today}
           className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
         />
+        <p className="mt-1 text-xs text-muted-foreground">Must be a future date.</p>
       </div>
 
       <div>
@@ -72,6 +89,19 @@ export function WeddingNewForm() {
           name="venueCity"
           type="text"
           placeholder="e.g. Mumbai"
+          className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="venueAddress" className="block text-sm font-medium text-foreground mb-1.5">
+          Venue Address <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <input
+          id="venueAddress"
+          name="venueAddress"
+          type="text"
+          placeholder="e.g. 12 MG Road, near City Mall"
           className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal transition-colors"
         />
       </div>
