@@ -129,6 +129,70 @@ pnpm db:studio      # Open Drizzle Studio visual browser
 
 ---
 
+## Production DB Migration Protocol
+
+**Where to run from:** Native Windows PowerShell only. WSL2 cannot route to Railway's
+`shortline.proxy.rlwy.net` (ETIMEDOUT). Run all production drizzle-kit pushes from
+PowerShell against `D:\Do Not Open\vivah\vivahOS\packages\db`.
+
+**Drizzle-kit location after pnpm install:**
+`D:\Do Not Open\vivah\vivahOS\node_modules\.pnpm\drizzle-kit@<version>\node_modules\drizzle-kit\bin.cjs`
+
+Find the current version path with:
+
+```powershell
+Get-ChildItem -Path . -Filter "bin.cjs" -Recurse | Where-Object { $_.FullName -like "*drizzle-kit*" }
+```
+
+**Pre-flight (mandatory):**
+1. Backup production DB via Railway dashboard → Postgres → Data → Backups → "Create backup now"
+2. Run against LOCAL DB first to preview diff: `pnpm --filter @smartshaadi/db db:push`
+3. Audit local `push.log` for: `DROP TABLE`, `DROP COLUMN`, `TRUNCATE`, `42P16` errors. Any of these = STOP.
+4. Confirm diff is additive-only (`CREATE TABLE`, `ADD COLUMN`, `CREATE INDEX`, `ALTER TYPE ... ADD VALUE`, `ADD CONSTRAINT`)
+
+**Push command (interactive — do NOT pipe empty stdin; the operator must see and
+answer drizzle's destructive-change prompts; the Railway backup from pre-flight
+step 1 is the safety net):**
+
+```powershell
+cd 'D:\Do Not Open\vivah\vivahOS'
+pnpm install                       # once: WSL-built node_modules are not usable by Windows node
+cd 'D:\Do Not Open\vivah\vivahOS\packages\db'
+
+# single line — a wrapped value embeds a newline in the URL
+$env:DATABASE_URL = '<prod DATABASE_URL — never commit this literal>'
+
+node ..\..\node_modules\.pnpm\drizzle-kit@<version>\node_modules\drizzle-kit\bin.cjs push --verbose | Tee-Object -FilePath push.log
+# answer "No" to any DROP / TRUNCATE / ALTER COLUMN prompt — apply additive changes only
+
+Remove-Item Env:\DATABASE_URL
+```
+
+**Interactive prompts — how to answer:**
+- "Truncate table to add unique constraint?" → ALWAYS "No, add the constraint without truncating"
+  - If the constraint then fails, fix the data manually first (SQL console), then re-run push
+- "Rename column from X to Y?" → STOP. Paste the prompt before answering. Renames need a manual
+  two-step migration (add new column → backfill → drop old) to preserve data.
+- "Drop column X?" → STOP. Never accept.
+
+**Fallback for non-additive changes:**
+If drizzle wants to do anything destructive (DROP, TRUNCATE, RENAME), extract only the additive
+statements from push.log into additive.sql and apply via Railway's web SQL console (Data tab → Query).
+Better Auth tables (user, session, account, verification, two_factor) are especially prone to
+42P16 errors — never alter their PKs through drizzle-kit. Treat them as read-only via this tool.
+
+**Connection blocker pattern:**
+WSL2 cannot reach Railway's proxy URLs. Always use PowerShell for production. Local DB pushes
+can run from either WSL or PowerShell — local Postgres is reachable from both.
+
+**Post-flight:** Re-run the push — it should report no remaining drift; only the
+`duplicate_object`-guarded `ADD CONSTRAINT` blocks re-emit, and those are no-ops.
+
+**Security:** Rotate Railway Postgres password if the DATABASE_URL has been pasted anywhere
+visible (chat, logs, screenshots). Update: Railway env vars + Vercel env vars + local .env.
+
+---
+
 ## Tech Stack (Full)
 
 ```
