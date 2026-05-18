@@ -212,3 +212,32 @@
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
+
+/* Warm-toned skeleton: Ivory (#FEFAF6) → sand (#F0E6D8), never generic gray.
+   Used by SkeletonLoader / ProfileCard.Skeleton. */
+.skeleton-warm {
+  background: linear-gradient(
+    90deg,
+    #f3ece2 0%,
+    #f0e6d8 20%,
+    #f7f1e8 40%,
+    #f0e6d8 60%,
+    #f3ece2 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.22s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-warm { animation: none; }
+  .animate-toast-in { animation: none; }
+}

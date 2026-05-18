@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import { CheckCircle2, AlertCircle, X } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type ToastVariant = 'success' | 'error' | 'info'
@@ -53,28 +53,31 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 top-3 z-[100] flex flex-col items-center gap-2 px-3 sm:top-auto sm:bottom-3">
+      <div className="pointer-events-none fixed inset-x-0 top-3 z-[100] flex flex-col items-center gap-2 px-3 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:items-end sm:px-0">
         {items.map((t) => (
           <div
             key={t.id}
             role={t.variant === 'error' ? 'alert' : 'status'}
             className={cn(
-              'pointer-events-auto flex max-w-sm items-start gap-2 rounded-xl border px-3 py-2.5 text-sm shadow-lg backdrop-blur-md',
-              t.variant === 'success' && 'border-success/30 bg-success/10/95 text-success',
-              t.variant === 'error'   && 'border-destructive/40 bg-destructive/95 text-destructive',
-              t.variant === 'info'    && 'border-gold/30 bg-surface/95 text-foreground',
+              'animate-toast-in pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-2xl border bg-surface px-4 py-3 text-sm text-foreground shadow-lg backdrop-blur-md',
+              t.variant === 'success' && 'border-success/30',
+              t.variant === 'error'   && 'border-destructive/40',
+              t.variant === 'info'    && 'border-gold/40',
             )}
           >
-            {t.variant === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-success" /> :
-             t.variant === 'error'   ? <AlertCircle className="h-4 w-4 shrink-0 text-destructive" /> : null}
-            <span className="flex-1">{t.message}</span>
+            <span className="mt-px shrink-0">
+              {t.variant === 'success' ? <CheckCircle2 className="h-[18px] w-[18px] text-success" aria-hidden="true" /> :
+               t.variant === 'error'   ? <AlertCircle className="h-[18px] w-[18px] text-destructive" aria-hidden="true" /> :
+                                         <Info className="h-[18px] w-[18px] text-gold-muted" aria-hidden="true" />}
+            </span>
+            <span className="flex-1 pt-0.5 leading-snug">{t.message}</span>
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              aria-label="Dismiss"
-              className="shrink-0 rounded p-0.5 text-current opacity-60 hover:opacity-100"
+              aria-label="Dismiss notification"
+              className="-mr-2 -mt-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-text-muted opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         ))}

@@ -1,19 +1,34 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Lift + deepen shadow on hover (150ms). Opt-in. */
+  hover?: boolean;
+  /** Root padding. Opt-in — omit when using CardHeader/CardContent (they own spacing). */
+  padding?: 'sm' | 'md' | 'lg';
+  /** Premium treatment: warm-gold ring + glow. */
+  premium?: boolean;
+}
+
+const paddingMap = { sm: 'p-4', md: 'p-6', lg: 'p-8' } as const;
+
+const CardRoot = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, hover = false, padding, premium = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border border-border bg-surface text-foreground shadow-card',
+        'rounded-2xl border border-gold/20 bg-surface text-foreground shadow-card',
+        padding && paddingMap[padding],
+        hover &&
+          'transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-card-hover',
+        premium && 'border-gold/40 shadow-gold-glow',
         className
       )}
       {...props}
     />
   )
 );
-Card.displayName = 'Card';
+CardRoot.displayName = 'Card';
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
@@ -56,5 +71,15 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   )
 );
 CardFooter.displayName = 'CardFooter';
+
+/**
+ * `Card` is also a namespace: `Card.Header` / `Card.Body` / `Card.Footer`
+ * (Body === CardContent). The flat named exports stay for back-compat.
+ */
+const Card = Object.assign(CardRoot, {
+  Header: CardHeader,
+  Body: CardContent,
+  Footer: CardFooter,
+});
 
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
