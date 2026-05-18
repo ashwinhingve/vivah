@@ -20,6 +20,24 @@ import { ToastProvider, useToast } from '@/components/ui/toast';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
 import { AnimatedNumber } from '@/components/motion/AnimatedNumber.client';
+import {
+  NoMatchesIllustration,
+  NoMessagesIllustration,
+  NoBookingsIllustration,
+  NoVendorsIllustration,
+  NoWeddingPlanIllustration,
+  NoTasksIllustration,
+} from '@/components/ui/illustrations';
+
+const SCORE_BANDS = [92, 78, 58, 40, 18];
+const ILLUSTRATIONS = [
+  ['No matches', NoMatchesIllustration],
+  ['No messages', NoMessagesIllustration],
+  ['No bookings', NoBookingsIllustration],
+  ['No vendors', NoVendorsIllustration],
+  ['No wedding', NoWeddingPlanIllustration],
+  ['No tasks', NoTasksIllustration],
+] as const;
 
 const PHOTO =
   'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=480';
@@ -162,10 +180,24 @@ export function UiPreview() {
             <div className="flex flex-wrap items-end gap-8">
               <CompatibilityScore value={92} variant="badge" />
               <CompatibilityScore value={92} variant="gauge" size={80} />
-              <CompatibilityScore value={78} variant="gauge" size={120} label="Compatibility" />
+              <CompatibilityScore value={78} variant="gauge" size={120} />
               <div className="w-64">
-                <CompatibilityScore value={64} variant="bar" label="Match" />
+                <CompatibilityScore value={64} variant="bar" />
               </div>
+            </div>
+
+            <p className="mb-3 mt-8 text-xs font-medium uppercase tracking-wide text-text-muted">
+              Score bands (ladder)
+            </p>
+            <div className="flex flex-wrap items-end gap-6">
+              {SCORE_BANDS.map((v) => (
+                <CompatibilityScore key={v} value={v} variant="gauge" size={80} />
+              ))}
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {SCORE_BANDS.map((v) => (
+                <CompatibilityScore key={v} value={v} variant="badge" />
+              ))}
             </div>
           </Block>
 
@@ -179,6 +211,17 @@ export function UiPreview() {
           </Block>
 
           <Block title="EmptyState">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-muted">
+              Illustration family (cohesion check)
+            </p>
+            <div className="mb-6 grid grid-cols-3 gap-4 sm:grid-cols-6">
+              {ILLUSTRATIONS.map(([label, Art]) => (
+                <div key={label} className="flex flex-col items-center gap-2">
+                  <Art className="h-24 w-24 text-primary/30" />
+                  <span className="text-[11px] text-text-muted">{label}</span>
+                </div>
+              ))}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {(
                 ['no-matches', 'no-messages', 'no-bookings', 'no-vendors', 'no-wedding', 'no-tasks'] as const

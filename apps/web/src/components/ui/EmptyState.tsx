@@ -10,6 +10,14 @@ import {
   type LucideProps,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  NoMatchesIllustration,
+  NoMessagesIllustration,
+  NoBookingsIllustration,
+  NoVendorsIllustration,
+  NoWeddingPlanIllustration,
+  NoTasksIllustration,
+} from './illustrations';
 
 type EmptyVariant =
   | 'no-matches'
@@ -19,36 +27,49 @@ type EmptyVariant =
   | 'no-wedding'
   | 'no-tasks';
 
+type IllustrationComponent = ComponentType<{ className?: string }>;
+
 const PRESETS: Record<
   EmptyVariant,
-  { icon: ComponentType<LucideProps>; title: string; description: string }
+  {
+    illustration: IllustrationComponent;
+    icon: ComponentType<LucideProps>;
+    title: string;
+    description: string;
+  }
 > = {
   'no-matches': {
+    illustration: NoMatchesIllustration,
     icon: HeartHandshake,
     title: 'Your match is out there',
     description: 'Complete your profile to start seeing curated, mutually-interested matches.',
   },
   'no-messages': {
+    illustration: NoMessagesIllustration,
     icon: MessageCircle,
     title: 'No conversations yet',
     description: 'When you and a match connect, your chats will appear here.',
   },
   'no-bookings': {
+    illustration: NoBookingsIllustration,
     icon: CalendarClock,
     title: 'No bookings yet',
     description: 'Discover trusted vendors and your confirmed bookings will show up here.',
   },
   'no-vendors': {
+    illustration: NoVendorsIllustration,
     icon: Store,
     title: 'No vendors found',
     description: 'Try widening your filters or exploring a nearby city.',
   },
   'no-wedding': {
+    illustration: NoWeddingPlanIllustration,
     icon: Sparkles,
     title: 'Begin your wedding plan',
     description: 'Create a plan to organise ceremonies, budget, guests and vendors in one place.',
   },
   'no-tasks': {
+    illustration: NoTasksIllustration,
     icon: ListChecks,
     title: 'All caught up',
     description: 'No pending tasks right now. New ones will appear as your plan progresses.',
@@ -57,6 +78,9 @@ const PRESETS: Record<
 
 interface EmptyStateProps {
   variant?: EmptyVariant;
+  /** Custom warm SVG illustration. Falls back to the variant preset. */
+  illustration?: IllustrationComponent;
+  /** Legacy lucide icon path — used only when no illustration is available. */
   icon?: ComponentType<LucideProps>;
   title?: string;
   description?: string;
@@ -69,11 +93,13 @@ interface EmptyStateProps {
 }
 
 /**
- * Designed empty state — never a blank screen. Warm gold icon disc, Playfair
- * heading, muted subtext, optional CTA. Server component.
+ * Designed empty state — never a blank screen. Custom warm SVG illustration
+ * (gold/burgundy/ivory), Playfair heading, muted subtext, optional CTA.
+ * Server component. Back-compat: pass `icon` to fall back to a lucide glyph.
  */
 export function EmptyState({
   variant = 'no-matches',
+  illustration,
   icon,
   title,
   description,
@@ -83,7 +109,8 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   const preset = PRESETS[variant];
-  const Icon = icon ?? preset.icon;
+  const Illustration = illustration ?? (icon ? null : preset.illustration);
+  const Icon = icon ?? (illustration ? null : preset.icon);
 
   return (
     <div
@@ -92,9 +119,14 @@ export function EmptyState({
         className
       )}
     >
-      <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gold/15">
-        <Icon className="h-16 w-16 text-gold-muted" strokeWidth={1.25} aria-hidden="true" />
-      </div>
+      {Illustration ? (
+        <Illustration className="mb-5 h-28 w-28" />
+      ) : Icon ? (
+        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gold/15">
+          <Icon className="h-16 w-16 text-gold-muted" strokeWidth={1.25} aria-hidden="true" />
+        </div>
+      ) : null}
+
       <h3 className="font-heading text-xl font-semibold text-primary">
         {title ?? preset.title}
       </h3>
