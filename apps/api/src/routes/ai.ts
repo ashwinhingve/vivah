@@ -970,11 +970,23 @@ aiRouter.get(
       return;
     }
 
-    // Extract FII signals for both profiles
-    const [signalsA, signalsB] = await Promise.all([
-      extractFiiSignals(pgA.userId),
-      extractFiiSignals(pgB.userId),
-    ]);
+    // Extract FII signals for both profiles. extractFiiSignals now throws when
+    // MongoDB is unavailable (instead of fabricating an all-zero score) —
+    // surface as 503 so the UI can show "Score temporarily unavailable"
+    // rather than a wrong 0.
+    // TODO: surface 'Score temporarily unavailable' in UI
+    let signalsA: Awaited<ReturnType<typeof extractFiiSignals>>;
+    let signalsB: Awaited<ReturnType<typeof extractFiiSignals>>;
+    try {
+      [signalsA, signalsB] = await Promise.all([
+        extractFiiSignals(pgA.userId),
+        extractFiiSignals(pgB.userId),
+      ]);
+    } catch (e) {
+      logger.error({ err: e, matchId: safeMatchId }, 'FII compatibility: signal extraction failed');
+      err(res, 'FII_UNAVAILABLE', 'FII score temporarily unavailable', 503);
+      return;
+    }
 
     // Call AI service — fallback gracefully if unavailable
     let compatResult: FiiCompatibilityResponse;

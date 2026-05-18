@@ -14,6 +14,7 @@
  *   Rule 4  — no `any`; unknown narrowed explicitly
  */
 import { shouldUseMockMongo } from '../lib/env.js';
+import { logger } from '../lib/logger.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent as _ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { FamilySection } from '@smartshaadi/types';
@@ -171,8 +172,13 @@ export async function extractFiiSignals(userId: string): Promise<FiiSignals> {
       if (doc && typeof doc === 'object' && 'family' in doc && doc['family']) {
         familySection = doc['family'] as FamilySection;
       }
-    } catch {
-      // MongoDB unavailable — treat as missing, all signals → 0
+    } catch (err) {
+      // Do NOT swallow. Returning all-zero signals here would surface as a
+      // real (but wrong) FII score. Surface the failure so callers can skip
+      // the score instead of persisting/displaying a fabricated zero.
+      // TODO: surface 'Score temporarily unavailable' in UI
+      logger.error({ err, userId }, 'FII MongoDB read failed — score unavailable');
+      throw err instanceof Error ? err : new Error('FII MongoDB read failed');
     }
   }
 

@@ -25,7 +25,7 @@ async function attachRedisAdapter(io: Server): Promise<void> {
   }
 }
 
-export function initSocket(server: HttpServer): Server {
+export async function initSocket(server: HttpServer): Promise<Server> {
   const allowedOrigins = env.NODE_ENV === 'production'
     ? [
         process.env['CORS_ORIGIN'] ?? env.WEB_URL,
@@ -46,7 +46,10 @@ export function initSocket(server: HttpServer): Server {
   ioInstance = io
 
   // Attach Redis adapter for cross-instance broadcast (best-effort).
-  void attachRedisAdapter(io)
+  // Awaited so the adapter is ready before the '/chat' namespace starts
+  // accepting connections — avoids a startup race where early messages
+  // broadcast only in-memory and miss other instances.
+  await attachRedisAdapter(io)
 
   const chat = io.of('/chat')
 

@@ -25,24 +25,27 @@ let inflight: Promise<EntitlementState | null> | null = null;
 let cached: { value: EntitlementState; expiresAt: number } | null = null;
 const TTL_MS = 60_000;
 
-async function loadEntitlements(): Promise<EntitlementState | null> {
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
-  if (inflight) return inflight;
-  inflight = (async () => {
+async function loadEntitlements(force = false): Promise<EntitlementState | null> {
+  if (!force && cached && cached.expiresAt > Date.now()) return cached.value;
+  if (!force && inflight) return inflight;
+  const fetchPromise = (async () => {
     try {
       const res = await fetch(`${API_BASE}/api/v1/users/me/entitlements`, { credentials: 'include' });
       if (!res.ok) return null;
       const json = (await res.json()) as { success: boolean; data: EntitlementState };
       if (!json.success) return null;
+      // Only commit to the cache on success — a failed (re)fetch must never
+      // clear or overwrite previously good entitlements.
       cached = { value: json.data, expiresAt: Date.now() + TTL_MS };
       return json.data;
     } catch {
       return null;
     } finally {
-      inflight = null;
+      if (!force) inflight = null;
     }
   })();
-  return inflight;
+  if (!force) inflight = fetchPromise;
+  return fetchPromise;
 }
 
 export function useEntitlement(): {
@@ -70,12 +73,18 @@ export function useEntitlement(): {
     isLocked: (feature) => {
       if (!state) return true;
       const v = state.entitlements[feature];
-      return typeof v === 'boolean' ? !v : false;
+      // Fail-closed: an unknown/undefined feature is treated as LOCKED.
+      return typeof v === 'boolean' ? !v : true;
     },
     refresh: async () => {
-      cached = null;
-      const v = await loadEntitlements();
-      setState(v);
+      // Never clear the cache before a successful fetch. loadEntitlements
+      // swallows errors → null; on null keep existing cached + state intact.
+      const v = await loadEntitlements(true);
+      if (v !== null && v !== undefined) {
+        setState(v);
+      } else {
+        console.error('[useEntitlement] refresh failed — keeping existing entitlements');
+      }
     },
   };
 }

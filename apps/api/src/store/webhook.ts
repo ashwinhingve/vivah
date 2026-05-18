@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
 import * as razorpay from '../lib/razorpay.js';
 import { confirmOrder } from './order.service.js';
 import { err } from '../lib/response.js';
@@ -44,10 +45,16 @@ export async function storeWebhookHandler(req: Request, res: Response): Promise<
   // a single capture could create N orders or trigger N fulfilments.
   const eventType = body.event ?? 'unknown';
   const headerEventId = req.headers['x-razorpay-event-id'];
-  const eventId =
-    typeof headerEventId === 'string'
-      ? `store:${headerEventId}`
-      : `store:${eventType}-${signature.slice(0, 16)}`;
+  let eventId: string;
+  if (typeof headerEventId === 'string') {
+    eventId = `store:${headerEventId}`;
+  } else {
+    // No stable event id from Razorpay — a content-derived key risks
+    // collisions across distinct events, so use a random key. This means
+    // header-less retries are NOT deduped; confirmOrder must stay idempotent.
+    logger.warn('razorpay webhook missing event-id header — using random dedup key');
+    eventId = `store:${randomUUID()}`;
+  }
 
   let recorded;
   try {
@@ -78,8 +85,8 @@ export async function storeWebhookHandler(req: Request, res: Response): Promise<
       } catch (e) {
         await markFailed(recorded.id, e instanceof Error ? e.message : String(e));
         logger.error({ err: e, eventId }, '[store/webhook/razorpay] confirmOrder failed');
-        // Respond 200 anyway — duplicate guard will short-circuit retries.
-        res.status(200).json({ received: true, error: true });
+        // Non-2xx so Razorpay retries the webhook automatically.
+        res.status(500).json({ error: 'processing_failed' });
         return;
       }
     }

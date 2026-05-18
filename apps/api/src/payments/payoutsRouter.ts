@@ -44,18 +44,18 @@ async function vendorIdForUser(userId: string): Promise<string | null> {
 }
 
 payoutsRouter.get('/vendor/mine', authenticate, async (req: Request, res: Response) => {
-  const vendorId = await vendorIdForUser(req.user!.id);
-  if (!vendorId) return err(res, 'NOT_FOUND', 'Vendor profile not found for user', 404);
   try {
+    const vendorId = await vendorIdForUser(req.user!.id);
+    if (!vendorId) return err(res, 'NOT_FOUND', 'Vendor profile not found for user', 404);
     const items = await listVendorPayouts(vendorId);
     ok(res, { items });
   } catch (e) { handle(res, e); }
 });
 
 payoutsRouter.get('/vendor/summary', authenticate, async (req: Request, res: Response) => {
-  const vendorId = await vendorIdForUser(req.user!.id);
-  if (!vendorId) return err(res, 'NOT_FOUND', 'Vendor profile not found for user', 404);
   try {
+    const vendorId = await vendorIdForUser(req.user!.id);
+    if (!vendorId) return err(res, 'NOT_FOUND', 'Vendor profile not found for user', 404);
     const summary = await getVendorPayoutSummary(vendorId);
     ok(res, summary);
   } catch (e) { handle(res, e); }
@@ -75,39 +75,39 @@ async function assertAdmin(req: Request, res: Response): Promise<boolean> {
 }
 
 payoutsRouter.post('/admin/schedule', authenticate, async (req: Request, res: Response) => {
-  if (!(await assertAdmin(req, res))) return;
-  const parse = PayoutScheduleSchema.safeParse(req.body);
-  if (!parse.success) return err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid', 422);
   try {
+    if (!(await assertAdmin(req, res))) return;
+    const parse = PayoutScheduleSchema.safeParse(req.body);
+    if (!parse.success) return err(res, 'VALIDATION_ERROR', parse.error.issues[0]?.message ?? 'Invalid', 422);
     const result = await schedulePayout(parse.data);
     ok(res, result, 201);
   } catch (e) { handle(res, e); }
 });
 
 payoutsRouter.post('/admin/:id/process', authenticate, async (req: Request, res: Response) => {
-  if (!(await assertAdmin(req, res))) return;
-  const id = req.params['id'];
-  if (!id) return err(res, 'VALIDATION_ERROR', 'id required', 422);
   try {
+    if (!(await assertAdmin(req, res))) return;
+    const id = req.params['id'];
+    if (!id) return err(res, 'VALIDATION_ERROR', 'id required', 422);
     await processPayout(id);
     ok(res, { processed: true });
   } catch (e) { handle(res, e); }
 });
 
 payoutsRouter.post('/admin/:id/retry', authenticate, async (req: Request, res: Response) => {
-  if (!(await assertAdmin(req, res))) return;
-  const id = req.params['id'];
-  if (!id) return err(res, 'VALIDATION_ERROR', 'id required', 422);
   try {
+    if (!(await assertAdmin(req, res))) return;
+    const id = req.params['id'];
+    if (!id) return err(res, 'VALIDATION_ERROR', 'id required', 422);
     await adminRetryPayout(req.user!.id, id);
     ok(res, { retried: true });
   } catch (e) { handle(res, e); }
 });
 
 payoutsRouter.get('/admin/list', authenticate, async (req: Request, res: Response) => {
-  if (!(await assertAdmin(req, res))) return;
-  const status = (req.query['status'] as string | undefined) ?? undefined;
   try {
+    if (!(await assertAdmin(req, res))) return;
+    const status = (req.query['status'] as string | undefined) ?? undefined;
     const items = await adminListAllPayouts(100, status);
     ok(res, { items });
   } catch (e) { handle(res, e); }

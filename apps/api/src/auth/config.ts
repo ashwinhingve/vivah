@@ -109,12 +109,12 @@ export const auth = betterAuth({
 
         // Lockout check — block before the verification row is even written.
         if (await isPhoneLocked(phone)) {
-          recordAuthEvent({ userId: null, type: AuthEventType.OTP_LOCKED, ipAddress: ip, userAgent: ua, metadata: { phone } });
+          await recordAuthEvent({ userId: null, type: AuthEventType.OTP_LOCKED, ipAddress: ip, userAgent: ua, metadata: { phone } });
           throw new Error('Too many OTP requests for this number. Try again in 15 minutes.');
         }
 
         await recordOtpSent(phone);
-        recordAuthEvent({ userId: null, type: AuthEventType.OTP_SENT, ipAddress: ip, userAgent: ua, metadata: { phone } });
+        await recordAuthEvent({ userId: null, type: AuthEventType.OTP_SENT, ipAddress: ip, userAgent: ua, metadata: { phone } });
 
         if (env.USE_MOCK_SERVICES) {
           const mockCode = env.MOCK_OTP_VALUE;
@@ -176,7 +176,7 @@ export const auth = betterAuth({
         const ip = ipFrom(ctx.request?.headers);
         const ua = uaFrom(ctx.request?.headers);
         const result = await recordOtpFailure(phone);
-        recordAuthEvent({
+        await recordAuthEvent({
           userId: null,
           type: result.locked ? AuthEventType.OTP_LOCKED : AuthEventType.OTP_FAILED,
           ipAddress: ip,
@@ -223,7 +223,7 @@ export const auth = betterAuth({
         after: async (newUser, ctx) => {
           const ip = ipFrom(ctx?.request?.headers);
           const ua = uaFrom(ctx?.request?.headers);
-          recordAuthEvent({
+          await recordAuthEvent({
             userId: newUser.id,
             type: AuthEventType.ACCOUNT_REGISTERED,
             ipAddress: ip,
@@ -236,7 +236,7 @@ export const auth = betterAuth({
         before: async (deleted, ctx) => {
           const ip = ipFrom(ctx?.request?.headers);
           const ua = uaFrom(ctx?.request?.headers);
-          recordAuthEvent({
+          await recordAuthEvent({
             userId: deleted.id,
             type: AuthEventType.ACCOUNT_DELETED,
             ipAddress: ip,
@@ -253,7 +253,7 @@ export const auth = betterAuth({
           // OTP_VERIFIED for phone-flow visibility. The phoneNumber plugin
           // creates a session right after a verify; we attribute the verify
           // to the same session-create event.
-          recordAuthEvent({
+          await recordAuthEvent({
             userId: sess.userId,
             type: AuthEventType.OTP_VERIFIED,
             ipAddress: ip,
@@ -273,19 +273,20 @@ export const auth = betterAuth({
               // best-effort
             }
           }
-          recordAuthEvent({
+          // New-device detection MUST run against history that excludes this
+          // login. The LOGIN_SUCCESS write is now awaited (audit durability),
+          // so compute `fresh` BEFORE writing it — otherwise isNewDevice would
+          // see the row we just wrote and treat every login as a known device.
+          const fresh = await isNewDevice(sess.userId, ip, ua);
+          await recordAuthEvent({
             userId: sess.userId,
             type: AuthEventType.LOGIN_SUCCESS,
             ipAddress: ip,
             userAgent: ua,
             metadata: { sessionId: sess.id },
           });
-          // New-device detection runs against history excluding the row we
-          // just wrote — the LOGIN_SUCCESS row is fire-and-forget so the
-          // count below sees the prior state.
-          const fresh = await isNewDevice(sess.userId, ip, ua);
           if (fresh) {
-            recordAuthEvent({
+            await recordAuthEvent({
               userId: sess.userId,
               type: AuthEventType.NEW_DEVICE_LOGIN,
               ipAddress: ip,
@@ -299,7 +300,7 @@ export const auth = betterAuth({
         before: async (sess, ctx) => {
           const ip = ipFrom(ctx?.request?.headers);
           const ua = uaFrom(ctx?.request?.headers);
-          recordAuthEvent({
+          await recordAuthEvent({
             userId: sess.userId ?? null,
             type: AuthEventType.LOGOUT,
             ipAddress: ip,

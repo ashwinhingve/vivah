@@ -417,7 +417,7 @@ async function bootstrap(): Promise<void> {
   });
 
   const server = createServer(app);
-  initSocket(server);
+  await initSocket(server);
   server.listen(env.PORT, () => {
     console.info(`API server running on port ${env.PORT}`);
   });
