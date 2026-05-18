@@ -73,8 +73,6 @@ const CEREMONY_LABELS: Record<string, string> = {
   WEDDING:    'Wedding',
   RECEPTION:  'Reception',
   ENGAGEMENT: 'Engagement',
-  TILAK:      'Tilak',
-  SAGAN:      'Sagan',
   OTHER:      'Other',
 };
 
@@ -85,8 +83,6 @@ const CEREMONY_COLORS: Record<string, string> = {
   WEDDING:    'bg-destructive/15 text-destructive',
   RECEPTION:  'bg-teal/10 text-teal',
   ENGAGEMENT: 'bg-primary/15 text-primary',
-  TILAK:      'bg-gold/15 text-gold-muted',
-  SAGAN:      'bg-gold/15 text-gold-muted',
   OTHER:      'bg-secondary text-foreground',
 };
 

@@ -124,7 +124,7 @@ export type BulkImportGuestsInput = z.infer<typeof BulkImportGuestsSchema>;
 
 export const CeremonyTypeEnum = z.enum([
   'HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION',
-  'ENGAGEMENT', 'TILAK', 'SAGAN', 'OTHER',
+  'ENGAGEMENT', 'OTHER',
 ]);
 
 const CeremonyBaseSchema = z.object({

@@ -9,8 +9,6 @@ const CEREMONY_OPTIONS: { value: string; label: string }[] = [
   { value: 'WEDDING',    label: 'Wedding' },
   { value: 'RECEPTION',  label: 'Reception' },
   { value: 'ENGAGEMENT', label: 'Engagement' },
-  { value: 'TILAK',      label: 'Tilak' },
-  { value: 'SAGAN',      label: 'Sagan' },
   { value: 'OTHER',      label: 'Other' },
 ];
 
@@ -67,9 +65,12 @@ export function CeremonyForm({ action }: CeremonyFormProps) {
                 type="text"
                 name="customTypeName"
                 required
-                placeholder="e.g. Manda, Dulhasar"
+                placeholder="e.g. Manda, Dulhasar, Sehrabandi, Tilak, Sagan, Pithi"
                 className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Enter any traditional or family-specific ceremony name
+              </p>
             </div>
           )}
           <div>

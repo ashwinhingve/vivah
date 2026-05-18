@@ -7,7 +7,7 @@ const BudgetCategorySchema = new mongoose.Schema({
 })
 
 const CeremonySchema = new mongoose.Schema({
-  type:           { type: String, enum: ['HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION', 'ENGAGEMENT', 'TILAK', 'SAGAN', 'OTHER'], required: true },
+  type:           { type: String, enum: ['HALDI', 'MEHNDI', 'SANGEET', 'WEDDING', 'RECEPTION', 'ENGAGEMENT', 'OTHER'], required: true },
   customTypeName: { type: String }, // required only when type === 'OTHER' (user label e.g. "Manda")
   date:           { type: Date },
   venue:          { type: String },

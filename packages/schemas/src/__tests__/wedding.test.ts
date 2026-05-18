@@ -67,9 +67,30 @@ describe('CreateCeremonySchema — custom type + future date', () => {
     expect(r.success).toBe(true);
   });
 
-  it('accepts new TILAK and SAGAN ceremony types', () => {
-    expect(CreateCeremonySchema.safeParse({ type: 'TILAK' }).success).toBe(true);
-    expect(CreateCeremonySchema.safeParse({ type: 'SAGAN' }).success).toBe(true);
+  it('rejects removed regional TILAK and SAGAN ceremony types', () => {
+    expect(CreateCeremonySchema.safeParse({ type: 'TILAK' }).success).toBe(false);
+    expect(CreateCeremonySchema.safeParse({ type: 'SAGAN' }).success).toBe(false);
+  });
+
+  it('still accepts the ENGAGEMENT ceremony type', () => {
+    expect(CreateCeremonySchema.safeParse({ type: 'ENGAGEMENT' }).success).toBe(true);
+  });
+
+  it('accepts OTHER + customTypeName for regional ceremonies (Tilak/Sagan)', () => {
+    expect(
+      CreateCeremonySchema.safeParse({
+        type: 'OTHER',
+        customTypeName: 'Tilak',
+        date: isoOffsetDays(30),
+      }).success,
+    ).toBe(true);
+    expect(
+      CreateCeremonySchema.safeParse({
+        type: 'OTHER',
+        customTypeName: 'Sagan',
+        date: isoOffsetDays(30),
+      }).success,
+    ).toBe(true);
   });
 
   it('no longer accepts an endTime field as schema-validated input', () => {

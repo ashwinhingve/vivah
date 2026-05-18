@@ -150,8 +150,6 @@ export const CeremonyType = {
   WEDDING:    'WEDDING',
   RECEPTION:  'RECEPTION',
   ENGAGEMENT: 'ENGAGEMENT',
-  TILAK:      'TILAK',
-  SAGAN:      'SAGAN',
   OTHER:      'OTHER',
 } as const;
 export type CeremonyType = typeof CeremonyType[keyof typeof CeremonyType];
