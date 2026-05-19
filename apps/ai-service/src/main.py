@@ -158,44 +158,39 @@ def health() -> dict[str, object]:
 
     # Emotional Score sentiment loader probe — first call triggers lazy load,
     # subsequent calls return the cached pipeline via `_load_attempted` guard.
+    # Sentiment HF pipeline — cheap status; does NOT trigger a 1GB model download.
+    # Models warm lazily on the first real inference request.
     try:
-        from src.services.sentiment_model import load_sentiment_pipeline
+        from src.services.sentiment_model import is_pipeline_loaded
 
-        emotional_status = (
-            "huggingface_loaded"
-            if load_sentiment_pipeline() is not None
-            else "huggingface_unavailable"
-        )
+        emotional_status = "huggingface_loaded" if is_pipeline_loaded() else "huggingface_cold"
     except Exception as exc:  # noqa: BLE001
         log.error("sentiment_health_probe_failed", error=str(exc))
         emotional_status = "huggingface_unavailable"
 
-    # DPI sklearn model probe — first call lazy-loads (auto-trains if absent).
+    # DPI sklearn — cheap status; bundle lazy-loads on first prediction.
     try:
-        from src.services.dpi_model import load_model as load_dpi_model
+        from src.services.dpi_model import is_loaded as dpi_is_loaded
 
-        load_dpi_model()
-        dpi_status = "sklearn_loaded"
+        dpi_status = "sklearn_loaded" if dpi_is_loaded() else "sklearn_cold"
     except Exception as exc:  # noqa: BLE001
         log.error("dpi_health_probe_failed", error=str(exc))
         dpi_status = "sklearn_unavailable"
 
-    # FAQ GradientBoosting model probe — first call lazy-loads (auto-trains if absent).
+    # FAQ GradientBoosting — cheap status; bundle lazy-loads on first prediction.
     try:
-        from src.services.faq_model import load_model as load_faq_model
+        from src.services.faq_model import is_loaded as faq_is_loaded
 
-        load_faq_model()
-        faq_status = "sklearn_loaded"
+        faq_status = "sklearn_loaded" if faq_is_loaded() else "sklearn_cold"
     except Exception as exc:  # noqa: BLE001
         log.error("faq_health_probe_failed", error=str(exc))
         faq_status = "sklearn_unavailable"
 
-    # Stay Quotient sklearn model probe — first call lazy-loads (auto-trains if absent).
+    # Stay Quotient sklearn — cheap status; bundle lazy-loads on first prediction.
     try:
-        from src.services.stay_model import load_model as load_stay_model
+        from src.services.stay_model import is_loaded as stay_is_loaded
 
-        load_stay_model()
-        stay_status = "sklearn_loaded"
+        stay_status = "sklearn_loaded" if stay_is_loaded() else "sklearn_cold"
     except Exception as exc:  # noqa: BLE001
         log.error("stay_health_probe_failed", error=str(exc))
         stay_status = "sklearn_unavailable"

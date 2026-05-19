@@ -34,6 +34,11 @@ _explainer: Any = None
 _metadata: dict | None = None
 
 
+def is_loaded() -> bool:
+    """Cheap status — does NOT trigger model load. For /ready health probes."""
+    return _model is not None
+
+
 def _classify(score: float) -> str:
     low, med = LEVEL_THRESHOLDS
     if score <= low:

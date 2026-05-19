@@ -52,6 +52,11 @@ def _reset_for_tests() -> None:
     _metadata = None
 
 
+def is_loaded() -> bool:
+    """Cheap status — does NOT trigger model load. For /ready health probes."""
+    return _model is not None
+
+
 def load_model(
     model_path: str | Path = DEFAULT_MODEL_PATH,
     metadata_path: str | Path = DEFAULT_METADATA_PATH,
