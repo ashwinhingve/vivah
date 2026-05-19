@@ -1,0 +1,324 @@
+'use client';
+/**
+ * ProfileActions
+ *
+ * Sticky action bar rendered on the profile detail page for non-self viewers.
+ *
+ * Layout:
+ *  - Mobile: fixed bottom bar (above nav)
+ *  - Desktop: inline at the bottom of the right column
+ *
+ * Buttons:
+ *  - Shortlist (heart): toggles filled/ghost with optimistic UI
+ *    TODO: wire to POST /api/v1/matchmaking/shortlist/:profileId once endpoint exists
+ *  - Connect/Message/Accept/Pending: delegates to MatchActionBar logic
+ *  - More (kebab): dropdown with Report / Block / Share
+ *    TODO: wire Report to POST /api/v1/profiles/:profileId/report
+ *    TODO: wire Block  to POST /api/v1/profiles/:profileId/block
+ */
+import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Heart, MoreHorizontal, Flag, ShieldOff, Share2, Loader2 } from 'lucide-react';
+
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+type MatchStatus = 'none' | 'sent_pending' | 'received_pending' | 'matched';
+type InternalStatus = MatchStatus | 'sending' | 'declined' | 'error';
+
+interface Props {
+  profileId: string;
+  displayName: string;
+  initialStatus: MatchStatus;
+  requestId: string | null;
+  /** Render inline (desktop right-col) vs fixed sticky (mobile) */
+  sticky?: boolean;
+}
+
+function useClickOutside(ref: { current: HTMLElement | null }, onClose: () => void) {
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [ref, onClose]);
+}
+
+function KebabMenu({
+  displayName,
+  onClose,
+}: {
+  displayName: string;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, onClose);
+
+  async function handleShare() {
+    if (typeof window !== 'undefined' && navigator.share) {
+      await navigator.share({
+        title: `${displayName} on Smart Shaadi`,
+        url: window.location.href,
+      }).catch(() => {/* cancelled */});
+    } else if (typeof window !== 'undefined') {
+      await navigator.clipboard.writeText(window.location.href).catch(() => {/* ignore */});
+    }
+    onClose();
+  }
+
+  return (
+    <div
+      ref={ref}
+      className="absolute bottom-full right-0 mb-2 w-44 rounded-xl border border-gold/20 bg-surface shadow-card overflow-hidden z-50"
+      role="menu"
+    >
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => {
+          // TODO: wire to POST /api/v1/profiles/:profileId/report
+          //       (re-add `profileId` prop to KebabMenu when the endpoint exists)
+          onClose();
+        }}
+        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-destructive/5 hover:text-destructive transition-colors"
+      >
+        <Flag className="w-4 h-4" aria-hidden="true" />
+        Report profile
+      </button>
+      <div className="h-px bg-border-light mx-3" />
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => {
+          // TODO: wire to POST /api/v1/profiles/:profileId/block
+          //       (re-add `profileId` prop to KebabMenu when the endpoint exists)
+          onClose();
+        }}
+        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-destructive/5 hover:text-destructive transition-colors"
+      >
+        <ShieldOff className="w-4 h-4" aria-hidden="true" />
+        Block user
+      </button>
+      <div className="h-px bg-border-light mx-3" />
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => { void handleShare(); }}
+        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted/30 transition-colors"
+      >
+        <Share2 className="w-4 h-4" aria-hidden="true" />
+        Share profile
+      </button>
+    </div>
+  );
+}
+
+function ConnectButton({
+  status,
+  requestId,
+  onSend,
+  onAccept,
+}: {
+  status: InternalStatus;
+  requestId: string | null;
+  onSend: () => void;
+  onAccept: () => void;
+}) {
+  if (status === 'matched' && requestId) {
+    return (
+      <Link
+        href={`/chat/${requestId}`}
+        className="flex-1 h-11 rounded-lg bg-teal text-white font-semibold text-sm flex items-center justify-center hover:bg-teal-hover transition-colors"
+      >
+        Message
+      </Link>
+    );
+  }
+
+  if (status === 'received_pending') {
+    return (
+      <button
+        type="button"
+        onClick={onAccept}
+        className="flex-1 h-11 rounded-lg bg-success text-white font-semibold text-sm flex items-center justify-center hover:bg-success/90 transition-colors"
+      >
+        Accept Interest
+      </button>
+    );
+  }
+
+  if (status === 'sent_pending') {
+    return (
+      <button
+        type="button"
+        disabled
+        className="flex-1 h-11 rounded-lg bg-success/15 text-success font-semibold text-sm flex items-center justify-center cursor-not-allowed"
+      >
+        Request Pending
+      </button>
+    );
+  }
+
+  if (status === 'sending') {
+    return (
+      <button
+        type="button"
+        disabled
+        className="flex-1 h-11 rounded-lg bg-teal/50 text-white font-semibold text-sm flex items-center justify-center cursor-not-allowed"
+      >
+        <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
+        Please wait…
+      </button>
+    );
+  }
+
+  if (status === 'declined') {
+    return (
+      <button
+        type="button"
+        disabled
+        className="flex-1 h-11 rounded-lg bg-muted text-muted-foreground font-semibold text-sm flex items-center justify-center cursor-not-allowed"
+      >
+        Interest Declined
+      </button>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <button
+        type="button"
+        onClick={onSend}
+        className="flex-1 h-11 rounded-lg border-2 border-destructive text-destructive font-semibold text-sm flex items-center justify-center hover:bg-destructive/5 transition-colors"
+      >
+        Try Again
+      </button>
+    );
+  }
+
+  // status === 'none'
+  return (
+    <button
+      type="button"
+      onClick={onSend}
+      className="flex-1 h-11 rounded-lg bg-teal text-white font-semibold text-sm flex items-center justify-center hover:bg-teal-hover transition-colors shadow-sm"
+    >
+      Connect
+    </button>
+  );
+}
+
+export function ProfileActions({
+  profileId,
+  displayName,
+  initialStatus,
+  requestId,
+  sticky = true,
+}: Props) {
+  const [status, setStatus] = useState<InternalStatus>(initialStatus);
+  const [activeRequestId, setActiveRequestId] = useState<string | null>(requestId);
+  const [shortlisted, setShortlisted] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const router = useRouter();
+
+  async function sendInterest() {
+    setStatus('sending');
+    try {
+      const res = await fetch(`${API_URL}/api/v1/matchmaking/requests`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiverId: profileId }),
+      });
+      const json = (await res.json()) as { data?: { id?: string } };
+      if (res.ok) setActiveRequestId(json.data?.id ?? null);
+      if (res.ok || res.status === 409) { setStatus('sent_pending'); return; }
+      setStatus('error');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  async function acceptInterest() {
+    if (!activeRequestId) return;
+    setStatus('sending');
+    try {
+      const res = await fetch(`${API_URL}/api/v1/matchmaking/requests/${activeRequestId}/accept`, {
+        method: 'PUT',
+        credentials: 'include',
+      });
+      if (res.ok) { router.push(`/chat/${activeRequestId}`); return; }
+      setStatus('received_pending');
+    } catch {
+      setStatus('received_pending');
+    }
+  }
+
+  function toggleShortlist() {
+    // Optimistic toggle
+    // TODO: wire to POST/DELETE /api/v1/matchmaking/shortlist/:profileId once endpoint exists
+    setShortlisted((v) => !v);
+  }
+
+  const inner = (
+    <div className="flex items-center gap-2.5">
+      {/* Shortlist (heart) */}
+      <button
+        type="button"
+        aria-label={shortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+        onClick={toggleShortlist}
+        className={`w-11 h-11 rounded-lg border flex items-center justify-center transition-colors shrink-0 ${
+          shortlisted
+            ? 'border-primary bg-primary/10 text-primary'
+            : 'border-gold/30 text-muted-foreground hover:border-primary hover:text-primary'
+        }`}
+      >
+        <Heart
+          className="w-5 h-5"
+          fill={shortlisted ? 'currentColor' : 'none'}
+          aria-hidden="true"
+        />
+      </button>
+
+      {/* Connect / Message / Accept */}
+      <ConnectButton
+        status={status}
+        requestId={activeRequestId}
+        onSend={() => { void sendInterest(); }}
+        onAccept={() => { void acceptInterest(); }}
+      />
+
+      {/* More kebab */}
+      <div className="relative shrink-0">
+        <button
+          type="button"
+          aria-label="More options"
+          onClick={() => setShowMenu((v) => !v)}
+          className="w-11 h-11 rounded-lg border border-gold/30 flex items-center justify-center text-muted-foreground hover:border-gold hover:text-foreground transition-colors"
+        >
+          <MoreHorizontal className="w-5 h-5" aria-hidden="true" />
+        </button>
+        {showMenu && (
+          <KebabMenu
+            displayName={displayName}
+            onClose={() => setShowMenu(false)}
+          />
+        )}
+      </div>
+    </div>
+  );
+
+  if (!sticky) {
+    return <div className="pt-2">{inner}</div>;
+  }
+
+  // Mobile sticky
+  return (
+    <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface/95 backdrop-blur-sm border-t border-gold/20 px-4 py-3 shadow-2xl md:hidden">
+      <div className="mx-auto max-w-lg">
+        {inner}
+      </div>
+    </div>
+  );
+}

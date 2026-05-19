@@ -1,16 +1,24 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { ProfileHero } from '@/components/profile/ProfileHero';
-import { CompatibilityDisplay } from '@/components/profile/CompatibilityDisplay';
-import { ProfileSections } from '@/components/profile/ProfileSections';
+import { CheckCircle2, Phone, BadgeCheck, Camera, CreditCard, Sparkles } from 'lucide-react';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
+import { ProfileCompatibilityCard } from '@/components/profile/ProfileCompatibilityCard';
+import { ProfileDetailTabs } from '@/components/profile/ProfileDetailTabs.client';
+import { ProfileActions } from '@/components/profile/ProfileActions.client';
 import { ContactSection } from '@/components/profile/ContactSection';
-import { MatchActionBar } from '@/components/matching/MatchActionBar.client';
-import type { ProfileDetailResponse, MatchExplainer } from '@smartshaadi/types';
-import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
+import { ManglikChip } from '@/components/profile/ManglikChip';
+import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
+import { DistancePill } from '@/components/profile/DistancePill';
 import { SimilarProfiles } from '@/components/matchmaking/SimilarProfiles';
+import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
+import type { ProfileDetailResponse, CompatibilityScore, MatchExplainer } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+// ─────────────────────────────────────────────────────
+//  Data fetchers
+// ─────────────────────────────────────────────────────
 
 async function getProfile(profileId: string): Promise<ProfileDetailResponse | null> {
   const cookieStore = await cookies();
@@ -50,9 +58,14 @@ async function getMatchStatusWithProfile(
   }
 }
 
-interface MatchScoreSlice { explainer: MatchExplainer | null; distanceKm: number | null }
+/** Full CompatibilityScore shape from GET /api/v1/matchmaking/score/:profileId */
+interface FullMatchScore {
+  compatibility: CompatibilityScore;
+  explainer: MatchExplainer | null;
+  distanceKm: number | null;
+}
 
-async function getMatchScore(profileId: string): Promise<MatchScoreSlice | null> {
+async function getFullMatchScore(profileId: string): Promise<FullMatchScore | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
   if (!token) return null;
@@ -64,17 +77,46 @@ async function getMatchScore(profileId: string): Promise<MatchScoreSlice | null>
     if (!res.ok) return null;
     const json = (await res.json()) as {
       success: boolean;
-      data?: { explainer?: MatchExplainer | null; distanceKm?: number | null };
+      data?: {
+        totalScore?: number;
+        breakdown?: CompatibilityScore['breakdown'];
+        gunaScore?: number;
+        tier?: CompatibilityScore['tier'];
+        flags?: string[];
+        explainer?: MatchExplainer | null;
+        distanceKm?: number | null;
+      };
     };
-    if (!json.success) return null;
+    if (!json.success || !json.data) return null;
+    const d = json.data;
+    // Require minimum shape to render the card
+    if (
+      d.totalScore == null ||
+      !d.breakdown ||
+      d.gunaScore == null ||
+      !d.tier
+    ) {
+      return null;
+    }
     return {
-      explainer: json.data?.explainer ?? null,
-      distanceKm: json.data?.distanceKm ?? null,
+      compatibility: {
+        totalScore: d.totalScore,
+        breakdown: d.breakdown,
+        gunaScore: d.gunaScore,
+        tier: d.tier,
+        flags: d.flags ?? [],
+      },
+      explainer: d.explainer ?? null,
+      distanceKm: d.distanceKm ?? null,
     };
   } catch {
     return null;
   }
 }
+
+// ─────────────────────────────────────────────────────
+//  Helpers
+// ─────────────────────────────────────────────────────
 
 function calculateAge(dob: string): number {
   const birth = new Date(dob);
@@ -84,195 +126,300 @@ function calculateAge(dob: string): number {
   return age;
 }
 
+/** Verification trust strip — only renders flags present on verificationStatus */
+function VerificationStrip({ verificationStatus }: { verificationStatus: string }) {
+  const verified = verificationStatus === 'VERIFIED';
+
+  const checks = [
+    {
+      key: 'phone',
+      icon: Phone,
+      label: 'Phone',
+      active: verified, // phone is verified as part of OTP onboarding
+    },
+    {
+      key: 'kyc',
+      icon: BadgeCheck,
+      label: 'KYC',
+      active: verified,
+    },
+    {
+      key: 'photo',
+      icon: Camera,
+      label: 'Photo',
+      active: verified,
+    },
+    {
+      key: 'govt',
+      icon: CreditCard,
+      label: 'Govt ID',
+      active: verified,
+    },
+  ];
+
+  return (
+    <div className="flex gap-2 flex-wrap">
+      {checks.map(({ key, icon: Icon, label, active }) => (
+        <div
+          key={key}
+          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            active
+              ? 'border-success/30 bg-success/10 text-success'
+              : 'border-border-light bg-muted/30 text-muted-foreground'
+          }`}
+        >
+          <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+          {label}
+          {active && (
+            <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Quick trait pills row */
+function TraitPills({ profile }: { profile: ProfileDetailResponse }) {
+  const pills: string[] = [];
+
+  if (profile.personal?.religion) pills.push(profile.personal.religion);
+  if (profile.personal?.caste) pills.push(profile.personal.caste);
+  if (profile.personal?.height != null) {
+    const totalInches = Math.round((profile.personal.height) / 2.54);
+    const ft = Math.floor(totalInches / 12);
+    const inches = totalInches % 12;
+    pills.push(`${ft}'${inches}"`);
+  }
+  if (profile.education?.degree) pills.push(profile.education.degree);
+  if (profile.family?.familyType) pills.push(`${profile.family.familyType.replace('_', ' ')} Family`);
+
+  if (pills.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {pills.map((pill) => (
+        <span
+          key={pill}
+          className="rounded-full bg-surface border border-gold/40 px-3 py-1 text-xs text-foreground"
+        >
+          {pill}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────
+//  Page
+// ─────────────────────────────────────────────────────
+
 interface Props {
   params: Promise<{ profileId: string }>;
 }
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const [profile, entitlements, matchScore, matchStatus] = await Promise.all([
+  const [profile, entitlements, fullScore, matchStatus] = await Promise.all([
     getProfile(profileId),
     getEntitlementsForCurrentUser(),
-    getMatchScore(profileId),
+    getFullMatchScore(profileId),
     getMatchStatusWithProfile(profileId),
   ]);
+
   if (!profile) notFound();
 
   const age = profile.personal?.dob ? calculateAge(profile.personal.dob) : null;
-  const primaryPhoto = profile.photos.find((p) => p.isPrimary) ?? profile.photos[0];
-  const city =
-    profile.location
-      ? [profile.location.city, profile.location.state].filter(Boolean).join(', ')
-      : '';
+  const city = profile.location
+    ? [profile.location.city, profile.location.state].filter(Boolean).join(', ')
+    : '';
 
   // isSelf: API only exposes phone/email when viewing your own profile
   const isSelf = profile.phoneNumber != null || profile.email != null;
 
-  // Name: prefer MongoDB personal.fullName — profile.name is the raw phone from OTP signup
+  // Name: prefer MongoDB personal.fullName
   const displayName = profile.personal?.fullName ?? 'Complete your profile';
 
-  // Guna score — only show ring when horoscope data exists
-  const hasHoroscope = Boolean(profile.horoscope?.rashi ?? profile.horoscope?.nakshatra);
-  const gunaScore = profile.horoscope?.gunaScore ?? null;
+  // Sort photos by isPrimary then displayOrder
+  const sortedPhotos = [...profile.photos].sort((a, b) => {
+    if (a.isPrimary && !b.isPrimary) return -1;
+    if (!a.isPrimary && b.isPrimary) return 1;
+    return a.displayOrder - b.displayOrder;
+  });
+
+  const viewerTier = (entitlements?.tier ?? 'FREE') as 'FREE' | 'STANDARD' | 'PREMIUM';
+  const showsPreciseLastActive = isSelf || (entitlements?.entitlements.showsPreciseLastActive ?? false);
 
   return (
-    <div className="pb-28">
-      <div className="mx-auto max-w-lg">
+    <PageTransition>
+      {/* Desktop: 2-col (60%/40%). Mobile: single column stacked */}
+      <div className="mx-auto max-w-5xl px-4 pb-28 pt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
 
-        {/* ── Profile Hero ────────────────────────────────── */}
-        <ProfileHero
-          name={displayName}
-          age={age}
-          city={city}
-          occupation={profile.profession?.occupation}
-          primaryPhotoUrl={primaryPhoto?.url}
-          isVerified={profile.verificationStatus === 'VERIFIED'}
-          completeness={profile.profileCompleteness}
-          premiumTier={profile.premiumTier}
-          manglik={profile.horoscope?.manglik ?? null}
-          lastActiveAt={profile.lastActiveAt ?? null}
-          showsPreciseLastActive={isSelf || (entitlements?.entitlements.showsPreciseLastActive ?? false)}
-          explainer={isSelf ? null : matchScore?.explainer ?? null}
-          distanceKm={isSelf ? null : matchScore?.distanceKm ?? null}
-          viewerTier={(entitlements?.tier ?? 'FREE') as 'FREE' | 'STANDARD' | 'PREMIUM'}
-        />
+          {/* ── LEFT COLUMN: Photos + Identity Hero ──────────────── */}
+          <div className="space-y-4">
 
-        <div className="px-4 space-y-4 mt-4">
-
-          {/* ── Photo gallery — additional photos strip ─────── */}
-          {profile.photos.length > 1 && (
-            <PhotoGallery photos={profile.photos} name={displayName} />
-          )}
-
-          {/* ── Compatibility (non-self only, Week 3 will wire real scores) ── */}
-          {!isSelf && hasHoroscope && gunaScore != null && (
-            <CompatibilityDisplay
-              gunaScore={gunaScore}
-              isLoading={false}
+            {/* Photo gallery — or protected placeholder if empty */}
+            <PhotoGallery
+              photos={sortedPhotos}
+              name={displayName}
+              isVerified={profile.verificationStatus === 'VERIFIED'}
             />
-          )}
-          {!isSelf && !hasHoroscope && (
-            <div className="bg-surface rounded-xl shadow-sm border border-border p-5 text-center">
-              <p className="text-sm font-medium text-primary font-heading">
-                Guna compatibility not available
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Add horoscope data to see Guna score
-              </p>
-            </div>
-          )}
 
-          {/* ── Safety Mode badge (non-self, contact hidden) ── */}
-          {!isSelf && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-surface border border-border px-4 py-3 shadow-sm">
-              <div className="w-8 h-8 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
+            {/* Identity hero card */}
+            <div className="rounded-2xl border border-gold/20 bg-surface shadow-card p-5 space-y-4">
+              {/* Premium tier badge */}
+              {profile.premiumTier && profile.premiumTier !== 'FREE' && (
+                <div className="flex">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold-muted">
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    {profile.premiumTier}
+                  </span>
+                </div>
+              )}
+
+              {/* Name + age + city */}
               <div>
-                <p className="text-sm font-medium text-foreground">Contact details hidden</p>
-                <p className="text-xs text-muted-foreground">Visible after mutual interest</p>
+                <h1 className="font-heading text-3xl font-semibold leading-tight text-primary">
+                  {displayName}
+                </h1>
+                <p className="mt-1 text-base text-muted-foreground">
+                  {age != null ? `${age} yrs` : ''}
+                  {age != null && city ? ' · ' : ''}
+                  {city}
+                  {profile.profession?.occupation
+                    ? ` · ${profile.profession.occupation}`
+                    : ''}
+                </p>
+              </div>
+
+              {/* Status chips row */}
+              <div className="flex flex-wrap items-center gap-2">
+                <ManglikChip manglik={profile.horoscope?.manglik ?? null} size="xs" />
+                {!isSelf && fullScore && (
+                  <DistancePill distanceKm={fullScore.distanceKm} fallbackCity={null} />
+                )}
+                <LastActiveBadge
+                  lastActiveAt={profile.lastActiveAt ?? null}
+                  showPrecise={showsPreciseLastActive}
+                />
+              </div>
+
+              {/* Trait pills */}
+              <TraitPills profile={profile} />
+
+              {/* About Me snippet */}
+              {profile.aboutMe && (
+                <p className="text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
+                  &ldquo;{profile.aboutMe}&rdquo;
+                </p>
+              )}
+
+              {/* Verification trust strip */}
+              <div className="border-t border-border-light pt-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+                  Verification
+                </p>
+                <VerificationStrip verificationStatus={profile.verificationStatus} />
               </div>
             </div>
-          )}
 
-          {/* ── About Me ──────────────────────────────────── */}
-          {profile.aboutMe && (
-            <div className="bg-surface rounded-xl border border-border shadow-sm p-4">
-              <h2 className="text-lg font-semibold text-primary mb-2 font-heading">
-                About
-              </h2>
-              <p className="text-sm text-muted-foreground italic leading-relaxed">
-                &ldquo;{profile.aboutMe}&rdquo;
-              </p>
-            </div>
-          )}
+            {/* Contact section — self-view only */}
+            {isSelf && (
+              <ContactSection
+                phone={profile.phoneNumber ?? null}
+                email={profile.email ?? null}
+                isSelf={isSelf}
+              />
+            )}
 
-          {/* ── Quick trait pills ─────────────────────────── */}
-          {(profile.personal || profile.education) && (
-            <div className="flex flex-wrap gap-2">
-              {profile.personal?.religion && (
-                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
-                  {profile.personal.religion}
-                </span>
-              )}
-              {profile.personal?.caste && (
-                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
-                  {profile.personal.caste}
-                </span>
-              )}
-              {profile.personal?.height && (
-                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
-                  {(() => {
-                    const totalInches = Math.round((profile.personal.height ?? 0) / 2.54);
-                    const ft = Math.floor(totalInches / 12);
-                    const inches = totalInches % 12;
-                    return `${ft}'${inches}"`;
-                  })()}
-                </span>
-              )}
-              {profile.education?.degree && (
-                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
-                  {profile.education.degree}
-                </span>
-              )}
-              {profile.family?.familyType && (
-                <span className="rounded-full bg-surface border border-gold/50 px-3 py-1 text-xs text-foreground">
-                  {profile.family.familyType.replace('_', ' ')} Family
-                </span>
-              )}
-            </div>
-          )}
+            {/* Contact hidden notice (non-self) */}
+            {!isSelf && (
+              <div className="flex items-center gap-2.5 rounded-xl bg-surface border border-gold/20 px-4 py-3 shadow-card">
+                <div className="w-8 h-8 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Contact details hidden</p>
+                  <p className="text-xs text-muted-foreground">Visible after mutual interest</p>
+                </div>
+              </div>
+            )}
 
-          {/* ── Profile Sections ───────────────────────────── */}
-          <ProfileSections
-            personal={profile.personal}
-            family={profile.family}
-            education={profile.education}
-            profession={profile.profession}
-            lifestyle={profile.lifestyle}
-            horoscope={profile.horoscope}
-            partnerPreferences={profile.partnerPreferences}
-            kundliUrl={profile.kundliUrl ?? null}
-          />
+            {/* Similar profiles — mobile shows inline, desktop only shows under left col */}
+            {!isSelf && (
+              <div className="lg:block">
+                <SimilarProfiles sourceProfileId={profileId} />
+              </div>
+            )}
+          </div>
 
-          {/* ── Contact (self-view only) ───────────────────── */}
-          {isSelf && (
-            <ContactSection
-              phone={profile.phoneNumber ?? null}
-              email={profile.email ?? null}
-              isSelf={isSelf}
+          {/* ── RIGHT COLUMN: Compatibility + Tabs + Desktop Actions ── */}
+          <div className="space-y-4">
+
+            {/* Compatibility card — non-self, when score available */}
+            {!isSelf && fullScore && (
+              <ProfileCompatibilityCard
+                compatibility={fullScore.compatibility}
+                explainer={fullScore.explainer}
+                viewerTier={viewerTier}
+                flags={fullScore.compatibility.flags}
+              />
+            )}
+
+            {/* No score state (non-self, no data) */}
+            {!isSelf && !fullScore && (
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card p-5 text-center space-y-2">
+                <p className="font-heading text-base font-semibold text-primary">
+                  Compatibility unavailable
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Add horoscope data to see full compatibility
+                </p>
+              </div>
+            )}
+
+            {/* Tabbed detail sections */}
+            <ProfileDetailTabs
+              aboutMe={profile.aboutMe}
+              personal={profile.personal}
+              family={profile.family}
+              education={profile.education}
+              profession={profile.profession}
+              lifestyle={profile.lifestyle}
+              horoscope={profile.horoscope}
+              partnerPreferences={profile.partnerPreferences}
+              kundliUrl={profile.kundliUrl ?? null}
             />
-          )}
 
-          {/* ── Similar profiles ────────────────────────── */}
-          {!isSelf && <SimilarProfiles sourceProfileId={profileId} />}
-
+            {/* Desktop action bar — inline at bottom of right column */}
+            {!isSelf && (
+              <div className="hidden lg:block">
+                <ProfileActions
+                  profileId={profileId}
+                  displayName={displayName}
+                  initialStatus={matchStatus.status}
+                  requestId={matchStatus.requestId}
+                  sticky={false}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ── Sticky Bottom Action Bar (non-self only) ────── */}
+      {/* Mobile sticky action bar */}
       {!isSelf && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface border-t border-border px-4 py-3 shadow-2xl">
-          <div className="mx-auto max-w-lg flex items-center gap-3">
-            <MatchActionBar
-                profileId={profileId}
-                initialStatus={isSelf ? 'none' : matchStatus.status}
-                requestId={matchStatus.requestId}
-              />
-            <button
-              type="button"
-              aria-label="Bookmark profile"
-              className="w-12 h-12 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:border-gold hover:text-gold transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <ProfileActions
+          profileId={profileId}
+          displayName={displayName}
+          initialStatus={matchStatus.status}
+          requestId={matchStatus.requestId}
+          sticky={true}
+        />
       )}
-    </div>
+    </PageTransition>
   );
 }
