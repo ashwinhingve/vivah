@@ -1,15 +1,16 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Heart, Sparkles, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
-import { MaritalStatusFilterToggle } from '@/components/feed/MaritalStatusFilterToggle.client';
-import { FilterSheet } from '@/components/shared/FilterSheet.client';
-import { AnimatedFeedGrid } from '@/components/matchmaking/AnimatedFeedGrid.client';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
+import { FeedPageClient } from './FeedPageClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
 
@@ -27,6 +28,8 @@ interface FetchResult<T> {
   error: string | null;
 }
 
+// ─── Server-side auth fetch ───────────────────────────────────────────────────
+
 async function fetchAuth<T>(path: string, token: string): Promise<FetchResult<T>> {
   try {
     const res = await fetch(`${API_URL}${path}`, {
@@ -37,11 +40,7 @@ async function fetchAuth<T>(path: string, token: string): Promise<FetchResult<T>
     let json: { success?: boolean; data?: T; error?: { message?: string } } = {};
     try { json = text ? JSON.parse(text) : {}; } catch { /* non-JSON body */ }
     if (!res.ok) {
-      return {
-        data: null,
-        status: res.status,
-        error: json.error?.message ?? `HTTP ${res.status}`,
-      };
+      return { data: null, status: res.status, error: json.error?.message ?? `HTTP ${res.status}` };
     }
     return {
       data: json.success ? (json.data ?? null) : null,
@@ -49,13 +48,11 @@ async function fetchAuth<T>(path: string, token: string): Promise<FetchResult<T>
       error: json.success ? null : (json.error?.message ?? 'API returned success=false'),
     };
   } catch (e) {
-    return {
-      data: null,
-      status: 0,
-      error: e instanceof Error ? e.message : 'fetch failed',
-    };
+    return { data: null, status: 0, error: e instanceof Error ? e.message : 'fetch failed' };
   }
 }
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 interface PageProps {
   searchParams?: Promise<{ refresh?: string }>;
@@ -78,49 +75,56 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const items: MatchFeedItem[] = Array.isArray(feedRes.data)
     ? feedRes.data
     : (feedRes.data?.items ?? []);
+  const total = Array.isArray(feedRes.data)
+    ? feedRes.data.length
+    : ((feedRes.data as { items: MatchFeedItem[]; total: number } | null)?.total ?? items.length);
   const completeness = meRes.data?.profileCompleteness ?? 0;
   const profileReady = completeness >= 40;
   const maritalPrefs = prefsRes.data?.maritalStatus ?? [];
 
+  // Pre-compute available cities from first-page items to seed city filter
+  const availableCities = [...new Set(items.map((i) => i.city).filter(Boolean))].sort();
+
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex gap-6">
-          {/* Sidebar filter — desktop inline, mobile bottom-sheet */}
-          <FilterSheet
-            title="Filters"
-            description="Refine your match feed"
-            desktopInline
-          >
-            <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
-          </FilterSheet>
-
-          {/* Main feed column */}
-          <div className="min-w-0 flex-1 space-y-6">
-        <FadeUp delay={0} className="flex items-center justify-between">
+      <PageTransition className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+        {/* ── Page header ──────────────────────────────────────────────── */}
+        <FadeUp delay={0} className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-primary">Your Matches</h1>
+            <h1 className="font-heading text-2xl font-bold text-primary sm:text-3xl">Your Matches</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {items.length > 0
-                ? `${items.length} compatible profile${items.length !== 1 ? 's' : ''} found`
+                ? `${total} compatible profile${total !== 1 ? 's' : ''} · Refreshed daily`
                 : profileReady
                   ? 'Warming up your recommendations'
                   : 'Complete your profile to see matches'}
             </p>
           </div>
-          {profileReady ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
-              <Sparkles className="h-3 w-3" aria-hidden="true" />
-              {completeness}% profile
-            </span>
-          ) : null}
+
+          <div className="flex flex-wrap items-center gap-2">
+            {profileReady && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {completeness}% complete
+              </span>
+            )}
+            <Button asChild variant="outline" size="sm">
+              <Link href="/profile/preferences">Refine Preferences</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/feed?refresh=1" aria-label="Refresh feed">
+                <RefreshCw className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </FadeUp>
 
+        {/* ── Content area ─────────────────────────────────────────────── */}
         {feedFailed ? (
           <EmptyState
             icon={AlertTriangle}
             title="Couldn't load your matches"
-            description={`The match feed API returned an error (${feedRes.status}: ${feedRes.error}). Try refreshing the page or check the API status.`}
+            description={`The match feed returned an error (${feedRes.status}: ${feedRes.error}). Try refreshing the page.`}
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
@@ -132,47 +136,59 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
               </div>
             }
           />
+        ) : !profileReady ? (
+          <EmptyState
+            icon={Sparkles}
+            title="Complete your profile to unlock matches"
+            description={`Your profile is ${completeness}% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.`}
+            action={
+              <Button asChild>
+                <Link href="/profile/personal">
+                  Complete Profile
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            }
+          />
         ) : items.length === 0 ? (
-          profileReady ? (
-            <EmptyState
-              icon={Heart}
-              title="No matches yet — we're tuning your feed"
-              description="Your profile looks great. We're matching you against fresh profiles as they join. New recommendations appear weekly. Meanwhile, you can browse vendors or review match requests."
-              action={
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Button asChild>
-                    <Link href="/feed?refresh=1">
-                      Refresh Feed
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href="/requests">Check Requests</Link>
-                  </Button>
-                </div>
-              }
-            />
-          ) : (
-            <EmptyState
-              icon={Sparkles}
-              title="Complete your profile to unlock matches"
-              description={`Your profile is ${completeness}% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.`}
-              action={
+          <EmptyState
+            icon={Heart}
+            title="No matches yet — we're tuning your feed"
+            description="Your profile looks great. We're matching you against fresh profiles as they join. New recommendations appear weekly. Meanwhile, you can browse vendors or review match requests."
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
-                  <Link href="/profile/personal">
-                    Complete Profile
+                  <Link href="/feed?refresh=1">
+                    Refresh Feed
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
-              }
-            />
-          )
+                <Button asChild variant="outline">
+                  <Link href="/requests">Check Requests</Link>
+                </Button>
+              </div>
+            }
+          />
         ) : (
-          <AnimatedFeedGrid matches={items} />
+          /*
+           * FeedPageClient holds shared FeedFilters state.
+           * - Desktop: DesktopFilterSidebar (hidden on mobile) renders sidebar
+           * - Mobile: MatchFeed renders a Sheet with the same filter UI
+           * Both share the same filter state via FeedPageClient.
+           *
+           * KEY ARCHITECTURAL NOTES:
+           * - ALL filtering is client-side (no server filter API)
+           * - Pass/hide is client-only (no /hide endpoint)
+           * - Shortlist syncs to POST/DELETE /matchmaking/shortlists/:id
+           */
+          <FeedPageClient
+            initialItems={items}
+            total={total}
+            maritalPrefs={maritalPrefs}
+            availableCities={availableCities}
+          />
         )}
-          </div>{/* end main feed column */}
-        </div>{/* end flex gap-6 */}
-      </div>
+      </PageTransition>
     </main>
   );
 }
