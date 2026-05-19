@@ -1,11 +1,36 @@
+import { type ComponentType } from 'react';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
+import {
+  ShieldCheck,
+  Scale,
+  Store,
+  ReceiptText,
+  BadgePercent,
+  ArrowLeftRight,
+  Undo2,
+  TrendingUp,
+  BarChart3,
+  Activity,
+} from 'lucide-react';
+
+import { PageHeader }     from '@/components/ui/PageHeader';
+import { SectionHeader }  from '@/components/ui/SectionHeader';
+import { StatCard }       from '@/components/ui/StatCard';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StaggerList }    from '@/components/motion/StaggerList.client';
+import { KycQueueTable }  from '@/components/admin/KycQueueTable.client';
+import { KycStatsBar }    from '@/components/admin/KycStatsBar';
+import { AdminRefreshButton }   from './AdminRefreshButton.client';
+import { AdminDisputesMini }    from './AdminDisputesMini.client';
+import { AdminHealthAndRisk }   from './AdminHealthAndRisk.client';
 
 export const dynamic = 'force-dynamic';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface AuthMe {
   id: string;
@@ -20,22 +45,69 @@ interface AdminStats {
 }
 
 interface KycRow {
-  profileId: string;
-  userId: string;
+  profileId:          string;
+  userId:             string;
   verificationStatus: string;
-  verificationLevel: string | null;
-  aadhaarVerified: boolean | null;
-  panVerified: boolean | null;
-  bankVerified: boolean | null;
-  livenessScore: number | null;
-  faceMatchScore: number | null;
-  riskScore: number | null;
-  duplicateFlag: boolean | null;
-  duplicateReason: string | null;
-  sanctionsHit: boolean | null;
-  attemptCount: number | null;
-  submittedAt: string | null;
+  verificationLevel:  string | null;
+  aadhaarVerified:    boolean | null;
+  panVerified:        boolean | null;
+  bankVerified:       boolean | null;
+  livenessScore:      number | null;
+  faceMatchScore:     number | null;
+  riskScore:          number | null;
+  duplicateFlag:      boolean | null;
+  duplicateReason:    string | null;
+  sanctionsHit:       boolean | null;
+  attemptCount:       number | null;
+  submittedAt:        string | null;
 }
+
+interface KycStats {
+  pending:        number;
+  verified:       number;
+  rejected:       number;
+  infoRequested:  number;
+  pendingAppeals: number;
+  duplicates:     number;
+  sanctions:      number;
+}
+
+interface BookingDispute {
+  id:          string;
+  bookingId:   string;
+  raisedBy:    string;
+  raisedByType: string;
+  reason:      string;
+  status:      string;
+  amount:      number | null;
+  raisedAt:    string;
+}
+
+interface AtRiskUser {
+  profileId:   string;
+  userId:      string;
+  riskBand:    string;
+  score:       number | null;
+  displayName: string | null;
+}
+
+// Infra health types from /ready
+interface ReadyChecks {
+  postgres: string;
+  redis:    string;
+  mongo:    string;
+}
+
+interface ReadyResponse {
+  status: string;
+  checks: ReadyChecks;
+}
+
+// ---------------------------------------------------------------------------
+// Fetch helpers
+// ---------------------------------------------------------------------------
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {
@@ -51,111 +123,331 @@ async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   }
 }
 
+/** Fetch the infra readiness endpoint (no auth required). */
+async function fetchReady(): Promise<ReadyResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ready`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return (await res.json()) as ReadyResponse;
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quick-nav grid config
+// ---------------------------------------------------------------------------
+
+interface NavTile {
+  href:        string;
+  label:       string;
+  description: string;
+  Icon:        ComponentType<{ className?: string }>;
+}
+
+const NAV_TILES: NavTile[] = [
+  { href: '/admin/kyc',            label: 'KYC',            description: 'Identity verification queue',      Icon: ShieldCheck    },
+  { href: '/admin/escrow',         label: 'Escrow',         description: 'Booking disputes & releases',      Icon: Scale          },
+  { href: '/admin/payouts',        label: 'Payouts',        description: 'Vendor payout management',         Icon: ReceiptText    },
+  { href: '/admin/promos',         label: 'Promos',         description: 'Promo codes & discounts',          Icon: BadgePercent   },
+  { href: '/admin/reconciliation', label: 'Reconciliation', description: 'Payment ledger reconciliation',    Icon: ArrowLeftRight },
+  { href: '/admin/refunds',        label: 'Refunds',        description: 'Customer refund processing',       Icon: Undo2          },
+  { href: '/admin/revenue',        label: 'Revenue',        description: 'Platform revenue analytics',       Icon: TrendingUp     },
+  // Vendor approval — no endpoint yet; link retained as it will have a page
+  // TODO: no vendor-approval queue endpoint — add when Phase 3 vendor-mgmt ships
+  { href: '#',                     label: 'Vendors',        description: 'Vendor approval queue — coming soon', Icon: Store       },
+];
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export default async function AdminPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  // Role guard — middleware already verified ADMIN; redirect only if
-  // /api/auth/me positively identifies a non-admin role (prevents a loop when
-  // the API is unreachable and fetchAuth returns null). SUPPORT now has its
-  // own console at /support.
+  // Role guard — keep exactly as original.
+  // middleware already verified ADMIN; redirect only if /api/auth/me positively
+  // identifies a non-admin role (prevents a loop when the API is unreachable).
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
   if (me && me.role !== 'ADMIN') {
     redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
-  const [kycData, stats] = await Promise.all([
+  // Parallel data fetches — tolerate null (show "—" / empty states gracefully)
+  const [
+    kycData,
+    kycStatsRaw,
+    stats,
+    disputesData,
+    atRiskData,
+    readyData,
+  ] = await Promise.all([
     fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),
+    fetchAuth<KycStats>('/api/v1/admin/kyc/stats', token),
     fetchAuth<AdminStats>('/api/v1/admin/stats', token),
+    fetchAuth<{ disputes: BookingDispute[] }>('/api/v1/admin/disputes', token),
+    fetchAuth<{ items: AtRiskUser[]; total: number; cached: boolean }>(
+      '/api/v1/admin/users/at-risk?limit=5', token
+    ),
+    fetchReady(),
   ]);
-  const kycQueue = kycData?.profiles ?? [];
-  const totalUsers = stats?.totalUsers ?? 0;
-  const activeVendors = stats?.activeVendors ?? 0;
+
+  // Derive values with safe defaults
+  const kycQueue     = kycData?.profiles ?? [];
+  const kycStats     = kycStatsRaw ?? {
+    pending: 0, verified: 0, rejected: 0,
+    infoRequested: 0, pendingAppeals: 0, duplicates: 0, sanctions: 0,
+  };
+  const totalUsers        = stats?.totalUsers        ?? 0;
+  const activeVendors     = stats?.activeVendors     ?? 0;
   const bookingsThisMonth = stats?.bookingsThisMonth ?? 0;
+  const disputes          = disputesData?.disputes   ?? [];
+  const atRiskItems       = atRiskData?.items        ?? [];
+  const atRiskTotal       = atRiskData?.total        ?? 0;
+
+  // Health strip — map /ready.checks to labelled ServiceCheck array
+  const serviceChecks = readyData
+    ? [
+        { label: 'PostgreSQL', ok: readyData.checks.postgres === 'ok' },
+        { label: 'Redis',      ok: readyData.checks.redis     === 'ok' },
+        { label: 'MongoDB',    ok: readyData.checks.mongo     === 'ok' },
+      ]
+    : [
+        { label: 'PostgreSQL', ok: false },
+        { label: 'Redis',      ok: false },
+        { label: 'MongoDB',    ok: false },
+      ];
+
+  // AI models: cannot reach AI-service from web layer without a dedicated
+  // NEXT_PUBLIC_AI_SERVICE_URL env var that does not exist yet.
+  // Pass null so the client component omits the row gracefully.
+  // TODO: expose AI_SERVICE_URL to web app and fetch ${AI_SERVICE_URL}/health here.
+  const aiModels = null;
+
+  // Last-refresh time (server render time = IST)
+  const refreshedAt = new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date());
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+      <PageTransition className="mx-auto max-w-5xl px-4 py-8 space-y-8">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-primary font-heading">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Platform overview and moderation</p>
-        </div>
+        {/* ── Header ── */}
+        <PageHeader
+          title="Admin Console"
+          subtitle={`Smart Shaadi platform overview — refreshed ${refreshedAt} IST`}
+          actions={<AdminRefreshButton />}
+        />
 
-        {/* 4 stat cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Total Users</p>
-            <p className="text-2xl font-bold font-heading text-teal">{totalUsers}</p>
-            <p className="text-xs text-muted-foreground">registered</p>
-          </div>
-          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pending KYC</p>
-            <p className="text-2xl font-bold font-heading text-warning">{kycQueue.length}</p>
-            <p className="text-xs text-muted-foreground">need review</p>
-          </div>
-          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Active Vendors</p>
-            <p className="text-2xl font-bold font-heading text-teal">{activeVendors}</p>
-            <p className="text-xs text-muted-foreground">on platform</p>
-          </div>
-          <div className="rounded-xl border border-gold/40 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Bookings</p>
-            <p className="text-2xl font-bold font-heading text-teal">{bookingsThisMonth}</p>
-            <p className="text-xs text-muted-foreground">this month</p>
-          </div>
-        </div>
+        {/* ── System health ── */}
+        <section>
+          <SectionHeader title="System Health" subtitle="Infrastructure status from /ready" />
+          <AdminHealthAndRisk
+            serviceChecks={serviceChecks}
+            aiModels={aiModels}
+            atRiskItems={atRiskItems}
+            atRiskTotal={atRiskTotal}
+          />
+        </section>
 
-        {/* KYC pending queue */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-primary font-heading">
-              KYC Pending Review
-              {kycQueue.length > 0 && (
-                <span className="ml-2 text-xs font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded-full border border-warning/30">
-                  {kycQueue.length}
+        {/* ── Headline metrics ── */}
+        <section>
+          <SectionHeader title="Platform Metrics" />
+          <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="Total Users"        value={totalUsers} />
+            <StatCard label="Active Vendors"     value={activeVendors} />
+            <StatCard label="Bookings This Month" value={bookingsThisMonth} />
+            {/* Active disputes — from real /admin/disputes */}
+            <div
+              className={`rounded-2xl border bg-surface p-6 shadow-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-card-hover ${
+                disputes.length > 0
+                  ? 'border-destructive/30'
+                  : 'border-gold/20'
+              }`}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+                Open Disputes
+              </p>
+              <div className="mt-2 flex items-end justify-between gap-2">
+                <span className={`font-heading text-[32px] font-semibold leading-none ${disputes.length > 0 ? 'text-destructive' : 'text-success'}`}>
+                  {disputes.length}
                 </span>
-              )}
-            </h2>
-            <Link href="/admin/kyc" className="text-xs font-semibold text-teal hover:text-teal-hover">
-              Open full KYC console →
-            </Link>
-          </div>
-          <KycQueueTable initialRows={kycQueue} />
-        </div>
+                {disputes.length > 0 && (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
+                    Action needed
+                  </span>
+                )}
+              </div>
+            </div>
+          </StaggerList>
+        </section>
 
-        {/* Recent audit logs placeholder */}
-        <div>
-          <h2 className="text-lg font-semibold text-primary font-heading mb-3">
-            Recent Audit Logs
-          </h2>
-          <div className="rounded-xl border border-gold/30 bg-surface overflow-x-auto">
-            <table className="w-full text-sm min-w-[480px]">
-              <thead>
-                <tr className="border-b border-border bg-background">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">
-                    Event
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide hidden sm:table-cell">
-                    Entity
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wide">
-                    Time
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-xs text-muted-foreground">
-                    Audit log endpoint coming in Phase 2 — Week 6
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        {/* ── Action queues ── */}
+        <section>
+          <SectionHeader title="Action Queues" subtitle="Items requiring moderation" />
+          <div className="grid gap-5 lg:grid-cols-3">
+
+            {/* KYC queue */}
+            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+              <div className="border-b border-gold/10 px-5 pt-5 pb-4">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-heading text-base font-semibold text-text-primary">
+                    KYC Review
+                  </h3>
+                  {kycQueue.length > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">
+                      {kycQueue.length} pending
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* KYC stats bar */}
+              <div className="px-5 pt-4">
+                <KycStatsBar stats={kycStats} />
+              </div>
+
+              {/* KYC table (top rows) */}
+              <div className="flex-1 overflow-hidden px-5 pt-4">
+                <KycQueueTable initialRows={kycQueue.slice(0, 5)} />
+              </div>
+
+              {/* Footer link */}
+              <div className="border-t border-gold/10 px-5 py-3">
+                <Link
+                  href="/admin/kyc"
+                  className="text-xs font-semibold text-teal transition-colors hover:text-teal-hover"
+                >
+                  Open full KYC console →
+                </Link>
+              </div>
+            </div>
+
+            {/* Disputes queue */}
+            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+              <div className="border-b border-gold/10 px-5 pt-5 pb-4">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-heading text-base font-semibold text-text-primary">
+                    Open Disputes
+                  </h3>
+                  {disputes.length > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+                      {disputes.length} open
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1">
+                <AdminDisputesMini disputes={disputes.slice(0, 5)} />
+              </div>
+            </div>
+
+            {/* Vendor approval queue — no endpoint yet */}
+            <div className="flex flex-col rounded-2xl border border-dashed border-gold/30 bg-surface shadow-card">
+              <div className="border-b border-gold/10 px-5 pt-5 pb-4">
+                <h3 className="font-heading text-base font-semibold text-text-primary">
+                  Vendor Approvals
+                </h3>
+              </div>
+              {/* TODO: no vendor-approval queue endpoint — add GET /api/v1/admin/vendors/pending
+                  when Phase 3 vendor-management feature ships. */}
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+                <Store className="h-10 w-10 text-gold-muted" strokeWidth={1.25} aria-hidden />
+                <p className="font-heading text-sm font-semibold text-primary">
+                  Vendor approval queue
+                </p>
+                <p className="max-w-[200px] text-xs text-text-muted">
+                  Coming in a later phase — no endpoint available yet.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
+
+        {/* ── Analytics placeholders ── */}
+        <section>
+          <SectionHeader title="Analytics" subtitle="30-day platform trends" />
+          {/* TODO: no time-series endpoint exists for signups or GMV.
+              Add GET /api/v1/admin/analytics/timeseries when analytics service ships.
+              Until then render tasteful placeholder cards — never fake data. */}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface">
+              <BarChart3 className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
+              <p className="font-heading text-sm font-semibold text-primary">Signups — 30 day</p>
+              <p className="text-xs text-text-muted">Analytics endpoint coming in a later phase</p>
+            </div>
+            <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface">
+              <TrendingUp className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
+              <p className="font-heading text-sm font-semibold text-primary">GMV — 30 day</p>
+              <p className="text-xs text-text-muted">Analytics endpoint coming in a later phase</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Activity log placeholder ── */}
+        <section>
+          <SectionHeader title="Recent Activity" />
+          {/* TODO: no audit / activity-log endpoint — add GET /api/v1/admin/audit
+              when the activity-log service ships in a later phase. */}
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface px-6 py-10 text-center">
+            <Activity className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
+            <p className="font-heading text-sm font-semibold text-primary">Activity log</p>
+            <p className="text-xs text-text-muted">
+              Admin event stream coming in a later phase — no endpoint available yet.
+            </p>
+          </div>
+        </section>
+
+        {/* ── Quick navigation grid ── */}
+        <section>
+          <SectionHeader title="Quick Navigation" subtitle="Jump to any admin module" />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {NAV_TILES.map(({ href, label, description, Icon }) => {
+              const isComingSoon = href === '#';
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  aria-disabled={isComingSoon}
+                  tabIndex={isComingSoon ? -1 : undefined}
+                  className={`group flex flex-col gap-3 rounded-2xl border bg-surface p-4 shadow-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    isComingSoon
+                      ? 'pointer-events-none border-dashed border-gold/20 opacity-60'
+                      : 'border-gold/20 hover:border-gold/40'
+                  }`}
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/15">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-heading text-sm font-semibold text-text-primary">
+                      {label}
+                      {isComingSoon && (
+                        <span className="ml-1.5 inline-flex items-center rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-gold-muted">
+                          soon
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-text-muted">
+                      {description}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Footer padding */}
+        <div className="h-8" />
+      </PageTransition>
     </main>
   );
 }
