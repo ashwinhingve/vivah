@@ -1,18 +1,30 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Heart, Calendar, MailOpen, Gauge, Sparkles, Plus, Cake } from 'lucide-react';
-import { QuickActions } from '@/components/dashboard/QuickActions';
-import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import {
+  Heart,
+  Calendar,
+  MailOpen,
+  Gauge,
+  Sparkles,
+  Plus,
+  Cake,
+  MessageCircle,
+  Store,
+  Users,
+  Search,
+} from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { MatchCard } from '@/components/matching/MatchCard';
 import { StrengthTipsPanel } from '@/components/profile/StrengthTipsPanel';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/shared';
-import type { ProfileSectionCompletion, BookingSummary, WeddingSummary } from '@smartshaadi/types';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import type { ProfileSectionCompletion, BookingSummary, WeddingSummary } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +59,25 @@ async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   }
 }
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function formatDatePill(d: Date): string {
+  return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function daysUntil(dateStr: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.round((target.getTime() - today.getTime()) / 86_400_000));
+}
+
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
@@ -61,7 +92,7 @@ export default async function DashboardPage() {
       '/api/v1/matchmaking/requests/received?limit=50',
       token,
     ),
-    fetchAuth<{ items: FeedItem[] }>('/api/v1/matchmaking/feed?limit=3', token),
+    fetchAuth<{ items: FeedItem[] }>('/api/v1/matchmaking/feed?limit=4', token),
     fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings', token),
   ]);
 
@@ -70,187 +101,318 @@ export default async function DashboardPage() {
   const tier = profile?.premiumTier ?? 'FREE';
 
   const allBookings = bookingsData?.bookings ?? [];
-  const upcomingBookings = allBookings.filter((b) => b.status === 'CONFIRMED').length;
-  const pendingBookings = allBookings.filter((b) => b.status === 'PENDING').length;
+  const upcomingBookings = allBookings.filter(
+    (b) => b.status === 'CONFIRMED' && new Date(b.eventDate) >= new Date(),
+  );
   const pendingRequests = requestsData?.total ?? 0;
   const feed = feedData?.items ?? [];
   const myWedding = weddingsData?.weddings?.[0] ?? null;
 
+  const now = new Date();
+
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
+    <PageTransition>
+      <main className="min-h-screen bg-background">
+        <div className="mx-auto max-w-2xl px-4 py-6 space-y-7">
 
-        {/* Header */}
-        <FadeUp delay={0} className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-primary font-heading">Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Welcome back to Smart Shaadi</p>
-          </div>
-          {tier !== 'FREE' && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-muted shadow-sm">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              {tier}
-            </span>
-          )}
-        </FadeUp>
-
-        {/* 4-card stats — staggered entrance */}
-        <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatsCard
-            label="Active Matches"
-            value={upcomingBookings}
-            sub="confirmed"
-            icon={Heart}
-            variant="teal"
-          />
-          <StatsCard
-            label="Bookings"
-            value={pendingBookings}
-            sub="pending"
-            icon={Calendar}
-            variant="warning"
-          />
-          <StatsCard
-            label="Requests"
-            value={pendingRequests}
-            sub="received"
-            icon={MailOpen}
-            variant="gold"
-          />
-          <StatsCard
-            label="Profile"
-            value={`${completeness}%`}
-            sub="complete"
-            icon={Gauge}
-            variant={completeness >= 70 ? 'success' : 'teal'}
-          />
-        </StaggerList>
-
-        {/* My Wedding */}
-        <FadeUp delay={0.1}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-primary font-heading">My Wedding</h2>
-            {myWedding && (
-              <Link href={`/weddings/${myWedding.id}`} className="text-xs font-medium text-teal hover:text-teal-hover">
-                Open planner →
-              </Link>
-            )}
-          </div>
-          {myWedding ? (
-            <WeddingCard wedding={myWedding} />
-          ) : (
-            <EmptyState
-              icon={Cake}
-              title="Start Planning Your Wedding"
-              description="Create a wedding plan with budget, tasks, guest list, and RSVP tracking."
-              action={
-                <Button asChild>
-                  <Link href="/weddings/new">Begin Your Journey →</Link>
-                </Button>
-              }
-            />
-          )}
-        </FadeUp>
-
-        {/* Strength tips — shows top 5 actionable improvements */}
-        <FadeUp delay={0.15}>
-          <StrengthTipsPanel />
-        </FadeUp>
-
-        {/* Completeness bar + CTA */}
-        <FadeUp delay={0.2}>
-          {sections ? (
-            <CompletenessBar sections={sections} />
-          ) : (
-            <div className="relative overflow-hidden rounded-xl border border-gold/30 bg-gradient-to-br from-surface via-surface to-gold/10 p-5 shadow-card">
+          {/* ── Hero Greeting ──────────────────────────────────── */}
+          <FadeUp delay={0}>
+            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card">
+              {/* Decorative blob */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gold/20 blur-2xl"
+                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
               />
-              <div className="relative flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Sparkles className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-heading text-base font-semibold text-primary">
-                    Complete your profile
+              <div className="relative flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
+                      {formatDatePill(now)}
+                    </span>
+                  </div>
+                  <h1 className="font-heading text-2xl font-semibold text-primary">
+                    {getGreeting()} 👋
+                  </h1>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Welcome back to Smart Shaadi
                   </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    A complete profile gets 3× more matches
-                  </p>
-                  <Button asChild size="sm" className="mt-3">
-                    <Link href="/profile/personal">Start Profile →</Link>
+                </div>
+
+                {tier !== 'FREE' && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-muted shadow-sm shrink-0">
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    {tier}
+                  </span>
+                )}
+              </div>
+
+              {/* Completeness progress bar */}
+              {completeness < 100 && (
+                <div className="relative mt-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-medium text-muted-foreground">Profile strength</p>
+                    <p className="text-xs font-semibold text-teal">{completeness}%</p>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gold/15">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-teal to-teal-hover transition-all duration-500"
+                      style={{ width: `${completeness}%` }}
+                    />
+                  </div>
+                  {completeness < 70 && (
+                    <Link
+                      href="/profile/personal"
+                      className="mt-2 inline-block text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
+                    >
+                      Complete your profile to unlock more matches →
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </FadeUp>
+
+          {/* ── Stat Cards ─────────────────────────────────────── */}
+          <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatsCard
+              label="New Matches"
+              value={feed.length}
+              sub="in feed today"
+              icon={Heart}
+              variant="teal"
+            />
+            <StatsCard
+              label="Requests"
+              value={pendingRequests}
+              sub="received"
+              icon={MailOpen}
+              variant="gold"
+            />
+            <StatsCard
+              label="Upcoming Events"
+              value={upcomingBookings.length}
+              sub="confirmed"
+              icon={Calendar}
+              variant={upcomingBookings.length > 0 ? 'success' : 'default'}
+            />
+            <StatsCard
+              label="Profile"
+              value={`${completeness}%`}
+              sub="complete"
+              icon={Gauge}
+              variant={completeness >= 70 ? 'success' : 'warning'}
+            />
+          </StaggerList>
+
+          {/* ── Today's Matches ────────────────────────────────── */}
+          <FadeUp delay={0.1}>
+            <SectionHeader
+              title="Today's Matches"
+              viewAllHref="/feed"
+              viewAllLabel="See all"
+            />
+            {completeness < 40 ? (
+              <EmptyState
+                icon={Heart}
+                title="Your perfect match is out there"
+                description="Complete your profile to at least 40% to start seeing matches."
+                action={
+                  <Button asChild size="sm">
+                    <Link href="/profile/personal">Complete Profile →</Link>
                   </Button>
+                }
+              />
+            ) : feed.length === 0 ? (
+              <EmptyState
+                icon={Heart}
+                title="Warming up your recommendations"
+                description="No matches yet — we're tuning your feed and will have suggestions shortly."
+              />
+            ) : (
+              /* Horizontal scroll on mobile, 4-col grid on md+ */
+              <div className="-mx-4 px-4 overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:overflow-visible">
+                <div className="flex gap-3 sm:grid sm:grid-cols-4">
+                  {feed.slice(0, 4).map((item) => (
+                    <div key={item.profileId} className="w-44 shrink-0 sm:w-auto">
+                      <MatchCard
+                        id={item.profileId}
+                        name={item.name || 'Member'}
+                        age={item.age}
+                        city={item.city}
+                        compatibilityPct={item.compatibility?.totalScore}
+                        gunaPending={item.compatibility?.flags?.includes('guna_pending')}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
-        </FadeUp>
-
-        {/* Recommended Matches */}
-        <FadeUp delay={0.22}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-primary font-heading">Recommended for You</h2>
-            {feed.length > 0 && (
-              <Link href="/matches" className="text-xs font-medium text-teal hover:text-teal-hover">
-                See all →
-              </Link>
             )}
-          </div>
-          {completeness < 40 ? (
+          </FadeUp>
+
+          {/* ── Upcoming Events (from bookings) ────────────────── */}
+          <FadeUp delay={0.15}>
+            <SectionHeader
+              title="Upcoming Events"
+              viewAllHref="/bookings"
+              viewAllLabel="All bookings"
+            />
+            {upcomingBookings.length === 0 ? (
+              <EmptyState
+                icon={Calendar}
+                title="No upcoming events"
+                description="Discover trusted vendors and book them for your big day."
+                action={
+                  <Button asChild size="sm">
+                    <Link href="/vendors">Browse Vendors →</Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="space-y-2.5">
+                {upcomingBookings.slice(0, 4).map((b) => {
+                  const days = daysUntil(b.eventDate);
+                  const dateObj = new Date(b.eventDate);
+                  return (
+                    <Link
+                      key={b.id}
+                      href={`/bookings/${b.id}`}
+                      className="group flex items-center gap-3.5 rounded-xl border border-gold/20 bg-surface px-4 py-3.5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+                    >
+                      {/* Calendar block */}
+                      <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-gold/30 bg-primary/5 text-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60">
+                          {dateObj.toLocaleDateString('en-IN', { month: 'short' })}
+                        </span>
+                        <span className="font-heading text-lg font-bold leading-none text-primary">
+                          {dateObj.getDate()}
+                        </span>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary">
+                          {b.vendorName ?? 'Booking'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ₹{b.totalAmount.toLocaleString('en-IN')}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                          Confirmed
+                        </span>
+                        {days <= 30 && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {days === 0 ? 'Today' : `${days}d away`}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </FadeUp>
+
+          {/* ── Recent Conversations ───────────────────────────── */}
+          <FadeUp delay={0.18}>
+            <SectionHeader
+              title="Recent Conversations"
+              viewAllHref="/chat"
+              viewAllLabel="Open chat"
+            />
             <EmptyState
-              icon={Heart}
-              title="Your perfect match is out there"
-              description="Complete your profile to at least 40% to start seeing matches."
+              icon={MessageCircle}
+              title="No conversations yet"
+              description="When you and a match connect, your chats will appear here."
               action={
-                <Button asChild>
-                  <Link href="/profile/personal">Complete Profile →</Link>
+                <Button asChild size="sm" variant="outline">
+                  <Link href="/feed">Find Matches →</Link>
                 </Button>
               }
             />
-          ) : feed.length === 0 ? (
-            <EmptyState
-              icon={Heart}
-              title="Warming up your recommendations"
-              description="No matches yet — we're tuning your feed and will have suggestions shortly."
+          </FadeUp>
+
+          {/* ── My Wedding ─────────────────────────────────────── */}
+          <FadeUp delay={0.2}>
+            <SectionHeader
+              title="My Wedding"
+              viewAllHref={myWedding ? `/weddings/${myWedding.id}` : undefined}
+              viewAllLabel="Open planner"
             />
-          ) : (
-            <StaggerList className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {feed.slice(0, 3).map((item) => (
-                <MatchCard
-                  key={item.profileId}
-                  id={item.profileId}
-                  name={item.name || 'Member'}
-                  age={item.age}
-                  city={item.city}
-                  compatibilityPct={item.compatibility?.totalScore}
-                  gunaPending={item.compatibility?.flags?.includes('guna_pending')}
-                />
-              ))}
-            </StaggerList>
+            {myWedding ? (
+              <WeddingCard wedding={myWedding} />
+            ) : (
+              <EmptyState
+                icon={Cake}
+                title="Start Planning Your Wedding"
+                description="Create a wedding plan with budget, tasks, guest list, and RSVP tracking."
+                action={
+                  <Button asChild>
+                    <Link href="/weddings/new">Begin Your Journey →</Link>
+                  </Button>
+                }
+              />
+            )}
+          </FadeUp>
+
+          {/* ── Profile Strength Tips ──────────────────────────── */}
+          <FadeUp delay={0.22}>
+            <StrengthTipsPanel />
+          </FadeUp>
+
+          {/* ── Completeness Bar ───────────────────────────────── */}
+          {sections && (
+            <FadeUp delay={0.25}>
+              <CompletenessBar sections={sections} />
+            </FadeUp>
           )}
-        </FadeUp>
 
-        {/* Quick actions */}
-        <FadeUp delay={0.28}>
-          <QuickActions />
-        </FadeUp>
+          {/* ── Quick Actions Strip ────────────────────────────── */}
+          <FadeUp delay={0.28}>
+            <SectionHeader title="Quick Actions" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {([
+                { href: '/feed',           label: 'Find Matches',   icon: Search,         variant: 'teal'    },
+                { href: '/weddings/new',   label: 'Plan Wedding',   icon: Cake,           variant: 'gold'    },
+                { href: '/vendors',        label: 'Browse Vendors', icon: Users,          variant: 'default' },
+                { href: '/store',          label: 'Shop Store',     icon: Store,          variant: 'default' },
+              ] as const).map(({ href, label, icon: Icon, variant }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border p-4 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover ${
+                    variant === 'teal'
+                      ? 'border-teal/20 bg-teal/5 hover:bg-teal/10'
+                      : variant === 'gold'
+                      ? 'border-gold/30 bg-gold/10 hover:bg-gold/20'
+                      : 'border-gold/20 bg-surface hover:bg-gold/5'
+                  }`}
+                >
+                  <Icon
+                    className={`h-5 w-5 ${variant === 'teal' ? 'text-teal' : variant === 'gold' ? 'text-gold-muted' : 'text-primary'}`}
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                    {label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </FadeUp>
 
-        {/* Activity feed */}
-        <FadeUp delay={0.32}>
-          <ActivityFeed />
-        </FadeUp>
-      </div>
+        </div>
 
-      {/* Mobile FAB — sits above bottom nav (nav is ~64px incl. safe-area) */}
-      <Link
-        href="/profile/personal"
-        aria-label="Complete profile"
-        className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
-      >
-        <Plus className="h-6 w-6" aria-hidden="true" />
-      </Link>
-    </main>
+        {/* Mobile FAB — profile complete */}
+        <Link
+          href="/profile/personal"
+          aria-label="Complete profile"
+          className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
+        >
+          <Plus className="h-6 w-6" aria-hidden="true" />
+        </Link>
+      </main>
+    </PageTransition>
   );
 }
