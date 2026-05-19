@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserPlus } from 'lucide-react';
 import { GuestTable } from '@/components/wedding/GuestTable.client';
 import { GuestImportModal } from '@/components/wedding/GuestImportModal.client';
 import { RsvpStats } from '@/components/wedding/RsvpStats';
 import { SendInvitations } from '@/components/wedding/SendInvitations.client';
+import { StatCard } from '@/components/ui/StatCard';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { GuestRich, Ceremony } from '@smartshaadi/types';
 
@@ -36,12 +40,27 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
     fetchCeremonies(id),
   ]);
 
+  // Preserved Mohit fix: ?from=budget → back to Budget, else Overview
   const back =
     from === 'budget'
       ? { href: `/weddings/${id}/budget`, label: 'Budget' }
       : { href: `/weddings/${id}`, label: 'Overview' };
 
   if (false) notFound();
+
+  // RSVP breakdowns for StatCards
+  const total     = guests.length;
+  const confirmed = guests.filter((g) => g.rsvpStatus === 'YES').length;
+  const declined  = guests.filter((g) => g.rsvpStatus === 'NO').length;
+  const awaiting  = guests.filter((g) => g.rsvpStatus === 'PENDING').length;
+
+  const importCta = <GuestImportModal weddingId={id} />;
+  const addCta = (
+    <span className="inline-flex items-center gap-1.5 min-h-[44px] px-4 py-2 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal-hover transition-colors cursor-default">
+      <UserPlus className="h-4 w-4" aria-hidden="true" />
+      Add Guest
+    </span>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,17 +74,23 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
           {back.label}
         </Link>
 
-        <div className="flex items-start justify-between gap-3 mb-6">
-          <div>
-            <h1 className="font-heading text-2xl text-primary mb-1">Guests</h1>
-            <p className="text-muted-foreground text-sm">
-              Manage guest list, RSVPs, invitations, analytics, and check-in.
-            </p>
-          </div>
-          <GuestImportModal weddingId={id} />
-        </div>
+        <PageHeader
+          title="Guests"
+          subtitle="Manage guest list, RSVPs, invitations, analytics, and check-in."
+          breadcrumbs={[
+            { label: 'My Weddings', href: '/weddings' },
+            { label: 'Wedding', href: `/weddings/${id}` },
+            { label: 'Guests' },
+          ]}
+          actions={
+            <div className="flex items-center gap-2">
+              {addCta}
+              {importCta}
+            </div>
+          }
+        />
 
-        {/* Tab nav */}
+        {/* Sub-tab nav (preserved from original) */}
         <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
           {[
             { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
@@ -95,7 +120,17 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
           </div>
         )}
 
-        {/* RSVP stats (only if we have guests) */}
+        {/* Quick stats row — Day-1 StatCards with AnimatedNumber */}
+        {!error && (
+          <StaggerList className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <StatCard label="Total Guests"  value={total}     />
+            <StatCard label="Confirmed"     value={confirmed} />
+            <StatCard label="Declined"      value={declined}  />
+            <StatCard label="Awaiting RSVP" value={awaiting}  />
+          </StaggerList>
+        )}
+
+        {/* RSVP stats (meal preferences donut + rsvp breakdown) */}
         {!error && guests.length > 0 && <RsvpStats guests={guests} />}
 
         {/* Send invitations */}
@@ -104,7 +139,15 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         )}
 
         {/* Guest table */}
-        {!error && <GuestTable weddingId={id} initialGuests={guests} ceremonies={ceremonies} />}
+        {!error && (
+          <>
+            <SectionHeader
+              title="Guest List"
+              subtitle={`${total} guests · sort, filter, and manage RSVPs`}
+            />
+            <GuestTable weddingId={id} initialGuests={guests} ceremonies={ceremonies} />
+          </>
+        )}
       </div>
     </div>
   );

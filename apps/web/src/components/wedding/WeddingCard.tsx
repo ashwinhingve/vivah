@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Calendar, MapPin, Users, CheckSquare } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckSquare, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { formatINRCompact, formatDateIN, daysUntil } from '@/lib/format';
 import type { WeddingSummary } from '@smartshaadi/types';
 
 interface WeddingCardProps {
@@ -15,89 +16,108 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  PLANNING:  'bg-warning/15 text-warning',
-  CONFIRMED: 'bg-success/15 text-success',
-  COMPLETED: 'bg-teal/10 text-teal',
-  CANCELLED: 'bg-destructive/15 text-destructive',
+  PLANNING:  'bg-warning/15 text-warning border-warning/30',
+  CONFIRMED: 'bg-teal/10 text-teal border-teal/30',
+  COMPLETED: 'bg-success/15 text-success border-success/30',
+  CANCELLED: 'bg-muted text-muted-foreground border-muted-foreground/20',
 };
-
-function formatDate(iso: string | null): string {
-  if (!iso) return 'Date TBD';
-  return new Date(iso).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function formatCurrency(n: number | null): string {
-  if (n == null) return '—';
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
 
 export function WeddingCard({ wedding }: WeddingCardProps) {
   const { total, done } = wedding.taskProgress;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const taskPct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  // WeddingSummary only exposes budgetTotal (not spent); show as chip only
+  const budgetTotal = wedding.budgetTotal;
+
+  const days = daysUntil(wedding.weddingDate);
+  const isFuture = days !== null && days > 0;
+
+  // FIX: Use weddingName as primary title (was incorrectly using venueName)
+  const title = wedding.weddingName ?? wedding.venueName ?? 'Wedding Plan';
 
   return (
-    <Link href={`/weddings/${wedding.id}`}>
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 hover:shadow-md hover:border-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
-        <div className="flex items-start justify-between mb-3">
-          <h2 className="font-heading text-lg text-primary leading-snug group-hover:text-primary-hover transition-colors">
-            {wedding.venueName ?? 'Wedding'}
-          </h2>
-          <span
-            className={cn(
-              'text-xs font-medium px-2.5 py-1 rounded-full',
-              STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground'
+    <Link href={`/weddings/${wedding.id}`} className="block group">
+      <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 hover:shadow-card-hover hover:border-gold/40 hover:-translate-y-0.5 transition-all duration-200">
+        {/* Title row */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-heading text-lg text-primary leading-snug group-hover:text-primary-hover transition-colors truncate">
+              {title}
+            </h2>
+            {wedding.venueName && wedding.weddingName && (
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">{wedding.venueName}</p>
             )}
-          >
-            {STATUS_LABELS[wedding.status] ?? wedding.status}
-          </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {isFuture && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-gold/15 text-primary border border-gold/30">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {days}d
+              </span>
+            )}
+            <span
+              className={cn(
+                'text-xs font-medium px-2.5 py-1 rounded-full border',
+                STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground border-transparent'
+              )}
+            >
+              {STATUS_LABELS[wedding.status] ?? wedding.status}
+            </span>
+          </div>
         </div>
 
+        {/* Meta row */}
         <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-            {formatDate(wedding.weddingDate)}
+            <Calendar className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
+            <span className="truncate">{formatDateIN(wedding.weddingDate)}</span>
           </div>
           {wedding.venueCity && (
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-              {wedding.venueCity}
+              <MapPin className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
+              <span className="truncate">{wedding.venueCity}</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
+            <Users className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
             {wedding.guestCount} guests
           </div>
-          {wedding.budgetTotal != null && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-gold text-xs font-bold">₹</span>
-              {formatCurrency(wedding.budgetTotal)}
+          {budgetTotal != null && (
+            <div className="flex items-center gap-1.5 text-xs font-medium">
+              <span className="text-gold font-bold">₹</span>
+              {formatINRCompact(budgetTotal)}
             </div>
           )}
         </div>
 
         {/* Task progress */}
-        <div>
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+        {total > 0 && (
+          <div className="mb-3">
+            <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>Planning progress</span>
+              <span className="font-semibold text-primary">{taskPct}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-gold/15">
+              <div
+                className="h-full rounded-full bg-teal transition-all duration-200"
+                style={{ width: `${taskPct}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Quick stats row */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-gold/10 pt-3 mt-3">
+          <span className="flex items-center gap-1">
+            <CheckSquare className="h-3 w-3" aria-hidden="true" />
+            {done}/{total} tasks
+          </span>
+          {wedding.guestCount > 0 && (
             <span className="flex items-center gap-1">
-              <CheckSquare className="h-3 w-3" aria-hidden="true" />
-              Tasks
+              <Users className="h-3 w-3" aria-hidden="true" />
+              {wedding.guestCount} guests
             </span>
-            <span>{done}/{total} done</span>
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-secondary">
-            <div
-              className="h-1.5 rounded-full bg-teal transition-all"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
+          )}
         </div>
       </div>
     </Link>
