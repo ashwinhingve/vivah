@@ -9,8 +9,10 @@ import { formatINR, formatDateIN, daysUntil } from '@/lib/format';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StatCard } from '@/components/ui/StatCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ActivityFeed } from '@/components/wedding/ActivityFeed';
 import { CeremonyForm } from './CeremonyForm.client';
 import { WeddingHeaderActions } from './WeddingHeaderActions.client';
@@ -139,8 +141,8 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
+    <div id="main-content" className="min-h-screen bg-background">
+      <PageTransition className="max-w-4xl mx-auto px-4 py-8 pb-24">
 
         {/* Back link */}
         <Link
@@ -366,7 +368,11 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             </div>
 
             {ceremonies.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No ceremonies added yet.</p>
+              <EmptyState
+                variant="no-tasks"
+                title="No ceremonies added yet"
+                description="Add ceremonies to build out your wedding-day timeline."
+              />
             ) : (
               <ul className="space-y-2 mb-4">
                 {ceremonies.map((c) => {
@@ -396,7 +402,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                         </summary>
                         <form
                           action={updateCeremonyAction.bind(null, id, c.id)}
-                          className="absolute right-2 mt-1 z-10 w-64 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg"
+                          className="absolute left-2 right-2 sm:left-auto sm:right-2 mt-1 z-10 sm:w-64 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg"
                         >
                           {c.type === 'OTHER' && (
                             <div>
@@ -509,7 +515,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
         <p className="text-center text-xs text-muted-foreground">
           Use the tabs above to manage every part of your wedding plan.
         </p>
-      </div>
+      </PageTransition>
     </div>
   );
 }

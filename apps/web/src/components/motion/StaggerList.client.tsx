@@ -2,15 +2,20 @@
 
 import { Children, type ReactNode } from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { MOTION } from '@/lib/motion-config';
 
 const container: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.04 } },
+  visible: { transition: { staggerChildren: MOTION.stagger.childDelay } },
 };
 
 const item: Variants = {
-  hidden: { opacity: 0, y: 4 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: MOTION.stagger.item.y },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION.stagger.item.duration, ease: MOTION.stagger.item.ease },
+  },
 };
 
 interface StaggerListProps {

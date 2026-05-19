@@ -138,14 +138,14 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background">
+      <main id="main-content" className="min-h-screen bg-background">
         <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
 
           {/* ── Header ─────────────────────────────────────────── */}
           <FadeUp delay={0}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h1 className="font-heading text-2xl font-semibold text-primary">
+                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
                   Welcome, {businessName}
                 </h1>
                 {categoryLabel && (
@@ -168,15 +168,16 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
 
           {/* ── Tabs ───────────────────────────────────────────── */}
           <FadeUp delay={0.04}>
+            <div className="-mx-1 overflow-x-auto px-1">
             <nav
-              className="flex flex-wrap gap-1.5 rounded-xl border border-gold/20 bg-surface p-1.5"
+              className="flex min-w-max gap-1.5 rounded-xl border border-gold/20 bg-surface p-1.5"
               aria-label="Vendor dashboard tabs"
             >
               {TABS.map((t) => (
                 <Link
                   key={t.value}
                   href={`/vendor-dashboard?tab=${t.value}`}
-                  className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     tab === t.value
                       ? 'bg-primary text-white shadow-sm'
                       : 'text-muted-foreground hover:bg-gold/10 hover:text-foreground'
@@ -191,6 +192,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                 </Link>
               ))}
             </nav>
+            </div>
           </FadeUp>
 
           {/* ══════════════════════════════════════════════════ */}

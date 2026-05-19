@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import {
@@ -106,8 +107,13 @@ export default async function VendorDetailPage({ params }: PageProps) {
         {/* Hero with cover */}
         <div className="relative aspect-[16/7] sm:aspect-[16/6] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10 mb-4">
           {cover ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cover} alt={vendor.businessName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            <Image
+              src={cover}
+              alt={vendor.businessName}
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-6xl">
               {vendor.businessName.charAt(0)}

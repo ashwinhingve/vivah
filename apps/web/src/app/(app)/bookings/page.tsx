@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import type { BookingSummary, BookingStatus } from '@smartshaadi/types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -143,16 +144,13 @@ export default async function BookingsPage({ searchParams }: PageProps) {
         </div>
 
         {bookingList.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border bg-surface p-12 text-center">
-            <h3 className="text-base font-semibold text-foreground">No bookings here</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Try a different filter or browse vendors.</p>
-            <Link
-              href="/vendors"
-              className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
-            >
-              Explore Vendors
-            </Link>
-          </div>
+          <EmptyState
+            variant="no-bookings"
+            title="No bookings here"
+            description="Try a different filter or browse vendors to make your first booking."
+            actionLabel="Explore Vendors"
+            actionHref="/vendors"
+          />
         )}
 
         {bookingList.length > 0 && (

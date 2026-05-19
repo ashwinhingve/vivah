@@ -7,6 +7,7 @@ import {
   Store,
   Sparkles,
   ListChecks,
+  SearchX,
   type LucideProps,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,7 +26,8 @@ type EmptyVariant =
   | 'no-bookings'
   | 'no-vendors'
   | 'no-wedding'
-  | 'no-tasks';
+  | 'no-tasks'
+  | 'no-results';
 
 type IllustrationComponent = ComponentType<{ className?: string }>;
 
@@ -73,6 +75,12 @@ const PRESETS: Record<
     icon: ListChecks,
     title: 'All caught up',
     description: 'No pending tasks right now. New ones will appear as your plan progresses.',
+  },
+  'no-results': {
+    illustration: NoMatchesIllustration,
+    icon: SearchX,
+    title: 'No results',
+    description: 'Nothing matched your search. Try different terms or adjust your filters.',
   },
 };
 

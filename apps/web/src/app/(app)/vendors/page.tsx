@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import { VendorFilterBar } from '@/components/vendor/VendorFilterBar.client';
 import type { VendorProfile } from '@smartshaadi/types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 const PAGE_SIZE = 12;
@@ -106,10 +107,11 @@ export default async function VendorsPage({ searchParams }: PageProps) {
         )}
 
         {!error && vendors.length === 0 && (
-          <div className="bg-surface border border-border rounded-xl p-12 text-center">
-            <p className="text-muted-foreground text-lg">No vendors found.</p>
-            <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters.</p>
-          </div>
+          <EmptyState
+            variant="no-vendors"
+            title="No vendors found"
+            description="Try adjusting your filters or exploring a nearby city."
+          />
         )}
 
         {vendors.length > 0 && (

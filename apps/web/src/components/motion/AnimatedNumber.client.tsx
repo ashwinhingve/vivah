@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { animate, useReducedMotion } from 'framer-motion';
+import { MOTION } from '@/lib/motion-config';
 
 interface AnimatedNumberProps {
   /** Target value to count up to. */
   value: number;
-  /** Animation duration in seconds. Default 1. */
+  /** Animation duration in seconds. Default from motion-config. */
   duration?: number;
   /** Format the running value for display (e.g. add %, commas). */
   format?: (n: number) => string;
@@ -19,7 +20,7 @@ interface AnimatedNumberProps {
  */
 export function AnimatedNumber({
   value,
-  duration = 1,
+  duration = MOTION.numberSec,
   format = (n) => Math.round(n).toLocaleString('en-IN'),
   className,
 }: AnimatedNumberProps) {

@@ -1,10 +1,12 @@
 'use client';
 import { motion, useReducedMotion } from 'framer-motion';
 import React from 'react';
+import { MOTION } from '@/lib/motion-config';
 
+// Canonical timing shared with components/motion/StaggerList (lib/motion-config).
 const containerVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
+  show: { transition: { staggerChildren: MOTION.stagger.childDelay } },
 };
 
 export function StaggerList({
@@ -16,8 +18,12 @@ export function StaggerList({
 }) {
   const reduced = useReducedMotion();
   const itemVariants = {
-    hidden: { opacity: 0, y: reduced ? 0 : 10 },
-    show:   { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' as const } },
+    hidden: { opacity: 0, y: reduced ? 0 : MOTION.stagger.item.y },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: MOTION.stagger.item.duration, ease: MOTION.stagger.item.ease },
+    },
   };
   return (
     <motion.div className={className} variants={containerVariants} initial="hidden" animate="show">

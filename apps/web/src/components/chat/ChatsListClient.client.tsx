@@ -5,6 +5,7 @@ import { io, type Socket } from 'socket.io-client'
 import type { ConversationListItem as ConvItem, MessageType } from '@smartshaadi/types'
 import { useChatSocket } from '@/lib/socket/SocketProvider.client'
 import ConversationListItem from './ConversationListItem'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ChatsListClientProps {
   initialItems:     ConvItem[]
@@ -96,7 +97,17 @@ export default function ChatsListClient({
     }
   }, [contextSocket, authToken, currentProfileId])
 
-  if (items.length === 0) return null
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        variant="no-messages"
+        title="No conversations yet"
+        description="When you connect with a match, your chats will appear here."
+        actionLabel="Find matches"
+        actionHref="/feed"
+      />
+    )
+  }
 
   return (
     <ul className="divide-y divide-border">

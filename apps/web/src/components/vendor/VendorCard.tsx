@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight, Clock } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';
 import { Card } from '@/components/ui/card';
@@ -58,8 +59,13 @@ export function VendorCard({ vendor }: VendorCardProps) {
     <Card className="group flex flex-col overflow-hidden border-gold/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <div className="relative aspect-[16/10] w-full bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt={vendor.businessName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          <Image
+            src={cover}
+            alt={vendor.businessName}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-3xl">
             {vendor.businessName.charAt(0)}

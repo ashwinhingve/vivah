@@ -2,11 +2,16 @@
 
 import { type ReactNode } from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { MOTION } from '@/lib/motion-config';
 
-/** Fade + 8px slide-up on mount, 200ms ease-out. Reuse the variants if needed. */
+/** Fade + slide-up on mount (canonical timing in lib/motion-config). */
 export const pageTransitionVariants: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: MOTION.page.y },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION.page.duration, ease: MOTION.page.ease },
+  },
 };
 
 interface PageTransitionProps {
@@ -24,7 +29,10 @@ export function PageTransition({ children, className }: PageTransitionProps) {
       animate="visible"
       variants={
         reduce
-          ? { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.15 } } }
+          ? {
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { duration: MOTION.reduced.duration } },
+            }
           : pageTransitionVariants
       }
     >

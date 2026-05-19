@@ -253,7 +253,7 @@ export default async function ProfileViewPage({ params }: Props) {
   return (
     <PageTransition>
       {/* Desktop: 2-col (60%/40%). Mobile: single column stacked */}
-      <div className="mx-auto max-w-5xl px-4 pb-28 pt-4">
+      <div id="main-content" className="mx-auto max-w-5xl px-4 pb-28 pt-4">
         <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
 
           {/* ── LEFT COLUMN: Photos + Identity Hero ──────────────── */}
@@ -280,7 +280,7 @@ export default async function ProfileViewPage({ params }: Props) {
 
               {/* Name + age + city */}
               <div>
-                <h1 className="font-heading text-3xl font-semibold leading-tight text-primary">
+                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
                   {displayName}
                 </h1>
                 <p className="mt-1 text-base text-muted-foreground">

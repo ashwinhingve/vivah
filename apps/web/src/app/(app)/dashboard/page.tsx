@@ -112,7 +112,7 @@ export default async function DashboardPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background">
+      <main id="main-content" className="min-h-screen bg-background">
         <div className="mx-auto max-w-2xl px-4 py-6 space-y-7">
 
           {/* ── Hero Greeting ──────────────────────────────────── */}
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
                       {formatDatePill(now)}
                     </span>
                   </div>
-                  <h1 className="font-heading text-2xl font-semibold text-primary">
+                  <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
                     {getGreeting()} 👋
                   </h1>
                   <p className="mt-0.5 text-sm text-muted-foreground">

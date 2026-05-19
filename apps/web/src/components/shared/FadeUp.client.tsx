@@ -1,5 +1,6 @@
 'use client';
 import { motion, useReducedMotion } from 'framer-motion';
+import { MOTION } from '@/lib/motion-config';
 
 interface Props {
   children: React.ReactNode;
@@ -12,9 +13,9 @@ export function FadeUp({ children, delay = 0, className }: Props) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: reduced ? 0 : 10 }}
+      initial={{ opacity: 0, y: reduced ? 0 : MOTION.fade.y }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay, ease: 'easeOut' as const }}
+      transition={{ duration: MOTION.fade.duration, delay, ease: MOTION.fade.ease }}
     >
       {children}
     </motion.div>

@@ -34,13 +34,13 @@ export function RouteErrorBoundary({ error, reset }: Props) {
         <button
           type="button"
           onClick={reset}
-          className="inline-flex h-10 items-center rounded-lg bg-foreground px-4 text-sm font-medium text-white hover:opacity-90"
+          className="inline-flex min-h-[44px] items-center rounded-lg bg-foreground px-4 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Try again
         </button>
         <Link
           href="/dashboard"
-          className="inline-flex h-10 items-center rounded-lg border border-foreground/15 px-4 text-sm font-medium text-foreground hover:bg-foreground/5"
+          className="inline-flex min-h-[44px] items-center rounded-lg border border-foreground/15 px-4 text-sm font-medium text-foreground hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Go to dashboard
         </Link>

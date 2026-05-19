@@ -54,12 +54,8 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       >
         {JSON.stringify(websiteSchema)}
       </Script>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-surface focus:px-4 focus:py-2 focus:rounded-lg focus:text-primary focus:font-semibold focus:border focus:border-primary focus:shadow-md"
-      >
-        Skip to main content
-      </a>
+      {/* Skip link is rendered once by the root layout (app/layout.tsx) —
+          a second one here would duplicate the landmark for marketing routes. */}
       {children}
     </>
   );

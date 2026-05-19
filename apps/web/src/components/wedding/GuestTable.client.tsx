@@ -203,6 +203,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
       <div className="flex flex-col sm:flex-row gap-3 mb-4 flex-wrap">
         <input
           type="search"
+          aria-label="Search guests"
           placeholder="Search guests…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -240,17 +241,17 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <input name="name" type="text" placeholder="Full name *" value={form.name} onChange={handleFormChange} required className={inputCls} />
-            <input name="relationship" type="text" placeholder="Relationship (e.g. Cousin)" value={form.relationship} onChange={handleFormChange} className={inputCls} />
-            <input name="phone" type="tel" placeholder="Phone" value={form.phone} onChange={handleFormChange} className={inputCls} />
-            <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleFormChange} className={inputCls} />
-            <select name="side" value={form.side} onChange={handleFormChange} className={inputCls}>
+            <input name="name" aria-label="Full name" type="text" placeholder="Full name *" value={form.name} onChange={handleFormChange} required className={inputCls} />
+            <input name="relationship" aria-label="Relationship" type="text" placeholder="Relationship (e.g. Cousin)" value={form.relationship} onChange={handleFormChange} className={inputCls} />
+            <input name="phone" aria-label="Phone" type="tel" placeholder="Phone" value={form.phone} onChange={handleFormChange} className={inputCls} />
+            <input name="email" aria-label="Email" type="email" placeholder="Email" value={form.email} onChange={handleFormChange} className={inputCls} />
+            <select name="side" aria-label="Guest side" value={form.side} onChange={handleFormChange} className={inputCls}>
               <option value="">Side</option>
               <option value="BRIDE">Bride's side</option>
               <option value="GROOM">Groom's side</option>
               <option value="BOTH">Both</option>
             </select>
-            <select name="mealPref" value={form.mealPref} onChange={handleFormChange} className={inputCls}>
+            <select name="mealPref" aria-label="Meal preference" value={form.mealPref} onChange={handleFormChange} className={inputCls}>
               <option value="">Meal preference</option>
               <option value="VEG">Veg</option>
               <option value="NON_VEG">Non-Veg</option>

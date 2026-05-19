@@ -86,12 +86,12 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const availableCities = [...new Set(items.map((i) => i.city).filter(Boolean))].sort();
 
   return (
-    <main className="min-h-screen bg-background">
+    <main id="main-content" className="min-h-screen bg-background">
       <PageTransition className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
         {/* ── Page header ──────────────────────────────────────────────── */}
         <FadeUp delay={0} className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-primary sm:text-3xl">Your Matches</h1>
+            <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">Your Matches</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {items.length > 0
                 ? `${total} compatible profile${total !== 1 ? 's' : ''} · Refreshed daily`

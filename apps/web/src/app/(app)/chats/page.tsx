@@ -59,7 +59,7 @@ export default async function ChatsPage({ searchParams }: PageProps) {
   ])
 
   return (
-    <main className="min-h-screen bg-background pb-20">
+    <main id="main-content" className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-10 border-b border-gold/20 bg-surface/95 px-4 pt-4 pb-2 backdrop-blur-xl">
         <h1 className="font-heading text-xl font-semibold text-foreground">Chats</h1>
         <nav aria-label="Filter chats" className="mt-3 flex gap-1.5">

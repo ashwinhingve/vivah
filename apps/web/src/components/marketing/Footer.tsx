@@ -102,7 +102,7 @@ export default function Footer() {
 
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
         {/* Main grid — brand left + 4 link columns right */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 md:gap-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 md:gap-10">
 
           {/* Brand column — spans 2 on desktop */}
           <div className="col-span-2">
