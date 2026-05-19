@@ -73,3 +73,20 @@ Edit the config file, not the markdown, when tweaking demo content.
 ### Runtime
 
 ≈ 5–10 minutes depending on network + R2 latency.
+
+## Running from PowerShell (Windows/WSL users)
+
+The seed script must be run from PowerShell on Windows, NOT from WSL.
+WSL has a known Node.js fetch DNS resolution issue that causes
+"fetch failed" errors even when curl works.
+
+```powershell
+cd "D:\Do Not Open\vivah\vivahOS"
+$env:API_URL="https://api.smartshaadi.co.in"
+$env:SEED_OTP="135246"
+$env:ALLOW_PROD_SEED="true"
+pnpm dlx tsx scripts/seed-demo-data.ts
+```
+
+Note: `pnpm seed:demo` alias may not resolve `tsx` on Windows PATH.
+Use `pnpm dlx tsx scripts/seed-demo-data.ts` directly.
