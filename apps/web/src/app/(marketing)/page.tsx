@@ -15,7 +15,7 @@ export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <main id="main-content">
+      <main id="main-content" className="pt-16">
         <Hero />
         <StatsBar />
         <HowItWorks />

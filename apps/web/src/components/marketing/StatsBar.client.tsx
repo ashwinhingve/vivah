@@ -1,141 +1,90 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useReducedMotion,
-  animate,
-} from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { AnimatedNumber } from '@/components/motion/AnimatedNumber.client';
 
-type Stat = {
-  value: string;
-  numericTarget?: number;
-  suffix?: string;
+interface Stat {
+  numericValue: number;
+  format: (n: number) => string;
   label: string;
-};
+}
 
 const stats: Stat[] = [
-  { value: 'Growing', label: 'Community of Verified Families' },
   {
-    value: '94%',
-    numericTarget: 94,
-    suffix: '%',
-    label: 'Match Satisfaction in Beta',
+    numericValue: 12000,
+    format: (n) => `${Math.round(n / 1000)}k+`,
+    label: 'Verified Profiles',
   },
-  { value: '36-Point', label: 'Guna Milan AI Score' },
-  { value: '2 Min', label: 'Average Profile Setup Time' },
+  {
+    numericValue: 850,
+    format: (n) => `${Math.round(n)}+`,
+    label: 'Vendors across 24 Cities',
+  },
+  {
+    numericValue: 1200,
+    format: (n) => `${Math.round(n / 100) * 100}+`,
+    label: 'Weddings Planned',
+  },
 ];
 
-function CountUp({ target, suffix }: { target: number; suffix: string }) {
-  const [display, setDisplay] = useState(0);
-  const motionValue = useMotionValue(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-40px' });
+function StatItem({ stat, index }: { stat: Stat; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
   const reduce = useReducedMotion();
 
-  useEffect(() => {
-    if (!inView) return;
-    if (reduce) {
-      setDisplay(target);
-      return;
-    }
-    const controls = animate(motionValue, target, {
-      duration: 1.4,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplay(Math.round(v)),
-    });
-    return () => controls.stop();
-  }, [inView, target, motionValue, reduce]);
-
   return (
-    <span ref={ref}>
-      {display}
-      {suffix}
-    </span>
+    <motion.div
+      ref={ref}
+      initial={reduce ? false : { opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+      className="flex flex-col items-center text-center px-6"
+    >
+      <dt className="sr-only">{stat.label}</dt>
+      <dd
+        className="font-[family-name:var(--font-heading)] font-bold text-primary leading-none"
+        style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+        aria-live="polite"
+      >
+        {inView ? (
+          <AnimatedNumber
+            value={stat.numericValue}
+            duration={1.4}
+            format={stat.format}
+          />
+        ) : (
+          stat.format(0)
+        )}
+      </dd>
+      <p className="mt-2 text-sm text-foreground/60 leading-snug max-w-[140px]">
+        {stat.label}
+      </p>
+    </motion.div>
   );
 }
 
 export default function StatsBar() {
-  const reduce = useReducedMotion();
-
   return (
     <section
       id="stats"
-      className="relative isolate bg-gradient-to-br from-primary via-primary-hover to-primary py-14 md:py-16 overflow-hidden"
+      aria-label="Platform statistics"
+      className="relative bg-background border-y border-gold/15 py-14 md:py-16 overflow-hidden"
     >
-      {/* Decorative paisley/mandala SVG pattern */}
-      <svg
+      {/* Subtle gold tint band */}
+      <div
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none -z-0"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <pattern
-            id="paisley"
-            x="0"
-            y="0"
-            width="80"
-            height="80"
-            patternUnits="userSpaceOnUse"
-          >
-            <circle cx="40" cy="40" r="2" fill="var(--color-gold)" />
-            <circle cx="0" cy="0" r="2" fill="var(--color-gold)" />
-            <circle cx="80" cy="0" r="2" fill="var(--color-gold)" />
-            <circle cx="0" cy="80" r="2" fill="var(--color-gold)" />
-            <circle cx="80" cy="80" r="2" fill="var(--color-gold)" />
-            <path
-              d="M40 20 Q 50 30 40 40 Q 30 30 40 20 Z"
-              fill="none"
-              stroke="var(--color-gold)"
-              strokeWidth="0.5"
-            />
-            <path
-              d="M40 60 Q 50 50 40 40 Q 30 50 40 60 Z"
-              fill="none"
-              stroke="var(--color-gold)"
-              strokeWidth="0.5"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#paisley)" />
-      </svg>
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(135deg, color-mix(in srgb, var(--color-gold) 5%, transparent) 0%, transparent 60%)',
+        }}
+      />
 
       <div className="relative max-w-screen-xl mx-auto px-4 md:px-6">
-        <dl className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <dl className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0 sm:divide-x sm:divide-gold/20">
           {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{
-                duration: 0.6,
-                delay: i * 0.1,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className={
-                i < stats.length - 1
-                  ? 'md:border-r md:border-surface/15 md:pr-6 text-center md:text-left'
-                  : 'text-center md:text-left'
-              }
-            >
-              <dt className="sr-only">{s.label}</dt>
-              <dd className="text-3xl md:text-4xl lg:text-5xl font-bold text-white font-[family-name:var(--font-heading)]">
-                {s.numericTarget !== undefined ? (
-                  <CountUp target={s.numericTarget} suffix={s.suffix ?? ''} />
-                ) : (
-                  s.value
-                )}
-              </dd>
-              <p
-                className="text-xs md:text-sm text-gold mt-2 tracking-wide"
-                aria-hidden="true"
-              >
-                {s.label}
-              </p>
-            </motion.div>
+            <StatItem key={s.label} stat={s} index={i} />
           ))}
         </dl>
       </div>

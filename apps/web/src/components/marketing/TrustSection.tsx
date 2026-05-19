@@ -92,7 +92,7 @@ export default function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/96 via-background/92 to-[#FFFFFF]/88"
+          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/96 via-background/92 to-surface/88"
         />
 
         <div className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24">

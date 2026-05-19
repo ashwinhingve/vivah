@@ -1,175 +1,288 @@
-import Image from 'next/image';
-import {
-  Star,
-  Shield,
-  Calendar,
-  Users,
-  MessageCircle,
-  ShoppingBag,
-} from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
-import {
-  FEATURE_GUNA_MILAN,
-  FEATURE_SAFETY,
-  FEATURE_PLANNING,
-  FEATURE_FAMILY_MODE,
-  FEATURE_AI_COACH,
-  FEATURE_VENDOR,
-  type Photo,
-} from '@/lib/marketing-images';
+import type { ReactNode } from 'react';
+import AnimatedSection from './AnimatedSection.client';
 
-type Feature = {
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-  iconBg: string;
-  iconColor: string;
-  title: string;
-  description: string;
-  badge: string;
-  badgeClass: string;
-  photo: Photo;
-};
+// ── Visual A: Reciprocal Matching — Venn diagram ──────────────────────────────
+function ReciprocalVenn() {
+  return (
+    <div className="relative w-full max-w-[360px] mx-auto select-none" aria-hidden="true">
+      <svg viewBox="0 0 360 240" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+        {/* Left circle — Profile A */}
+        <circle cx="140" cy="120" r="90" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" stroke="var(--color-primary)" strokeWidth="1.5" />
+        {/* Right circle — Profile B */}
+        <circle cx="220" cy="120" r="90" fill="color-mix(in srgb, var(--color-teal) 10%, transparent)" stroke="var(--color-teal)" strokeWidth="1.5" />
+        {/* Overlap fill — mutual zone */}
+        <path
+          d="M180 48.6 A90 90 0 0 1 180 191.4 A90 90 0 0 1 180 48.6 Z"
+          fill="color-mix(in srgb, var(--color-gold) 18%, transparent)"
+          stroke="var(--color-gold)"
+          strokeWidth="1"
+          opacity="0.9"
+        />
+        {/* Left label */}
+        <text x="110" y="110" textAnchor="middle" fill="var(--color-primary)" fontFamily="var(--font-heading), serif" fontSize="11" fontWeight="600">Profile</text>
+        <text x="110" y="126" textAnchor="middle" fill="var(--color-primary)" fontFamily="var(--font-heading), serif" fontSize="11" fontWeight="600">A</text>
+        {/* Right label */}
+        <text x="250" y="110" textAnchor="middle" fill="var(--color-teal)" fontFamily="var(--font-heading), serif" fontSize="11" fontWeight="600">Profile</text>
+        <text x="250" y="126" textAnchor="middle" fill="var(--color-teal)" fontFamily="var(--font-heading), serif" fontSize="11" fontWeight="600">B</text>
+        {/* Center callout */}
+        <text x="180" y="115" textAnchor="middle" fill="var(--color-gold-muted)" fontFamily="var(--font-heading), serif" fontSize="10" fontWeight="700">Both</text>
+        <text x="180" y="130" textAnchor="middle" fill="var(--color-gold-muted)" fontFamily="var(--font-heading), serif" fontSize="10" fontWeight="700">Accept</text>
+      </svg>
+      {/* Callout chip */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-3 flex items-center gap-2 bg-surface border border-gold/30 rounded-full px-4 py-2 shadow-card text-xs font-semibold text-gold-muted">
+        <span className="w-2 h-2 rounded-full bg-gold" />
+        Mutual interest required · No one-sided reveals
+      </div>
+    </div>
+  );
+}
 
-const features: Feature[] = [
+// ── Visual B: Guna Milan — 8-factor bars ─────────────────────────────────────
+const gunaFactors = [
+  { name: 'Varna', score: 1, max: 1 },
+  { name: 'Vashya', score: 2, max: 2 },
+  { name: 'Tara', score: 3, max: 3 },
+  { name: 'Yoni', score: 3, max: 4 },
+  { name: 'Graha Maitri', score: 5, max: 5 },
+  { name: 'Gana', score: 5, max: 6 },
+  { name: 'Bhakoot', score: 6, max: 7 },
+  { name: 'Nadi', score: 8, max: 8 },
+];
+
+function GunaMilanBars() {
+  const total = gunaFactors.reduce((s, f) => s + f.score, 0);
+  const maxTotal = gunaFactors.reduce((s, f) => s + f.max, 0);
+
+  return (
+    <div
+      className="w-full max-w-[360px] mx-auto rounded-2xl border border-gold/20 bg-surface shadow-card p-6"
+      aria-label={`Guna Milan compatibility: ${total} out of ${maxTotal}`}
+    >
+      <div className="flex justify-between items-center mb-5">
+        <p className="text-sm font-semibold text-foreground font-[family-name:var(--font-heading)]">
+          Guna Milan Score
+        </p>
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-primary font-[family-name:var(--font-heading)]">
+            {total}
+          </span>
+          <span className="text-sm text-muted-foreground">/ {maxTotal}</span>
+        </div>
+      </div>
+
+      <div className="space-y-2.5" aria-hidden="true">
+        {gunaFactors.map((f) => (
+          <div key={f.name} className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground w-24 flex-shrink-0 truncate">{f.name}</span>
+            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-teal transition-all"
+                style={{ width: `${(f.score / f.max) * 100}%` }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground w-8 text-right">{f.score}/{f.max}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-4 text-xs text-center text-muted-foreground">
+        Excellent match · Mangal Dosha: None
+      </p>
+    </div>
+  );
+}
+
+// ── Visual C: Wedding Planner — Card mock ────────────────────────────────────
+interface PlannerTask {
+  label: string;
+  done: boolean;
+  category: string;
+}
+
+const plannerTasks: PlannerTask[] = [
+  { label: 'Book Mandap Decorator', done: true, category: 'Vendor' },
+  { label: 'Confirm Guest List — 280 guests', done: true, category: 'Guests' },
+  { label: 'Catering Menu Review', done: false, category: 'Catering' },
+  { label: 'Send RSVP Invitations', done: false, category: 'Invites' },
+];
+
+function WeddingPlannerMock() {
+  return (
+    <div
+      className="w-full max-w-[360px] mx-auto rounded-2xl border border-gold/20 bg-surface shadow-card overflow-hidden"
+      aria-label="Wedding planning dashboard preview"
+      aria-hidden="true"
+    >
+      {/* Header strip */}
+      <div className="bg-primary px-5 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/70 uppercase tracking-widest font-semibold">
+            Wedding · Jun 2027
+          </p>
+          <p className="text-white font-[family-name:var(--font-heading)] font-semibold text-base mt-0.5">
+            Priya &amp; Arjun
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-white/70">Budget used</p>
+          <p className="text-white font-bold text-lg">68%</p>
+        </div>
+      </div>
+
+      {/* Budget bar */}
+      <div className="px-5 pt-4 pb-2">
+        <div className="h-2 rounded-full bg-muted overflow-hidden">
+          <div className="h-full w-[68%] rounded-full bg-gold" />
+        </div>
+        <div className="flex justify-between mt-1">
+          <span className="text-xs text-muted-foreground">₹8.2L spent</span>
+          <span className="text-xs text-muted-foreground">₹12L total</span>
+        </div>
+      </div>
+
+      {/* Task list */}
+      <div className="px-5 pb-5 pt-3 space-y-2.5">
+        {plannerTasks.map((task) => (
+          <div key={task.label} className="flex items-center gap-3">
+            <div
+              className={[
+                'w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border',
+                task.done
+                  ? 'bg-teal border-teal'
+                  : 'border-border bg-background',
+              ].join(' ')}
+            >
+              {task.done && (
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span
+              className={[
+                'text-sm flex-1 truncate',
+                task.done ? 'line-through text-muted-foreground' : 'text-foreground',
+              ].join(' ')}
+            >
+              {task.label}
+            </span>
+            <span className="text-[10px] rounded-full border border-border px-2 py-0.5 text-muted-foreground flex-shrink-0">
+              {task.category}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Feature data ──────────────────────────────────────────────────────────────
+interface FeatureShowcase {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  bullets: string[];
+  visual: ReactNode;
+  reversed: boolean;
+}
+
+const features: FeatureShowcase[] = [
   {
-    icon: Star,
-    iconBg: 'bg-teal',
-    iconColor: 'text-white',
-    title: 'AI Guna Milan Calculator',
-    description:
-      'Full 8-factor Ashtakoot analysis with Mangal Dosha detection. Real Vedic calculations, not guesswork.',
-    badge: 'Most Used Feature',
-    badgeClass: 'bg-gold/15 text-gold-muted',
-    photo: FEATURE_GUNA_MILAN,
+    eyebrow: 'Reciprocal Matching',
+    heading: 'Matching that respects\nboth sides',
+    body: 'No one-sided revelations. Contact details, photos, and profile details only unlock when BOTH parties show genuine interest. Your dignity is protected by design.',
+    bullets: [
+      'Photos stay blurred until mutual interest',
+      'Silent decline — they never know you passed',
+      'Family members can co-review matches',
+    ],
+    visual: <ReciprocalVenn />,
+    reversed: false,
   },
   {
-    icon: Shield,
-    iconBg: 'bg-primary',
-    iconColor: 'text-white',
-    title: 'Safety Mode & Privacy',
-    description:
-      'Photos and contact details stay hidden until mutual interest. Aadhaar-verified profiles only. One-tap block and report.',
-    badge: 'Parent Approved',
-    badgeClass: 'bg-success/10 text-success',
-    photo: FEATURE_SAFETY,
+    eyebrow: 'Guna Milan',
+    heading: 'Vedic compatibility,\ndone right',
+    body: 'Full 8-factor Ashtakoot analysis with real Vedic calculations — not approximations. Includes Mangal Dosha detection and an explainable per-factor breakdown both families can understand.',
+    bullets: [
+      'All 8 Ashtakoot factors calculated',
+      'Mangal Dosha detection built in',
+      'AI narrative explains the score in plain language',
+    ],
+    visual: <GunaMilanBars />,
+    reversed: true,
   },
   {
-    icon: Calendar,
-    iconBg: 'bg-teal',
-    iconColor: 'text-white',
-    title: 'Wedding Planning Suite',
-    description:
-      'Budget tracker, vendor booking, guest list, and RSVP management. From proposal to mandap, in one platform.',
-    badge: 'Coming in Phase 2',
-    badgeClass: 'bg-muted-foreground/10 text-muted-foreground',
-    photo: FEATURE_PLANNING,
-  },
-  {
-    icon: Users,
-    iconBg: 'bg-primary',
-    iconColor: 'text-white',
-    title: 'Family Compatibility Mode',
-    description:
-      'Parents co-browse profiles and send family interest requests. Designed for how Indian families actually work.',
-    badge: 'Unique to Smart Shaadi',
-    badgeClass: 'bg-primary/10 text-primary',
-    photo: FEATURE_FAMILY_MODE,
-  },
-  {
-    icon: MessageCircle,
-    iconBg: 'bg-teal',
-    iconColor: 'text-white',
-    title: 'AI Conversation Coach',
-    description:
-      'AI suggests personalised ice-breakers based on shared interests. Hindi + English support built in.',
-    badge: 'AI Powered',
-    badgeClass: 'bg-teal/10 text-teal',
-    photo: FEATURE_AI_COACH,
-  },
-  {
-    icon: ShoppingBag,
-    iconBg: 'bg-primary',
-    iconColor: 'text-white',
-    title: 'Vendor Marketplace',
-    description:
-      'Book verified photographers, caterers, and decorators. Escrow payments protect you. One platform, complete journey.',
-    badge: 'Coming in Phase 2',
-    badgeClass: 'bg-muted-foreground/10 text-muted-foreground',
-    photo: FEATURE_VENDOR,
+    eyebrow: 'Wedding Planning',
+    heading: 'Everything in one\nplatform',
+    body: 'From the first match to the mandap — budget tracking, vendor booking with escrow payments, guest list management, and RSVP — all seamlessly connected to your match journey.',
+    bullets: [
+      'Verified vendors with escrow-protected payments',
+      'Guest list, invitations, and RSVP in one place',
+      'Budget tracker with category breakdowns',
+    ],
+    visual: <WeddingPlannerMock />,
+    reversed: false,
   },
 ];
 
+// ── Section ───────────────────────────────────────────────────────────────────
 export default function FeaturesGrid() {
   return (
     <section id="features" className="bg-background py-24 md:py-28">
-      <div className="max-w-screen-xl mx-auto px-4 md:px-6">
-        <p
-          aria-hidden="true"
-          className="text-xs font-semibold uppercase tracking-widest text-primary/70 text-center mb-3"
-        >
-          Everything You Need
-        </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
-          Everything Your Family Needs{' '}
-          <span className="italic text-primary">in One Platform</span>
-        </h2>
-        <p className="text-muted-foreground max-w-xl mx-auto text-center leading-relaxed">
-          Built for Indian families. Not a dating app. Never will be.
-        </p>
+      <div className="max-w-screen-xl mx-auto px-4 md:px-6 space-y-28 md:space-y-36">
+        {features.map((f) => (
+          <AnimatedSection
+            key={f.eyebrow}
+            delay={0}
+            direction={f.reversed ? 'right' : 'left'}
+          >
+            <div
+              className={[
+                'grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center',
+                f.reversed ? 'lg:[&>*:first-child]:order-2' : '',
+              ].join(' ')}
+            >
+              {/* Text column */}
+              <div>
+                <p
+                  aria-hidden="true"
+                  className="text-xs font-semibold uppercase tracking-widest text-gold-muted mb-3"
+                >
+                  {f.eyebrow}
+                </p>
+                <h2
+                  className="font-[family-name:var(--font-heading)] font-semibold text-foreground leading-[1.12] whitespace-pre-line"
+                  style={{ fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}
+                >
+                  {f.heading}
+                </h2>
+                <p className="mt-5 text-base text-muted-foreground leading-relaxed max-w-lg">
+                  {f.body}
+                </p>
+                <ul className="mt-6 space-y-3">
+                  {f.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-3 text-sm text-foreground/80">
+                      <span
+                        className="mt-0.5 w-5 h-5 rounded-full bg-teal/10 ring-1 ring-teal/30 flex items-center justify-center flex-shrink-0"
+                        aria-hidden="true"
+                      >
+                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="var(--color-teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
-          {features.map((feature) => {
-            const Icon = feature.icon;
-            return (
-              <article
-                key={feature.title}
-                className="group relative overflow-hidden rounded-2xl bg-surface border border-border shadow-sm hover:shadow-xl hover:border-gold/40 transition-all duration-300 hover:-translate-y-1"
-              >
-                {/* Photo header */}
-                <div className="relative h-40 overflow-hidden">
-                  <Image
-                    src={feature.photo.src}
-                    alt={feature.photo.alt}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    quality={75}
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"
-                  />
-                </div>
-
-                {/* Card body */}
-                <div className="p-6 pt-8 relative">
-                  {/* Icon overlapping image edge */}
-                  <div
-                    className={`absolute -top-7 left-6 w-14 h-14 rounded-2xl ${feature.iconBg} flex items-center justify-center shadow-lg ring-4 ring-white`}
-                  >
-                    <Icon
-                      width={26}
-                      height={26}
-                      className={feature.iconColor}
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  <h3 className="text-lg md:text-xl font-medium text-foreground font-[family-name:var(--font-heading)] mt-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mt-2">
-                    {feature.description}
-                  </p>
-                  <span
-                    className={`inline-block mt-4 text-xs font-semibold rounded-full px-3 py-1 ${feature.badgeClass}`}
-                  >
-                    {feature.badge}
-                  </span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+              {/* Visual column */}
+              <div className="flex items-center justify-center py-4">
+                {f.visual}
+              </div>
+            </div>
+          </AnimatedSection>
+        ))}
       </div>
     </section>
   );
