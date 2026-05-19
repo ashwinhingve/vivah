@@ -13,6 +13,7 @@ import {
   TrendingUp,
   BarChart3,
   Activity,
+  ArrowRight,
 } from 'lucide-react';
 
 import { PageHeader }     from '@/components/ui/PageHeader';
@@ -153,6 +154,7 @@ const NAV_TILES: NavTile[] = [
   { href: '/admin/reconciliation', label: 'Reconciliation', description: 'Payment ledger reconciliation',    Icon: ArrowLeftRight },
   { href: '/admin/refunds',        label: 'Refunds',        description: 'Customer refund processing',       Icon: Undo2          },
   { href: '/admin/revenue',        label: 'Revenue',        description: 'Platform revenue analytics',       Icon: TrendingUp     },
+  { href: '/admin/analytics',      label: 'Analytics',      description: 'Platform growth & engagement trends', Icon: BarChart3    },
   // Vendor approval — no endpoint yet; link retained as it will have a page
   // TODO: no vendor-approval queue endpoint — add when Phase 3 vendor-mgmt ships
   { href: '#',                     label: 'Vendors',        description: 'Vendor approval queue — coming soon', Icon: Store       },
@@ -236,7 +238,7 @@ export default async function AdminPage() {
   }).format(new Date());
 
   return (
-    <main className="min-h-screen bg-background">
+    <main id="main-content" className="min-h-screen bg-background">
       <PageTransition className="mx-auto max-w-5xl px-4 py-8 space-y-8">
 
         {/* ── Header ── */}
@@ -371,24 +373,31 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {/* ── Analytics placeholders ── */}
+        {/* ── Analytics ── */}
         <section>
-          <SectionHeader title="Analytics" subtitle="30-day platform trends" />
-          {/* TODO: no time-series endpoint exists for signups or GMV.
-              Add GET /api/v1/admin/analytics/timeseries when analytics service ships.
-              Until then render tasteful placeholder cards — never fake data. */}
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface">
-              <BarChart3 className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
-              <p className="font-heading text-sm font-semibold text-primary">Signups — 30 day</p>
-              <p className="text-xs text-text-muted">Analytics endpoint coming in a later phase</p>
+          <SectionHeader title="Analytics" subtitle="Platform growth, engagement & revenue" />
+          <Link
+            href="/admin/analytics"
+            className="group flex items-center justify-between gap-4 rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            <div className="flex items-center gap-4">
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal/10 text-teal">
+                <BarChart3 className="h-6 w-6" strokeWidth={1.5} aria-hidden />
+              </span>
+              <div>
+                <p className="font-heading text-base font-semibold text-primary">
+                  Open Analytics Dashboard
+                </p>
+                <p className="text-sm text-text-muted">
+                  Signups, match activity, engagement risk, revenue &amp; top matches
+                </p>
+              </div>
             </div>
-            <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface">
-              <TrendingUp className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
-              <p className="font-heading text-sm font-semibold text-primary">GMV — 30 day</p>
-              <p className="text-xs text-text-muted">Analytics endpoint coming in a later phase</p>
-            </div>
-          </div>
+            <ArrowRight
+              className="h-5 w-5 shrink-0 text-teal transition-transform group-hover:translate-x-1"
+              aria-hidden
+            />
+          </Link>
         </section>
 
         {/* ── Activity log placeholder ── */}
