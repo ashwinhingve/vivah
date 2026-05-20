@@ -20,6 +20,7 @@ import { RevenueSparkline } from '@/components/dashboard/RevenueSparkline.client
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';
+import { VendorStatusBanner } from './StatusBanner.client';
 import type { BookingSummary, VendorInquiry, VendorBlockedDate, VendorProfile } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
@@ -139,6 +140,8 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
   return (
     <PageTransition>
       <main id="main-content" className="min-h-screen bg-background">
+        {/* P1-8: approval status banner (hidden when status === APPROVED) */}
+        <VendorStatusBanner />
         <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
 
           {/* ── Header ─────────────────────────────────────────── */}

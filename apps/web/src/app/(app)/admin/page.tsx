@@ -92,6 +92,18 @@ interface AtRiskUser {
   displayName: string | null;
 }
 
+// P1-8: minimal shape for the vendor-approval mini queue on the admin dashboard.
+interface VendorQueueRow {
+  id:                string;
+  businessName:      string;
+  category:          string;
+  city:              string;
+  status:            string;
+  submittedAt:       string | null;
+  rejectionReason:   string | null;
+  rejectionCategory: string | null;
+}
+
 // Infra health types from /ready
 interface ReadyChecks {
   postgres: string;
@@ -184,6 +196,7 @@ export default async function AdminPage() {
     disputesData,
     atRiskData,
     readyData,
+    vendorQueueData,
   ] = await Promise.all([
     fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),
     fetchAuth<KycStats>('/api/v1/admin/kyc/stats', token),
@@ -193,6 +206,9 @@ export default async function AdminPage() {
       '/api/v1/admin/users/at-risk?limit=5', token
     ),
     fetchReady(),
+    fetchAuth<{ items: VendorQueueRow[]; total: number }>(
+      '/api/v1/admin/vendors/queue?status=PENDING&limit=5', token
+    ),
   ]);
 
   // Derive values with safe defaults
@@ -207,6 +223,8 @@ export default async function AdminPage() {
   const disputes          = disputesData?.disputes   ?? [];
   const atRiskItems       = atRiskData?.items        ?? [];
   const atRiskTotal       = atRiskData?.total        ?? 0;
+  const vendorQueue       = vendorQueueData?.items   ?? [];
+  const vendorQueueTotal  = vendorQueueData?.total   ?? 0;
 
   // Health strip — map /ready.checks to labelled ServiceCheck array
   const serviceChecks = readyData
@@ -351,24 +369,54 @@ export default async function AdminPage() {
               </div>
             </div>
 
-            {/* Vendor approval queue — no endpoint yet */}
-            <div className="flex flex-col rounded-2xl border border-dashed border-gold/30 bg-surface shadow-card">
-              <div className="border-b border-gold/10 px-5 pt-5 pb-4">
-                <h3 className="font-heading text-base font-semibold text-text-primary">
-                  Vendor Approvals
-                </h3>
+            {/* Vendor approval queue (P1-8 — wired) */}
+            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+              <div className="flex items-center justify-between border-b border-gold/10 px-5 pt-5 pb-4">
+                <div className="flex items-center gap-2">
+                  <Store className="h-4 w-4 text-gold" aria-hidden="true" />
+                  <h3 className="font-heading text-base font-semibold text-text-primary">
+                    Vendor Approvals
+                  </h3>
+                </div>
+                <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+                  {vendorQueueTotal}
+                </span>
               </div>
-              {/* TODO: no vendor-approval queue endpoint — add GET /api/v1/admin/vendors/pending
-                  when Phase 3 vendor-management feature ships. */}
-              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
-                <Store className="h-10 w-10 text-gold-muted" strokeWidth={1.25} aria-hidden />
-                <p className="font-heading text-sm font-semibold text-primary">
-                  Vendor approval queue
-                </p>
-                <p className="max-w-[200px] text-xs text-text-muted">
-                  Coming in a later phase — no endpoint available yet.
-                </p>
-              </div>
+              {vendorQueue.length === 0 ? (
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+                  <p className="font-heading text-sm font-semibold text-primary">All caught up</p>
+                  <p className="max-w-[200px] text-xs text-text-muted">
+                    No pending vendor applications.
+                  </p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gold/10">
+                  {vendorQueue.map((v) => (
+                    <li key={v.id}>
+                      <Link
+                        href={`/admin/vendors/${v.id}`}
+                        className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-background"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {v.businessName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {v.category} · {v.city}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link
+                href="/admin/vendors"
+                className="border-t border-gold/10 px-5 py-3 text-center text-xs font-semibold text-teal transition-colors hover:bg-background"
+              >
+                Open full queue →
+              </Link>
             </div>
           </div>
         </section>
