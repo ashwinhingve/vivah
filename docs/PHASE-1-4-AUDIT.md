@@ -22,14 +22,31 @@ registrations** (MSG91 DLT, DigiLocker partnership, Razorpay live account)
 that gate the remaining work and take **weeks**, not hours, in regulatory
 lead time.
 
+**P1s:** ~~15~~ → **0 open code-fixable** (13 closed in Sprint 0 Part 2 +
+Path B; remaining 2 — P1-5 NIC IRP e-invoicing, P1-11 Daily.co — are
+external-registration-gated).
+
 ### Resolution log
 
-| Date | P0 # | Closed by |
+| Date | Item | Closed by |
 |---|---|---|
 | 2026-05-20 | **P0-3** `USE_MOCK_SERVICES=true` in `.env.production` | flipped to `false` in `apps/api/.env.production` + `.env.production.example`; env.ts now hard-rejects the combination |
 | 2026-05-20 | **P0-5** `MOCK_OTP_VALUE=123456` backdoor | env.ts schema removes the default; superRefine requires explicit value when mock mode is on |
 | 2026-05-20 | **P0-6** CI hostname `api.smart_shaadi.in` (RFC-invalid) | `.github/workflows/ci.yml:118` + `docs/API.md:3` → `api.smartshaadi.co.in` |
 | 2026-05-20 | **P0-7** Sentry web `instrumentation.ts` missing | created at `apps/web/instrumentation.ts`; runbook for Vercel/Railway secrets in `docs/PROVIDER-ACTIVATION/sentry.md` |
+| 2026-05-20 | **P1-1** JWT spec mismatch | CLAUDE.md updated to reflect Better-Auth session cookie (no JWT split) |
+| 2026-05-20 | **P1-2** `handlePaymentSuccess` non-atomic idempotency | atomic CAS UPDATE with zero-row guard; new race-loser test (`221cbbe`) |
+| 2026-05-20 | **P1-3** acceptRequest race | **FALSE POSITIVE** — optimistic lock already at `matchmaking/requests/service.ts:245-260` (documented in `221cbbe`) |
+| 2026-05-20 | **P1-4** AI service pytest not in CI | new `test-ai` GitHub Actions job, 278 pytest tests now in CI (`85a9c94`) |
+| 2026-05-20 | **P1-6** `PLATFORM_GSTIN`/`STATE` raw `process.env` | added to typed `env.ts`; invoiceService reads from `env.*` (`7742f94`) |
+| 2026-05-20 | **P1-9** Anthropic API key accepted as empty string | coach_service.py pre-check + actionable error log (`7742f94`) |
+| 2026-05-20 | **P1-10** HuggingFace XLM-RoBERTa not pre-warmed | Dockerfile build-time warmup layer (`7742f94`) |
+| 2026-05-20 | **P1-12** Profile Block button stub | wired to `POST /api/v1/matchmaking/block/:profileId` (audit cited wrong path) with confirm + redirect + toast (`3244c62`) |
+| 2026-05-20 | **P1-13** Webhook idempotency replay test missing | new duplicate-replay case in `payments/__tests__/webhook.test.ts` (`85a9c94`) |
+| 2026-05-20 | **P1-14** `.env.production.example` missing 11 envs | +13 envs synced with `.env.example` (`7742f94`) |
+| 2026-05-20 | **CORS production config** raw `process.env` | `env.CORS_ORIGIN` added to typed env; api+socket consume it (`3244c62`) |
+| 2026-05-20 | **P1-7** Recent Conversations dashboard placeholder | new `GET /api/v1/chat/recent`; dashboard wired with live rows + presence + unread badges (`610128e`) |
+| 2026-05-20 | **P1-8** Vendor approval workflow | full state machine + CAS-locked admin endpoints + self-service `/me/submit` + admin queue + review page + vendor status banner; migration SQL in `docs/MIGRATIONS-PENDING.md` (`aed23df`, `516a156`) |
 
 The evidence sections below are preserved as a historical snapshot — they
 describe the state at audit publication. Resolved items are listed here.

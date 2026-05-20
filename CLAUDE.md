@@ -20,11 +20,34 @@
 
 ```
 Phase:     2 → COMPLETE ✅ + Multi-Event/Polish world-class upgrade landed
+           Phase 3 + 4 shipped; Path B (P1-7/8) closed 2026-05-20
 Week:      10 → IN PROGRESS
-Focus:     Phase 3 — AI Intelligence Layer (kickoff after this hardening pass)
-Status:    P0 security hardening sweep complete — all 10 review-doc P0s resolved (2026-05-04)
-Mocks:     USE_MOCK_SERVICES=true (swap after company registration)
-Last session: 2026-05-04 — P0 hardening: closed SSRF DNS-rebinding gap (chat/linkPreview)
+Focus:     Pre-launch — every code-fixable P0 + P1 closed; awaiting external
+           registrations (MSG91 DLT, DigiLocker, Razorpay live, Daily.co).
+Status:    docs/PHASE-1-4-AUDIT.md Resolution Log fully populated. Open P0s = 4
+           (all external-blocked). Open P1s = 0 code-fixable (P1-5 NIC IRP +
+           P1-11 Daily.co external-blocked).
+Mocks:     `USE_MOCK_SERVICES=false` in `.env.production.example`; env.ts
+           hard-rejects `NODE_ENV=production && USE_MOCK_SERVICES=true`.
+           Local-dev mock value REQUIRED via `MOCK_OTP_VALUE` (no default).
+Last session: 2026-05-20 — Path B: vendor approval workflow (P1-8) + Recent
+  Conversations dashboard wire-up (P1-7). 4 commits aed23df / 516a156 /
+  610128e / (this docs commit). Vendor approval state machine (DRAFT→
+  PENDING→UNDER_REVIEW→APPROVED/REJECTED/SUSPENDED) with CAS-locked
+  transitions, admin queue at /admin/vendors, review page with claim
+  mechanism + reject/suspend modals, vendor-side status banner on
+  /vendor-dashboard. Public `listVendors` now filters `status='APPROVED'`.
+  Migration SQL pending Railway console application — see
+  `docs/MIGRATIONS-PENDING.md`. GET /api/v1/chat/recent endpoint feeds
+  the customer dashboard's Recent Conversations card with live rows
+  (presence + unread badges + photo or initials avatar). 669/669 api
+  tests + 278 ai-service tests + 2 web tests; type-check 0; build 0.
+
+Prior session: 2026-05-20 — Sprint 0 Parts 1+2 closed 13 of 15 P1s + 4
+  zero-dependency P0s. See PHASE-1-4-AUDIT.md Resolution Log for full
+  per-item provenance.
+
+Earlier: 2026-05-04 — P0 hardening: closed SSRF DNS-rebinding gap (chat/linkPreview)
   + booking double-book race (unique partial index `booking_active_unique_idx`,
   23505 → BOOKING_CONFLICT). Verified other 8 P0s already fixed in Milestone A
   (993b3bb) + May-3 webhook idempotency landing. All 511 tests green; type-check
