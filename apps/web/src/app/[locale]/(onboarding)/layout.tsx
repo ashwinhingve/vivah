@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
+import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
           </Link>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-xs text-muted-foreground">Complete your profile</span>
+            <LanguageToggle />
             <UserMenu />
           </div>
         </div>

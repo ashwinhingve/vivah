@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Menu, X } from 'lucide-react';
 import { LogoFull } from './Logo';
+import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 
 interface NavLink {
   label: string;
@@ -122,6 +123,7 @@ export default function Navbar() {
 
           {/* Desktop auth buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageToggle />
             <Link
               href="/login"
               className={`${loginClass} min-h-[44px] flex items-center px-2`}
@@ -199,6 +201,9 @@ export default function Navbar() {
 
           {/* Bottom CTA area */}
           <div className="px-8 pb-10 space-y-3">
+            <div className="flex justify-center pb-2">
+              <LanguageToggle />
+            </div>
             <Link
               href="/login"
               onClick={() => setIsOpen(false)}

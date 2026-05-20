@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react';
+import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden">
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageToggle />
+      </div>
       {/* Mandala decoration — top right */}
       <svg
         aria-hidden="true"
