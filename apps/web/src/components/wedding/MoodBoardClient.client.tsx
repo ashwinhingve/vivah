@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { R2Uploader } from './R2Uploader.client';
 import type { MoodBoardItem, MoodBoardCategory } from '@smartshaadi/types';
@@ -97,7 +96,16 @@ export function MoodBoardClient({ weddingId, initialItems, addAction, deleteActi
             <div key={item.id} className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden group relative">
               {item.url ? (
                 <div className="aspect-square relative">
-                  <Image src={item.url} alt={item.caption ?? ''} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" />
+                  {/* eslint-disable-next-line @next/next/no-img-element --
+                       R2 signed-URL hostnames are not in next.config images.remotePatterns;
+                       Next.js <Image> rejects them at runtime. Plain <img> is the
+                       sanctioned form for R2-backed media throughout the app. */}
+                  <img
+                    src={item.url}
+                    alt={item.caption ?? ''}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 </div>
               ) : (
                 <div className="aspect-square bg-secondary" />
