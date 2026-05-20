@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
-import { upsertDeadlineAction } from '@/app/(app)/weddings/[id]/guests/actions';
+import { upsertDeadlineAction } from '@/app/[locale]/(app)/weddings/[id]/guests/actions';
 import type { RsvpDeadline } from '@smartshaadi/types';
 
 interface Props { weddingId: string; initial: RsvpDeadline | null; }

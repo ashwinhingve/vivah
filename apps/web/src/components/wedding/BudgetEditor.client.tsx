@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Loader2, Check } from 'lucide-react';
 import type { BudgetCategory } from '@smartshaadi/types';
-import { updateBudgetAction } from '@/app/(app)/weddings/[id]/actions';
+import { updateBudgetAction } from '@/app/[locale]/(app)/weddings/[id]/actions';
 
 interface BudgetEditorProps {
   weddingId: string;

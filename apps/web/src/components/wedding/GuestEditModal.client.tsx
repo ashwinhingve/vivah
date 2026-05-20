@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { Loader2, Plus, X } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
-import { updateGuestAction } from '@/app/(app)/weddings/[id]/guests/actions';
+import { updateGuestAction } from '@/app/[locale]/(app)/weddings/[id]/guests/actions';
 import type { GuestRich, Ceremony, RsvpStatus, MealPref, GuestSide, GuestAgeGroup } from '@smartshaadi/types';
 
 interface Props {

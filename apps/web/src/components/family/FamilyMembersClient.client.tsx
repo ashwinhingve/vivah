@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { Plus, Loader2, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { addFamilyMemberAction, removeFamilyMemberAction } from '@/app/(app)/family/actions';
+import { addFamilyMemberAction, removeFamilyMemberAction } from '@/app/[locale]/(app)/family/actions';
 import type { FamilyMember, FamilyRelationship } from '@smartshaadi/types';
 
 const RELATIONS: FamilyRelationship[] = [

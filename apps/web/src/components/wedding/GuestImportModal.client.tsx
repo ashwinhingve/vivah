@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { Loader2, Upload, X, Download } from 'lucide-react';
-import { importGuestsCsvAction } from '@/app/(app)/weddings/[id]/guests/actions';
+import { importGuestsCsvAction } from '@/app/[locale]/(app)/weddings/[id]/guests/actions';
 
 const TEMPLATE_HEADER = 'name,phone,email,relationship,side';
 const TEMPLATE_SAMPLE = 'Asha Verma,9876543210,asha@example.com,Aunt,BRIDE';

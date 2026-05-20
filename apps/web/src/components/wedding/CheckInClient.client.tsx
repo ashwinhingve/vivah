@@ -3,7 +3,7 @@
 import { useState, useTransition, useMemo } from 'react';
 import { CheckCircle2, Loader2, Undo2, Search } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
-import { checkInGuestAction } from '@/app/(app)/weddings/[id]/guests/actions';
+import { checkInGuestAction } from '@/app/[locale]/(app)/weddings/[id]/guests/actions';
 import type { GuestRich } from '@smartshaadi/types';
 
 interface Props {
