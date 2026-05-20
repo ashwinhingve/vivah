@@ -33,13 +33,26 @@ import { resolvePhotoUrl } from '@/lib/photo';
 import { clientEnv } from '@/lib/env';
 import { useToast } from '@/components/ui/toast';
 import { useShortlistStore } from '@/store/useShortlistStore';
+import dynamic from 'next/dynamic';
 import {
-  MatchFilters,
   ActiveFilterChips,
   DEFAULT_FILTERS,
   type FeedFilters,
 } from './MatchFilters.client';
-import { MatchProfileDrawer } from './MatchProfileDrawer.client';
+
+// Heavy client modules — split into separate chunks. Both only mount in
+// response to user interaction (filter Sheet open / profile card click), so
+// `loading: () => null` is safe — pre-mount there is nothing to render.
+// next/dynamic named-export form: the resolver returns the component itself,
+// NOT `{ default: component }` — the latter shape is silently mis-rendered.
+const MatchFilters = dynamic(
+  () => import('./MatchFiltersPanel.client').then((m) => m.MatchFilters),
+  { ssr: false, loading: () => null },
+);
+const MatchProfileDrawer = dynamic(
+  () => import('./MatchProfileDrawer.client').then((m) => m.MatchProfileDrawer),
+  { ssr: false, loading: () => null },
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

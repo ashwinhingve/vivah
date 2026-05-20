@@ -11,7 +11,24 @@
  */
 
 import { MaritalStatusFilterToggle } from '@/components/feed/MaritalStatusFilterToggle.client';
-import { MatchFilters, type FeedFilters } from '@/components/match/MatchFilters.client';
+import dynamic from 'next/dynamic';
+import type { FeedFilters } from '@/components/match/MatchFilters.client';
+
+// Heavy filter panel (Accordion + Slider) — fetched in a separate chunk;
+// small warm skeleton while loading.
+const MatchFilters = dynamic(
+  () => import('@/components/match/MatchFiltersPanel.client').then((m) => m.MatchFilters),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex flex-col gap-3" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="skeleton-warm h-10 rounded-md" />
+        ))}
+      </div>
+    ),
+  },
+);
 
 type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
 
