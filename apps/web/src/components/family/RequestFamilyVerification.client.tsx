@@ -3,7 +3,7 @@
 import { useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
-import { requestFamilyVerificationAction } from '@/app/(app)/family/actions';
+import { requestFamilyVerificationAction } from '@/app/[locale]/(app)/family/actions';
 
 interface Props { verified: boolean; }
 

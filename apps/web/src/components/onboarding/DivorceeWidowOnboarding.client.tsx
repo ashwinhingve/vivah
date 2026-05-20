@@ -13,7 +13,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Heart, ShieldCheck, Eye, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { markDivorceeOnboardingDone } from '@/app/(onboarding)/divorcee-widow/actions';
+import { markDivorceeOnboardingDone } from '@/app/[locale]/(onboarding)/divorcee-widow/actions';
 
 interface DivorceeWidowOnboardingProps {
   /** Whether the user is WIDOWED (true) or DIVORCED / SEPARATED (false) */

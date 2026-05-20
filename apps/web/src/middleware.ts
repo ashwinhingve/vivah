@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 import { hasSessionCookie } from '@/lib/auth/session-cookie';
 
+const intlMiddleware = createIntlMiddleware(routing);
+
+// Strip the leading locale segment so existing path-prefix checks still match.
+// `/hi/feed` → `/feed`, `/en/feed` → `/feed`, `/feed` → `/feed`, `/hi` → `/`.
+function stripLocale(pathname: string): string {
+  const m = pathname.match(/^\/(en|hi)(\/.*|$)/);
+  if (!m) return pathname;
+  return m[2] || '/';
+}
+
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const intlResponse = intlMiddleware(request);
+
+  // If next-intl issued a redirect (e.g. /en/foo → /foo under 'as-needed'),
+  // honor it without re-running auth — the follow-up request goes through
+  // this middleware again on the canonical URL.
+  if (intlResponse.headers.get('location')) {
+    return intlResponse;
+  }
+
+  const pathname = stripLocale(request.nextUrl.pathname);
 
   if (
     pathname.startsWith('/dashboard') ||
@@ -59,8 +80,9 @@ export async function middleware(request: NextRequest) {
       if (!hasCookie) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
-      // API down but cookie exists — let request through, page will handle auth
-      return NextResponse.next();
+      // API down but cookie exists — let request through, page will handle auth.
+      // Return intlResponse (not NextResponse.next()) to preserve next-intl headers.
+      return intlResponse;
     }
 
     // Guard role-specific dashboards against wrong roles
@@ -111,39 +133,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return intlResponse;
 }
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/vendor-dashboard/:path*',
-    '/admin/:path*',
-    '/support/:path*',
-    '/feed/:path*',
-    '/vendors/:path*',
-    '/vendor/:path*',
-    '/bookings/:path*',
-    '/chat/:path*',
-    '/matches/:path*',
-    '/profile/:path*',
-    '/wedding/:path*',
-    '/weddings/:path*',
-    '/payments/:path*',
-    '/likes/:path*',
-    '/shortlist/:path*',
-    '/requests/:path*',
-    '/notifications/:path*',
-    '/settings/:path*',
-    '/pricing',
-    '/store/:path*',
-    '/rentals/:path*',
-    '/viewers/:path*',
-    '/coordinator/:path*',
-    '/family/:path*',
-    '/login',
-    '/verify',
-    '/register',
-    '/account/recovery',
-  ],
+  // Catch every non-asset, non-internal path. No /api exclusion needed —
+  // this project has zero route handlers under app/. Matches `/` so the
+  // root URL also flows through next-intl (which sets the locale header).
+  matcher: ['/((?!_next|_vercel|.*\\..*).*)'],
 };

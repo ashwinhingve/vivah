@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { KycActionsPanel } from '@/components/admin/KycActionsPanel.client';
 import { KycAppealResolver } from '@/components/admin/KycAppealResolver.client';
-import { AuditTimeline } from '@/app/(onboarding)/profile/kyc/AuditTimeline';
+import { AuditTimeline } from '@/app/[locale]/(onboarding)/profile/kyc/AuditTimeline';
 
 export const dynamic = 'force-dynamic';
 

@@ -12,7 +12,7 @@
  */
 
 import { useState, useTransition } from 'react';
-import { updateMaritalPreferences } from '@/app/(app)/feed/actions';
+import { updateMaritalPreferences } from '@/app/[locale]/(app)/feed/actions';
 
 type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
 

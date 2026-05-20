@@ -11,7 +11,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { GuestEditModal } from './GuestEditModal.client';
 import {
   addGuestAction, deleteGuestAction, importGuestsCsvAction, fetchGuestsRichAction,
-} from '@/app/(app)/weddings/[id]/guests/actions';
+} from '@/app/[locale]/(app)/weddings/[id]/guests/actions';
 import type {
   GuestRich, RsvpStatus, MealPref, Ceremony,
 } from '@smartshaadi/types';

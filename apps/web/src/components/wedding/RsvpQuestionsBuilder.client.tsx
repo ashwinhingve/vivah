@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
   addQuestionAction, updateQuestionAction, deleteQuestionAction,
-} from '@/app/(app)/weddings/[id]/rsvp-questions/actions';
+} from '@/app/[locale]/(app)/weddings/[id]/rsvp-questions/actions';
 import type { RsvpCustomQuestion, RsvpQuestionType } from '@smartshaadi/types';
 
 interface Props { weddingId: string; initial: RsvpCustomQuestion[]; }
