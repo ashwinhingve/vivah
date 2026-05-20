@@ -8,6 +8,13 @@
 
 ## P1-8 — Vendor approval workflow (Sprint Path B, commit `aed23df`)
 
+> **✅ APPLIED 2026-05-20 ~15:11 UTC** via `psql` from WSL2 (Railway proxy
+> reachable from this dev box — prior `ETIMEDOUT` blocker no longer
+> reproduces). All verify queries returned the expected shape; vendor row
+> count was 0 at apply time so the defensive `UPDATE` was a no-op.
+> See "Applied migrations" log at bottom of this file for the verified
+> post-state snapshot.
+
 ### Pre-flight
 
 1. **Backup**: Railway → Postgres → Data → Backups → "Create backup now".
@@ -113,3 +120,25 @@ When a future PR needs DB changes, append a new section here following
 the same format: pre-flight, additive SQL block, verify queries, deploy
 order, rollback notes. Keep this file flat so ops can grep for any
 unresolved schema work.
+
+---
+
+## Applied migrations log
+
+### 2026-05-20 ~15:11 UTC — P1-8 vendor approval workflow
+
+- **Applier:** Claude Code session (WSL2 → Railway proxy reachable; older
+  `ETIMEDOUT` blocker documented in `CLAUDE.md` no longer reproduces).
+- **Method:** `psql` heredoc, single connection, `ON_ERROR_STOP=1`.
+- **Pre-state:** `vendors` row count = 0 (fresh prod, no backfill risk).
+- **Post-state (verified):**
+  - `vendor_status` enum: `DRAFT, PENDING, UNDER_REVIEW, APPROVED, REJECTED, SUSPENDED` (6 values)
+  - `rejection_category` enum: `INCOMPLETE_DOCS, POLICY_VIOLATION, IDENTITY_CONCERN, OTHER` (4 values)
+  - `audit_event_type` extended with 5 new VENDOR_* values (6 total)
+  - `vendors` table gained 6 columns: `status NOT NULL DEFAULT 'APPROVED'`, `submitted_at`, `reviewed_at`, `reviewed_by_user_id` (FK → `user(id)`), `rejection_reason`, `rejection_category`
+  - Indexes present: `vendor_status_idx`, `vendors_status_submitted_idx`
+- **Follow-ups:**
+  - Rotate `DATABASE_URL` password — it was pasted into this session's
+    chat scrollback. Update Railway env, Vercel env, local `.env`.
+  - Next API deploy will exercise the new columns; old code is harmless
+    on the additive schema until then.
