@@ -117,7 +117,9 @@ export const auth = betterAuth({
         await recordAuthEvent({ userId: null, type: AuthEventType.OTP_SENT, ipAddress: ip, userAgent: ua, metadata: { phone } });
 
         if (env.USE_MOCK_SERVICES) {
-          const mockCode = env.MOCK_OTP_VALUE;
+          // Non-null assertion is safe: env.ts superRefine guarantees
+          // MOCK_OTP_VALUE is defined whenever USE_MOCK_SERVICES=true.
+          const mockCode = env.MOCK_OTP_VALUE!;
           console.info(`[MOCK OTP] ${phone}: ${code} → overriding with ${mockCode}`);
           // Better Auth already stored the random OTP; replace with the mock
           // value so the configured code always works in mock mode.

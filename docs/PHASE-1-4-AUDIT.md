@@ -16,10 +16,23 @@ the go-live decision should be made against.
 | 🟡 Partial | 29 | 20 % |
 | 🔴 Missing | 9 | 6 % |
 
-**P0 launch blockers:** **8** · total effort to close (code only): **~14 h** ·
-plus **3 external business registrations** (MSG91 DLT, DigiLocker partnership,
-Razorpay live account) that gate the remaining work and take **weeks**, not
-hours, in regulatory lead time.
+**P0 launch blockers:** ~~**8**~~ → **4 open** (4 closed in Sprint 0 Part 1) ·
+total effort to close (code only): **~14 h** · plus **3 external business
+registrations** (MSG91 DLT, DigiLocker partnership, Razorpay live account)
+that gate the remaining work and take **weeks**, not hours, in regulatory
+lead time.
+
+### Resolution log
+
+| Date | P0 # | Closed by |
+|---|---|---|
+| 2026-05-20 | **P0-3** `USE_MOCK_SERVICES=true` in `.env.production` | flipped to `false` in `apps/api/.env.production` + `.env.production.example`; env.ts now hard-rejects the combination |
+| 2026-05-20 | **P0-5** `MOCK_OTP_VALUE=123456` backdoor | env.ts schema removes the default; superRefine requires explicit value when mock mode is on |
+| 2026-05-20 | **P0-6** CI hostname `api.smart_shaadi.in` (RFC-invalid) | `.github/workflows/ci.yml:118` + `docs/API.md:3` → `api.smartshaadi.co.in` |
+| 2026-05-20 | **P0-7** Sentry web `instrumentation.ts` missing | created at `apps/web/instrumentation.ts`; runbook for Vercel/Railway secrets in `docs/PROVIDER-ACTIVATION/sentry.md` |
+
+The evidence sections below are preserved as a historical snapshot — they
+describe the state at audit publication. Resolved items are listed here.
 
 ### Go-live recommendation: **WAIT** (not today, not this sprint)
 

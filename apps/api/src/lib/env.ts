@@ -32,11 +32,11 @@ const envSchema = z.object({
   // Lets us flip photos to real R2 in production without dropping the global mock flag.
   R2_LIVE: z.string().default('false').transform(v => v === 'true'),
 
-  // Mock OTP override value — defaults to 123456 for local dev / tests.
-  // Set to a random hard-to-guess value (e.g. `openssl rand -hex 4`) in any
-  // deployed env where USE_MOCK_SERVICES=true is still set, otherwise anyone
-  // who knows a phone number can sign in with the literal '123456'.
-  MOCK_OTP_VALUE: z.string().default('123456'),
+  // Mock OTP override value — REQUIRED whenever USE_MOCK_SERVICES=true,
+  // enforced by a superRefine below. No default (the old '123456' default
+  // was a backdoor on any deployed mock-mode env). Use
+  // `openssl rand -hex 4` to generate a fresh value per environment.
+  MOCK_OTP_VALUE: z.string().optional(),
 
   MSG91_API_KEY:      z.string().default(''),
   MSG91_TEMPLATE_ID:  z.string().default(''),
@@ -161,6 +161,28 @@ const envSchema = z.object({
       message: 'AI_SERVICE_INTERNAL_KEY must be changed from default placeholder in production',
     });
   }
+}).superRefine((data, ctx) => {
+  // Mock-mode guards (P0 #3 + #5 from docs/PHASE-1-4-AUDIT.md).
+  // 1. Production must never run with mock services — a deployed mock-mode
+  //    process silently no-ops every external integration (payments, OTP,
+  //    KYC, video) which masquerades as a healthy app but processes nothing.
+  if (data.NODE_ENV === 'production' && data.USE_MOCK_SERVICES) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['USE_MOCK_SERVICES'],
+      message: 'Mock services cannot run in production (NODE_ENV=production && USE_MOCK_SERVICES=true is forbidden — set USE_MOCK_SERVICES=false and provide real provider credentials).',
+    });
+  }
+  // 2. In any mock-mode environment (dev, test, staging, demo) the MOCK_OTP
+  //    code must be set explicitly. Removing the '123456' default closes a
+  //    backdoor where anyone knowing a phone number could sign in.
+  if (data.USE_MOCK_SERVICES && !data.MOCK_OTP_VALUE) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['MOCK_OTP_VALUE'],
+      message: 'MOCK_OTP_VALUE must be set when USE_MOCK_SERVICES=true (generate with `openssl rand -hex 4`; no default — the old 123456 default was a backdoor).',
+    });
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -174,6 +196,16 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+// Loud boot-time warning whenever mock mode is active, so any deployed env
+// that's still mock-gated surfaces it in startup logs — pairs with the
+// production guard above (NODE_ENV=production blocks mock entirely).
+if (env.USE_MOCK_SERVICES) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[mock-mode] env=${env.NODE_ENV} MOCK_OTP_VALUE=${env.MOCK_OTP_VALUE ?? '<unset>'} — external providers are STUBBED; DO NOT use this build for real users`,
+  );
+}
 
 /**
  * Single source of truth for whether profile services should write to
