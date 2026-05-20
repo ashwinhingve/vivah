@@ -123,6 +123,12 @@ function unreadCountFor(
 interface ListConversationsOpts {
   profileId: string
   filter?:   'all' | 'unread' | 'archived'
+  /**
+   * Optional Mongoose query limit. When set, the underlying find() is
+   * bounded — used by GET /api/v1/chat/recent on the customer dashboard
+   * (P1-7, docs/PHASE-1-4-AUDIT.md). Omitting returns all conversations.
+   */
+  limit?: number
 }
 
 interface RawChatDoc {
@@ -144,16 +150,17 @@ interface RawChatDoc {
 export async function listConversations(
   opts: ListConversationsOpts,
 ): Promise<ConversationListItem[]> {
-  const { profileId, filter = 'all' } = opts
+  const { profileId, filter = 'all', limit } = opts
 
   if (shouldUseMockMongo) return []
 
-  const docs = (await Chat.find({ participants: profileId })
+  const query = Chat.find({ participants: profileId })
     .select(
       'matchRequestId participants lastMessage isActive updatedAt messages.senderId messages.readBy messages.deletedAt pinnedMessageIds settings',
     )
     .sort({ updatedAt: -1 })
-    .lean()) as unknown as RawChatDoc[]
+  if (limit != null && limit > 0) query.limit(limit)
+  const docs = (await query.lean()) as unknown as RawChatDoc[]
 
   const otherProfileIds = Array.from(
     new Set(

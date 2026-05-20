@@ -24,7 +24,14 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';
-import type { ProfileSectionCompletion, BookingSummary, WeddingSummary } from '@smartshaadi/types';
+import type {
+  ProfileSectionCompletion,
+  BookingSummary,
+  WeddingSummary,
+  ConversationListItem as ConvItem,
+} from '@smartshaadi/types';
+import { resolvePhotoUrl } from '@/lib/photo';
+import { formatRelativeIN } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,7 +89,7 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
-  const [profile, bookingsData, requestsData, feedData, weddingsData] = await Promise.all([
+  const [profile, bookingsData, requestsData, feedData, weddingsData, recentChatData] = await Promise.all([
     fetchAuth<ProfileData>('/api/v1/profiles/me', token),
     fetchAuth<{ bookings: BookingSummary[]; total: number }>(
       '/api/v1/bookings?role=customer&limit=50',
@@ -94,6 +101,8 @@ export default async function DashboardPage() {
     ),
     fetchAuth<{ items: FeedItem[] }>('/api/v1/matchmaking/feed?limit=4', token),
     fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings', token),
+    // P1-7 (docs/PHASE-1-4-AUDIT.md): wired Recent Conversations card.
+    fetchAuth<{ items: ConvItem[] }>('/api/v1/chat/recent?limit=3', token),
   ]);
 
   const completeness = profile?.profileCompleteness ?? 0;
@@ -107,6 +116,7 @@ export default async function DashboardPage() {
   const pendingRequests = requestsData?.total ?? 0;
   const feed = feedData?.items ?? [];
   const myWedding = weddingsData?.weddings?.[0] ?? null;
+  const recentChats = recentChatData?.items ?? [];
 
   const now = new Date();
 
@@ -314,23 +324,87 @@ export default async function DashboardPage() {
             )}
           </FadeUp>
 
-          {/* ── Recent Conversations ───────────────────────────── */}
+          {/* ── Recent Conversations (P1-7 — wired) ─────────────── */}
           <FadeUp delay={0.18}>
             <SectionHeader
               title="Recent Conversations"
               viewAllHref="/chat"
               viewAllLabel="Open chat"
             />
-            <EmptyState
-              icon={MessageCircle}
-              title="No conversations yet"
-              description="When you and a match connect, your chats will appear here."
-              action={
-                <Button asChild size="sm" variant="outline">
-                  <Link href="/feed">Find Matches →</Link>
-                </Button>
-              }
-            />
+            {recentChats.length === 0 ? (
+              <EmptyState
+                icon={MessageCircle}
+                title="No conversations yet"
+                description="When you and a match connect, your chats will appear here."
+                action={
+                  <Button asChild size="sm" variant="outline">
+                    <Link href="/feed">Find Matches →</Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <ul className="divide-y divide-gold/10 rounded-2xl border border-gold/20 bg-surface shadow-card overflow-hidden">
+                {recentChats.map((c) => {
+                  const other = c.other;
+                  const photo = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null;
+                  const initial = (other?.firstName ?? '?').charAt(0).toUpperCase();
+                  const last = c.lastMessage;
+                  const preview = !last
+                    ? 'Tap to start the conversation'
+                    : last.type === 'PHOTO'
+                    ? '📷 Photo'
+                    : last.content.length > 60
+                    ? `${last.content.slice(0, 60)}…`
+                    : last.content;
+                  const relTime = last ? formatRelativeIN(last.sentAt) : '';
+                  return (
+                    <li key={c.matchRequestId}>
+                      <Link
+                        href={`/chat/${c.matchRequestId}`}
+                        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background"
+                      >
+                        <div className="relative shrink-0">
+                          {photo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={photo}
+                              alt={other?.firstName ?? 'Profile photo'}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20 font-heading text-sm font-semibold text-primary">
+                              {initial}
+                            </div>
+                          )}
+                          {other?.isOnline && (
+                            <span
+                              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-surface bg-success"
+                              aria-label="Online"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="truncate text-sm font-semibold text-foreground">
+                              {other?.firstName ?? 'Unknown'}
+                            </p>
+                            {relTime && (
+                              <span className="shrink-0 text-[11px] text-muted-foreground">{relTime}</span>
+                            )}
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground">{preview}</p>
+                        </div>
+                        {c.unreadCount > 0 && (
+                          <span className="shrink-0 rounded-full bg-teal/15 px-2 py-0.5 text-[11px] font-semibold text-teal">
+                            {c.unreadCount > 9 ? '9+' : c.unreadCount}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </FadeUp>
 
           {/* ── My Wedding ─────────────────────────────────────── */}

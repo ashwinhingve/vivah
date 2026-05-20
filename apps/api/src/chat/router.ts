@@ -50,6 +50,30 @@ router.get(
   }),
 )
 
+// ── Recent conversations (dashboard widget) ─────────────────────────────────
+// GET /api/v1/chat/recent?limit=3 — P1-7 (docs/PHASE-1-4-AUDIT.md).
+// Same envelope shape as /conversations so the web client reuses
+// ConversationListItem unchanged. limit clamped to [1, 10], default 3.
+router.get(
+  '/recent',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const profileId = await requireProfileId(req, res)
+    if (!profileId) return
+
+    const raw = Number(req.query['limit'] ?? 3)
+    const limit = Number.isFinite(raw) ? Math.min(Math.max(Math.trunc(raw), 1), 10) : 3
+
+    try {
+      const items = await listConversations({ profileId, filter: 'all', limit })
+      ok(res, { items })
+    } catch (e) {
+      console.error('[chat/recent] list error:', e)
+      err(res, 'INTERNAL_ERROR', 'Failed to fetch recent conversations', 500)
+    }
+  }),
+)
+
 // ── Forward targets — caller's other accepted conversations ────────────────────
 // GET /api/v1/chat/conversations/forward-targets
 router.get(
