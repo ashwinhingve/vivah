@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-
+import { useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
 interface Props {
   fromDate: string;
   toDate:   string;

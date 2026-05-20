@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation';
 import { BellOff, Pin, Image as ImageIcon, Mic } from 'lucide-react'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'

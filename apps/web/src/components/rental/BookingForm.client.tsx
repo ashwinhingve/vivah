@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import type { RentalItem } from '@smartshaadi/types';
 
 const inrFormatter = new Intl.NumberFormat('en-IN', {

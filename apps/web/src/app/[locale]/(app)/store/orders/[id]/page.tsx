@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { fetchAuth } from '@/lib/server-fetch';
 import { CancelOrderButton } from '@/components/store/CancelOrderButton.client';

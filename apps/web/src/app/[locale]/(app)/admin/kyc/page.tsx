@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar } from '@/components/admin/KycStatsBar';

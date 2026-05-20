@@ -10,7 +10,7 @@
  */
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Heart, ShieldCheck, Eye, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markDivorceeOnboardingDone } from '@/app/[locale]/(onboarding)/divorcee-widow/actions';

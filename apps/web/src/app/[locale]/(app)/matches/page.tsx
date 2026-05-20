@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AcceptedMatchCard } from '@/components/matching/AcceptedMatchCard';
 import type { MatchRequest, MatchRequestsResponse } from '@smartshaadi/types';
 

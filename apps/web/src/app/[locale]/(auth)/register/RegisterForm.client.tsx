@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Loader2, Sparkles, User, Users, Store, ClipboardCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';

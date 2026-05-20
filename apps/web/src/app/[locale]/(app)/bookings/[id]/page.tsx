@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import type { BookingStatus, BookingAddon } from '@smartshaadi/types';
 import { CancelBookingButton } from '@/components/bookings/CancelBookingButton.client';

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { fetchAuth } from '@/lib/server-fetch';
 import { DisputeForm } from './DisputeForm.client';
 import type { BookingStatus } from '@smartshaadi/types';

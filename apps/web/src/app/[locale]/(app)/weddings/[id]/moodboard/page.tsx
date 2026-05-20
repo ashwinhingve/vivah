@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { fetchMoodboard } from '@/lib/wedding-api';
 import { MoodBoardClient } from '@/components/wedding/MoodBoardClient.client';

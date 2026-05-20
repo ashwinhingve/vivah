@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Trash2, Clock, Phone } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

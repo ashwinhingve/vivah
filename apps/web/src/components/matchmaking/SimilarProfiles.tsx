@@ -7,7 +7,7 @@
  */
 
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';

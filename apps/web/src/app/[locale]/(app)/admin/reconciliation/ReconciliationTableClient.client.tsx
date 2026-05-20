@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { DataTable, type DataTableColumn } from '@/components/shared';
 import { cn } from '@/lib/utils';

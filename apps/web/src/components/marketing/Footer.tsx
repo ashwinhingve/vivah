@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Instagram, Twitter, Facebook, Youtube, Heart, MapPin } from 'lucide-react';
 import { LogoWhite } from './Logo';
 

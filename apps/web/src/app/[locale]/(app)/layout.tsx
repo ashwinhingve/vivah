@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
 import { TopNav } from '@/components/layout/TopNav.client';

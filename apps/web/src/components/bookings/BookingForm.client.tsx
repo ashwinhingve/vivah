@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 import { AvailabilityCalendar } from '@/components/vendor/AvailabilityCalendar.client';
 import type { VendorProfile } from '@smartshaadi/types';

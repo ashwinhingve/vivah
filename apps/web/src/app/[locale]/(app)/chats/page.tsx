@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { redirect } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import ChatsListClient from '@/components/chat/ChatsListClient.client'

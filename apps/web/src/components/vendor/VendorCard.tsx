@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight, Clock } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';

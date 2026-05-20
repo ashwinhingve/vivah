@@ -3,7 +3,7 @@
  * Displays a single rental item in the catalogue grid.
  */
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { RentalItem } from '@smartshaadi/types';
 
 const CATEGORY_LABELS: Record<string, string> = {

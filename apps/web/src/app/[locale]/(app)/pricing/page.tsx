@@ -1,6 +1,5 @@
 import { headers } from 'next/headers';
-import Link from 'next/link';
-
+import { Link } from '@/i18n/navigation';
 interface Plan {
   id:       string;
   code:     string;

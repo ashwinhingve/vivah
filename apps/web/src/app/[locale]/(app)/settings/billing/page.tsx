@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { BillingConfirm } from './BillingConfirm.client';
 
 interface Plan {

@@ -1,5 +1,4 @@
-import Link from 'next/link';
-
+import { Link } from '@/i18n/navigation';
 interface SearchParams { paymentId?: string; bookingId?: string; subscriptionId?: string }
 
 export const dynamic = 'force-dynamic';

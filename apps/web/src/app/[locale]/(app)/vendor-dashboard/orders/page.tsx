@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { VendorOrderRow } from '@/components/store/VendorOrderRow.client';
 import type { VendorOrderItem } from '@smartshaadi/types';

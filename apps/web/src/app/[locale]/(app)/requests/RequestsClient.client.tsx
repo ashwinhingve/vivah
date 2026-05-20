@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import {
   Heart, Star, Clock, CheckCheck, Flag, MoreHorizontal, ShieldX, Sparkles, Verified,
   Loader2, X,

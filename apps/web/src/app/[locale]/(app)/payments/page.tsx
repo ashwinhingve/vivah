@@ -3,7 +3,7 @@
  * Server Component — fetches data server-side, no client JS needed for static content.
  */
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { PaymentSummaryCard } from '@/components/payments/PaymentSummaryCard';
 import { PaymentsPageClient } from '@/components/payments/PaymentsPageClient.client';
 

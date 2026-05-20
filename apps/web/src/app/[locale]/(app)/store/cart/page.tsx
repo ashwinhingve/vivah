@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { CartPageClient } from '@/components/store/CartPageClient.client';
 
 export default function CartPage() {

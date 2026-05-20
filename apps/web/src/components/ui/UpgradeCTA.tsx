@@ -7,7 +7,7 @@
  * `inline` mode renders a compact upgrade card.
  */
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Lock, Sparkles } from 'lucide-react';
 import type { PremiumTier } from '@smartshaadi/types';
 import type { ReactNode } from 'react';

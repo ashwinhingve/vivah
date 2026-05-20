@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
 import { ShieldCheck, Lock, Star } from 'lucide-react';
 import { ProfileCard } from '@/components/ui/ProfileCard.client';

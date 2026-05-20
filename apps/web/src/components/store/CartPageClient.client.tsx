@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { fetchDocuments } from '@/lib/wedding-api';
 import { DocumentsClient } from '@/components/wedding/DocumentsClient.client';

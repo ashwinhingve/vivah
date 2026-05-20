@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { VendorRentalRow } from '@/components/vendor/VendorRentalRow.client';
 import type { RentalBookingSummary } from '@smartshaadi/types';
 

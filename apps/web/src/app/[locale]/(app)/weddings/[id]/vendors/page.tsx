@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Briefcase, Plus } from 'lucide-react';
 import { fetchVendorAssignments } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';

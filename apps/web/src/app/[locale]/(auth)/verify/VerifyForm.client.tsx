@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent, type ClipboardEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
 
 const OTP_LENGTH = 6;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, type JSX } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { savePersonalityAction } from '../actions';
 
 interface PersonalityState {

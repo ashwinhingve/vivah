@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Check } from 'lucide-react';
 import { TRUST_INDIVIDUALS, TRUST_FAMILIES } from '@/lib/marketing-images';

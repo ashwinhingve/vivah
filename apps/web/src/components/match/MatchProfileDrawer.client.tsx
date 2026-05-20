@@ -13,7 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import { ExternalLink, AlertTriangle, User } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { ProfileDetailResponse } from '@smartshaadi/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ProfileHero } from '@/components/profile/ProfileHero';

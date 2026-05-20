@@ -3,9 +3,10 @@
  * Server Component. Fetches /api/v1/admin/vendors/:id and renders a
  * 2-column layout (info | sticky review actions).
  */
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { PageHeader }    from '@/components/ui/PageHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';

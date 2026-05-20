@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Loader2, Check, Shield, Sparkles, Lock, ShieldX } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import {

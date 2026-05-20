@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from '@/i18n/navigation';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Step = 1 | 2 | 3 | 4;

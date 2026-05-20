@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Gift, Plus } from 'lucide-react';
 import { fetchRegistry } from '@/lib/wedding-api';
 import { createRegistryItemAction, deleteRegistryItemAction } from './actions';

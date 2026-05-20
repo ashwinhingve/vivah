@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { PlusCircle } from 'lucide-react';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { PageHeader } from '@/components/ui/PageHeader';

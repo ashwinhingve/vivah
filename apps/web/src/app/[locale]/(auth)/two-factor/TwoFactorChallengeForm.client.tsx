@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, type ClipboardEvent, type KeyboardEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Loader2, ShieldCheck, KeyRound } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';

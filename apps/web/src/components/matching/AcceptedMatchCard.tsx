@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ProfileImage } from '@/components/ui/ProfileImage.client';
 import type { MatchRequest, ProfileDetailResponse } from '@smartshaadi/types';
 import { fetchAuth } from '@/lib/server-fetch';

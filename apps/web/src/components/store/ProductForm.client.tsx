@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { CreateProductSchema } from '@smartshaadi/schemas';
 import type { CreateProductInput } from '@smartshaadi/schemas';
 import { extractErrorMessage } from '@/lib/api-envelope';

@@ -2,7 +2,7 @@
  * /weddings/[id]/ceremonies — Vertical timeline of all ceremonies.
  * Server Component. Mutations via existing Server Actions in [id]/actions.ts.
  */
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, CalendarDays, MapPin, Clock, CheckCircle2, Circle } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from '@/i18n/navigation';
 interface Props {
   bookingId: string;
   apiUrl:    string;
