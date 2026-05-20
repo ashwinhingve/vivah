@@ -247,4 +247,34 @@ describe('webhookHandler', () => {
 
     expect(jsonMock).toHaveBeenCalledWith({ success: true });
   });
+
+  // P1-13 (docs/PHASE-1-4-AUDIT.md): the webhookEvents table dedupes Razorpay's
+  // at-least-once delivery — verify the handler short-circuits on a replay and
+  // does NOT re-invoke `handlePaymentSuccess` (which would double-credit escrow).
+  it('skips processing when recordWebhookEvent reports a duplicate (idempotency replay)', async () => {
+    const webhookEvents = await import('../webhookEvents.js');
+    vi.mocked(webhookEvents.recordWebhookEvent).mockResolvedValueOnce({
+      duplicate: true,
+      id:        'duplicate-event-row',
+      eventId:   'evt_replay_abc',
+      eventType: 'payment.captured',
+      // Cast through unknown because the duplicate branch in webhook.ts only
+      // reads the `duplicate` flag — the rest of the row shape is irrelevant.
+    } as unknown as Awaited<ReturnType<typeof webhookEvents.recordWebhookEvent>>);
+
+    const { webhookHandler } = await import('../webhook.js');
+
+    const event = {
+      event: 'payment.captured',
+      payload: { payment: { entity: { id: 'pay_replay', order_id: 'order_replay' } } },
+    };
+    const req = buildReq(event, 'valid-sig');
+    const { res, jsonMock } = buildRes();
+
+    await webhookHandler(req as Request, res as Response);
+
+    expect(jsonMock).toHaveBeenCalledWith({ success: true, duplicate: true });
+    expect(mockHandlePaymentSuccess).not.toHaveBeenCalled();
+    expect(webhookEvents.markProcessed).not.toHaveBeenCalled();
+  });
 });
