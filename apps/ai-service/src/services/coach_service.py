@@ -47,27 +47,47 @@ def _get_redis():
 
 
 def _get_anthropic():
-    """Return a lazy-initialized Anthropic client."""
+    """Return a lazy-initialized Anthropic client.
+
+    P1-9 (docs/PHASE-1-4-AUDIT.md): previously the client was constructed
+    with ``api_key=os.getenv("ANTHROPIC_API_KEY", "")`` — an empty string
+    is accepted by the SDK and only fails at first call time, producing
+    an opaque 401 from Anthropic instead of an actionable boot-time
+    error. Now: explicit pre-check. Missing key in real mode returns
+    None so the caller falls back to mock suggestions, and an actionable
+    error is logged once.
+    """
     global _anthropic_client  # noqa: PLW0603
     if _anthropic_client is not None:
         return _anthropic_client
+
+    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not anthropic_api_key:
+        use_mock = os.getenv("USE_MOCK_SERVICES", "").lower() == "true"
+        if use_mock:
+            log.info("anthropic_disabled_mock_mode")
+        else:
+            log.error(
+                "anthropic_api_key_missing",
+                hint="set ANTHROPIC_API_KEY in Railway env; coach falls back to mock suggestions",
+            )
+        return None
+
     try:
         import anthropic
 
-        helicone_api_key = os.getenv("HELICONE_API_KEY", "")
+        helicone_api_key = os.getenv("HELICONE_API_KEY", "").strip()
         if helicone_api_key:
             # Route through Helicone proxy for observability
             _anthropic_client = anthropic.Anthropic(
-                api_key=os.getenv("ANTHROPIC_API_KEY", ""),
+                api_key=anthropic_api_key,
                 base_url="https://anthropic.helicone.ai",
                 default_headers={
                     "Helicone-Auth": f"Bearer {helicone_api_key}",
                 },
             )
         else:
-            _anthropic_client = anthropic.Anthropic(
-                api_key=os.getenv("ANTHROPIC_API_KEY", ""),
-            )
+            _anthropic_client = anthropic.Anthropic(api_key=anthropic_api_key)
         return _anthropic_client
     except Exception as exc:  # noqa: BLE001
         log.warning("anthropic_init_failed", error=str(exc))

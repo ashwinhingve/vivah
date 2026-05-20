@@ -11,6 +11,7 @@
  */
 import { eq, and, sql, desc, gte, lte } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { appendAuditLog } from './service.js';
 import { notificationsQueue } from '../infrastructure/redis/queues.js';
@@ -23,8 +24,11 @@ export class InvoiceError extends Error {
   }
 }
 
-const PLATFORM_GSTIN = process.env['PLATFORM_GSTIN'] ?? '27AAAAA0000A1Z5';
-const PLATFORM_STATE = process.env['PLATFORM_STATE'] ?? 'Maharashtra';
+// P1-6 (docs/PHASE-1-4-AUDIT.md): both vars previously read via raw
+// `process.env` with hardcoded fallbacks, bypassing the zod schema's
+// validation/audit. Now sourced from the centralised typed env (lib/env.ts).
+const PLATFORM_GSTIN = env.PLATFORM_GSTIN;
+const PLATFORM_STATE = env.PLATFORM_STATE;
 const DEFAULT_HSN    = '998596'; // SAC for "Wedding Planning Services"
 
 function fyForDate(d: Date): string {

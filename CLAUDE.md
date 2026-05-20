@@ -202,7 +202,7 @@ Core API:    Node.js · Express · TypeScript · Drizzle ORM (PostgreSQL)
 AI Service:  Python 3.11 · FastAPI · Scikit-learn · HuggingFace · PyTorch
 Databases:   PostgreSQL (Supabase/Railway) · MongoDB Atlas · Redis (Railway)
 Storage:     Cloudflare R2 (S3-compatible, no egress fees)
-Auth:        Better Auth · Phone OTP · JWT (15m access / 30d refresh)
+Auth:        Better Auth · Phone OTP · session cookie (30-day, httpOnly, 5-min in-memory cache)
 Payments:    Razorpay (UPI, cards, wallets, EMI, Subscriptions)
 SMS/OTP:     MSG91 (DLT-registered sender)
 Email:       AWS SES
@@ -292,7 +292,7 @@ MongoDB Atlas (via Mongoose):
   vendor_portfolios → rich media, packages, FAQs
 
 Redis:
-  sessions:*        → JWT session data
+  sessions:*        → Better Auth session metadata + cookie-cache invalidation keys
   match_scores:*    → pre-computed match scores (weekly refresh)
   queue:*           → Bull job queues (notifications, emails, SMS)
   pubsub:*          → Socket.io adapter for multi-instance chat
@@ -409,7 +409,7 @@ Agents spawning model-call payloads sometimes wrap fields in `{"features": {...}
 
 - [ ] Infrastructure & monorepo setup
 - [ ] PostgreSQL schema (Drizzle) + MongoDB connection
-- [ ] Authentication (Better Auth · OTP · JWT · 6 roles)
+- [ ] Authentication (Better Auth · OTP · session cookie · 6 roles)
 - [ ] KYC module (Aadhaar · photo fraud detection · duplicate detection)
 - [ ] Profile module (personal · family · lifestyle · horoscope · Safety Mode)
 - [ ] Community Match Zones

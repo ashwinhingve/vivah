@@ -25,6 +25,21 @@ RUN pip install --no-cache-dir \
         --extra-index-url https://download.pytorch.org/whl/cpu \
         '.'
 
+# Pre-warm the HuggingFace XLM-RoBERTa sentiment model into the image
+# (P1-10, docs/PHASE-1-4-AUDIT.md). Without this, the first request that
+# touches the Emotional Score endpoint triggers a ~1 GB download from
+# huggingface.co — Railway's request timeout (typically 30 s) fires
+# before the model can finish loading, and the user sees a 504.
+#
+# By baking the model into a build layer we get:
+#   - Cold-start latency drops from ~60 s to ~3 s on Railway
+#   - Network outages at HuggingFace do not block production startup
+#   - The image is ~1 GB larger; acceptable for an AI service container
+ENV HF_HOME=/app/.cache/huggingface
+RUN python -c "from transformers import pipeline; \
+    pipeline('sentiment-analysis', \
+             model='cardiffnlp/twitter-xlm-roberta-base-sentiment')"
+
 # Copy source
 COPY src ./src
 

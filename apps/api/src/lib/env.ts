@@ -85,8 +85,10 @@ const envSchema = z.object({
   EINVOICE_API_KEY:    z.string().default(''),
   EINVOICE_THRESHOLD:  z.coerce.number().default(500000),
 
-  // Platform tax + GSTIN
+  // Platform tax + GSTIN. Default GSTIN is a syntactically-valid placeholder
+  // for dev — override in any deployed environment.
   PLATFORM_GSTIN: z.string().default('27AAAAA0000A1Z5'),
+  PLATFORM_STATE: z.string().default('Maharashtra'),
 
   // /metrics endpoint bearer token. Empty = open access (only safe in mock/dev).
   METRICS_TOKEN: z.string().default(''),
