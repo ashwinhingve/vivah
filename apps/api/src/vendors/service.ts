@@ -114,7 +114,14 @@ export async function listVendors(
   } = query;
   const offset = (page - 1) * limit;
 
-  const conditions: SQL[] = [eq(vendors.isActive, true)];
+  // P1-8: public listing only shows approved vendors. New signups (DRAFT),
+  // pending submissions, rejected, and suspended profiles are all hidden.
+  // Pre-launch rows backfilled to 'APPROVED' by migration default — see
+  // docs/MIGRATIONS-PENDING.md.
+  const conditions: SQL[] = [
+    eq(vendors.isActive, true),
+    eq(vendors.status, 'APPROVED'),
+  ];
   if (category)     conditions.push(eq(vendors.category, category as VendorRow['category']));
   if (city)         conditions.push(ilike(vendors.city, `%${city}%`));
   if (state)        conditions.push(ilike(vendors.state, `%${state}%`));

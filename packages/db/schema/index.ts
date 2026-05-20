@@ -179,6 +179,24 @@ export const vendorCategoryEnum = pgEnum('vendor_category', [
   'OTHER',
 ]);
 
+// Vendor approval lifecycle (P1-8). Default 'APPROVED' on column so existing
+// rows stay visible in the public listing — see docs/MIGRATIONS-PENDING.md.
+export const vendorStatusEnum = pgEnum('vendor_status', [
+  'DRAFT',
+  'PENDING',
+  'UNDER_REVIEW',
+  'APPROVED',
+  'REJECTED',
+  'SUSPENDED',
+]);
+
+export const rejectionCategoryEnum = pgEnum('rejection_category', [
+  'INCOMPLETE_DOCS',
+  'POLICY_VIOLATION',
+  'IDENTITY_CONCERN',
+  'OTHER',
+]);
+
 export const ceremonyTypeEnum = pgEnum('ceremony_type', [
   'WEDDING',
   'HALDI',
@@ -323,7 +341,12 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'CONTRACT_SIGNED',
   'BOOKING_CONFIRMED',
   'BOOKING_CANCELLED',
+  'VENDOR_SUBMITTED',
+  'VENDOR_UNDER_REVIEW',
   'VENDOR_APPROVED',
+  'VENDOR_REJECTED',
+  'VENDOR_SUSPENDED',
+  'VENDOR_REINSTATED',
   'PROFILE_BLOCKED',
   'PROFILE_REPORTED',
   'INVOICE_GENERATED',
@@ -773,6 +796,15 @@ export const vendors = pgTable('vendors', {
   bankVerificationStatus: varchar('bank_verification_status', { length: 16 }).default('PENDING').notNull(),
   leadFeePerInquiryInr: integer('lead_fee_per_inquiry_inr').default(100).notNull(),
   leadFeeEnabled:       boolean('lead_fee_enabled').default(true).notNull(),
+  // ─── Approval lifecycle (P1-8, docs/PHASE-1-4-AUDIT.md) ────────────────
+  // status DEFAULT 'APPROVED' so existing pre-launch rows stay visible in
+  // the public listing after migration runs. New signups land in DRAFT.
+  status:                 vendorStatusEnum('status').notNull().default('APPROVED'),
+  submittedAt:            timestamp('submitted_at'),
+  reviewedAt:             timestamp('reviewed_at'),
+  reviewedByUserId:       text('reviewed_by_user_id').references(() => user.id),
+  rejectionReason:        text('rejection_reason'),
+  rejectionCategory:      rejectionCategoryEnum('rejection_category'),
   createdAt:      timestamp('created_at').defaultNow().notNull(),
   updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
@@ -781,6 +813,8 @@ export const vendors = pgTable('vendors', {
   ratingIdx:     index('vendor_rating_idx').on(t.rating),
   popularityIdx: index('vendor_popularity_idx').on(t.totalReviews),
   verifiedIdx:   index('vendor_verified_active_idx').on(t.verified, t.isActive),
+  statusIdx:     index('vendor_status_idx').on(t.status),
+  statusSubmittedIdx: index('vendors_status_submitted_idx').on(t.status, t.submittedAt),
 }));
 
 export const vendorServices = pgTable('vendor_services', {

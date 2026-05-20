@@ -30,6 +30,11 @@ import { vendors } from '@smartshaadi/db';
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import {
+  getStatusForUser,
+  submitForReviewByUserId,
+  VendorApprovalError,
+} from './approval.service.js';
+import {
   VendorListQuerySchema,
   CreateVendorSchema,
   CreateServiceSchema,
@@ -129,6 +134,34 @@ vendorsRouter.get('/me', authenticate, async (req, res) => {
     if (!result) { err(res, 'NOT_FOUND', 'Vendor not found', 404); return; }
     ok(res, result);
   } catch (e) { handleError(res, e); }
+});
+
+// ── Vendor self-service approval (P1-8) — must precede `/:id` matching ───────
+
+vendorsRouter.get('/me/status', authenticate, async (req, res) => {
+  try {
+    const status = await getStatusForUser(req.user!.id);
+    if (!status) { err(res, 'NOT_FOUND', 'No vendor account', 404); return; }
+    ok(res, status);
+  } catch (e) { handleError(res, e); }
+});
+
+vendorsRouter.post('/me/submit', authenticate, async (req, res) => {
+  try {
+    const updated = await submitForReviewByUserId(req.user!.id);
+    ok(res, { vendor: updated });
+  } catch (e) {
+    if (e instanceof VendorApprovalError) {
+      const status =
+        e.code === 'VENDOR_NOT_FOUND'            ? 404 :
+        e.code === 'STATUS_CHANGED_CONCURRENTLY' ? 409 :
+        e.code === 'INCOMPLETE_PROFILE'          ? 422 :
+                                                   400;
+      err(res, e.code, e.message, status);
+      return;
+    }
+    handleError(res, e);
+  }
 });
 
 // ── GET /vendors/favorites — must come before /:id ────────────────────────────
