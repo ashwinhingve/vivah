@@ -26,13 +26,13 @@ async function attachRedisAdapter(io: Server): Promise<void> {
 }
 
 export async function initSocket(server: HttpServer): Promise<Server> {
-  const allowedOrigins = env.NODE_ENV === 'production'
-    ? [
-        process.env['CORS_ORIGIN'] ?? env.WEB_URL,
-        'https://smartshaadi.co.in',
-        'https://www.smartshaadi.co.in',
-      ]
-    : [env.WEB_URL, 'http://localhost:3000']
+  // Mirrors apps/api/src/index.ts CORS allowlist; sourced from typed env
+  // (env.CORS_ORIGIN previously read via raw process.env — bypassed schema).
+  const allowedOrigins =
+    env.NODE_ENV === 'production'
+      ? [env.CORS_ORIGIN, env.WEB_URL, 'https://smartshaadi.co.in', 'https://www.smartshaadi.co.in']
+          .filter((o): o is string => Boolean(o))
+      : [env.WEB_URL, 'http://localhost:3000']
 
   const io = new Server(server, {
     cors: {

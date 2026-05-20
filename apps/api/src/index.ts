@@ -117,17 +117,14 @@ app.use(requestIdMiddleware);
 // Security headers — disable CSP (handled by Next.js) and COEP (not needed for REST API)
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
-const allowedOrigins = env.NODE_ENV === 'production'
-  ? [
-      process.env['CORS_ORIGIN'] ?? env.WEB_URL,
-      'https://smartshaadi.co.in',
-      'https://www.smartshaadi.co.in',
-    ]
-  : [
-      env.WEB_URL,
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-    ];
+// CORS allowlist. Production: env.CORS_ORIGIN override (optional) + WEB_URL +
+// the two canonical apex hostnames. Dev: localhost siblings. Raw process.env
+// previously bypassed the typed schema — now sourced from lib/env.ts.
+const allowedOrigins =
+  env.NODE_ENV === 'production'
+    ? [env.CORS_ORIGIN, env.WEB_URL, 'https://smartshaadi.co.in', 'https://www.smartshaadi.co.in']
+        .filter((o): o is string => Boolean(o))
+    : [env.WEB_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
 
 app.use(
   cors({

@@ -13,13 +13,14 @@
  *    TODO: wire to POST /api/v1/matchmaking/shortlist/:profileId once endpoint exists
  *  - Connect/Message/Accept/Pending: delegates to MatchActionBar logic
  *  - More (kebab): dropdown with Report / Block / Share
- *    TODO: wire Report to POST /api/v1/profiles/:profileId/report
- *    TODO: wire Block  to POST /api/v1/profiles/:profileId/block
+ *    Block: wired to POST /api/v1/matchmaking/block/:profileId (P1-12 closed)
+ *    TODO: wire Report to POST /api/v1/profiles/:profileId/report (no endpoint yet)
  */
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Heart, MoreHorizontal, Flag, ShieldOff, Share2, Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -46,14 +47,48 @@ function useClickOutside(ref: { current: HTMLElement | null }, onClose: () => vo
 }
 
 function KebabMenu({
+  profileId,
   displayName,
   onClose,
 }: {
+  profileId: string;
   displayName: string;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+  const [blocking, setBlocking] = useState(false);
   useClickOutside(ref, onClose);
+
+  async function handleBlock() {
+    if (blocking) return;
+    if (!window.confirm(`Block ${displayName}? You won't see them or hear from them again.`)) {
+      return;
+    }
+    setBlocking(true);
+    try {
+      const res = await fetch(`${API_URL}/api/v1/matchmaking/block/${profileId}`, {
+        method:      'POST',
+        credentials: 'include',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify({}),
+      });
+      if (res.ok) {
+        toast('User blocked', 'success');
+        onClose();
+        router.replace('/feed');
+        router.refresh();
+      } else {
+        const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+        toast(body.error?.message ?? `Block failed (HTTP ${res.status})`, 'error');
+      }
+    } catch {
+      toast('Network error — try again', 'error');
+    } finally {
+      setBlocking(false);
+    }
+  }
 
   async function handleShare() {
     if (typeof window !== 'undefined' && navigator.share) {
@@ -90,15 +125,16 @@ function KebabMenu({
       <button
         type="button"
         role="menuitem"
-        onClick={() => {
-          // TODO: wire to POST /api/v1/profiles/:profileId/block
-          //       (re-add `profileId` prop to KebabMenu when the endpoint exists)
-          onClose();
-        }}
-        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-destructive/5 hover:text-destructive transition-colors"
+        disabled={blocking}
+        onClick={() => { void handleBlock(); }}
+        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-destructive/5 hover:text-destructive transition-colors disabled:opacity-60 disabled:cursor-wait"
       >
-        <ShieldOff className="w-4 h-4" aria-hidden="true" />
-        Block user
+        {blocking ? (
+          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <ShieldOff className="w-4 h-4" aria-hidden="true" />
+        )}
+        {blocking ? 'Blocking…' : 'Block user'}
       </button>
       <div className="h-px bg-border-light mx-3" />
       <button
@@ -301,6 +337,7 @@ export function ProfileActions({
         </button>
         {showMenu && (
           <KebabMenu
+            profileId={profileId}
             displayName={displayName}
             onClose={() => setShowMenu(false)}
           />

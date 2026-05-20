@@ -44,6 +44,11 @@ const envSchema = z.object({
   API_BASE_URL: z.string().url('API_BASE_URL must be a valid URL').default('http://localhost:4000'),
   WEB_URL: z.string().url('WEB_URL must be a valid URL').default('http://localhost:3000'),
 
+  // CORS override — optional; when set, prepended to the production
+  // allowedOrigins list in index.ts + chat/socket/index.ts. Empty in dev
+  // (the local WEB_URL covers it).
+  CORS_ORIGIN: z.string().default(''),
+
   // Internal AI service (Python/FastAPI)
   AI_SERVICE_URL:          z.string().url().default('http://localhost:8000'),
   AI_SERVICE_INTERNAL_KEY: z.string().default('internal-key-change-in-prod'),
