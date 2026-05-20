@@ -141,11 +141,28 @@ export async function handlePaymentSuccess(
     return;
   }
 
-  // 2. Update payment status → CAPTURED
-  await db
+  // 2. Atomic capture — only flip PENDING → CAPTURED. P1-2 (PHASE-1-4-AUDIT):
+  // the previous unconditional UPDATE left a TOCTOU window where two concurrent
+  // webhook deliveries could both pass the read-time guard above and both run
+  // the side-effects below (escrow insert is onConflictDoNothing-safe, but the
+  // PAYMENT_RECEIVED audit log would be appended twice). `.returning()` + a
+  // zero-row guard makes the loser exit before any audit log is written.
+  const captured = await db
     .update(schema.payments)
     .set({ razorpayPaymentId, status: 'CAPTURED' })
-    .where(eq(schema.payments.id, payment.id));
+    .where(and(
+      eq(schema.payments.id, payment.id),
+      eq(schema.payments.status, 'PENDING'),
+    ))
+    .returning({ id: schema.payments.id });
+
+  if (captured.length === 0) {
+    // Another webhook delivery captured this payment between our SELECT and
+    // UPDATE — treat as a no-op replay. Webhook-level dedup also catches this
+    // via webhookEvents.recordWebhookEvent, but the conditional UPDATE is the
+    // defence-in-depth guard for non-Razorpay callers.
+    return;
+  }
 
   // 3. Get booking for customerId (actorId)
   const [booking] = await db

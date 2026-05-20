@@ -75,12 +75,17 @@ function makeInsert() {
   return vi.fn().mockReturnValue(chain);
 }
 
-function makeUpdate() {
-  return vi.fn().mockReturnValue({
-    set:       vi.fn().mockReturnThis(),
-    where:     vi.fn().mockResolvedValue([]),
-    returning: vi.fn().mockResolvedValue([]),
-  });
+function makeUpdate(returningRows: unknown[] = []) {
+  // Thenable chain — supports both terminal `.where()` and `.where().returning()`.
+  const chain: Record<string, unknown> = {
+    then(onfulfilled: ((v: unknown) => unknown) | null | undefined) {
+      return Promise.resolve(returningRows).then(onfulfilled ?? undefined);
+    },
+  };
+  chain['set']       = vi.fn().mockReturnValue(chain);
+  chain['where']     = vi.fn().mockReturnValue(chain);
+  chain['returning'] = vi.fn().mockResolvedValue(returningRows);
+  return vi.fn().mockReturnValue(chain);
 }
 
 // ── Test setup ────────────────────────────────────────────────────────────────
@@ -183,7 +188,8 @@ describe('handlePaymentSuccess', () => {
       return makeSelect(data)();
     });
 
-    mockDbUpdate.mockImplementation(makeUpdate());
+    // Atomic capture UPDATE returns the captured row (winner path).
+    mockDbUpdate.mockImplementation(makeUpdate([{ id: 'pay-1' }]));
     mockDbInsert.mockReturnValue({
       values:              vi.fn().mockReturnThis(),
       returning:           vi.fn().mockResolvedValue([{ id: 'new-id' }]),
@@ -209,6 +215,41 @@ describe('handlePaymentSuccess', () => {
     mockDbSelect.mockImplementation(makeSelect([]));
 
     await expect(handlePaymentSuccess('nonexistent_order', 'pay_x')).rejects.toThrow();
+  });
+
+  // P1-2 (docs/PHASE-1-4-AUDIT.md): the previous unconditional UPDATE left a
+  // TOCTOU window — two concurrent webhook deliveries could both pass the
+  // read-time `status !== 'CAPTURED'` guard and both run the side-effects below
+  // (escrow insert + PAYMENT_RECEIVED audit log + ESCROW_HELD audit log).
+  // Verify the atomic UPDATE's zero-row return short-circuits BEFORE any
+  // audit log is appended.
+  it('short-circuits when concurrent webhook already captured (atomic UPDATE returns 0 rows)', async () => {
+    const { handlePaymentSuccess } = await import('../service.js');
+
+    let selectCall = 0;
+    mockDbSelect.mockImplementation(() => {
+      selectCall++;
+      const data =
+        selectCall === 1
+          ? [{ id: 'pay-1', bookingId: 'booking-3', amount: '5000', razorpayOrderId: 'order_race', razorpayPaymentId: null, status: 'PENDING' }]
+          : [];
+      return makeSelect(data)();
+    });
+
+    // Race-loser path: the atomic UPDATE returns 0 rows (another webhook
+    // delivery captured this payment between our SELECT and UPDATE).
+    mockDbUpdate.mockImplementation(makeUpdate([]));
+    mockDbInsert.mockReturnValue({
+      values:              vi.fn().mockReturnThis(),
+      returning:           vi.fn().mockResolvedValue([]),
+      onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
+    });
+
+    await handlePaymentSuccess('order_race', 'pay_race');
+
+    // No insert should happen — escrow row, PAYMENT_RECEIVED audit, and
+    // ESCROW_HELD audit are all gated behind the atomic UPDATE winning.
+    expect(mockDbInsert).not.toHaveBeenCalled();
   });
 });
 
