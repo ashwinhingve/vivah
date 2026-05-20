@@ -69,8 +69,10 @@ vi.mock('../lib/logger.js', () => ({
   logger: { error: mockLoggerError, warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-// Import AFTER mocks are registered.
-const { adminAnalyticsRouter } = await import('../admin/analytics.router.js');
+// vi.mock() above is hoisted, so a normal static import still sees the mocks
+// (same pattern as stay.test.ts). Top-level await fails tsc under CJS module
+// resolution even though vitest runs the file as ESM.
+import { adminAnalyticsRouter } from '../admin/analytics.router.js';
 
 function buildApp() {
   const app = express();
