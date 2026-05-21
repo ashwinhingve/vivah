@@ -23,7 +23,10 @@ export async function middleware(request: NextRequest) {
     return intlResponse;
   }
 
-  const pathname = stripLocale(request.nextUrl.pathname);
+  const rawPathname = request.nextUrl.pathname;
+  const pathname = stripLocale(rawPathname);
+  const localeMatch = rawPathname.match(/^\/(en|hi)(\/|$)/);
+  const localePrefix = localeMatch ? `/${localeMatch[1]}` : '';
 
   if (
     pathname.startsWith('/dashboard') ||
@@ -78,7 +81,7 @@ export async function middleware(request: NextRequest) {
     if (!sessionOk) {
       const hasCookie = hasSessionCookie(request.cookies);
       if (!hasCookie) {
-        return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(new URL(`${localePrefix}/login`, request.url));
       }
       // API down but cookie exists — let request through, page will handle auth.
       // Return intlResponse (not NextResponse.next()) to preserve next-intl headers.
@@ -87,36 +90,36 @@ export async function middleware(request: NextRequest) {
 
     // Guard role-specific dashboards against wrong roles
     if (pathname.startsWith('/vendor-dashboard') && role !== 'VENDOR') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
     if (pathname.startsWith('/admin') && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
     if (pathname.startsWith('/support') && role !== 'SUPPORT' && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
     if (pathname.startsWith('/coordinator') && role !== 'EVENT_COORDINATOR' && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
     if (pathname.startsWith('/family') && role !== 'FAMILY_MEMBER' && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
 
     // Redirect /dashboard to the correct role dashboard
     if (pathname === '/dashboard' && role === 'VENDOR') {
-      return NextResponse.redirect(new URL('/vendor-dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/vendor-dashboard`, request.url));
     }
     if (pathname === '/dashboard' && role === 'ADMIN') {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/admin`, request.url));
     }
     if (pathname === '/dashboard' && role === 'SUPPORT') {
-      return NextResponse.redirect(new URL('/support', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/support`, request.url));
     }
     if (pathname === '/dashboard' && role === 'EVENT_COORDINATOR') {
-      return NextResponse.redirect(new URL('/coordinator', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/coordinator`, request.url));
     }
     if (pathname === '/dashboard' && role === 'FAMILY_MEMBER') {
-      return NextResponse.redirect(new URL('/family', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/family`, request.url));
     }
   } else if (
     pathname.startsWith('/login') ||
@@ -125,11 +128,11 @@ export async function middleware(request: NextRequest) {
   ) {
     const hasCookie = hasSessionCookie(request.cookies);
     if (hasCookie) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
     }
   } else if (pathname.startsWith('/account/recovery')) {
     if (!hasSessionCookie(request.cookies)) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/login`, request.url));
     }
   }
 
