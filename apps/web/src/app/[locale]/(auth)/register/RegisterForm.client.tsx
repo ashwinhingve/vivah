@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Loader2, Sparkles, User, Users, Store, ClipboardCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -20,6 +21,7 @@ const ROLES: { value: UserRole; label: string; description: string; icon: Lucide
 ];
 
 export default function RegisterForm() {
+  const t = useTranslations('auth.register');
   const router = useRouter();
 
   const [name, setName]       = useState('');
@@ -74,13 +76,13 @@ export default function RegisterForm() {
       <div className="relative">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
           <Sparkles className="h-3 w-3" aria-hidden="true" />
-          Join us
+          {t('badge')}
         </span>
         <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
-          Create account
+          {t('heading')}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Join Smart Shaadi — India&apos;s smart marriage ecosystem.
+          {t('subtext')}
         </p>
       </div>
 
@@ -167,7 +169,7 @@ export default function RegisterForm() {
             Sending OTP…
           </>
         ) : (
-          'Send OTP'
+          t('cta')
         )}
       </Button>
 

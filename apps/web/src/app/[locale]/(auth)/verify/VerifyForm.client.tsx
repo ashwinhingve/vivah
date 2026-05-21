@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent, type ClipboardEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { authClient } from '@/lib/auth-client';
 
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
 
 export default function VerifyForm() {
+  const t = useTranslations('auth.verify');
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
@@ -140,7 +142,7 @@ export default function VerifyForm() {
         <h2
           className="text-2xl font-semibold text-foreground font-heading"
         >
-          Enter OTP
+          {t('heading')}
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
           We sent a 6-digit code to{' '}
@@ -189,7 +191,7 @@ export default function VerifyForm() {
             Verifying…
           </>
         ) : (
-          'Verify OTP'
+          t('cta')
         )}
       </button>
 
