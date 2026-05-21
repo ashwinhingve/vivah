@@ -213,33 +213,33 @@
   "weddings": {
     "list": {
       "metadata": {
-        "title": "My Weddings — Smart Shaadi"
+        "title": "मेरी शादियाँ — Smart Shaadi"
       },
-      "heading": "My Weddings"
+      "heading": "मेरी शादियाँ"
     },
     "detail": {
       "metadata": {
-        "title": "Wedding Overview — Smart Shaadi"
+        "title": "शादी का अवलोकन — Smart Shaadi"
       },
-      "heading": "Wedding Overview"
+      "heading": "शादी का अवलोकन"
     },
     "guests": {
       "metadata": {
-        "title": "Guest List — Smart Shaadi"
+        "title": "मेहमान सूची — Smart Shaadi"
       },
-      "heading": "Guest List"
+      "heading": "मेहमान सूची"
     },
     "tasks": {
       "metadata": {
-        "title": "Wedding Tasks — Smart Shaadi"
+        "title": "शादी के कार्य — Smart Shaadi"
       },
-      "heading": "Wedding Tasks"
+      "heading": "शादी के कार्य"
     },
     "new": {
       "metadata": {
-        "title": "Plan Your Wedding — Smart Shaadi"
+        "title": "अपनी शादी प्लान करें — Smart Shaadi"
       },
-      "heading": "Plan Your Wedding"
+      "heading": "अपनी शादी प्लान करें"
     }
   }
 }
