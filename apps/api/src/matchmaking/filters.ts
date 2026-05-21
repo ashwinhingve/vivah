@@ -102,7 +102,10 @@ export function passesGenderFilter(
 ): boolean {
   const userG = user.gender ?? null;
   const candG = candidate.gender ?? null;
-  if (!userG || !candG) return false;
+  // Permissive when either side has not disclosed gender — matches how every
+  // other optional filter behaves (manglik/marital). Strictness kicks in only
+  // when both sides actually have gender data on file.
+  if (!userG || !candG) return true;
 
   if (!lgbtqEnabled) {
     const allowed: Array<[GenderValue, GenderValue]> = [

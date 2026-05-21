@@ -600,7 +600,14 @@ export async function computeAndCacheFeed(
   const userFilterProfile = toFilterProfile(userProfileData);
   const candidateFilterProfiles = candidateProfiles.map(toFilterProfile);
 
-  const lgbtqEnabled = await isLGBTQMatchingEnabled();
+  // Read once per feed build. Failure here (e.g. db down, table missing in
+  // unit tests) must not break matching — default to false (legacy behavior).
+  let lgbtqEnabled = false;
+  try {
+    lgbtqEnabled = await isLGBTQMatchingEnabled();
+  } catch {
+    lgbtqEnabled = false;
+  }
   const passedFilterProfiles = applyHardFilters(userFilterProfile, candidateFilterProfiles, { lgbtqEnabled });
 
   const passedIds = new Set(passedFilterProfiles.map((p) => p.id));
