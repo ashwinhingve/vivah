@@ -150,27 +150,27 @@
   },
   "feed": {
     "metadata": {
-      "title": "Discover Matches — Smart Shaadi"
+      "title": "मैच खोजें — Smart Shaadi"
     },
-    "heading": "Discover Matches"
+    "heading": "मैच खोजें"
   },
   "matches": {
     "metadata": {
-      "title": "Your Matches — Smart Shaadi"
+      "title": "आपके मैच — Smart Shaadi"
     },
-    "heading": "Your Connections"
+    "heading": "आपके कनेक्शन"
   },
   "compatibility": {
     "metadata": {
-      "title": "Compatibility Analysis — Smart Shaadi"
+      "title": "अनुकूलता विश्लेषण — Smart Shaadi"
     },
-    "heading": "Compatibility Analysis"
+    "heading": "अनुकूलता विश्लेषण"
   },
   "profileView": {
     "metadata": {
-      "title": "Profile — Smart Shaadi"
+      "title": "प्रोफ़ाइल — Smart Shaadi"
     },
-    "heading": "Profile"
+    "heading": "प्रोफ़ाइल"
   },
   "onboarding": {
     "personal": {
