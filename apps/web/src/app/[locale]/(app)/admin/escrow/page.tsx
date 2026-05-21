@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
 import { fetchAuth } from '@/lib/server-fetch';
 import { DisputeTableClient } from './DisputeTableClient.client';
@@ -22,7 +22,7 @@ export default async function AdminEscrowPage() {
   const cookieStore = await cookies();
   const token       = cookieStore.get('better-auth.session_token')?.value;
   if (!token) {
-    redirect('/login');
+    return await redirect('/login');
   }
 
   const wrapped = await fetchAuth<{ disputes: DisputedBookingRow[] }>('/api/v1/admin/disputes');

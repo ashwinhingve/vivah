@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function cookieHeader(): Promise<string> {
@@ -34,6 +34,6 @@ export async function subscribeToPlanAction(
   const json = await res.json().catch(() => ({})) as { data?: { shortUrl: string | null } };
   const shortUrl = json.data?.shortUrl ?? null;
 
-  if (shortUrl) redirect(shortUrl);
-  redirect('/dashboard?subscribed=1');
+  if (shortUrl) return await redirect(shortUrl);
+  return await redirect('/dashboard?subscribed=1');
 }

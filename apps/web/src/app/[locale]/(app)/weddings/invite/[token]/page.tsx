@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { mutateApi } from '@/lib/wedding-api';
 
 interface PageProps { params: Promise<{ token: string }> }
@@ -12,7 +12,7 @@ export default async function AcceptInvitePage({ params }: PageProps) {
   });
 
   if (res.ok && res.data) {
-    redirect(`/weddings/${res.data.weddingId}?welcome=1`);
+    return await redirect(`/weddings/${res.data.weddingId}?welcome=1`);
   }
 
   return (

@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { ArrowLeft, ShieldCheck, Users, Sparkles } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { FamilyMembersClient } from '@/components/family/FamilyMembersClient.client';
@@ -17,7 +17,7 @@ export default async function FamilyPage() {
   // any leak if matcher config drifts.
   const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
-    redirect('/dashboard');
+    return await redirect('/dashboard');
   }
 
   const view = await fetchAuth<FamilyView>('/api/v1/profiles/me/family');

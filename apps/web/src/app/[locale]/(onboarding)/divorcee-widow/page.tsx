@@ -8,7 +8,7 @@
  * Wraps the DivorceeWidowOnboarding client component for the actual UI.
  */
 
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
 import { DivorceeWidowOnboarding } from '@/components/onboarding/DivorceeWidowOnboarding.client';
 
@@ -42,7 +42,7 @@ export default async function DivorceeWidowOnboardingPage() {
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
   if (!token) {
-    redirect('/sign-in');
+    return await redirect('/sign-in');
   }
 
   const me = await fetchMe(token);
@@ -55,12 +55,12 @@ export default async function DivorceeWidowOnboardingPage() {
 
     // Redirect away if this page is not relevant
     if (!isDivorceeOrWidow) {
-      redirect('/feed');
+      return await redirect('/feed');
     }
 
     // Redirect if onboarding already completed
     if (me.sections?.divorceeOnboardingDone === true) {
-      redirect('/feed');
+      return await redirect('/feed');
     }
   }
 

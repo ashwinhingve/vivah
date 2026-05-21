@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { getMyLinks } from '@/lib/family-mode-api';
 import { LinkApprovalActions } from './LinkApprovalActions.client';
@@ -10,14 +10,14 @@ interface PageProps {
 
 export default async function LinkRequestPage({ params }: PageProps) {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const { linkId } = await params;
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
 
   const links = await getMyLinks(cookieHeader);
   const link = links?.as_child.find((l) => l.id === linkId);
-  if (!link) redirect('/family/parent-mode');
+  if (!link) return await redirect('/family/parent-mode');
 
   if (link.childConsentStatus === 'APPROVED') {
     return (

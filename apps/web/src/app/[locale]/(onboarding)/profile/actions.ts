@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { revalidatePath } from 'next/cache';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -86,7 +86,7 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/personal');
-  redirect('/profile/family');
+  return await redirect('/profile/family');
 }
 
 export async function updateFamily(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
@@ -152,7 +152,7 @@ export async function updateFamily(_prev: unknown, formData: FormData): Promise<
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/family');
-  redirect('/profile/career');
+  return await redirect('/profile/career');
 }
 
 export async function updateCareer(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
@@ -205,7 +205,7 @@ export async function updateCareer(_prev: unknown, formData: FormData): Promise<
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/career');
-  redirect('/profile/lifestyle');
+  return await redirect('/profile/lifestyle');
 }
 
 export async function updateLifestyle(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
@@ -240,7 +240,7 @@ export async function updateLifestyle(_prev: unknown, formData: FormData): Promi
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/lifestyle');
-  redirect('/profile/horoscope');
+  return await redirect('/profile/horoscope');
 }
 
 export async function updateHoroscope(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
@@ -273,7 +273,7 @@ export async function updateHoroscope(_prev: unknown, formData: FormData): Promi
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/horoscope');
-  redirect('/profile/community');
+  return await redirect('/profile/community');
 }
 
 export async function updateCommunity(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
@@ -309,7 +309,7 @@ export async function updateCommunity(_prev: unknown, formData: FormData): Promi
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/community');
-  redirect('/profile/preferences');
+  return await redirect('/profile/preferences');
 }
 
 export async function initiateKyc(): Promise<{ authUrl?: string; error?: string }> {
@@ -374,7 +374,7 @@ export async function updatePreferences(_prev: unknown, formData: FormData): Pro
   revalidatePath('/profile');
   revalidatePath('/dashboard');
   revalidatePath('/profile/preferences');
-  redirect('/dashboard');
+  return await redirect('/dashboard');
 }
 
 export async function savePersonalityAction(p: {

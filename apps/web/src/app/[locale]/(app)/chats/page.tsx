@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
@@ -58,7 +58,7 @@ export default async function ChatsPage({ searchParams }: PageProps) {
 
   const cookieStore = await cookies()
   const token = cookieStore.get('better-auth.session_token')?.value
-  if (!token) redirect('/login')
+  if (!token) return await redirect('/login')
 
   const [items, profileId] = await Promise.all([
     fetchConversations(token, filter),

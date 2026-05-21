@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar } from '@/components/admin/KycStatsBar';
 
@@ -39,7 +39,7 @@ export default async function AdminKycPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
-  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') redirect('/dashboard');
+  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') return await redirect('/dashboard');
 
   const [queue, stats] = await Promise.all([
     fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),

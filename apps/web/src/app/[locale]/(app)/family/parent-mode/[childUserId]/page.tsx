@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { getMyLinks, getDraftedActions } from '@/lib/family-mode-api';
 import { ParentActionCard } from '@/components/family/ParentActionCard.client';
@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function ManagedChildPage({ params }: PageProps) {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const { childUserId } = await params;
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
@@ -19,7 +19,7 @@ export default async function ManagedChildPage({ params }: PageProps) {
   const link = links?.as_parent.find(
     (l) => l.childUserId === childUserId && l.childConsentStatus === 'APPROVED' && !l.revokedAt,
   );
-  if (!link) redirect('/family/parent-mode');
+  if (!link) return await redirect('/family/parent-mode');
 
   const drafted = (await getDraftedActions(cookieHeader)) ?? [];
   const forThisChild = drafted.filter((a) => a.childUserId === childUserId);

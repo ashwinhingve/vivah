@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { getMyLinks } from '@/lib/family-mode-api';
 
 export default async function ParentModeDashboardPage() {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
   const links = await getMyLinks(cookieHeader);

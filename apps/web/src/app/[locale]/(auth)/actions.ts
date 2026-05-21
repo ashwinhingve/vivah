@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import type { UserRole } from '@smartshaadi/types';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 
@@ -26,7 +26,7 @@ export async function requestOTP(
     return { success: false, error: body.message ?? 'Failed to send OTP' };
   }
 
-  redirect(`/verify-otp?phone=${encodeURIComponent(phone)}`);
+  return await redirect(`/verify-otp?phone=${encodeURIComponent(phone)}`);
 }
 
 /**
