@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { StoreCategoryFilter } from '@/components/store/StoreCategoryFilter.client';

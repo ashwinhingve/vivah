@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Globe, Eye, Sparkles } from 'lucide-react';
 import { fetchWebsite } from '@/lib/wedding-api';
 import { saveWebsiteAction } from './actions';

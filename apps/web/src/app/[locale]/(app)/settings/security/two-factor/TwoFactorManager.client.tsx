@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import QRCode from 'qrcode';
 import { ShieldCheck, ShieldOff, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';

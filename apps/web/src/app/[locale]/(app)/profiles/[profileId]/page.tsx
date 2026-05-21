@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { CheckCircle2, Phone, BadgeCheck, Camera, CreditCard, Sparkles } from 'lucide-react';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
@@ -216,6 +218,12 @@ function TraitPills({ profile }: { profile: ProfileDetailResponse }) {
 
 interface Props {
   params: Promise<{ profileId: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'profileView.metadata' });
+  return { title: t('title') };
 }
 
 export default async function ProfileViewPage({ params }: Props) {

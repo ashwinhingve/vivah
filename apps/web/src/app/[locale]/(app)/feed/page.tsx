@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
@@ -58,7 +60,14 @@ interface PageProps {
   searchParams?: Promise<{ refresh?: string }>;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'feed.metadata' });
+  return { title: t('title') };
+}
+
 export default async function MatchFeedPage({ searchParams }: PageProps) {
+  const t = await getTranslations('feed');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const sp = (await searchParams) ?? {};
@@ -91,7 +100,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         {/* ── Page header ──────────────────────────────────────────────── */}
         <FadeUp delay={0} className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">Your Matches</h1>
+            <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">{t('heading')}</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {items.length > 0
                 ? `${total} compatible profile${total !== 1 ? 's' : ''} · Refreshed daily`

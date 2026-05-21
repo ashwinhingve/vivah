@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import type { RevenueSummary, RevenueByCategory, DailyRevenuePoint } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 

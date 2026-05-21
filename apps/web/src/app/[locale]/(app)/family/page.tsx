@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, ShieldCheck, Users, Sparkles } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';

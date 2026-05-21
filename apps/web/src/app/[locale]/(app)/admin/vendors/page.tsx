@@ -3,7 +3,7 @@
  * Server Component. Fetches /api/v1/admin/vendors/queue and renders a
  * filterable table. Status tabs map to vendor_status enum values.
  */
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, Store } from 'lucide-react';

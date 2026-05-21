@@ -1,4 +1,6 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import {
   Calendar, MapPin, ArrowLeft,
@@ -90,6 +92,12 @@ async function fetchMuhurat(id: string): Promise<MuhuratDate[]> {
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.detail.metadata' });
+  return { title: t('title') };
 }
 
 export default async function WeddingOverviewPage({ params }: PageProps) {

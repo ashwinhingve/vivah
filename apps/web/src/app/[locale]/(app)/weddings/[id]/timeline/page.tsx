@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Clock, MapPin, Sparkles, Plus } from 'lucide-react';
 import { fetchTimeline } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';

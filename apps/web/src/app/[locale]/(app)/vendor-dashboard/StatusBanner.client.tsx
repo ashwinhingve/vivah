@@ -6,7 +6,7 @@
  * P1-8 (docs/PHASE-1-4-AUDIT.md).
  */
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Info, AlertTriangle, Loader2 } from 'lucide-react';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';

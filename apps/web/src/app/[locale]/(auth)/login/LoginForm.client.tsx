@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Loader2, Phone } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 export default function LoginForm() {
+  const t = useTranslations('auth.login');
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,13 +55,13 @@ export default function LoginForm() {
       <div className="relative">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
           <Phone className="h-3 w-3" aria-hidden="true" />
-          Sign in
+          {t('badge')}
         </span>
         <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
-          Welcome back
+          {t('heading')}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enter your mobile number to receive an OTP.
+          {t('subtext')}
         </p>
       </div>
 
@@ -98,14 +100,14 @@ export default function LoginForm() {
             Sending OTP…
           </>
         ) : (
-          'Send OTP'
+          t('cta')
         )}
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        New to Smart Shaadi?{' '}
+        {t('newUser')}{' '}
         <Link href="/register" className="font-semibold text-teal underline-offset-4 hover:underline">
-          Create account
+          {t('createAccount')}
         </Link>
       </p>
     </form>

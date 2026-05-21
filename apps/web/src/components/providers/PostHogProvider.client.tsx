@@ -1,7 +1,8 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
 import posthog from 'posthog-js';
 
 let initialized = false;

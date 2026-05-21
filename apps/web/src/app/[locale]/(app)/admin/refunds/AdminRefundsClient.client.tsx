@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import type { RefundRecord } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { Container, EmptyState, PageHeader } from '@/components/shared';

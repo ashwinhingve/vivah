@@ -1,1 +1,245 @@
-{}
+{
+  "nav": {
+    "top": {
+      "matches": "Matches",
+      "chat": "Chat",
+      "wedding": "Wedding",
+      "profile": "Profile"
+    },
+    "app": {
+      "discover": "Discover",
+      "requests": "Requests",
+      "connections": "Connections",
+      "wedding": "Wedding",
+      "profile": "Profile",
+      "chats": "Chats",
+      "notifications": "Notifications",
+      "likes": "Likes",
+      "shortlist": "Shortlist",
+      "viewedMe": "Viewed Me",
+      "vendors": "Vendors",
+      "shop": "Shop",
+      "rentals": "Rentals",
+      "bookings": "Bookings",
+      "payments": "Payments",
+      "wallet": "Wallet",
+      "invoices": "Invoices",
+      "refunds": "Refunds",
+      "editProfile": "Edit Profile",
+      "privacy": "Privacy",
+      "security": "Security",
+      "home": "Home",
+      "products": "Products",
+      "orders": "Orders",
+      "payouts": "Payouts",
+      "links": "Links",
+      "admin": "Admin",
+      "revenue": "Revenue",
+      "promos": "Promos",
+      "disputes": "Disputes",
+      "more": "More",
+      "moreLabel": "More options",
+      "everythingElse": "Everything else",
+      "groupSocial": "Social",
+      "groupDiscover": "Discover",
+      "groupShop": "Shop",
+      "groupMoney": "Money",
+      "groupSettings": "Settings"
+    }
+  },
+  "auth": {
+    "login": {
+      "metadata": {
+        "title": "Sign In — Smart Shaadi"
+      },
+      "badge": "Sign in",
+      "heading": "Welcome back",
+      "subtext": "Enter your mobile number to receive an OTP.",
+      "cta": "Send OTP",
+      "newUser": "New to Smart Shaadi?",
+      "createAccount": "Create account"
+    },
+    "register": {
+      "metadata": {
+        "title": "Create Account — Smart Shaadi"
+      },
+      "badge": "Join us",
+      "heading": "Create account",
+      "subtext": "Join Smart Shaadi — India's smart marriage ecosystem.",
+      "cta": "Send OTP"
+    },
+    "verify": {
+      "metadata": {
+        "title": "Verify OTP — Smart Shaadi"
+      },
+      "heading": "Enter OTP",
+      "cta": "Verify OTP"
+    }
+  },
+  "marketing": {
+    "landing": {
+      "metadata": {
+        "title": "Smart Shaadi — India's Smartest Matrimonial Platform",
+        "description": "Find your perfect match with AI-powered matchmaking, Guna Milan compatibility, and a complete wedding planning suite. Verified profiles. Privacy first."
+      }
+    },
+    "hero": {
+      "heading": "Where families find their forever.",
+      "subtext": "India's first matrimonial platform built around real compatibility — Guna Milan, family values, and reciprocal matching. Verified profiles only.",
+      "primaryCta": "Find Your Match →",
+      "secondaryCta": "Browse Vendors",
+      "microcopy": "Free to join · No credit card · 2 min setup"
+    },
+    "howItWorks": {
+      "sectionHeading": "Three steps to your wedding journey",
+      "step1Title": "Create Your Profile",
+      "step2Title": "Discover Compatible Matches",
+      "step3Title": "Plan Your Wedding Together"
+    },
+    "features": {
+      "sectionHeading": "Features",
+      "reciprocalHeading": "Matching that respects both sides",
+      "gunaHeading": "Vedic compatibility, done right",
+      "weddingHeading": "Everything in one platform"
+    },
+    "pricing": {
+      "sectionHeading": "Start Free. Upgrade When Ready.",
+      "freePlanName": "Free Forever",
+      "premiumPlanName": "Smart Shaadi Premium"
+    },
+    "cta": {
+      "heading": "Start your journey today.",
+      "primaryCta": "Start Your Journey →",
+      "secondaryCta": "Talk to Us"
+    },
+    "footer": {
+      "companyHeading": "Company",
+      "productHeading": "Product",
+      "resourcesHeading": "Resources",
+      "legalHeading": "Legal",
+      "copyright": "© 2026 Smart Shaadi. All rights reserved."
+    },
+    "stats": {
+      "verifiedProfiles": "Verified Profiles",
+      "vendors": "Vendors across 24 Cities",
+      "weddings": "Weddings Planned"
+    },
+    "testimonials": {
+      "sectionHeading": "Real Families. Real Matches."
+    },
+    "trust": {
+      "individualsHeading": "Your Privacy. Your Timeline. Your Choice.",
+      "familiesHeading": "A Platform Built for How Families Actually Work."
+    },
+    "navbar": {
+      "howItWorks": "How it Works",
+      "forFamilies": "For Families",
+      "features": "Features",
+      "vendors": "Vendors",
+      "pricing": "Pricing",
+      "login": "Login",
+      "register": "Register Free"
+    }
+  },
+  "pricing": {
+    "metadata": {
+      "title": "Pricing — Smart Shaadi"
+    },
+    "heading": "Simple, Transparent Pricing",
+    "subtext": "Start free. Upgrade when you're ready."
+  },
+  "feed": {
+    "metadata": {
+      "title": "Discover Matches — Smart Shaadi"
+    },
+    "heading": "Discover Matches"
+  },
+  "matches": {
+    "metadata": {
+      "title": "Your Matches — Smart Shaadi"
+    },
+    "heading": "Your Connections"
+  },
+  "compatibility": {
+    "metadata": {
+      "title": "Compatibility Analysis — Smart Shaadi"
+    },
+    "heading": "Compatibility Analysis"
+  },
+  "profileView": {
+    "metadata": {
+      "title": "Profile — Smart Shaadi"
+    },
+    "heading": "Profile"
+  },
+  "onboarding": {
+    "personal": {
+      "metadata": {
+        "title": "Personal Details — Smart Shaadi"
+      },
+      "heading": "Tell us about yourself"
+    },
+    "family": {
+      "metadata": {
+        "title": "Family Details — Smart Shaadi"
+      },
+      "heading": "Tell us about your family"
+    }
+  },
+  "chat": {
+    "metadata": {
+      "title": "Chat — Smart Shaadi"
+    },
+    "heading": "Chat"
+  },
+  "chats": {
+    "metadata": {
+      "title": "Chats — Smart Shaadi"
+    },
+    "heading": "Conversations"
+  },
+  "dashboard": {
+    "metadata": {
+      "title": "Dashboard — Smart Shaadi"
+    },
+    "heading": "My Dashboard"
+  },
+  "billing": {
+    "metadata": {
+      "title": "Billing & Subscription — Smart Shaadi"
+    },
+    "heading": "Billing & Subscription"
+  },
+  "weddings": {
+    "list": {
+      "metadata": {
+        "title": "My Weddings — Smart Shaadi"
+      },
+      "heading": "My Weddings"
+    },
+    "detail": {
+      "metadata": {
+        "title": "Wedding Overview — Smart Shaadi"
+      },
+      "heading": "Wedding Overview"
+    },
+    "guests": {
+      "metadata": {
+        "title": "Guest List — Smart Shaadi"
+      },
+      "heading": "Guest List"
+    },
+    "tasks": {
+      "metadata": {
+        "title": "Wedding Tasks — Smart Shaadi"
+      },
+      "heading": "Wedding Tasks"
+    },
+    "new": {
+      "metadata": {
+        "title": "Plan Your Wedding — Smart Shaadi"
+      },
+      "heading": "Plan Your Wedding"
+    }
+  }
+}

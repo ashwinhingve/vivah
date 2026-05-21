@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Heart, MailOpen, Calendar, UserCog, ArrowRight, Bookmark, Eye } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

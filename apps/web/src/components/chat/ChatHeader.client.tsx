@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ProfileImage } from '@/components/ui/ProfileImage.client'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation';
 import {
   ArrowLeft, MoreVertical, Search as SearchIcon, BellOff, Bell,
   Archive, ArchiveRestore, ImageIcon, Flag, Ban, Pin, PinOff, Lightbulb,

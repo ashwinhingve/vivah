@@ -6,7 +6,7 @@
  * linked list of profile-improvement tips with impact labels.
  */
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { fetchAuth } from '@/lib/server-fetch';

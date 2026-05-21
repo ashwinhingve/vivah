@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { BookingSummary, BookingStatus } from '@smartshaadi/types';
 import { EmptyState } from '@/components/ui/EmptyState';
 

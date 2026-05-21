@@ -1,24 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
 import { LogoFull } from './Logo';
+import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 
 interface NavLink {
-  label: string;
+  labelKey: string;
   href: string;
 }
 
 const navLinks: NavLink[] = [
-  { label: 'How it Works', href: '#how-it-works' },
-  { label: 'For Families', href: '#for-families' },
-  { label: 'Features', href: '#features' },
-  { label: 'Vendors', href: '/vendors' },
-  { label: 'Pricing', href: '#pricing' },
+  { labelKey: 'howItWorks',  href: '#how-it-works' },
+  { labelKey: 'forFamilies', href: '#for-families' },
+  { labelKey: 'features',    href: '#features' },
+  { labelKey: 'vendors',     href: '/vendors' },
+  { labelKey: 'pricing',     href: '#pricing' },
 ];
 
 export default function Navbar() {
+  const t = useTranslations('marketing.navbar');
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -106,14 +109,14 @@ export default function Navbar() {
                     href={link.href}
                     className={`${linkClass} min-h-[44px] inline-flex items-center`}
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </a>
                 ) : (
                   <Link
                     href={link.href}
                     className={`${linkClass} min-h-[44px] inline-flex items-center`}
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 )}
               </li>
@@ -122,17 +125,18 @@ export default function Navbar() {
 
           {/* Desktop auth buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageToggle />
             <Link
               href="/login"
               className={`${loginClass} min-h-[44px] flex items-center px-2`}
             >
-              Login
+              {t('login')}
             </Link>
             <Link
               href="/register"
               className="inline-flex items-center min-h-[44px] bg-teal hover:bg-teal-hover text-white font-semibold text-sm rounded-lg px-5 py-2 transition-all duration-200 shadow-sm shadow-teal/20 hover:shadow-md hover:shadow-teal/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
             >
-              Register Free
+              {t('register')}
             </Link>
           </div>
 
@@ -182,7 +186,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-[family-name:var(--font-heading)] hover:text-primary-hover transition-colors"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </a>
                 ) : (
                   <Link
@@ -190,7 +194,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-[family-name:var(--font-heading)] hover:text-primary-hover transition-colors"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 )}
               </li>
@@ -199,19 +203,22 @@ export default function Navbar() {
 
           {/* Bottom CTA area */}
           <div className="px-8 pb-10 space-y-3">
+            <div className="flex justify-center pb-2">
+              <LanguageToggle />
+            </div>
             <Link
               href="/login"
               onClick={() => setIsOpen(false)}
               className="flex items-center justify-center text-center text-muted-foreground hover:text-foreground min-h-[44px] transition-colors"
             >
-              Already have an account? Login
+              {t('login')}
             </Link>
             <Link
               href="/register"
               onClick={() => setIsOpen(false)}
               className="flex w-full items-center justify-center text-center bg-teal hover:bg-teal-hover text-white font-semibold text-lg rounded-xl py-4 min-h-[52px] transition-colors duration-200 shadow-md shadow-teal/20"
             >
-              Register Free →
+              {t('register')}
             </Link>
           </div>
         </div>

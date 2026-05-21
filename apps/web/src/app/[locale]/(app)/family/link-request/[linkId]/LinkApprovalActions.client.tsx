@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { approveLink, revokeLink } from '@/lib/family-mode-api';
 
 export function LinkApprovalActions({ linkId }: { linkId: string }) {

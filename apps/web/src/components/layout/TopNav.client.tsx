@@ -1,21 +1,24 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Calendar, Heart, MessageCircle, User } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const NAV = [
-  { href: '/feed', label: 'Matches', icon: Heart },
-  { href: '/chats', label: 'Chat', icon: MessageCircle },
-  { href: '/weddings', label: 'Wedding', icon: Calendar },
-  { href: '/dashboard', label: 'Profile', icon: User },
-] as const;
+const NAV_ITEMS: { href: string; key: 'matches' | 'chat' | 'wedding' | 'profile'; icon: LucideIcon }[] = [
+  { href: '/feed',      key: 'matches', icon: Heart },
+  { href: '/chats',     key: 'chat',    icon: MessageCircle },
+  { href: '/weddings',  key: 'wedding', icon: Calendar },
+  { href: '/dashboard', key: 'profile', icon: User },
+];
 
 /**
  * Desktop horizontal nav bar. Renders only on `md:flex+`. Mobile nav is the
  * existing `<AppNav>` drawer.
  */
 export function TopNav() {
+  const t = useTranslations('nav.top');
   const pathname = usePathname() ?? '';
 
   return (
@@ -23,7 +26,7 @@ export function TopNav() {
       aria-label="Primary"
       className="hidden items-center gap-1 md:flex"
     >
-      {NAV.map(({ href, label, icon: Icon }) => {
+      {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/');
         return (
           <Link
@@ -37,7 +40,7 @@ export function TopNav() {
             }`}
           >
             <Icon strokeWidth={1.75} className="h-4 w-4" aria-hidden />
-            {label}
+            {t(key)}
           </Link>
         );
       })}

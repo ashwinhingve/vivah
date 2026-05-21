@@ -3,7 +3,7 @@
  * Server Component
  */
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { InvoiceRecord, InvoiceStatus } from '@smartshaadi/types';
 import {
   Container,

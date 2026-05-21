@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { approveAction, rejectAction, type DraftedAction } from '@/lib/family-mode-api';
 
 interface Props {

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Calendar, MapPin, Users, CheckSquare, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatINRCompact, formatDateIN, daysUntil } from '@/lib/format';

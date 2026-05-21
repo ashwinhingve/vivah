@@ -4,7 +4,7 @@
  */
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { InvoiceRecord } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';

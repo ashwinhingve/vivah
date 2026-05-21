@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { KycActionsPanel } from '@/components/admin/KycActionsPanel.client';
 import { KycAppealResolver } from '@/components/admin/KycAppealResolver.client';
 import { AuditTimeline } from '@/app/[locale]/(onboarding)/profile/kyc/AuditTimeline';

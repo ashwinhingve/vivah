@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
 import { TopNav } from '@/components/layout/TopNav.client';
 import { CartButton } from '@/components/store/CartButton.client';
+import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 import { AssistantToggle } from '@/components/assistant/AssistantToggle.client';
 import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
@@ -34,6 +35,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                 <RoleSwitcher />
               </div>
             )}
+            <LanguageToggle />
             <CartButton />
             <UserMenu />
           </div>

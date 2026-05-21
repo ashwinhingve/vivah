@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { VendorProductCard } from '@/components/store/VendorProductCard';
 import type { ProductSummary } from '@smartshaadi/types';

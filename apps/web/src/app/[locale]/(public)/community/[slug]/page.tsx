@@ -7,7 +7,7 @@
  * This route is *outside* the `(app)` auth group → no session required.
  */
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 

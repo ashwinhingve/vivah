@@ -1,8 +1,18 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { WeddingNewForm } from './WeddingNewForm.client';
 
-export default function NewWeddingPage() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.new.metadata' });
+  return { title: t('title') };
+}
+
+export default async function NewWeddingPage() {
+  const t = await getTranslations('weddings.new');
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto px-4 py-8 pb-24">
@@ -15,7 +25,7 @@ export default function NewWeddingPage() {
         </Link>
 
         <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-6">
-          <h1 className="font-heading text-2xl text-primary mb-1">Plan Your Wedding</h1>
+          <h1 className="font-heading text-2xl text-primary mb-1">{t('heading')}</h1>
           <p className="text-muted-foreground text-sm mb-6">
             Fill in the basics — you can update everything later.
           </p>

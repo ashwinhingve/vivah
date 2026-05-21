@@ -1,6 +1,7 @@
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import Link from 'next/link';
-
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 interface Plan {
   id:       string;
   code:     string;
@@ -41,15 +42,22 @@ const INTERVAL_LABELS: Record<Plan['interval'], string> = {
   YEARLY:    '/year',
 };
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'pricing.metadata' });
+  return { title: t('title') };
+}
+
 export default async function PricingPage() {
+  const t = await getTranslations('pricing');
   const fetched = await fetchPlans();
   const plans = fetched.length > 0 ? fetched : FALLBACK_PLANS;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-primary">Choose your plan</h1>
-        <p className="mt-2 text-muted-foreground">Find your match. Plan your wedding. All in one place.</p>
+        <h1 className="text-3xl font-bold text-primary">{t('heading')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('subtext')}</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

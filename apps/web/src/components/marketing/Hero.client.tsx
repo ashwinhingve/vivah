@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
 import { ShieldCheck, Lock, Star } from 'lucide-react';
 import { ProfileCard } from '@/components/ui/ProfileCard.client';
@@ -61,6 +62,7 @@ const cardVariants: Variants = {
 
 // ── Hero section ──────────────────────────────────────────────────────────────
 export default function Hero() {
+  const t = useTranslations('marketing.hero');
   const reduce = useReducedMotion();
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -133,9 +135,7 @@ export default function Hero() {
             className="font-[family-name:var(--font-heading)] font-semibold leading-[1.08] text-primary"
             style={{ fontSize: 'clamp(2.25rem, 5vw, 3.25rem)' }}
           >
-            Where families find
-            <br />
-            <span className="italic">their forever.</span>
+            {t('heading')}
           </motion.h1>
 
           {/* Subhead */}
@@ -143,9 +143,7 @@ export default function Hero() {
             variants={itemVariants}
             className="mt-6 text-base md:text-lg text-foreground/80 max-w-[540px] leading-relaxed"
           >
-            India&apos;s first matrimonial platform built around real
-            compatibility — Guna Milan, family values, and reciprocal matching.
-            Verified profiles only.
+            {t('subtext')}
           </motion.p>
 
           {/* Trust badges */}
@@ -176,13 +174,13 @@ export default function Hero() {
               href="/register"
               className="inline-flex items-center justify-center min-h-[48px] rounded-lg px-8 py-3 bg-teal text-white font-semibold text-base transition-all duration-200 shadow-md shadow-teal/25 hover:bg-teal-hover hover:shadow-lg hover:shadow-teal/35 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
             >
-              Find Your Match →
+              {t('primaryCta')}
             </Link>
             <Link
               href="/vendors"
               className="inline-flex items-center justify-center min-h-[48px] rounded-lg px-8 py-3 border border-gold/40 bg-surface text-gold-muted font-semibold text-base transition-all duration-200 hover:border-gold hover:bg-gold/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
             >
-              Browse Vendors
+              {t('secondaryCta')}
             </Link>
           </motion.div>
 
@@ -191,7 +189,7 @@ export default function Hero() {
             variants={itemVariants}
             className="mt-3 text-xs text-foreground/50"
           >
-            Free to join · No credit card · 2 min setup
+            {t('microcopy')}
           </motion.p>
         </motion.div>
 

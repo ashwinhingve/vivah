@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { KycInitiateButton } from './KycInitiateButton.client';
 import { PanVerifyCard } from './PanVerifyCard.client';
 import { BankVerifyCard } from './BankVerifyCard.client';

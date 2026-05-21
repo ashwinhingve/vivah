@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { FileText } from 'lucide-react';
 import { R2Uploader } from './R2Uploader.client';
 import type { WeddingDocument, DocumentType } from '@smartshaadi/types';

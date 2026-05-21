@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateFamily } from '../actions';
@@ -39,6 +40,7 @@ interface ProfileSnapshot {
 }
 
 export default function FamilyPage() {
+  const t = useTranslations('onboarding.family');
   const [state, formAction] = useActionState(updateFamily, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -80,7 +82,7 @@ export default function FamilyPage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
         <h1 className="text-lg font-semibold text-primary mb-6 font-heading">
-          Family Background
+          {t('heading')}
         </h1>
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (

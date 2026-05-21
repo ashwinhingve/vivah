@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Home,
@@ -32,57 +33,57 @@ import type { LucideIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
-type NavItem = { href: string; label: string; Icon: LucideIcon };
-type NavGroup = { title: string; items: NavItem[] };
+type NavItem = { href: string; labelKey: string; Icon: LucideIcon };
+type NavGroup = { titleKey: string; items: NavItem[] };
 
 const INDIVIDUAL_PRIMARY: NavItem[] = [
-  { href: '/feed',      label: 'Discover',    Icon: Home },
-  { href: '/requests',  label: 'Requests',    Icon: Heart },
-  { href: '/matches',   label: 'Connections', Icon: Sparkles },
-  { href: '/weddings',  label: 'Wedding',     Icon: Cake },
-  { href: '/dashboard', label: 'Profile',     Icon: User },
+  { href: '/feed',      labelKey: 'discover',     Icon: Home },
+  { href: '/requests',  labelKey: 'requests',     Icon: Heart },
+  { href: '/matches',   labelKey: 'connections',  Icon: Sparkles },
+  { href: '/weddings',  labelKey: 'wedding',      Icon: Cake },
+  { href: '/dashboard', labelKey: 'profile',      Icon: User },
 ];
 
 const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
   {
-    title: 'Social',
+    titleKey: 'groupSocial',
     items: [
-      { href: '/chats',         label: 'Chats',         Icon: MessageCircle },
-      { href: '/notifications', label: 'Notifications', Icon: Bell },
-      { href: '/likes',         label: 'Likes',         Icon: Heart },
-      { href: '/shortlist',     label: 'Shortlist',     Icon: Bookmark },
-      { href: '/viewers',       label: 'Viewed Me',     Icon: Eye },
+      { href: '/chats',         labelKey: 'chats',         Icon: MessageCircle },
+      { href: '/notifications', labelKey: 'notifications', Icon: Bell },
+      { href: '/likes',         labelKey: 'likes',         Icon: Heart },
+      { href: '/shortlist',     labelKey: 'shortlist',     Icon: Bookmark },
+      { href: '/viewers',       labelKey: 'viewedMe',      Icon: Eye },
     ],
   },
   {
-    title: 'Discover',
+    titleKey: 'groupDiscover',
     items: [
-      { href: '/vendors', label: 'Vendors', Icon: Search },
+      { href: '/vendors', labelKey: 'vendors', Icon: Search },
     ],
   },
   {
-    title: 'Shop',
+    titleKey: 'groupShop',
     items: [
-      { href: '/store',    label: 'Shop',     Icon: ShoppingBag },
-      { href: '/rentals',  label: 'Rentals',  Icon: Package },
-      { href: '/bookings', label: 'Bookings', Icon: Calendar },
+      { href: '/store',    labelKey: 'shop',     Icon: ShoppingBag },
+      { href: '/rentals',  labelKey: 'rentals',  Icon: Package },
+      { href: '/bookings', labelKey: 'bookings', Icon: Calendar },
     ],
   },
   {
-    title: 'Money',
+    titleKey: 'groupMoney',
     items: [
-      { href: '/payments',          label: 'Payments', Icon: ShoppingCart },
-      { href: '/payments/wallet',   label: 'Wallet',   Icon: Wallet },
-      { href: '/payments/invoices', label: 'Invoices', Icon: FileText },
-      { href: '/payments/refunds',  label: 'Refunds',  Icon: Receipt },
+      { href: '/payments',          labelKey: 'payments', Icon: ShoppingCart },
+      { href: '/payments/wallet',   labelKey: 'wallet',   Icon: Wallet },
+      { href: '/payments/invoices', labelKey: 'invoices', Icon: FileText },
+      { href: '/payments/refunds',  labelKey: 'refunds',  Icon: Receipt },
     ],
   },
   {
-    title: 'Settings',
+    titleKey: 'groupSettings',
     items: [
-      { href: '/profile/personal',             label: 'Edit Profile', Icon: UserCog },
-      { href: '/settings/privacy',             label: 'Privacy',      Icon: EyeOff },
-      { href: '/settings/security/two-factor', label: 'Security',     Icon: Shield },
+      { href: '/profile/personal',             labelKey: 'editProfile', Icon: UserCog },
+      { href: '/settings/privacy',             labelKey: 'privacy',     Icon: EyeOff },
+      { href: '/settings/security/two-factor', labelKey: 'security',    Icon: Shield },
     ],
   },
 ];
@@ -110,24 +111,24 @@ function filterForDemo<T extends { href: string }>(items: T[]): T[] {
 }
 
 const VENDOR_NAV: NavItem[] = [
-  { href: '/vendor-dashboard',        label: 'Home',     Icon: Home },
-  { href: '/bookings',                label: 'Bookings', Icon: Calendar },
-  { href: '/vendor-dashboard/store',  label: 'Products', Icon: Package },
-  { href: '/vendor-dashboard/orders', label: 'Orders',   Icon: ShoppingCart },
-  { href: '/vendor/payouts',          label: 'Payouts',  Icon: ShoppingBag },
-  { href: '/payments/links',          label: 'Links',    Icon: MessageCircle },
-  { href: '/profile/personal',        label: 'Profile',  Icon: User },
+  { href: '/vendor-dashboard',        labelKey: 'home',     Icon: Home },
+  { href: '/bookings',                labelKey: 'bookings', Icon: Calendar },
+  { href: '/vendor-dashboard/store',  labelKey: 'products', Icon: Package },
+  { href: '/vendor-dashboard/orders', labelKey: 'orders',   Icon: ShoppingCart },
+  { href: '/vendor/payouts',          labelKey: 'payouts',  Icon: ShoppingBag },
+  { href: '/payments/links',          labelKey: 'links',    Icon: MessageCircle },
+  { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
 ];
 
 const ADMIN_NAV: NavItem[] = [
-  { href: '/admin',           label: 'Admin',    Icon: Home },
-  { href: '/admin/revenue',   label: 'Revenue',  Icon: Search },
-  { href: '/admin/payouts',   label: 'Payouts',  Icon: ShoppingBag },
-  { href: '/admin/refunds',   label: 'Refunds',  Icon: Shield },
-  { href: '/admin/promos',    label: 'Promos',   Icon: Heart },
-  { href: '/admin/escrow',    label: 'Disputes', Icon: Bookmark },
-  { href: '/vendors',         label: 'Vendors',  Icon: Search },
-  { href: '/bookings',        label: 'Bookings', Icon: Calendar },
+  { href: '/admin',           labelKey: 'admin',    Icon: Home },
+  { href: '/admin/revenue',   labelKey: 'revenue',  Icon: Search },
+  { href: '/admin/payouts',   labelKey: 'payouts',  Icon: ShoppingBag },
+  { href: '/admin/refunds',   labelKey: 'refunds',  Icon: Shield },
+  { href: '/admin/promos',    labelKey: 'promos',   Icon: Heart },
+  { href: '/admin/escrow',    labelKey: 'disputes', Icon: Bookmark },
+  { href: '/vendors',         labelKey: 'vendors',  Icon: Search },
+  { href: '/bookings',        labelKey: 'bookings', Icon: Calendar },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -138,6 +139,7 @@ function isActive(pathname: string, href: string) {
 }
 
 export function AppNav() {
+  const t = useTranslations('nav.app');
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
   const reduce = useReducedMotion();
@@ -180,7 +182,7 @@ export function AppNav() {
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent"
         />
         <div className="mx-auto flex max-w-lg items-stretch">
-          {primary.map(({ href, label, Icon }) => {
+          {primary.map(({ href, labelKey, Icon }) => {
             const active = isActive(pathname, href);
             return (
               <Link
@@ -218,7 +220,7 @@ export function AppNav() {
                     active ? 'font-semibold' : 'font-medium'
                   )}
                 >
-                  {label}
+                  {t(labelKey)}
                 </span>
               </Link>
             );
@@ -229,7 +231,7 @@ export function AppNav() {
               onClick={() => setMoreOpen(v => !v)}
               aria-expanded={moreOpen}
               aria-haspopup="menu"
-              aria-label="More options"
+              aria-label={t('moreLabel')}
               className={cn(
                 'group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors',
                 moreActive || moreOpen ? 'text-teal' : 'text-muted-foreground hover:text-primary'
@@ -269,7 +271,7 @@ export function AppNav() {
                   moreActive || moreOpen ? 'font-semibold' : 'font-medium'
                 )}
               >
-                More
+                {t('more')}
               </span>
             </button>
           ) : null}
@@ -321,20 +323,20 @@ export function AppNav() {
                   </div>
                   <div className="px-5 pb-2">
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-gold-muted" aria-hidden="true">
-                      More
+                      {t('more')}
                     </p>
                     <h2 className="font-heading text-lg font-semibold text-primary">
-                      Everything else
+                      {t('everythingElse')}
                     </h2>
                   </div>
                   <div className="max-h-[70vh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
                     {INDIVIDUAL_MORE_GROUPS.map((group) => (
-                      <section key={group.title} className="mt-2 first:mt-0">
+                      <section key={group.titleKey} className="mt-2 first:mt-0">
                         <h3 className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                          {group.title}
+                          {t(group.titleKey)}
                         </h3>
                         <ul>
-                          {group.items.map(({ href, label, Icon }) => {
+                          {group.items.map(({ href, labelKey, Icon }) => {
                             const active = isActive(pathname, href);
                             return (
                               <li key={href}>
@@ -358,7 +360,7 @@ export function AppNav() {
                                   >
                                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                                   </span>
-                                  <span className="text-sm font-medium">{label}</span>
+                                  <span className="text-sm font-medium">{t(labelKey)}</span>
                                 </Link>
                               </li>
                             );

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { fetchManagedWeddings } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';

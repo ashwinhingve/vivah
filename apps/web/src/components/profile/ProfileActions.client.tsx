@@ -17,8 +17,8 @@
  *    TODO: wire Report to POST /api/v1/profiles/:profileId/report (no endpoint yet)
  */
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Heart, MoreHorizontal, Flag, ShieldOff, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 

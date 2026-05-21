@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from '@/i18n/navigation';
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type Resolution = 'RELEASE' | 'REFUND' | 'SPLIT';

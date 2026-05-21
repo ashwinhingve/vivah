@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import type { VendorProfile } from '@smartshaadi/types';
 

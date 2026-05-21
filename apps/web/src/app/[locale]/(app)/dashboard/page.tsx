@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import {
   Heart,
   Calendar,
@@ -83,6 +85,12 @@ function daysUntil(dateStr: string): number {
   const target = new Date(dateStr);
   target.setHours(0, 0, 0, 0);
   return Math.max(0, Math.round((target.getTime() - today.getTime()) / 86_400_000));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'dashboard.metadata' });
+  return { title: t('title') };
 }
 
 export default async function DashboardPage() {

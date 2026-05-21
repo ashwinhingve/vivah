@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { ShieldCheck } from 'lucide-react';
 import { readSessionCookie } from '@/lib/auth/session-cookie';

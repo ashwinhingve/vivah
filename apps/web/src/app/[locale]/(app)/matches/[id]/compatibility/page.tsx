@@ -1,12 +1,18 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { CompatibilityDisclaimer } from '@/components/dpi/CompatibilityDisclaimer';
 import { CompatibilityGauge } from '@/components/dpi/CompatibilityGauge.client';
 import { FiiDetailPanel } from '@/components/fii/FiiDetailPanel.client';
 
-export const metadata = { title: 'Compatibility Analysis — Smart Shaadi' };
-
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'compatibility.metadata' });
+  return { title: t('title') };
 }
 
 function GaugeSkeleton() {
@@ -20,6 +26,7 @@ function GaugeSkeleton() {
 
 export default async function CompatibilityPage({ params }: PageProps) {
   const { id } = await params;
+  const t = await getTranslations('compatibility');
 
   return (
     <main className="min-h-screen bg-background">
@@ -27,7 +34,7 @@ export default async function CompatibilityPage({ params }: PageProps) {
         <CompatibilityDisclaimer />
 
         <h1 className="font-heading text-primary text-2xl mb-2">
-          Compatibility Analysis
+          {t('heading')}
         </h1>
 
         <p className="text-muted-foreground text-sm mb-6">

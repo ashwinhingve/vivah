@@ -6,7 +6,7 @@
  * router.refresh() to re-render the parent server component with new state.
  */
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Loader2, CheckCircle2, ShieldOff, PlayCircle, RotateCcw } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 

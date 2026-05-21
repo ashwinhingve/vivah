@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { RsvpQuestionsBuilder } from '@/components/wedding/RsvpQuestionsBuilder.client';

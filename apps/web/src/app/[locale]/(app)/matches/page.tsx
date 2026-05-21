@@ -1,9 +1,15 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { AcceptedMatchCard } from '@/components/matching/AcceptedMatchCard';
 import type { MatchRequest, MatchRequestsResponse } from '@smartshaadi/types';
 
-export const metadata = { title: 'Your Matches — Smart Shaadi' };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'matches.metadata' });
+  return { title: t('title') };
+}
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -56,6 +62,7 @@ async function getAcceptedMatches(token: string): Promise<{ request: MatchReques
 }
 
 export default async function MatchesPage() {
+  const t = await getTranslations('matches');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
 
@@ -66,7 +73,7 @@ export default async function MatchesPage() {
       <div className="mx-auto max-w-screen-lg px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-primary font-heading">Your Matches</h1>
+            <h1 className="text-2xl font-bold text-primary font-heading">{t('heading')}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               {matches.length > 0
                 ? `${matches.length} accepted match${matches.length !== 1 ? 'es' : ''}`

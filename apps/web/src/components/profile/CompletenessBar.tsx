@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Check, Circle, Sparkles } from 'lucide-react';
 import type { ProfileSectionCompletion } from '@smartshaadi/types';
 import { cn } from '@/lib/utils';

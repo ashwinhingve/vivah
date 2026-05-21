@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
 import { AppNav } from '@/components/layout/AppNav.client';
 

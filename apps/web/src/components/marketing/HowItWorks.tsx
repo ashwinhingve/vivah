@@ -1,9 +1,10 @@
+import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
 import { NoMatchesIllustration } from '@/components/ui/illustrations';
 
 interface Step {
   number: string;
-  title: string;
+  titleKey: string;
   description: string;
   tags: string[];
 }
@@ -11,28 +12,30 @@ interface Step {
 const steps: Step[] = [
   {
     number: '01',
-    title: 'Create Your Profile',
+    titleKey: 'step1Title',
     description:
       'Set up in 2 minutes. Aadhaar-verified identity, horoscope details, family background, and lifestyle preferences — all with full privacy control. Family members can co-create.',
     tags: ['KYC Verified', 'Family Mode', 'Kundli Upload'],
   },
   {
     number: '02',
-    title: 'Discover Compatible Matches',
+    titleKey: 'step2Title',
     description:
       'Our AI analyses Guna Milan scores, lifestyle alignment, and family values. Reciprocal matching means both sides must show interest before contact details unlock — no awkward one-sided reveals.',
     tags: ['Guna Milan Score', 'Reciprocal Matching', 'Daily Suggestions'],
   },
   {
     number: '03',
-    title: 'Plan Your Wedding Together',
+    titleKey: 'step3Title',
     description:
       'Once connected, move seamlessly to the wedding journey: vendor discovery, budget tracking, guest list, and RSVP — all in one platform built for Indian families.',
     tags: ['Vendor Marketplace', 'Budget Planner', 'Guest List & RSVP'],
   },
 ];
 
-export default function HowItWorks() {
+export default async function HowItWorks() {
+  const t = await getTranslations('marketing.howItWorks');
+
   return (
     <section id="how-it-works" className="bg-surface py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
@@ -49,8 +52,7 @@ export default function HowItWorks() {
             className="font-[family-name:var(--font-heading)] font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}
           >
-            Three steps to your{' '}
-            <span className="italic text-primary">wedding journey</span>
+            {t('sectionHeading')}
           </h2>
           <p className="mt-4 text-muted-foreground max-w-lg mx-auto leading-relaxed">
             Designed for both individuals and families. Start together, find together.
@@ -94,7 +96,7 @@ export default function HowItWorks() {
                   className="font-[family-name:var(--font-heading)] font-medium text-primary mb-3"
                   style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.35rem)' }}
                 >
-                  {step.title}
+                  {t(step.titleKey)}
                 </h3>
 
                 <p className="text-sm text-muted-foreground leading-relaxed flex-1">

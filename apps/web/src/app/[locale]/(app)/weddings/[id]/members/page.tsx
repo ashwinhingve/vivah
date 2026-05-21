@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft, UserPlus, Users, Mail } from 'lucide-react';
 import { fetchMembers, fetchInvites } from '@/lib/wedding-api';
 import { inviteMemberAction, updateRoleAction, removeMemberAction } from './actions';

@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Check } from 'lucide-react';
 
 const freeFeatures = [
@@ -44,7 +45,9 @@ function PaisleyOrnament({ className }: { className?: string }) {
   );
 }
 
-export default function Pricing() {
+export default async function Pricing() {
+  const t = await getTranslations('marketing.pricing');
+
   return (
     <section id="pricing" className="bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
@@ -55,8 +58,7 @@ export default function Pricing() {
           Pricing
         </p>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
-          Start Free.{' '}
-          <span className="italic text-primary">Upgrade When Ready.</span>
+          {t('sectionHeading')}
         </h2>
         <p className="text-muted-foreground text-center mb-16 leading-relaxed">
           No credit card. No auto-charges. Cancel anytime.
@@ -68,7 +70,7 @@ export default function Pricing() {
             <PaisleyOrnament className="absolute -top-8 -right-8 w-32 h-32 text-gold/15 pointer-events-none" />
 
             <p className="relative text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Free Forever
+              {t('freePlanName')}
             </p>
             <p className="relative text-5xl md:text-6xl font-bold text-foreground font-[family-name:var(--font-heading)] mt-2">
               ₹0
@@ -113,7 +115,7 @@ export default function Pricing() {
             />
 
             <p className="relative text-sm text-gold/90 uppercase tracking-wide mt-4 font-semibold">
-              Smart Shaadi Premium
+              {t('premiumPlanName')}
             </p>
             <p className="relative mt-2">
               <span className="text-5xl md:text-6xl font-bold text-white font-[family-name:var(--font-heading)]">
