@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { fetchManagedWeddings } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -12,7 +12,7 @@ export default async function CoordinatorDashboardPage() {
   // any leak if matcher config drifts. Mirrors apps/web/src/app/(app)/admin/page.tsx.
   const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'EVENT_COORDINATOR' && me.role !== 'ADMIN') {
-    redirect('/dashboard');
+    return await redirect('/dashboard');
   }
 
   const data = await fetchManagedWeddings();

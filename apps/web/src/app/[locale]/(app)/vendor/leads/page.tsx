@@ -6,7 +6,7 @@
  * admin qualification/refund actions live on a separate admin page.
  */
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import {
   fetchMyLeads,
@@ -53,10 +53,10 @@ export default async function VendorLeadsPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const cookie = await authCookie();
-  if (!cookie) redirect('/login');
+  if (!cookie) return await redirect('/login');
 
   const vendor = await fetchVendorMe(cookie);
   const params = await searchParams;

@@ -6,7 +6,7 @@
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { ArrowLeft } from 'lucide-react';
 import { PageHeader }    from '@/components/ui/PageHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -87,9 +87,9 @@ export default async function AdminVendorDetailPage({
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me', token);
   if (me && me.role !== 'ADMIN') {
-    redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
-  if (!me) redirect('/login');
+  if (!me) return await redirect('/login');
 
   const { id } = await params;
   const data = await fetchAuth<{ vendor: VendorRow }>(`/api/v1/admin/vendors/${id}`, token);

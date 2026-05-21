@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { AssistantChat } from '@/components/assistant/AssistantChat.client';
 
 export default async function AssistantPage() {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-6 h-[calc(100vh-12rem)]">

@@ -1,7 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { extractErrorMessage, type ApiError } from '@/lib/api-envelope';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -70,5 +70,5 @@ export async function createWeddingAction(
     };
   }
 
-  redirect(`/weddings/${newWeddingId}`);
+  return await redirect(`/weddings/${newWeddingId}`);
 }

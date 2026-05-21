@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { getPendingActions } from '@/lib/family-mode-api';
 import { ParentActionCard } from '@/components/family/ParentActionCard.client';
 
 export default async function FamilyInboxPage() {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
   const pending = (await getPendingActions(cookieHeader)) ?? [];

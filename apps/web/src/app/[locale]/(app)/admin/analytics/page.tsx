@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
@@ -50,7 +50,7 @@ export default async function AnalyticsPage({
 }) {
   const me = await fetchAuth<AuthMe>('/api/auth/me');
   if (me && me.role !== 'ADMIN') {
-    redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   const sp = await searchParams;

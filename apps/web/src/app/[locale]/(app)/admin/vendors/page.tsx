@@ -5,7 +5,7 @@
  */
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { ArrowLeft, Store } from 'lucide-react';
 import { PageHeader }    from '@/components/ui/PageHeader';
 import { EmptyState }    from '@/components/ui/EmptyState';
@@ -76,7 +76,7 @@ export default async function AdminVendorsQueuePage({
   // Role guard mirrors apps/web/src/app/(app)/admin/page.tsx.
   const me = await fetchAuth<{ role: string }>('/api/auth/me', token);
   if (me && me.role !== 'ADMIN') {
-    redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   const sp = await searchParams;

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { KycActionsPanel } from '@/components/admin/KycActionsPanel.client';
 import { KycAppealResolver } from '@/components/admin/KycAppealResolver.client';
 import { AuditTimeline } from '@/app/[locale]/(onboarding)/profile/kyc/AuditTimeline';
@@ -95,7 +95,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
-  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') redirect('/dashboard');
+  if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') return await redirect('/dashboard');
 
   const details = await fetchAuth<Details>(`/api/v1/admin/kyc/${profileId}/details`, token);
   if (!details) notFound();

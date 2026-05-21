@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { LifeBuoy } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -10,7 +10,7 @@ export default async function SupportConsolePage() {
   // Role guard — middleware does the same check; page guard belt-and-braces.
   const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'SUPPORT' && me.role !== 'ADMIN') {
-    redirect('/dashboard');
+    return await redirect('/dashboard');
   }
 
   return (

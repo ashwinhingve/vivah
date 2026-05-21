@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import ChatView from '@/components/chat/ChatView.client'
@@ -61,7 +61,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const { matchId } = await params
   const cookieStore = await cookies()
   const token = cookieStore.get('better-auth.session_token')?.value
-  if (!token) redirect('/login')
+  if (!token) return await redirect('/login')
 
   let userId = ''
   try {
@@ -77,7 +77,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
     // Non-fatal — userId stays empty, redirect handles it
   }
 
-  if (!userId) redirect('/login')
+  if (!userId) return await redirect('/login')
 
   const [{ data: conversation, error }, profileId] = await Promise.all([
     getConversation(matchId, token),

@@ -1,7 +1,7 @@
 import { type ComponentType } from 'react';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import {
   ShieldCheck,
   Scale,
@@ -185,7 +185,7 @@ export default async function AdminPage() {
   // identifies a non-admin role (prevents a loop when the API is unreachable).
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
   if (me && me.role !== 'ADMIN') {
-    redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   // Parallel data fetches — tolerate null (show "—" / empty states gracefully)

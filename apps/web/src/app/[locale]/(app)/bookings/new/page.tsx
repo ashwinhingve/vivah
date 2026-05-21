@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import type { VendorProfile } from '@smartshaadi/types';
 import type { PortfolioDoc, PortfolioPackage } from '@/components/vendor/VendorPortfolio';
 import { BookingForm } from '@/components/bookings/BookingForm.client';
@@ -27,7 +27,7 @@ async function fetchVendor(id: string): Promise<(VendorProfile & { portfolio: Po
 export default async function NewBookingPage({ searchParams }: PageProps) {
   const { vendorId } = await searchParams;
   if (!vendorId) {
-    redirect('/vendors');
+    return await redirect('/vendors');
   }
 
   const vendor = await fetchVendor(vendorId);

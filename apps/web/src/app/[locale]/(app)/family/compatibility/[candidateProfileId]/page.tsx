@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { fetchAuth } from '@/lib/server-fetch';
 import { getRatings } from '@/lib/family-mode-api';
@@ -17,12 +17,12 @@ interface MeProfile {
 
 export default async function FamilyCompatPage({ params }: PageProps) {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const { candidateProfileId } = await params;
 
   const me = await fetchAuth<MeProfile>('/api/v1/profiles/me');
-  if (!me) redirect('/login');
+  if (!me) return await redirect('/login');
 
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
   const data = await getRatings(me.id, candidateProfileId, cookieHeader);

@@ -7,7 +7,7 @@
  * (no auth, no vendor account, infra unreachable).
  */
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import {
   MultiEventPipeline,
@@ -58,10 +58,10 @@ async function fetchPipeline(
 
 export default async function VendorPipelinePage() {
   const cookieStore = await cookies();
-  if (!readSessionCookie(cookieStore)) redirect('/login');
+  if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
   const cookie = await authCookie();
-  if (!cookie) redirect('/login');
+  if (!cookie) return await redirect('/login');
 
   const vendor = await fetchVendorMe(cookie);
 
