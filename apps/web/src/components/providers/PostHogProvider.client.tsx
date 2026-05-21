@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { usePathname } from '@/i18n/navigation';
+import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
 
 let initialized = false;
