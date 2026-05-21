@@ -40,7 +40,9 @@ export const SetPrimaryPhotoSchema = z.object({
 export const UpdatePersonalSchema = z.object({
   fullName:      z.string().min(1).max(255).optional(),
   dob:           z.string().datetime({ offset: true }).optional(),
-  gender:        z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  gender:        z.enum(['MALE', 'FEMALE', 'NON_BINARY', 'OTHER']).optional(),
+  sexualOrientation:     z.enum(['STRAIGHT', 'GAY', 'LESBIAN', 'BISEXUAL', 'PANSEXUAL', 'OTHER']).optional(),
+  orientationVisibility: z.enum(['PRIVATE', 'OUT']).optional(),
   height:        z.number().int().min(100).max(250).optional(),
   weight:        z.number().int().min(30).max(200).optional(),
   maritalStatus: z.enum(['NEVER_MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED']).optional(),
@@ -230,6 +232,7 @@ export const UpdatePartnerPreferencesSchema = z.object({
   openToInterfaith:   z.boolean().optional(),
   openToInterCaste:   z.boolean().optional(),
   maritalStatus:      z.array(z.enum(['NEVER_MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED'])).optional(),
+  partnerGender:      z.array(z.enum(['MALE', 'FEMALE', 'NON_BINARY', 'OTHER'])).optional(),
   partnerDescription: z.string().max(1000).optional(),
   divorceeNote:       z.string().max(500).optional(),
   maxDistanceKm:      z.number().int().min(5).max(2000).optional(),
