@@ -21,6 +21,7 @@ import type {
 import type Redis from 'ioredis';
 import { eq, and, inArray } from 'drizzle-orm';
 import { applyHardFilters, type ProfileWithPreferences } from './filters.js';
+import { isLGBTQMatchingEnabled } from '../services/platformSettingsService.js';
 import { scoreCandidate, type ProfileData } from './scorer.js';
 import { getBehaviourRollup, type BehaviourRollup } from './behaviourFeatures.js';
 import { explainMatch } from './explainer.js';
@@ -75,6 +76,7 @@ interface ProfileRow {
     dob?:          Date | null
     religion?:     string | null
     maritalStatus?: MaritalStatus | null
+    gender?:       'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | null
   } | null
   location?: {
     city?:  string | null
@@ -110,6 +112,7 @@ interface ProfileRow {
     mustHave?:        MustHaveFlags | null
     personalityIdeal?: PersonalityIdeal | null
     maritalStatus?:   MaritalStatus[] | null
+    partnerGender?:   Array<'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'> | null
   } | null
   horoscope?: {
     manglik?: 'YES' | 'NO' | 'PARTIAL' | null
@@ -245,6 +248,7 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
   return {
     id:           row.id,
     age,
+    gender:       (row.personal?.gender ?? null),
     religion:     row.personal?.religion ?? 'Hindu',
     city:         row.location?.city ?? '',
     state:        row.location?.state ?? '',
@@ -285,6 +289,7 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
       maxDistanceKm:   row.partnerPreferences?.maxDistanceKm ?? 100,
       mustHave:        row.partnerPreferences?.mustHave ?? {},
       personalityIdeal: row.partnerPreferences?.personalityIdeal ?? {},
+      ...(row.partnerPreferences?.partnerGender ? { partnerGender: row.partnerPreferences.partnerGender } : {}),
     },
   };
 }
@@ -295,6 +300,7 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
   return {
     id:         p.id,
     age:        p.age,
+    gender:     p.gender ?? null,
     religion:   p.religion,
     city:       p.city,
     state:      p.state,
@@ -326,6 +332,7 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
       ...(p.preferences.mustHave      !== undefined ? { mustHave:      p.preferences.mustHave      } : {}),
       ...(p.preferences.manglik          ? { manglik: p.preferences.manglik } : {}),
       ...(p.preferences.openToInterCaste !== undefined ? { openToInterCaste: p.preferences.openToInterCaste } : {}),
+      ...(p.preferences.partnerGender ? { partnerGender: p.preferences.partnerGender } : {}),
     },
   };
 }
@@ -593,7 +600,8 @@ export async function computeAndCacheFeed(
   const userFilterProfile = toFilterProfile(userProfileData);
   const candidateFilterProfiles = candidateProfiles.map(toFilterProfile);
 
-  const passedFilterProfiles = applyHardFilters(userFilterProfile, candidateFilterProfiles);
+  const lgbtqEnabled = await isLGBTQMatchingEnabled();
+  const passedFilterProfiles = applyHardFilters(userFilterProfile, candidateFilterProfiles, { lgbtqEnabled });
 
   const passedIds = new Set(passedFilterProfiles.map((p) => p.id));
   const filteredProfiles = candidateProfiles.filter((p) => passedIds.has(p.id));

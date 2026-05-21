@@ -7,9 +7,12 @@ import type { MustHaveFlags } from '@smartshaadi/types';
 import { haversineKm } from '../lib/geocode.js';
 import { passesMaritalStatusFilter, type MaritalStatusValue } from './filters/maritalStatusFilter.js';
 
+export type GenderValue = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'
+
 export interface ProfileWithPreferences {
   id: string
   age: number
+  gender?: GenderValue | null
   religion: string
   city: string
   state: string
@@ -41,25 +44,37 @@ export interface ProfileWithPreferences {
     mustHave?: MustHaveFlags
     education?: string[]
     diet?: string[]
+    partnerGender?: GenderValue[]
   }
 }
 
 /**
  * Apply hard-filters bilaterally.
  * A candidate is kept only when BOTH sides pass every filter.
+ *
+ * `lgbtqEnabled` controls passesGenderFilter behavior:
+ *   - false (default platform state): only MALE <-> FEMALE pairs are allowed,
+ *     and NON_BINARY/OTHER users are excluded from the gender filter step.
+ *   - true: each side's preferredGender list is honored bilaterally.
  */
 export function applyHardFilters(
   userProfile: ProfileWithPreferences,
   candidates: ProfileWithPreferences[],
+  options: { lgbtqEnabled?: boolean } = {},
 ): ProfileWithPreferences[] {
-  return candidates.filter((candidate) => passesAllFilters(userProfile, candidate));
+  const lgbtqEnabled = options.lgbtqEnabled === true;
+  return candidates.filter((candidate) =>
+    passesAllFilters(userProfile, candidate, lgbtqEnabled),
+  );
 }
 
 function passesAllFilters(
   user: ProfileWithPreferences,
   candidate: ProfileWithPreferences,
+  lgbtqEnabled: boolean,
 ): boolean {
   return (
+    passesGenderFilter(user, candidate, lgbtqEnabled) &&
     passesAgeFilter(user, candidate) &&
     passesReligionFilter(user, candidate) &&
     passesDistanceFilter(user, candidate) &&
@@ -71,6 +86,44 @@ function passesAllFilters(
     passesManglikFilter(user, candidate) &&
     passesMaritalStatusFilter(user, candidate)
   );
+}
+
+// -- Gender filter (bilateral) --------------------------------------------
+//
+// Flag off  : only MALE<->FEMALE pairs pass. Anyone whose gender is missing
+//             or NON_BINARY/OTHER is dropped. preferredGender is ignored.
+// Flag on   : both sides' partnerGender arrays must include each other's
+//             gender. Missing partnerGender defaults to "opposite of self"
+//             so existing users behave like the flag-off case.
+export function passesGenderFilter(
+  user: ProfileWithPreferences,
+  candidate: ProfileWithPreferences,
+  lgbtqEnabled: boolean,
+): boolean {
+  const userG = user.gender ?? null;
+  const candG = candidate.gender ?? null;
+  if (!userG || !candG) return false;
+
+  if (!lgbtqEnabled) {
+    const allowed: Array<[GenderValue, GenderValue]> = [
+      ['MALE', 'FEMALE'],
+      ['FEMALE', 'MALE'],
+    ];
+    return allowed.some(([a, b]) => a === userG && b === candG);
+  }
+
+  const fallback = (g: GenderValue): GenderValue[] =>
+    g === 'MALE' ? ['FEMALE']
+    : g === 'FEMALE' ? ['MALE']
+    : ['MALE', 'FEMALE'];
+  const userWants = user.preferences.partnerGender && user.preferences.partnerGender.length > 0
+    ? user.preferences.partnerGender
+    : fallback(userG);
+  const candWants = candidate.preferences.partnerGender && candidate.preferences.partnerGender.length > 0
+    ? candidate.preferences.partnerGender
+    : fallback(candG);
+
+  return userWants.includes(candG) && candWants.includes(userG);
 }
 
 // ── Age (bilateral) ──────────────────────────────────────────────────────────
