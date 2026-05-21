@@ -32,7 +32,7 @@ describe('ProfileContentResponse', () => {
 
 describe('PersonalSection', () => {
   it('gender is a union literal or undefined', () => {
-    expectTypeOf<PersonalSection['gender']>().toEqualTypeOf<'MALE' | 'FEMALE' | 'OTHER' | undefined>();
+    expectTypeOf<PersonalSection['gender']>().toEqualTypeOf<'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | undefined>();
   });
 
   it('maritalStatus is a union literal or undefined', () => {

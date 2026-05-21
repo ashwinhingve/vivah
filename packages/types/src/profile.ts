@@ -99,7 +99,9 @@ export interface ProfileMetaResponse {
 export interface PersonalSection {
   fullName?: string;
   dob?: string;           // ISO-8601 date string
-  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  gender?: 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER';
+  sexualOrientation?: 'STRAIGHT' | 'GAY' | 'LESBIAN' | 'BISEXUAL' | 'PANSEXUAL' | 'OTHER';
+  orientationVisibility?: 'PRIVATE' | 'OUT';
   height?: number;        // cm
   weight?: number;        // kg
   maritalStatus?: 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';

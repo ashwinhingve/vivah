@@ -3,6 +3,7 @@
 -- Seeds lgbtq_matching_enabled=false so default user-visible behavior is unchanged.
 
 ALTER TYPE "public"."gender" ADD VALUE IF NOT EXISTS 'NON_BINARY' BEFORE 'OTHER';
+ALTER TYPE "public"."audit_event_type" ADD VALUE IF NOT EXISTS 'PLATFORM_SETTING_CHANGED';
 
 CREATE TABLE IF NOT EXISTS "platform_settings" (
   "key"        varchar(100) PRIMARY KEY,

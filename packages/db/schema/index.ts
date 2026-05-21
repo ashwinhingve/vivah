@@ -364,6 +364,7 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'PAYMENT_LINK_PAID',
   'WEBHOOK_RECEIVED',
   'WEBHOOK_DUPLICATE',
+  'PLATFORM_SETTING_CHANGED',
 ]);
 
 export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'NON_BINARY', 'OTHER']);
