@@ -143,10 +143,10 @@
   },
   "pricing": {
     "metadata": {
-      "title": "Pricing — Smart Shaadi"
+      "title": "प्राइसिंग — Smart Shaadi"
     },
-    "heading": "Simple, Transparent Pricing",
-    "subtext": "Start free. Upgrade when you're ready."
+    "heading": "सरल, पारदर्शी प्राइसिंग",
+    "subtext": "मुफ़्त शुरू करें। तैयार होने पर अपग्रेड करें।"
   },
   "feed": {
     "metadata": {
@@ -188,27 +188,27 @@
   },
   "chat": {
     "metadata": {
-      "title": "Chat — Smart Shaadi"
+      "title": "चैट — Smart Shaadi"
     },
-    "heading": "Chat"
+    "heading": "चैट"
   },
   "chats": {
     "metadata": {
-      "title": "Chats — Smart Shaadi"
+      "title": "चैट — Smart Shaadi"
     },
-    "heading": "Conversations"
+    "heading": "बातचीत"
   },
   "dashboard": {
     "metadata": {
-      "title": "Dashboard — Smart Shaadi"
+      "title": "डैशबोर्ड — Smart Shaadi"
     },
-    "heading": "My Dashboard"
+    "heading": "मेरा डैशबोर्ड"
   },
   "billing": {
     "metadata": {
-      "title": "Billing & Subscription — Smart Shaadi"
+      "title": "बिलिंग और सब्सक्रिप्शन — Smart Shaadi"
     },
-    "heading": "Billing & Subscription"
+    "heading": "बिलिंग और सब्सक्रिप्शन"
   },
   "weddings": {
     "list": {
