@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, UserPlus } from 'lucide-react';
@@ -32,7 +34,14 @@ interface PageProps {
   searchParams?: Promise<{ from?: string }>;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.guests.metadata' });
+  return { title: t('title') };
+}
+
 export default async function GuestsPage({ params, searchParams }: PageProps) {
+  const t = await getTranslations('weddings.guests');
   const { id } = await params;
   const { from } = (await searchParams) ?? {};
   const [{ guests, error }, ceremonies] = await Promise.all([
@@ -75,7 +84,7 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         </Link>
 
         <PageHeader
-          title="Guests"
+          title={t('heading')}
           subtitle="Manage guest list, RSVPs, invitations, analytics, and check-in."
           breadcrumbs={[
             { label: 'My Weddings', href: '/weddings' },

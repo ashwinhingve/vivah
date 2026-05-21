@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PlusCircle } from 'lucide-react';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
@@ -13,7 +15,14 @@ async function fetchWeddings(): Promise<{ weddings: WeddingSummary[]; error: boo
   return { weddings: data.weddings ?? [], error: false };
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.list.metadata' });
+  return { title: t('title') };
+}
+
 export default async function WeddingsPage() {
+  const t = await getTranslations('weddings.list');
   const { weddings, error } = await fetchWeddings();
 
   const newWeddingCta = (
@@ -30,7 +39,7 @@ export default async function WeddingsPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         <PageHeader
-          title="My Weddings"
+          title={t('heading')}
           subtitle="Plan, track, and celebrate your perfect day."
           actions={newWeddingCta}
         />

@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { TaskKanban } from '@/components/wedding/TaskKanban.client';
@@ -25,7 +27,14 @@ interface PageProps {
   searchParams?: Promise<{ from?: string }>;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.tasks.metadata' });
+  return { title: t('title') };
+}
+
 export default async function TasksPage({ params, searchParams }: PageProps) {
+  const t = await getTranslations('weddings.tasks');
   const { id } = await params;
   const { from } = (await searchParams) ?? {};
   const tasks = await fetchTasks(id);
@@ -46,7 +55,7 @@ export default async function TasksPage({ params, searchParams }: PageProps) {
           {back.label}
         </Link>
 
-        <h1 className="font-heading text-2xl text-primary mb-1">Tasks</h1>
+        <h1 className="font-heading text-2xl text-primary mb-1">{t('heading')}</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Drag tasks through the pipeline or use the arrows to move them.
         </p>
