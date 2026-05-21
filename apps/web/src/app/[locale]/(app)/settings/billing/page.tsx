@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { BillingConfirm } from './BillingConfirm.client';
 
@@ -86,11 +88,18 @@ function featureList(features: unknown): string[] {
     : [];
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'billing.metadata' });
+  return { title: t('title') };
+}
+
 export default async function BillingPage({
   searchParams,
 }: {
   searchParams: Promise<{ plan?: string }>;
 }) {
+  const t = await getTranslations('billing');
   const { plan: planCode } = await searchParams;
   const plans = await fetchPlans();
   const isMock = process.env['USE_MOCK_SERVICES'] === 'true';
@@ -124,7 +133,7 @@ export default async function BillingPage({
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="mb-2 text-center text-3xl font-bold text-primary">Choose your plan</h1>
+      <h1 className="mb-2 text-center text-3xl font-bold text-primary">{t('heading')}</h1>
       <p className="mb-8 text-center text-sm text-muted-foreground">
         Unlock unlimited matches, AI matchmaking, and priority support.
       </p>

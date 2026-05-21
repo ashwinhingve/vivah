@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updatePersonal } from '../actions';
@@ -58,6 +59,7 @@ function heightToFtIn(cm?: number): { ft: number; inches: number } {
 }
 
 export default function PersonalPage() {
+  const t = useTranslations('onboarding.personal');
   const [state, formAction] = useActionState(updatePersonal, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -88,7 +90,7 @@ export default function PersonalPage() {
             👤
           </div>
           <h1 className="font-semibold text-primary text-lg font-heading">
-            Personal Details
+            {t('heading')}
           </h1>
         </div>
 

@@ -1,13 +1,18 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import ChatView from '@/components/chat/ChatView.client'
 import VideoCallPanel from './VideoCallPanel.client'
 import type { ChatMessage, ConversationParticipantPreview } from '@smartshaadi/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_SOCKET_URL'] ?? 'http://localhost:4000'
 
-export const metadata: Metadata = { title: 'Chat — Smart Shaadi' }
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'chat.metadata' });
+  return { title: t('title') };
+}
 
 interface ConversationData {
   messages: ChatMessage[]

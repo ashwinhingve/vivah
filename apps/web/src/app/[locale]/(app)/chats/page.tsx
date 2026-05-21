@@ -2,11 +2,17 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import ChatsListClient from '@/components/chat/ChatsListClient.client'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: 'Chats — Smart Shaadi' }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'chats.metadata' });
+  return { title: t('title') };
+}
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
 
@@ -45,6 +51,7 @@ interface PageProps {
 }
 
 export default async function ChatsPage({ searchParams }: PageProps) {
+  const t = await getTranslations('chats');
   const sp = await searchParams
   const filter: Filter =
     sp.filter === 'unread' || sp.filter === 'archived' ? sp.filter : 'all'
@@ -61,7 +68,7 @@ export default async function ChatsPage({ searchParams }: PageProps) {
   return (
     <main id="main-content" className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-10 border-b border-gold/20 bg-surface/95 px-4 pt-4 pb-2 backdrop-blur-xl">
-        <h1 className="font-heading text-xl font-semibold text-foreground">Chats</h1>
+        <h1 className="font-heading text-xl font-semibold text-foreground">{t('heading')}</h1>
         <nav aria-label="Filter chats" className="mt-3 flex gap-1.5">
           <FilterTab href="/chats" label="All" active={filter === 'all'} />
           <FilterTab href="/chats?filter=unread" label="Unread" active={filter === 'unread'} />
