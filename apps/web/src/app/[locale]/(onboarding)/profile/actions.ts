@@ -33,6 +33,10 @@ export async function updatePersonal(_prev: unknown, formData: FormData): Promis
   if (dob) payload.dob = new Date(dob as string).toISOString();
   const gender = formData.get('gender');
   if (gender) payload.gender = gender;
+  const sexualOrientation = formData.get('sexualOrientation');
+  if (sexualOrientation) payload.sexualOrientation = sexualOrientation;
+  // visibility checkbox absent => PRIVATE (default); present (value=OUT) => OUT
+  payload.orientationVisibility = formData.get('orientationVisibility') === 'OUT' ? 'OUT' : 'PRIVATE';
   const heightFt = formData.get('heightFt');
   const heightIn = formData.get('heightIn');
   if (heightFt) payload.height = Math.round(Number(heightFt) * 30.48 + Number(heightIn ?? 0) * 2.54);

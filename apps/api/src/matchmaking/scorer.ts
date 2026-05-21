@@ -20,6 +20,7 @@ import { isColdStart } from './behaviourFeatures.js';
 export interface ProfileData {
   id: string
   age: number
+  gender?: 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | null
   religion: string
   city: string
   state: string
@@ -60,6 +61,7 @@ export interface ProfileData {
     maxDistanceKm?: number
     mustHave?: MustHaveFlags
     personalityIdeal?: PersonalityIdeal
+    partnerGender?: Array<'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'>
   }
 }
 

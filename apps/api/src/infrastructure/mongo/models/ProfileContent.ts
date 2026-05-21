@@ -16,7 +16,9 @@ const profileContentSchema = new Schema(
     personal: {
       fullName:      String,
       dob:           Date,
-      gender:        String,         // MALE | FEMALE | OTHER
+      gender:        String,         // MALE | FEMALE | NON_BINARY | OTHER
+      sexualOrientation:     String, // STRAIGHT | GAY | LESBIAN | BISEXUAL | PANSEXUAL | OTHER — null=undisclosed
+      orientationVisibility: String, // PRIVATE | OUT — default PRIVATE; only OUT users participate in same-gender match
       height:        Number,         // cm
       weight:        Number,         // kg
       complexion:    String,
@@ -127,6 +129,7 @@ const profileContentSchema = new Schema(
       openToInterfaith: Boolean,
       openToInterCaste: Boolean,
       maritalStatus:    [String],    // NEVER_MARRIED | DIVORCED | WIDOWED | SEPARATED
+      partnerGender:    [String],    // MALE | FEMALE | NON_BINARY | OTHER — defaults to opposite of self when lgbtq flag off
       partnerDescription: String,
     },
 

@@ -364,9 +364,10 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'PAYMENT_LINK_PAID',
   'WEBHOOK_RECEIVED',
   'WEBHOOK_DUPLICATE',
+  'PLATFORM_SETTING_CHANGED',
 ]);
 
-export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'OTHER']);
+export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'NON_BINARY', 'OTHER']);
 
 export const maritalStatusEnum = pgEnum('marital_status', [
   'NEVER_MARRIED',
@@ -1588,3 +1589,14 @@ export const dataExportRequests = pgTable('data_export_requests', {
   userIdx:   index('data_export_user_idx').on(t.userId),
   statusIdx: index('data_export_status_idx').on(t.status),
 }));
+
+// ── Platform Settings ─────────────────────────────────────────────────────────
+// Admin-controlled global feature toggles. Read by services on demand,
+// cached in-memory for 5 min (see platformSettingsService).
+
+export const platformSettings = pgTable('platform_settings', {
+  key:        varchar('key', { length: 100 }).primaryKey(),
+  value:      jsonb('value').notNull(),
+  updatedAt:  timestamp('updated_at').notNull().defaultNow(),
+  updatedBy:  text('updated_by').references(() => user.id),
+});
