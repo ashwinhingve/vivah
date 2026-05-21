@@ -6,7 +6,7 @@ import { z } from 'zod';
 // env.ts lives at apps/api/src/lib/ — root is 4 levels up.
 config({ path: resolve(__dirname, '../../../../.env'), override: true });
 
-const envSchema = z.object({
+export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
 
@@ -31,6 +31,14 @@ const envSchema = z.object({
   // R2 live override: when 'true', use real Cloudflare R2 even if USE_MOCK_SERVICES=true.
   // Lets us flip photos to real R2 in production without dropping the global mock flag.
   R2_LIVE: z.string().default('false').transform(v => v === 'true'),
+
+  // Pre-launch escape hatch: when 'true', the NODE_ENV=production +
+  // USE_MOCK_SERVICES=true guard is bypassed. Intended for the pre-launch
+  // window where external provider creds (MSG91 DLT, DigiLocker, Razorpay
+  // live, Daily.co) are still pending. With this on, auth + KYC + payment
+  // routes will 500 at request time; do NOT keep this set once real creds
+  // land. Boot logs emit a loud warning whenever this is active.
+  ALLOW_MOCK_SERVICES_IN_PROD: z.string().default('false').transform(v => v === 'true'),
 
   // Mock OTP override value — REQUIRED whenever USE_MOCK_SERVICES=true,
   // enforced by a superRefine below. No default (the old '123456' default
@@ -173,11 +181,19 @@ const envSchema = z.object({
   // 1. Production must never run with mock services — a deployed mock-mode
   //    process silently no-ops every external integration (payments, OTP,
   //    KYC, video) which masquerades as a healthy app but processes nothing.
-  if (data.NODE_ENV === 'production' && data.USE_MOCK_SERVICES) {
+  //    Pre-launch escape hatch: ALLOW_MOCK_SERVICES_IN_PROD=true bypasses
+  //    this guard so the app can boot in degraded mode while external
+  //    provider creds are still pending. See ALLOW_MOCK_SERVICES_IN_PROD
+  //    schema doc above.
+  if (
+    data.NODE_ENV === 'production' &&
+    data.USE_MOCK_SERVICES &&
+    !data.ALLOW_MOCK_SERVICES_IN_PROD
+  ) {
     ctx.addIssue({
       code: 'custom',
       path: ['USE_MOCK_SERVICES'],
-      message: 'Mock services cannot run in production (NODE_ENV=production && USE_MOCK_SERVICES=true is forbidden — set USE_MOCK_SERVICES=false and provide real provider credentials).',
+      message: 'Mock services cannot run in production (NODE_ENV=production && USE_MOCK_SERVICES=true is forbidden — set USE_MOCK_SERVICES=false and provide real provider credentials, OR set ALLOW_MOCK_SERVICES_IN_PROD=true to explicitly run prod in mocked/degraded mode while external creds are pending — auth, KYC, and payment routes will fail at request time).',
     });
   }
   // 2. In any mock-mode environment (dev, test, staging, demo) the MOCK_OTP
@@ -206,12 +222,15 @@ export const env = parsed.data;
 
 // Loud boot-time warning whenever mock mode is active, so any deployed env
 // that's still mock-gated surfaces it in startup logs — pairs with the
-// production guard above (NODE_ENV=production blocks mock entirely).
+// production guard above. NODE_ENV=production normally blocks mock mode;
+// ALLOW_MOCK_SERVICES_IN_PROD=true bypasses the guard for the pre-launch
+// window, in which case the warning is upgraded to an error-level log so
+// it cannot be missed.
 if (env.USE_MOCK_SERVICES) {
+  const inProd = env.NODE_ENV === 'production';
+  const message = `[mock-mode] env=${env.NODE_ENV} MOCK_OTP_VALUE=${env.MOCK_OTP_VALUE ?? '<unset>'} — external providers are STUBBED; DO NOT use this build for real users${inProd ? ' (ALLOW_MOCK_SERVICES_IN_PROD override is ACTIVE — auth/KYC/payments will fail at request time)' : ''}`;
   // eslint-disable-next-line no-console
-  console.warn(
-    `[mock-mode] env=${env.NODE_ENV} MOCK_OTP_VALUE=${env.MOCK_OTP_VALUE ?? '<unset>'} — external providers are STUBBED; DO NOT use this build for real users`,
-  );
+  (inProd ? console.error : console.warn)(message);
 }
 
 /**
