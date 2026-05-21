@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
 
 // ── Visual A: Reciprocal Matching — Venn diagram ──────────────────────────────
@@ -226,7 +227,15 @@ const features: FeatureShowcase[] = [
 ];
 
 // ── Section ───────────────────────────────────────────────────────────────────
-export default function FeaturesGrid() {
+export default async function FeaturesGrid() {
+  const t = await getTranslations('marketing.features');
+
+  const headingMap: Record<string, string> = {
+    'Reciprocal Matching': t('reciprocalHeading'),
+    'Guna Milan':          t('gunaHeading'),
+    'Wedding Planning':    t('weddingHeading'),
+  };
+
   return (
     <section id="features" className="bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6 space-y-28 md:space-y-36">
@@ -254,7 +263,7 @@ export default function FeaturesGrid() {
                   className="font-[family-name:var(--font-heading)] font-semibold text-foreground leading-[1.12] whitespace-pre-line"
                   style={{ fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}
                 >
-                  {f.heading}
+                  {headingMap[f.eyebrow] ?? f.heading}
                 </h2>
                 <p className="mt-5 text-base text-muted-foreground leading-relaxed max-w-lg">
                   {f.body}

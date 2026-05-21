@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Instagram, Twitter, Facebook, Youtube, Heart, MapPin } from 'lucide-react';
 import { LogoWhite } from './Logo';
@@ -9,13 +10,13 @@ interface FooterLink {
 }
 
 interface FooterColumn {
-  heading: string;
+  headingKey: string;
   links: FooterLink[];
 }
 
 const columns: FooterColumn[] = [
   {
-    heading: 'Company',
+    headingKey: 'companyHeading',
     links: [
       { label: 'About Us', href: '#', disabled: true },
       { label: 'Careers', href: '#', disabled: true },
@@ -24,7 +25,7 @@ const columns: FooterColumn[] = [
     ],
   },
   {
-    heading: 'Product',
+    headingKey: 'productHeading',
     links: [
       { label: 'How it Works', href: '#how-it-works' },
       { label: 'For Individuals', href: '/register' },
@@ -34,7 +35,7 @@ const columns: FooterColumn[] = [
     ],
   },
   {
-    heading: 'Resources',
+    headingKey: 'resourcesHeading',
     links: [
       { label: 'AI Matchmaking', href: '#features' },
       { label: 'Guna Milan Guide', href: '#features' },
@@ -44,7 +45,7 @@ const columns: FooterColumn[] = [
     ],
   },
   {
-    heading: 'Legal',
+    headingKey: 'legalHeading',
     links: [
       { label: 'Privacy Policy', href: '#', disabled: true },
       { label: 'Terms of Service', href: '#', disabled: true },
@@ -91,7 +92,9 @@ function renderLink(link: FooterLink) {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getTranslations('marketing.footer');
+
   return (
     <footer className="relative bg-dark-surface pt-16 pb-8">
       {/* Thin gold gradient line at the top */}
@@ -130,9 +133,9 @@ export default function Footer() {
 
           {/* Link columns */}
           {columns.map((col) => (
-            <div key={col.heading}>
+            <div key={col.headingKey}>
               <h3 className="text-xs uppercase tracking-wider font-semibold text-text-on-dark/40 mb-4">
-                {col.heading}
+                {t(col.headingKey)}
               </h3>
               <ul className="space-y-1">
                 {col.links.map((link) => (
@@ -146,7 +149,7 @@ export default function Footer() {
         {/* Bottom strip */}
         <div className="border-t border-text-on-dark/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-text-on-dark/40">
-            &copy; 2026 Smart Shaadi. All rights reserved.
+            {t('copyright')}
           </p>
 
           {/* Made in India badge */}

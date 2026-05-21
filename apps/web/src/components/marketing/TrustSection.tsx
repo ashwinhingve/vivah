@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Check } from 'lucide-react';
@@ -17,7 +18,9 @@ const familyPoints = [
   'Respects community and cultural preferences',
 ];
 
-export default function TrustSection() {
+export default async function TrustSection() {
+  const t = await getTranslations('marketing.trust');
+
   return (
     <section id="for-families" className="grid grid-cols-1 lg:grid-cols-2">
       {/* LEFT — For Individuals (burgundy-overlaid bride photo) */}
@@ -43,11 +46,7 @@ export default function TrustSection() {
             For Individuals
           </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white font-[family-name:var(--font-heading)] leading-tight [text-shadow:_0_2px_16px_rgba(0,0,0,0.3)]">
-            Your Privacy.
-            <br />
-            Your Timeline.
-            <br />
-            <span className="italic text-peach">Your Choice.</span>
+            {t('individualsHeading')}
           </h2>
           <p className="text-white/85 mt-6 leading-relaxed text-base [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]">
             You control everything. Photos stay blurred until you choose to
@@ -103,9 +102,7 @@ export default function TrustSection() {
             For Families
           </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-[family-name:var(--font-heading)] leading-tight">
-            A Platform Built for{' '}
-            <span className="italic text-teal">How Families</span>{' '}
-            Actually Work.
+            {t('familiesHeading')}
           </h2>
           <p className="text-foreground mt-6 leading-relaxed text-base">
             Indian matrimony has always been a family decision. Smart Shaadi is

@@ -1,5 +1,7 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-export default function CtaBanner() {
+export default async function CtaBanner() {
+  const t = await getTranslations('marketing.cta');
   return (
     <section
       id="cta"
@@ -57,9 +59,7 @@ export default function CtaBanner() {
           className="font-[family-name:var(--font-heading)] font-semibold text-white leading-[1.1]"
           style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)' }}
         >
-          Start your journey
-          <br />
-          <span className="italic text-peach">today.</span>
+          {t('heading')}
         </h2>
 
         <p className="mt-6 text-white/85 leading-relaxed text-base md:text-lg max-w-lg mx-auto">
@@ -72,13 +72,13 @@ export default function CtaBanner() {
             href="/register"
             className="inline-flex items-center justify-center min-h-[52px] rounded-lg px-9 py-3.5 bg-teal text-white font-semibold text-base transition-all duration-200 shadow-lg shadow-black/25 hover:bg-teal-hover hover:shadow-xl hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
           >
-            Start Your Journey →
+            {t('primaryCta')}
           </Link>
           <a
             href="mailto:support@smartshaadi.in"
             className="inline-flex items-center justify-center min-h-[52px] rounded-lg px-9 py-3.5 border-2 border-surface/30 text-white font-semibold text-base transition-all duration-200 backdrop-blur-sm hover:border-surface/60 hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
           >
-            Talk to Us
+            {t('secondaryCta')}
           </a>
         </div>
 

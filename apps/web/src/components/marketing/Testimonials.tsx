@@ -5,6 +5,7 @@
  *
  * Avatar policy: NO stock photos. Initials in gold-bordered circles only.
  */
+import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
 import { Heart } from 'lucide-react';
 
@@ -51,7 +52,9 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-export default function Testimonials() {
+export default async function Testimonials() {
+  const t = await getTranslations('marketing.testimonials');
+
   return (
     <section
       id="testimonials"
@@ -96,8 +99,7 @@ export default function Testimonials() {
             className="font-[family-name:var(--font-heading)] font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}
           >
-            Real Families.{' '}
-            <span className="italic text-primary">Real Matches.</span>
+            {t('sectionHeading')}
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed max-w-md mx-auto">
             What our early access members are saying
