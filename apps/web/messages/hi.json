@@ -1,50 +1,50 @@
 {
   "nav": {
     "top": {
-      "matches": "Matches",
-      "chat": "Chat",
-      "wedding": "Wedding",
-      "profile": "Profile"
+      "matches": "मैच",
+      "chat": "चैट",
+      "wedding": "शादी",
+      "profile": "प्रोफ़ाइल"
     },
     "app": {
-      "discover": "Discover",
-      "requests": "Requests",
-      "connections": "Connections",
-      "wedding": "Wedding",
-      "profile": "Profile",
-      "chats": "Chats",
-      "notifications": "Notifications",
-      "likes": "Likes",
-      "shortlist": "Shortlist",
-      "viewedMe": "Viewed Me",
-      "vendors": "Vendors",
-      "shop": "Shop",
-      "rentals": "Rentals",
-      "bookings": "Bookings",
-      "payments": "Payments",
-      "wallet": "Wallet",
-      "invoices": "Invoices",
-      "refunds": "Refunds",
-      "editProfile": "Edit Profile",
-      "privacy": "Privacy",
-      "security": "Security",
-      "home": "Home",
-      "products": "Products",
-      "orders": "Orders",
-      "payouts": "Payouts",
-      "links": "Links",
-      "admin": "Admin",
-      "revenue": "Revenue",
-      "promos": "Promos",
-      "disputes": "Disputes",
-      "more": "More",
-      "moreLabel": "More options",
-      "everythingElse": "Everything else",
-      "groupSocial": "Social",
-      "groupDiscover": "Discover",
-      "groupShop": "Shop",
-      "groupMoney": "Money",
-      "groupSettings": "Settings"
+      "discover": "खोजें",
+      "requests": "अनुरोध",
+      "connections": "कनेक्शन",
+      "wedding": "शादी",
+      "profile": "प्रोफ़ाइल",
+      "chats": "चैट",
+      "notifications": "सूचनाएं",
+      "likes": "पसंद",
+      "shortlist": "शॉर्टलिस्ट",
+      "viewedMe": "मुझे देखा",
+      "vendors": "वेंडर्स",
+      "shop": "शॉप",
+      "rentals": "रेंटल",
+      "bookings": "बुकिंग",
+      "payments": "भुगतान",
+      "wallet": "वॉलेट",
+      "invoices": "इनवॉइस",
+      "refunds": "रिफंड",
+      "editProfile": "प्रोफ़ाइल एडिट करें",
+      "privacy": "प्राइवेसी",
+      "security": "सुरक्षा",
+      "home": "होम",
+      "products": "उत्पाद",
+      "orders": "ऑर्डर",
+      "payouts": "पेआउट",
+      "links": "लिंक",
+      "admin": "एडमिन",
+      "revenue": "रेवेन्यू",
+      "promos": "प्रोमो",
+      "disputes": "विवाद",
+      "more": "और",
+      "moreLabel": "अधिक विकल्प",
+      "everythingElse": "बाकी सब",
+      "groupSocial": "सोशल",
+      "groupDiscover": "खोजें",
+      "groupShop": "शॉप",
+      "groupMoney": "पैसा",
+      "groupSettings": "सेटिंग्स"
     }
   },
   "auth": {
@@ -79,66 +79,66 @@
   "marketing": {
     "landing": {
       "metadata": {
-        "title": "Smart Shaadi — India's Smartest Matrimonial Platform",
-        "description": "Find your perfect match with AI-powered matchmaking, Guna Milan compatibility, and a complete wedding planning suite. Verified profiles. Privacy first."
+        "title": "Smart Shaadi — भारत का सबसे स्मार्ट मैट्रिमोनियल प्लेटफ़ॉर्म",
+        "description": "AI-संचालित मैचमेकिंग, गुण मिलान और संपूर्ण विवाह योजना सूट के साथ अपना परफ़ेक्ट मैच पाएं। वेरिफाइड प्रोफ़ाइल। प्राइवेसी पहले।"
       }
     },
     "hero": {
-      "heading": "Where families find their forever.",
-      "subtext": "India's first matrimonial platform built around real compatibility — Guna Milan, family values, and reciprocal matching. Verified profiles only.",
-      "primaryCta": "Find Your Match →",
-      "secondaryCta": "Browse Vendors",
-      "microcopy": "Free to join · No credit card · 2 min setup"
+      "heading": "जहाँ परिवार अपना हमेशा का साथी पाते हैं।",
+      "subtext": "भारत का पहला मैट्रिमोनियल प्लेटफ़ॉर्म जो वास्तविक अनुकूलता पर बना है — गुण मिलान, पारिवारिक मूल्य और दोनों तरफ़ से मैचिंग। सिर्फ़ वेरिफाइड प्रोफ़ाइल।",
+      "primaryCta": "अपना मैच पाएं →",
+      "secondaryCta": "वेंडर्स देखें",
+      "microcopy": "मुफ़्त रजिस्ट्रेशन · क्रेडिट कार्ड नहीं · 2 मिनट सेटअप"
     },
     "howItWorks": {
-      "sectionHeading": "Three steps to your wedding journey",
-      "step1Title": "Create Your Profile",
-      "step2Title": "Discover Compatible Matches",
-      "step3Title": "Plan Your Wedding Together"
+      "sectionHeading": "अपनी शादी की यात्रा के तीन कदम",
+      "step1Title": "अपनी प्रोफ़ाइल बनाएं",
+      "step2Title": "अनुकूल मैच खोजें",
+      "step3Title": "साथ मिलकर शादी की योजना बनाएं"
     },
     "features": {
-      "sectionHeading": "Features",
-      "reciprocalHeading": "Matching that respects both sides",
-      "gunaHeading": "Vedic compatibility, done right",
-      "weddingHeading": "Everything in one platform"
+      "sectionHeading": "विशेषताएं",
+      "reciprocalHeading": "मैचिंग जो दोनों पक्षों का सम्मान करती है",
+      "gunaHeading": "वैदिक अनुकूलता, सही तरीक़े से",
+      "weddingHeading": "सब कुछ एक ही प्लेटफ़ॉर्म पर"
     },
     "pricing": {
-      "sectionHeading": "Start Free. Upgrade When Ready.",
-      "freePlanName": "Free Forever",
+      "sectionHeading": "मुफ़्त शुरू करें। तैयार होने पर अपग्रेड करें।",
+      "freePlanName": "हमेशा के लिए मुफ़्त",
       "premiumPlanName": "Smart Shaadi Premium"
     },
     "cta": {
-      "heading": "Start your journey today.",
-      "primaryCta": "Start Your Journey →",
-      "secondaryCta": "Talk to Us"
+      "heading": "अपनी यात्रा आज ही शुरू करें।",
+      "primaryCta": "यात्रा शुरू करें →",
+      "secondaryCta": "हमसे बात करें"
     },
     "footer": {
-      "companyHeading": "Company",
-      "productHeading": "Product",
-      "resourcesHeading": "Resources",
-      "legalHeading": "Legal",
-      "copyright": "© 2026 Smart Shaadi. All rights reserved."
+      "companyHeading": "कंपनी",
+      "productHeading": "प्रोडक्ट",
+      "resourcesHeading": "संसाधन",
+      "legalHeading": "क़ानूनी",
+      "copyright": "© 2026 Smart Shaadi. सर्वाधिकार सुरक्षित।"
     },
     "stats": {
-      "verifiedProfiles": "Verified Profiles",
-      "vendors": "Vendors across 24 Cities",
-      "weddings": "Weddings Planned"
+      "verifiedProfiles": "वेरिफाइड प्रोफ़ाइल",
+      "vendors": "24 शहरों के वेंडर्स",
+      "weddings": "शादियाँ प्लान की गईं"
     },
     "testimonials": {
-      "sectionHeading": "Real Families. Real Matches."
+      "sectionHeading": "असली परिवार। असली मैच।"
     },
     "trust": {
-      "individualsHeading": "Your Privacy. Your Timeline. Your Choice.",
-      "familiesHeading": "A Platform Built for How Families Actually Work."
+      "individualsHeading": "आपकी प्राइवेसी। आपकी समय-सीमा। आपकी पसंद।",
+      "familiesHeading": "ऐसा प्लेटफ़ॉर्म जो परिवारों के असली तरीक़े पर बना है।"
     },
     "navbar": {
-      "howItWorks": "How it Works",
-      "forFamilies": "For Families",
-      "features": "Features",
-      "vendors": "Vendors",
-      "pricing": "Pricing",
-      "login": "Login",
-      "register": "Register Free"
+      "howItWorks": "कैसे काम करता है",
+      "forFamilies": "परिवारों के लिए",
+      "features": "विशेषताएं",
+      "vendors": "वेंडर्स",
+      "pricing": "प्राइसिंग",
+      "login": "लॉगिन",
+      "register": "मुफ़्त रजिस्टर करें"
     }
   },
   "pricing": {
