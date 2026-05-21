@@ -142,3 +142,53 @@ unresolved schema work.
     chat scrollback. Update Railway env, Vercel env, local `.env`.
   - Next API deploy will exercise the new columns; old code is harmless
     on the additive schema until then.
+
+---
+
+## 0025 — LGBTQ+ support + platform_settings (Phase 1+2 audit item)
+
+> Status: pending apply. Migration file: `packages/db/migrations/0025_lgbtq_support.sql`.
+
+### Pre-flight
+
+1. Railway → Postgres → Data → Backups → "Create backup now".
+2. Confirm `gender` enum currently has 3 values: `MALE, FEMALE, OTHER`.
+3. Confirm `platform_settings` table does not yet exist.
+
+### Apply (all additive — no DROP, no TRUNCATE)
+
+```sql
+ALTER TYPE "public"."gender" ADD VALUE IF NOT EXISTS 'NON_BINARY' BEFORE 'OTHER';
+ALTER TYPE "public"."audit_event_type" ADD VALUE IF NOT EXISTS 'PLATFORM_SETTING_CHANGED';
+
+CREATE TABLE IF NOT EXISTS "platform_settings" (
+  "key"        varchar(100) PRIMARY KEY,
+  "value"      jsonb NOT NULL,
+  "updated_at" timestamp NOT NULL DEFAULT now(),
+  "updated_by" text REFERENCES "user"("id")
+);
+
+INSERT INTO "platform_settings" ("key", "value")
+VALUES ('lgbtq_matching_enabled', 'false'::jsonb)
+ON CONFLICT ("key") DO NOTHING;
+```
+
+### Verify
+
+```sql
+SELECT unnest(enum_range(NULL::gender)) AS gender_values;
+-- Expect: MALE, FEMALE, NON_BINARY, OTHER
+
+SELECT key, value FROM platform_settings;
+-- Expect: lgbtq_matching_enabled = false
+```
+
+### Why
+
+- The new gender filter in matchmaking (`apps/api/src/matchmaking/filters.ts`)
+  reads `platform_settings.lgbtq_matching_enabled` via
+  `platformSettingsService`. With the migration unapplied, the service still
+  returns `false` (table missing → defensive try/catch in engine.ts) and the
+  pipeline behaves like flag OFF — MALE↔FEMALE only — so deploy order is
+  non-blocking. Apply this migration before opening the admin toggle UI so
+  PATCH writes succeed.
