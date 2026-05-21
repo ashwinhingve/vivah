@@ -50,30 +50,30 @@
   "auth": {
     "login": {
       "metadata": {
-        "title": "Sign In — Smart Shaadi"
+        "title": "साइन इन — Smart Shaadi"
       },
-      "badge": "Sign in",
-      "heading": "Welcome back",
-      "subtext": "Enter your mobile number to receive an OTP.",
-      "cta": "Send OTP",
-      "newUser": "New to Smart Shaadi?",
-      "createAccount": "Create account"
+      "badge": "साइन इन",
+      "heading": "वापस स्वागत है",
+      "subtext": "OTP प्राप्त करने के लिए अपना मोबाइल नंबर डालें।",
+      "cta": "OTP भेजें",
+      "newUser": "Smart Shaadi पर नए हैं?",
+      "createAccount": "अकाउंट बनाएं"
     },
     "register": {
       "metadata": {
-        "title": "Create Account — Smart Shaadi"
+        "title": "अकाउंट बनाएं — Smart Shaadi"
       },
-      "badge": "Join us",
-      "heading": "Create account",
-      "subtext": "Join Smart Shaadi — India's smart marriage ecosystem.",
-      "cta": "Send OTP"
+      "badge": "जुड़ें",
+      "heading": "अकाउंट बनाएं",
+      "subtext": "Smart Shaadi से जुड़ें — भारत का स्मार्ट विवाह ईकोसिस्टम।",
+      "cta": "OTP भेजें"
     },
     "verify": {
       "metadata": {
-        "title": "Verify OTP — Smart Shaadi"
+        "title": "OTP वेरिफाई करें — Smart Shaadi"
       },
-      "heading": "Enter OTP",
-      "cta": "Verify OTP"
+      "heading": "OTP डालें",
+      "cta": "OTP वेरिफाई करें"
     }
   },
   "marketing": {
@@ -175,15 +175,15 @@
   "onboarding": {
     "personal": {
       "metadata": {
-        "title": "Personal Details — Smart Shaadi"
+        "title": "व्यक्तिगत विवरण — Smart Shaadi"
       },
-      "heading": "Tell us about yourself"
+      "heading": "अपने बारे में बताएं"
     },
     "family": {
       "metadata": {
-        "title": "Family Details — Smart Shaadi"
+        "title": "पारिवारिक विवरण — Smart Shaadi"
       },
-      "heading": "Tell us about your family"
+      "heading": "अपने परिवार के बारे में बताएं"
     }
   },
   "chat": {
