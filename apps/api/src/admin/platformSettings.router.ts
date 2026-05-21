@@ -35,6 +35,26 @@ function hashChain(payload: unknown, prevHash: string | null): string {
 
 export const platformSettingsRouter = Router();
 
+/**
+ * Public read of user-visible platform flags. No auth required so the
+ * profile UI can decide which gender/orientation controls to render.
+ * Only flags that are explicitly user-facing are exposed here.
+ */
+export const platformSettingsPublicRouter = Router();
+platformSettingsPublicRouter.get(
+  '/platform-settings/public',
+  async (_req: Request, res: Response) => {
+    try {
+      const { isLGBTQMatchingEnabled } = await import('../services/platformSettingsService.js');
+      const lgbtqEnabled = await isLGBTQMatchingEnabled();
+      return ok(res, { lgbtqEnabled });
+    } catch (e) {
+      logger.error({ err: e }, 'platform-settings public read failed');
+      return err(res, 'SERVER_ERROR', 'Failed to read platform settings', 500);
+    }
+  },
+);
+
 // Audit chain uses uuid entityId. Platform settings are not uuid-keyed, so
 // every PLATFORM_SETTING_CHANGED row shares the same synthetic entity uuid
 // (the key + value live in payload). This keeps the chained hash per-entity

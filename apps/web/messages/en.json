@@ -44,7 +44,8 @@
       "groupDiscover": "Discover",
       "groupShop": "Shop",
       "groupMoney": "Money",
-      "groupSettings": "Settings"
+      "groupSettings": "Settings",
+      "settings": "Platform Settings"
     }
   },
   "auth": {

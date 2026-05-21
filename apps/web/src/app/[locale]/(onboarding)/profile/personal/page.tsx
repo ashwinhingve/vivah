@@ -38,6 +38,8 @@ interface ProfileSnapshot {
     fullName?: string;
     dob?: string;
     gender?: string;
+    sexualOrientation?: string;
+    orientationVisibility?: 'PRIVATE' | 'OUT';
     height?: number;
     maritalStatus?: string;
     religion?: string;
@@ -63,6 +65,7 @@ export default function PersonalPage() {
   const [state, formAction] = useActionState(updatePersonal, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [lgbtqEnabled, setLgbtqEnabled] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +77,13 @@ export default function PersonalPage() {
         setLoaded(true);
       })
       .catch(() => { if (!cancelled) setLoaded(true); });
+    fetch(`${API_BASE}/api/v1/platform-settings/public`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json: { success?: boolean; data?: { lgbtqEnabled?: boolean } } | null) => {
+        if (cancelled) return;
+        if (json?.success && json.data?.lgbtqEnabled === true) setLgbtqEnabled(true);
+      })
+      .catch(() => { /* default off */ });
     return () => { cancelled = true; };
   }, []);
 
@@ -145,7 +155,10 @@ export default function PersonalPage() {
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
               <div className="flex gap-3 flex-wrap">
-                {(['MALE', 'FEMALE', 'OTHER'] as const).map((g) => (
+                {(lgbtqEnabled
+                  ? (['MALE', 'FEMALE', 'NON_BINARY', 'OTHER'] as const)
+                  : (['MALE', 'FEMALE'] as const)
+                ).map((g) => (
                   <label key={g} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
@@ -156,12 +169,49 @@ export default function PersonalPage() {
                       required
                     />
                     <span className="text-sm text-foreground">
-                      {g.charAt(0) + g.slice(1).toLowerCase()}
+                      {g === 'NON_BINARY' ? 'Non-binary' : g.charAt(0) + g.slice(1).toLowerCase()}
                     </span>
                   </label>
                 ))}
               </div>
             </div>
+
+            {lgbtqEnabled && (
+              <div className="space-y-3 rounded-lg border border-gold/40 bg-gold/5 p-4">
+                <div>
+                  <label htmlFor="sexualOrientation" className="block text-sm font-medium text-foreground mb-1">
+                    Sexual orientation <span className="text-muted-foreground">(private)</span>
+                  </label>
+                  <select
+                    id="sexualOrientation"
+                    name="sexualOrientation"
+                    defaultValue={p?.sexualOrientation ?? ''}
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
+                  >
+                    <option value="">Prefer not to say</option>
+                    <option value="STRAIGHT">Straight</option>
+                    <option value="GAY">Gay</option>
+                    <option value="LESBIAN">Lesbian</option>
+                    <option value="BISEXUAL">Bisexual</option>
+                    <option value="PANSEXUAL">Pansexual</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Stored on your profile but never visible to other users unless you toggle it below.
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="orientationVisibility"
+                    value="OUT"
+                    defaultChecked={p?.orientationVisibility === 'OUT'}
+                    className="accent-teal"
+                  />
+                  <span className="text-sm text-foreground">Show on my public profile</span>
+                </label>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Height</label>

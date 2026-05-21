@@ -44,7 +44,8 @@
       "groupDiscover": "खोजें",
       "groupShop": "शॉप",
       "groupMoney": "पैसा",
-      "groupSettings": "सेटिंग्स"
+      "groupSettings": "सेटिंग्स",
+      "settings": "प्लेटफ़ॉर्म सेटिंग्स"
     }
   },
   "auth": {

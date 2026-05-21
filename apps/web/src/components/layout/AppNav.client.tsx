@@ -127,6 +127,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: '/admin/refunds',   labelKey: 'refunds',  Icon: Shield },
   { href: '/admin/promos',    labelKey: 'promos',   Icon: Heart },
   { href: '/admin/escrow',    labelKey: 'disputes', Icon: Bookmark },
+  { href: '/admin/settings',  labelKey: 'settings', Icon: UserCog },
   { href: '/vendors',         labelKey: 'vendors',  Icon: Search },
   { href: '/bookings',        labelKey: 'bookings', Icon: Calendar },
 ];
