@@ -176,7 +176,7 @@ export function AppNav() {
     <>
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-gold/25 bg-surface/85 shadow-[0_-4px_20px_-8px_rgba(123,45,66,0.08)] backdrop-blur-xl"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-gold/25 bg-surface/85 shadow-[0_-4px_20px_-8px_rgba(123,45,66,0.08)] backdrop-blur-xl md:hidden"
       >
         <div
           aria-hidden="true"
@@ -291,7 +291,7 @@ export function AppNav() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: reduce ? 0 : 0.2 }}
                 onClick={() => setMoreOpen(false)}
-                className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+                className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
                 aria-hidden="true"
               />
               <motion.div
@@ -306,7 +306,7 @@ export function AppNav() {
                     ? { duration: 0 }
                     : { type: 'spring', stiffness: 360, damping: 34 }
                 }
-                className="fixed inset-x-0 bottom-0 z-40 rounded-t-2xl border-t border-gold/25 bg-surface shadow-2xl"
+                className="fixed inset-x-0 bottom-0 z-40 rounded-t-2xl border-t border-gold/25 bg-surface shadow-2xl md:hidden"
               >
                 <div className="mx-auto max-w-lg">
                   <div className="flex items-center justify-between px-5 pt-4 pb-2">

@@ -110,6 +110,8 @@ function ProfileCardBase({
         <ImageWithFallback
           src={photoUrl}
           alt={name}
+          name={name}
+          initialSizeClass="text-[56px]"
           fill
           sizes="(max-width: 640px) 100vw, 320px"
           wrapperClassName="aspect-[4/5] w-full"

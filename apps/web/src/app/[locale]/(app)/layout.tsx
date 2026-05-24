@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (!sessionCookie) return await redirect('/login');
 
   return (
-    <div className="min-h-screen bg-background pb-24 sm:pb-28">
+    <div className="min-h-screen bg-background pb-24 sm:pb-28 md:pb-0">
       <header className="sticky top-0 z-30 border-b border-gold/20 bg-surface/90 backdrop-blur-sm px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           <Link

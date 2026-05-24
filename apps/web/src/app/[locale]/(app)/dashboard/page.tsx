@@ -40,6 +40,7 @@ export const dynamic = 'force-dynamic';
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface ProfileData {
+  name: string;
   profileCompleteness: number;
   sectionCompletion: ProfileSectionCompletion;
   premiumTier: string;
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
   const completeness = profile?.profileCompleteness ?? 0;
   const sections = profile?.sectionCompletion;
   const tier = profile?.premiumTier ?? 'FREE';
+  const firstName = profile?.name?.trim()?.split(/\s+/)[0] ?? '';
 
   const allBookings = bookingsData?.bookings ?? [];
   const upcomingBookings = allBookings.filter(
@@ -141,51 +143,45 @@ export default async function DashboardPage() {
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
               />
+              {/* Row 1 — greeting + (right) date pill / tier */}
               <div className="relative flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
-                      {formatDatePill(now)}
+                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary min-w-0">
+                  {getGreeting()}{firstName ? `, ${firstName}` : ''} <span aria-hidden="true">👋</span>
+                </h1>
+                <div className="flex items-center gap-2 shrink-0">
+                  {tier !== 'FREE' && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-muted shadow-sm">
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                      {tier}
                     </span>
-                  </div>
-                  <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                    {getGreeting()} 👋
-                  </h1>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Welcome back to Smart Shaadi
-                  </p>
-                </div>
-
-                {tier !== 'FREE' && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-muted shadow-sm shrink-0">
-                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                    {tier}
+                  )}
+                  <span className="hidden sm:inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
+                    {formatDatePill(now)}
                   </span>
-                )}
+                </div>
               </div>
 
-              {/* Completeness progress bar */}
+              {/* Row 2 — completeness label inline with progress bar */}
               {completeness < 100 && (
-                <div className="relative mt-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs font-medium text-muted-foreground">Profile strength</p>
-                    <p className="text-xs font-semibold text-teal">{completeness}%</p>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gold/15">
+                <div className="relative mt-3 flex items-center gap-3">
+                  <p className="shrink-0 text-xs font-medium text-muted-foreground">
+                    Your profile is <span className="font-semibold text-teal">{completeness}%</span> complete
+                  </p>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-gold/15">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-teal to-teal-hover transition-all duration-500"
                       style={{ width: `${completeness}%` }}
                     />
                   </div>
-                  {completeness < 70 && (
-                    <Link
-                      href="/profile/personal"
-                      className="mt-2 inline-block text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
-                    >
-                      Complete your profile to unlock more matches →
-                    </Link>
-                  )}
                 </div>
+              )}
+              {completeness < 70 && (
+                <Link
+                  href="/profile/personal"
+                  className="mt-2 inline-block text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
+                >
+                  Complete your profile to unlock more matches →
+                </Link>
               )}
             </div>
           </FadeUp>

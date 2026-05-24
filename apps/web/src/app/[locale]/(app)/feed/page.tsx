@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { FeedPageClient } from './FeedPageClient.client';
+import { MatchCard } from '@/components/matching/MatchCard';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -159,6 +160,45 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
               </Button>
             }
           />
+        ) : items.length === 1 ? (
+          (() => {
+            const only = items[0]!;
+            return (
+              <div className="mx-auto flex max-w-md flex-col items-stretch gap-5">
+                <span className="self-start inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+                  Recommended
+                </span>
+                <div className="w-full sm:w-[60%] sm:self-center">
+                  <MatchCard
+                    id={only.profileId}
+                    name={only.name || 'Member'}
+                    age={only.age}
+                    city={only.city}
+                    {...(only.photoKey ? { primaryPhotoUrl: only.photoKey } : {})}
+                    compatibilityPct={only.compatibility?.totalScore}
+                    isVerified={only.isVerified}
+                    gunaPending={only.compatibility?.flags?.includes('guna_pending')}
+                  />
+                </div>
+                <div className="rounded-2xl border border-gold/25 bg-gradient-to-br from-gold/10 via-surface to-teal/5 p-5 text-center shadow-card">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-teal/10 text-teal">
+                    <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h2 className="font-heading text-lg font-semibold text-primary">Want more matches?</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Broaden your partner preferences to unlock more compatible profiles.
+                  </p>
+                  <Button asChild className="mt-3">
+                    <Link href="/profile/preferences">
+                      Refine Preferences
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            );
+          })()
         ) : items.length === 0 ? (
           <EmptyState
             icon={Heart}

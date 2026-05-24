@@ -2,10 +2,11 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { Check, CheckCheck, Clock, Forward, MoreHorizontal, Pencil } from 'lucide-react'
+import { Check, CheckCheck, Clock, Forward, MoreHorizontal, Pencil, Video } from 'lucide-react'
 import type { ChatMessage } from '@smartshaadi/types'
 import { cn } from '@/lib/utils'
 import { resolvePhotoUrl } from '@/lib/photo'
+import { formatRelativeIN } from '@/lib/format'
 import VoicePlayer from './VoicePlayer.client'
 import ReactionStrip from './ReactionStrip'
 import ReplyQuote from './ReplyQuote'
@@ -36,6 +37,7 @@ interface MessageBubbleProps {
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/i
+const VIDEO_CALL_RE = /^Video call started\s+[—-]\s+join:\s+(https?:\/\/\S+)/i
 
 function MessageBubbleInner({
   message, currentUserId, currentProfileId, otherFirstName, highlight, pending, translatedContent,
@@ -51,6 +53,32 @@ function MessageBubbleInner({
   const isPending = pending || message.pending
 
   if (message.type === 'SYSTEM') {
+    const videoMatch = message.content.match(VIDEO_CALL_RE)
+    if (videoMatch) {
+      const joinUrl = videoMatch[1]!
+      const rel = formatRelativeIN(message.sentAt)
+      return (
+        <div className="flex w-full justify-center py-1.5">
+          <div className="flex max-w-[78%] items-center gap-3 rounded-2xl border border-gold/25 bg-gold/20 px-4 py-3 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Video className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-primary leading-tight">Video call started</p>
+              {rel ? <p className="text-[11px] text-gold-muted">Started {rel}</p> : null}
+            </div>
+            <a
+              href={joinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex h-9 items-center justify-center rounded-lg bg-teal px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Join Call
+            </a>
+          </div>
+        </div>
+      )
+    }
     return (
       <div className="flex w-full justify-center py-1">
         <span className="rounded-full bg-surface-muted px-3 py-1 text-center text-xs italic text-muted-foreground">
