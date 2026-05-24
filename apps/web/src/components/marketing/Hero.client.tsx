@@ -1,31 +1,10 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { ShieldCheck, Lock, Star } from 'lucide-react';
-import { ProfileCard } from '@/components/ui/ProfileCard.client';
-
-// ── Mock profiles cycling in the right panel ──────────────────────────────────
-interface MockProfile {
-  id: string;
-  name: string;
-  age: number;
-  city: string;
-  profession: string;
-  compatibilityPct: number;
-  gunaScore: number;
-  isVerified: boolean;
-}
-
-const MOCK_PROFILES: MockProfile[] = [
-  { id: 'p1', name: 'Priya Sharma',  age: 26, city: 'Mumbai',    profession: 'Doctor',            compatibilityPct: 92, gunaScore: 34, isVerified: true },
-  { id: 'p2', name: 'Ananya Iyer',   age: 25, city: 'Bangalore', profession: 'Software Engineer', compatibilityPct: 87, gunaScore: 31, isVerified: true },
-  { id: 'p3', name: 'Kaveri Nair',   age: 28, city: 'Chennai',   profession: 'Architect',         compatibilityPct: 95, gunaScore: 35, isVerified: true },
-  { id: 'p4', name: 'Meera Joshi',   age: 24, city: 'Pune',      profession: 'CA',                compatibilityPct: 83, gunaScore: 29, isVerified: true },
-  { id: 'p5', name: 'Divya Reddy',   age: 27, city: 'Hyderabad', profession: 'Researcher',        compatibilityPct: 89, gunaScore: 32, isVerified: true },
-];
+import { HeroCarousel } from './HeroCarousel.client';
 
 // ── Animation variants ────────────────────────────────────────────────────────
 const containerVariants: Variants = {
@@ -44,41 +23,10 @@ const itemVariants: Variants = {
   },
 };
 
-const cardVariants: Variants = {
-  enter: { opacity: 0, y: 16, scale: 0.97 },
-  center: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-  },
-  exit: {
-    opacity: 0,
-    y: -12,
-    scale: 0.98,
-    transition: { duration: 0.3, ease: [0.4, 0, 1, 1] },
-  },
-};
-
 // ── Hero section ──────────────────────────────────────────────────────────────
 export default function Hero() {
   const t = useTranslations('marketing.hero');
   const reduce = useReducedMotion();
-  const [activeIdx, setActiveIdx] = useState(0);
-
-  const advance = useCallback(() => {
-    setActiveIdx((i) => (i + 1) % MOCK_PROFILES.length);
-  }, []);
-
-  // Auto-cycle every 4 s; skip when user prefers reduced motion
-  useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(advance, 4000);
-    return () => clearInterval(id);
-  }, [advance, reduce]);
-
-  // activeIdx is always in [0, MOCK_PROFILES.length - 1] by modulo arithmetic
-  const activeProfile = MOCK_PROFILES[activeIdx] ?? MOCK_PROFILES[0]!;
 
   return (
     <section
@@ -193,72 +141,14 @@ export default function Hero() {
           </motion.p>
         </motion.div>
 
-        {/* ── RIGHT 45% — rotating ProfileCards ───────────────────────────── */}
+        {/* ── RIGHT 45% — HeroCarousel (stack of 3 cards, auto-rotate) ──── */}
         <motion.div
           initial={reduce ? false : { opacity: 0, x: 32 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:max-w-[45%] w-full flex flex-col items-center gap-4"
+          className="lg:max-w-[45%] w-full"
         >
-          {/* Animated card crossfade */}
-          <div
-            className="relative w-full max-w-[340px] h-[420px]"
-            aria-label={`Showing example profile: ${activeProfile.name}`}
-            aria-live="polite"
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeProfile.id}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="absolute inset-0"
-              >
-                <ProfileCard
-                  name={activeProfile.name}
-                  age={activeProfile.age}
-                  city={activeProfile.city}
-                  profession={activeProfile.profession}
-                  photoUrl={null}
-                  isVerified={activeProfile.isVerified}
-                  compatibilityPct={activeProfile.compatibilityPct}
-                  gunaScore={activeProfile.gunaScore}
-                  className="h-full"
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Pagination dots */}
-          <div
-            className="flex gap-2"
-            role="tablist"
-            aria-label="Browse example profiles"
-          >
-            {MOCK_PROFILES.map((p, i) => (
-              <button
-                key={p.id}
-                type="button"
-                role="tab"
-                aria-selected={i === activeIdx}
-                aria-label={`View profile ${i + 1} of ${MOCK_PROFILES.length}`}
-                onClick={() => setActiveIdx(i)}
-                className={[
-                  'h-1.5 rounded-full transition-all duration-300',
-                  i === activeIdx
-                    ? 'w-6 bg-teal'
-                    : 'w-1.5 bg-gold/30 hover:bg-gold/60',
-                ].join(' ')}
-              />
-            ))}
-          </div>
-
-          {/* Depth shadow strip below card */}
-          <div
-            aria-hidden="true"
-            className="w-full max-w-[300px] h-2 rounded-b-2xl border border-gold/10 bg-surface shadow-card"
-          />
+          <HeroCarousel />
         </motion.div>
       </div>
     </section>
