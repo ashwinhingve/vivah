@@ -16,9 +16,8 @@ import {
   Search,
 } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { CompletenessBar } from '@/components/profile/CompletenessBar';
+import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
 import { MatchCard } from '@/components/matching/MatchCard';
-import { StrengthTipsPanel } from '@/components/profile/StrengthTipsPanel';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -225,6 +224,13 @@ export default async function DashboardPage() {
               animDelayMs={300}
             />
           </StaggerList>
+
+          {/* ── Profile Completeness (single source) ───────────── */}
+          {sections && completeness < 100 && (
+            <FadeUp delay={0.08}>
+              <ProfileCompletenessCard sections={sections} />
+            </FadeUp>
+          )}
 
           {/* ── Today's Matches ────────────────────────────────── */}
           <FadeUp delay={0.1}>
@@ -442,17 +448,6 @@ export default async function DashboardPage() {
             )}
           </FadeUp>
 
-          {/* ── Profile Strength Tips ──────────────────────────── */}
-          <FadeUp delay={0.22}>
-            <StrengthTipsPanel />
-          </FadeUp>
-
-          {/* ── Completeness Bar ───────────────────────────────── */}
-          {sections && (
-            <FadeUp delay={0.25}>
-              <CompletenessBar sections={sections} />
-            </FadeUp>
-          )}
 
           {/* ── Quick Actions Strip ────────────────────────────── */}
           <FadeUp delay={0.28}>
