@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { Calendar, MapPin, Users, CheckSquare, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatINRCompact, formatDateIN, daysUntil } from '@/lib/format';
 import type { WeddingSummary } from '@smartshaadi/types';
@@ -8,19 +8,30 @@ interface WeddingCardProps {
   wedding: WeddingSummary;
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  PLANNING:  'Planning',
-  CONFIRMED: 'Confirmed',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
+type UrgencyVariant = {
+  label: string;
+  className: string;
+  pulse?: boolean;
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  PLANNING:  'bg-warning/15 text-warning border-warning/30',
-  CONFIRMED: 'bg-teal/10 text-teal border-teal/30',
-  COMPLETED: 'bg-success/15 text-success border-success/30',
-  CANCELLED: 'bg-muted text-muted-foreground border-muted-foreground/20',
-};
+function computeUrgency(status: string, days: number | null): UrgencyVariant {
+  if (status === 'COMPLETED') {
+    return { label: 'Completed', className: 'bg-muted/60 text-muted-foreground border-muted-foreground/15' };
+  }
+  if (status === 'CANCELLED') {
+    return { label: 'Cancelled', className: 'bg-muted text-muted-foreground border-muted-foreground/20' };
+  }
+  if (days === 0) {
+    return { label: 'Today', className: 'bg-primary text-white border-primary shadow-sm', pulse: true };
+  }
+  if (days === 1) {
+    return { label: 'Tomorrow!', className: 'bg-primary text-white border-primary shadow-sm' };
+  }
+  if (days != null && days > 1 && days <= 30) {
+    return { label: `${days} days left`, className: 'bg-primary/10 text-primary border-primary/30' };
+  }
+  return { label: 'Planning', className: 'bg-gold/15 text-primary border-gold/30' };
+}
 
 export function WeddingCard({ wedding }: WeddingCardProps) {
   const { total, done } = wedding.taskProgress;
@@ -30,7 +41,8 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
   const budgetTotal = wedding.budgetTotal;
 
   const days = daysUntil(wedding.weddingDate);
-  const isFuture = days !== null && days > 0;
+  const urgency = computeUrgency(wedding.status, days);
+  const cancelled = wedding.status === 'CANCELLED';
 
   // FIX: Use weddingName as primary title (was incorrectly using venueName)
   const title = wedding.weddingName ?? wedding.venueName ?? 'Wedding Plan';
@@ -41,7 +53,12 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
         {/* Title row */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0 flex-1">
-            <h2 className="font-heading text-lg text-primary leading-snug group-hover:text-primary-hover transition-colors truncate">
+            <h2
+              className={cn(
+                'font-heading text-lg text-primary leading-snug group-hover:text-primary-hover transition-colors truncate',
+                cancelled && 'line-through text-muted-foreground'
+              )}
+            >
               {title}
             </h2>
             {wedding.venueName && wedding.weddingName && (
@@ -49,19 +66,14 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {isFuture && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-gold/15 text-primary border border-gold/30">
-                <Sparkles className="h-3 w-3" aria-hidden="true" />
-                {days}d
-              </span>
-            )}
             <span
               className={cn(
-                'text-xs font-medium px-2.5 py-1 rounded-full border',
-                STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground border-transparent'
+                'inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap',
+                urgency.className,
+                urgency.pulse && 'animate-pulse'
               )}
             >
-              {STATUS_LABELS[wedding.status] ?? wedding.status}
+              {urgency.label}
             </span>
           </div>
         </div>
