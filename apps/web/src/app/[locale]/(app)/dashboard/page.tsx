@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import {
   Heart,
   Calendar,
-  MailOpen,
+  Mail,
   Gauge,
   Sparkles,
   Plus,
@@ -194,13 +194,17 @@ export default async function DashboardPage() {
               sub="in feed today"
               icon={Heart}
               variant="teal"
+              animDelayMs={0}
+              emptyCta={{ label: 'Refine preferences', href: '/profile/preferences' }}
             />
             <StatsCard
               label="Requests"
               value={pendingRequests}
               sub="received"
-              icon={MailOpen}
+              icon={Mail}
               variant="gold"
+              animDelayMs={100}
+              emptyCta={{ label: 'View past requests', href: '/requests' }}
             />
             <StatsCard
               label="Upcoming Events"
@@ -208,13 +212,17 @@ export default async function DashboardPage() {
               sub="confirmed"
               icon={Calendar}
               variant={upcomingBookings.length > 0 ? 'success' : 'default'}
+              animDelayMs={200}
+              emptyCta={{ label: 'Browse vendors', href: '/vendors' }}
             />
             <StatsCard
               label="Profile"
+              valuePercent={completeness}
               value={`${completeness}%`}
               sub="complete"
               icon={Gauge}
               variant={completeness >= 70 ? 'success' : 'warning'}
+              animDelayMs={300}
             />
           </StaggerList>
 

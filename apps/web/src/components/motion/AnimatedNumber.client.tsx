@@ -9,6 +9,8 @@ interface AnimatedNumberProps {
   value: number;
   /** Animation duration in seconds. Default from motion-config. */
   duration?: number;
+  /** Delay before starting the count, in seconds. Default 0. */
+  delay?: number;
   /** Format the running value for display (e.g. add %, commas). */
   format?: (n: number) => string;
   className?: string;
@@ -21,6 +23,7 @@ interface AnimatedNumberProps {
 export function AnimatedNumber({
   value,
   duration = MOTION.numberSec,
+  delay = 0,
   format = (n) => Math.round(n).toLocaleString('en-IN'),
   className,
 }: AnimatedNumberProps) {
@@ -35,11 +38,12 @@ export function AnimatedNumber({
     }
     const controls = animate(0, value, {
       duration,
+      delay,
       ease: 'easeOut',
       onUpdate: (v) => setDisplay(v),
     });
     return () => controls.stop();
-  }, [value, duration, reduce]);
+  }, [value, duration, delay, reduce]);
 
   return (
     <span ref={node} className={className}>
