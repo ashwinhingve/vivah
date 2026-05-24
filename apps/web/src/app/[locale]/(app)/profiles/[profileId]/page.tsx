@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { CheckCircle2, Phone, BadgeCheck, Camera, CreditCard, Sparkles } from 'lucide-react';
+import { Phone, BadgeCheck, Camera, CreditCard, Sparkles, Trophy } from 'lucide-react';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ProfileCompatibilityCard } from '@/components/profile/ProfileCompatibilityCard';
@@ -128,57 +128,63 @@ function calculateAge(dob: string): number {
   return age;
 }
 
-/** Verification trust strip — only renders flags present on verificationStatus */
+/**
+ * Verification trust strip. Renders compact Gold/20 pills only for active
+ * verifications (unverified items are omitted — showing them erodes trust).
+ * Fully-verified profiles get a single Burgundy "Fully Verified" trophy
+ * chip in addition to the per-check pills.
+ */
 function VerificationStrip({ verificationStatus }: { verificationStatus: string }) {
   const verified = verificationStatus === 'VERIFIED';
 
-  const checks = [
-    {
-      key: 'phone',
-      icon: Phone,
-      label: 'Phone',
-      active: verified, // phone is verified as part of OTP onboarding
-    },
-    {
-      key: 'kyc',
-      icon: BadgeCheck,
-      label: 'KYC',
-      active: verified,
-    },
-    {
-      key: 'photo',
-      icon: Camera,
-      label: 'Photo',
-      active: verified,
-    },
-    {
-      key: 'govt',
-      icon: CreditCard,
-      label: 'Govt ID',
-      active: verified,
-    },
+  const checks: { key: string; icon: typeof Phone; label: string; active: boolean }[] = [
+    { key: 'phone', icon: Phone,      label: 'Phone',          active: verified },
+    { key: 'kyc',   icon: BadgeCheck, label: 'Aadhaar KYC',    active: verified },
+    { key: 'photo', icon: Camera,     label: 'Photo Verified', active: verified },
+    { key: 'govt',  icon: CreditCard, label: 'Govt ID',        active: verified },
   ];
 
+  const activeChecks = checks.filter((c) => c.active);
+  if (activeChecks.length === 0) return null;
+  const allVerified = activeChecks.length === checks.length;
+
   return (
-    <div className="flex gap-2 flex-wrap">
-      {checks.map(({ key, icon: Icon, label, active }) => (
-        <div
+    <div className="flex flex-wrap items-center gap-2">
+      {activeChecks.map(({ key, icon: Icon, label }) => (
+        <span
           key={key}
-          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-            active
-              ? 'border-success/30 bg-success/10 text-success'
-              : 'border-border-light bg-muted/30 text-muted-foreground'
-          }`}
+          className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-teal"
         >
-          <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+          <Icon className="h-3 w-3" aria-hidden="true" />
+          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
           {label}
-          {active && (
-            <CheckCircle2 className="w-3 h-3" aria-hidden="true" />
-          )}
-        </div>
+        </span>
       ))}
+      {allVerified && (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+          <Trophy className="h-3 w-3 text-gold" aria-hidden="true" />
+          Fully Verified
+        </span>
+      )}
     </div>
   );
+}
+
+/** "Joined N months ago" — coarse since signup date. */
+function formatJoinedRelative(createdAt: string | Date): string {
+  const ts = typeof createdAt === 'string' ? new Date(createdAt).getTime() : createdAt.getTime();
+  const days = Math.floor((Date.now() - ts) / 86_400_000);
+  if (days < 7) return 'Joined this week';
+  if (days < 30) {
+    const w = Math.floor(days / 7);
+    return `Joined ${w} week${w === 1 ? '' : 's'} ago`;
+  }
+  if (days < 365) {
+    const m = Math.floor(days / 30);
+    return `Joined ${m} month${m === 1 ? '' : 's'} ago`;
+  }
+  const y = Math.floor(days / 365);
+  return `Joined ${y} year${y === 1 ? '' : 's'} ago`;
 }
 
 /** Quick trait pills row */
@@ -274,7 +280,7 @@ export default async function ProfileViewPage({ params }: Props) {
               isVerified={profile.verificationStatus === 'VERIFIED'}
             />
 
-            {/* Identity hero card */}
+            {/* Identity hero card — 2 anchored rows */}
             <div className="rounded-2xl border border-gold/20 bg-surface shadow-card p-5 space-y-4">
               {/* Premium tier badge */}
               {profile.premiumTier && profile.premiumTier !== 'FREE' && (
@@ -286,32 +292,45 @@ export default async function ProfileViewPage({ params }: Props) {
                 </div>
               )}
 
-              {/* Name + age + city */}
-              <div>
-                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                  {displayName}
+              {/* Row 1 — Primary identity (name + age | LastActiveBadge) */}
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="font-heading text-[24px] sm:text-[32px] font-semibold leading-tight tracking-tight text-primary min-w-0">
+                  {displayName}{age != null ? <span className="text-text-muted">, {age}</span> : null}
                 </h1>
-                <p className="mt-1 text-base text-muted-foreground">
-                  {age != null ? `${age} yrs` : ''}
-                  {age != null && city ? ' · ' : ''}
-                  {city}
-                  {profile.profession?.occupation
-                    ? ` · ${profile.profession.occupation}`
-                    : ''}
-                </p>
+                <div className="shrink-0">
+                  <LastActiveBadge
+                    lastActiveAt={profile.lastActiveAt ?? null}
+                    showPrecise={showsPreciseLastActive}
+                  />
+                </div>
               </div>
 
-              {/* Status chips row */}
-              <div className="flex flex-wrap items-center gap-2">
-                <ManglikChip manglik={profile.horoscope?.manglik ?? null} size="xs" />
-                {!isSelf && fullScore && (
-                  <DistancePill distanceKm={fullScore.distanceKm} fallbackCity={null} />
-                )}
-                <LastActiveBadge
-                  lastActiveAt={profile.lastActiveAt ?? null}
-                  showPrecise={showsPreciseLastActive}
-                />
-              </div>
+              {/* Profession · City — Inter 16 Charcoal/80 */}
+              {(profile.profession?.occupation || city) && (
+                <p className="text-base text-foreground/80">
+                  {[profile.profession?.occupation, city].filter(Boolean).join(' · ')}
+                </p>
+              )}
+
+              {/* Activity strip — joined / member since / view count */}
+              <p className="text-[13px] text-muted-foreground">
+                {isSelf
+                  ? formatJoinedRelative(profile.createdAt)
+                  : `Member since ${new Date(profile.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
+              </p>
+
+              {/* Verification pills (only truthy) */}
+              <VerificationStrip verificationStatus={profile.verificationStatus} />
+
+              {/* Status chips row (Manglik / Distance) */}
+              {(profile.horoscope?.manglik || (!isSelf && fullScore?.distanceKm != null)) && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <ManglikChip manglik={profile.horoscope?.manglik ?? null} size="xs" />
+                  {!isSelf && fullScore && (
+                    <DistancePill distanceKm={fullScore.distanceKm} fallbackCity={null} />
+                  )}
+                </div>
+              )}
 
               {/* Trait pills */}
               <TraitPills profile={profile} />
@@ -322,15 +341,20 @@ export default async function ProfileViewPage({ params }: Props) {
                   &ldquo;{profile.aboutMe}&rdquo;
                 </p>
               )}
-
-              {/* Verification trust strip */}
-              <div className="border-t border-border-light pt-3">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-                  Verification
-                </p>
-                <VerificationStrip verificationStatus={profile.verificationStatus} />
-              </div>
             </div>
+
+            {/* Desktop action bar — directly below hero for above-fold CTA */}
+            {!isSelf && (
+              <div className="hidden lg:block">
+                <ProfileActions
+                  profileId={profileId}
+                  displayName={displayName}
+                  initialStatus={matchStatus.status}
+                  requestId={matchStatus.requestId}
+                  sticky={false}
+                />
+              </div>
+            )}
 
             {/* Contact section — self-view only */}
             {isSelf && (
@@ -402,18 +426,6 @@ export default async function ProfileViewPage({ params }: Props) {
               kundliUrl={profile.kundliUrl ?? null}
             />
 
-            {/* Desktop action bar — inline at bottom of right column */}
-            {!isSelf && (
-              <div className="hidden lg:block">
-                <ProfileActions
-                  profileId={profileId}
-                  displayName={displayName}
-                  initialStatus={matchStatus.status}
-                  requestId={matchStatus.requestId}
-                  sticky={false}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
