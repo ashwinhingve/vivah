@@ -454,31 +454,40 @@ export default async function DashboardPage() {
             <SectionHeader title="Quick Actions" />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {([
-                { href: '/feed',           label: 'Find Matches',   icon: Search,         variant: 'teal'    },
-                { href: '/weddings/new',   label: 'Plan Wedding',   icon: Cake,           variant: 'gold'    },
-                { href: '/vendors',        label: 'Browse Vendors', icon: Users,          variant: 'default' },
-                { href: '/store',          label: 'Shop Store',     icon: Store,          variant: 'default' },
-              ] as const).map(({ href, label, icon: Icon, variant }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border p-4 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover ${
-                    variant === 'teal'
-                      ? 'border-teal/20 bg-teal/5 hover:bg-teal/10'
-                      : variant === 'gold'
-                      ? 'border-gold/30 bg-gold/10 hover:bg-gold/20'
-                      : 'border-gold/20 bg-surface hover:bg-gold/5'
-                  }`}
-                >
-                  <Icon
-                    className={`h-5 w-5 ${variant === 'teal' ? 'text-teal' : variant === 'gold' ? 'text-gold-muted' : 'text-primary'}`}
-                    aria-hidden="true"
-                  />
-                  <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                    {label}
-                  </span>
-                </Link>
-              ))}
+                { href: '/feed',         label: 'Find Matches',   icon: Search, variant: 'teal'     },
+                { href: '/weddings/new', label: 'Plan Wedding',   icon: Cake,   variant: 'burgundy' },
+                { href: '/vendors',      label: 'Browse Vendors', icon: Users,  variant: 'gold'     },
+                { href: '/store',        label: 'Shop Store',     icon: Store,  variant: 'charcoal' },
+              ] as const).map(({ href, label, icon: Icon, variant }) => {
+                const tint =
+                  variant === 'teal'
+                    ? 'border-teal/20 bg-teal/5 hover:bg-teal/10'
+                    : variant === 'burgundy'
+                    ? 'border-primary/20 bg-primary/5 hover:bg-primary/10'
+                    : variant === 'gold'
+                    ? 'border-gold/30 bg-gold/10 hover:bg-gold/20'
+                    : 'border-foreground/15 bg-foreground/5 hover:bg-foreground/10';
+                const iconColor =
+                  variant === 'teal'
+                    ? 'text-teal'
+                    : variant === 'burgundy'
+                    ? 'text-primary'
+                    : variant === 'gold'
+                    ? 'text-gold-muted'
+                    : 'text-foreground';
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border p-4 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover ${tint}`}
+                  >
+                    <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />
+                    <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                      {label}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </FadeUp>
 
