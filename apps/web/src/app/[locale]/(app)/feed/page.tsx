@@ -163,13 +163,31 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         ) : items.length === 1 ? (
           (() => {
             const only = items[0]!;
+            const chips = [
+              { label: 'Diet',    href: '/profile/preferences#diet' },
+              { label: 'Manglik', href: '/profile/preferences#manglik' },
+              { label: 'Age',     href: '/profile/preferences#age' },
+              { label: 'City',    href: '/profile/preferences#city' },
+            ];
             return (
               <div className="mx-auto flex max-w-md flex-col items-stretch gap-5">
-                <span className="self-start inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                <div className="-mx-1 flex flex-wrap gap-2 px-1">
+                  {chips.map((c) => (
+                    <Link
+                      key={c.label}
+                      href={c.href}
+                      className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-surface px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-teal hover:text-teal"
+                    >
+                      <SlidersHorizontal className="h-3 w-3" aria-hidden="true" />
+                      {c.label}
+                    </Link>
+                  ))}
+                </div>
+                <span className="self-center inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   Recommended
                 </span>
-                <div className="w-full sm:w-[60%] sm:self-center">
+                <div className="mx-auto w-full max-w-[320px]">
                   <MatchCard
                     id={only.profileId}
                     name={only.name || 'Member'}
@@ -179,6 +197,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                     compatibilityPct={only.compatibility?.totalScore}
                     isVerified={only.isVerified}
                     gunaPending={only.compatibility?.flags?.includes('guna_pending')}
+                    hideGunaHint
                   />
                 </div>
                 <div className="rounded-2xl border border-gold/25 bg-gradient-to-br from-gold/10 via-surface to-teal/5 p-5 text-center shadow-card">
