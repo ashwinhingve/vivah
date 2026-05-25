@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { io, type Socket } from 'socket.io-client'
+import { Search, X } from 'lucide-react'
 import type { ConversationListItem as ConvItem, MessageType } from '@smartshaadi/types'
 import { useChatSocket } from '@/lib/socket/SocketProvider.client'
 import ConversationListItem from './ConversationListItem'
@@ -37,6 +38,7 @@ export default function ChatsListClient({
   initialItems, currentProfileId, authToken,
 }: ChatsListClientProps) {
   const [items, setItems] = useState<ConvItem[]>(sortItems(initialItems))
+  const [query, setQuery] = useState('')
   const contextSocket = useChatSocket()
   const ownSocketRef = useRef<Socket | null>(null)
 
@@ -97,12 +99,20 @@ export default function ChatsListClient({
     }
   }, [contextSocket, authToken, currentProfileId])
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return items
+    return items.filter((item) => {
+      const name = item.other?.firstName?.toLowerCase() ?? ''
+      const last = item.lastMessage?.content?.toLowerCase() ?? ''
+      return name.includes(q) || last.includes(q)
+    })
+  }, [items, query])
+
   if (items.length === 0) {
     return (
       <EmptyState
         variant="no-messages"
-        title="No conversations yet"
-        description="When you connect with a match, your chats will appear here."
         actionLabel="Find matches"
         actionHref="/feed"
       />
@@ -110,12 +120,44 @@ export default function ChatsListClient({
   }
 
   return (
-    <ul className="divide-y divide-border">
-      {items.map((item) => (
-        <li key={item.matchRequestId}>
-          <ConversationListItem item={item} currentProfileId={currentProfileId} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <div className="border-b border-gold/15 bg-surface px-4 py-2">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name…"
+            className="w-full rounded-lg border border-gold/20 bg-background py-2 pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal"
+            aria-label="Search conversations"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-surface-muted"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="px-6 py-10 text-center">
+          <p className="text-sm text-muted-foreground">No conversations match &ldquo;{query}&rdquo;.</p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-border">
+          {filtered.map((item) => (
+            <li key={item.matchRequestId}>
+              <ConversationListItem item={item} currentProfileId={currentProfileId} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }

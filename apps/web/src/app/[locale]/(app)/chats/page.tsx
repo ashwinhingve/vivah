@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import ChatsListClient from '@/components/chat/ChatsListClient.client'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,27 +78,24 @@ export default async function ChatsPage({ searchParams }: PageProps) {
       </header>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-teal/10 text-3xl">
-            💬
-          </div>
-          <p className="font-heading text-base font-semibold text-foreground">
-            {filter === 'unread' ? 'You’re all caught up' : filter === 'archived' ? 'No archived chats' : 'No conversations yet'}
-          </p>
-          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            {filter === 'all'
+        <EmptyState
+          variant="no-messages"
+          title={
+            filter === 'unread'
+              ? 'You’re all caught up'
+              : filter === 'archived'
+              ? 'No archived chats'
+              : 'No conversations yet'
+          }
+          description={
+            filter === 'all'
               ? 'Accept a match to start chatting and begin your journey together.'
-              : 'Conversations you mark accordingly will appear here.'}
-          </p>
-          {filter === 'all' ? (
-            <Link
-              href="/matches"
-              className="mt-5 inline-flex items-center justify-center rounded-full bg-teal px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal/25 transition-colors hover:bg-teal-hover"
-            >
-              Find matches
-            </Link>
-          ) : null}
-        </div>
+              : 'Conversations you mark accordingly will appear here.'
+          }
+          {...(filter === 'all'
+            ? { actionLabel: 'Find matches', actionHref: '/matches' }
+            : {})}
+        />
       ) : (
         <ChatsListClient
           initialItems={items}
