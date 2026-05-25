@@ -89,3 +89,8 @@ test-results/
 
 # Prevent re-occurrence of CWD bug — these paths should never exist
 apps/api/apps/api/
+
+# Local debug artifacts (curl jars, captured HTML, push logs)
+cookies.txt
+resp_dash*.html
+push.log
