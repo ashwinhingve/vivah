@@ -8,6 +8,9 @@ import {
   Sparkles,
   ListChecks,
   SearchX,
+  Bell,
+  Bookmark,
+  WifiOff,
   type LucideProps,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,6 +21,10 @@ import {
   NoVendorsIllustration,
   NoWeddingPlanIllustration,
   NoTasksIllustration,
+  NoNotificationsIllustration,
+  NoShortlistIllustration,
+  NoSearchResultsIllustration,
+  NoNetworkIllustration,
 } from './illustrations';
 
 type EmptyVariant =
@@ -27,7 +34,11 @@ type EmptyVariant =
   | 'no-vendors'
   | 'no-wedding'
   | 'no-tasks'
-  | 'no-results';
+  | 'no-results'
+  | 'no-notifications'
+  | 'no-shortlist'
+  | 'no-search-results'
+  | 'no-network';
 
 type IllustrationComponent = ComponentType<{ className?: string }>;
 
@@ -81,6 +92,30 @@ const PRESETS: Record<
     icon: SearchX,
     title: 'No results',
     description: 'Nothing matched your search. Try different terms or adjust your filters.',
+  },
+  'no-notifications': {
+    illustration: NoNotificationsIllustration,
+    icon: Bell,
+    title: 'You’re all caught up',
+    description: 'No new notifications right now. We’ll let you know when something happens.',
+  },
+  'no-shortlist': {
+    illustration: NoShortlistIllustration,
+    icon: Bookmark,
+    title: 'Your shortlist is empty',
+    description: 'Save profiles you’d like to revisit and they’ll appear here.',
+  },
+  'no-search-results': {
+    illustration: NoSearchResultsIllustration,
+    icon: SearchX,
+    title: 'No results',
+    description: 'Try different terms or adjust your filters.',
+  },
+  'no-network': {
+    illustration: NoNetworkIllustration,
+    icon: WifiOff,
+    title: 'Couldn’t load this page',
+    description: 'Check your connection and try again.',
   },
 };
 

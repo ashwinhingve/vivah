@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { Link } from '@/i18n/navigation';
+import { EmptyState } from '@/components/ui/EmptyState';
 interface NotificationRow {
   id:        string;
   type:      string;
@@ -71,9 +72,7 @@ export default async function NotificationsPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-          No notifications yet.
-        </div>
+        <EmptyState variant="no-notifications" />
       ) : (
         <ul className="space-y-2">
           {items.map(n => {
