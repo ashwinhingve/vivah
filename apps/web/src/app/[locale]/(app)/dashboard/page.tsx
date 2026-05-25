@@ -75,6 +75,13 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
+function getDisplayName(raw: string | null | undefined): string | null {
+  const first = raw?.trim()?.split(/\s+/)[0];
+  if (!first) return null;
+  if (/^\+?\d[\d\s-]{6,}$/.test(first)) return null;
+  return first;
+}
+
 function formatDatePill(d: Date): string {
   return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
 }
@@ -116,7 +123,7 @@ export default async function DashboardPage() {
   const completeness = profile?.profileCompleteness ?? 0;
   const sections = profile?.sectionCompletion;
   const tier = profile?.premiumTier ?? 'FREE';
-  const firstName = profile?.name?.trim()?.split(/\s+/)[0] ?? '';
+  const displayName = getDisplayName(profile?.name);
 
   const allBookings = bookingsData?.bookings ?? [];
   const upcomingBookings = allBookings.filter(
@@ -145,7 +152,7 @@ export default async function DashboardPage() {
               {/* Row 1 — greeting + (right) date pill / tier */}
               <div className="relative flex items-start justify-between gap-3">
                 <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary min-w-0">
-                  {getGreeting()}{firstName ? `, ${firstName}` : ''} <span aria-hidden="true">👋</span>
+                  {getGreeting()}{displayName ? `, ${displayName}` : ''} <span aria-hidden="true">👋</span>
                 </h1>
                 <div className="flex items-center gap-2 shrink-0">
                   {tier !== 'FREE' && (
