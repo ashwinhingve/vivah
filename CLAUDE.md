@@ -265,6 +265,22 @@ CI/CD:       GitHub Actions → Vercel (web) + Railway (API + AI service)
 
 ---
 
+## Verification Protocol — non-negotiable
+
+Code is not "verified" until:
+1. pnpm type-check passes (catches compile errors)
+2. pnpm build passes (catches build-time errors)
+3. The affected pages are opened in a browser locally
+4. Key interactions are clicked manually
+5. Network tab shows no 500s from Server Components
+6. Console shows no React errors
+
+Especially when refactoring Server Components: the component will compile
+and build even when it throws at request time. type-check + build alone
+is NOT sufficient verification.
+
+---
+
 ## Code Conventions
 
 ```
