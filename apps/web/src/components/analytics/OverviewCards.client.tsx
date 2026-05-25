@@ -30,13 +30,13 @@ export function OverviewCards({ data }: { data: Overview | null }) {
       <StatCard
         label="Revenue MTD"
         value={data.revenueMtd.value}
-        format={inr}
+        staticValue={inr(data.revenueMtd.value)}
         trendPct={data.revenueMtd.changePct ?? undefined}
       />
       <StatCard
         label="Avg Compatibility"
         value={data.avgCompatScore.value}
-        format={oneDp}
+        staticValue={oneDp(data.avgCompatScore.value)}
         trendPct={data.avgCompatScore.changePct ?? undefined}
       />
     </div>

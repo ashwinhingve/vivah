@@ -11,12 +11,16 @@ interface AnimatedNumberProps {
   duration?: number;
   /** Delay before starting the count, in seconds. Default 0. */
   delay?: number;
-  /** Format the running value for display (e.g. add %, commas). */
-  format?: (n: number) => string;
-  /** When true, render as `${Math.round(n)}%` regardless of `format`. Kept as a
-   * serializable boolean (not a function) so this component stays usable from
-   * server-component parents — function props cannot cross the RSC boundary. */
+  /** When true, render as `${Math.round(n)}%`. */
   percent?: boolean;
+  /** Prepended to the rendered number (e.g. `₹`). */
+  prefix?: string;
+  /** Appended to the rendered number (e.g. `/100`, ` km`). */
+  suffix?: string;
+  /** When set, renders this static string in place of the animation entirely.
+   * Use for values that cannot be animated as plain numbers (e.g. currency
+   * with locale grouping). The static text bypasses the tween. */
+  staticValue?: string;
   className?: string;
 }
 
@@ -28,11 +32,12 @@ export function AnimatedNumber({
   value,
   duration = MOTION.numberSec,
   delay = 0,
-  format = (n) => Math.round(n).toLocaleString('en-IN'),
   percent = false,
+  prefix,
+  suffix,
+  staticValue,
   className,
 }: AnimatedNumberProps) {
-  const formatFn = percent ? (n: number) => `${Math.round(n)}%` : format;
   const reduce = useReducedMotion();
   const [display, setDisplay] = useState(reduce ? value : 0);
   const node = useRef<HTMLSpanElement>(null);
@@ -51,9 +56,17 @@ export function AnimatedNumber({
     return () => controls.stop();
   }, [value, duration, delay, reduce]);
 
+  if (staticValue != null) {
+    return <span ref={node} className={className}>{staticValue}</span>;
+  }
+
+  const body = percent
+    ? `${Math.round(display)}%`
+    : Math.round(display).toLocaleString('en-IN');
+
   return (
     <span ref={node} className={className}>
-      {formatFn(display)}
+      {prefix}{body}{suffix}
     </span>
   );
 }

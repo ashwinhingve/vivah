@@ -115,7 +115,33 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ matchId, durationMin: 60 }),
       });
-      const json = (await res.json()) as { success: boolean; data: { roomUrl: string; isMock?: boolean }; error?: { message: string } };
+      const json = (await res.json()) as {
+        success: boolean;
+        data?: { roomUrl: string; isMock?: boolean };
+        error?: { code?: string; message: string };
+      };
+
+      // 409 ROOM_EXISTS — room already created (by us or the other user).
+      // Recover by GET /rooms/:matchId and joining the existing room.
+      if (res.status === 409 && json.error?.code === 'ROOM_EXISTS') {
+        const existing = await fetch(`${API_BASE}/api/v1/video/rooms/${matchId}`, {
+          credentials: 'include',
+        });
+        const existingJson = (await existing.json()) as {
+          success: boolean;
+          data?: { roomName: string };
+          error?: { message: string };
+        };
+        if (existing.ok && existingJson.success && existingJson.data?.roomName) {
+          // Daily.co URLs follow the team-subdomain pattern; same construction
+          // used by the API's mock path in apps/api/src/lib/dailyco.ts line 27.
+          const recoveredUrl = `https://smartshaadi.daily.co/${existingJson.data.roomName}`;
+          window.open(recoveredUrl, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        throw new Error('A video call is already in progress — please refresh and try again.');
+      }
+
       if (!json.success || !json.data?.roomUrl) {
         throw new Error(json.error?.message ?? 'Could not start call');
       }

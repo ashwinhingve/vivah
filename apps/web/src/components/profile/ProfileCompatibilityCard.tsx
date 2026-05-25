@@ -128,7 +128,7 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
               <AnimatedNumber
                 value={totalScore}
                 duration={0.8}
-                format={(n) => `${Math.round(n)}%`}
+                percent
                 className="font-heading text-3xl font-bold tabular-nums leading-none text-primary"
               />
               <span className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">Match</span>

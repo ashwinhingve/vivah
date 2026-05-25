@@ -230,7 +230,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           <StatCard
             label="Budget Used"
             value={budgetSpent}
-            format={(n) => formatINR(n)}
+            staticValue={formatINR(budgetSpent)}
           />
           <StatCard
             label="Ceremonies"
@@ -243,7 +243,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           <StatCard
             label="Tasks Done"
             value={done}
-            format={(n) => `${n}/${total}`}
+            suffix={`/${total}`}
           />
         </StaggerList>
 
