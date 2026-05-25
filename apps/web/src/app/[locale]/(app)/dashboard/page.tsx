@@ -166,14 +166,14 @@ export default async function DashboardPage({
 
           {/* ── Hero Greeting ──────────────────────────────────── */}
           <FadeUp delay={0}>
-            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card">
+            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card sm:px-7 sm:py-6 lg:px-8 lg:py-7">
               {/* Decorative blob */}
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
               />
               {/* Row 1 — greeting + (right) date pill / tier */}
-              <div className="relative flex items-start justify-between gap-3">
+              <div className="relative flex items-baseline justify-between gap-3">
                 <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary min-w-0">
                   {greeting}{displayName ? `, ${displayName}` : ''} <span aria-hidden="true">👋</span>
                 </h1>
@@ -192,7 +192,7 @@ export default async function DashboardPage({
 
               {/* Row 2 — completeness label inline with progress bar */}
               {completeness < 100 && (
-                <div className="relative mt-3 flex items-center gap-3">
+                <div className="relative mt-4 flex items-center gap-3">
                   <p className="shrink-0 text-xs font-medium text-muted-foreground">
                     {t('profileBar.completeText', { percent: completeness })}
                   </p>

@@ -110,7 +110,7 @@ export async function WeddingCard({ wedding }: WeddingCardProps) {
               <span>{t('planningProgress')}</span>
               <span className="font-semibold text-primary">{taskPct}%</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-gold/15">
+            <div className="h-1.5 overflow-hidden rounded-full bg-gold/10">
               <div
                 className="h-full rounded-full bg-teal transition-all duration-200"
                 style={{ width: `${taskPct}%` }}
