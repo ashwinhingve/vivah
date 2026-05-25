@@ -7,6 +7,7 @@ import { BellOff, Pin, Image as ImageIcon, Mic, Video } from 'lucide-react'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'
 import { cn } from '@/lib/utils'
+import { InitialAvatar } from '@/components/ui/InitialAvatar'
 
 interface Props {
   item:             ConvItem
@@ -32,7 +33,6 @@ const VIDEO_CALL_RE = /Video call started/i
 export default function ConversationListItem({ item, currentProfileId }: Props) {
   const other = item.other
   const photoUrl = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null
-  const initial = (other?.firstName?.[0] ?? '?').toUpperCase()
   const isMine = item.lastMessage?.senderId === currentProfileId
   const isUnread = item.unreadCount > 0 && !isMine
   const muted = !!item.settings.mutedUntil
@@ -89,9 +89,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
             className="h-12 w-12 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/20 font-heading text-lg font-semibold text-primary">
-            {initial}
-          </div>
+          <InitialAvatar name={other?.firstName ?? ''} size="md" shape="circle" />
         )}
         {other?.isOnline ? (
           <span

@@ -36,6 +36,7 @@ import type {
 } from '@smartshaadi/types';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { formatRelativeIN } from '@/lib/format';
+import { InitialAvatar } from '@/components/ui/InitialAvatar';
 
 export const dynamic = 'force-dynamic';
 
@@ -376,7 +377,6 @@ export default async function DashboardPage() {
                 {recentChats.map((c) => {
                   const other = c.other;
                   const photo = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null;
-                  const initial = (other?.firstName ?? '?').charAt(0).toUpperCase();
                   const last = c.lastMessage;
                   const isVideoSystem =
                     last?.type === 'SYSTEM' && VIDEO_CALL_RE.test(last.content);
@@ -405,9 +405,12 @@ export default async function DashboardPage() {
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20 font-heading text-sm font-semibold text-primary">
-                              {initial}
-                            </div>
+                            <InitialAvatar
+                              name={other?.firstName ?? ''}
+                              size="sm"
+                              shape="circle"
+                              className="h-10 w-10"
+                            />
                           )}
                           {other?.isOnline && (
                             <span

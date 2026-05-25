@@ -5,6 +5,7 @@ import type { VendorProfile } from '@smartshaadi/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { InitialAvatar } from '@/components/ui/InitialAvatar';
 import { FavoriteButton } from './FavoriteButton.client';
 
 const R2_PUBLIC = process.env['NEXT_PUBLIC_R2_PUBLIC_URL'] ?? '';
@@ -67,9 +68,12 @@ export function VendorCard({ vendor }: VendorCardProps) {
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-3xl">
-            {vendor.businessName.charAt(0)}
-          </div>
+          <InitialAvatar
+            name={vendor.businessName}
+            size="lg"
+            shape="square"
+            className="h-full w-full rounded-none"
+          />
         )}
 
         <div className="absolute top-2 right-2">
