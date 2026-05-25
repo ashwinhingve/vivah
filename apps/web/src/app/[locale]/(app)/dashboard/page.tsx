@@ -14,7 +14,10 @@ import {
   Store,
   Users,
   Search,
+  Video,
 } from 'lucide-react';
+
+const VIDEO_CALL_RE = /Video call started/i;
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
 import { MatchCard } from '@/components/matching/MatchCard';
@@ -375,10 +378,14 @@ export default async function DashboardPage() {
                   const photo = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null;
                   const initial = (other?.firstName ?? '?').charAt(0).toUpperCase();
                   const last = c.lastMessage;
+                  const isVideoSystem =
+                    last?.type === 'SYSTEM' && VIDEO_CALL_RE.test(last.content);
                   const preview = !last
                     ? 'Tap to start the conversation'
                     : last.type === 'PHOTO'
                     ? '📷 Photo'
+                    : isVideoSystem
+                    ? 'Video call'
                     : last.content.length > 60
                     ? `${last.content.slice(0, 60)}…`
                     : last.content;
@@ -418,7 +425,12 @@ export default async function DashboardPage() {
                               <span className="shrink-0 text-[11px] text-muted-foreground">{relTime}</span>
                             )}
                           </div>
-                          <p className="truncate text-xs text-muted-foreground">{preview}</p>
+                          <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                            {isVideoSystem && (
+                              <Video className="h-3.5 w-3.5 shrink-0 text-teal" aria-hidden="true" />
+                            )}
+                            <span className="truncate">{preview}</span>
+                          </p>
                         </div>
                         {c.unreadCount > 0 && (
                           <span className="shrink-0 rounded-full bg-teal/15 px-2 py-0.5 text-[11px] font-semibold text-teal">
