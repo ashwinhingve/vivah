@@ -37,18 +37,18 @@ type NavItem = { href: string; labelKey: string; Icon: LucideIcon };
 type NavGroup = { titleKey: string; items: NavItem[] };
 
 const INDIVIDUAL_PRIMARY: NavItem[] = [
-  { href: '/feed',      labelKey: 'discover',     Icon: Home },
-  { href: '/requests',  labelKey: 'requests',     Icon: Heart },
-  { href: '/matches',   labelKey: 'connections',  Icon: Sparkles },
-  { href: '/weddings',  labelKey: 'wedding',      Icon: Cake },
-  { href: '/dashboard', labelKey: 'profile',      Icon: User },
+  { href: '/feed',      labelKey: 'discover', Icon: Home },
+  { href: '/chats',     labelKey: 'chats',    Icon: MessageCircle },
+  { href: '/weddings',  labelKey: 'wedding',  Icon: Cake },
+  { href: '/dashboard', labelKey: 'profile',  Icon: User },
 ];
 
 const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
   {
     titleKey: 'groupSocial',
     items: [
-      { href: '/chats',         labelKey: 'chats',         Icon: MessageCircle },
+      { href: '/requests',      labelKey: 'requests',      Icon: Heart },
+      { href: '/matches',       labelKey: 'connections',   Icon: Sparkles },
       { href: '/notifications', labelKey: 'notifications', Icon: Bell },
       { href: '/likes',         labelKey: 'likes',         Icon: Heart },
       { href: '/shortlist',     labelKey: 'shortlist',     Icon: Bookmark },
