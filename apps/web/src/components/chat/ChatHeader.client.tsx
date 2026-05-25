@@ -5,7 +5,7 @@ import { ProfileImage } from '@/components/ui/ProfileImage.client'
 import { Link } from '@/i18n/navigation';
 import {
   ArrowLeft, MoreVertical, Search as SearchIcon, BellOff, Bell,
-  Archive, ArchiveRestore, ImageIcon, Flag, Ban, Pin, PinOff, Lightbulb,
+  Archive, ArchiveRestore, ImageIcon, Flag, Ban, Pin, PinOff, Lightbulb, Video,
 } from 'lucide-react'
 import type { ConversationParticipantPreview } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'
@@ -208,12 +208,12 @@ export default function ChatHeader({
 
       <button
         type="button"
-        onClick={() => setShowSuggestions(true)}
-        aria-label="Smart Suggestions"
-        title="Smart Suggestions"
+        onClick={() => { window.dispatchEvent(new CustomEvent('chat:toggle-video')) }}
+        aria-label="Video call"
+        title="Video call"
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-teal transition-colors hover:bg-teal/10"
       >
-        <Lightbulb className="h-5 w-5" />
+        <Video className="h-5 w-5" />
       </button>
 
       <div className="relative">
@@ -237,6 +237,11 @@ export default function ChatHeader({
               icon={<ImageIcon className="h-4 w-4" />}
               label="Media & files"
               onClick={() => { onMediaToggle(); setMenuOpen(false) }}
+            />
+            <MenuItem
+              icon={<Lightbulb className="h-4 w-4" />}
+              label="AI coach"
+              onClick={() => { setShowSuggestions(true); setMenuOpen(false) }}
             />
             <MenuItem
               icon={pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}

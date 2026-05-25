@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronDown, ChevronUp, Video } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { X, Video } from 'lucide-react'
 import { VideoCall } from './VideoCall.client'
 
 interface VideoCallPanelProps {
@@ -12,9 +11,14 @@ interface VideoCallPanelProps {
 
 const STORAGE_KEY = 'chat:videocall-open'
 
+/**
+ * Video-call section for a chat. Day 10: no longer self-mounted as a
+ * prominent banner above the chat — toggled by the Video icon in
+ * ChatHeader via the global `chat:toggle-video` custom event. Renders
+ * nothing when closed.
+ */
 export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPanelProps) {
   const [open, setOpen] = useState(false)
-  const [pending, setPending] = useState(0)
 
   useEffect(() => {
     try {
@@ -27,50 +31,31 @@ export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPane
     try { localStorage.setItem(STORAGE_KEY, open ? '1' : '0') } catch { /* ignore */ }
   }, [open])
 
-  // Lightweight badge of PROPOSED meetings without mounting full VideoCall.
   useEffect(() => {
-    let cancelled = false
-    const apiUrl = process.env['NEXT_PUBLIC_SOCKET_URL'] ?? 'http://localhost:4000'
-    fetch(`${apiUrl}/api/v1/video/meetings/${matchId}`, { credentials: 'include' })
-      .then((r) => r.json())
-      .then((j: { success: boolean; data: Array<{ status: string }> }) => {
-        if (cancelled || !j.success) return
-        setPending(j.data.filter((m) => m.status === 'PROPOSED').length)
-      })
-      .catch(() => { /* silent */ })
-    return () => { cancelled = true }
-  }, [matchId])
+    const onToggle = () => setOpen((o) => !o)
+    window.addEventListener('chat:toggle-video', onToggle)
+    return () => window.removeEventListener('chat:toggle-video', onToggle)
+  }, [])
+
+  if (!open) return null
 
   return (
-    <section
-      className={cn(
-        'border-b border-gold/20 bg-surface/95 backdrop-blur-xl',
-        open ? '' : '',
-      )}
-    >
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-background/40"
-      >
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal/10 text-teal">
-          <Video className="h-4 w-4" />
+    <section className="border-b border-gold/20 bg-surface/95 backdrop-blur-xl">
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <span className="inline-flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
+          <Video className="h-4 w-4 text-teal" aria-hidden="true" />
+          Video call
         </span>
-        <span className="flex-1">
-          <span className="block text-sm font-semibold text-foreground">Video calls</span>
-          <span className="block text-[11px] text-muted-foreground">
-            Start an instant call or schedule one together
-          </span>
-        </span>
-        {pending > 0 ? (
-          <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
-            {pending} pending
-          </span>
-        ) : null}
-        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-      </button>
-      {open ? <VideoCall matchId={matchId} currentUserId={currentUserId} /> : null}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close video panel"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <VideoCall matchId={matchId} currentUserId={currentUserId} />
     </section>
   )
 }
