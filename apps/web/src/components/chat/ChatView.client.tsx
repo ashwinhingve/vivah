@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, Languages, Loader2 } from 'lucide-react'
+import { ArrowDown, Loader2 } from 'lucide-react'
 import type {
   ChatMessage,
   ConversationParticipantPreview,
@@ -501,24 +501,6 @@ export default function ChatView({
         initialArchived={initialSettings?.archived ?? false}
         initialPinned={initialSettings?.pinned ?? false}
       />
-      <div className="flex items-center justify-end gap-2 border-b border-gold/10 bg-surface/70 px-3 py-1.5">
-        <button
-          type="button"
-          onClick={handleTranslateToggle}
-          disabled={translating}
-          aria-pressed={translateOn}
-          title="Hindi-English translation — preview (full integration in next phase)"
-          className={cn(
-            'inline-flex min-h-[32px] items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-60',
-            translateOn
-              ? 'border-teal/50 bg-teal/10 text-teal'
-              : 'border-gold/30 bg-surface text-muted-foreground hover:border-teal/40 hover:text-teal',
-          )}
-        >
-          {translating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Languages className="h-3.5 w-3.5" />}
-          {translateOn ? 'Show original' : 'Translate Hindi → English'}
-        </button>
-      </div>
       <ChatSearch
         open={searchOpen}
         matchId={matchId}
@@ -624,6 +606,10 @@ export default function ChatView({
         onCancelEdit={onCancelEdit}
         smartReplyKey={smartReplyKey}
         onOptimisticSend={pushOptimistic}
+        translateOn={translateOn}
+        translateBusy={translating}
+        onToggleTranslate={handleTranslateToggle}
+        userHasSentMessage={messages.some((m) => m.senderId === currentProfileId)}
       />
 
       <ConfirmDialog

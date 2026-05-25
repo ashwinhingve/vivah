@@ -5,7 +5,7 @@ import {
   type RefObject,
 } from 'react'
 import type { Socket } from 'socket.io-client'
-import { ImagePlus, Send, Loader2, X, Smile } from 'lucide-react'
+import { ImagePlus, Send, Loader2, X, Smile, Globe } from 'lucide-react'
 import type { ChatMessage } from '@smartshaadi/types'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast'
@@ -27,6 +27,12 @@ interface ChatInputProps {
     voiceKey?: string | null
     voiceDuration?: number | null
   }) => string | null
+  /** Translate toggle hoisted from ChatView — Day 10 input bar lives here now. */
+  translateOn?:        boolean
+  translateBusy?:      boolean
+  onToggleTranslate?:  () => void
+  /** Suppresses SmartReplies after the user has sent ≥1 message in the conversation. */
+  userHasSentMessage?: boolean
 }
 
 const QUICK_EMOJIS = ['😊', '😂', '❤️', '🙏', '👍', '🎉', '🔥', '😍']
@@ -34,6 +40,8 @@ const QUICK_EMOJIS = ['😊', '😂', '❤️', '🙏', '👍', '🎉', '🔥', 
 export default function ChatInput({
   matchId, socketRef,
   reply, editing, onCancelReply, onCancelEdit, smartReplyKey, onOptimisticSend,
+  translateOn = false, translateBusy = false, onToggleTranslate,
+  userHasSentMessage = false,
 }: ChatInputProps) {
   const [content, setContent] = useState('')
   const [isUploading, setIsUploading] = useState(false)
@@ -53,10 +61,17 @@ export default function ChatInput({
     }
   }, [editing])
 
-  // Hide smart replies when user starts typing or replying
+  // Hide smart replies once the user has sent any message in this conversation
+  // (we only nudge AI suggestions for the very first message). Also hide when
+  // typing or replying or editing.
   useEffect(() => {
-    setShowSmartReplies(content.trim().length === 0 && !reply && !editing)
-  }, [content, reply, editing])
+    setShowSmartReplies(
+      !userHasSentMessage &&
+      content.trim().length === 0 &&
+      !reply &&
+      !editing,
+    )
+  }, [content, reply, editing, userHasSentMessage])
 
   // Conversation Coach: SmartSuggestions panel (rendered in ChatHeader) dispatches
   // a `coach:populate` event when the user picks a chip; we mirror it into the
@@ -279,6 +294,25 @@ export default function ChatInput({
             </div>
           ) : null}
         </div>
+
+        {onToggleTranslate ? (
+          <button
+            type="button"
+            onClick={onToggleTranslate}
+            disabled={translateBusy}
+            aria-pressed={translateOn}
+            aria-label={translateOn ? 'Show original messages' : 'Auto-translate Hindi messages to English'}
+            title={translateOn ? 'Show original' : 'Auto-translate Hindi → English'}
+            className={cn(
+              'flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:opacity-50',
+              translateOn
+                ? 'border-teal/40 bg-teal/10 text-teal'
+                : 'border-gold/30 bg-surface text-muted-foreground hover:border-teal/40 hover:text-teal',
+            )}
+          >
+            {translateBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
+          </button>
+        ) : null}
 
         {isVoice ? (
           <VoiceRecorder matchId={matchId} onSent={handleVoiceSent} disabled={!!editing} />
