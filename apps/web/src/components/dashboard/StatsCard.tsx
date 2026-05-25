@@ -1,5 +1,3 @@
-'use client';
-
 import type { LucideIcon } from 'lucide-react';
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
@@ -75,7 +73,7 @@ export function StatsCard({
               value={numericValue}
               delay={delaySec}
               duration={0.8}
-              {...(valuePercent != null ? { format: (n: number) => `${Math.round(n)}%` } : {})}
+              {...(valuePercent != null ? { percent: true } : {})}
               className={cn('font-heading text-4xl font-bold leading-none', v.value)}
             />
           ) : (

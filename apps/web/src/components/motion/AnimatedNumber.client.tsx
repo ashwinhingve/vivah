@@ -13,6 +13,10 @@ interface AnimatedNumberProps {
   delay?: number;
   /** Format the running value for display (e.g. add %, commas). */
   format?: (n: number) => string;
+  /** When true, render as `${Math.round(n)}%` regardless of `format`. Kept as a
+   * serializable boolean (not a function) so this component stays usable from
+   * server-component parents — function props cannot cross the RSC boundary. */
+  percent?: boolean;
   className?: string;
 }
 
@@ -25,8 +29,10 @@ export function AnimatedNumber({
   duration = MOTION.numberSec,
   delay = 0,
   format = (n) => Math.round(n).toLocaleString('en-IN'),
+  percent = false,
   className,
 }: AnimatedNumberProps) {
+  const formatFn = percent ? (n: number) => `${Math.round(n)}%` : format;
   const reduce = useReducedMotion();
   const [display, setDisplay] = useState(reduce ? value : 0);
   const node = useRef<HTMLSpanElement>(null);
@@ -47,7 +53,7 @@ export function AnimatedNumber({
 
   return (
     <span ref={node} className={className}>
-      {format(display)}
+      {formatFn(display)}
     </span>
   );
 }
