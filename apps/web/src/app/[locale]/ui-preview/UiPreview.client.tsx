@@ -27,6 +27,10 @@ import {
   NoVendorsIllustration,
   NoWeddingPlanIllustration,
   NoTasksIllustration,
+  NoNotificationsIllustration,
+  NoShortlistIllustration,
+  NoSearchResultsIllustration,
+  NoNetworkIllustration,
 } from '@/components/ui/illustrations';
 
 const SCORE_BANDS = [92, 78, 58, 40, 18];
@@ -37,6 +41,10 @@ const ILLUSTRATIONS = [
   ['No vendors', NoVendorsIllustration],
   ['No wedding', NoWeddingPlanIllustration],
   ['No tasks', NoTasksIllustration],
+  ['No notifications', NoNotificationsIllustration],
+  ['No shortlist', NoShortlistIllustration],
+  ['No results', NoSearchResultsIllustration],
+  ['No network', NoNetworkIllustration],
 ] as const;
 
 const PHOTO =

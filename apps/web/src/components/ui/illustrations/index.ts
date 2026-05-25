@@ -4,3 +4,7 @@ export { NoBookingsIllustration } from './NoBookingsIllustration';
 export { NoVendorsIllustration } from './NoVendorsIllustration';
 export { NoWeddingPlanIllustration } from './NoWeddingPlanIllustration';
 export { NoTasksIllustration } from './NoTasksIllustration';
+export { NoNotificationsIllustration } from './NoNotificationsIllustration';
+export { NoShortlistIllustration } from './NoShortlistIllustration';
+export { NoSearchResultsIllustration } from './NoSearchResultsIllustration';
+export { NoNetworkIllustration } from './NoNetworkIllustration';
