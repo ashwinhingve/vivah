@@ -103,11 +103,13 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           <div>
             <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">{t('heading')}</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {items.length > 0
-                ? `${total} compatible profile${total !== 1 ? 's' : ''} · Refreshed daily`
-                : profileReady
+              {items.length === 0
+                ? profileReady
                   ? 'Warming up your recommendations'
-                  : 'Complete your profile to see matches'}
+                  : 'Complete your profile to see matches'
+                : total > 5
+                  ? `${total} compatible profiles · Refreshed daily`
+                  : 'Refreshing daily · More matches as our community grows'}
             </p>
           </div>
 
@@ -221,8 +223,8 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         ) : items.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="No matches yet — we're tuning your feed"
-            description="Your profile looks great. We're matching you against fresh profiles as they join. New recommendations appear weekly. Meanwhile, you can browse vendors or review match requests."
+            title="No matches yet"
+            description="We're growing carefully — more verified profiles join daily. Refine your preferences or check back tomorrow."
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>

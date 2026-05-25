@@ -53,7 +53,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/coordinator') ||
     pathname.startsWith('/family') ||
     pathname.startsWith('/weddings') ||
-    pathname.startsWith('/vendor')
+    pathname.startsWith('/vendor') ||
+    pathname.startsWith('/welcome')
   ) {
     let role = 'INDIVIDUAL';
     let sessionOk = false;
@@ -103,6 +104,18 @@ export async function middleware(request: NextRequest) {
     }
     if (pathname.startsWith('/family') && role !== 'FAMILY_MEMBER' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL(`${localePrefix}/dashboard`, request.url));
+    }
+
+    // Gate /dashboard and /feed behind a one-time /welcome step (INDIVIDUAL only).
+    // Cookie set by markWelcomeSeen Server Action — once seen, never re-routes.
+    const welcomeSeen = request.cookies.get('welcome_seen')?.value === '1';
+    if (
+      role === 'INDIVIDUAL' &&
+      !welcomeSeen &&
+      !pathname.startsWith('/welcome') &&
+      (pathname === '/dashboard' || pathname.startsWith('/feed'))
+    ) {
+      return NextResponse.redirect(new URL(`${localePrefix}/welcome`, request.url));
     }
 
     // Redirect /dashboard to the correct role dashboard
