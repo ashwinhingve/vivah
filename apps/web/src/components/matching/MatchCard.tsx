@@ -39,6 +39,8 @@ function getCompatBadgeClasses(pct: number): string {
 }
 
 export function MatchCard(props: Props) {
+  const t = useTranslations('matchCard');
+
   if ('skeleton' in props && props.skeleton) {
     return (
       <Card className="overflow-hidden">
@@ -69,7 +71,6 @@ export function MatchCard(props: Props) {
     onSendInterest,
     onBookmark,
   } = props;
-  const t = useTranslations('matchCard');
   const ageLabel = age != null && age > 0 ? `, ${age}` : '';
   const photoUrl = resolvePhotoUrl(primaryPhotoUrl);
 
