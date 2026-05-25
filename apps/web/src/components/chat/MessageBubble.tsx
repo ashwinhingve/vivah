@@ -26,6 +26,10 @@ interface MessageBubbleProps {
   highlight?:        boolean
   pending?:          boolean
   translatedContent?: string
+  /** First bubble in a same-sender cluster — gets full top margin + meta row. */
+  clusterFirst?:     boolean
+  /** Last bubble in a same-sender cluster — gets the timestamp + tick row. */
+  clusterLast?:      boolean
   onReply:           (m: ChatMessage) => void
   onReact:           (messageId: string, emoji: string) => void
   onUnreact:         (messageId: string, emoji: string) => void
@@ -41,6 +45,7 @@ const VIDEO_CALL_RE = /^Video call started\s+[—-]\s+join:\s+(https?:\/\/\S+)/i
 
 function MessageBubbleInner({
   message, currentUserId, currentProfileId, otherFirstName, highlight, pending, translatedContent,
+  clusterFirst = true, clusterLast = true,
   onReply, onReact, onUnreact, onEdit, onDelete, onForward, onCopy, onPhotoTap,
 }: MessageBubbleProps) {
   const isSent = message.senderId === currentUserId || message.senderId === currentProfileId
@@ -138,6 +143,7 @@ function MessageBubbleInner({
       className={cn(
         'group relative flex w-full',
         isSent ? 'justify-end' : 'justify-start',
+        clusterFirst ? 'mt-3' : 'mt-0.5',
         highlight && 'rounded-2xl ring-2 ring-teal/60 transition-shadow',
         isPending && 'opacity-70',
       )}
@@ -288,16 +294,18 @@ function MessageBubbleInner({
           />
         ) : null}
 
-        <span
-          className={cn(
-            'mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground',
-            isSent ? 'self-end' : 'self-start',
-          )}
-        >
-          {message.editedAt && !isDeleted ? <span className="italic">edited · </span> : null}
-          {time}
-          {tick}
-        </span>
+        {clusterLast ? (
+          <span
+            className={cn(
+              'mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground',
+              isSent ? 'self-end' : 'self-start',
+            )}
+          >
+            {message.editedAt && !isDeleted ? <span className="italic">edited · </span> : null}
+            {time}
+            {tick}
+          </span>
+        ) : null}
       </div>
     </div>
   )

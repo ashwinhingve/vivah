@@ -285,17 +285,47 @@ export default function ChatView({
     }
   }, [loadingMore, hasMore, cursor, page, matchId])
 
-  // ── Group messages with DateSeparator ──
+  // ── Group messages with DateSeparator + cluster boundaries ──
+  // A cluster = consecutive messages from the same sender within 2 minutes.
+  // clusterFirst = no prior message in this cluster (first bubble).
+  // clusterLast  = no following message in this cluster (last bubble — gets timestamp).
   const grouped = useMemo(() => {
-    const out: { type: 'date' | 'msg'; key: string; msg?: OptimisticMessage; iso?: string }[] = []
+    const CLUSTER_GAP_MS = 2 * 60_000
+    const out: {
+      type: 'date' | 'msg'
+      key: string
+      msg?: OptimisticMessage
+      iso?: string
+      clusterFirst?: boolean
+      clusterLast?: boolean
+    }[] = []
     let lastDay = ''
-    for (const m of messages) {
+    for (let i = 0; i < messages.length; i++) {
+      const m = messages[i]!
       const day = new Date(m.sentAt).toDateString()
       if (day !== lastDay) {
         out.push({ type: 'date', key: `d-${day}`, iso: m.sentAt })
         lastDay = day
       }
-      out.push({ type: 'msg', key: m.clientMsgId ?? m._id, msg: m })
+
+      const prev = messages[i - 1]
+      const next = messages[i + 1]
+      const samePrev = !!prev
+        && prev.senderId === m.senderId
+        && new Date(prev.sentAt).toDateString() === day
+        && new Date(m.sentAt).getTime() - new Date(prev.sentAt).getTime() <= CLUSTER_GAP_MS
+      const sameNext = !!next
+        && next.senderId === m.senderId
+        && new Date(next.sentAt).toDateString() === day
+        && new Date(next.sentAt).getTime() - new Date(m.sentAt).getTime() <= CLUSTER_GAP_MS
+
+      out.push({
+        type: 'msg',
+        key: m.clientMsgId ?? m._id,
+        msg: m,
+        clusterFirst: !samePrev,
+        clusterLast: !sameNext,
+      })
     }
     return out
   }, [messages])
@@ -546,6 +576,8 @@ export default function ChatView({
                 highlight={highlightId === g.msg!._id}
                 pending={g.msg!.pending}
                 translatedContent={translateOn ? translations[g.msg!._id] : undefined}
+                clusterFirst={g.clusterFirst ?? true}
+                clusterLast={g.clusterLast ?? true}
                 onReply={onReply}
                 onReact={onReact}
                 onUnreact={onUnreact}
