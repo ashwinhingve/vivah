@@ -1,3 +1,5 @@
+'use client';
+
 import type { LucideIcon } from 'lucide-react';
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
