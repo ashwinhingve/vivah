@@ -1,19 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ProfileCard } from '@/components/ui/ProfileCard.client';
 import { HERO_PROFILES } from './heroCarouselData';
 
 const ROTATE_MS = 4000;
 const STACK_DEPTH = 3;
 
 /**
- * Auto-rotating stack of 3 mock profile cards used in the marketing hero.
- * - 4s rotation, pauses on hover (desktop) and when scrolled out of viewport.
- * - Cards behind the front are offset, scaled, and faded for depth.
- * - Each card uses the existing ProfileCard primitive with the initialed
- *   avatar fallback (no real photos).
+ * Auto-rotating stack of AI portrait cards used in the marketing hero.
+ * Photos ship with burned-in overlay typography (name, age, city, profession);
+ * the carousel is purely an image stack with depth, dots, and rotation.
  */
 export function HeroCarousel() {
   const reduce = useReducedMotion();
@@ -52,7 +50,7 @@ export function HeroCarousel() {
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="relative h-[460px] w-full max-w-[320px]"
+        className="relative aspect-[4/5] w-full max-w-[320px]"
         role="region"
         aria-roledescription="carousel"
         aria-label={`Example profile: ${HERO_PROFILES[activeIdx]?.name ?? ''}`}
@@ -68,23 +66,20 @@ export function HeroCarousel() {
           return (
             <motion.div
               key={`${profile.id}-${depth}`}
-              className="absolute inset-0"
+              className="absolute inset-0 overflow-hidden rounded-3xl shadow-card ring-1 ring-gold/30"
               initial={false}
               animate={{ x: offset, y: offset, scale, opacity }}
               transition={{ duration: reduce ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
               style={{ zIndex: STACK_DEPTH - depth, pointerEvents: front ? 'auto' : 'none' }}
               aria-hidden={!front}
             >
-              <ProfileCard
-                name={profile.name}
-                age={profile.age}
-                city={profile.city}
-                profession={profile.profession}
-                photoUrl={null}
-                isVerified={profile.verified}
-                compatibilityPct={profile.compatibilityScore}
-                gunaScore={profile.gunaScore}
-                className="h-full"
+              <Image
+                src={profile.photoUrl}
+                alt={`${profile.name}, ${profile.profession} in ${profile.city}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 320px"
+                priority={profile.id === HERO_PROFILES[0]!.id}
+                className="object-cover"
               />
             </motion.div>
           );
@@ -109,6 +104,10 @@ export function HeroCarousel() {
           );
         })}
       </div>
+
+      <p className="mt-1 text-center text-xs italic text-muted-foreground">
+        AI-generated demo profiles · Real profiles are verified
+      </p>
     </motion.div>
   );
 }

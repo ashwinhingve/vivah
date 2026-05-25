@@ -23,6 +23,7 @@
   "devDependencies": {
     "@esbuild/win32-x64": "^0.28.0",
     "prettier": "^3.4.0",
+    "sharp": "^0.34.5",
     "socket.io-client": "^4.8.3",
     "tsx": "^4.19.0",
     "turbo": "^2.3.0",
