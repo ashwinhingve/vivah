@@ -172,8 +172,8 @@ export default async function DashboardPage({
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
               />
-              {/* Row 1 — greeting + (right) date pill / tier */}
-              <div className="relative flex items-baseline justify-between gap-3">
+              {/* Row 1 — greeting + (right) date pill / tier; stacks on mobile, baseline-aligned row on sm+ */}
+              <div className="relative flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
                 <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary min-w-0">
                   {greeting}{displayName ? `, ${displayName}` : ''} <span aria-hidden="true">👋</span>
                 </h1>
@@ -184,7 +184,7 @@ export default async function DashboardPage({
                       {tier}
                     </span>
                   )}
-                  <span className="hidden sm:inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
+                  <span className="inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
                     {formatDatePill(now, locale)}
                   </span>
                 </div>
