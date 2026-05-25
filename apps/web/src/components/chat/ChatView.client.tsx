@@ -73,6 +73,7 @@ export default function ChatView({
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [lightboxKey, setLightboxKey] = useState<string | null>(null)
   const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [fatalError, setFatalError] = useState<string | null>(null)
   const [translateOn, setTranslateOn] = useState(false)
   const [translating, setTranslating] = useState(false)
 
@@ -184,7 +185,23 @@ export default function ChatView({
     })
 
     socket.on('error', (e: { message?: string }) => {
+      console.error('[chat-socket-error]', e)
       if (e?.message) toast(e.message, 'error')
+      // Auth / participant rejection means every send_message will fail.
+      // Surface a sticky banner so the user knows the chat is broken,
+      // not just one message.
+      if (e?.message === 'Not a participant' || e?.message === 'Profile not found' || e?.message === 'Unauthorized') {
+        setFatalError(e.message)
+      }
+    })
+
+    socket.on('connect_error', (err: Error) => {
+      console.error('[chat-socket-connect-error]', err)
+      setFatalError(`Socket connection failed: ${err.message}`)
+    })
+
+    socket.on('disconnect', (reason: string) => {
+      console.warn('[chat-socket-disconnect]', reason)
     })
 
     // Video call started — API persists a SYSTEM message in Mongo but does
@@ -628,6 +645,16 @@ export default function ChatView({
           {unreadCount > 0 ? `${unreadCount} new` : null}
           <ArrowDown className="h-3.5 w-3.5" />
         </button>
+      ) : null}
+
+      {fatalError ? (
+        <div
+          role="alert"
+          className="mx-3 mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+        >
+          <p className="font-semibold">Chat connection issue: {fatalError}</p>
+          <p className="mt-0.5 text-destructive/80">Messages can't send until this is resolved. Try refreshing the page.</p>
+        </div>
       ) : null}
 
       <ChatInput

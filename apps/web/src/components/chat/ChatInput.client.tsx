@@ -150,12 +150,25 @@ export default function ChatInput({
         credentials: 'include',
         body: JSON.stringify({ fileName: file.name, mimeType: file.type }),
       })
-      const json = (await res.json()) as { success: boolean; data: { uploadUrl: string; key: string } }
-      if (!json.success) { toast('Photo upload failed', 'error'); return }
+      const json = (await res.json()) as { success: boolean; data: { uploadUrl: string; key: string }; error?: { message?: string } }
+      if (!json.success) {
+        console.error('[chat-upload] presign failed', { status: res.status, error: json.error })
+        toast(json.error?.message ?? 'Photo upload failed (presign)', 'error')
+        return
+      }
+      // Surface the actual upload host so we can tell path-style from
+      // virtual-hosted at a glance when debugging R2 SSL errors.
+      const uploadHost = (() => { try { return new URL(json.data.uploadUrl).host } catch { return '<invalid-url>' } })()
+      console.info('[chat-upload] PUT →', uploadHost)
       const putRes = await fetch(json.data.uploadUrl, {
         method: 'PUT', body: file, headers: { 'Content-Type': file.type },
       })
-      if (!putRes.ok) { toast('Photo upload failed', 'error'); return }
+      if (!putRes.ok) {
+        const body = await putRes.text().catch(() => '<no body>')
+        console.error('[chat-upload] R2 PUT failed', { host: uploadHost, status: putRes.status, body: body.slice(0, 500) })
+        toast(`Photo upload failed (R2 ${putRes.status})`, 'error')
+        return
+      }
       onOptimisticSend?.({ content: 'Photo', type: 'PHOTO', photoKey: json.data.key })
       socketRef.current.emit('send_message', {
         matchRequestId: matchId,
@@ -165,8 +178,9 @@ export default function ChatInput({
         replyToId: reply ? reply._id : undefined,
       })
       if (reply) onCancelReply()
-    } catch {
-      toast('Photo upload failed', 'error')
+    } catch (e) {
+      console.error('[chat-upload] exception', e)
+      toast(`Photo upload failed: ${(e as Error).message ?? 'unknown'}`, 'error')
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
