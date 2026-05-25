@@ -420,6 +420,21 @@ async function bootstrap(): Promise<void> {
 
   const server = createServer(app);
   await initSocket(server);
+
+  // Boot config summary — surfaces mock/live state for production debugging.
+  // Look for this line in Railway logs to confirm env vars resolved as expected.
+  const { shouldUseMockR2, shouldUseMockMongo } = await import('./lib/env.js');
+  const { getSocketAdapterKind } = await import('./chat/socket/index.js');
+  console.info('[boot] config summary:', {
+    NODE_ENV: env.NODE_ENV,
+    useMockServices: env.USE_MOCK_SERVICES,
+    allowMockInProd: env.ALLOW_MOCK_SERVICES_IN_PROD,
+    shouldUseMockR2,
+    shouldUseMockMongo,
+    socketAdapter: getSocketAdapterKind(),
+    dailyApiKeySet: Boolean(env.DAILY_CO_API_KEY) && env.DAILY_CO_API_KEY !== 'mock-daily-key',
+  });
+
   server.listen(env.PORT, () => {
     console.info(`API server running on port ${env.PORT}`);
   });

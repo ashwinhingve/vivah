@@ -7,21 +7,31 @@ import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
 
 let ioInstance: Server | null = null
+let socketAdapterKind: 'redis' | 'memory' = 'memory'
 
 export function getIO(): Server | null {
   return ioInstance
 }
 
+export function getSocketAdapterKind(): 'redis' | 'memory' {
+  return socketAdapterKind
+}
+
 async function attachRedisAdapter(io: Server): Promise<void> {
-  if (!env.REDIS_URL) return
+  if (!env.REDIS_URL) {
+    console.error('[CHAT-SOCKET-CRITICAL] REDIS_URL not set — sockets running in-memory only. Cross-instance message delivery will fail on Railway with >1 replica.')
+    return
+  }
   try {
     const pubClient = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null, lazyConnect: true, family: 0 })
     const subClient = pubClient.duplicate()
     await Promise.all([pubClient.connect(), subClient.connect()])
     io.adapter(createAdapter(pubClient, subClient))
+    socketAdapterKind = 'redis'
     console.log('[socket] Redis adapter attached — multi-instance broadcast enabled')
   } catch (err) {
-    console.warn('[socket] Redis adapter unavailable, falling back to in-memory:', err)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[CHAT-SOCKET-CRITICAL] Redis adapter failed to attach — falling back to in-memory. Cross-instance messages will not deliver. Error:', msg)
   }
 }
 

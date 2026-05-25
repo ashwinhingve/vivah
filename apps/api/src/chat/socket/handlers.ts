@@ -115,11 +115,14 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   async function assertParticipant(matchRequestId: string): Promise<string | null> {
     const profileId = await getProfileId()
     if (!profileId) {
+      const userId = (socket.data as { userId?: string })['userId']
+      console.warn('[chat] rejected — profile not found for userId', { userId, matchRequestId })
       socket.emit('error', { message: 'Profile not found' })
       return null
     }
     const participants = await loadParticipants(matchRequestId)
     if (!participants.includes(profileId)) {
+      console.warn('[chat] rejected non-participant', { profileId, matchRequestId, expectedParticipants: participants })
       socket.emit('error', { message: 'Not a participant' })
       return null
     }
