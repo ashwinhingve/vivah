@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Bookmark, Send, CheckCircle2 } from 'lucide-react';
@@ -40,6 +41,7 @@ function getCompatBadgeClasses(pct: number): string {
 
 export function MatchCard(props: Props) {
   const t = useTranslations('matchCard');
+  const [imgFailed, setImgFailed] = useState(false);
 
   if ('skeleton' in props && props.skeleton) {
     return (
@@ -77,13 +79,14 @@ export function MatchCard(props: Props) {
   return (
     <Card className="group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <a href={`/profiles/${id}`} className="relative block aspect-[4/3]">
-        {photoUrl ? (
+        {photoUrl && !imgFailed ? (
           <Image
             src={photoUrl}
-            alt={`${name}'s profile photo`}
+            alt=""
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            onError={() => setImgFailed(true)}
           />
         ) : (
           <PhotoFallback name={name} />

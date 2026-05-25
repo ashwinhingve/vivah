@@ -41,6 +41,7 @@ export function MatchCard({ match }: MatchCardProps) {
   const tierLabel = t(`tiers.${match.compatibility.tier}` as 'tiers.excellent');
   const TierIcon = tier.icon;
   const photoUrl = match.photoHidden ? null : resolvePhotoUrl(match.photoKey);
+  const [imgFailed, setImgFailed] = useState(false);
 
   const [interestStatus, setInterestStatus] = useState<InterestStatus>('idle');
   const [interestError, setInterestError] = useState<string | null>(null);
@@ -94,13 +95,14 @@ export function MatchCard({ match }: MatchCardProps) {
   return (
     <Card className="group relative flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] focus-within:-translate-y-0.5 focus-within:shadow-[var(--shadow-card-hover)]">
       <Link href={`/profiles/${match.profileId}`} className="relative block aspect-[4/5] w-full overflow-hidden">
-        {photoUrl ? (
+        {photoUrl && !imgFailed ? (
           <Image
             src={photoUrl}
-            alt={`${match.name}'s profile photo`}
+            alt=""
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            onError={() => setImgFailed(true)}
           />
         ) : match.photoHidden ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 via-teal/10 to-gold/10 p-4 text-center">
