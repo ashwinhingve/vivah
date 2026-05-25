@@ -31,7 +31,7 @@ export default async function WeddingsPage() {
       className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal-hover active:scale-[0.97] transition-all"
     >
       <PlusCircle className="h-4 w-4" aria-hidden="true" />
-      New Wedding
+      {t('newWedding')}
     </Link>
   );
 
@@ -40,14 +40,14 @@ export default async function WeddingsPage() {
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         <PageHeader
           title={t('heading')}
-          subtitle="Plan, track, and celebrate your perfect day."
+          subtitle={t('subtitle')}
           actions={newWeddingCta}
         />
 
         {/* Error state */}
         {error && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
-            <p className="text-destructive font-medium">Could not load your weddings. Please try again.</p>
+            <p className="text-destructive font-medium">{t('loadError')}</p>
           </div>
         )}
 
@@ -56,7 +56,7 @@ export default async function WeddingsPage() {
           <div className="bg-surface border border-gold/20 rounded-xl shadow-card">
             <EmptyState
               variant="no-wedding"
-              actionLabel="Plan Your Wedding"
+              actionLabel={t('emptyCta')}
               actionHref="/weddings/new"
             />
           </div>

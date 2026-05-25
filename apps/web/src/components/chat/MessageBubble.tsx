@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 import { Check, CheckCheck, Clock, Forward, MoreHorizontal, Pencil, Video } from 'lucide-react'
@@ -48,6 +49,7 @@ function MessageBubbleInner({
   clusterFirst = true, clusterLast = true,
   onReply, onReact, onUnreact, onEdit, onDelete, onForward, onCopy, onPhotoTap,
 }: MessageBubbleProps) {
+  const t = useTranslations('chat')
   const isSent = message.senderId === currentUserId || message.senderId === currentProfileId
   const [menuOpen, setMenuOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -69,8 +71,8 @@ function MessageBubbleInner({
               <Video className="h-4 w-4" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-primary leading-tight">Video call started</p>
-              {rel ? <p className="text-[11px] text-gold-muted">Started {rel}</p> : null}
+              <p className="text-sm font-semibold text-primary leading-tight">{t('videoCall.started')}</p>
+              {rel ? <p className="text-[11px] text-gold-muted">{t('videoCall.startedAgo', { time: rel })}</p> : null}
             </div>
             <a
               href={joinUrl}
@@ -78,7 +80,7 @@ function MessageBubbleInner({
               rel="noopener noreferrer"
               className="shrink-0 inline-flex h-9 items-center justify-center rounded-lg bg-teal px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              Join Call
+              {t('videoCall.joinCall')}
             </a>
           </div>
         </div>
@@ -106,13 +108,13 @@ function MessageBubbleInner({
   let tick: React.ReactNode = null
   if (isSent && !isDeleted) {
     if (isPending) {
-      tick = <Clock className="h-3 w-3 opacity-60" aria-label="Sending" />
+      tick = <Clock className="h-3 w-3 opacity-60" aria-label={t('status.sending')} />
     } else if (message.readAt || (message.readBy && message.readBy.some((id) => id !== message.senderId))) {
-      tick = <CheckCheck className="h-3 w-3 text-teal" aria-label="Read" />
+      tick = <CheckCheck className="h-3 w-3 text-teal" aria-label={t('status.read')} />
     } else if (message.deliveredTo && message.deliveredTo.some((id) => id !== message.senderId)) {
-      tick = <CheckCheck className="h-3 w-3" aria-label="Delivered" />
+      tick = <CheckCheck className="h-3 w-3" aria-label={t('status.delivered')} />
     } else {
-      tick = <Check className="h-3 w-3" aria-label="Sent" />
+      tick = <Check className="h-3 w-3" aria-label={t('status.sent')} />
     }
   }
 
@@ -164,7 +166,7 @@ function MessageBubbleInner({
             'mb-1 inline-flex items-center gap-1 text-[10px] italic text-muted-foreground',
             isSent ? 'self-end' : 'self-start',
           )}>
-            <Forward className="h-3 w-3" /> Forwarded
+            <Forward className="h-3 w-3" /> {t('forwarded')}
           </span>
         ) : null}
 
@@ -175,7 +177,7 @@ function MessageBubbleInner({
               ? 'rounded-br-md bg-teal/40 text-white/85'
               : 'rounded-bl-md border border-gold/20 bg-surface-muted text-muted-foreground',
           )}>
-            🚫 This message was deleted
+            {t('deleted')}
           </div>
         ) : message.type === 'PHOTO' && message.photoKey ? (
           <PhotoBubble
@@ -219,7 +221,7 @@ function MessageBubbleInner({
                 'mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
                 isSent ? 'bg-white/20 text-white/85' : 'bg-gold/20 text-gold-muted',
               )}>
-                translated
+                {t('translatedBadge')}
               </span>
             ) : null}
             {message.linkPreview ? (
@@ -239,7 +241,7 @@ function MessageBubbleInner({
             <button
               type="button"
               onClick={() => setPickerOpen(true)}
-              aria-label="Add reaction"
+              aria-label={t('addReaction')}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
             >
               <span className="text-base leading-none">😊</span>
@@ -248,7 +250,7 @@ function MessageBubbleInner({
               <button
                 type="button"
                 onClick={() => onEdit(message)}
-                aria-label="Edit"
+                aria-label={t('edit')}
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -257,7 +259,7 @@ function MessageBubbleInner({
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              aria-label="More"
+              aria-label={t('more')}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
@@ -301,7 +303,7 @@ function MessageBubbleInner({
               isSent ? 'self-end' : 'self-start',
             )}
           >
-            {message.editedAt && !isDeleted ? <span className="italic">edited · </span> : null}
+            {message.editedAt && !isDeleted ? <span className="italic">{t('edited')}</span> : null}
             {time}
             {tick}
           </span>

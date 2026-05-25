@@ -105,11 +105,11 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             <p className="mt-0.5 text-sm text-muted-foreground">
               {items.length === 0
                 ? profileReady
-                  ? 'Warming up your recommendations'
-                  : 'Complete your profile to see matches'
+                  ? t('subtitleWarming')
+                  : t('subtitleCompleteProfile')
                 : total > 5
-                  ? `${total} compatible profiles · Refreshed daily`
-                  : 'Refreshing daily · More matches as our community grows'}
+                  ? t('subtitleCount', { total })
+                  : t('subtitleDefault')}
             </p>
           </div>
 
@@ -117,14 +117,14 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             {profileReady && (
               <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
-                {completeness}% complete
+                {completeness}% {t('complete')}
               </span>
             )}
             <Button asChild variant="outline" size="sm">
-              <Link href="/profile/preferences">Refine Preferences</Link>
+              <Link href="/profile/preferences">{t('refinePreferences')}</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/feed?refresh=1" aria-label="Refresh feed">
+              <Link href="/feed?refresh=1" aria-label={t('refreshFeed')}>
                 <RefreshCw className="h-4 w-4" />
               </Link>
             </Button>
@@ -135,15 +135,15 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         {feedFailed ? (
           <EmptyState
             icon={AlertTriangle}
-            title="Couldn't load your matches"
-            description={`The match feed returned an error (${feedRes.status}: ${feedRes.error}). Try refreshing the page.`}
+            title={t('errorTitle')}
+            description={`${t('errorBody')} (${feedRes.status}: ${feedRes.error})`}
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
-                  <Link href="/feed?refresh=1">Force Refresh</Link>
+                  <Link href="/feed?refresh=1">{t('forceRefresh')}</Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="/dashboard">Back to Dashboard</Link>
+                  <Link href="/dashboard">{t('backToDashboard')}</Link>
                 </Button>
               </div>
             }
@@ -151,12 +151,12 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         ) : !profileReady ? (
           <EmptyState
             icon={Sparkles}
-            title="Complete your profile to unlock matches"
-            description={`Your profile is ${completeness}% complete. A fuller profile gets 3× more results — add a few more details to start seeing recommendations.`}
+            title={t('completeProfileTitle')}
+            description={t('completeProfileBody', { percent: completeness })}
             action={
               <Button asChild>
                 <Link href="/profile/personal">
-                  Complete Profile
+                  {t('completeProfile')}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
@@ -166,10 +166,10 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           (() => {
             const only = items[0]!;
             const chips = [
-              { label: 'Diet',    href: '/profile/preferences#diet' },
-              { label: 'Manglik', href: '/profile/preferences#manglik' },
-              { label: 'Age',     href: '/profile/preferences#age' },
-              { label: 'City',    href: '/profile/preferences#city' },
+              { label: t('filters.diet'),    href: '/profile/preferences#diet' },
+              { label: t('filters.manglik'), href: '/profile/preferences#manglik' },
+              { label: t('filters.age'),     href: '/profile/preferences#age' },
+              { label: t('filters.city'),    href: '/profile/preferences#city' },
             ];
             return (
               <div className="mx-auto flex max-w-md flex-col items-stretch gap-5">
@@ -187,7 +187,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                 </div>
                 <span className="self-center inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
-                  Recommended
+                  {t('recommended')}
                 </span>
                 <div className="mx-auto w-full max-w-[320px]">
                   <MatchCard
@@ -206,13 +206,13 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-teal/10 text-teal">
                     <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <h2 className="font-heading text-lg font-semibold text-primary">Want more matches?</h2>
+                  <h2 className="font-heading text-lg font-semibold text-primary">{t('wantMoreTitle')}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Broaden your partner preferences to unlock more compatible profiles.
+                    {t('wantMoreBody')}
                   </p>
                   <Button asChild className="mt-3">
                     <Link href="/profile/preferences">
-                      Refine Preferences
+                      {t('refinePreferences')}
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </Button>
@@ -223,18 +223,18 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         ) : items.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="No matches yet"
-            description="We're growing carefully — more verified profiles join daily. Refine your preferences or check back tomorrow."
+            title={t('emptyTitle')}
+            description={t('emptyBody')}
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button asChild>
                   <Link href="/feed?refresh=1">
-                    Refresh Feed
+                    {t('refreshFeed')}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="/requests">Check Requests</Link>
+                  <Link href="/requests">{t('checkRequests')}</Link>
                 </Button>
               </div>
             }

@@ -159,6 +159,7 @@
     "subtitleWarming": "आपकी अनुशंसाएँ तैयार हो रही हैं",
     "subtitleCompleteProfile": "मैच देखने के लिए अपनी प्रोफ़ाइल पूर्ण करें",
     "refinePreferences": "प्राथमिकताएँ अपडेट करें",
+    "complete": "पूर्ण",
     "errorTitle": "आपके मैच लोड नहीं हो सके",
     "errorBody": "मैच फ़ीड में त्रुटि आई। पुनः कोशिश करें या थोड़ी देर बाद आएँ।",
     "forceRefresh": "फिर से लोड करें",
@@ -468,7 +469,17 @@
       "settings": "सेटिंग्स",
       "subscription": "सदस्यता",
       "helpSupport": "सहायता",
-      "signOut": "साइन आउट"
+      "signOut": "साइन आउट",
+      "signingOut": "साइन आउट हो रहा है…",
+      "userMenu": "उपयोगकर्ता मेनू",
+      "roles": {
+        "INDIVIDUAL": "सदस्य",
+        "FAMILY_MEMBER": "परिवार",
+        "VENDOR": "वेंडर",
+        "EVENT_COORDINATOR": "कोऑर्डिनेटर",
+        "ADMIN": "एडमिन",
+        "SUPPORT": "सपोर्ट"
+      }
     }
   },
   "landing": {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { HERO_PROFILES } from './heroCarouselData';
@@ -14,6 +15,7 @@ const STACK_DEPTH = 3;
  * the carousel is purely an image stack with depth, dots, and rotation.
  */
 export function HeroCarousel() {
+  const t = useTranslations('landing');
   const reduce = useReducedMotion();
   const [activeIdx, setActiveIdx] = useState(0);
   const [hovered, setHovered] = useState(false);
@@ -106,7 +108,7 @@ export function HeroCarousel() {
       </div>
 
       <p className="mt-1 text-center text-xs italic text-muted-foreground">
-        AI-generated demo profiles · Real profiles are verified
+        {t('aiDisclosure')}
       </p>
     </motion.div>
   );

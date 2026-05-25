@@ -1,26 +1,29 @@
 'use client';
 
 import { useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { ShieldCheck, Users, Lock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+type PillKey = 'verifiedProfiles' | 'familyFirst' | 'privacyDefault';
+
 interface Pill {
   Icon: LucideIcon;
-  label: string;
+  key: PillKey;
 }
 
 const PILLS: Pill[] = [
-  { Icon: ShieldCheck, label: '100% verified profiles' },
-  { Icon: Users,       label: 'Family-first design' },
-  { Icon: Lock,        label: 'Privacy by default' },
+  { Icon: ShieldCheck, key: 'verifiedProfiles' },
+  { Icon: Users,       key: 'familyFirst' },
+  { Icon: Lock,        key: 'privacyDefault' },
 ];
 
-function PillItem({ pill, index }: { pill: Pill; index: number }) {
+function PillItem({ pill, index, label }: { pill: Pill; index: number; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const reduce = useReducedMotion();
-  const { Icon, label } = pill;
+  const { Icon } = pill;
 
   return (
     <motion.div
@@ -37,10 +40,11 @@ function PillItem({ pill, index }: { pill: Pill; index: number }) {
 }
 
 export default function StatsBar() {
+  const t = useTranslations('landing.earlyAccess');
   return (
     <section
       id="stats"
-      aria-label="Early access trust signals"
+      aria-label={t('label')}
       className="relative bg-background border-y border-gold/15 py-12 md:py-14 overflow-hidden"
     >
       <div
@@ -54,14 +58,14 @@ export default function StatsBar() {
 
       <div className="relative max-w-screen-xl mx-auto px-4 md:px-6 text-center">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-muted">
-          Early Access
+          {t('label')}
         </p>
         <h2 className="mt-2 font-heading text-xl md:text-2xl font-semibold text-primary">
-          India&rsquo;s most thoughtful matrimony
+          {t('tagline')}
         </h2>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
           {PILLS.map((p, i) => (
-            <PillItem key={p.label} pill={p} index={i} />
+            <PillItem key={p.key} pill={p} index={i} label={t(`pills.${p.key}` as 'pills.verifiedProfiles')} />
           ))}
         </div>
       </div>

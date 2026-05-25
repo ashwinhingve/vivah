@@ -10,6 +10,7 @@
  * Hidden on mobile — MatchFeed renders the mobile sheet trigger itself.
  */
 
+import { useTranslations } from 'next-intl';
 import { MaritalStatusFilterToggle } from '@/components/feed/MaritalStatusFilterToggle.client';
 import dynamic from 'next/dynamic';
 import type { FeedFilters } from '@/components/match/MatchFilters.client';
@@ -40,18 +41,19 @@ interface DesktopFilterSidebarProps {
 }
 
 export function DesktopFilterSidebar({ maritalPrefs, filters, onFiltersChange, availableCities = [] }: DesktopFilterSidebarProps) {
+  const t = useTranslations('feed.filters');
   return (
     <aside className="hidden lg:block lg:w-[260px] lg:shrink-0">
       <div className="sticky top-20 flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-card">
         <div>
-          <h2 className="font-heading text-base font-semibold text-primary">Filters</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Refine your match feed</p>
+          <h2 className="font-heading text-base font-semibold text-primary">{t('filtersTitle')}</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">{t('filtersSubtitle')}</p>
         </div>
 
         {/* Marital status — persisted to server via existing Server Action */}
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Marital Status
+            {t('maritalStatus')}
           </p>
           <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
         </div>

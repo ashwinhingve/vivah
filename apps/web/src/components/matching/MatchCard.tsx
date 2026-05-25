@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Bookmark, Send, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -68,6 +69,7 @@ export function MatchCard(props: Props) {
     onSendInterest,
     onBookmark,
   } = props;
+  const t = useTranslations('matchCard');
   const ageLabel = age != null && age > 0 ? `, ${age}` : '';
   const photoUrl = resolvePhotoUrl(primaryPhotoUrl);
 
@@ -108,13 +110,13 @@ export function MatchCard(props: Props) {
           <span
             className={`absolute left-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-bold shadow-sm ${getCompatBadgeClasses(compatibilityPct)}`}
           >
-            {compatibilityPct}% match
+            {t('percentMatch', { percent: compatibilityPct })}
           </span>
         ) : null}
 
         {gunaPending && !hideGunaHint ? (
           <div className="absolute inset-x-2 bottom-14 rounded-md bg-surface/90 px-2 py-1 text-center text-[10px] font-medium text-primary shadow-sm backdrop-blur-sm">
-            Add horoscope to see Guna score
+            {t('addHoroscope')}
           </div>
         ) : null}
       </a>
@@ -124,13 +126,13 @@ export function MatchCard(props: Props) {
         <div className="flex gap-2">
           <Button type="button" className="flex-1" onClick={() => onSendInterest?.(id)}>
             <Send className="h-4 w-4" aria-hidden="true" />
-            Send Interest
+            {t('sendInterest')}
           </Button>
           <Button
             type="button"
             variant="outline"
             size="icon"
-            aria-label="Bookmark profile"
+            aria-label={t('bookmark')}
             onClick={() => onBookmark?.(id)}
           >
             <Bookmark className="h-4 w-4" aria-hidden="true" />

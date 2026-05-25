@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -20,14 +21,11 @@ const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type Tier = MatchFeedItem['compatibility']['tier'];
 
-const TIER_CONFIG: Record<
-  Tier,
-  { label: string; icon: typeof Sparkles; classes: string }
-> = {
-  excellent: { label: 'Excellent', icon: Sparkles,     classes: 'bg-teal text-white shadow-sm ring-1 ring-teal/30' },
-  good:      { label: 'Good',      icon: CheckCircle2, classes: 'bg-success text-white shadow-sm ring-1 ring-success/30' },
-  average:   { label: 'Average',   icon: Star,         classes: 'bg-warning text-white shadow-sm' },
-  low:       { label: 'Low',       icon: Star,         classes: 'bg-muted text-muted-foreground' },
+const TIER_ICONS: Record<Tier, { icon: typeof Sparkles; classes: string }> = {
+  excellent: { icon: Sparkles,     classes: 'bg-teal text-white shadow-sm ring-1 ring-teal/30' },
+  good:      { icon: CheckCircle2, classes: 'bg-success text-white shadow-sm ring-1 ring-success/30' },
+  average:   { icon: Star,         classes: 'bg-warning text-white shadow-sm' },
+  low:       { icon: Star,         classes: 'bg-muted text-muted-foreground' },
 };
 
 type InterestStatus = 'idle' | 'sending' | 'sent' | 'error';
@@ -38,7 +36,9 @@ interface MatchCardProps {
 }
 
 export function MatchCard({ match }: MatchCardProps) {
-  const tier = TIER_CONFIG[match.compatibility.tier];
+  const t = useTranslations('matchCard');
+  const tier = TIER_ICONS[match.compatibility.tier];
+  const tierLabel = t(`tiers.${match.compatibility.tier}` as 'tiers.excellent');
   const TierIcon = tier.icon;
   const photoUrl = match.photoHidden ? null : resolvePhotoUrl(match.photoKey);
 
@@ -62,10 +62,10 @@ export function MatchCard({ match }: MatchCardProps) {
         return;
       }
       const body = (await res.json().catch(() => ({}))) as { error?: string };
-      setInterestError(body.error ?? 'Could not send interest');
+      setInterestError(body.error ?? t('couldNotSend'));
       setInterestStatus('error');
     } catch {
-      setInterestError('Network error');
+      setInterestError(t('networkError'));
       setInterestStatus('error');
     }
   }
@@ -107,7 +107,7 @@ export function MatchCard({ match }: MatchCardProps) {
             <EyeOff className="h-8 w-8 text-primary/60" aria-hidden="true" />
             <PhotoFallback name={match.name} />
             <p className="max-w-[15ch] text-[11px] font-medium leading-tight text-primary/80">
-              Photo hidden — request to view
+              {t('photoHidden')}
             </p>
           </div>
         ) : (
@@ -125,23 +125,23 @@ export function MatchCard({ match }: MatchCardProps) {
         </div>
 
         {match.isNew ? (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-md">
+          <span className="absolute left-3 top-12 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-md">
             <Sparkles className="h-3 w-3" aria-hidden="true" />
-            New
+            {t('new')}
           </span>
         ) : null}
 
         {match.isVerified ? (
           <span
-            className="absolute right-3 top-12 inline-flex items-center gap-1 rounded-full bg-surface/95 px-2 py-0.5 text-[10px] font-bold text-success shadow-sm backdrop-blur-sm"
+            className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-surface/95 px-2 py-0.5 text-[10px] font-bold text-success shadow-sm backdrop-blur-sm"
             title="Aadhaar verified · Photo checked"
           >
             <CheckCircle2 className="h-3 w-3 fill-success text-white" aria-hidden="true" />
-            Verified
+            {t('verified')}
           </span>
         ) : null}
 
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-surface/95 px-2.5 py-1 text-xs font-bold text-primary shadow-md backdrop-blur-sm">
+        <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-surface/95 px-2.5 py-1 text-xs font-bold text-primary shadow-md backdrop-blur-sm">
           <Heart className="h-3 w-3 fill-current text-teal" aria-hidden="true" />
           {match.compatibility.totalScore}%
         </span>
@@ -151,17 +151,17 @@ export function MatchCard({ match }: MatchCardProps) {
         <div className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.classes}`}>
             <TierIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {tier.label}
+            {tierLabel}
           </span>
-          <Badge variant="gold" aria-label={`${match.compatibility.gunaScore} of 36 Guna matched`}>
-            {match.compatibility.gunaScore}/36 Guna
+          <Badge variant="gold" aria-label={t('gunaScore', { score: match.compatibility.gunaScore })}>
+            {t('gunaScore', { score: match.compatibility.gunaScore })}
           </Badge>
           <ManglikChip manglik={match.manglik} size="xs" />
           <DistancePill distanceKm={match.distanceKm ?? null} fallbackCity={match.city ?? null} />
           {match.isBoosted ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning ring-1 ring-amber-200">
               <Sparkles className="h-3 w-3" aria-hidden="true" />
-              Boosted
+              {t('boosted')}
             </span>
           ) : null}
           <LastActiveBadge lastActiveAt={match.lastActiveAt} showPrecise={match.premiumTier !== 'FREE'} />
@@ -183,11 +183,11 @@ export function MatchCard({ match }: MatchCardProps) {
             variant={interestStatus === 'sent' ? 'ghost' : 'default'}
           >
             {interestStatus === 'sending' ? (
-              <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />Sending…</>
+              <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />{t('sending')}</>
             ) : interestStatus === 'sent' ? (
-              <><CheckCircle2 className="h-4 w-4" aria-hidden="true" />Interest Sent</>
+              <><CheckCircle2 className="h-4 w-4" aria-hidden="true" />{t('interestSent')}</>
             ) : (
-              <><Heart className="h-4 w-4" aria-hidden="true" />Send Interest</>
+              <><Heart className="h-4 w-4" aria-hidden="true" />{t('sendInterest')}</>
             )}
           </Button>
           <Button
@@ -217,7 +217,7 @@ export function MatchCard({ match }: MatchCardProps) {
           href={`/profiles/${match.profileId}`}
           className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-teal underline-offset-4 transition-colors hover:text-teal-hover hover:underline"
         >
-          View full profile
+          {t('viewFullProfile')}
           <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
         </Link>
       </div>

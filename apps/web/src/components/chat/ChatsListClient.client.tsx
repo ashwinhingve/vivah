@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { io, type Socket } from 'socket.io-client'
 import { Search, X } from 'lucide-react'
@@ -37,6 +38,7 @@ function sortItems(items: ConvItem[]): ConvItem[] {
 export default function ChatsListClient({
   initialItems, currentProfileId, authToken,
 }: ChatsListClientProps) {
+  const t = useTranslations('chats')
   const [items, setItems] = useState<ConvItem[]>(sortItems(initialItems))
   const [query, setQuery] = useState('')
   const contextSocket = useChatSocket()
@@ -113,7 +115,7 @@ export default function ChatsListClient({
     return (
       <EmptyState
         variant="no-messages"
-        actionLabel="Find matches"
+        actionLabel={t('findMatches')}
         actionHref="/feed"
       />
     )
@@ -128,15 +130,15 @@ export default function ChatsListClient({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name…"
+            placeholder={t('searchPlaceholder')}
             className="w-full rounded-lg border border-gold/20 bg-background py-2 pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal"
-            aria-label="Search conversations"
+            aria-label={t('searchPlaceholder')}
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery('')}
-              aria-label="Clear search"
+              aria-label={t('clearSearch')}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-surface-muted"
             >
               <X className="h-3.5 w-3.5" />
@@ -147,7 +149,7 @@ export default function ChatsListClient({
 
       {filtered.length === 0 ? (
         <div className="px-6 py-10 text-center">
-          <p className="text-sm text-muted-foreground">No conversations match &ldquo;{query}&rdquo;.</p>
+          <p className="text-sm text-muted-foreground">{t('noMatch', { query })}</p>
         </div>
       ) : (
         <ul className="divide-y divide-border">

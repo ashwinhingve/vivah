@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Calendar, MapPin, Users, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,32 +9,29 @@ interface WeddingCardProps {
   wedding: WeddingSummary;
 }
 
-type UrgencyVariant = {
-  label: string;
-  className: string;
-  pulse?: boolean;
-};
+type UrgencyKey = 'completed' | 'cancelled' | 'today' | 'tomorrow' | 'daysLeft' | 'planning';
 
-function computeUrgency(status: string, days: number | null): UrgencyVariant {
+function computeUrgencyKey(status: string, days: number | null): { key: UrgencyKey; days?: number; className: string; pulse?: boolean } {
   if (status === 'COMPLETED') {
-    return { label: 'Completed', className: 'bg-muted/60 text-muted-foreground border-muted-foreground/15' };
+    return { key: 'completed', className: 'bg-muted/60 text-muted-foreground border-muted-foreground/15' };
   }
   if (status === 'CANCELLED') {
-    return { label: 'Cancelled', className: 'bg-muted text-muted-foreground border-muted-foreground/20' };
+    return { key: 'cancelled', className: 'bg-muted text-muted-foreground border-muted-foreground/20' };
   }
   if (days === 0) {
-    return { label: 'Today', className: 'bg-primary text-white border-primary shadow-sm', pulse: true };
+    return { key: 'today', className: 'bg-primary text-white border-primary shadow-sm', pulse: true };
   }
   if (days === 1) {
-    return { label: 'Tomorrow!', className: 'bg-primary text-white border-primary shadow-sm' };
+    return { key: 'tomorrow', className: 'bg-primary text-white border-primary shadow-sm' };
   }
   if (days != null && days > 1 && days <= 30) {
-    return { label: `${days} days left`, className: 'bg-primary/10 text-primary border-primary/30' };
+    return { key: 'daysLeft', days, className: 'bg-primary/10 text-primary border-primary/30' };
   }
-  return { label: 'Planning', className: 'bg-gold/15 text-primary border-gold/30' };
+  return { key: 'planning', className: 'bg-gold/15 text-primary border-gold/30' };
 }
 
-export function WeddingCard({ wedding }: WeddingCardProps) {
+export async function WeddingCard({ wedding }: WeddingCardProps) {
+  const t = await getTranslations('weddings.card');
   const { total, done } = wedding.taskProgress;
   const taskPct = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -41,11 +39,14 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
   const budgetTotal = wedding.budgetTotal;
 
   const days = daysUntil(wedding.weddingDate);
-  const urgency = computeUrgency(wedding.status, days);
+  const urgency = computeUrgencyKey(wedding.status, days);
+  const urgencyLabel = urgency.key === 'daysLeft'
+    ? t('statuses.daysLeft', { days: urgency.days ?? 0 })
+    : t(`statuses.${urgency.key}` as 'statuses.planning');
   const cancelled = wedding.status === 'CANCELLED';
 
   // FIX: Use weddingName as primary title (was incorrectly using venueName)
-  const title = wedding.weddingName ?? wedding.venueName ?? 'Wedding Plan';
+  const title = wedding.weddingName ?? wedding.venueName ?? t('fallbackTitle');
 
   return (
     <Link href={`/weddings/${wedding.id}`} className="block group">
@@ -73,7 +74,7 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
                 urgency.pulse && 'animate-pulse'
               )}
             >
-              {urgency.label}
+              {urgencyLabel}
             </span>
           </div>
         </div>
@@ -92,7 +93,7 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
           )}
           <div className="flex items-center gap-1.5">
             <Users className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
-            {wedding.guestCount} guests
+            {t('guestsCount', { count: wedding.guestCount })}
           </div>
           {budgetTotal != null && (
             <div className="flex items-center gap-1.5 text-xs font-medium">
@@ -106,7 +107,7 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
         {total > 0 && (
           <div className="mb-3">
             <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Planning progress</span>
+              <span>{t('planningProgress')}</span>
               <span className="font-semibold text-primary">{taskPct}%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-gold/15">
@@ -122,12 +123,12 @@ export function WeddingCard({ wedding }: WeddingCardProps) {
         <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-gold/10 pt-3 mt-3">
           <span className="flex items-center gap-1">
             <CheckSquare className="h-3 w-3" aria-hidden="true" />
-            {done}/{total} tasks
+            {t('tasksProgress', { done, total })}
           </span>
           {wedding.guestCount > 0 && (
             <span className="flex items-center gap-1">
               <Users className="h-3 w-3" aria-hidden="true" />
-              {wedding.guestCount} guests
+              {t('guestsCount', { count: wedding.guestCount })}
             </span>
           )}
         </div>

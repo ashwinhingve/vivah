@@ -71,9 +71,9 @@ export default async function ChatsPage({ searchParams }: PageProps) {
       <header className="sticky top-0 z-10 border-b border-gold/20 bg-surface/95 px-4 pt-4 pb-2 backdrop-blur-xl">
         <h1 className="font-heading text-xl font-semibold text-foreground">{t('heading')}</h1>
         <nav aria-label="Filter chats" className="mt-3 flex gap-1.5">
-          <FilterTab href="/chats" label="All" active={filter === 'all'} />
-          <FilterTab href="/chats?filter=unread" label="Unread" active={filter === 'unread'} />
-          <FilterTab href="/chats?filter=archived" label="Archived" active={filter === 'archived'} />
+          <FilterTab href="/chats" label={t('tabs.all')} active={filter === 'all'} />
+          <FilterTab href="/chats?filter=unread" label={t('tabs.unread')} active={filter === 'unread'} />
+          <FilterTab href="/chats?filter=archived" label={t('tabs.archived')} active={filter === 'archived'} />
         </nav>
       </header>
 
@@ -82,18 +82,18 @@ export default async function ChatsPage({ searchParams }: PageProps) {
           variant="no-messages"
           title={
             filter === 'unread'
-              ? 'You’re all caught up'
+              ? t('emptyAllCaughtUp')
               : filter === 'archived'
-              ? 'No archived chats'
-              : 'No conversations yet'
+              ? t('emptyArchived')
+              : t('emptyNone')
           }
           description={
             filter === 'all'
-              ? 'Accept a match to start chatting and begin your journey together.'
-              : 'Conversations you mark accordingly will appear here.'
+              ? t('emptyBodyAccept')
+              : t('emptyBodyArchive')
           }
           {...(filter === 'all'
-            ? { actionLabel: 'Find matches', actionHref: '/matches' }
+            ? { actionLabel: t('findMatches'), actionHref: '/matches' }
             : {})}
         />
       ) : (

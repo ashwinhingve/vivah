@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
@@ -14,23 +15,27 @@ interface Props {
   currentProfileId: string
 }
 
-function formatTs(iso: string | null | undefined): string {
+function formatTs(iso: string | null | undefined, locale: string, yesterdayLabel: string): string {
   if (!iso) return ''
   const d = new Date(iso)
   const now = new Date()
   const sameDay = d.toDateString() === now.toDateString()
+  const intlLocale = locale === 'hi' ? 'hi-IN' : 'en-IN'
+  const numFmt = { numberingSystem: 'latn' } as Intl.DateTimeFormatOptions
   if (sameDay) {
-    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+    return d.toLocaleTimeString(intlLocale, { hour: '2-digit', minute: '2-digit', hour12: true, ...numFmt })
   }
   const diffDays = Math.floor((now.getTime() - d.getTime()) / 86_400_000)
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return d.toLocaleDateString('en-IN', { weekday: 'short' })
-  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+  if (diffDays === 1) return yesterdayLabel
+  if (diffDays < 7) return d.toLocaleDateString(intlLocale, { weekday: 'short', ...numFmt })
+  return d.toLocaleDateString(intlLocale, { day: '2-digit', month: 'short', ...numFmt })
 }
 
 const VIDEO_CALL_RE = /Video call started/i
 
 export default function ConversationListItem({ item, currentProfileId }: Props) {
+  const t = useTranslations('chats')
+  const locale = useLocale()
   const other = item.other
   const photoUrl = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null
   const isMine = item.lastMessage?.senderId === currentProfileId
@@ -45,14 +50,14 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
   let previewIcon: 'photo' | 'voice' | 'video' | null = null
   if (item.lastMessage) {
     if (item.lastMessage.type === 'PHOTO') {
-      preview = 'Photo'
+      preview = t('previewPhoto').replace('📷 ', '')
       previewIcon = 'photo'
     } else if (item.lastMessage.type === 'VOICE') {
-      preview = 'Voice note'
+      preview = t('previewVoiceNote')
       previewIcon = 'voice'
     } else if (item.lastMessage.type === 'SYSTEM') {
       if (VIDEO_CALL_RE.test(item.lastMessage.content)) {
-        preview = 'Video call'
+        preview = t('previewVideoCall')
         previewIcon = 'video'
       } else {
         preview = item.lastMessage.content
@@ -83,7 +88,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
         {photoUrl ? (
           <Image
             src={photoUrl}
-            alt={other?.firstName ?? 'Match'}
+            alt={other?.firstName ?? t('fallbackName')}
             width={48}
             height={48}
             className="h-12 w-12 rounded-full object-cover"
@@ -105,7 +110,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
             'truncate text-sm',
             isUnread ? 'font-bold text-foreground' : 'font-semibold text-foreground',
           )}>
-            {other?.firstName ?? 'Match'}
+            {other?.firstName ?? t('fallbackName')}
             {other?.age ? <span className="text-muted-foreground"> · {other.age}</span> : null}
           </p>
           {pinned ? <Pin className="h-3 w-3 shrink-0 text-teal" /> : null}
@@ -114,7 +119,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
             'ml-auto shrink-0 text-[11px]',
             isUnread ? 'font-semibold text-teal' : 'text-muted-foreground',
           )}>
-            {formatTs(item.lastMessage?.sentAt ?? item.updatedAt)}
+            {formatTs(item.lastMessage?.sentAt ?? item.updatedAt, locale, t('yesterday'))}
           </span>
         </div>
         <div className="mt-0.5 flex items-center gap-1.5">
@@ -125,7 +130,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
             'truncate text-xs',
             isUnread ? 'text-foreground' : 'text-muted-foreground',
           )}>
-            {isMine ? <span className="text-gold-muted">You: </span> : null}
+            {isMine ? <span className="text-gold-muted">{t('youPrefix')}</span> : null}
             {preview}
           </p>
           {isUnread ? (

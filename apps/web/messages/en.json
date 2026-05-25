@@ -159,6 +159,7 @@
     "subtitleWarming": "Warming up your recommendations",
     "subtitleCompleteProfile": "Complete your profile to see matches",
     "refinePreferences": "Refine Preferences",
+    "complete": "complete",
     "errorTitle": "Couldn't load your matches",
     "errorBody": "The match feed returned an error. Try refreshing or come back in a moment.",
     "forceRefresh": "Force Refresh",
@@ -468,7 +469,17 @@
       "settings": "Settings",
       "subscription": "Subscription",
       "helpSupport": "Help & Support",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "signingOut": "Signing out…",
+      "userMenu": "User menu",
+      "roles": {
+        "INDIVIDUAL": "Member",
+        "FAMILY_MEMBER": "Family",
+        "VENDOR": "Vendor",
+        "EVENT_COORDINATOR": "Coordinator",
+        "ADMIN": "Admin",
+        "SUPPORT": "Support"
+      }
     }
   },
   "landing": {
