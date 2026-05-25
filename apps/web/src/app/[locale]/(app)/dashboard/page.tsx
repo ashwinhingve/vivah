@@ -276,6 +276,7 @@ export default async function DashboardPage() {
                         city={item.city}
                         compatibilityPct={item.compatibility?.totalScore}
                         gunaPending={item.compatibility?.flags?.includes('guna_pending')}
+                        hideGunaHint
                       />
                     </div>
                   ))}

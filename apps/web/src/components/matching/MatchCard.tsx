@@ -18,6 +18,7 @@ interface MatchCardProps {
   compatibilityPct?: number;
   isVerified?: boolean;
   gunaPending?: boolean;
+  hideGunaHint?: boolean;
   onSendInterest?: (id: string) => void;
   onBookmark?: (id: string) => void;
   skeleton?: false;
@@ -63,6 +64,7 @@ export function MatchCard(props: Props) {
     compatibilityPct,
     isVerified,
     gunaPending,
+    hideGunaHint,
     onSendInterest,
     onBookmark,
   } = props;
@@ -104,13 +106,13 @@ export function MatchCard(props: Props) {
 
         {compatibilityPct != null ? (
           <span
-            className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-bold shadow-sm ${getCompatBadgeClasses(compatibilityPct)}`}
+            className={`absolute left-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-bold shadow-sm ${getCompatBadgeClasses(compatibilityPct)}`}
           >
             {compatibilityPct}% match
           </span>
         ) : null}
 
-        {gunaPending ? (
+        {gunaPending && !hideGunaHint ? (
           <div className="absolute inset-x-2 bottom-14 rounded-md bg-surface/90 px-2 py-1 text-center text-[10px] font-medium text-primary shadow-sm backdrop-blur-sm">
             Add horoscope to see Guna score
           </div>
