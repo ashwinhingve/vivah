@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Users, ShieldCheck, Bell, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -61,6 +62,7 @@ export default async function WelcomePage() {
   const c = await cookies();
   const token = c.get('better-auth.session_token')?.value ?? '';
   const firstName = await fetchProfileName(token);
+  const t = await getTranslations('welcome');
 
   return (
     <main id="main-content" className="min-h-screen bg-background">
@@ -93,6 +95,9 @@ export default async function WelcomePage() {
             Take me to my matches
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>
+          <p className="text-xs text-muted-foreground">
+            {t('supportFooter')}
+          </p>
           <p className="text-xs text-muted-foreground">
             Smart Shaadi launched May 2026 · Building India&rsquo;s most thoughtful matrimony
           </p>

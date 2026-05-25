@@ -118,7 +118,8 @@
       "productHeading": "Product",
       "resourcesHeading": "Resources",
       "legalHeading": "Legal",
-      "copyright": "© 2026 Smart Shaadi. All rights reserved."
+      "copyright": "© 2026 Smart Shaadi. All rights reserved.",
+      "contactSupport": "Contact Support"
     },
     "stats": {
       "verifiedProfiles": "Verified Profiles",
@@ -508,5 +509,28 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit"
+  },
+  "help": {
+    "title": "Help & Support",
+    "subtitle": "We respond within 24 hours",
+    "emailUs": "Email Support",
+    "faq": {
+      "verification": {
+        "q": "How does profile verification work?",
+        "a": "Every profile goes through phone OTP, KYC (when available), and admin review before appearing in match search."
+      },
+      "matching": {
+        "q": "How are matches calculated?",
+        "a": "We use 8 Ashtakoot factors (Guna Milan), demographic alignment, lifestyle compatibility, and partner preferences. Both sides must meet each other's criteria."
+      },
+      "privacy": {
+        "q": "Who can see my profile?",
+        "a": "Only matches that mutually accept can see contact details. Photos stay private until both sides show interest."
+      }
+    },
+    "stillNeedHelp": "Still need help? Email"
+  },
+  "welcome": {
+    "supportFooter": "Questions? Email support@smartshaadi.co.in"
   }
 }

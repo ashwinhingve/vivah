@@ -7,6 +7,7 @@ interface FooterLink {
   label: string;
   href: string;
   disabled?: boolean;
+  labelKey?: string;
 }
 
 interface FooterColumn {
@@ -21,7 +22,7 @@ const columns: FooterColumn[] = [
       { label: 'About Us', href: '#', disabled: true },
       { label: 'Careers', href: '#', disabled: true },
       { label: 'Press Kit', href: '#', disabled: true },
-      { label: 'Contact', href: 'mailto:support@smartshaadi.in' },
+      { label: 'Contact Support', labelKey: 'contactSupport', href: 'mailto:support@smartshaadi.co.in' },
     ],
   },
   {
@@ -41,7 +42,7 @@ const columns: FooterColumn[] = [
       { label: 'Guna Milan Guide', href: '#features' },
       { label: 'Safety Mode', href: '#for-families' },
       { label: 'Wedding Checklist', href: '#', disabled: true },
-      { label: 'Help Centre', href: '#', disabled: true },
+      { label: 'Help Centre', href: '/help' },
     ],
   },
   {
@@ -62,7 +63,7 @@ const socialLinks = [
   { Icon: Youtube, label: 'Smart Shaadi on YouTube', href: '#' },
 ];
 
-function renderLink(link: FooterLink) {
+function renderLink(link: FooterLink, label: string) {
   const baseClass =
     'text-sm transition-colors min-h-[44px] inline-flex items-center leading-none text-text-on-dark/50 hover:text-gold';
 
@@ -72,7 +73,7 @@ function renderLink(link: FooterLink) {
         aria-disabled="true"
         className={`${baseClass} opacity-40 cursor-default hover:text-text-on-dark/50`}
       >
-        {link.label}
+        {label}
       </span>
     );
   }
@@ -80,14 +81,14 @@ function renderLink(link: FooterLink) {
   if (link.href.startsWith('#') || link.href.startsWith('mailto:')) {
     return (
       <a href={link.href} className={baseClass}>
-        {link.label}
+        {label}
       </a>
     );
   }
 
   return (
     <Link href={link.href} className={baseClass}>
-      {link.label}
+      {label}
     </Link>
   );
 }
@@ -139,7 +140,9 @@ export default async function Footer() {
               </h3>
               <ul className="space-y-1">
                 {col.links.map((link) => (
-                  <li key={link.label}>{renderLink(link)}</li>
+                  <li key={link.label}>
+                    {renderLink(link, link.labelKey ? t(link.labelKey) : link.label)}
+                  </li>
                 ))}
               </ul>
             </div>

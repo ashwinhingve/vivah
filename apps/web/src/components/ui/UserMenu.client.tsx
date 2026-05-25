@@ -9,11 +9,23 @@ import { authClient } from '@/lib/auth-client';
 
 type MenuLinkKey = 'viewProfile' | 'settings' | 'subscription' | 'helpSupport';
 
-const MENU_LINKS: readonly { href: string; key: MenuLinkKey; Icon: typeof User }[] = [
+type MenuLink = {
+  href: string;
+  key: MenuLinkKey;
+  Icon: typeof User;
+  external?: boolean;
+};
+
+const MENU_LINKS: readonly MenuLink[] = [
   { href: '/dashboard',        key: 'viewProfile',  Icon: User },
   { href: '/settings/privacy', key: 'settings',     Icon: Settings },
   { href: '/settings/billing', key: 'subscription', Icon: CreditCard },
-  { href: '/support',          key: 'helpSupport',  Icon: LifeBuoy },
+  {
+    href: 'mailto:support@smartshaadi.co.in?subject=Help%20with%20Smart%20Shaadi',
+    key: 'helpSupport',
+    Icon: LifeBuoy,
+    external: true,
+  },
 ] as const;
 
 function stripCountryCode(phone: string | null | undefined): string | null {
@@ -95,18 +107,36 @@ export function UserMenu() {
               </div>
             )}
             <div className="py-1">
-              {MENU_LINKS.map(({ href, key, Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="flex h-10 items-center gap-2.5 px-4 text-sm text-foreground transition-colors hover:bg-gold/10"
-                >
-                  <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  <span>{t(key)}</span>
-                </Link>
-              ))}
+              {MENU_LINKS.map(({ href, key, Icon, external }) => {
+                const className =
+                  'flex h-10 items-center gap-2.5 px-4 text-sm text-foreground transition-colors hover:bg-gold/10';
+                if (external) {
+                  return (
+                    <a
+                      key={href}
+                      href={href}
+                      role="menuitem"
+                      onClick={() => setOpen(false)}
+                      className={className}
+                    >
+                      <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <span>{t(key)}</span>
+                    </a>
+                  );
+                }
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className={className}
+                  >
+                    <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>{t(key)}</span>
+                  </Link>
+                );
+              })}
             </div>
             <div className="border-t border-gold/15 py-1">
               <button
