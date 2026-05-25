@@ -72,11 +72,11 @@ async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   }
 }
 
-function getGreeting(): string {
+function getGreetingKey(): 'morning' | 'afternoon' | 'evening' {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
 }
 
 function getDisplayName(raw: string | null | undefined): string | null {
@@ -86,8 +86,17 @@ function getDisplayName(raw: string | null | undefined): string | null {
   return first;
 }
 
-function formatDatePill(d: Date): string {
-  return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+function intlLocale(locale: string): string {
+  return locale === 'hi' ? 'hi-IN' : 'en-IN';
+}
+
+function formatDatePill(d: Date, locale: string): string {
+  return d.toLocaleDateString(intlLocale(locale), {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    numberingSystem: 'latn',
+  } as Intl.DateTimeFormatOptions);
 }
 
 function daysUntil(dateStr: string): number {
@@ -104,7 +113,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('title') };
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'dashboard' });
+  const tChats = await getTranslations({ locale, namespace: 'chats' });
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -139,6 +155,9 @@ export default async function DashboardPage() {
   const recentChats = recentChatData?.items ?? [];
 
   const now = new Date();
+  const greeting = t(`greeting.${getGreetingKey()}` as 'greeting.morning');
+  const dateLocale = intlLocale(locale);
+  const numFmt: Intl.NumberFormatOptions = { numberingSystem: 'latn' } as Intl.NumberFormatOptions;
 
   return (
     <PageTransition>
@@ -156,7 +175,7 @@ export default async function DashboardPage() {
               {/* Row 1 — greeting + (right) date pill / tier */}
               <div className="relative flex items-start justify-between gap-3">
                 <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary min-w-0">
-                  {getGreeting()}{displayName ? `, ${displayName}` : ''} <span aria-hidden="true">👋</span>
+                  {greeting}{displayName ? `, ${displayName}` : ''} <span aria-hidden="true">👋</span>
                 </h1>
                 <div className="flex items-center gap-2 shrink-0">
                   {tier !== 'FREE' && (
@@ -166,7 +185,7 @@ export default async function DashboardPage() {
                     </span>
                   )}
                   <span className="hidden sm:inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
-                    {formatDatePill(now)}
+                    {formatDatePill(now, locale)}
                   </span>
                 </div>
               </div>
@@ -175,7 +194,7 @@ export default async function DashboardPage() {
               {completeness < 100 && (
                 <div className="relative mt-3 flex items-center gap-3">
                   <p className="shrink-0 text-xs font-medium text-muted-foreground">
-                    Your profile is <span className="font-semibold text-teal">{completeness}%</span> complete
+                    {t('profileBar.completeText', { percent: completeness })}
                   </p>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-gold/15">
                     <div
@@ -190,7 +209,7 @@ export default async function DashboardPage() {
                   href="/profile/personal"
                   className="mt-2 inline-block text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
                 >
-                  Complete your profile to unlock more matches →
+                  {t('profileBar.completeCta')}
                 </Link>
               )}
             </div>
@@ -199,37 +218,37 @@ export default async function DashboardPage() {
           {/* ── Stat Cards ─────────────────────────────────────── */}
           <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatsCard
-              label="New Matches"
+              label={t('stats.newMatches')}
               value={feed.length}
-              sub="in feed today"
+              sub={t('stats.inFeedToday')}
               icon={Heart}
               variant="teal"
               animDelayMs={0}
-              emptyCta={{ label: 'Refine preferences', href: '/profile/preferences' }}
+              emptyCta={{ label: t('stats.refinePreferences'), href: '/profile/preferences' }}
             />
             <StatsCard
-              label="Requests"
+              label={t('stats.requests')}
               value={pendingRequests}
-              sub="received"
+              sub={t('stats.received')}
               icon={Mail}
               variant="gold"
               animDelayMs={100}
-              emptyCta={{ label: 'View past requests', href: '/requests' }}
+              emptyCta={{ label: t('stats.viewPastRequests'), href: '/requests' }}
             />
             <StatsCard
-              label="Upcoming Events"
+              label={t('stats.upcomingEvents')}
               value={upcomingBookings.length}
-              sub="confirmed"
+              sub={t('stats.confirmed')}
               icon={Calendar}
               variant={upcomingBookings.length > 0 ? 'success' : 'default'}
               animDelayMs={200}
-              emptyCta={{ label: 'Browse vendors', href: '/vendors' }}
+              emptyCta={{ label: t('stats.browseVendors'), href: '/vendors' }}
             />
             <StatsCard
-              label="Profile"
+              label={t('stats.profile')}
               valuePercent={completeness}
               value={`${completeness}%`}
-              sub="complete"
+              sub={t('stats.complete')}
               icon={Gauge}
               variant={completeness >= 70 ? 'success' : 'warning'}
               animDelayMs={300}
@@ -246,26 +265,26 @@ export default async function DashboardPage() {
           {/* ── Today's Matches ────────────────────────────────── */}
           <FadeUp delay={0.1}>
             <SectionHeader
-              title="Today's Matches"
+              title={t('todaysMatches.title')}
               viewAllHref="/feed"
-              viewAllLabel="See all"
+              viewAllLabel={t('todaysMatches.seeAll')}
             />
             {completeness < 40 ? (
               <EmptyState
                 icon={Heart}
-                title="Your perfect match is out there"
-                description="Complete your profile to at least 40% to start seeing matches."
+                title={t('todaysMatches.emptyTitle')}
+                description={t('todaysMatches.emptyBody')}
                 action={
                   <Button asChild size="sm">
-                    <Link href="/profile/personal">Complete Profile →</Link>
+                    <Link href="/profile/personal">{t('todaysMatches.emptyCta')}</Link>
                   </Button>
                 }
               />
             ) : feed.length === 0 ? (
               <EmptyState
                 icon={Heart}
-                title="Warming up your recommendations"
-                description="No matches yet — we're tuning your feed and will have suggestions shortly."
+                title={t('todaysMatches.warmingTitle')}
+                description={t('todaysMatches.warmingBody')}
               />
             ) : (
               /* Horizontal scroll on mobile, 4-col grid on md+ */
@@ -292,18 +311,18 @@ export default async function DashboardPage() {
           {/* ── Upcoming Events (from bookings) ────────────────── */}
           <FadeUp delay={0.15}>
             <SectionHeader
-              title="Upcoming Events"
+              title={t('upcomingEvents.title')}
               viewAllHref="/bookings"
-              viewAllLabel="All bookings"
+              viewAllLabel={t('upcomingEvents.allBookings')}
             />
             {upcomingBookings.length === 0 ? (
               <EmptyState
                 icon={Calendar}
-                title="No upcoming events"
-                description="Discover trusted vendors and book them for your big day."
+                title={t('upcomingEvents.emptyTitle')}
+                description={t('upcomingEvents.emptyBody')}
                 action={
                   <Button asChild size="sm">
-                    <Link href="/vendors">Browse Vendors →</Link>
+                    <Link href="/vendors">{t('upcomingEvents.emptyCta')}</Link>
                   </Button>
                 }
               />
@@ -321,7 +340,7 @@ export default async function DashboardPage() {
                       {/* Calendar block */}
                       <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-gold/30 bg-primary/5 text-center">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60">
-                          {dateObj.toLocaleDateString('en-IN', { month: 'short' })}
+                          {dateObj.toLocaleDateString(dateLocale, { month: 'short', numberingSystem: 'latn' } as Intl.DateTimeFormatOptions)}
                         </span>
                         <span className="font-heading text-lg font-bold leading-none text-primary">
                           {dateObj.getDate()}
@@ -330,20 +349,20 @@ export default async function DashboardPage() {
 
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary">
-                          {b.vendorName ?? 'Booking'}
+                          {b.vendorName ?? t('upcomingEvents.fallbackName')}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          ₹{b.totalAmount.toLocaleString('en-IN')}
+                          ₹{b.totalAmount.toLocaleString(dateLocale, numFmt)}
                         </p>
                       </div>
 
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
-                          Confirmed
+                          {t('upcomingEvents.confirmed')}
                         </span>
                         {days <= 30 && (
                           <span className="text-[10px] text-muted-foreground">
-                            {days === 0 ? 'Today' : `${days}d away`}
+                            {days === 0 ? t('upcomingEvents.today') : t('upcomingEvents.daysAway', { days })}
                           </span>
                         )}
                       </div>
@@ -357,18 +376,18 @@ export default async function DashboardPage() {
           {/* ── Recent Conversations (P1-7 — wired) ─────────────── */}
           <FadeUp delay={0.18}>
             <SectionHeader
-              title="Recent Conversations"
+              title={t('recentConversations.title')}
               viewAllHref="/chat"
-              viewAllLabel="Open chat"
+              viewAllLabel={t('recentConversations.openChat')}
             />
             {recentChats.length === 0 ? (
               <EmptyState
                 icon={MessageCircle}
-                title="No conversations yet"
-                description="When you and a match connect, your chats will appear here."
+                title={t('recentConversations.emptyTitle')}
+                description={t('recentConversations.emptyBody')}
                 action={
                   <Button asChild size="sm" variant="outline">
-                    <Link href="/feed">Find Matches →</Link>
+                    <Link href="/feed">{t('recentConversations.emptyCta')}</Link>
                   </Button>
                 }
               />
@@ -381,11 +400,11 @@ export default async function DashboardPage() {
                   const isVideoSystem =
                     last?.type === 'SYSTEM' && VIDEO_CALL_RE.test(last.content);
                   const preview = !last
-                    ? 'Tap to start the conversation'
+                    ? tChats('tapToStart')
                     : last.type === 'PHOTO'
-                    ? '📷 Photo'
+                    ? tChats('previewPhoto')
                     : isVideoSystem
-                    ? 'Video call'
+                    ? tChats('previewVideoCall')
                     : last.content.length > 60
                     ? `${last.content.slice(0, 60)}…`
                     : last.content;
@@ -422,7 +441,7 @@ export default async function DashboardPage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline justify-between gap-2">
                             <p className="truncate text-sm font-semibold text-foreground">
-                              {other?.firstName ?? 'Unknown'}
+                              {other?.firstName ?? tChats('unknownName')}
                             </p>
                             {relTime && (
                               <span className="shrink-0 text-[11px] text-muted-foreground">{relTime}</span>
@@ -451,20 +470,20 @@ export default async function DashboardPage() {
           {/* ── My Wedding ─────────────────────────────────────── */}
           <FadeUp delay={0.2}>
             <SectionHeader
-              title="My Wedding"
+              title={t('myWedding.title')}
               viewAllHref={myWedding ? `/weddings/${myWedding.id}` : undefined}
-              viewAllLabel="Open planner"
+              viewAllLabel={t('myWedding.openPlanner')}
             />
             {myWedding ? (
               <WeddingCard wedding={myWedding} />
             ) : (
               <EmptyState
                 icon={Cake}
-                title="Start Planning Your Wedding"
-                description="Create a wedding plan with budget, tasks, guest list, and RSVP tracking."
+                title={t('myWedding.emptyTitle')}
+                description={t('myWedding.emptyBody')}
                 action={
                   <Button asChild>
-                    <Link href="/weddings/new">Begin Your Journey →</Link>
+                    <Link href="/weddings/new">{t('myWedding.emptyCta')}</Link>
                   </Button>
                 }
               />
@@ -474,13 +493,13 @@ export default async function DashboardPage() {
 
           {/* ── Quick Actions Strip ────────────────────────────── */}
           <FadeUp delay={0.28}>
-            <SectionHeader title="Quick Actions" />
+            <SectionHeader title={t('quickActionsInline.title')} />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {([
-                { href: '/feed',         label: 'Find Matches',   icon: Search, variant: 'teal'     },
-                { href: '/weddings/new', label: 'Plan Wedding',   icon: Cake,   variant: 'burgundy' },
-                { href: '/vendors',      label: 'Browse Vendors', icon: Users,  variant: 'gold'     },
-                { href: '/store',        label: 'Shop Store',     icon: Store,  variant: 'charcoal' },
+                { href: '/feed',         label: t('quickActionsInline.findMatches'),   icon: Search, variant: 'teal'     },
+                { href: '/weddings/new', label: t('quickActionsInline.planWedding'),   icon: Cake,   variant: 'burgundy' },
+                { href: '/vendors',      label: t('quickActionsInline.browseVendors'), icon: Users,  variant: 'gold'     },
+                { href: '/store',        label: t('quickActionsInline.shopStore'),     icon: Store,  variant: 'charcoal' },
               ] as const).map(({ href, label, icon: Icon, variant }) => {
                 const tint =
                   variant === 'teal'
@@ -519,7 +538,7 @@ export default async function DashboardPage() {
         {/* Mobile FAB — profile complete */}
         <Link
           href="/profile/personal"
-          aria-label="Complete profile"
+          aria-label={t('completeProfileAria')}
           className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-teal text-white shadow-lg shadow-teal/30 transition-all hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl active:scale-95 sm:hidden"
           style={{ bottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
         >

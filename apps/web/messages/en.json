@@ -302,6 +302,7 @@
       "moreMatches": "Complete profiles get 3× more matches.",
       "allComplete": "🎉 Profile complete!",
       "oneStepAway": "One step away. Complete {section}",
+      "completeSection": "Complete {section}",
       "sectionComplete": "{label} — complete",
       "sectionIncomplete": "{label} — incomplete",
       "sections": {

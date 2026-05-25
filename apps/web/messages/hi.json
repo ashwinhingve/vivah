@@ -302,6 +302,7 @@
       "moreMatches": "पूर्ण प्रोफ़ाइल को 3× अधिक मैच मिलते हैं।",
       "allComplete": "🎉 प्रोफ़ाइल पूर्ण!",
       "oneStepAway": "बस एक कदम बाकी। {section} पूर्ण करें",
+      "completeSection": "{section} पूर्ण करें",
       "sectionComplete": "{label} — पूर्ण",
       "sectionIncomplete": "{label} — अधूरा",
       "sections": {
