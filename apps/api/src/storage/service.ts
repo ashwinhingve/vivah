@@ -7,6 +7,11 @@ import { env, shouldUseMockR2 } from '../lib/env.js';
 const r2 = new S3Client({
   region: 'auto',
   endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  // Cloudflare R2 does not provision SSL certs for bucket subdomains; the
+  // default virtual-hosted style produces `<bucket>.<account>.r2.cloudflarestorage.com`
+  // which fails with ERR_SSL_VERSION_OR_CIPHER_MISMATCH in the browser.
+  // Force path-style so URLs become `<account>.r2.cloudflarestorage.com/<bucket>/<key>`.
+  forcePathStyle: true,
   credentials: {
     accessKeyId:     env.CLOUDFLARE_R2_ACCESS_KEY,
     secretAccessKey: env.CLOUDFLARE_R2_SECRET_KEY,

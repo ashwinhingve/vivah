@@ -385,6 +385,7 @@ export async function savePersonality(
 ): Promise<void> {
   if (shouldUseMockMongo) {
     mockUpsertField(userId, "personality", personality);
+    await computeAndUpdateCompleteness(userId);
     return;
   }
   const model = ProfileContent as unknown as Model<unknown>;
@@ -393,6 +394,10 @@ export async function savePersonality(
     { $set: { personality } },
     { upsert: true },
   );
+  // Mirror every other section-save path: recompute completeness so the
+  // profile_sections.personality flag + weighted score reflect the new state.
+  // Without this, the dashboard sticks at 7/8 forever after personality save.
+  await computeAndUpdateCompleteness(userId);
 }
 
 export async function geocodeAndPersistCoords(
