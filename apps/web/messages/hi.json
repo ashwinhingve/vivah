@@ -153,7 +153,35 @@
     "metadata": {
       "title": "मैच खोजें — Smart Shaadi"
     },
-    "heading": "मैच खोजें"
+    "heading": "मैच खोजें",
+    "subtitleCount": "{total} अनुकूल प्रोफ़ाइल · प्रतिदिन ताज़ा",
+    "subtitleDefault": "प्रतिदिन ताज़ा हो रहा है · जैसे-जैसे हमारा समुदाय बढ़ता है, और मैच आएँगे",
+    "subtitleWarming": "आपकी अनुशंसाएँ तैयार हो रही हैं",
+    "subtitleCompleteProfile": "मैच देखने के लिए अपनी प्रोफ़ाइल पूर्ण करें",
+    "refinePreferences": "प्राथमिकताएँ अपडेट करें",
+    "errorTitle": "आपके मैच लोड नहीं हो सके",
+    "errorBody": "मैच फ़ीड में त्रुटि आई। पुनः कोशिश करें या थोड़ी देर बाद आएँ।",
+    "forceRefresh": "फिर से लोड करें",
+    "backToDashboard": "डैशबोर्ड पर वापस",
+    "completeProfileTitle": "मैच पाने के लिए प्रोफ़ाइल पूर्ण करें",
+    "completeProfileBody": "आपकी प्रोफ़ाइल {percent}% पूर्ण है। अनुकूल मैच देखने के लिए कुछ और खंड जोड़ें।",
+    "completeProfile": "प्रोफ़ाइल पूर्ण करें",
+    "filters": {
+      "diet": "आहार",
+      "manglik": "मांगलिक",
+      "age": "उम्र",
+      "city": "शहर",
+      "filtersTitle": "फ़िल्टर",
+      "filtersSubtitle": "अपनी मैच फ़ीड परिष्कृत करें",
+      "maritalStatus": "वैवाहिक स्थिति"
+    },
+    "recommended": "अनुशंसित",
+    "wantMoreTitle": "और मैच चाहिए?",
+    "wantMoreBody": "अधिक अनुकूल प्रोफ़ाइल पाने के लिए अपनी साथी प्राथमिकताएँ विस्तृत करें।",
+    "emptyTitle": "अभी कोई मैच नहीं",
+    "emptyBody": "हम सावधानी से बढ़ रहे हैं — आपके पहले अनुकूल मैच जल्द ही यहाँ दिखेंगे।",
+    "refreshFeed": "फ़ीड रीफ़्रेश करें",
+    "checkRequests": "अनुरोध देखें"
   },
   "matches": {
     "metadata": {
@@ -191,19 +219,168 @@
     "metadata": {
       "title": "चैट — Smart Shaadi"
     },
-    "heading": "चैट"
+    "heading": "चैट",
+    "videoCall": {
+      "started": "वीडियो कॉल शुरू हुई",
+      "startedAgo": "{time} पहले शुरू हुई",
+      "joinCall": "कॉल में शामिल हों"
+    },
+    "deleted": "🚫 यह संदेश हटा दिया गया",
+    "forwarded": "फ़ॉरवर्ड किया गया",
+    "translatedBadge": "अनुवादित",
+    "edited": "संपादित · ",
+    "openPhoto": "फ़ोटो खोलें",
+    "sharedPhoto": "साझा की गई फ़ोटो",
+    "addReaction": "प्रतिक्रिया जोड़ें",
+    "edit": "संपादित करें",
+    "more": "और",
+    "status": {
+      "sending": "भेज रहा है",
+      "read": "पढ़ा गया",
+      "delivered": "मिल गया",
+      "sent": "भेजा गया"
+    }
   },
   "chats": {
     "metadata": {
       "title": "चैट — Smart Shaadi"
     },
-    "heading": "बातचीत"
+    "heading": "बातचीत",
+    "tabs": {
+      "all": "सभी",
+      "unread": "अपठित",
+      "archived": "संग्रहीत"
+    },
+    "searchPlaceholder": "नाम से खोजें…",
+    "clearSearch": "खोज साफ़ करें",
+    "noMatch": "\"{query}\" से कोई बातचीत नहीं मिली।",
+    "emptyAllCaughtUp": "आप पूरी तरह से अपडेट हैं",
+    "emptyArchived": "कोई संग्रहीत चैट नहीं",
+    "emptyNone": "अभी कोई बातचीत नहीं",
+    "emptyBodyAccept": "मैच स्वीकार करें और अपनी यात्रा साथ शुरू करें।",
+    "emptyBodyArchive": "जिन बातचीत को आप ऐसे चिह्नित करेंगे वे यहाँ दिखेंगी।",
+    "findMatches": "मैच खोजें",
+    "tapToStart": "बातचीत शुरू करने के लिए टैप करें",
+    "previewPhoto": "📷 फ़ोटो",
+    "previewVideoCall": "वीडियो कॉल",
+    "previewVoiceNote": "वॉइस नोट",
+    "youPrefix": "आप: ",
+    "yesterday": "कल",
+    "fallbackName": "मैच",
+    "unknownName": "अज्ञात"
   },
   "dashboard": {
     "metadata": {
       "title": "डैशबोर्ड — Smart Shaadi"
     },
-    "heading": "मेरा डैशबोर्ड"
+    "heading": "मेरा डैशबोर्ड",
+    "greeting": {
+      "morning": "सुप्रभात",
+      "afternoon": "नमस्ते",
+      "evening": "शुभ संध्या"
+    },
+    "profileBar": {
+      "completeText": "आपकी प्रोफ़ाइल {percent}% पूर्ण है",
+      "completeCta": "अधिक मैच पाने के लिए प्रोफ़ाइल पूर्ण करें →"
+    },
+    "stats": {
+      "newMatches": "नए मैच",
+      "inFeedToday": "आज की फ़ीड में",
+      "refinePreferences": "प्राथमिकताएँ अपडेट करें",
+      "requests": "अनुरोध",
+      "received": "प्राप्त",
+      "viewPastRequests": "पिछले अनुरोध देखें",
+      "upcomingEvents": "आगामी कार्यक्रम",
+      "confirmed": "पुष्ट",
+      "browseVendors": "वेंडर देखें",
+      "profile": "प्रोफ़ाइल",
+      "complete": "पूर्ण"
+    },
+    "profileCompleteness": {
+      "title": "प्रोफ़ाइल पूर्णता",
+      "sectionsComplete": "{total} में से {done} खंड पूर्ण",
+      "moreMatches": "पूर्ण प्रोफ़ाइल को 3× अधिक मैच मिलते हैं।",
+      "allComplete": "🎉 प्रोफ़ाइल पूर्ण!",
+      "oneStepAway": "बस एक कदम बाकी। {section} पूर्ण करें",
+      "sectionComplete": "{label} — पूर्ण",
+      "sectionIncomplete": "{label} — अधूरा",
+      "sections": {
+        "personal": "व्यक्तिगत",
+        "photos": "तस्वीरें",
+        "family": "परिवार",
+        "career": "करियर",
+        "lifestyle": "जीवनशैली",
+        "personality": "व्यक्तित्व",
+        "horoscope": "जन्म कुंडली",
+        "preferences": "प्राथमिकताएँ"
+      }
+    },
+    "todaysMatches": {
+      "title": "आज के मैच",
+      "seeAll": "सभी देखें",
+      "emptyTitle": "आपका परफ़ेक्ट मैच कहीं है",
+      "emptyBody": "मैच देखने के लिए अपनी प्रोफ़ाइल कम से कम 40% पूर्ण करें।",
+      "emptyCta": "प्रोफ़ाइल पूर्ण करें →",
+      "warmingTitle": "आपकी अनुशंसाएँ तैयार हो रही हैं",
+      "warmingBody": "अभी कोई मैच नहीं — हम आपकी फ़ीड तैयार कर रहे हैं और जल्द ही सुझाव देंगे।"
+    },
+    "upcomingEvents": {
+      "title": "आगामी कार्यक्रम",
+      "allBookings": "सभी बुकिंग",
+      "emptyTitle": "कोई आगामी कार्यक्रम नहीं",
+      "emptyBody": "विश्वसनीय वेंडर खोजें और अपने बड़े दिन के लिए बुक करें।",
+      "emptyCta": "वेंडर देखें →",
+      "fallbackName": "बुकिंग",
+      "confirmed": "पुष्ट",
+      "today": "आज",
+      "daysAway": "{days} दिन बाद"
+    },
+    "recentConversations": {
+      "title": "हाल की बातचीत",
+      "openChat": "चैट खोलें",
+      "emptyTitle": "अभी कोई बातचीत नहीं",
+      "emptyBody": "जब आप और कोई मैच जुड़ेंगे, तो आपकी चैट यहाँ दिखेगी।",
+      "emptyCta": "मैच खोजें →"
+    },
+    "myWedding": {
+      "title": "मेरी शादी",
+      "openPlanner": "प्लानर खोलें",
+      "emptyTitle": "अपनी शादी की योजना शुरू करें",
+      "emptyBody": "बजट, कार्य, मेहमान सूची और RSVP ट्रैकिंग के साथ शादी की योजना बनाएँ।",
+      "emptyCta": "अपनी यात्रा शुरू करें →"
+    },
+    "quickActionsInline": {
+      "title": "त्वरित कार्य",
+      "findMatches": "मैच खोजें",
+      "planWedding": "शादी प्लान करें",
+      "browseVendors": "वेंडर देखें",
+      "shopStore": "स्टोर"
+    },
+    "quickActions": {
+      "title": "त्वरित कार्य",
+      "discoverMatches": "मैच खोजें",
+      "discoverMatchesDesc": "अनुकूल प्रोफ़ाइल देखें",
+      "matchRequests": "मैच अनुरोध",
+      "matchRequestsDesc": "आने वाले अनुरोध देखें",
+      "myShortlist": "मेरी शॉर्टलिस्ट",
+      "myShortlistDesc": "आपने सहेजी हुई प्रोफ़ाइल",
+      "viewedYou": "आपको देखा",
+      "viewedYouDesc": "देखें किसने हाल ही में दौरा किया",
+      "myBookings": "मेरी बुकिंग",
+      "myBookingsDesc": "वेडिंग वेंडर बुकिंग",
+      "editProfile": "प्रोफ़ाइल एडिट करें",
+      "editProfileDesc": "अपनी प्रोफ़ाइल अपडेट करें"
+    },
+    "activityFeed": {
+      "title": "हाल की गतिविधि",
+      "emptyTitle": "अभी कोई गतिविधि नहीं",
+      "emptyBody": "मैच अनुरोध, उत्तर और बुकिंग अपडेट यहाँ दिखेंगे।"
+    },
+    "revenueSparkline": {
+      "title": "30-दिन का रेवेन्यू",
+      "empty": "इस अवधि के लिए कोई रेवेन्यू डेटा नहीं।"
+    },
+    "completeProfileAria": "प्रोफ़ाइल पूर्ण करें"
   },
   "billing": {
     "metadata": {
@@ -216,7 +393,25 @@
       "metadata": {
         "title": "मेरी शादियाँ — Smart Shaadi"
       },
-      "heading": "मेरी शादियाँ"
+      "heading": "मेरी शादियाँ",
+      "subtitle": "प्लान करें, ट्रैक करें और अपने ख़ास दिन को मनाएँ।",
+      "newWedding": "नई शादी",
+      "loadError": "आपकी शादियाँ लोड नहीं हो सकीं। कृपया पुनः कोशिश करें।",
+      "emptyCta": "अपनी शादी प्लान करें"
+    },
+    "card": {
+      "fallbackTitle": "शादी की योजना",
+      "guestsCount": "{count} मेहमान",
+      "planningProgress": "योजना प्रगति",
+      "tasksProgress": "{total} में से {done} कार्य",
+      "statuses": {
+        "completed": "संपन्न",
+        "cancelled": "रद्द",
+        "today": "आज",
+        "tomorrow": "कल!",
+        "daysLeft": "{days} दिन बचे",
+        "planning": "योजना में"
+      }
     },
     "detail": {
       "metadata": {
@@ -242,5 +437,64 @@
       },
       "heading": "अपनी शादी प्लान करें"
     }
+  },
+  "matchCard": {
+    "tiers": {
+      "excellent": "उत्कृष्ट",
+      "good": "अच्छा",
+      "average": "औसत",
+      "low": "कम"
+    },
+    "verified": "वेरिफाइड",
+    "new": "नया",
+    "boosted": "बूस्टेड",
+    "photoHidden": "फ़ोटो छिपी है — देखने के लिए अनुरोध करें",
+    "gunaScore": "{score}/36 गुण",
+    "sending": "भेज रहा है…",
+    "interestSent": "रुचि भेजी गई",
+    "sendInterest": "रुचि भेजें",
+    "viewFullProfile": "पूरी प्रोफ़ाइल देखें",
+    "couldNotSend": "रुचि नहीं भेजी जा सकी",
+    "networkError": "नेटवर्क त्रुटि",
+    "addHoroscope": "गुण स्कोर देखने के लिए कुंडली जोड़ें",
+    "bookmark": "प्रोफ़ाइल बुकमार्क करें",
+    "percentMatch": "{percent}% मैच"
+  },
+  "profile": {
+    "dropdown": {
+      "member": "सदस्य",
+      "viewProfile": "प्रोफ़ाइल देखें",
+      "settings": "सेटिंग्स",
+      "subscription": "सदस्यता",
+      "helpSupport": "सहायता",
+      "signOut": "साइन आउट"
+    }
+  },
+  "landing": {
+    "trustPills": {
+      "verifiedProfiles": "वेरिफाइड प्रोफ़ाइल",
+      "privacyFirst": "गोपनीयता पहले",
+      "rating": "4.5★ रेटिंग"
+    },
+    "earlyAccess": {
+      "label": "अर्ली एक्सेस",
+      "tagline": "भारत की सबसे विचारशील मैट्रिमोनियल सेवा",
+      "pills": {
+        "verifiedProfiles": "100% वेरिफाइड प्रोफ़ाइल",
+        "familyFirst": "परिवार-केंद्रित डिज़ाइन",
+        "privacyDefault": "गोपनीयता डिफ़ॉल्ट"
+      }
+    },
+    "aiDisclosure": "AI द्वारा निर्मित डेमो प्रोफ़ाइल · असली प्रोफ़ाइल वेरिफाइड हैं"
+  },
+  "common": {
+    "loading": "लोड हो रहा है…",
+    "error": "कुछ ग़लत हुआ",
+    "retry": "पुनः कोशिश करें",
+    "back": "वापस",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएँ",
+    "edit": "संपादित करें"
   }
 }

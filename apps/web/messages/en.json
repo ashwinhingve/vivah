@@ -153,7 +153,35 @@
     "metadata": {
       "title": "Discover Matches — Smart Shaadi"
     },
-    "heading": "Discover Matches"
+    "heading": "Discover Matches",
+    "subtitleCount": "{total} compatible profiles · Refreshed daily",
+    "subtitleDefault": "Refreshing daily · More matches as our community grows",
+    "subtitleWarming": "Warming up your recommendations",
+    "subtitleCompleteProfile": "Complete your profile to see matches",
+    "refinePreferences": "Refine Preferences",
+    "errorTitle": "Couldn't load your matches",
+    "errorBody": "The match feed returned an error. Try refreshing or come back in a moment.",
+    "forceRefresh": "Force Refresh",
+    "backToDashboard": "Back to Dashboard",
+    "completeProfileTitle": "Complete your profile to unlock matches",
+    "completeProfileBody": "Your profile is {percent}% complete. Add a few more sections to start seeing compatible matches.",
+    "completeProfile": "Complete Profile",
+    "filters": {
+      "diet": "Diet",
+      "manglik": "Manglik",
+      "age": "Age",
+      "city": "City",
+      "filtersTitle": "Filters",
+      "filtersSubtitle": "Refine your match feed",
+      "maritalStatus": "Marital Status"
+    },
+    "recommended": "Recommended",
+    "wantMoreTitle": "Want more matches?",
+    "wantMoreBody": "Broaden your partner preferences to unlock more compatible profiles.",
+    "emptyTitle": "No matches yet",
+    "emptyBody": "We're growing carefully — your first compatible matches will appear here soon.",
+    "refreshFeed": "Refresh Feed",
+    "checkRequests": "Check Requests"
   },
   "matches": {
     "metadata": {
@@ -191,19 +219,168 @@
     "metadata": {
       "title": "Chat — Smart Shaadi"
     },
-    "heading": "Chat"
+    "heading": "Chat",
+    "videoCall": {
+      "started": "Video call started",
+      "startedAgo": "Started {time}",
+      "joinCall": "Join Call"
+    },
+    "deleted": "🚫 This message was deleted",
+    "forwarded": "Forwarded",
+    "translatedBadge": "translated",
+    "edited": "edited · ",
+    "openPhoto": "Open photo",
+    "sharedPhoto": "Shared photo",
+    "addReaction": "Add reaction",
+    "edit": "Edit",
+    "more": "More",
+    "status": {
+      "sending": "Sending",
+      "read": "Read",
+      "delivered": "Delivered",
+      "sent": "Sent"
+    }
   },
   "chats": {
     "metadata": {
       "title": "Chats — Smart Shaadi"
     },
-    "heading": "Conversations"
+    "heading": "Conversations",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "archived": "Archived"
+    },
+    "searchPlaceholder": "Search by name…",
+    "clearSearch": "Clear search",
+    "noMatch": "No conversations match \"{query}\".",
+    "emptyAllCaughtUp": "You're all caught up",
+    "emptyArchived": "No archived chats",
+    "emptyNone": "No conversations yet",
+    "emptyBodyAccept": "Accept a match to start chatting and begin your journey together.",
+    "emptyBodyArchive": "Conversations you mark accordingly will appear here.",
+    "findMatches": "Find matches",
+    "tapToStart": "Tap to start the conversation",
+    "previewPhoto": "📷 Photo",
+    "previewVideoCall": "Video call",
+    "previewVoiceNote": "Voice note",
+    "youPrefix": "You: ",
+    "yesterday": "Yesterday",
+    "fallbackName": "Match",
+    "unknownName": "Unknown"
   },
   "dashboard": {
     "metadata": {
       "title": "Dashboard — Smart Shaadi"
     },
-    "heading": "My Dashboard"
+    "heading": "My Dashboard",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "profileBar": {
+      "completeText": "Your profile is {percent}% complete",
+      "completeCta": "Complete your profile to unlock more matches →"
+    },
+    "stats": {
+      "newMatches": "New Matches",
+      "inFeedToday": "in feed today",
+      "refinePreferences": "Refine preferences",
+      "requests": "Requests",
+      "received": "received",
+      "viewPastRequests": "View past requests",
+      "upcomingEvents": "Upcoming Events",
+      "confirmed": "confirmed",
+      "browseVendors": "Browse vendors",
+      "profile": "Profile",
+      "complete": "complete"
+    },
+    "profileCompleteness": {
+      "title": "Profile Completeness",
+      "sectionsComplete": "{done} of {total} sections complete",
+      "moreMatches": "Complete profiles get 3× more matches.",
+      "allComplete": "🎉 Profile complete!",
+      "oneStepAway": "One step away. Complete {section}",
+      "sectionComplete": "{label} — complete",
+      "sectionIncomplete": "{label} — incomplete",
+      "sections": {
+        "personal": "Personal",
+        "photos": "Photos",
+        "family": "Family",
+        "career": "Career",
+        "lifestyle": "Lifestyle",
+        "personality": "Personality",
+        "horoscope": "Horoscope",
+        "preferences": "Preferences"
+      }
+    },
+    "todaysMatches": {
+      "title": "Today's Matches",
+      "seeAll": "See all",
+      "emptyTitle": "Your perfect match is out there",
+      "emptyBody": "Complete your profile to at least 40% to start seeing matches.",
+      "emptyCta": "Complete Profile →",
+      "warmingTitle": "Warming up your recommendations",
+      "warmingBody": "No matches yet — we're tuning your feed and will have suggestions shortly."
+    },
+    "upcomingEvents": {
+      "title": "Upcoming Events",
+      "allBookings": "All bookings",
+      "emptyTitle": "No upcoming events",
+      "emptyBody": "Discover trusted vendors and book them for your big day.",
+      "emptyCta": "Browse Vendors →",
+      "fallbackName": "Booking",
+      "confirmed": "Confirmed",
+      "today": "Today",
+      "daysAway": "{days}d away"
+    },
+    "recentConversations": {
+      "title": "Recent Conversations",
+      "openChat": "Open chat",
+      "emptyTitle": "No conversations yet",
+      "emptyBody": "When you and a match connect, your chats will appear here.",
+      "emptyCta": "Find Matches →"
+    },
+    "myWedding": {
+      "title": "My Wedding",
+      "openPlanner": "Open planner",
+      "emptyTitle": "Start Planning Your Wedding",
+      "emptyBody": "Create a wedding plan with budget, tasks, guest list, and RSVP tracking.",
+      "emptyCta": "Begin Your Journey →"
+    },
+    "quickActionsInline": {
+      "title": "Quick Actions",
+      "findMatches": "Find Matches",
+      "planWedding": "Plan Wedding",
+      "browseVendors": "Browse Vendors",
+      "shopStore": "Shop Store"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "discoverMatches": "Discover Matches",
+      "discoverMatchesDesc": "Browse compatible profiles",
+      "matchRequests": "Match Requests",
+      "matchRequestsDesc": "Review incoming requests",
+      "myShortlist": "My Shortlist",
+      "myShortlistDesc": "Profiles you saved",
+      "viewedYou": "Viewed You",
+      "viewedYouDesc": "See who visited recently",
+      "myBookings": "My Bookings",
+      "myBookingsDesc": "Wedding vendor bookings",
+      "editProfile": "Edit Profile",
+      "editProfileDesc": "Update your profile"
+    },
+    "activityFeed": {
+      "title": "Recent Activity",
+      "emptyTitle": "No activity yet",
+      "emptyBody": "Match requests, responses, and booking updates will appear here."
+    },
+    "revenueSparkline": {
+      "title": "30-Day Revenue",
+      "empty": "No revenue data yet for this period."
+    },
+    "completeProfileAria": "Complete profile"
   },
   "billing": {
     "metadata": {
@@ -216,7 +393,25 @@
       "metadata": {
         "title": "My Weddings — Smart Shaadi"
       },
-      "heading": "My Weddings"
+      "heading": "My Weddings",
+      "subtitle": "Plan, track, and celebrate your perfect day.",
+      "newWedding": "New Wedding",
+      "loadError": "Could not load your weddings. Please try again.",
+      "emptyCta": "Plan Your Wedding"
+    },
+    "card": {
+      "fallbackTitle": "Wedding Plan",
+      "guestsCount": "{count} guests",
+      "planningProgress": "Planning progress",
+      "tasksProgress": "{done}/{total} tasks",
+      "statuses": {
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "today": "Today",
+        "tomorrow": "Tomorrow!",
+        "daysLeft": "{days} days left",
+        "planning": "Planning"
+      }
     },
     "detail": {
       "metadata": {
@@ -242,5 +437,64 @@
       },
       "heading": "Plan Your Wedding"
     }
+  },
+  "matchCard": {
+    "tiers": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "average": "Average",
+      "low": "Low"
+    },
+    "verified": "Verified",
+    "new": "New",
+    "boosted": "Boosted",
+    "photoHidden": "Photo hidden — request to view",
+    "gunaScore": "{score}/36 Guna",
+    "sending": "Sending…",
+    "interestSent": "Interest Sent",
+    "sendInterest": "Send Interest",
+    "viewFullProfile": "View full profile",
+    "couldNotSend": "Could not send interest",
+    "networkError": "Network error",
+    "addHoroscope": "Add horoscope to see Guna score",
+    "bookmark": "Bookmark profile",
+    "percentMatch": "{percent}% match"
+  },
+  "profile": {
+    "dropdown": {
+      "member": "Member",
+      "viewProfile": "View Profile",
+      "settings": "Settings",
+      "subscription": "Subscription",
+      "helpSupport": "Help & Support",
+      "signOut": "Sign out"
+    }
+  },
+  "landing": {
+    "trustPills": {
+      "verifiedProfiles": "Verified Profiles",
+      "privacyFirst": "Privacy First",
+      "rating": "4.5★ Rating"
+    },
+    "earlyAccess": {
+      "label": "Early Access",
+      "tagline": "India's most thoughtful matrimony",
+      "pills": {
+        "verifiedProfiles": "100% verified profiles",
+        "familyFirst": "Family-first design",
+        "privacyDefault": "Privacy by default"
+      }
+    },
+    "aiDisclosure": "AI-generated demo profiles · Real profiles are verified"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
   }
 }
