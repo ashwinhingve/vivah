@@ -130,12 +130,32 @@ export default async function VendorDetailPage({ params }: PageProps) {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h1 className="text-2xl font-bold text-primary font-heading">{vendor.businessName}</h1>
-                {vendor.verified && (
-                  <span className="inline-flex items-center gap-1 bg-teal/10 text-teal text-xs font-semibold px-2.5 py-1 rounded-full">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Verified
-                  </span>
-                )}
               </div>
+              {(() => {
+                const topRated = vendor.rating >= 4.5 && vendor.totalReviews >= 5;
+                const affordable = vendor.priceMin != null && vendor.priceMin < 50_000;
+                const hasAny = vendor.verified || topRated || affordable;
+                if (!hasAny) return null;
+                return (
+                  <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                    {vendor.verified && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-teal">
+                        <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Verified
+                      </span>
+                    )}
+                    {topRated && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                        ⭐ Top Rated
+                      </span>
+                    )}
+                    {affordable && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-gold-muted">
+                        💰 Affordable
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               {vendor.tagline && (
                 <p className="text-sm text-muted-foreground italic mb-2">{vendor.tagline}</p>
               )}
