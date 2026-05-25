@@ -42,7 +42,8 @@ interface MessageBubbleProps {
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/i
-const VIDEO_CALL_RE = /^Video call started\s+[—-]\s+join:\s+(https?:\/\/\S+)/i
+const VIDEO_CALL_RE = /Video call started/i
+const URL_EXTRACT_RE = /https?:\/\/\S+/i
 
 function MessageBubbleInner({
   message, currentUserId, currentProfileId, otherFirstName, highlight, pending, translatedContent,
@@ -60,9 +61,9 @@ function MessageBubbleInner({
   const isPending = pending || message.pending
 
   if (message.type === 'SYSTEM') {
-    const videoMatch = message.content.match(VIDEO_CALL_RE)
-    if (videoMatch) {
-      const joinUrl = videoMatch[1]!
+    if (VIDEO_CALL_RE.test(message.content)) {
+      const urlMatch = message.content.match(URL_EXTRACT_RE)
+      const joinUrl = urlMatch ? urlMatch[0] : null
       const rel = formatRelativeIN(message.sentAt)
       return (
         <div className="flex w-full justify-center py-1.5">
@@ -74,22 +75,26 @@ function MessageBubbleInner({
               <p className="text-sm font-semibold text-primary leading-tight">{t('videoCall.started')}</p>
               {rel ? <p className="text-[11px] text-gold-muted">{t('videoCall.startedAgo', { time: rel })}</p> : null}
             </div>
-            <a
-              href={joinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 inline-flex h-9 items-center justify-center rounded-lg bg-teal px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              {t('videoCall.joinCall')}
-            </a>
+            {joinUrl ? (
+              <a
+                href={joinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex h-9 items-center justify-center rounded-lg bg-teal px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {t('videoCall.joinCall')}
+              </a>
+            ) : null}
           </div>
         </div>
       )
     }
+    // Defensive: strip any raw URLs from non-video SYSTEM messages
+    const sanitized = message.content.replace(/https?:\/\/\S+/g, '').trim()
     return (
       <div className="flex w-full justify-center py-1">
         <span className="rounded-full bg-surface-muted px-3 py-1 text-center text-xs italic text-muted-foreground">
-          {message.content}
+          {sanitized || message.content.replace(/https?:\/\/\S+/g, '[link]')}
         </span>
       </div>
     )

@@ -187,6 +187,38 @@ export default function ChatView({
       if (e?.message) toast(e.message, 'error')
     })
 
+    // Video call started — API persists a SYSTEM message in Mongo but does
+    // not emit `message_received` for it. Inject a transient SYSTEM message
+    // so the chip appears in realtime; the real DB row replaces this on
+    // the next chat refresh (deduped by URL substring match).
+    socket.on('videoCallStarted', ({ roomUrl }: { matchId: string; roomUrl: string }) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.type === 'SYSTEM' && m.content.includes(roomUrl))) return prev
+        const optimistic: OptimisticMessage = {
+          _id: `optimistic-video-${Date.now()}`,
+          senderId: 'SYSTEM',
+          content: `Video call started — join: ${roomUrl}`,
+          contentHi: null,
+          contentEn: null,
+          type: 'SYSTEM',
+          photoKey: null,
+          voiceKey: null,
+          voiceDuration: null,
+          sentAt: new Date().toISOString(),
+          readAt: null,
+          readBy: [],
+          deliveredTo: [],
+          reactions: [],
+          replyTo: null,
+          forwardedFrom: null,
+          linkPreview: null,
+          editedAt: null,
+          deletedAt: null,
+        }
+        return [...prev, optimistic]
+      })
+    })
+
     return () => {
       if (typingTimer.current) clearTimeout(typingTimer.current)
       socket.off('connect', onConnect)
@@ -199,6 +231,7 @@ export default function ChatView({
       socket.off('user_typing')
       socket.off('presence_update')
       socket.off('error')
+      socket.off('videoCallStarted')
       socket.emit('leave_room', { matchRequestId: matchId })
       socketRef.current = null
     }
