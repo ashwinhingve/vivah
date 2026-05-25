@@ -132,3 +132,46 @@ over. A `dynamic()` split of the feed client modules would land it under
 4. **Centralize timing late, not early.** It would have been wrong to ship `lib/motion-config.ts` on Day 1; we didn't yet know which timings were "right" until Days 2-6 stress-tested both motion namespaces. Day 7 was the right moment to converge.
 5. **Honest empty states beat fake numbers.** Several admin endpoints don't exist (vendor approval queue, GMV, activity feed). The temptation to fake them with random values for "demo polish" was rejected from Day 5; honest "coming soon" cards with `// TODO` comments matched the rest of the design language and made the deferred work obvious.
 6. **The polish that separates "built it in a week" from "looks like 3 months" is mostly invisible.** Centralized motion, consistent H1 sizing, branded 404, the right empty state, a real focus ring on the error-boundary button. None of these individually shows up in a screenshot; together they're the difference.
+
+## Final State (2026-05-25)
+
+Day 11 closed with three commits: real AI hero portraits, canonical
+InitialAvatar across all fallbacks, and asymmetry-honest landing + /welcome
+onboarding step + early-access feed copy. Screenshots captured locally and
+committed to the repo for the Loom demo and Colonel Deepak walkthrough.
+
+### Desktop (1440×900)
+- ![Landing](screenshots/2026-05-25-final/01-landing-desktop-1440.png) — hero carousel cycles 5 AI portraits with AI disclosure; stats bar reads "Early Access · India's most thoughtful matrimony" with qualitative pills.
+- ![Welcome](screenshots/2026-05-25-final/02-welcome-desktop-1440.png) — 3-card onboarding step shown once per account via cookie gate.
+- ![Feed](screenshots/2026-05-25-final/03-feed-desktop-1440.png) — empty-state copy now reads "We're growing carefully — more verified profiles join daily" for fresh accounts.
+- ![Dashboard](screenshots/2026-05-25-final/04-dashboard-desktop-1440.png) — greeting safely handles phone-as-name; today's match card pill positioning clean.
+
+### Mobile (375×812)
+- ![Landing](screenshots/2026-05-25-final/05-landing-mobile-375.png)
+- ![Welcome](screenshots/2026-05-25-final/06-welcome-mobile-375.png)
+- ![Dashboard](screenshots/2026-05-25-final/07-dashboard-mobile-375.png) — mobile bottom nav (Discover · Chats · Wedding · Profile · More) visible at 375px.
+- ![Feed](screenshots/2026-05-25-final/08-feed-mobile-375.png)
+
+### Commits this session (newest first)
+
+- `docs:` final state screenshots after hero photos + asymmetry fixes
+- `docs:` brand assets reference for AI portrait generation consistency
+- `feat(onboarding):` soft launch language honesty across landing and feed
+- `refactor(ui):` standardized InitialAvatar across all profile fallbacks
+- `feat(landing):` real AI portrait hero carousel with 5 cross-fading profiles
+
+And the earlier emergency hotfix chain (Day 11 morning, 6 commits): greeting
+fallback, today's match card pill, video-call chip, mobile nav restore,
+profile dropdown links, feed liveness.
+
+### Hard-stop checklist
+
+- [x] 5 webp files <60KB each (well under 90KB target), PNG sources deleted
+- [x] HeroCarousel renders real photos, rotates every 4s, disclosure visible
+- [x] StatsBar shows qualitative pills, no "12k+" anywhere
+- [x] `/welcome` redirect fires once for fresh login, then never (verified)
+- [x] `InitialAvatar` is the single canonical fallback — no UserCircle
+- [x] Mobile 375 sweep clean on all pages
+- [x] `pnpm type-check` clean
+- [x] `docs/BRAND-ASSETS.md` committed
+- [x] Screenshots in `docs/screenshots/2026-05-25-final/`
