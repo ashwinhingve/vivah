@@ -7,6 +7,7 @@ import { Loader2, ShieldCheck } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics';
 
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
@@ -60,6 +61,8 @@ export default function VerifyOtpForm() {
       const u = sessionResult.data?.user as
         | { role?: string; deletionRequestedAt?: string | null; twoFactorEnabled?: boolean }
         | undefined;
+
+      track('login_otp_verified', { isNewUser: !u?.role || u.role === 'INDIVIDUAL' });
 
       // 2FA-enabled users are redirected to /two-factor automatically by the
       // twoFactorClient onTwoFactorRedirect hook (full page reload). When the

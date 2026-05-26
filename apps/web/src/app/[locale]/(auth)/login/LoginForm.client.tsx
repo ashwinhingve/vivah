@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics';
 
 export default function LoginForm() {
   const t = useTranslations('auth.login');
@@ -39,6 +40,7 @@ export default function LoginForm() {
       return;
     }
 
+    track('login_otp_sent', {});
     router.push(`/verify-otp?phone=${encodeURIComponent(e164)}`);
   }
 

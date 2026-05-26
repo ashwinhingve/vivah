@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics';
 import type { UserRole } from '@smartshaadi/types';
 
 const ROLES: { value: UserRole; label: string; description: string; icon: LucideIcon }[] = [
@@ -49,6 +50,7 @@ export default function RegisterForm() {
     }
 
     setLoading(true);
+    track('register_started', { role });
 
     const result = await authClient.phoneNumber.sendOtp({ phoneNumber: e164 });
 
