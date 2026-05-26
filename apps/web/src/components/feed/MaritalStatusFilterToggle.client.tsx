@@ -92,7 +92,7 @@ export function MaritalStatusFilterToggle({
           <span
             aria-hidden="true"
             className={[
-              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow',
+              'pointer-events-none inline-block h-5 w-5 rounded-full bg-surface shadow',
               'transform transition duration-200',
               includeDivorcees ? 'translate-x-5' : 'translate-x-0',
             ].join(' ')}
@@ -124,7 +124,7 @@ export function MaritalStatusFilterToggle({
           <span
             aria-hidden="true"
             className={[
-              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow',
+              'pointer-events-none inline-block h-5 w-5 rounded-full bg-surface shadow',
               'transform transition duration-200',
               includeWidows ? 'translate-x-5' : 'translate-x-0',
             ].join(' ')}

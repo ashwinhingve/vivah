@@ -45,6 +45,11 @@
       "groupShop": "Shop",
       "groupMoney": "Money",
       "groupSettings": "Settings",
+      "groupOperations": "Operations",
+      "kyc": "KYC Queue",
+      "analytics": "Analytics",
+      "reconciliation": "Reconciliation",
+      "vendorApprovals": "Vendor Approvals",
       "settings": "Platform Settings"
     }
   },

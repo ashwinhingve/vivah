@@ -9,13 +9,13 @@ interface Props {
   matchId: string;
 }
 
-const LEVEL_COLOR: Record<DpiResponse['level'], string> = {
-  LOW: '#7FA682',
-  MEDIUM: '#C5A47E',
-  HIGH: '#7B2D42',
+const LEVEL_STROKE: Record<DpiResponse['level'], string> = {
+  LOW: 'var(--color-teal)',
+  MEDIUM: 'var(--color-gold)',
+  HIGH: 'var(--color-primary)',
 };
 
-const TRACK_COLOR = '#E5E5E5';
+const TRACK_STROKE = 'var(--color-border)';
 
 const RADIUS = 100;
 const STROKE_WIDTH = 18;
@@ -23,11 +23,20 @@ const ARC_LENGTH = Math.PI * RADIUS;
 const VIEW_W = 240;
 const VIEW_H = 140;
 
-function ArcSemicircle({ score, level }: { score: number; level: DpiResponse['level'] }) {
+function ArcSemicircle({
+  score,
+  level,
+  label,
+}: {
+  score: number;
+  level: DpiResponse['level'];
+  label: string;
+}) {
   const safeScore = Math.max(0, Math.min(1, score));
   const dashLength = ARC_LENGTH * safeScore;
   const dashGap = ARC_LENGTH - dashLength;
-  const color = LEVEL_COLOR[level];
+  const stroke = LEVEL_STROKE[level];
+  const percent = Math.round(safeScore * 100);
 
   const cx = VIEW_W / 2;
   const cy = VIEW_H - 20;
@@ -39,20 +48,20 @@ function ArcSemicircle({ score, level }: { score: number; level: DpiResponse['le
       width="100%"
       preserveAspectRatio="xMidYMax meet"
       className="block max-w-[280px] mx-auto"
-      role="presentation"
-      aria-hidden
+      role="img"
+      aria-label={`Compatibility ${percent}%. ${label}.`}
     >
       <path
         d={arc}
         fill="none"
-        stroke={TRACK_COLOR}
+        stroke={TRACK_STROKE}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
       />
       <path
         d={arc}
         fill="none"
-        stroke={color}
+        stroke={stroke}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeDasharray={`${dashLength} ${dashGap}`}
@@ -104,7 +113,7 @@ export function CompatibilityGauge({ matchId }: Props) {
   return (
     <div>
       <div className="relative">
-        <ArcSemicircle score={data.score} level={data.level} />
+        <ArcSemicircle score={data.score} level={data.level} label={data.label} />
         <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-0.5 px-2 text-center">
           <p className="font-heading text-2xl text-primary leading-tight">{data.label}</p>
         </div>

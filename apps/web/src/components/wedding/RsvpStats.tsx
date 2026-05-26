@@ -57,7 +57,7 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
   const conicGradient =
     gradientStops.length > 0
       ? `conic-gradient(${gradientStops.join(', ')})`
-      : `conic-gradient(#E2E8F0 0% 100%)`;
+      : `conic-gradient(var(--color-border) 0% 100%)`;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

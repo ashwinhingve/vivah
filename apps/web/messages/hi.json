@@ -45,6 +45,11 @@
       "groupShop": "शॉप",
       "groupMoney": "पैसा",
       "groupSettings": "सेटिंग्स",
+      "groupOperations": "संचालन",
+      "kyc": "KYC कतार",
+      "analytics": "विश्लेषण",
+      "reconciliation": "मेल-मिलाप",
+      "vendorApprovals": "वेंडर अनुमोदन",
       "settings": "प्लेटफ़ॉर्म सेटिंग्स"
     }
   },

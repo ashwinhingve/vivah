@@ -30,9 +30,9 @@ const DIRECTION_TEXT: Record<DpiFactorContribution['direction'], string> = {
 };
 
 const DIRECTION_FILL: Record<DpiFactorContribution['direction'], string> = {
-  protective: '#7FA682',
-  concern: '#C5A47E',
-  neutral: '#9B9BA5',
+  protective: 'var(--color-success)',
+  concern: 'var(--color-gold)',
+  neutral: 'var(--color-fg-3)',
 };
 
 const DIRECTION_GLYPH: Record<DpiFactorContribution['direction'], string> = {

@@ -77,17 +77,19 @@ export default function LoginForm() {
             id="phone"
             type="tel"
             inputMode="numeric"
+            autoComplete="tel-national"
             maxLength={10}
             placeholder="98765 43210"
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
             required
             aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? 'phone-error' : undefined}
             className={cn('rounded-l-none', error ? 'border-destructive' : '')}
           />
         </div>
         {error ? (
-          <p role="alert" className="mt-1 text-xs text-destructive">
+          <p id="phone-error" role="alert" className="mt-1 text-xs text-destructive">
             {error}
           </p>
         ) : null}

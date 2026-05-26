@@ -96,6 +96,8 @@ export default function RegisterForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? 'register-error' : undefined}
         />
       </div>
 
@@ -109,11 +111,14 @@ export default function RegisterForm() {
             id="phone"
             type="tel"
             inputMode="numeric"
+            autoComplete="tel-national"
             maxLength={10}
             placeholder="98765 43210"
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
             required
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? 'register-error' : undefined}
             className="rounded-l-none"
           />
         </div>
@@ -159,7 +164,7 @@ export default function RegisterForm() {
       </div>
 
       {error ? (
-        <p role="alert" className="text-xs text-destructive">{error}</p>
+        <p id="register-error" role="alert" className="text-xs text-destructive">{error}</p>
       ) : null}
 
       <Button type="submit" disabled={loading} size="lg" className="w-full">

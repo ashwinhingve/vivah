@@ -15,11 +15,11 @@ interface Props {
 }
 
 const LABEL_COLOR: Record<FiiLabel, string> = {
-  'Family-First':         '#7B2D42',
-  'Family-Oriented':      '#C5A47E',
-  'Balanced':             '#0E7C7B',
-  'Independent-Leaning':  '#7FA682',
-  'Independent':          '#6B6B76',
+  'Family-First':         'var(--color-primary)',
+  'Family-Oriented':      'var(--color-gold)',
+  'Balanced':             'var(--color-teal)',
+  'Independent-Leaning':  'var(--color-success)',
+  'Independent':          'var(--color-text-muted)',
 };
 
 const SIGNAL_NAME: Record<keyof FiiBreakdown, string> = {

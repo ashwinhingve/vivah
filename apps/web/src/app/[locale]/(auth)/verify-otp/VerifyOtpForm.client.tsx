@@ -167,12 +167,16 @@ export default function VerifyOtpForm() {
             ref={(el) => { inputRefs.current[i] = el; }}
             type="text"
             inputMode="numeric"
+            autoComplete={i === 0 ? 'one-time-code' : 'off'}
             maxLength={1}
             value={digit}
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
             disabled={loading}
+            aria-label={`OTP digit ${i + 1} of ${OTP_LENGTH}`}
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? 'otp-error' : undefined}
             className={cn(
               'h-14 w-11 rounded-lg border-2 bg-surface text-center font-heading text-xl font-bold text-foreground shadow-sm transition-all',
               'focus:outline-none focus:ring-2 focus:ring-teal/30 focus:-translate-y-0.5',
@@ -184,7 +188,7 @@ export default function VerifyOtpForm() {
       </div>
 
       {error ? (
-        <p role="alert" className="text-xs text-destructive">{error}</p>
+        <p id="otp-error" role="alert" className="text-xs text-destructive">{error}</p>
       ) : null}
 
       <Button

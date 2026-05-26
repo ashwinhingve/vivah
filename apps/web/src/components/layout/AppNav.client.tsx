@@ -120,17 +120,39 @@ const VENDOR_NAV: NavItem[] = [
   { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
 ];
 
-const ADMIN_NAV: NavItem[] = [
-  { href: '/admin',           labelKey: 'admin',    Icon: Home },
-  { href: '/admin/revenue',   labelKey: 'revenue',  Icon: Search },
-  { href: '/admin/payouts',   labelKey: 'payouts',  Icon: ShoppingBag },
-  { href: '/admin/refunds',   labelKey: 'refunds',  Icon: Shield },
-  { href: '/admin/promos',    labelKey: 'promos',   Icon: Heart },
-  { href: '/admin/escrow',    labelKey: 'disputes', Icon: Bookmark },
-  { href: '/admin/settings',  labelKey: 'settings', Icon: UserCog },
-  { href: '/vendors',         labelKey: 'vendors',  Icon: Search },
-  { href: '/bookings',        labelKey: 'bookings', Icon: Calendar },
+const ADMIN_PRIMARY: NavItem[] = [
+  { href: '/admin',         labelKey: 'admin',    Icon: Home },
+  { href: '/admin/revenue', labelKey: 'revenue',  Icon: Search },
+  { href: '/admin/kyc',     labelKey: 'kyc',      Icon: Shield },
+  { href: '/admin/escrow',  labelKey: 'disputes', Icon: Bookmark },
 ];
+
+const ADMIN_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupOperations',
+    items: [
+      { href: '/admin/vendors',   labelKey: 'vendorApprovals', Icon: Search },
+      { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
+    ],
+  },
+  {
+    titleKey: 'groupMoney',
+    items: [
+      { href: '/admin/payouts',        labelKey: 'payouts',        Icon: ShoppingBag },
+      { href: '/admin/refunds',        labelKey: 'refunds',        Icon: Receipt },
+      { href: '/admin/promos',         labelKey: 'promos',         Icon: Heart },
+      { href: '/admin/reconciliation', labelKey: 'reconciliation', Icon: FileText },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/admin/settings', labelKey: 'settings', Icon: UserCog },
+    ],
+  },
+];
+
+const ADMIN_MORE: NavItem[] = ADMIN_MORE_GROUPS.flatMap((g) => g.items);
 
 function isActive(pathname: string, href: string) {
   return (
@@ -160,16 +182,32 @@ export function AppNav() {
     return () => window.removeEventListener('keydown', onKey);
   }, [moreOpen]);
 
-  const showMore = role === 'INDIVIDUAL';
-  const primaryRaw = showMore
+  const isAdmin = role === 'ADMIN' || role === 'SUPPORT';
+  const isIndividual = role === 'INDIVIDUAL';
+  const showMore = isIndividual || isAdmin;
+
+  const primaryRaw = isIndividual
     ? INDIVIDUAL_PRIMARY
-    : role === 'VENDOR'
-      ? VENDOR_NAV
-      : (role === 'ADMIN' || role === 'SUPPORT')
-        ? ADMIN_NAV
+    : isAdmin
+      ? ADMIN_PRIMARY
+      : role === 'VENDOR'
+        ? VENDOR_NAV
         : INDIVIDUAL_PRIMARY;
+
+  const moreGroups: NavGroup[] = isIndividual
+    ? INDIVIDUAL_MORE_GROUPS
+    : isAdmin
+      ? ADMIN_MORE_GROUPS
+      : [];
+
+  const moreItemsRaw = isIndividual
+    ? INDIVIDUAL_MORE
+    : isAdmin
+      ? ADMIN_MORE
+      : [];
+
   const primary = filterForDemo(primaryRaw);
-  const moreItems = showMore ? filterForDemo(INDIVIDUAL_MORE) : [];
+  const moreItems = filterForDemo(moreItemsRaw);
   const moreActive = showMore && moreItems.some(i => isActive(pathname, i.href));
 
   return (
@@ -331,7 +369,7 @@ export function AppNav() {
                     </h2>
                   </div>
                   <div className="max-h-[70vh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-                    {INDIVIDUAL_MORE_GROUPS.map((group) => (
+                    {moreGroups.map((group) => (
                       <section key={group.titleKey} className="mt-2 first:mt-0">
                         <h3 className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                           {t(group.titleKey)}
