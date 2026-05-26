@@ -32,6 +32,8 @@ import {
   NoSearchResultsIllustration,
   NoNetworkIllustration,
 } from '@/components/ui/illustrations';
+import { ArcSemicircle } from '@/components/dpi/CompatibilityGauge.client';
+import { FactorBreakdown } from '@/components/dpi/FactorBreakdown.client';
 
 const SCORE_BANDS = [92, 78, 58, 40, 18];
 const ILLUSTRATIONS = [
@@ -257,6 +259,34 @@ export function UiPreview() {
                 </Card>
               </div>
             </div>
+          </Block>
+
+          <Block title="CompatibilityGauge — DPI arc (Wave 1 audit fix)">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <div>
+                <ArcSemicircle score={0.32} level="LOW" label="Casual fit" />
+                <p className="mt-2 text-center text-xs text-muted-foreground">LOW · 32%</p>
+              </div>
+              <div>
+                <ArcSemicircle score={0.65} level="MEDIUM" label="Promising" />
+                <p className="mt-2 text-center text-xs text-muted-foreground">MEDIUM · 65%</p>
+              </div>
+              <div>
+                <ArcSemicircle score={0.92} level="HIGH" label="Strong match" />
+                <p className="mt-2 text-center text-xs text-muted-foreground">HIGH · 92%</p>
+              </div>
+            </div>
+          </Block>
+
+          <Block title="FactorBreakdown — DPI chip list">
+            <FactorBreakdown
+              topFactors={[
+                { factor: 'family_values_alignment',    direction: 'protective', contribution: 0.18 },
+                { factor: 'guna_milan_score',           direction: 'protective', contribution: 0.14 },
+                { factor: 'communication_score',        direction: 'concern',    contribution: 0.09 },
+                { factor: 'geographic_distance_km',     direction: 'neutral',    contribution: 0.05 },
+              ]}
+            />
           </Block>
 
           <Block title="Toast">

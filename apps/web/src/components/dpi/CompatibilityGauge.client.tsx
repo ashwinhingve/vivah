@@ -23,7 +23,7 @@ const ARC_LENGTH = Math.PI * RADIUS;
 const VIEW_W = 240;
 const VIEW_H = 140;
 
-function ArcSemicircle({
+export function ArcSemicircle({
   score,
   level,
   label,

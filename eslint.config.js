@@ -2,6 +2,7 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import nextPlugin from '@next/eslint-plugin-next';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -19,11 +20,23 @@ export default [
     plugins: {
       '@next/next': nextPlugin,
       'react-hooks': reactHooksPlugin,
+      'jsx-a11y': jsxA11yPlugin,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,
       ...reactHooksPlugin.configs.recommended.rules,
+      // jsx-a11y — recommended ruleset, downgraded to warn at first wave so
+      // we surface findings without blocking CI. Ratchet to 'error' rule by
+      // rule as the codebase remediates (UX audit Wave 3).
+      ...Object.fromEntries(
+        Object.entries(jsxA11yPlugin.configs.recommended.rules).map(([k]) => [k, 'warn']),
+      ),
+      // High-value rules promoted to error from day 1 — easy fixes, high impact.
+      'jsx-a11y/alt-text': 'error',
+      'jsx-a11y/aria-props': 'error',
+      'jsx-a11y/aria-role': 'error',
+      'jsx-a11y/role-has-required-aria-props': 'error',
       // <img> is intentional in places where next/image is unsuitable
       // (blob: previews, simple thumbnails). Downgrade to warning.
       '@next/next/no-img-element': 'warn',
