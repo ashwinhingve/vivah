@@ -764,7 +764,10 @@ export async function getEnrichedRequests(
       priority:          r.priority,
       message:           r.message,
       acceptanceMessage: r.acceptanceMessage,
-      declineReason:     r.declineReason,
+      // Sender must never learn the receiver's decline reason (matrimony
+      // etiquette + moderation/ML signal kept internal). Only expose it on the
+      // received side. Mirrors the reason omission in the MATCH_DECLINED push.
+      declineReason:     side === 'sent' ? null : r.declineReason,
       seenAt:            r.seenAt ? new Date(r.seenAt).toISOString() : null,
       respondedAt:       r.respondedAt ? new Date(r.respondedAt).toISOString() : null,
       expiresAt:         r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
