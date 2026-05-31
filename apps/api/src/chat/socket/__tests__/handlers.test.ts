@@ -296,6 +296,50 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  // P0 item 7 — messageIds Zod-validated: non-empty array, max 100. Oversized
+  // payloads rejected (no DB work); exactly-100 still passes. Mirrors the
+  // working mark_read harness above.
+  describe('messageIds cap-100 validation', () => {
+    function ids(n: number): string[] { return Array.from({ length: n }, (_, i) => `m-${i}`) }
+
+    it('mark_read rejects >100 messageIds (no Chat.updateOne)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: ids(101) })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+
+    it('mark_read accepts exactly 100 messageIds', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      mockUpdateOne.mockResolvedValueOnce({})
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: ids(100) })
+      expect(mockUpdateOne).toHaveBeenCalledTimes(1)
+    })
+
+    it('mark_read rejects an empty messageIds array', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: [] })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+
+    it('delivered_ack rejects >100 messageIds (no Chat.updateOne)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['delivered_ack']!({ matchRequestId: 'match-abc', messageIds: ids(101) })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+  })
+
   describe('typing', () => {
     it('emits user_typing via socket.to (not io.to — not back to sender)', () => {
       const socket = makeSocket('user-1')

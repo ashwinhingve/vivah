@@ -468,7 +468,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageIds: string[] }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
-    if (!Array.isArray(messageIds) || messageIds.length === 0) return
+    if (!MessageIdsSchema.safeParse(messageIds).success) return
     if (shouldUseMockMongo) {
       io.to(matchRequestId).emit('message_delivered', { messageIds, profileId })
       return
@@ -492,6 +492,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageIds: string[] }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
+    if (!MessageIdsSchema.safeParse(messageIds).success) return
 
     const readAt = new Date()
     if (!shouldUseMockMongo) {
