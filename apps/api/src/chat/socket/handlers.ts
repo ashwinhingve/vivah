@@ -552,12 +552,11 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   })
 
   // ── typing ───────────────────────────────────────────────────────────────────
-  socket.on('typing', ({ matchRequestId }: { matchRequestId: string }) => {
+  socket.on('typing', async ({ matchRequestId }: { matchRequestId: string }) => {
     const profileId = cachedProfileId ?? ''
+    if (!(await socketRateOk(profileId, 'typing', 60, 10))) return
     // userId (Better Auth) must never leave the server boundary — only
     // profileId is the public identifier seen by other participants.
-    void socketRateOk(profileId, 'typing', 60, 10).then((okToSend) => {
-      if (okToSend) socket.to(matchRequestId).emit('user_typing', { profileId })
-    })
+    socket.to(matchRequestId).emit('user_typing', { profileId })
   })
 }

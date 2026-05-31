@@ -26,6 +26,13 @@ describe('isSafeFetchHost', () => {
     expect(isSafeFetchHost('metadata.google.internal')).toBe(false);
   });
 
+  // P0 item 1 — IPv6 loopback / link-local / unique-local at the hostname layer.
+  it('blocks IPv6 loopback, link-local and unique-local', () => {
+    expect(isSafeFetchHost('::1')).toBe(false);
+    expect(isSafeFetchHost('fe80::1')).toBe(false);
+    expect(isSafeFetchHost('fc00::1')).toBe(false);
+  });
+
   it('blocks RFC 1918 private ranges', () => {
     expect(isSafeFetchHost('10.0.0.1')).toBe(false);
     expect(isSafeFetchHost('172.16.5.5')).toBe(false);
