@@ -56,7 +56,7 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(sheetVariants({ side }), 'focus:outline-none', className)}
+      className={cn(sheetVariants({ side }), 'focus-visible:outline-none', className)}
       {...props}
     >
       {children}

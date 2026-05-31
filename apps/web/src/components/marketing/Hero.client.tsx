@@ -80,7 +80,7 @@ export default function Hero() {
           {/* H1 */}
           <motion.h1
             variants={itemVariants}
-            className="font-[family-name:var(--font-heading)] font-semibold leading-[1.08] text-primary"
+            className="font-heading font-semibold leading-[1.08] text-primary"
             style={{ fontSize: 'clamp(2.25rem, 5vw, 3.25rem)' }}
           >
             {t('heading')}

@@ -78,7 +78,7 @@ export default async function DisputePage({
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-primary">Raise a Dispute</h1>
+        <h1 className="font-heading text-xl font-semibold text-primary">Raise a Dispute</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Booking #{id.slice(0, 8).toUpperCase()}
         </p>

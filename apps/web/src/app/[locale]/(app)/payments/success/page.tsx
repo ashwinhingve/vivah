@@ -11,7 +11,7 @@ export default async function PaymentSuccessPage({
     <main className="mx-auto max-w-xl px-4 py-12">
       <div className="rounded-xl border border-success/30 bg-success/10 p-8 text-center shadow-sm">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success text-3xl text-white">✓</div>
-        <h1 className="mb-2 text-2xl font-semibold text-success">Payment successful</h1>
+        <h1 className="mb-2 font-heading text-2xl font-semibold text-success">Payment successful</h1>
         <p className="mb-6 text-success">Your transaction has been recorded. Thank you.</p>
         {params.paymentId ? (
           <p className="mb-2 text-sm text-success">Payment ID: <code className="bg-surface px-2 py-1 rounded">{params.paymentId}</code></p>

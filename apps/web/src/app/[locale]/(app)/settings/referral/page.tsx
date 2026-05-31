@@ -7,12 +7,12 @@ export const dynamic = 'force-dynamic';
 const STATUS_LABELS: Record<string, { label: string; tone: string }> = {
   SIGNED_UP:         { label: 'Signed up',         tone: 'bg-gold/20 text-gold-muted' },
   COMPLETED_PROFILE: { label: 'Profile complete',  tone: 'bg-teal/15 text-teal' },
-  SUBSCRIBED:        { label: 'Subscribed',        tone: 'bg-green-100 text-green-700' },
-  EXPIRED:           { label: 'Expired',           tone: 'bg-zinc-200 text-zinc-600' },
+  SUBSCRIBED:        { label: 'Subscribed',        tone: 'bg-success/15 text-success' },
+  EXPIRED:           { label: 'Expired',           tone: 'bg-muted text-muted-foreground' },
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_LABELS[status] ?? { label: status, tone: 'bg-zinc-200 text-zinc-600' };
+  const cfg = STATUS_LABELS[status] ?? { label: status, tone: 'bg-muted text-muted-foreground' };
   return (
     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${cfg.tone}`}>
       {cfg.label}
@@ -36,7 +36,7 @@ export default async function ReferralSettingsPage() {
   if (!code) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="text-3xl font-bold text-primary">Refer & earn</h1>
+        <h1 className="font-heading text-3xl font-semibold text-primary">Refer & earn</h1>
         <p className="mt-4 text-sm text-muted-foreground">
           We couldn&apos;t load your referral code. Try again in a moment.
         </p>
@@ -53,7 +53,7 @@ export default async function ReferralSettingsPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-primary">Refer &amp; earn</h1>
+      <h1 className="font-heading text-3xl font-semibold text-primary">Refer &amp; earn</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Share your code with friends and family. Earn credits when they complete their profile or subscribe.
       </p>

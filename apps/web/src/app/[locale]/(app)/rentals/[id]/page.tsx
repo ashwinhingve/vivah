@@ -89,7 +89,7 @@ export default async function RentalDetailPage({ params }: Props) {
           </span>
 
           {/* Name */}
-          <h1 className="text-2xl font-bold text-primary leading-snug">
+          <h1 className="font-heading text-2xl font-semibold text-primary leading-snug">
             {item.name}
           </h1>
 

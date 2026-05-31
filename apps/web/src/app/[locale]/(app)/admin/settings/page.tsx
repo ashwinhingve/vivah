@@ -29,7 +29,7 @@ export default async function AdminPlatformSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary">Platform Settings</h1>
+        <h1 className="font-heading text-2xl font-semibold text-primary">Platform Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Global feature toggles that affect every user.
         </p>

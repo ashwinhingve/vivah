@@ -65,12 +65,12 @@ export function FamilyMembersClient({ initial }: Props) {
   }
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-sm text-primary">Family members</h3>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 text-xs px-3 min-h-[36px] rounded-lg text-white bg-teal"
+          className="flex items-center gap-1.5 text-xs px-3 min-h-[44px] rounded-lg text-white bg-teal"
         >
           <Plus className="h-3.5 w-3.5" /> Add
         </button>
@@ -83,32 +83,35 @@ export function FamilyMembersClient({ initial }: Props) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Full name *"
+              aria-label="Full name"
               required
-              className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
+              className="min-h-[44px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
             />
             <select
               value={relationship}
               onChange={(e) => setRelationship(e.target.value as FamilyRelationship)}
-              className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
+              aria-label="Relationship"
+              className="min-h-[44px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm"
             >
               {RELATIONS.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" aria-label="Phone" className="min-h-[44px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" aria-label="Email" className="min-h-[44px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm" />
           </div>
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Notes (optional)"
-            className="w-full min-h-[40px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm mb-2"
+            aria-label="Notes (optional)"
+            className="w-full min-h-[44px] rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm mb-2"
           />
           <label className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <input type="checkbox" checked={isManaging} onChange={(e) => setIsManaging(e.target.checked)} />
             This person manages my profile
           </label>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setShowForm(false)} className="min-h-[40px] px-3 rounded-lg border border-gold/40 text-xs text-muted-foreground">Cancel</button>
-            <button type="submit" disabled={adding} className="min-h-[40px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5 bg-teal">
+            <button type="button" onClick={() => setShowForm(false)} className="min-h-[44px] px-3 rounded-lg border border-gold/40 text-xs text-muted-foreground">Cancel</button>
+            <button type="submit" disabled={adding} className="min-h-[44px] px-3 rounded-lg text-white text-xs disabled:opacity-60 flex items-center gap-1.5 bg-teal">
               {adding && <Loader2 className="h-3 w-3 animate-spin" />} Add member
             </button>
           </div>

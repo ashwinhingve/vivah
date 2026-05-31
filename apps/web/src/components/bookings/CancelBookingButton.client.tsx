@@ -44,6 +44,7 @@ export function CancelBookingButton({ bookingId, apiUrl, authToken }: Props) {
         value={reason}
         onChange={e => setReason(e.target.value)}
         placeholder="Cancellation reason (optional)"
+        aria-label="Cancellation reason (optional)"
         className="w-full border border-border rounded-lg px-3 py-2 text-sm"
         maxLength={500}
       />

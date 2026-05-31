@@ -13,7 +13,7 @@ export function WhyMatchPanel({ explainer, tier }: Props): JSX.Element | null {
   const locked = tier === 'FREE';
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+    <section className="rounded-xl border border-border bg-surface p-4 shadow-card">
       <h3 className="mb-2 text-sm font-semibold text-primary">Why you match</h3>
       <div className={locked ? 'pointer-events-none select-none blur-sm' : ''}>
         <ul className="space-y-1.5">

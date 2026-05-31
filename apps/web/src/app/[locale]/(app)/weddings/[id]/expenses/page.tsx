@@ -46,7 +46,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         <h1 className="font-heading text-2xl text-primary mb-6">Expenses</h1>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <SummaryCard label="Budget" value={fmt(summary?.totalBudget ?? 0)} />
           <SummaryCard label="Committed" value={fmt(summary?.totalCommitted ?? 0)} />
           <SummaryCard label="Paid" value={fmt(summary?.totalPaid ?? 0)} success />
@@ -161,7 +161,7 @@ export default async function ExpensesPage({ params }: PageProps) {
                           <summary className="text-xs font-medium text-teal hover:underline cursor-pointer list-none">Pay</summary>
                           <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg">
                             <input name="amount" type="number" min="1" step="1" placeholder={`Up to ${e.amount - e.paid}`} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" required />
-                            <button type="submit" className="w-full rounded bg-teal text-white text-xs py-1.5">Record</button>
+                            <button type="submit" className="w-full rounded-lg bg-teal text-white text-xs min-h-[44px] py-1.5">Record</button>
                           </form>
                         </details>
                       )}

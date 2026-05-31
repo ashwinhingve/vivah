@@ -212,12 +212,12 @@ function LeadRow({ lead }: { lead: VendorLeadRow }) {
 
 function StatusBadge({ status }: { status: LeadFeeStatus }) {
   const styles: Record<LeadFeeStatus, string> = {
-    PENDING:         'bg-amber-50 text-amber-800 border-amber-200',
-    QUALIFIED:       'bg-teal-50 text-teal border-teal/30',
-    CHARGED:         'bg-emerald-50 text-emerald-800 border-emerald-200',
-    REFUNDED:        'bg-rose-50 text-rose-800 border-rose-200',
-    CANCELLED:       'bg-slate-50 text-slate-700 border-slate-200',
-    PENDING_PAYMENT: 'bg-amber-100 text-amber-900 border-amber-300',
+    PENDING:         'bg-warning/10 text-warning border-warning/30',
+    QUALIFIED:       'bg-teal/10 text-teal border-teal/30',
+    CHARGED:         'bg-success/10 text-success border-success/30',
+    REFUNDED:        'bg-destructive/10 text-destructive border-destructive/30',
+    CANCELLED:       'bg-muted text-muted-foreground border-border',
+    PENDING_PAYMENT: 'bg-warning/20 text-warning border-warning/40',
   };
   return (
     <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border ${styles[status]}`}>

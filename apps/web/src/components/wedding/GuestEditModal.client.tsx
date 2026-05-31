@@ -102,7 +102,7 @@ export function GuestEditModal({ weddingId, guest, ceremonies = [], onSaved, onC
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-base font-semibold text-primary">Edit guest</h2>
-          <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+          <button type="button" onClick={onCancel} aria-label="Close" className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" aria-hidden="true" /></button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

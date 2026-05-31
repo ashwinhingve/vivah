@@ -45,7 +45,7 @@ export default async function TrustSection() {
           >
             For Individuals
           </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white font-[family-name:var(--font-heading)] leading-tight [text-shadow:_0_2px_16px_rgba(0,0,0,0.3)]">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white font-heading leading-tight [text-shadow:_0_2px_16px_rgba(0,0,0,0.3)]">
             {t('individualsHeading')}
           </h2>
           <p className="text-white/85 mt-6 leading-relaxed text-base [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]">
@@ -101,7 +101,7 @@ export default async function TrustSection() {
           >
             For Families
           </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-[family-name:var(--font-heading)] leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-heading leading-tight">
             {t('familiesHeading')}
           </h2>
           <p className="text-foreground mt-6 leading-relaxed text-base">

@@ -56,7 +56,7 @@ export default async function CtaBanner() {
         </p>
 
         <h2
-          className="font-[family-name:var(--font-heading)] font-semibold text-white leading-[1.1]"
+          className="font-heading font-semibold text-white leading-[1.1]"
           style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)' }}
         >
           {t('heading')}

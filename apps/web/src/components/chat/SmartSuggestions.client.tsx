@@ -78,7 +78,7 @@ export default function SmartSuggestions({ matchId, isOpen, onClose }: SmartSugg
 
   return (
     <div
-      role="dialog"
+      role="region"
       aria-label="Smart Suggestions"
       className="fixed inset-x-0 bottom-[88px] z-30 mx-auto max-w-2xl rounded-t-xl border-t border-gold/30 bg-surface p-3 shadow-lg"
     >

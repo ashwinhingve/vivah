@@ -102,6 +102,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              aria-label="New proposed date"
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
             />
             <textarea
@@ -110,6 +111,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
               rows={2}
               maxLength={500}
               placeholder="Reason for rescheduling (required)"
+              aria-label="Reason for rescheduling"
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
             />
             {error && <p className="text-sm text-destructive">{error}</p>}

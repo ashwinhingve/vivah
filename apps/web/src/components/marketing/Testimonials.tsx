@@ -96,7 +96,7 @@ export default async function Testimonials() {
             Early Access Feedback
           </p>
           <h2
-            className="font-[family-name:var(--font-heading)] font-semibold text-foreground"
+            className="font-heading font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}
           >
             {t('sectionHeading')}
@@ -125,7 +125,7 @@ export default async function Testimonials() {
                 {/* Decorative open-quote */}
                 <span
                   aria-hidden="true"
-                  className="absolute top-3 right-5 text-7xl leading-none text-gold/20 pointer-events-none select-none font-[family-name:var(--font-heading)]"
+                  className="absolute top-3 right-5 text-7xl leading-none text-gold/20 pointer-events-none select-none font-heading"
                 >
                   &ldquo;
                 </span>

@@ -100,7 +100,7 @@ export function VendorReviews({ vendorId, initial, total, canReview, bookingId }
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="rounded-lg bg-teal hover:bg-teal-hover text-white text-sm font-medium px-3 py-1.5 min-h-[36px]"
+            className="rounded-lg bg-teal hover:bg-teal-hover text-white text-sm font-medium px-3 py-1.5 min-h-[44px]"
           >
             {open ? 'Cancel' : 'Write a review'}
           </button>
@@ -141,7 +141,7 @@ export function VendorReviews({ vendorId, initial, total, canReview, bookingId }
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-primary hover:opacity-90 text-white text-sm font-medium px-4 py-2 min-h-[40px] disabled:opacity-60"
+            className="rounded-lg bg-primary hover:opacity-90 text-white text-sm font-medium px-4 py-2 min-h-[44px] disabled:opacity-60"
           >
             {pending ? 'Submitting…' : 'Submit review'}
           </button>

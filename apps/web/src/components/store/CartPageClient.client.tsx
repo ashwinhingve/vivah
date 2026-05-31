@@ -65,7 +65,7 @@ export function CartPageClient() {
               <div className="flex items-center gap-2 mt-3">
                 <button
                   onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                  className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg border border-gold/30 text-muted-foreground hover:bg-gold/10 transition-colors"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-gold/30 text-muted-foreground hover:bg-gold/10 transition-colors"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
@@ -75,7 +75,7 @@ export function CartPageClient() {
                 </span>
                 <button
                   onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                  className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg border border-gold/30 text-muted-foreground hover:bg-gold/10 transition-colors"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-gold/30 text-muted-foreground hover:bg-gold/10 transition-colors"
                   aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -87,7 +87,7 @@ export function CartPageClient() {
 
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-destructive/80 hover:bg-destructive/10 transition-colors"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-destructive/80 hover:bg-destructive/10 transition-colors"
                   aria-label="Remove item"
                 >
                   <Trash2 className="h-4 w-4" />

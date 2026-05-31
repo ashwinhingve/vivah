@@ -67,7 +67,7 @@ export default async function NotificationsPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-primary">Notifications</h1>
+        <h1 className="font-heading text-2xl font-semibold text-primary">Notifications</h1>
         <Link href="/settings/notifications" className="text-sm text-teal hover:underline">Settings</Link>
       </div>
 

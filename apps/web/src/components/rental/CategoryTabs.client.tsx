@@ -46,7 +46,7 @@ export function CategoryTabs({ current }: Props) {
             aria-selected={active}
             onClick={() => handleSelect(value)}
             className={cn(
-              'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors min-h-[32px]',
+              'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors min-h-[44px]',
               active
                 ? 'bg-primary text-white border-primary'
                 : 'bg-surface text-muted-foreground border-gold/50 hover:border-primary hover:text-primary'

@@ -69,13 +69,13 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
       <div className="flex gap-2 pt-1">
         <Link
           href={`/profiles/${otherId}`}
-          className="flex-1 text-center rounded-lg border border-teal text-teal text-xs font-semibold py-2 min-h-[36px] flex items-center justify-center hover:bg-teal/5 transition-colors"
+          className="flex-1 text-center rounded-lg border border-teal text-teal text-xs font-semibold py-2 min-h-[44px] flex items-center justify-center hover:bg-teal/5 transition-colors"
         >
           View Profile
         </Link>
         <Link
           href={`/chat/${request.id}`}
-          className="flex-1 text-center rounded-lg bg-teal text-white text-xs font-semibold py-2 min-h-[36px] flex items-center justify-center hover:bg-teal-hover transition-colors"
+          className="flex-1 text-center rounded-lg bg-teal text-white text-xs font-semibold py-2 min-h-[44px] flex items-center justify-center hover:bg-teal-hover transition-colors"
         >
           Open Chat
         </Link>

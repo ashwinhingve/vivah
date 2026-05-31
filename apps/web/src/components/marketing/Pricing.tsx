@@ -57,7 +57,7 @@ export default async function Pricing() {
         >
           Pricing
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-[family-name:var(--font-heading)]">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-heading">
           {t('sectionHeading')}
         </h2>
         <p className="text-muted-foreground text-center mb-16 leading-relaxed">
@@ -72,7 +72,7 @@ export default async function Pricing() {
             <p className="relative text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               {t('freePlanName')}
             </p>
-            <p className="relative text-5xl md:text-6xl font-bold text-foreground font-[family-name:var(--font-heading)] mt-2">
+            <p className="relative text-5xl md:text-6xl font-bold text-foreground font-heading mt-2">
               ₹0
             </p>
             <p className="relative text-sm text-gold-muted mt-1">
@@ -118,7 +118,7 @@ export default async function Pricing() {
               {t('premiumPlanName')}
             </p>
             <p className="relative mt-2">
-              <span className="text-5xl md:text-6xl font-bold text-white font-[family-name:var(--font-heading)]">
+              <span className="text-5xl md:text-6xl font-bold text-white font-heading">
                 ₹999
               </span>
               <span className="text-lg text-gold/70 ml-1">/month</span>

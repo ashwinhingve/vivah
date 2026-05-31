@@ -80,7 +80,7 @@ export function DisputeForm({ bookingId }: DisputeFormProps) {
           rows={5}
           maxLength={MAX_REASON}
           placeholder="Describe your issue clearly (minimum 10 characters)…"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder-[#64748B] shadow-sm outline-none ring-0 transition focus:border-teal focus:ring-2 focus:ring-teal/20 resize-none"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground shadow-sm outline-none ring-0 transition focus:border-teal focus:ring-2 focus:ring-teal/20 resize-none"
           disabled={loading}
           required
         />

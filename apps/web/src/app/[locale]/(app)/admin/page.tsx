@@ -167,9 +167,7 @@ const NAV_TILES: NavTile[] = [
   { href: '/admin/refunds',        label: 'Refunds',        description: 'Customer refund processing',       Icon: Undo2          },
   { href: '/admin/revenue',        label: 'Revenue',        description: 'Platform revenue analytics',       Icon: TrendingUp     },
   { href: '/admin/analytics',      label: 'Analytics',      description: 'Platform growth & engagement trends', Icon: BarChart3    },
-  // Vendor approval — no endpoint yet; link retained as it will have a page
-  // TODO: no vendor-approval queue endpoint — add when Phase 3 vendor-mgmt ships
-  { href: '#',                     label: 'Vendors',        description: 'Vendor approval queue — coming soon', Icon: Store       },
+  { href: '/admin/vendors',        label: 'Vendors',        description: 'Vendor approval queue',             Icon: Store          },
 ];
 
 // ---------------------------------------------------------------------------

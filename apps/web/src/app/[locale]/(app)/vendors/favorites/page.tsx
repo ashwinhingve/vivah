@@ -32,7 +32,7 @@ export default async function FavoritesPage() {
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-primary">Saved Vendors</h1>
+          <h1 className="font-heading text-2xl font-semibold text-primary">Saved Vendors</h1>
           <p className="text-muted-foreground mt-1 text-sm">Your shortlist of favorite vendors.</p>
         </div>
 

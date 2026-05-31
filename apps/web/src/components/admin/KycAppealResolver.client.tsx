@@ -68,6 +68,7 @@ export function KycAppealResolver({ appeal }: { appeal: Appeal }) {
           {error && <p className="text-xs text-destructive">{error}</p>}
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={1000}
             placeholder="Internal note (optional, shown to user)"
+            aria-label="Internal note (optional, shown to user)"
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => void decide('UPHOLD')} disabled={!!busy}

@@ -129,7 +129,7 @@ export function PaymentsPageClient({ payments }: Props) {
             return (
               <div
                 key={payment.id}
-                className="rounded-xl bg-surface shadow-sm border p-5"
+                className="rounded-xl bg-surface shadow-card border p-5"
                 style={{ borderColor: 'var(--color-gold)' }}
               >
                 {/* Header */}

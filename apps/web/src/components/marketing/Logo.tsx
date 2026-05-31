@@ -74,7 +74,7 @@ export function LogoFull({ size = 32, className }: LogoProps) {
   return (
     <span className={`inline-flex items-center ${className ?? ''}`}>
       <LogoMark size={size} />
-      <span className="ml-2.5 text-xl font-semibold text-primary font-[family-name:var(--font-heading)]">
+      <span className="ml-2.5 text-xl font-semibold text-primary font-heading">
         Smart Shaadi
       </span>
     </span>
@@ -91,7 +91,7 @@ export function LogoWhite({ size = 32, className }: LogoProps) {
         fillGold="var(--color-surface)"
         fillTeal="var(--color-surface)"
       />
-      <span className="ml-2.5 text-xl font-semibold text-white font-[family-name:var(--font-heading)]">
+      <span className="ml-2.5 text-xl font-semibold text-white font-heading">
         Smart Shaadi
       </span>
     </span>

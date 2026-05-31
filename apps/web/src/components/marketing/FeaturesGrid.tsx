@@ -60,11 +60,11 @@ function GunaMilanBars() {
       aria-label={`Guna Milan compatibility: ${total} out of ${maxTotal}`}
     >
       <div className="flex justify-between items-center mb-5">
-        <p className="text-sm font-semibold text-foreground font-[family-name:var(--font-heading)]">
+        <p className="text-sm font-semibold text-foreground font-heading">
           Guna Milan Score
         </p>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-primary font-[family-name:var(--font-heading)]">
+          <span className="text-2xl font-bold text-primary font-heading">
             {total}
           </span>
           <span className="text-sm text-muted-foreground">/ {maxTotal}</span>
@@ -120,7 +120,7 @@ function WeddingPlannerMock() {
           <p className="text-xs text-white/70 uppercase tracking-widest font-semibold">
             Wedding · Jun 2027
           </p>
-          <p className="text-white font-[family-name:var(--font-heading)] font-semibold text-base mt-0.5">
+          <p className="text-white font-heading font-semibold text-base mt-0.5">
             Priya &amp; Arjun
           </p>
         </div>
@@ -260,7 +260,7 @@ export default async function FeaturesGrid() {
                   {f.eyebrow}
                 </p>
                 <h2
-                  className="font-[family-name:var(--font-heading)] font-semibold text-foreground leading-[1.12] whitespace-pre-line"
+                  className="font-heading font-semibold text-foreground leading-[1.12] whitespace-pre-line"
                   style={{ fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}
                 >
                   {headingMap[f.eyebrow] ?? f.heading}

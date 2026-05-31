@@ -67,6 +67,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
         <input
           ref={inputRef}
           type="search"
+          aria-label="Search this conversation"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search this conversation"

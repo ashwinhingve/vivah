@@ -150,7 +150,7 @@ export default async function ProgrammaticSeoPage({ params }: RouteParams) {
           <span>{meta.h1.split(' — ')[0]}</span>
         </nav>
 
-        <h1 className="mb-4 text-3xl font-bold text-primary md:text-4xl">{meta.h1}</h1>
+        <h1 className="mb-4 font-heading text-3xl font-semibold text-primary md:text-4xl">{meta.h1}</h1>
         <p className="mb-8 text-lg text-muted-foreground">{subhead}</p>
 
         <section className="mb-10 rounded-xl border border-gold/40 bg-surface p-6 shadow-card">

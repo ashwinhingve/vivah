@@ -258,7 +258,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                               </div>
                               <button
                                 type="submit"
-                                className="w-full rounded-lg bg-primary text-white text-xs font-semibold py-2 min-h-[36px] hover:bg-primary-hover transition-colors"
+                                className="w-full rounded-lg bg-primary text-white text-xs font-semibold py-2 min-h-[44px] hover:bg-primary-hover transition-colors"
                               >
                                 Save Changes
                               </button>

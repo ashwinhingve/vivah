@@ -17,8 +17,11 @@ export function StaggerList({
   className?: string;
 }) {
   const reduced = useReducedMotion();
+  if (reduced) {
+    return <div className={className}>{children}</div>;
+  }
   const itemVariants = {
-    hidden: { opacity: 0, y: reduced ? 0 : MOTION.stagger.item.y },
+    hidden: { opacity: 0, y: MOTION.stagger.item.y },
     show: {
       opacity: 1,
       y: 0,

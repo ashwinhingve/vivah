@@ -79,7 +79,7 @@ export default async function VendorsPage({ searchParams }: PageProps) {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-6 flex items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-primary">Find Wedding Vendors</h1>
+            <h1 className="font-heading text-2xl font-semibold text-primary">Find Wedding Vendors</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {total > 0
                 ? `${total.toLocaleString('en-IN')} vendor${total === 1 ? '' : 's'} found`

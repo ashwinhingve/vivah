@@ -33,7 +33,7 @@ export default async function AdminEscrowPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Escrow Disputes</h1>
+          <h1 className="font-heading text-2xl font-semibold text-primary">Escrow Disputes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Review and resolve disputed escrow payments
           </p>

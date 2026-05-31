@@ -5,7 +5,7 @@
  * / REJECTED / SUSPENDED. POSTs to the admin transition endpoints, then
  * router.refresh() to re-render the parent server component with new state.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Loader2, CheckCircle2, ShieldOff, PlayCircle, RotateCcw } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
@@ -211,10 +211,16 @@ function RejectForm({
   const [reason, setReason] = useState('');
   const [category, setCategory] = useState<RejectionCategory>('INCOMPLETE_DOCS');
   const tooShort = reason.trim().length < 10;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
+    document.addEventListener('keydown', onKey);
+    document.getElementById('reject-cat')?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onCancel]);
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="reject-title">
       <div className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card-hover">
-        <h4 className="font-heading text-lg font-semibold text-primary">Reject vendor</h4>
+        <h4 id="reject-title" className="font-heading text-lg font-semibold text-primary">Reject vendor</h4>
         <label className="mt-3 block text-sm font-medium text-foreground" htmlFor="reject-cat">Category</label>
         <select
           id="reject-cat"
@@ -264,10 +270,16 @@ function SuspendForm({
 }) {
   const [reason, setReason] = useState('');
   const tooShort = reason.trim().length < 10;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
+    document.addEventListener('keydown', onKey);
+    document.getElementById('suspend-reason')?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onCancel]);
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="suspend-title">
       <div className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card-hover">
-        <h4 className="font-heading text-lg font-semibold text-primary">Suspend vendor</h4>
+        <h4 id="suspend-title" className="font-heading text-lg font-semibold text-primary">Suspend vendor</h4>
         <label className="mt-3 block text-sm font-medium text-foreground" htmlFor="suspend-reason">Suspension reason</label>
         <textarea
           id="suspend-reason"

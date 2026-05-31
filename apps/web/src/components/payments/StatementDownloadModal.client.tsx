@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -24,6 +24,12 @@ export function StatementDownloadModal({ onClose }: Props) {
   const [toDate,      setToDate]      = useState(todayISO());
   const [downloading, setDownloading] = useState(false);
   const [error,       setError]       = useState<string | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   async function handleDownload() {
     setError(null);
@@ -76,9 +82,19 @@ export function StatementDownloadModal({ onClose }: Props) {
         style={{ borderColor: 'var(--color-gold)' }}
       >
         <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: 'var(--color-gold)' }}>
-          <h2 id="statement-modal-title" className="font-heading text-lg font-semibold" style={{ color: 'var(--color-primary)' }}>
-            Download Statement
-          </h2>
+          <div className="flex items-start justify-between gap-3">
+            <h2 id="statement-modal-title" className="font-heading text-lg font-semibold" style={{ color: 'var(--color-primary)' }}>
+              Download Statement
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="-mr-1 -mt-1 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-gold/10 hover:text-primary transition-colors"
+            >
+              <span aria-hidden="true" className="text-xl leading-none">×</span>
+            </button>
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Select a date range to export your payment history as a CSV file.
           </p>

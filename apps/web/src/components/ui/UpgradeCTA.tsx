@@ -41,7 +41,7 @@ export function UpgradeCTA(props: BlurProps | InlineProps) {
 
   if (props.variant === 'inline') {
     return (
-      <div className="rounded-xl border border-warning/30 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 shadow-sm">
+      <div className="rounded-xl border border-warning/30 bg-gradient-to-br from-gold/10 to-surface-muted p-5 shadow-card">
         <div className="flex items-start gap-3">
           <Sparkles className="mt-0.5 h-5 w-5 text-warning" />
           <div className="flex-1">

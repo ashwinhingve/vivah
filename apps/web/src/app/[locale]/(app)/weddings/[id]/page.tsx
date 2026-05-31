@@ -430,7 +430,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                             <label className="block text-[10px] font-medium text-muted-foreground mb-1">Venue</label>
                             <input name="venue" type="text" defaultValue={c.venue ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
                           </div>
-                          <button type="submit" className="w-full rounded bg-primary text-white text-xs py-1.5">Save</button>
+                          <button type="submit" className="w-full rounded-lg bg-primary text-white text-xs min-h-[44px] py-1.5">Save</button>
                         </form>
                       </details>
                       <form action={deleteCeremonyAction.bind(null, id, c.id)}>

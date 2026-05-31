@@ -334,7 +334,8 @@ export function AppNav() {
               />
               <motion.div
                 key="more-sheet"
-                role="menu"
+                role="dialog"
+                aria-modal="true"
                 aria-label="More navigation"
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
@@ -381,7 +382,6 @@ export function AppNav() {
                               <li key={href}>
                                 <Link
                                   href={href}
-                                  role="menuitem"
                                   aria-current={active ? 'page' : undefined}
                                   className={cn(
                                     'flex min-h-[56px] items-center gap-3 rounded-xl px-3 py-3 transition-colors',

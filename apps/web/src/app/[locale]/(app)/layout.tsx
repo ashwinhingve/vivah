@@ -41,7 +41,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      {children}
+      <div id="main-content">{children}</div>
       <AppNav />
       <AssistantToggle />
     </div>

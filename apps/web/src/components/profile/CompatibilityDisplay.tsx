@@ -105,7 +105,7 @@ export function CompatibilityDisplay({
   if (isLoading) return <SkeletonCard />;
 
   return (
-    <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+    <div className="bg-surface rounded-xl shadow-card border border-border overflow-hidden">
       {/* ── Header: ring + label + interpretation ─────────── */}
       <div className="p-5 flex items-center gap-5">
         <div className="relative shrink-0 w-24 h-24">
@@ -543,7 +543,7 @@ function CollapsibleFactorList({
 
 function SkeletonCard() {
   return (
-    <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
+    <div className="bg-surface rounded-xl shadow-card border border-border p-5">
       <div className="flex items-center gap-4">
         <div className="w-24 h-24 rounded-full bg-border animate-pulse shrink-0" />
         <div className="flex-1 space-y-2">

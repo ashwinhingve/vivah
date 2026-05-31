@@ -318,7 +318,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                         onClick={() => sendInvitation(guest.id)}
                         disabled={isSending && sendingId === guest.id}
                         aria-label={`Send invitation to ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-teal border border-teal/30 hover:bg-teal/10 disabled:opacity-50 transition-colors"
+                        className="inline-flex items-center gap-1 min-h-[44px] px-2.5 rounded-lg text-xs text-teal border border-teal/30 hover:bg-teal/10 disabled:opacity-50 transition-colors"
                       >
                         {isSending && sendingId === guest.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Mail className="h-3 w-3" />}
                         Invite
@@ -326,14 +326,14 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                       <button
                         onClick={() => setEditGuest(guest)}
                         aria-label={`Edit ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-muted-foreground border border-gold/40 hover:bg-background"
+                        className="inline-flex items-center gap-1 min-h-[44px] px-2.5 rounded-lg text-xs text-muted-foreground border border-gold/40 hover:bg-background"
                       >
                         <Pencil className="h-3 w-3" /> Edit
                       </button>
                       <button
                         onClick={() => setDeleteGuest(guest)}
                         aria-label={`Delete ${guest.name}`}
-                        className="inline-flex items-center gap-1 min-h-[36px] px-2.5 rounded-lg text-xs text-destructive border border-destructive/30 hover:bg-destructive/10"
+                        className="inline-flex items-center gap-1 min-h-[44px] px-2.5 rounded-lg text-xs text-destructive border border-destructive/30 hover:bg-destructive/10"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>

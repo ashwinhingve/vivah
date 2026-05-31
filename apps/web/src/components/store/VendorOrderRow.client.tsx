@@ -78,7 +78,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   }
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-surface border border-gold/20 rounded-xl shadow-card overflow-hidden">
       {/* Main row */}
       <div className="px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         {/* Left: product + customer info */}

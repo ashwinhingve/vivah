@@ -264,6 +264,8 @@ export default function ChatInput({
           ref={fileInputRef}
           type="file"
           accept="image/*"
+          aria-hidden="true"
+          tabIndex={-1}
           className="hidden"
           onChange={handleFileChange}
         />

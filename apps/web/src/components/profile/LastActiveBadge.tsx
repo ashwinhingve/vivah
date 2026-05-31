@@ -30,7 +30,7 @@ export function LastActiveBadge({ lastActiveAt, showPrecise = false }: Props) {
   const isOnline = delta < 5 * 60_000 && showPrecise;
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${isOnline ? 'bg-success/15 text-success' : 'bg-secondary text-muted-foreground'}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-success' : 'bg-muted'}`} />
+      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-success' : 'bg-muted'}`} />
       {label}
     </span>
   );

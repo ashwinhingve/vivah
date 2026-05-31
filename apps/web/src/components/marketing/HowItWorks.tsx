@@ -49,7 +49,7 @@ export default async function HowItWorks() {
             How it Works
           </p>
           <h2
-            className="font-[family-name:var(--font-heading)] font-semibold text-foreground"
+            className="font-heading font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}
           >
             {t('sectionHeading')}
@@ -79,21 +79,21 @@ export default async function HowItWorks() {
                     className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gold/15 ring-1 ring-gold/30"
                     aria-hidden="true"
                   >
-                    <span className="font-[family-name:var(--font-heading)] font-bold text-lg text-primary leading-none">
+                    <span className="font-heading font-bold text-lg text-primary leading-none">
                       {step.number}
                     </span>
                   </div>
                   {/* Decorative faded step bg number */}
                   <span
                     aria-hidden="true"
-                    className="absolute top-4 right-5 text-7xl font-bold leading-none text-primary/[0.04] font-[family-name:var(--font-heading)] pointer-events-none select-none"
+                    className="absolute top-4 right-5 text-7xl font-bold leading-none text-primary/[0.04] font-heading pointer-events-none select-none"
                   >
                     {step.number}
                   </span>
                 </div>
 
                 <h3
-                  className="font-[family-name:var(--font-heading)] font-medium text-primary mb-3"
+                  className="font-heading font-medium text-primary mb-3"
                   style={{ fontSize: 'clamp(1.1rem, 1.5vw, 1.35rem)' }}
                 >
                   {t(step.titleKey)}

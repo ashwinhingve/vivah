@@ -11,7 +11,7 @@ export default async function PaymentFailurePage({
     <main className="mx-auto max-w-xl px-4 py-12">
       <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-8 text-center shadow-sm">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive text-3xl text-white">!</div>
-        <h1 className="mb-2 text-2xl font-semibold text-destructive">Payment failed</h1>
+        <h1 className="mb-2 font-heading text-2xl font-semibold text-destructive">Payment failed</h1>
         <p className="mb-4 text-destructive">{params.reason ?? 'Your payment could not be completed.'}</p>
         <p className="mb-6 text-sm text-destructive">No money has been deducted. If your bank shows a charge, it will reverse within 5–7 business days.</p>
         <div className="mt-6 flex justify-center gap-3">

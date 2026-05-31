@@ -73,7 +73,7 @@ export function VendorStatusBanner() {
           <p className="mt-0.5 text-xs text-foreground">{view.rejectionReason ?? '—'}</p>
           <Link
             href="/vendor-dashboard?tab=profile"
-            className="mt-2 inline-flex min-h-[36px] items-center justify-center rounded-lg border border-destructive/40 px-3 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            className="mt-2 inline-flex min-h-[44px] items-center justify-center rounded-lg border border-destructive/40 px-3 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
           >
             Update profile & re-submit
           </Link>
@@ -91,7 +91,7 @@ export function VendorStatusBanner() {
           <p className="mt-0.5 text-xs text-foreground">{view.rejectionReason ?? '—'}</p>
           <a
             href="mailto:support@smartshaadi.co.in?subject=Vendor%20suspension%20appeal"
-            className="mt-2 inline-flex min-h-[36px] items-center justify-center rounded-lg border border-destructive/40 px-3 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            className="mt-2 inline-flex min-h-[44px] items-center justify-center rounded-lg border border-destructive/40 px-3 text-xs font-semibold text-destructive transition-colors hover:bg-destructive/10"
           >
             Contact support
           </a>

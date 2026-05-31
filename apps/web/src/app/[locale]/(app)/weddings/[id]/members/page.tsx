@@ -34,7 +34,7 @@ export default async function MembersPage({ params }: PageProps) {
             {members.map(m => (
               <li key={m.id} className="px-5 py-3 flex items-center justify-between">
                 <div>
-                  <p className="font-medium">{m.name ?? m.email ?? m.userId}</p>
+                  <p className="font-medium">{m.name ?? m.email ?? 'Team member'}</p>
                   {m.email && <p className="text-xs text-muted-foreground">{m.email}</p>}
                 </div>
                 <div className="flex items-center gap-2">

@@ -92,7 +92,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
       <div className="mx-auto max-w-4xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-primary sm:text-3xl">My Bookings</h1>
+            <h1 className="font-heading text-2xl font-semibold text-primary sm:text-3xl">My Bookings</h1>
             <p className="mt-1 text-sm text-muted-foreground">Track bookings, reschedule, and manage events.</p>
           </div>
           <div className="flex gap-2 text-sm">

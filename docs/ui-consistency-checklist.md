@@ -104,3 +104,70 @@ and admin nav coverage.
 | `pnpm build` (web) | ✅ all routes generated |
 | `pnpm e2e` | ⏸ deferred — needs running dev stack (Postgres seeded + Redis + Mongo + API on :4000) and locale-route spec rewrite |
 | Manual 375 / 1280 browser check | ⏸ deferred — environment is headless |
+
+## UX Audit Remediation — 2026-05-31
+
+Comprehensive 3-agent audit (functional / design-system / a11y) over `apps/web/src`
+(491 tsx, ~99 pages). High-confidence P0/P1 findings fixed; P2 polish listed as
+follow-ups below. Respected prior documented intentional deviations.
+
+### Functional (Wave 1)
+
+| Fix | File |
+|---|---|
+| **P0** RSC inline `onClick={window.print()}` → extracted client component | `payments/invoices/[id]/page.tsx` → new `components/payments/PrintInvoiceButton.client.tsx` |
+| Admin "Vendors" nav tile `href:'#'` → real `/admin/vendors` route (removed only dead `#` tile) | `admin/page.tsx` |
+| Raw Better-Auth `userId` UUID shown as member name fallback → `'Team member'` | `weddings/[id]/members/page.tsx` |
+| `StaggerList` (shared) now fully short-circuits under `prefers-reduced-motion` (matches motion/ variant) | `components/shared/StaggerList.client.tsx` |
+
+> **Loading/error states**: parent route-group `loading.tsx`/`error.tsx` already
+> cascade to `bookings/[id]`, `vendors/[id]`, `payments/invoices/[id]`,
+> `payments/wallet` child segments — blank-screen/error already covered. Finer
+> per-page skeletons left as P2.
+
+### Design-system (Wave 2)
+
+- `shadow-sm` → `shadow-card` on 8 card containers (profile / payments / store / family).
+- Raw Tailwind color scales → tokens: `vendor/leads` status badges, `settings/referral`
+  badges, `dispute` placeholder hex, `UpgradeCTA` amber/yellow gradient → `gold/surface-muted`.
+- Touch targets → `min-h-[44px]` across 15 components incl. shared `ui/tabs.tsx`
+  (high fan-out); ceremony/expense submit buttons also `rounded`→`rounded-lg`.
+- 20 page H1s gained `font-heading font-semibold` (canonical heading style).
+- 9 marketing components: verbose `font-[family-name:var(--font-heading)]` → `font-heading`.
+- `expenses` summary grid added `sm:` breakpoint (was `grid-cols-2 md:grid-cols-4`).
+
+### Accessibility (Wave 3)
+
+- High fan-out: `ui/dialog.tsx` + `ui/sheet.tsx` `focus:outline-none` →
+  `focus-visible:outline-none`; `AppNav` mobile sheet `role="menu"`/`menuitem`
+  → `role="dialog" aria-modal` (broken menu-keyboard contract removed);
+  `id="main-content"` added to app-layout `<main>` so the skip-link resolves on all app pages.
+- Form labels (`aria-label`): FamilyMembers (5 fields), CancelBooking, Reschedule
+  (date + reason), ChatSearch, KycAppeal note.
+- Modal keyboard: `StatementDownloadModal` (Escape + close ×), `VendorReviewActions`
+  Reject/Suspend (Escape + initial focus + `aria-labelledby`), `SmartSuggestions`
+  `role="dialog"`→`role="region"` (non-modal panel).
+- Small wins: `GuestEditModal` close `aria-label`, `LastActiveBadge` dot + `ChatInput`
+  hidden file input + icon-only `X`s marked `aria-hidden`.
+
+### Deferred / out of scope
+
+- **Dynamic `<html lang={locale}>`** — root `app/layout.tsx` owns `<html>`/`<body>`
+  and can't read the locale param; Hindi pages still announce `lang="en"`. Proper
+  fix needs relocating `<html>` into `[locale]/layout` (gut root layout) — risks
+  providers/build. Dedicated change.
+- **P2 polish**: `shared` vs `ui` EmptyState/Skeleton dedup (24-importer migration),
+  `StaggerList` import consolidation, h1→h3 heading-order skips, `MediaGallery`
+  backdrop keyboard (Escape already works), pricing fallback-price banner, admin
+  placeholder-section labels, remaining mobile-grid `sm:` steps.
+
+### Pre-push gate results (2026-05-31)
+
+| Step | Status |
+|---|---|
+| `pnpm type-check` (8 tasks, `--force`) | ✅ clean, 0 errors |
+| `pnpm lint` | ✅ warnings only (jsx-a11y graduated + pre-existing) |
+| `pnpm build` (web) | ✅ 262 pages generated, RSC print-page fix survives prod build |
+| `pnpm test` (api + web) | ✅ 686 + 2 = 688 / 688 |
+| `pnpm e2e` | ⏸ dev-server boot exceeded Playwright 120s timeout (WSL DrvFs); build compiled clean |
+| Browser smoke (prod `next start`) | see commit notes |

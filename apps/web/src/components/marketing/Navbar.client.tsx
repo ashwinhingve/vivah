@@ -184,7 +184,7 @@ export default function Navbar() {
                   <a
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-[family-name:var(--font-heading)] hover:text-primary-hover transition-colors"
+                    className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-heading hover:text-primary-hover transition-colors"
                   >
                     {t(link.labelKey)}
                   </a>
@@ -192,7 +192,7 @@ export default function Navbar() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-[family-name:var(--font-heading)] hover:text-primary-hover transition-colors"
+                    className="py-5 border-b border-border text-2xl font-semibold text-primary block w-full font-heading hover:text-primary-hover transition-colors"
                   >
                     {t(link.labelKey)}
                   </Link>

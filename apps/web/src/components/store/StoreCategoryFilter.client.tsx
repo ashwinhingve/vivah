@@ -53,7 +53,7 @@ export function StoreCategoryFilter({ activeCategory, searchQuery }: StoreCatego
             key={cat}
             onClick={() => updateParam('category', cat)}
             className={cn(
-              'flex-shrink-0 text-xs font-medium px-3 py-2 rounded-lg min-h-[36px] transition-colors whitespace-nowrap',
+              'flex-shrink-0 text-xs font-medium px-3 py-2 rounded-lg min-h-[44px] transition-colors whitespace-nowrap',
               activeCategory === cat || (cat === 'All' && !activeCategory)
                 ? 'bg-teal text-white'
                 : 'bg-surface border border-gold/30 text-muted-foreground hover:border-teal/50 hover:text-teal'
