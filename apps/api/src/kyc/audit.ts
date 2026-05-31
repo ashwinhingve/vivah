@@ -21,21 +21,31 @@ export interface AuditArgs {
   metadata?:  Record<string, unknown> | null;
 }
 
-export async function recordKycAuditEvent(args: AuditArgs): Promise<void> {
+/** Drizzle transaction client, extracted from db.transaction's callback param. */
+export type KycTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export async function recordKycAuditEvent(args: AuditArgs, tx?: KycTx): Promise<void> {
+  const values = {
+    profileId:  args.profileId,
+    eventType:  args.eventType,
+    actorId:    args.actorId ?? null,
+    actorRole:  args.actorRole ?? 'SYSTEM',
+    fromStatus: args.fromStatus ?? null,
+    toStatus:   args.toStatus ?? null,
+    fromLevel:  args.fromLevel ?? null,
+    toLevel:    args.toLevel ?? null,
+    ipAddress:  args.ipAddress ?? null,
+    userAgent:  args.userAgent ?? null,
+    metadata:   args.metadata ?? null,
+  };
+  if (tx) {
+    // Inside a caller transaction — propagate failures so the status mutation
+    // and this audit row commit or roll back together.
+    await tx.insert(kycAuditLog).values(values);
+    return;
+  }
   try {
-    await db.insert(kycAuditLog).values({
-      profileId:  args.profileId,
-      eventType:  args.eventType,
-      actorId:    args.actorId ?? null,
-      actorRole:  args.actorRole ?? 'SYSTEM',
-      fromStatus: args.fromStatus ?? null,
-      toStatus:   args.toStatus ?? null,
-      fromLevel:  args.fromLevel ?? null,
-      toLevel:    args.toLevel ?? null,
-      ipAddress:  args.ipAddress ?? null,
-      userAgent:  args.userAgent ?? null,
-      metadata:   args.metadata ?? null,
-    });
+    await db.insert(kycAuditLog).values(values);
   } catch (e) {
     console.error('[kyc/audit] failed to record event', args.eventType, e);
   }
