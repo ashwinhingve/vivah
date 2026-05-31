@@ -613,24 +613,14 @@ router.post(
     if (shouldUseMockMongo) { ok(res, { reported: true }); return }
 
     try {
-      // Soft-flag the conversation. A dedicated moderation table can ingest
-      // this later; for now we annotate the chat doc.
-      await Chat.updateOne(
-        { matchRequestId: matchId, participants: profileId },
-        {
-          $push: {
-            messages: {
-              senderId: profileId,
-              content:  `[reported] ${parsed.data.reason}`,
-              type:     'SYSTEM',
-              sentAt:   new Date(),
-              readBy:   [],
-              deliveredTo: [],
-              reactions: [],
-            },
-          },
-        },
-      )
+      // Write to the dedicated reports collection — never inline the reason as a
+      // SYSTEM message in the chat (that would leak moderation data to any
+      // chat-history read and conflate it with conversation content).
+      await ChatReport.create({
+        matchRequestId:    matchId,
+        reporterProfileId: profileId,
+        reason:            parsed.data.reason,
+      })
       ok(res, { reported: true })
     } catch (e) {
       console.error('[chat/report] error:', e)
