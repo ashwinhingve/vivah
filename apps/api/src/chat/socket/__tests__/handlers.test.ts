@@ -50,6 +50,13 @@ vi.mock('../../../infrastructure/redis/queues.js', () => ({
   notificationsQueue: { add: vi.fn() },
 }))
 
+// socketRateOk (rate limit) uses the shared redis client; mock it so the gate
+// is deterministic and never touches a real connection regardless of suite
+// ordering. incr→1 (≤ any limit) means every event is allowed through.
+vi.mock('../../../lib/redis.js', () => ({
+  redis: { incr: vi.fn(async () => 1), expire: vi.fn(async () => 1) },
+}))
+
 // ── Mock mockStore (used for participant check in USE_MOCK_SERVICES=true) ─────
 const { mockGetFn } = vi.hoisted(() => ({ mockGetFn: vi.fn() }))
 vi.mock('../../../lib/mockStore.js', () => ({
