@@ -3,6 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ── Mock env ──────────────────────────────────────────────────────────────────
 vi.mock('../../../lib/env.js', () => {
   const env = {
+    // NODE_ENV='test' makes socketRateOk short-circuit before touching redis
+    // (redis isn't mocked here); mirrors lib/rateLimit.ts skipFn.
+    NODE_ENV: 'test',
     USE_MOCK_SERVICES: false,
     MONGO_LIVE: false,
     JWT_SECRET: 'test-secret-32-chars-minimum-here',
@@ -346,10 +349,8 @@ describe('registerChatHandlers', () => {
       const io = makeIo()
       registerChatHandlers(io as never, socket as never)
 
-      socket._handlers['typing']!({ matchRequestId: 'match-abc' })
-      // typing now passes through the rate-limit gate, which emits inside a
-      // resolved promise — flush the microtask queue before asserting.
-      await new Promise((r) => setTimeout(r, 0))
+      // typing is async (awaits the rate-limit gate before emitting)
+      await socket._handlers['typing']!({ matchRequestId: 'match-abc' })
 
       // Must be on socket._toEmitted (socket.to — broadcast), NOT io._toEmitted
       const broadcastEvt = socket._toEmitted.find((e) => e.event === 'user_typing')
