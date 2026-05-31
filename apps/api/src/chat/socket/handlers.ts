@@ -6,6 +6,12 @@ import { notificationsQueue } from '../../infrastructure/redis/queues.js'
 import { resolveProfileId } from '../../lib/profile.js'
 import { markOnline, markOffline } from '../presence.js'
 import { extractFirstUrl, fetchLinkPreview } from '../linkPreview.js'
+import { z } from 'zod'
+
+// Bound client-supplied message-id arrays: a non-empty list of at most 100
+// string ids. Rejected (not silently truncated) so a flooding client gets no
+// DB work done. Shared by mark_read + delivered_ack.
+const MessageIdsSchema = z.array(z.string()).min(1).max(100)
 
 const ALLOWED_REACTIONS = new Set(['❤️', '😂', '😮', '😢', '🙏', '👍', '🔥', '🎉'])
 const EDIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
