@@ -1547,6 +1547,11 @@ export {
   parentActionTypeEnum, parentActionStatusEnum,
 } from './familyMode';
 
+// ── Digital Invitation Builder (e-invite card per wedding) ──────────────────
+export {
+  inviteStatusEnum, weddingInvites, weddingInvitesRelations,
+} from './weddingInvites';
+
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
 // consent_ledger is append-only: every consent record is a new row. When a
