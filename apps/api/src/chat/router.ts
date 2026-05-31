@@ -613,6 +613,13 @@ router.post(
     if (shouldUseMockMongo) { ok(res, { reported: true }); return }
 
     try {
+      // Authorization: only a participant of the conversation may report it.
+      // (The previous Chat.updateOne filtered on participants; ChatReport.create
+      // does not, so re-assert membership here to avoid an IDOR.)
+      const chat = await Chat.findOne({ matchRequestId: matchId, participants: profileId })
+        .select('_id').lean()
+      if (!chat) { err(res, 'NOT_FOUND', 'Conversation not found', 404); return }
+
       // Write to the dedicated reports collection — never inline the reason as a
       // SYSTEM message in the chat (that would leak moderation data to any
       // chat-history read and conflate it with conversation content).
