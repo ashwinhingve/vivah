@@ -195,7 +195,7 @@ async function enrichOne(row: RawShortlistRow): Promise<ShortlistItem> {
 
   // Fetch verification status from Postgres profiles table
   const [profileRow] = await db
-    .select({ verificationStatus: profiles.verificationStatus })
+    .select({ verificationStatus: profiles.verificationStatus, userId: profiles.userId })
     .from(profiles)
     .where(eq(profiles.id, targetId))
     .limit(1);
@@ -223,9 +223,13 @@ async function enrichOne(row: RawShortlistRow): Promise<ShortlistItem> {
     city = null;
   } else {
     try {
-      // ProfileContent is keyed by the profile's mongo_profile_id; we look up
-      // by the postgres profile id stored in the document's profileId field.
-      const content = await ProfileContent.findOne({ profileId: targetId }).lean();
+      // ProfileContent is keyed by the Better Auth userId (its only
+      // identifier), NOT the postgres profiles.id. Resolve targetId -> userId
+      // first; querying by profileId silently returns null for every profile.
+      const targetUserId = profileRow?.userId ?? null;
+      const content = targetUserId
+        ? await ProfileContent.findOne({ userId: targetUserId }).lean()
+        : null;
       if (content) {
         const personal = content.personal as {
           fullName?: string;
