@@ -341,12 +341,15 @@ describe('registerChatHandlers', () => {
   })
 
   describe('typing', () => {
-    it('emits user_typing via socket.to (not io.to — not back to sender)', () => {
+    it('emits user_typing via socket.to (not io.to — not back to sender)', async () => {
       const socket = makeSocket('user-1')
       const io = makeIo()
       registerChatHandlers(io as never, socket as never)
 
       socket._handlers['typing']!({ matchRequestId: 'match-abc' })
+      // typing now passes through the rate-limit gate, which emits inside a
+      // resolved promise — flush the microtask queue before asserting.
+      await new Promise((r) => setTimeout(r, 0))
 
       // Must be on socket._toEmitted (socket.to — broadcast), NOT io._toEmitted
       const broadcastEvt = socket._toEmitted.find((e) => e.event === 'user_typing')
