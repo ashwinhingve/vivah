@@ -8,7 +8,7 @@
 
 import { redis } from './redis.js';
 import { getEntitlements } from './entitlements.js';
-import type { PremiumTier } from '@smartshaadi/types';
+import type { PremiumTier, ProfileId } from '@smartshaadi/types';
 
 /** Returns YYYY-MM-DD in IST regardless of host clock TZ. */
 export function istDateKey(now: Date = new Date()): string {
@@ -35,7 +35,7 @@ export interface QuotaResult {
  * PREMIUM tier (Infinity limit) skips Redis entirely.
  */
 export async function checkAndConsumeInterestQuota(
-  profileId: string,
+  profileId: ProfileId,
   tier: PremiumTier,
 ): Promise<QuotaResult> {
   const limit = getEntitlements(tier).dailyInterestLimit;

@@ -1,3 +1,4 @@
+import { asProfileId } from '@smartshaadi/types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── DB mocks ───────────────────────────────────────────────────────────────────
@@ -104,7 +105,7 @@ describe('profiles/service > getProfileById privacy masking', () => {
     selectQueue.push([]);             // profileSections.where(...)
 
     const { getProfileById } = await import('../service.js');
-    const out = await getProfileById('prof-1', 'user-OTHER');
+    const out = await getProfileById(asProfileId('prof-1'), 'user-OTHER');
 
     expect(out).toBeTruthy();
     expect(out!.phoneNumber).toBeNull();
@@ -119,7 +120,7 @@ describe('profiles/service > getProfileById privacy masking', () => {
     selectQueue.push([]);
 
     const { getProfileById } = await import('../service.js');
-    const out = await getProfileById('prof-1', 'user-1');
+    const out = await getProfileById(asProfileId('prof-1'), 'user-1');
 
     expect(out).toBeTruthy();
     expect(out!.phoneNumber).toBe('+919876543210');
@@ -130,7 +131,7 @@ describe('profiles/service > getProfileById privacy masking', () => {
     selectQueue.push([{ ...profileRow, isActive: false }]);
 
     const { getProfileById } = await import('../service.js');
-    const out = await getProfileById('prof-1', 'user-1');
+    const out = await getProfileById(asProfileId('prof-1'), 'user-1');
     expect(out).toBeNull();
   });
 
@@ -138,7 +139,7 @@ describe('profiles/service > getProfileById privacy masking', () => {
     selectQueue.push([]);
 
     const { getProfileById } = await import('../service.js');
-    const out = await getProfileById('nope', 'user-1');
+    const out = await getProfileById(asProfileId('nope'), 'user-1');
     expect(out).toBeNull();
   });
 });

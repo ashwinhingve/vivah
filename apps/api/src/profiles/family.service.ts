@@ -20,7 +20,9 @@ import type {
   FamilyRelationship,
   FamilyVerificationBadge,
   FamilySection,
+  ProfileId,
 } from '@smartshaadi/types';
+import { asProfileId } from '@smartshaadi/types';
 import type {
   AddFamilyMemberInput,
   UpdateFamilyMemberInput,
@@ -35,10 +37,10 @@ function appErr(msg: string, code: string, status: number): AppError {
 
 // ── userId → profileId resolver (Rule 12) ────────────────────────────────────
 
-async function resolveProfileId(userId: string): Promise<string> {
+async function resolveProfileId(userId: string): Promise<ProfileId> {
   const [p] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
   if (!p) throw appErr('Profile not found', 'NOT_FOUND', 404);
-  return p.id;
+  return asProfileId(p.id);
 }
 
 // ── Mappers ───────────────────────────────────────────────────────────────────

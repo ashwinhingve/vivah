@@ -14,6 +14,7 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
 import { shouldUseMockMongo } from '../../lib/env.js';
 import { shortlists, profiles, profilePhotos } from '@smartshaadi/db';
+import type { ProfileId } from '@smartshaadi/types';
 import { ProfileContent as ProfileContentModel } from '../../infrastructure/mongo/models/ProfileContent.js';
 
 // ProfileContent is exported as `unknown` to prevent re-registration issues.
@@ -81,8 +82,8 @@ function ageFromDob(dob: Date | null | undefined): number | null {
  * Returns the existing or newly created row.
  */
 export async function addShortlist(
-  profileId: string,
-  targetProfileId: string,
+  profileId: ProfileId,
+  targetProfileId: ProfileId,
   note?: string,
 ): Promise<ShortlistItem> {
   if (profileId === targetProfileId) {
@@ -121,8 +122,8 @@ export async function addShortlist(
  * Returns true if a row was deleted, false if it did not exist.
  */
 export async function removeShortlist(
-  profileId: string,
-  targetProfileId: string,
+  profileId: ProfileId,
+  targetProfileId: ProfileId,
 ): Promise<boolean> {
   const deleted = await db
     .delete(shortlists)
@@ -139,7 +140,7 @@ export async function removeShortlist(
  * Each item is enriched with the target profile's public fields.
  */
 export async function listShortlists(
-  profileId: string,
+  profileId: ProfileId,
   page = 1,
   limit = 20,
 ): Promise<PaginatedShortlists> {
@@ -168,8 +169,8 @@ export async function listShortlists(
 // ── isShortlisted ─────────────────────────────────────────────────────────────
 
 export async function isShortlisted(
-  profileId: string,
-  targetProfileId: string,
+  profileId: ProfileId,
+  targetProfileId: ProfileId,
 ): Promise<boolean> {
   const [row] = await db
     .select({ id: shortlists.id })

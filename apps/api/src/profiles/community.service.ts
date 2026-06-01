@@ -3,18 +3,18 @@
 import { db } from '../lib/db.js';
 import { profiles, communityZones } from '@smartshaadi/db';
 import { eq } from 'drizzle-orm';
-import type { CommunityZoneData } from '@smartshaadi/types';
+import { asProfileId, type CommunityZoneData, type ProfileId } from '@smartshaadi/types';
 import type { UpdateCommunityZoneInput } from '@smartshaadi/schemas';
 import { bustOwnFeedCache } from '../lib/redis.js';
 
 /** Resolve the profile UUID from a user UUID. Returns null if the profile doesn't exist. */
-async function getProfileId(userId: string): Promise<string | null> {
+async function getProfileId(userId: string): Promise<ProfileId | null> {
   const rows = await db
     .select({ id: profiles.id })
     .from(profiles)
     .where(eq(profiles.userId, userId))
     .limit(1);
-  return rows[0]?.id ?? null;
+  return rows[0] ? asProfileId(rows[0].id) : null;
 }
 
 function titleCase(s: string): string {

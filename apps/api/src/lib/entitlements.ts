@@ -8,7 +8,7 @@
 import { eq } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
 import { db } from './db.js';
-import type { Entitlements, PremiumTier } from '@smartshaadi/types';
+import { asProfileId, type Entitlements, type PremiumTier, type ProfileId } from '@smartshaadi/types';
 
 const TABLE: Record<PremiumTier, Entitlements> = {
   FREE: {
@@ -49,11 +49,11 @@ export function tierAtLeast(actual: PremiumTier, required: PremiumTier): boolean
   return order.indexOf(actual) >= order.indexOf(required);
 }
 
-const tierCache = new Map<string, { tier: PremiumTier; profileId: string; expiresAt: number }>();
+const tierCache = new Map<string, { tier: PremiumTier; profileId: ProfileId; expiresAt: number }>();
 const TIER_TTL_MS = 60_000;
 
 /** Resolve userId → { profileId, tier }. Cached 60s to avoid hot-path lookups. */
-export async function getProfileTier(userId: string): Promise<{ profileId: string; tier: PremiumTier } | null> {
+export async function getProfileTier(userId: string): Promise<{ profileId: ProfileId; tier: PremiumTier } | null> {
   const hit = tierCache.get(userId);
   if (hit && hit.expiresAt > Date.now()) return { profileId: hit.profileId, tier: hit.tier };
   const [row] = await db
@@ -62,8 +62,9 @@ export async function getProfileTier(userId: string): Promise<{ profileId: strin
     .where(eq(profiles.userId, userId))
     .limit(1);
   if (!row) return null;
-  tierCache.set(userId, { profileId: row.id, tier: row.tier, expiresAt: Date.now() + TIER_TTL_MS });
-  return { profileId: row.id, tier: row.tier };
+  const profileId = asProfileId(row.id); // sanctioned DB-boundary cast
+  tierCache.set(userId, { profileId, tier: row.tier, expiresAt: Date.now() + TIER_TTL_MS });
+  return { profileId, tier: row.tier };
 }
 
 export function invalidateTierCache(userId: string): void {

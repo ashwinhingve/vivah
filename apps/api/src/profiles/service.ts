@@ -8,7 +8,7 @@ import type { Model } from 'mongoose';
 import { getPhotoUrls } from '../storage/service.js';
 import { computeAndUpdateCompleteness } from './content.service.js';
 import { geocode } from '../lib/geocode.js';
-import type { PersonalityProfile } from '@smartshaadi/types';
+import type { PersonalityProfile, ProfileId } from '@smartshaadi/types';
 import type {
   ProfileDetailResponse,
   PersonalSection,
@@ -295,7 +295,7 @@ export async function deleteProfilePhoto(
 
 /** Fetch another user's profile by profile UUID. Enriched with MongoDB content + presigned photo URLs. */
 export async function getProfileById(
-  profileId: string,
+  profileId: ProfileId,
   requestingUserId: string,
 ): Promise<ProfileDetailResponse | null> {
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId));

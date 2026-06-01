@@ -1,3 +1,4 @@
+import { asProfileId } from '@smartshaadi/types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ──────────────────────────────────────────────────────────────────────
@@ -166,7 +167,7 @@ describe('matchmaking/requests/service', () => {
   describe('sendRequest', () => {
     it('throws SELF_REQUEST when sender === receiver', async () => {
       const { sendRequest } = await import('../service.js');
-      await expect(sendRequest('user-1', 'user-1')).rejects.toMatchObject({
+      await expect(sendRequest(asProfileId('user-1'), asProfileId('user-1'))).rejects.toMatchObject({
         code: 'SELF_REQUEST',
       });
     });
@@ -178,7 +179,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { sendRequest } = await import('../service.js');
-      await expect(sendRequest('user-1', 'user-2')).rejects.toMatchObject({
+      await expect(sendRequest(asProfileId('user-1'), asProfileId('user-2'))).rejects.toMatchObject({
         code: 'BLOCKED',
       });
     });
@@ -196,7 +197,7 @@ describe('matchmaking/requests/service', () => {
       }));
 
       const { sendRequest } = await import('../service.js');
-      await expect(sendRequest('user-1', 'user-2')).rejects.toMatchObject({
+      await expect(sendRequest(asProfileId('user-1'), asProfileId('user-2'))).rejects.toMatchObject({
         code: 'DUPLICATE_REQUEST',
       });
     });
@@ -227,7 +228,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { sendRequest } = await import('../service.js');
-      const result = await sendRequest('user-1', 'user-2', { message: 'Hi' });
+      const result = await sendRequest(asProfileId('user-1'), asProfileId('user-2'), { message: 'Hi' });
 
       expect(result.status).toBe('PENDING');
       expect(result.senderId).toBe('user-1');
@@ -249,7 +250,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { acceptRequest } = await import('../service.js');
-      await expect(acceptRequest('user-2', 'req-99')).rejects.toMatchObject({
+      await expect(acceptRequest(asProfileId('user-2'), 'req-99')).rejects.toMatchObject({
         code: 'NOT_FOUND',
       });
     });
@@ -261,7 +262,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { acceptRequest } = await import('../service.js');
-      await expect(acceptRequest('user-WRONG', 'req-1')).rejects.toMatchObject({
+      await expect(acceptRequest(asProfileId('user-WRONG'), 'req-1')).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
     });
@@ -273,7 +274,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { acceptRequest } = await import('../service.js');
-      await expect(acceptRequest('user-2', 'req-1')).rejects.toMatchObject({
+      await expect(acceptRequest(asProfileId('user-2'), 'req-1')).rejects.toMatchObject({
         code: 'INVALID_STATUS',
       });
     });
@@ -294,7 +295,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { acceptRequest } = await import('../service.js');
-      const result = await acceptRequest('user-2', 'req-1');
+      const result = await acceptRequest(asProfileId('user-2'), 'req-1');
 
       expect(result.status).toBe('ACCEPTED');
       // In mock mode, mockUpsertField is called instead of Chat.create
@@ -321,7 +322,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { declineRequest } = await import('../service.js');
-      await expect(declineRequest('user-WRONG', 'req-1')).rejects.toMatchObject({
+      await expect(declineRequest(asProfileId('user-WRONG'), 'req-1')).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
     });
@@ -342,7 +343,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { declineRequest } = await import('../service.js');
-      const result = await declineRequest('user-2', 'req-1');
+      const result = await declineRequest(asProfileId('user-2'), 'req-1');
 
       expect(result.status).toBe('DECLINED');
     });
@@ -358,7 +359,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { withdrawRequest } = await import('../service.js');
-      await expect(withdrawRequest('user-WRONG', 'req-1')).rejects.toMatchObject({
+      await expect(withdrawRequest(asProfileId('user-WRONG'), 'req-1')).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
     });
@@ -379,7 +380,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { withdrawRequest } = await import('../service.js');
-      const result = await withdrawRequest('user-1', 'req-1');
+      const result = await withdrawRequest(asProfileId('user-1'), 'req-1');
 
       expect(result.status).toBe('WITHDRAWN');
     });
@@ -401,7 +402,7 @@ describe('matchmaking/requests/service', () => {
       (dbMod.db as unknown as AnyRecord)['update'] = updateMock;
 
       const { blockUser } = await import('../service.js');
-      await blockUser('user-1', 'profile-2');
+      await blockUser(asProfileId('user-1'), asProfileId('profile-2'));
 
       expect(insertMock).toHaveBeenCalled();
       expect(updateMock).toHaveBeenCalled();
@@ -439,7 +440,7 @@ describe('matchmaking/requests/service', () => {
       });
 
       const { getReceivedRequests } = await import('../service.js');
-      const result = await getReceivedRequests('user-2', 1, 10);
+      const result = await getReceivedRequests(asProfileId('user-2'), 1, 10);
 
       expect(Array.isArray(result.requests)).toBe(true);
       expect(result.requests).toHaveLength(2);
@@ -469,7 +470,7 @@ describe('matchmaking/requests/service', () => {
       });
 
       const { getReceivedRequests } = await import('../service.js');
-      await getReceivedRequests('user-2', 2, 10);
+      await getReceivedRequests(asProfileId('user-2'), 2, 10);
 
       expect(offsetMock).toHaveBeenCalledWith(10); // (page-1)*limit = 1*10 = 10
     });
@@ -485,7 +486,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { markRequestSeen } = await import('../service.js');
-      await expect(markRequestSeen('user-WRONG', 'req-1')).rejects.toMatchObject({ code: 'FORBIDDEN' });
+      await expect(markRequestSeen(asProfileId('user-WRONG'), 'req-1')).rejects.toMatchObject({ code: 'FORBIDDEN' });
     });
 
     it('is a no-op when seenAt already set', async () => {
@@ -498,7 +499,7 @@ describe('matchmaking/requests/service', () => {
       (dbMod.db as unknown as AnyRecord)['update'] = updateMock;
 
       const { markRequestSeen } = await import('../service.js');
-      const out = await markRequestSeen('user-2', 'req-1');
+      const out = await markRequestSeen(asProfileId('user-2'), 'req-1');
       expect(out.id).toBe('req-1');
       expect(updateMock).not.toHaveBeenCalled();
     });
@@ -515,7 +516,7 @@ describe('matchmaking/requests/service', () => {
       });
 
       const { unblockUser } = await import('../service.js');
-      await unblockUser('user-1', 'profile-2');
+      await unblockUser(asProfileId('user-1'), asProfileId('profile-2'));
       expect(deleteWhere).toHaveBeenCalled();
     });
   });
@@ -526,7 +527,7 @@ describe('matchmaking/requests/service', () => {
     it('throws SELF_REPORT when reporter === reported', async () => {
       const { reportUser } = await import('../service.js');
       await expect(
-        reportUser('user-1', 'user-1', { category: 'HARASSMENT' }),
+        reportUser(asProfileId('user-1'), asProfileId('user-1'), { category: 'HARASSMENT' }),
       ).rejects.toMatchObject({ code: 'SELF_REPORT' });
     });
 
@@ -543,7 +544,7 @@ describe('matchmaking/requests/service', () => {
       );
 
       const { reportUser } = await import('../service.js');
-      const result = await reportUser('user-1', 'profile-2', {
+      const result = await reportUser(asProfileId('user-1'), asProfileId('profile-2'), {
         category: 'HARASSMENT',
         details: 'Bad message',
       });

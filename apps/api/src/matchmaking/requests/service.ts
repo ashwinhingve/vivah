@@ -25,6 +25,7 @@ import {
   profiles,
   profilePhotos,
 } from '@smartshaadi/db';
+import type { ProfileId } from '@smartshaadi/types';
 import { Chat } from '../../infrastructure/mongo/models/Chat.js';
 import { notificationsQueue } from '../../infrastructure/redis/queues.js';
 
@@ -123,8 +124,8 @@ export interface SendRequestInput {
  *     directed at sender, sender's "send" is silently treated as an ACCEPT
  */
 export async function sendRequest(
-  senderId: string,
-  receiverId: string,
+  senderId: ProfileId,
+  receiverId: ProfileId,
   input: SendRequestInput = {},
 ): Promise<MatchRequest> {
   if (senderId === receiverId) {
@@ -227,7 +228,7 @@ export interface AcceptRequestInput {
  * before invoking — see CLAUDE.md rule 12.
  */
 export async function acceptRequest(
-  callerProfileId: string,
+  callerProfileId: ProfileId,
   requestId: string,
   input: AcceptRequestInput = {},
 ): Promise<MatchRequest> {
@@ -299,7 +300,7 @@ export interface DeclineRequestInput {
 
 /** Decline a PENDING request. `callerProfileId` = receiver's `profiles.id`. */
 export async function declineRequest(
-  callerProfileId: string,
+  callerProfileId: ProfileId,
   requestId: string,
   input: DeclineRequestInput = {},
 ): Promise<MatchRequest> {
@@ -337,7 +338,7 @@ export async function declineRequest(
 // ── withdrawRequest ───────────────────────────────────────────────────────────
 
 /** Withdraw a PENDING request. `callerProfileId` = sender's `profiles.id`. */
-export async function withdrawRequest(callerProfileId: string, requestId: string): Promise<MatchRequest> {
+export async function withdrawRequest(callerProfileId: ProfileId, requestId: string): Promise<MatchRequest> {
   const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
@@ -373,7 +374,7 @@ export async function withdrawRequest(callerProfileId: string, requestId: string
  * they have read-receipts allowed in their privacy settings (handled at
  * router layer; service is unconditional for now).
  */
-export async function markRequestSeen(callerProfileId: string, requestId: string): Promise<MatchRequest> {
+export async function markRequestSeen(callerProfileId: ProfileId, requestId: string): Promise<MatchRequest> {
   const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
@@ -397,8 +398,8 @@ export async function markRequestSeen(callerProfileId: string, requestId: string
 
 /** Block another profile. `callerProfileId` = blocker's `profiles.id`. */
 export async function blockUser(
-  callerProfileId: string,
-  targetProfileId: string,
+  callerProfileId: ProfileId,
+  targetProfileId: ProfileId,
   reason?: string,
 ): Promise<void> {
   const userId = callerProfileId;
@@ -447,7 +448,7 @@ export async function blockUser(
 }
 
 /** Unblock a previously-blocked profile. `callerProfileId` = blocker's `profiles.id`. */
-export async function unblockUser(callerProfileId: string, targetProfileId: string): Promise<void> {
+export async function unblockUser(callerProfileId: ProfileId, targetProfileId: ProfileId): Promise<void> {
   const userId = callerProfileId;
   await db
     .delete(blockedUsers)
@@ -470,7 +471,7 @@ export interface BlockedUserItem {
  * Returns the caller's blocked list, enriched with display name + primary photo.
  */
 /** List profiles blocked by the caller. `callerProfileId` = caller's `profiles.id`. */
-export async function listBlockedUsers(callerProfileId: string): Promise<BlockedUserItem[]> {
+export async function listBlockedUsers(callerProfileId: ProfileId): Promise<BlockedUserItem[]> {
   const userId = callerProfileId;
   const rows = await db
     .select({
@@ -530,8 +531,8 @@ export interface ReportUserInput {
 }
 
 export async function reportUser(
-  reporterId: string,
-  reportedProfileId: string,
+  reporterId: ProfileId,
+  reportedProfileId: ProfileId,
   input: ReportUserInput,
 ): Promise<{ reportId: string }> {
   if (reporterId === reportedProfileId) {
@@ -611,7 +612,7 @@ export interface PaginatedRequests {
 
 /** Page of requests received by the caller. `callerProfileId` = receiver's `profiles.id`. */
 export async function getReceivedRequests(
-  callerProfileId: string,
+  callerProfileId: ProfileId,
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
@@ -639,7 +640,7 @@ export async function getReceivedRequests(
 
 /** Page of requests sent by the caller. `callerProfileId` = sender's `profiles.id`. */
 export async function getSentRequests(
-  callerProfileId: string,
+  callerProfileId: ProfileId,
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
@@ -698,14 +699,14 @@ type EnrichSide = 'received' | 'sent';
  * the counterparty's `safetyMode.showLastActive` flag.
  */
 export async function getEnrichedRequests(
-  userId: string,
+  callerProfileId: ProfileId,
   side: EnrichSide,
   page: number,
   limit: number,
 ): Promise<{ requests: EnrichedRequest[]; total: number }> {
   const base = side === 'received'
-    ? await getReceivedRequests(userId, page, limit)
-    : await getSentRequests(userId, page, limit);
+    ? await getReceivedRequests(callerProfileId, page, limit)
+    : await getSentRequests(callerProfileId, page, limit);
 
   if (base.requests.length === 0) return { requests: [], total: base.total };
 
@@ -802,7 +803,7 @@ export interface WhoLikedMeItem {
 }
 
 export async function getWhoLikedMe(
-  receiverProfileId: string,
+  receiverProfileId: ProfileId,
   limit: number,
 ): Promise<{ items: WhoLikedMeItem[]; total: number }> {
   const requests = await db
@@ -881,8 +882,8 @@ export interface MatchStatusResult {
 }
 
 export async function getMatchStatusWith(
-  myProfileId: string,
-  otherProfileId: string,
+  myProfileId: ProfileId,
+  otherProfileId: ProfileId,
 ): Promise<MatchStatusResult> {
   const rows = await db
     .select({ id: matchRequests.id, senderId: matchRequests.senderId, status: matchRequests.status })

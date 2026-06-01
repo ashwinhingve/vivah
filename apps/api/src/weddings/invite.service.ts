@@ -149,7 +149,7 @@ export async function getInviteForWedding(
 export async function upsertInvite(
   userId: string,
   weddingId: string,
-  input: { templateId?: string; title?: string | null; message?: string | null; rsvpEnabled?: boolean },
+  input: { templateId?: string | undefined; title?: string | null | undefined; message?: string | null | undefined; rsvpEnabled?: boolean | undefined },
 ): Promise<InviteRecord> {
   const owned = await resolveOwnedWedding(userId, weddingId);
   if (!owned) throw new InviteError('FORBIDDEN', 'Wedding not found or not owned');

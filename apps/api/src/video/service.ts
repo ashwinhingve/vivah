@@ -13,7 +13,7 @@ import { getIO }           from '../chat/socket/index.js';
 import { queueNotification } from '../infrastructure/redis/queues.js';
 import { profiles, matchRequests } from '@smartshaadi/db';
 import { eq, or, and }     from 'drizzle-orm';
-import type { VideoRoom, MeetingSchedule } from '@smartshaadi/types';
+import { asProfileId, type VideoRoom, type MeetingSchedule, type ProfileId } from '@smartshaadi/types';
 import type {
   CreateVideoRoomInput,
   ScheduleMeetingInput,
@@ -37,7 +37,7 @@ function makeError(code: string, message: string, status: number): ServiceError 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Resolve Better Auth userId → profiles.id (throws 403 if profile missing). */
-async function resolveProfileId(userId: string): Promise<string> {
+async function resolveProfileId(userId: string): Promise<ProfileId> {
   const rows = await db
     .select({ id: profiles.id })
     .from(profiles)
@@ -45,7 +45,7 @@ async function resolveProfileId(userId: string): Promise<string> {
     .limit(1);
   const row = rows[0];
   if (!row) throw makeError('FORBIDDEN', 'Profile not found', 403);
-  return row.id;
+  return asProfileId(row.id);
 }
 
 /** Resolve the OTHER participant's Better Auth userId for a match. Best-effort. */
