@@ -12,7 +12,10 @@ import { ok, err } from '../lib/response.js';
 import { DisputeEscrowSchema } from '@smartshaadi/schemas';
 import { raiseDispute } from './dispute.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const disputeRouter = Router();
+registerUuidParams(disputeRouter, 'bookingId');
 
 // POST /payments/:bookingId/dispute — customer raises a dispute
 disputeRouter.post(

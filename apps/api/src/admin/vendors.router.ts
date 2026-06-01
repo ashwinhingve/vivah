@@ -29,7 +29,10 @@ import {
   VendorApprovalError,
 } from '../vendors/approval.service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const adminVendorsRouter = Router();
+registerUuidParams(adminVendorsRouter, 'id');
 
 // ---------------------------------------------------------------------------
 // GET /admin/vendors/queue — list vendors needing review

@@ -32,7 +32,10 @@ import {
   getVendorRentalBookings,
 } from './service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const rentalRouter = Router();
+registerUuidParams(rentalRouter, 'id');
 
 // ── Error handler ─────────────────────────────────────────────────────────────
 

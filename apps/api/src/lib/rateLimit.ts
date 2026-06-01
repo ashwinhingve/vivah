@@ -6,7 +6,7 @@
  *
  * In test/mock mode, all limiters are skipped so unit tests stay fast.
  */
-import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
+import rateLimit, { type RateLimitRequestHandler, type Options } from 'express-rate-limit';
 import type { Express, Request, Response, NextFunction } from 'express';
 import { env } from './env.js';
 
@@ -29,15 +29,26 @@ export const globalLimiter: RateLimitRequestHandler = rateLimit({
   keyGenerator:    ipKey,
 });
 
-export const authLimiter: RateLimitRequestHandler = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit:    30,
-  standardHeaders: 'draft-7',
-  legacyHeaders:   false,
-  skip:            skipFn,
-  keyGenerator:    ipKey,
-  message: { success: false, error: 'Too many auth attempts; try again shortly.' },
-});
+/**
+ * Factory for the auth-route limiter. `authLimiter` (the production instance)
+ * is `createAuthLimiter()` with no overrides, so prod behaviour is unchanged.
+ * Tests pass `{ skip: () => false, ... }` to exercise the 429 path, since the
+ * default `skipFn` disables all limiters under NODE_ENV=test / mock mode.
+ */
+export function createAuthLimiter(overrides: Partial<Options> = {}): RateLimitRequestHandler {
+  return rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit:    30,
+    standardHeaders: 'draft-7',
+    legacyHeaders:   false,
+    skip:            skipFn,
+    keyGenerator:    ipKey,
+    message: { success: false, error: 'Too many auth attempts; try again shortly.' },
+    ...overrides,
+  });
+}
+
+export const authLimiter: RateLimitRequestHandler = createAuthLimiter();
 
 export const matchActionLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 60 * 1000,

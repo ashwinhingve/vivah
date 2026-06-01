@@ -28,7 +28,10 @@ import {
   PayoutError,
 } from './payouts.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const payoutsRouter = Router();
+registerUuidParams(payoutsRouter, 'id');
 
 function handle(res: Response, e: unknown) {
   if (e instanceof PayoutError) {
