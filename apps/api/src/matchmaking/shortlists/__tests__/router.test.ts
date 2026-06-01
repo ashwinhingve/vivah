@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 
+// Valid uuids for :targetProfileId — the router's registerUuidParams guard
+// rejects non-uuid path segments with 400 before the handler runs.
+const TARGET = '22222222-2222-4222-8222-222222222222';
+const TARGET_ALT = '99999999-9999-4999-8999-999999999999';
+const SELF = '11111111-1111-4111-8111-111111111111';
+
 // ── Mocks ──────────────────────────────────────────────────────────────────────
 
 const mockAddShortlist    = vi.fn();
@@ -107,7 +113,7 @@ describe('shortlists router', () => {
       mockIsShortlisted.mockResolvedValue(true);
 
       const app = await buildApp();
-      const res = await request(app).get('/shortlists/is-shortlisted/profile-2');
+      const res = await request(app).get(`/shortlists/is-shortlisted/${TARGET}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.shortlisted).toBe(true);
@@ -118,7 +124,7 @@ describe('shortlists router', () => {
       mockIsShortlisted.mockResolvedValue(false);
 
       const app = await buildApp();
-      const res = await request(app).get('/shortlists/is-shortlisted/profile-999');
+      const res = await request(app).get(`/shortlists/is-shortlisted/${TARGET_ALT}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.shortlisted).toBe(false);
@@ -139,7 +145,7 @@ describe('shortlists router', () => {
 
       const app = await buildApp();
       const res = await request(app)
-        .post('/shortlists/profile-2')
+        .post(`/shortlists/${TARGET}`)
         .send({ note: 'nice profile' });
 
       expect(res.status).toBe(201);
@@ -153,7 +159,7 @@ describe('shortlists router', () => {
       mockAddShortlist.mockRejectedValue(error);
 
       const app = await buildApp();
-      const res = await request(app).post('/shortlists/profile-1').send({});
+      const res = await request(app).post(`/shortlists/${SELF}`).send({});
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('SELF_SHORTLIST');
@@ -163,7 +169,7 @@ describe('shortlists router', () => {
       mockDbSelect.mockReturnValue(makeProfileResolverChain(null));
 
       const app = await buildApp();
-      const res = await request(app).post('/shortlists/profile-2').send({});
+      const res = await request(app).post(`/shortlists/${TARGET}`).send({});
 
       expect(res.status).toBe(404);
     });
@@ -177,7 +183,7 @@ describe('shortlists router', () => {
       mockRemoveShortlist.mockResolvedValue(true);
 
       const app = await buildApp();
-      const res = await request(app).delete('/shortlists/profile-2');
+      const res = await request(app).delete(`/shortlists/${TARGET}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.removed).toBe(true);
@@ -188,7 +194,7 @@ describe('shortlists router', () => {
       mockRemoveShortlist.mockResolvedValue(false);
 
       const app = await buildApp();
-      const res = await request(app).delete('/shortlists/profile-999');
+      const res = await request(app).delete(`/shortlists/${TARGET_ALT}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.removed).toBe(false);
@@ -198,7 +204,7 @@ describe('shortlists router', () => {
       mockDbSelect.mockReturnValue(makeProfileResolverChain(null));
 
       const app = await buildApp();
-      const res = await request(app).delete('/shortlists/profile-2');
+      const res = await request(app).delete(`/shortlists/${TARGET}`);
 
       expect(res.status).toBe(404);
     });
