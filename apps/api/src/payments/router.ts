@@ -23,7 +23,10 @@ import {
   retryPaymentOrder,
 } from './service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const paymentsRouter = Router();
+registerUuidParams(paymentsRouter, 'id', 'bookingId');
 
 // ---------------------------------------------------------------------------
 // POST /payments/order — create Razorpay order for confirmed booking

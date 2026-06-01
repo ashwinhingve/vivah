@@ -44,7 +44,14 @@ function handle(res: Response, e: unknown, fallbackCode: string): void {
   err(res, code, msg, status);
 }
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const weddingExtrasRouter = Router({ mergeParams: true });
+registerUuidParams(
+  weddingExtrasRouter,
+  'id', 'assignmentId', 'attachmentId', 'commentId', 'docId', 'eventId',
+  'expId', 'guestId', 'itemId', 'memberId', 'tableId', 'taskId',
+);
 
 // ─── EXPENSES ────────────────────────────────────────────────────────────────
 

@@ -31,7 +31,11 @@ coordinatorRouter.get('/weddings', authenticate, authorize(['EVENT_COORDINATOR',
 
 // ── /weddings/:id/coordinators — owner-managed assignments ───────────────────
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const weddingCoordinatorRouter = Router({ mergeParams: true });
+// Only :id (wedding uuid) — :userId is a Better Auth user id (text, not uuid).
+registerUuidParams(weddingCoordinatorRouter, 'id');
 
 weddingCoordinatorRouter.get('/:id/coordinators', authenticate, async (req, res) => {
   try { ok(res, { coordinators: await coordinator.listCoordinatorsForWedding(req.params['id']!, req.user!.id) }); }

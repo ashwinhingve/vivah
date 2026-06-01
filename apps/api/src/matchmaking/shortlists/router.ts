@@ -25,7 +25,10 @@ import {
   type ServiceError,
 } from './service.js';
 
+import { registerUuidParams } from '../../middleware/validateUuidParams.js';
+
 export const shortlistsRouter = Router();
+registerUuidParams(shortlistsRouter, 'targetProfileId');
 
 // ── Zod schemas ───────────────────────────────────────────────────────────────
 

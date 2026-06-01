@@ -17,7 +17,10 @@ function handle(res: Response, e: unknown, fallback: string): void {
   err(res, ae.code ?? fallback, ae instanceof Error ? ae.message : 'Unknown', ae.status ?? 500);
 }
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const weddingDayOfRouter = Router({ mergeParams: true });
+registerUuidParams(weddingDayOfRouter, 'id', 'ceremonyId', 'eventId', 'guestId');
 
 weddingDayOfRouter.get('/:id/day-of/snapshot', authenticate, async (req, res) => {
   try { ok(res, await dayOf.getDayOfSnapshot(req.params['id']!, req.user!.id)); }

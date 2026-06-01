@@ -63,7 +63,10 @@ import {
   getVendorOrders,
 } from './order.service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const storeRouter = Router();
+registerUuidParams(storeRouter, 'id');
 
 // ── Error handler ─────────────────────────────────────────────────────────────
 

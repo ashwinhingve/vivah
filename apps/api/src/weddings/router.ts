@@ -59,7 +59,10 @@ import {
   InviteError,
 } from './invite.service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const weddingRouter = Router();
+registerUuidParams(weddingRouter, 'id', 'weddingId', 'taskId', 'ceremonyId', 'cId');
 
 // FAQ predictions are AI-inference output; cache 1h to match the AI standard.
 const FAQ_CACHE_TTL_SEC = 3600;

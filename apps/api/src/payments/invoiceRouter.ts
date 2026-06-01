@@ -17,7 +17,10 @@ import {
   InvoiceError,
 } from './invoiceService.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const invoiceRouter = Router();
+registerUuidParams(invoiceRouter, 'id');
 
 function handle(res: Response, e: unknown) {
   if (e instanceof InvoiceError) {
