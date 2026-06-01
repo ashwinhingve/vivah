@@ -183,6 +183,13 @@
 			"when": 1779800000000,
 			"tag": "0025_lgbtq_support",
 			"breakpoints": true
+		},
+		{
+			"idx": 26,
+			"version": "7",
+			"when": 1780200000000,
+			"tag": "0026_drift_rollup",
+			"breakpoints": true
 		}
 	]
 }
