@@ -1,0 +1,24 @@
+# Profile Optimizer — rule-based scorer. Validate overall_score in [0,100],
+# a valid tier, the 3 dimension scores, and a suggestions array.
+
+- description: 'profile_optimizer: thin profile — valid score, tier, dimensions, suggestions'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: profile_optimizer
+    payload:
+      user_id: u-1
+      photo_count: 1
+      has_primary_photo: true
+      bio_text: 'I like travelling.'
+      profile_completeness: 45
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.overall_score >= 0 && r.overall_score <= 100
+          && ['excellent','good','needs_work','incomplete'].includes(r.tier)
+          && r.dimensions && ['photo_score','bio_score','completeness_score']
+               .every(k => typeof r.dimensions[k] === 'number')
+          && Array.isArray(r.field_suggestions);

@@ -1,0 +1,25 @@
+# FAQ (Function Attendance Quotient) — per-guest attendance probability.
+# Validate probability in [0,1], valid confidence band + direction.
+
+- description: 'faq: close-family yes-RSVP nearby — valid probability + band/direction'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: faq
+    payload:
+      guest_id: g-1
+      ceremony_id: c-1
+      relationship_type: close_family
+      distance_km: 12
+      rsvp_response: 'yes'
+      ceremony_type: wedding
+      historical_attendance_rate: 0.9
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.predicted_probability >= 0 && r.predicted_probability <= 1
+          && ['high','medium','low'].includes(r.confidence_band)
+          && ['attend','skip','uncertain'].includes(r.direction)
+          && Array.isArray(r.feature_contributions);

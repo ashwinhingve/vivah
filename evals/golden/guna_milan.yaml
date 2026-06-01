@@ -1,0 +1,20 @@
+# Guna Milan (Ashtakoot) — deterministic Vedic math. Validate the 36-point
+# structure: total in [0,36], max=36, and all 8 Ashtakoot factors present.
+
+- description: 'guna_milan: 36-point breakdown with all 8 factors'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: guna_milan
+    payload:
+      profile_a: { rashi: Mesha, nakshatra: Ashwini, manglik: false }
+      profile_b: { rashi: Simha, nakshatra: Magha, manglik: false }
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.max_score === 36
+          && r.total_score >= 0 && r.total_score <= 36
+          && ['varna','vashya','tara','yoni','graha_maitri','gana','bhakoot','nadi']
+               .every(k => r.factors && r.factors[k] !== undefined);

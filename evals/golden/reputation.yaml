@@ -1,0 +1,25 @@
+# Reputation Score — admin-only trust indicator. Validate score in [0,100],
+# a valid tier, and that the informational disclaimer is always present.
+
+- description: 'reputation: responsive, low-ghost user — valid score + tier + disclaimer'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: reputation
+    payload:
+      user_id: u-1
+      ghost_count_raw: 0
+      features:
+        response_rate: 0.95
+        message_response_rate: 0.9
+        avg_response_time_hours_norm: 0.1
+        ghost_count_norm: 0.0
+        consistency_score: 0.85
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.reputation_score >= 0 && r.reputation_score <= 100
+          && ['platinum','gold','silver','bronze','flagged'].includes(r.tier)
+          && typeof r.disclaimer === 'string' && r.disclaimer.length > 0;
