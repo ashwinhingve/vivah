@@ -3,6 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ── Mock env ──────────────────────────────────────────────────────────────────
 vi.mock('../../../lib/env.js', () => {
   const env = {
+    // NODE_ENV='test' makes socketRateOk short-circuit before touching redis
+    // (redis isn't mocked here); mirrors lib/rateLimit.ts skipFn.
+    NODE_ENV: 'test',
     USE_MOCK_SERVICES: false,
     MONGO_LIVE: false,
     JWT_SECRET: 'test-secret-32-chars-minimum-here',
@@ -45,6 +48,13 @@ vi.mock('../../../lib/profile.js', () => ({
 
 vi.mock('../../../infrastructure/redis/queues.js', () => ({
   notificationsQueue: { add: vi.fn() },
+}))
+
+// socketRateOk (rate limit) uses the shared redis client; mock it so the gate
+// is deterministic and never touches a real connection regardless of suite
+// ordering. incr→1 (≤ any limit) means every event is allowed through.
+vi.mock('../../../lib/redis.js', () => ({
+  redis: { incr: vi.fn(async () => 1), expire: vi.fn(async () => 1) },
 }))
 
 // ── Mock mockStore (used for participant check in USE_MOCK_SERVICES=true) ─────
@@ -296,13 +306,58 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  // P0 item 7 — messageIds Zod-validated: non-empty array, max 100. Oversized
+  // payloads rejected (no DB work); exactly-100 still passes. Mirrors the
+  // working mark_read harness above.
+  describe('messageIds cap-100 validation', () => {
+    function ids(n: number): string[] { return Array.from({ length: n }, (_, i) => `m-${i}`) }
+
+    it('mark_read rejects >100 messageIds (no Chat.updateOne)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: ids(101) })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+
+    it('mark_read accepts exactly 100 messageIds', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      mockUpdateOne.mockResolvedValueOnce({})
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: ids(100) })
+      expect(mockUpdateOne).toHaveBeenCalledTimes(1)
+    })
+
+    it('mark_read rejects an empty messageIds array', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['mark_read']!({ matchRequestId: 'match-abc', messageIds: [] })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+
+    it('delivered_ack rejects >100 messageIds (no Chat.updateOne)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+      mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
+      await socket._handlers['delivered_ack']!({ matchRequestId: 'match-abc', messageIds: ids(101) })
+      expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+  })
+
   describe('typing', () => {
-    it('emits user_typing via socket.to (not io.to — not back to sender)', () => {
+    it('emits user_typing via socket.to (not io.to — not back to sender)', async () => {
       const socket = makeSocket('user-1')
       const io = makeIo()
       registerChatHandlers(io as never, socket as never)
 
-      socket._handlers['typing']!({ matchRequestId: 'match-abc' })
+      // typing is async (awaits the rate-limit gate before emitting)
+      await socket._handlers['typing']!({ matchRequestId: 'match-abc' })
 
       // Must be on socket._toEmitted (socket.to — broadcast), NOT io._toEmitted
       const broadcastEvt = socket._toEmitted.find((e) => e.event === 'user_typing')

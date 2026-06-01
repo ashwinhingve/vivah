@@ -56,6 +56,14 @@ describe('Matchmaking gender filter — lgbtq toggle', () => {
     expect(survived.map((p) => p.id)).toEqual(['b']);
   });
 
+  // P0 item 4 — explicit same-gender F/F exclusion under the default (flag off).
+  it('flag OFF — drops same-gender pair (F/F)', () => {
+    const user = profile({ id: 'a', gender: 'FEMALE' });
+    const cand = profile({ id: 'b', gender: 'FEMALE' });
+    const survived = applyHardFilters(user, [cand], { lgbtqEnabled: false });
+    expect(survived.map((p) => p.id)).toEqual([]);
+  });
+
   it('flag ON — keeps same-gender pair when partnerGender lists align', () => {
     const user = profile({ id: 'a', gender: 'MALE',   partnerGender: ['MALE'] });
     const cand = profile({ id: 'b', gender: 'MALE',   partnerGender: ['MALE'] });

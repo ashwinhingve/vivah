@@ -32,13 +32,15 @@ vi.mock('../../lib/db.js', () => {
     values:   vi.fn().mockResolvedValue([]),
     returning: vi.fn().mockResolvedValue([]),
   });
-  return {
-    db: {
-      select: vi.fn(chain),
-      insert: vi.fn(chain),
-      update: vi.fn(chain),
-    },
+  const db: Record<string, unknown> = {
+    select: vi.fn(chain),
+    insert: vi.fn(chain),
+    update: vi.fn(chain),
   };
+  // Run the transaction callback with the same db mock as the tx client, so
+  // tx.update/tx.insert resolve to the tracked db.update/db.insert mocks.
+  db['transaction'] = vi.fn(async (cb: (tx: unknown) => unknown) => cb(db));
+  return { db };
 });
 
 import { db } from '../../lib/db.js';
@@ -86,7 +88,13 @@ function setupInsertOk() {
   }) as typeof db.insert);
 }
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  // Re-establish the transaction passthrough after each clear so tx.update /
+  // tx.insert resolve to the tracked db.update / db.insert mocks.
+  vi.mocked((db as unknown as { transaction: (cb: (tx: unknown) => unknown) => unknown }).transaction)
+    .mockImplementation(async (cb: (tx: unknown) => unknown) => cb(db));
+});
 
 // ── initiateAadhaarVerification ───────────────────────────────────────────────
 

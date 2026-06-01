@@ -1,11 +1,38 @@
 import type { Namespace, Socket } from 'socket.io'
 import { Chat } from '../../infrastructure/mongo/models/Chat.js'
-import { shouldUseMockMongo } from '../../lib/env.js'
+import { shouldUseMockMongo, env } from '../../lib/env.js'
 import { mockGet } from '../../lib/mockStore.js'
 import { notificationsQueue } from '../../infrastructure/redis/queues.js'
 import { resolveProfileId } from '../../lib/profile.js'
 import { markOnline, markOffline } from '../presence.js'
 import { extractFirstUrl, fetchLinkPreview } from '../linkPreview.js'
+import { z } from 'zod'
+import { redis } from '../../lib/redis.js'
+
+// Bound client-supplied message-id arrays: a non-empty list of at most 100
+// string ids. Rejected (not silently truncated) so a flooding client gets no
+// DB work done. Shared by mark_read + delivered_ack.
+const MessageIdsSchema = z.array(z.string()).min(1).max(100)
+
+// Per-socket sliding-window rate limit keyed by profileId. Fail-open on redis
+// error and skipped under test/mock (mirrors lib/rateLimit.ts skipFn) so unit
+// tests and mock-dev never touch redis. Returns true when the call is allowed.
+async function socketRateOk(
+  profileId: string,
+  event: string,
+  limit: number,
+  windowSec: number,
+): Promise<boolean> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) return true
+  try {
+    const key = `chat:rate:${event}:${profileId}`
+    const count = await redis.incr(key)
+    if (count === 1) await redis.expire(key, windowSec)
+    return count <= limit
+  } catch {
+    return true
+  }
+}
 
 const ALLOWED_REACTIONS = new Set(['❤️', '😂', '😮', '😢', '🙏', '👍', '🔥', '🎉'])
 const EDIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
@@ -134,6 +161,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     try {
       const profileId = await assertParticipant(matchRequestId)
       if (!profileId) return
+      if (!(await socketRateOk(profileId, 'join_room', 30, 60))) return
       socket.join(matchRequestId)
       socket.emit('presence_update', {
         profileId, isOnline: true, lastSeenAt: null,
@@ -172,6 +200,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
+    if (!(await socketRateOk(profileId, 'send_message', 30, 10))) return
 
     if (typeof content !== 'string' || content.length === 0 || content.length > 4000) {
       socket.emit('error', { message: 'Invalid message content' })
@@ -462,7 +491,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageIds: string[] }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
-    if (!Array.isArray(messageIds) || messageIds.length === 0) return
+    if (!MessageIdsSchema.safeParse(messageIds).success) return
     if (shouldUseMockMongo) {
       io.to(matchRequestId).emit('message_delivered', { messageIds, profileId })
       return
@@ -486,6 +515,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageIds: string[] }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
+    if (!MessageIdsSchema.safeParse(messageIds).success) return
 
     const readAt = new Date()
     if (!shouldUseMockMongo) {
@@ -522,8 +552,9 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   })
 
   // ── typing ───────────────────────────────────────────────────────────────────
-  socket.on('typing', ({ matchRequestId }: { matchRequestId: string }) => {
+  socket.on('typing', async ({ matchRequestId }: { matchRequestId: string }) => {
     const profileId = cachedProfileId ?? ''
+    if (!(await socketRateOk(profileId, 'typing', 60, 10))) return
     // userId (Better Auth) must never leave the server boundary — only
     // profileId is the public identifier seen by other participants.
     socket.to(matchRequestId).emit('user_typing', { profileId })

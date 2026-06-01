@@ -231,10 +231,9 @@ export async function acceptRequest(
   requestId: string,
   input: AcceptRequestInput = {},
 ): Promise<MatchRequest> {
-  const userId = callerProfileId; // body keeps legacy alias; column refs are profile.id keys
   const request = await fetchRequest(requestId);
 
-  if (request.receiverId !== userId) {
+  if (request.receiverId !== callerProfileId) {
     throw serviceError('FORBIDDEN', 'Only the receiver may accept a match request');
   }
   if (request.status !== 'PENDING') {
@@ -303,10 +302,9 @@ export async function declineRequest(
   requestId: string,
   input: DeclineRequestInput = {},
 ): Promise<MatchRequest> {
-  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
-  if (request.receiverId !== userId) {
+  if (request.receiverId !== callerProfileId) {
     throw serviceError('FORBIDDEN', 'Only the receiver may decline a match request');
   }
   if (request.status !== 'PENDING') {
@@ -338,10 +336,9 @@ export async function declineRequest(
 
 /** Withdraw a PENDING request. `callerProfileId` = sender's `profiles.id`. */
 export async function withdrawRequest(callerProfileId: string, requestId: string): Promise<MatchRequest> {
-  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
-  if (request.senderId !== userId) {
+  if (request.senderId !== callerProfileId) {
     throw serviceError('FORBIDDEN', 'Only the sender may withdraw a match request');
   }
   if (request.status !== 'PENDING') {
@@ -374,10 +371,9 @@ export async function withdrawRequest(callerProfileId: string, requestId: string
  * router layer; service is unconditional for now).
  */
 export async function markRequestSeen(callerProfileId: string, requestId: string): Promise<MatchRequest> {
-  const userId = callerProfileId;
   const request = await fetchRequest(requestId);
 
-  if (request.receiverId !== userId) {
+  if (request.receiverId !== callerProfileId) {
     throw serviceError('FORBIDDEN', 'Only the receiver may mark a request as seen');
   }
   if (request.seenAt) return request;
@@ -401,14 +397,13 @@ export async function blockUser(
   targetProfileId: string,
   reason?: string,
 ): Promise<void> {
-  const userId = callerProfileId;
-  if (userId === targetProfileId) {
+  if (callerProfileId === targetProfileId) {
     throw serviceError('SELF_BLOCK', 'You cannot block yourself');
   }
 
   await db
     .insert(blockedUsers)
-    .values({ blockerId: userId, blockedId: targetProfileId, reason: reason ?? null })
+    .values({ blockerId: callerProfileId, blockedId: targetProfileId, reason: reason ?? null })
     .onConflictDoNothing()
     .returning();
 
@@ -419,8 +414,8 @@ export async function blockUser(
     .where(and(
       inArray(matchRequests.status, ['PENDING', 'ACCEPTED'] as MatchRequestStatus[]),
       or(
-        and(eq(matchRequests.senderId, userId), eq(matchRequests.receiverId, targetProfileId)),
-        and(eq(matchRequests.senderId, targetProfileId), eq(matchRequests.receiverId, userId)),
+        and(eq(matchRequests.senderId, callerProfileId), eq(matchRequests.receiverId, targetProfileId)),
+        and(eq(matchRequests.senderId, targetProfileId), eq(matchRequests.receiverId, callerProfileId)),
       ),
     ))
     .returning({ id: matchRequests.id });
@@ -448,11 +443,10 @@ export async function blockUser(
 
 /** Unblock a previously-blocked profile. `callerProfileId` = blocker's `profiles.id`. */
 export async function unblockUser(callerProfileId: string, targetProfileId: string): Promise<void> {
-  const userId = callerProfileId;
   await db
     .delete(blockedUsers)
     .where(and(
-      eq(blockedUsers.blockerId, userId),
+      eq(blockedUsers.blockerId, callerProfileId),
       eq(blockedUsers.blockedId, targetProfileId),
     ));
 }
@@ -471,7 +465,6 @@ export interface BlockedUserItem {
  */
 /** List profiles blocked by the caller. `callerProfileId` = caller's `profiles.id`. */
 export async function listBlockedUsers(callerProfileId: string): Promise<BlockedUserItem[]> {
-  const userId = callerProfileId;
   const rows = await db
     .select({
       blockId:    blockedUsers.id,
@@ -482,7 +475,7 @@ export async function listBlockedUsers(callerProfileId: string): Promise<Blocked
     })
     .from(blockedUsers)
     .leftJoin(profiles, eq(profiles.id, blockedUsers.blockedId))
-    .where(eq(blockedUsers.blockerId, userId))
+    .where(eq(blockedUsers.blockerId, callerProfileId))
     .orderBy(desc(blockedUsers.createdAt));
 
   if (rows.length === 0) return [];
@@ -615,13 +608,12 @@ export async function getReceivedRequests(
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
-  const userId = callerProfileId;
   const offset = (page - 1) * limit;
 
   const requests = await db
     .select()
     .from(matchRequests)
-    .where(eq(matchRequests.receiverId, userId))
+    .where(eq(matchRequests.receiverId, callerProfileId))
     .orderBy(desc(matchRequests.createdAt))
     .limit(limit)
     .offset(offset);
@@ -629,7 +621,7 @@ export async function getReceivedRequests(
   const [countRow] = await db
     .select({ count: sql<string>`count(*)` })
     .from(matchRequests)
-    .where(eq(matchRequests.receiverId, userId));
+    .where(eq(matchRequests.receiverId, callerProfileId));
 
   return {
     requests: requests as MatchRequest[],
@@ -643,13 +635,12 @@ export async function getSentRequests(
   page: number,
   limit: number,
 ): Promise<PaginatedRequests> {
-  const userId = callerProfileId;
   const offset = (page - 1) * limit;
 
   const requests = await db
     .select()
     .from(matchRequests)
-    .where(eq(matchRequests.senderId, userId))
+    .where(eq(matchRequests.senderId, callerProfileId))
     .orderBy(desc(matchRequests.createdAt))
     .limit(limit)
     .offset(offset);
@@ -657,7 +648,7 @@ export async function getSentRequests(
   const [countRow] = await db
     .select({ count: sql<string>`count(*)` })
     .from(matchRequests)
-    .where(eq(matchRequests.senderId, userId));
+    .where(eq(matchRequests.senderId, callerProfileId));
 
   return {
     requests: requests as MatchRequest[],
@@ -764,7 +755,10 @@ export async function getEnrichedRequests(
       priority:          r.priority,
       message:           r.message,
       acceptanceMessage: r.acceptanceMessage,
-      declineReason:     r.declineReason,
+      // Sender must never learn the receiver's decline reason (matrimony
+      // etiquette + moderation/ML signal kept internal). Only expose it on the
+      // received side. Mirrors the reason omission in the MATCH_DECLINED push.
+      declineReason:     side === 'sent' ? null : r.declineReason,
       seenAt:            r.seenAt ? new Date(r.seenAt).toISOString() : null,
       respondedAt:       r.respondedAt ? new Date(r.respondedAt).toISOString() : null,
       expiresAt:         r.expiresAt ? new Date(r.expiresAt).toISOString() : null,

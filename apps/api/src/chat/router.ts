@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { authenticate } from '../auth/middleware.js'
 import { Chat } from '../infrastructure/mongo/models/Chat.js'
+import { ChatReport } from '../infrastructure/mongo/models/ChatReport.js'
 import { shouldUseMockMongo } from '../lib/env.js'
 import { ok, err } from '../lib/response.js'
 import { getPresignedUploadUrl } from '../storage/service.js'
@@ -612,24 +613,21 @@ router.post(
     if (shouldUseMockMongo) { ok(res, { reported: true }); return }
 
     try {
-      // Soft-flag the conversation. A dedicated moderation table can ingest
-      // this later; for now we annotate the chat doc.
-      await Chat.updateOne(
-        { matchRequestId: matchId, participants: profileId },
-        {
-          $push: {
-            messages: {
-              senderId: profileId,
-              content:  `[reported] ${parsed.data.reason}`,
-              type:     'SYSTEM',
-              sentAt:   new Date(),
-              readBy:   [],
-              deliveredTo: [],
-              reactions: [],
-            },
-          },
-        },
-      )
+      // Authorization: only a participant of the conversation may report it.
+      // (The previous Chat.updateOne filtered on participants; ChatReport.create
+      // does not, so re-assert membership here to avoid an IDOR.)
+      const chat = await Chat.findOne({ matchRequestId: matchId, participants: profileId })
+        .select('_id').lean()
+      if (!chat) { err(res, 'NOT_FOUND', 'Conversation not found', 404); return }
+
+      // Write to the dedicated reports collection — never inline the reason as a
+      // SYSTEM message in the chat (that would leak moderation data to any
+      // chat-history read and conflate it with conversation content).
+      await ChatReport.create({
+        matchRequestId:    matchId,
+        reporterProfileId: profileId,
+        reason:            parsed.data.reason,
+      })
       ok(res, { reported: true })
     } catch (e) {
       console.error('[chat/report] error:', e)

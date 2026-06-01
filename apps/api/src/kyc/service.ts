@@ -631,17 +631,20 @@ async function runRiskPass(
 
   // Auto-decision branches
   if (risk.decision === 'AUTO_REJECT') {
-    await db.update(profiles).set({
-      verificationStatus: 'REJECTED', updatedAt: new Date(),
-    }).where(eq(profiles.id, profileId));
-    await db.update(kycVerifications).set({
-      adminNote: 'Auto-rejected: sanctions hit or critical risk factors',
-      updatedAt: new Date(),
-    }).where(eq(kycVerifications.profileId, profileId));
-    await recordKycAuditEvent({
-      profileId, eventType: 'AUTO_REJECTED', actorId: null, actorRole: 'SYSTEM',
-      fromStatus: profile.verificationStatus, toStatus: 'REJECTED',
-      metadata: { score: risk.score, factors: risk.factors },
+    // Status mutation + audit row commit atomically.
+    await db.transaction(async (tx) => {
+      await tx.update(profiles).set({
+        verificationStatus: 'REJECTED', updatedAt: new Date(),
+      }).where(eq(profiles.id, profileId));
+      await tx.update(kycVerifications).set({
+        adminNote: 'Auto-rejected: sanctions hit or critical risk factors',
+        updatedAt: new Date(),
+      }).where(eq(kycVerifications.profileId, profileId));
+      await recordKycAuditEvent({
+        profileId, eventType: 'AUTO_REJECTED', actorId: null, actorRole: 'SYSTEM',
+        fromStatus: profile.verificationStatus, toStatus: 'REJECTED',
+        metadata: { score: risk.score, factors: risk.factors },
+      }, tx);
     });
     await invalidateFeedCache();
     return;
@@ -649,16 +652,19 @@ async function runRiskPass(
 
   if (risk.decision === 'AUTO_VERIFY' && profile.verificationStatus !== 'VERIFIED') {
     const expiresAt = new Date(Date.now() + DEFAULT_KYC_VALIDITY_DAYS * 86_400_000);
-    await db.update(profiles).set({
-      verificationStatus: 'VERIFIED', updatedAt: new Date(),
-    }).where(eq(profiles.id, profileId));
-    await db.update(kycVerifications).set({
-      expiresAt, updatedAt: new Date(),
-    }).where(eq(kycVerifications.profileId, profileId));
-    await recordKycAuditEvent({
-      profileId, eventType: 'AUTO_VERIFIED', actorId: null, actorRole: 'SYSTEM',
-      fromStatus: profile.verificationStatus, toStatus: 'VERIFIED',
-      metadata: { score: risk.score, expiresAt: expiresAt.toISOString() },
+    // Status mutation + audit row commit atomically.
+    await db.transaction(async (tx) => {
+      await tx.update(profiles).set({
+        verificationStatus: 'VERIFIED', updatedAt: new Date(),
+      }).where(eq(profiles.id, profileId));
+      await tx.update(kycVerifications).set({
+        expiresAt, updatedAt: new Date(),
+      }).where(eq(kycVerifications.profileId, profileId));
+      await recordKycAuditEvent({
+        profileId, eventType: 'AUTO_VERIFIED', actorId: null, actorRole: 'SYSTEM',
+        fromStatus: profile.verificationStatus, toStatus: 'VERIFIED',
+        metadata: { score: risk.score, expiresAt: expiresAt.toISOString() },
+      }, tx);
     });
     await invalidateFeedCache();
   }
@@ -736,26 +742,30 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
   const kycRecord = await loadKyc(profileId);
   const expiresAt = new Date(Date.now() + DEFAULT_KYC_VALIDITY_DAYS * 86_400_000);
 
-  await db.update(profiles)
-    .set({ verificationStatus: 'VERIFIED', updatedAt: new Date() })
-    .where(eq(profiles.id, profileId));
+  // Status mutation + audit row commit atomically — a crash mid-sequence must
+  // not leave a persisted status with no audit trail (or vice versa).
+  await db.transaction(async (tx) => {
+    await tx.update(profiles)
+      .set({ verificationStatus: 'VERIFIED', updatedAt: new Date() })
+      .where(eq(profiles.id, profileId));
 
-  if (kycRecord) {
-    await db.update(kycVerifications).set({
-      adminNote:  note ?? null,
-      reviewedBy: adminUserId,
-      reviewedAt: new Date(),
-      expiresAt,
-      updatedAt:  new Date(),
-    }).where(eq(kycVerifications.profileId, profileId));
-  } else {
-    console.warn(`[kyc] approveKyc: no kycVerifications row for profile ${profileId}`);
-  }
+    if (kycRecord) {
+      await tx.update(kycVerifications).set({
+        adminNote:  note ?? null,
+        reviewedBy: adminUserId,
+        reviewedAt: new Date(),
+        expiresAt,
+        updatedAt:  new Date(),
+      }).where(eq(kycVerifications.profileId, profileId));
+    } else {
+      console.warn(`[kyc] approveKyc: no kycVerifications row for profile ${profileId}`);
+    }
 
-  await recordKycAuditEvent({
-    profileId, eventType: 'MANUAL_APPROVED', actorId: adminUserId, actorRole: 'ADMIN',
-    fromStatus: profile!.verificationStatus, toStatus: 'VERIFIED',
-    metadata: { note, expiresAt: expiresAt.toISOString() },
+    await recordKycAuditEvent({
+      profileId, eventType: 'MANUAL_APPROVED', actorId: adminUserId, actorRole: 'ADMIN',
+      fromStatus: profile!.verificationStatus, toStatus: 'VERIFIED',
+      metadata: { note, expiresAt: expiresAt.toISOString() },
+    }, tx);
   });
 
   await invalidateFeedCache();
@@ -771,25 +781,28 @@ export async function rejectKyc(profileId: string, adminUserId: string, note?: s
 
   const kycRecord = await loadKyc(profileId);
 
-  await db.update(profiles)
-    .set({ verificationStatus: 'REJECTED', updatedAt: new Date() })
-    .where(eq(profiles.id, profileId));
+  // Status mutation + audit row commit atomically.
+  await db.transaction(async (tx) => {
+    await tx.update(profiles)
+      .set({ verificationStatus: 'REJECTED', updatedAt: new Date() })
+      .where(eq(profiles.id, profileId));
 
-  if (kycRecord) {
-    await db.update(kycVerifications).set({
-      adminNote:  note ?? null,
-      reviewedBy: adminUserId,
-      reviewedAt: new Date(),
-      updatedAt:  new Date(),
-    }).where(eq(kycVerifications.profileId, profileId));
-  } else {
-    console.warn(`[kyc] rejectKyc: no kycVerifications row for profile ${profileId}`);
-  }
+    if (kycRecord) {
+      await tx.update(kycVerifications).set({
+        adminNote:  note ?? null,
+        reviewedBy: adminUserId,
+        reviewedAt: new Date(),
+        updatedAt:  new Date(),
+      }).where(eq(kycVerifications.profileId, profileId));
+    } else {
+      console.warn(`[kyc] rejectKyc: no kycVerifications row for profile ${profileId}`);
+    }
 
-  await recordKycAuditEvent({
-    profileId, eventType: 'MANUAL_REJECTED', actorId: adminUserId, actorRole: 'ADMIN',
-    fromStatus: profile!.verificationStatus, toStatus: 'REJECTED',
-    metadata: { note },
+    await recordKycAuditEvent({
+      profileId, eventType: 'MANUAL_REJECTED', actorId: adminUserId, actorRole: 'ADMIN',
+      fromStatus: profile!.verificationStatus, toStatus: 'REJECTED',
+      metadata: { note },
+    }, tx);
   });
 
   await invalidateFeedCache();
