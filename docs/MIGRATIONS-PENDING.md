@@ -222,3 +222,39 @@ SELECT to_regclass('public.wedding_invites');  -- wedding_invites
 
 > Locally validated 2026-05-31 against a scratch PG16 DB: 12 columns,
 > enum `{DRAFT,PUBLISHED}`, indexes `pkey / wedding_id_unique / slug_unique / slug_idx`.
+
+---
+
+## ✅ APPLIED 2026-06-01 (UTC) — migrations 0026 + 0027 to PRODUCTION
+
+Supervised prod op (Tier 1). Applied via `psql` from WSL2 against the Railway
+proxy (`shortline.proxy.rlwy.net`, server **PostgreSQL 18.3**), autocommit
+(no `--single-transaction`, so `ALTER TYPE … ADD VALUE` is safe).
+
+**Backup:** Railway dashboard → "Create backup now" snapshot taken immediately
+before apply. (Local `pg_dump` unavailable — client 16.14 vs server 18.3 major
+mismatch; Railway snapshot is the point-in-time backup.)
+
+**Dry-run:** fresh scratch DB built from migrations `0000–0025`, then `0026` +
+`0027` applied with zero errors; `0026` re-run confirmed idempotent.
+
+**Pre-flight (prod, read-only):** `wedding_invites` absent, `invite_status`
+absent → `0027` clean first apply; all `0026` objects already present (vendor
+approval enums/columns, `weddings.deleted_at`) → `0026` a confirmed **no-op**
+(every statement reported `already exists, skipping`). `vendor_count = 0`.
+
+**Verify (prod):**
+- `\d wedding_invites` → 12 columns; PK `wedding_invites_pkey`; uniques
+  `wedding_id_unique`, `slug_unique`; index `slug_idx`; FK
+  `wedding_id → weddings(id) ON DELETE CASCADE`.
+- `invite_status` enum = `{DRAFT, PUBLISHED}`.
+- `0026` spot-checks: `vendors.status` present; `ceremony_type` has
+  `TILAK,SAGAN`; `audit_event_type` has the 5 `VENDOR_*` values;
+  `ceremonies.custom_type_name` + `weddings.deleted_at` present.
+
+**Scope:** ONLY `0026` + `0027` applied. No `__drizzle_migrations`
+reconciliation, no `db:push`, no destructive ALTERs.
+
+> 🔐 **Security:** the prod `DATABASE_URL` was exposed in a chat transcript during
+> this op — **rotate the Railway Postgres password** (Railway env + Vercel env +
+> local `.env`) as a follow-up.

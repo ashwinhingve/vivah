@@ -44,7 +44,10 @@ import {
   type ServiceError,
 } from './service.js';
 
+import { registerUuidParams } from '../../middleware/validateUuidParams.js';
+
 export const matchRequestsRouter = Router();
+registerUuidParams(matchRequestsRouter, 'id', 'profileId');
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 

@@ -16,7 +16,10 @@ import {
   PaymentLinkError,
 } from './paymentLinks.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const paymentLinksRouter = Router();
+registerUuidParams(paymentLinksRouter, 'id');
 
 function handle(res: Response, e: unknown) {
   if (e instanceof PaymentLinkError) {

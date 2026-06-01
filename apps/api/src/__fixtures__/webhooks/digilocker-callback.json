@@ -1,0 +1,12 @@
+{
+  "description": "DigiLocker is an OAuth2 redirect callback (GET /api/v1/auth/kyc/callback), NOT an HMAC-signed webhook. Security is the user's session + the short-lived authorization code. In mock mode the handler returns a synthetic verifyDigiLockerCallback result. This fixture captures the inbound callback query params used by the replay test.",
+  "query": {
+    "code": "digilocker_auth_code_TEST_0001",
+    "state": "kyc_state_TEST_0001"
+  },
+  "syntheticResult": {
+    "verified": true,
+    "name": "Test User",
+    "aadhaarVerified": true
+  }
+}

@@ -59,7 +59,10 @@ import {
   getRsvpDeadline, upsertRsvpDeadline,
 } from './extraServices.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const guestRouter = Router();
+registerUuidParams(guestRouter, 'id', 'guestId', 'qId');
 
 // ── Helper: extract error code and status from thrown errors ──────────────────
 

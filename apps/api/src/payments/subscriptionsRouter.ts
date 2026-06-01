@@ -9,7 +9,10 @@ import {
   cancelSubscription,
 } from './subscriptions.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const subscriptionsRouter = Router();
+registerUuidParams(subscriptionsRouter, 'id');
 
 subscriptionsRouter.get('/plans', async (_req, res) => {
   try {

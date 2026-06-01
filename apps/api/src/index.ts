@@ -100,7 +100,7 @@ import { err as errResponse } from './lib/response.js';
 import { logger } from './lib/logger.js';
 import { requestIdMiddleware } from './lib/requestId.js';
 import { initSentry, setupSentryErrorHandler, captureException } from './lib/sentry.js';
-import { applyGlobalRateLimit } from './lib/rateLimit.js';
+import { applyGlobalRateLimit, authLimiter } from './lib/rateLimit.js';
 import { behaviorCaptureMiddleware } from './behavior/middleware.js';
 import { registerBehaviorEventWorker } from './behavior/worker.js';
 import {
@@ -143,7 +143,9 @@ applyGlobalRateLimit(app);
 
 // Better Auth MUST be mounted before express.json() — it reads the raw body itself.
 // authRouter registers GET /me first, then ALL /* for Better Auth's handler.
-app.use('/api/auth', authRouter);
+// authLimiter adds an explicit Express-layer 429 gate in front of Better Auth's
+// own limiter + the Redis otpLockout (defense-in-depth on login/OTP/refresh).
+app.use('/api/auth', authLimiter, authRouter);
 
 // Dev-only R2 stub (USE_MOCK_SERVICES=true). Mounted before express.json so
 // raw binary PUTs are handled by the router's own raw parser. Module is

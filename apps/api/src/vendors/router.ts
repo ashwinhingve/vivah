@@ -86,7 +86,10 @@ import {
   BlockedDateError,
 } from './blockedDates.service.js';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const vendorsRouter = Router();
+registerUuidParams(vendorsRouter, 'id', 'reviewId', 'inquiryId');
 
 const STATUS_BY_CODE: Record<string, number> = {
   NOT_FOUND:        404,

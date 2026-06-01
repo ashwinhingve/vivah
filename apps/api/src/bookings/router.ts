@@ -33,7 +33,10 @@ import {
 } from './service.js';
 import type { BookingStatus } from '@smartshaadi/types';
 
+import { registerUuidParams } from '../middleware/validateUuidParams.js';
+
 export const bookingsRouter = Router();
+registerUuidParams(bookingsRouter, 'id');
 
 // ── Error handler ─────────────────────────────────────────────────────────────
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import type { GuestSummary } from '@smartshaadi/types';
 
@@ -27,6 +28,7 @@ export function SendInvitations({
   weddingId: string;
   guests: GuestSummary[];
 }) {
+  const t = useTranslations('weddings.invite.send');
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(guests.filter((g) => g.rsvpStatus === 'PENDING').map((g) => g.id)),
@@ -48,7 +50,7 @@ export function SendInvitations({
 
   const submit = () => {
     if (selectedIds.size === 0) {
-      setError('Select at least one guest');
+      setError(t('selectAtLeastOne'));
       return;
     }
     setError(null);
@@ -68,7 +70,7 @@ export function SendInvitations({
           },
         );
         if (!res.ok) {
-          setError(`Failed (${res.status})`);
+          setError(t('failed', { status: res.status }));
           return;
         }
         const json = (await res.json()) as { success: boolean; data: SendResult };
@@ -77,7 +79,7 @@ export function SendInvitations({
           router.refresh();
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Network error');
+        setError(e instanceof Error ? e.message : t('networkError'));
       }
     });
   };
@@ -85,32 +87,32 @@ export function SendInvitations({
   return (
     <div className="bg-surface border border-gold/20 rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-heading text-lg text-primary">Send Invitations</h2>
+        <h2 className="font-heading text-lg text-primary">{t('heading')}</h2>
         <span className="text-xs text-muted-foreground">
-          {selectedIds.size} of {guests.length} selected
+          {t('selectedCount', { selected: selectedIds.size, total: guests.length })}
         </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
         <label className="text-xs">
-          <span className="block text-muted-foreground mb-1">Channel</span>
+          <span className="block text-muted-foreground mb-1">{t('channel')}</span>
           <select
             value={channel}
             onChange={(e) => setChannel(e.target.value as Channel)}
             className="w-full border border-gold/30 rounded-lg px-3 py-2"
           >
-            <option value="EMAIL">Email</option>
-            <option value="SMS">SMS</option>
-            <option value="WHATSAPP">WhatsApp</option>
+            <option value="EMAIL">{t('email')}</option>
+            <option value="SMS">{t('sms')}</option>
+            <option value="WHATSAPP">{t('whatsapp')}</option>
           </select>
         </label>
         <label className="text-xs sm:col-span-2">
-          <span className="block text-muted-foreground mb-1">Personal note (optional)</span>
+          <span className="block text-muted-foreground mb-1">{t('note')}</span>
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={500}
-            placeholder="With love, Priya & Rohan"
+            placeholder={t('notePlaceholder')}
             className="w-full border border-gold/30 rounded-lg px-3 py-2"
           />
         </label>
@@ -138,13 +140,13 @@ export function SendInvitations({
         disabled={pending || selectedIds.size === 0}
         className="rounded-lg bg-primary text-white px-4 py-2 text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
       >
-        {pending ? 'Sending…' : `Send ${selectedIds.size} invitation${selectedIds.size === 1 ? '' : 's'}`}
+        {pending ? t('sending') : t('send', { count: selectedIds.size })}
       </button>
 
       {result && (
         <div className="mt-4 rounded-lg bg-success/10 border border-success/30 p-3 text-xs text-success">
           <p className="font-medium">
-            Sent {result.sent ?? 0} · Failed {result.failed ?? 0}
+            {t('result', { sent: result.sent ?? 0, failed: result.failed ?? 0 })}
           </p>
           {result.rsvpLinks && result.rsvpLinks.length > 0 && (
             <ul className="mt-2 space-y-1">
@@ -156,7 +158,7 @@ export function SendInvitations({
                 </li>
               ))}
               {result.rsvpLinks.length > 5 && (
-                <li>…and {result.rsvpLinks.length - 5} more</li>
+                <li>{t('andMore', { count: result.rsvpLinks.length - 5 })}</li>
               )}
             </ul>
           )}
