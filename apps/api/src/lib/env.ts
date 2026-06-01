@@ -234,18 +234,37 @@ if (env.USE_MOCK_SERVICES) {
 }
 
 /**
+ * Pure derivation of the per-store mock/live gates from the raw flags. Extracted
+ * so the read AND write paths of every store consult one formula (a divergence
+ * here is the demo-week class of bug — writes live, reads mock). Pure + exported
+ * so flagParity.test.ts can assert the full truth table without env gymnastics.
+ *
+ * - shouldUseMockMongo: USE_MOCK_SERVICES=true AND MONGO_LIVE not set
+ * - shouldUseMockR2:    USE_MOCK_SERVICES=true AND R2_LIVE not set
+ * (MONGO_LIVE / R2_LIVE let a backend go real while the master toggle stays on.)
+ */
+export function deriveMockFlags(
+  useMockServices: boolean,
+  mongoLive: boolean,
+  r2Live: boolean,
+): { shouldUseMockMongo: boolean; shouldUseMockR2: boolean } {
+  return {
+    shouldUseMockMongo: useMockServices && !mongoLive,
+    shouldUseMockR2:    useMockServices && !r2Live,
+  };
+}
+
+/**
  * Single source of truth for whether profile services should write to
  * the in-memory mockStore vs the real MongoDB Atlas connection.
- *
- * - true  → write to mockStore.json (USE_MOCK_SERVICES=true AND MONGO_LIVE not set)
- * - false → write to MongoDB via mongoose (default real-services mode, OR MONGO_LIVE=true override)
  */
-export const shouldUseMockMongo = env.USE_MOCK_SERVICES && !env.MONGO_LIVE;
+export const shouldUseMockMongo = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE,
+).shouldUseMockMongo;
 
 /**
  * Mirror of shouldUseMockMongo for R2 photo storage.
- *
- * - true  → presigned URLs route through /__mock-r2/* on the API host
- * - false → real Cloudflare R2 presigned URLs (default real-services, OR R2_LIVE=true override)
  */
-export const shouldUseMockR2 = env.USE_MOCK_SERVICES && !env.R2_LIVE;
+export const shouldUseMockR2 = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE,
+).shouldUseMockR2;
