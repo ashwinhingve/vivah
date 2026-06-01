@@ -1,0 +1,16 @@
+{
+  "name": "@smartshaadi/evals",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI regression eval harness (promptfoo) — golden sets for the 11 AI features, routed through Helicone.",
+  "type": "module",
+  "scripts": {
+    "eval": "promptfoo eval -c promptfooconfig.yaml",
+    "eval:ci": "promptfoo eval -c promptfooconfig.yaml --no-progress-bar --no-table --output results.json",
+    "eval:llm": "promptfoo eval -c promptfooconfig.yaml --filter-pattern 'llm:' ",
+    "view": "promptfoo view"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.107.0"
+  }
+}

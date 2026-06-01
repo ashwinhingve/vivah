@@ -51,6 +51,13 @@ import {
   selectMuhurat,
   getMuhuratSuggestions,
 } from './service.js';
+import { z } from 'zod';
+import {
+  getInvitePreview,
+  upsertInvite,
+  publishInvite,
+  InviteError,
+} from './invite.service.js';
 
 export const weddingRouter = Router();
 
@@ -720,5 +727,68 @@ weddingRouter.get(
 
     await redis.set(cacheKey, JSON.stringify(payload), 'EX', FAQ_CACHE_TTL_SEC);
     ok(res, payload);
+  },
+);
+
+// ── Digital Invitation Builder (owner-only; public routes in invite.router) ──
+
+const InviteUpsertSchema = z.object({
+  templateId: z.string().max(50).optional(),
+  title: z.string().max(255).nullable().optional(),
+  message: z.string().max(1000).nullable().optional(),
+  rsvpEnabled: z.boolean().optional(),
+});
+
+function handleInviteError(res: Response, e: unknown): void {
+  if (e instanceof InviteError) {
+    const status = e.code === 'FORBIDDEN' ? 403 : e.code === 'NOT_FOUND' ? 404 : 400;
+    err(res, e.code, e.message, status);
+    return;
+  }
+  const message = e instanceof Error ? e.message : 'Invite operation failed';
+  err(res, 'INVITE_ERROR', message, 500);
+}
+
+weddingRouter.get(
+  '/:id/invite',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await getInvitePreview(req.user!.id, req.params['id']!);
+      ok(res, result);
+    } catch (e) {
+      handleInviteError(res, e);
+    }
+  },
+);
+
+weddingRouter.put(
+  '/:id/invite',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = InviteUpsertSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 400);
+      return;
+    }
+    try {
+      const invite = await upsertInvite(req.user!.id, req.params['id']!, parsed.data);
+      ok(res, invite);
+    } catch (e) {
+      handleInviteError(res, e);
+    }
+  },
+);
+
+weddingRouter.post(
+  '/:id/invite/publish',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const invite = await publishInvite(req.user!.id, req.params['id']!);
+      ok(res, invite);
+    } catch (e) {
+      handleInviteError(res, e);
+    }
   },
 );

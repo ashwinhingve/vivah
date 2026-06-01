@@ -21,6 +21,7 @@ import {
   user,
   profiles,
 } from '@smartshaadi/db';
+import { asProfileId } from '@smartshaadi/types';
 import * as matchReqService from '../matchmaking/requests/service.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -370,7 +371,7 @@ async function executeAction(action: DraftedAction): Promise<void> {
       .limit(1);
     if (!childProfile) throw svcError('NO_PROFILE', 'Child has no profile');
 
-    await matchReqService.sendRequest(childProfile.id, payload.targetProfileId, {
+    await matchReqService.sendRequest(asProfileId(childProfile.id), asProfileId(payload.targetProfileId), {
       message: payload.message,
     });
     return;

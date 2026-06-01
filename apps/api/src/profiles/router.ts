@@ -20,6 +20,7 @@ import { trackView, getRecentViewers } from './views.service.js';
 import { eq } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { profiles } from '@smartshaadi/db';
+import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { getPresignedUploadUrl } from '../storage/service.js';
 import { requireTier } from '../auth/requireTier.js';
 import { computeStrengthTips } from './strengthTips.js';
@@ -225,7 +226,7 @@ profilesRouter.get('/me/viewers', authenticate, asyncHandler(async (req: Request
     return;
   }
 
-  const viewers = await getRecentViewers(myProfile.id, limit);
+  const viewers = await getRecentViewers(asProfileId(myProfile.id), limit);
   ok(res, { viewers, total: viewers.length });
 }));
 
@@ -284,13 +285,13 @@ const IntroPresignSchema = z.object({
   mimeType: z.string().min(1).max(60),
 });
 
-async function resolveSelfProfileId(req: Request): Promise<string | null> {
+async function resolveSelfProfileId(req: Request): Promise<ProfileId | null> {
   const [row] = await db
     .select({ id: profiles.id })
     .from(profiles)
     .where(eq(profiles.userId, req.user!.id))
     .limit(1);
-  return row?.id ?? null;
+  return row ? asProfileId(row.id) : null;
 }
 
 profilesRouter.post('/me/audio-intro/presign', authenticate, asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -407,7 +408,7 @@ profilesRouter.get('/:id', authenticate, async (req: Request, res: Response): Pr
   }
 
   try {
-    const profile = await getProfileById(id, req.user!.id);
+    const profile = await getProfileById(asProfileId(id), req.user!.id);
     if (!profile) {
       err(res, 'PROFILE_NOT_FOUND', 'Profile not found or not active', 404);
       return;
@@ -423,7 +424,7 @@ profilesRouter.get('/:id', authenticate, async (req: Request, res: Response): Pr
           .where(eq(profiles.userId, req.user!.id))
           .limit(1);
         if (viewerProfile) {
-          await trackView(viewerProfile.id, req.user!.id, id);
+          await trackView(asProfileId(viewerProfile.id), req.user!.id, asProfileId(id));
         }
       } catch (trackErr) {
         console.error('[profiles] trackView failed', trackErr);

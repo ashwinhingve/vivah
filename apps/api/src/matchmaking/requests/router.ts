@@ -21,6 +21,7 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
+import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { authenticate } from '../../auth/middleware.js';
 import { db } from '../../lib/db.js';
 import { ok, err } from '../../lib/response.js';
@@ -115,9 +116,9 @@ function handleServiceError(res: Response, error: unknown): void {
   err(res, 'INTERNAL_ERROR', 'An unexpected error occurred', 500);
 }
 
-async function resolveProfileId(userId: string): Promise<string | null> {
+async function resolveProfileId(userId: string): Promise<ProfileId | null> {
   const [row] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
-  return row?.id ?? null;
+  return row ? asProfileId(row.id) : null;
 }
 
 // ── POST /requests ─────────────────────────────────────────────────────────────
@@ -170,7 +171,7 @@ matchRequestsRouter.post(
     }
 
     try {
-      const request = await sendRequest(resolved.profileId, receiverId, { message, priority });
+      const request = await sendRequest(resolved.profileId, asProfileId(receiverId), { message, priority });
       ok(res, {
         request,
         quota: quota
@@ -246,7 +247,7 @@ matchRequestsRouter.get(
     const myProfileId = await resolveProfileId(req.user!.id);
     if (!myProfileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
     try {
-      const result = await getMatchStatusWith(myProfileId, parsed.data);
+      const result = await getMatchStatusWith(myProfileId, asProfileId(parsed.data));
       ok(res, result);
     } catch (error) {
       handleServiceError(res, error);
@@ -385,8 +386,9 @@ matchRequestsRouter.post(
   '/block/:profileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['profileId'];
-    if (!targetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const rawTargetProfileId = req.params['profileId'];
+    if (!rawTargetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const targetProfileId = asProfileId(rawTargetProfileId);
     const parsed = BlockBody.safeParse(req.body ?? {});
     if (!parsed.success) {
       err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid body', 400);
@@ -409,8 +411,9 @@ matchRequestsRouter.delete(
   '/block/:profileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['profileId'];
-    if (!targetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const rawTargetProfileId = req.params['profileId'];
+    if (!rawTargetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const targetProfileId = asProfileId(rawTargetProfileId);
     const profileId = await resolveProfileId(req.user!.id);
     if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
     try {
@@ -428,8 +431,9 @@ matchRequestsRouter.post(
   '/report/:profileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['profileId'];
-    if (!targetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const rawTargetProfileId = req.params['profileId'];
+    if (!rawTargetProfileId) { err(res, 'VALIDATION_ERROR', 'Missing profileId', 400); return; }
+    const targetProfileId = asProfileId(rawTargetProfileId);
     const parsed = ReportBody.safeParse(req.body);
     if (!parsed.success) {
       err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid request body', 400);

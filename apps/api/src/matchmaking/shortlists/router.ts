@@ -13,6 +13,7 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
+import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { authenticate } from '../../auth/middleware.js';
 import { db } from '../../lib/db.js';
 import { ok, err } from '../../lib/response.js';
@@ -56,13 +57,13 @@ function handleServiceError(res: Response, error: unknown): void {
 
 // ── Profile ID resolver — Better Auth user ID → profile UUID ──────────────────
 
-async function resolveProfileId(userId: string): Promise<string | null> {
+async function resolveProfileId(userId: string): Promise<ProfileId | null> {
   const [row] = await db
     .select({ id: profiles.id })
     .from(profiles)
     .where(eq(profiles.userId, userId))
     .limit(1);
-  return row?.id ?? null;
+  return row ? asProfileId(row.id) : null;
 }
 
 // ── GET /shortlists/mine ──────────────────────────────────────────────────────
@@ -98,11 +99,12 @@ shortlistsRouter.get(
   '/is-shortlisted/:targetProfileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['targetProfileId'];
-    if (!targetProfileId) {
+    const rawTargetProfileId = req.params['targetProfileId'];
+    if (!rawTargetProfileId) {
       err(res, 'VALIDATION_ERROR', 'Missing targetProfileId', 400);
       return;
     }
+    const targetProfileId = asProfileId(rawTargetProfileId);
 
     const profileId = await resolveProfileId(req.user!.id);
     if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
@@ -122,11 +124,12 @@ shortlistsRouter.post(
   '/:targetProfileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['targetProfileId'];
-    if (!targetProfileId) {
+    const rawTargetProfileId = req.params['targetProfileId'];
+    if (!rawTargetProfileId) {
       err(res, 'VALIDATION_ERROR', 'Missing targetProfileId', 400);
       return;
     }
+    const targetProfileId = asProfileId(rawTargetProfileId);
 
     const parsed = AddShortlistBody.safeParse(req.body);
     if (!parsed.success) {
@@ -152,11 +155,12 @@ shortlistsRouter.delete(
   '/:targetProfileId',
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
-    const targetProfileId = req.params['targetProfileId'];
-    if (!targetProfileId) {
+    const rawTargetProfileId = req.params['targetProfileId'];
+    if (!rawTargetProfileId) {
       err(res, 'VALIDATION_ERROR', 'Missing targetProfileId', 400);
       return;
     }
+    const targetProfileId = asProfileId(rawTargetProfileId);
 
     const profileId = await resolveProfileId(req.user!.id);
     if (!profileId) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }

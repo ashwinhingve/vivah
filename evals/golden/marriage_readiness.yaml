@@ -1,0 +1,27 @@
+# Marriage Readiness — user-controlled composite. Validate readiness_score in
+# [0,100], the 3 dimension scores, and a next_actions array.
+
+- description: 'marriage_readiness: mid-engagement user — valid score + dimensions + actions'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: marriage_readiness
+    payload:
+      user_id: u-1
+      avg_msg_count_per_conv: 12
+      avg_msg_length: 80
+      profile_completeness: 70
+      age_pref_set: true
+      religion_pref_set: true
+      distance_pref_set: false
+      education_pref_set: true
+      lifestyle_pref_set: false
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.readiness_score >= 0 && r.readiness_score <= 100
+          && r.dimensions && ['communication_depth','completeness','goal_clarity']
+               .every(k => typeof r.dimensions[k] === 'number')
+          && Array.isArray(r.next_actions);

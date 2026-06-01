@@ -377,3 +377,40 @@ export interface ProfileContentResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Branded `ProfileId`
+// ---------------------------------------------------------------------------
+
+/**
+ * Branded `ProfileId` — an opaque tag over `profiles.id` (UUID).
+ *
+ * Background: Better Auth `userId` (TEXT, `user.id`) and `profileId`
+ * (`profiles.id` UUID) are DIFFERENT values. Passing a raw `userId` into a
+ * profile-keyed query silently 403s every request (see CLAUDE.md Rule 12).
+ * Branding `ProfileId` turns that recurring runtime bug into a COMPILE error:
+ * a plain `string` (a userId) is not assignable to a `ProfileId` parameter.
+ *
+ * `ProfileId extends string`, so a `ProfileId` value still flows freely into
+ * Drizzle `eq(column, profileId)` and `JSON.stringify` with no special
+ * handling — only the reverse (string → ProfileId) is blocked.
+ */
+declare const __profileIdBrand: unique symbol;
+export type ProfileId = string & { readonly [__profileIdBrand]: true };
+
+/**
+ * Sanctioned cast from `string` to `ProfileId`. Call this ONLY at a boundary
+ * where the value is genuinely a `profiles.id`:
+ *
+ *   1. Resolver return point — immediately after reading `profiles.id` from the
+ *      DB (`resolveProfileId`, `getProfileTier`).
+ *   2. Router inbound — after zod/UUID validation of a client-supplied id that
+ *      is structurally a `profiles.id` (e.g. `targetProfileId`, `receiverId`,
+ *      a `:profileId` URL param). The service then 404/403s if it doesn't exist.
+ *   3. Test fixtures — constructing a known profile id literal.
+ *
+ * NEVER call `asProfileId(req.user!.id)` — that is a Better Auth userId.
+ */
+export function asProfileId(value: string): ProfileId {
+  return value as ProfileId;
+}

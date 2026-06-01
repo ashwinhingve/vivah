@@ -1,0 +1,27 @@
+# Emotional Score — sentiment/enthusiasm/engagement/curiosity composite.
+# Validate score in [0,100], valid label/trend, and the 4-part breakdown.
+
+- description: 'emotional: warm chat scores in range with valid label + breakdown'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: emotional
+    payload:
+      match_id: eval-match-1
+      messages:
+        - { sender: A, text: 'I really enjoyed our chat yesterday!', timestamp: '2026-05-30T10:00:00Z' }
+        - { sender: B, text: 'Me too! What are your weekend plans?', timestamp: '2026-05-30T10:05:00Z' }
+        - { sender: A, text: 'Thinking of a short trek. Do you like the outdoors?', timestamp: '2026-05-30T10:10:00Z' }
+        - { sender: B, text: 'Love it! Which trail are you planning?', timestamp: '2026-05-30T10:12:00Z' }
+        - { sender: A, text: 'Probably Triund. Have you been?', timestamp: '2026-05-30T10:15:00Z' }
+        - { sender: B, text: 'Not yet but it is on my list — would love to hear how it goes!', timestamp: '2026-05-30T10:20:00Z' }
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.score >= 0 && r.score <= 100
+          && ['WARM','STEADY','COOLING'].includes(r.label)
+          && ['improving','stable','declining'].includes(r.trend)
+          && r.breakdown && ['sentiment','enthusiasm','engagement','curiosity']
+               .every(k => typeof r.breakdown[k] === 'number');

@@ -14,6 +14,7 @@ import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { profiles, profilePhotos } from '@smartshaadi/db';
 import { profileViews } from '@smartshaadi/db';
+import type { ProfileId } from '@smartshaadi/types';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -86,9 +87,9 @@ function calcAge(dob: Date | string | null | undefined): number | null {
  *   4. Otherwise insert a new row.
  */
 export async function trackView(
-  viewerProfileId: string,
+  viewerProfileId: ProfileId,
   viewerUserId: string,
-  viewedProfileId: string,
+  viewedProfileId: ProfileId,
 ): Promise<void> {
   // 1. No self-views
   if (viewerProfileId === viewedProfileId) return;
@@ -131,7 +132,7 @@ export async function trackView(
  * recent view is returned.
  */
 export async function getRecentViewers(
-  profileId: string,
+  profileId: ProfileId,
   limit = 30,
 ): Promise<RecentViewer[]> {
   // Fetch most recent view per unique viewer (subquery approach via DISTINCT ON pattern

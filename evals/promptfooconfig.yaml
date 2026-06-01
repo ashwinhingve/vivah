@@ -1,0 +1,64 @@
+# Smart Shaadi — AI regression eval harness.
+#
+# Golden sets for the 11 AI features. LLM features (Conversation Coach, DPI,
+# FII, Assistant) run through the Anthropic API via the Helicone proxy and are
+# graded on output STRUCTURE + key SAFETY behaviours. The 7 ML / deterministic
+# features (Emotional, FAQ, Stay, Guna Milan, Reputation, Profile Optimizer,
+# Marriage Readiness) run through a Python provider that calls the real
+# ai-service functions and are graded on schema + value ranges.
+#
+# Run:  HELICONE_API_KEY=... ANTHROPIC_API_KEY=... pnpm eval
+# Each test pins its own prompt + provider, so only the intended combo runs.
+
+description: Smart Shaadi 11-feature AI eval (Helicone-routed LLM + ML golden sets)
+
+prompts:
+  - id: file://prompts/coach.prompt.js
+    label: coach
+  - id: file://prompts/dpi.prompt.js
+    label: dpi
+  - id: file://prompts/fii.prompt.js
+    label: fii
+  - id: file://prompts/assistant.prompt.js
+    label: assistant
+  - id: file://prompts/ml.prompt.js
+    label: ml
+
+providers:
+  # LLM features — Sonnet through Helicone (Coach, FII, Assistant).
+  - id: anthropic:messages:claude-sonnet-4-6
+    label: helicone-sonnet
+    config:
+      apiBaseUrl: https://anthropic.helicone.ai
+      headers:
+        Helicone-Auth: Bearer {{ env.HELICONE_API_KEY }}
+        Helicone-Property-Feature: eval-harness
+      max_tokens: 800
+      temperature: 0.7
+  # DPI narrative runs on Opus (matches dpi_service.py).
+  - id: anthropic:messages:claude-opus-4-7
+    label: helicone-opus
+    config:
+      apiBaseUrl: https://anthropic.helicone.ai
+      headers:
+        Helicone-Auth: Bearer {{ env.HELICONE_API_KEY }}
+        Helicone-Property-Feature: eval-harness
+      max_tokens: 400
+      temperature: 0.5
+  # ML / deterministic features — real ai-service functions, no LLM.
+  - id: file://providers/ml_provider.py
+    label: ml
+
+# Golden test cases, one file per feature.
+tests:
+  - file://golden/coach.yaml
+  - file://golden/dpi.yaml
+  - file://golden/fii.yaml
+  - file://golden/assistant.yaml
+  - file://golden/emotional.yaml
+  - file://golden/faq.yaml
+  - file://golden/stay.yaml
+  - file://golden/guna_milan.yaml
+  - file://golden/reputation.yaml
+  - file://golden/profile_optimizer.yaml
+  - file://golden/marriage_readiness.yaml

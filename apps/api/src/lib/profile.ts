@@ -1,8 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
+import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { db } from './db.js';
 
-const cache = new Map<string, { profileId: string; expiresAt: number }>();
+const cache = new Map<string, { profileId: ProfileId; expiresAt: number }>();
 const TTL_MS = 60_000;
 
 /**
@@ -11,7 +12,7 @@ const TTL_MS = 60_000;
  * (match feed, chat sockets, every authenticated mutation touching profile-
  * keyed tables). Returns null if the user has no profile row yet.
  */
-export async function resolveProfileId(userId: string): Promise<string | null> {
+export async function resolveProfileId(userId: string): Promise<ProfileId | null> {
   const hit = cache.get(userId);
   if (hit && hit.expiresAt > Date.now()) return hit.profileId;
 
@@ -22,8 +23,9 @@ export async function resolveProfileId(userId: string): Promise<string | null> {
     .limit(1);
 
   if (!row) return null;
-  cache.set(userId, { profileId: row.id, expiresAt: Date.now() + TTL_MS });
-  return row.id;
+  const profileId = asProfileId(row.id); // sanctioned DB-boundary cast
+  cache.set(userId, { profileId, expiresAt: Date.now() + TTL_MS });
+  return profileId;
 }
 
 export function invalidateProfileIdCache(userId: string): void {

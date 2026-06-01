@@ -1,3 +1,4 @@
+import { asProfileId } from '@smartshaadi/types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ──────────────────────────────────────────────────────────────────────
@@ -92,7 +93,7 @@ describe('matchmaking/shortlists/service', () => {
   describe('addShortlist', () => {
     it('throws SELF_SHORTLIST when profileId === targetProfileId', async () => {
       const { addShortlist } = await import('../service.js');
-      await expect(addShortlist('profile-1', 'profile-1')).rejects.toMatchObject({
+      await expect(addShortlist(asProfileId('profile-1'), asProfileId('profile-1'))).rejects.toMatchObject({
         code: 'SELF_SHORTLIST',
       });
     });
@@ -114,7 +115,7 @@ describe('matchmaking/shortlists/service', () => {
       );
 
       const { addShortlist } = await import('../service.js');
-      const result = await addShortlist('profile-1', 'profile-2', 'interesting');
+      const result = await addShortlist(asProfileId('profile-1'), asProfileId('profile-2'), 'interesting');
 
       expect(result.id).toBe('sl-1');
       expect(result.profileId).toBe('profile-1');
@@ -153,7 +154,7 @@ describe('matchmaking/shortlists/service', () => {
       });
 
       const { addShortlist } = await import('../service.js');
-      const result = await addShortlist('profile-1', 'profile-2');
+      const result = await addShortlist(asProfileId('profile-1'), asProfileId('profile-2'));
 
       expect(insertCalled).toBe(true);
       expect(result.id).toBe('sl-existing');
@@ -170,7 +171,7 @@ describe('matchmaking/shortlists/service', () => {
       );
 
       const { removeShortlist } = await import('../service.js');
-      const result = await removeShortlist('profile-1', 'profile-2');
+      const result = await removeShortlist(asProfileId('profile-1'), asProfileId('profile-2'));
       expect(result).toBe(true);
     });
 
@@ -181,7 +182,7 @@ describe('matchmaking/shortlists/service', () => {
       );
 
       const { removeShortlist } = await import('../service.js');
-      const result = await removeShortlist('profile-1', 'profile-999');
+      const result = await removeShortlist(asProfileId('profile-1'), asProfileId('profile-999'));
       expect(result).toBe(false);
     });
   });
@@ -196,7 +197,7 @@ describe('matchmaking/shortlists/service', () => {
       );
 
       const { isShortlisted } = await import('../service.js');
-      expect(await isShortlisted('profile-1', 'profile-2')).toBe(true);
+      expect(await isShortlisted(asProfileId('profile-1'), asProfileId('profile-2'))).toBe(true);
     });
 
     it('returns false when no matching row exists', async () => {
@@ -206,7 +207,7 @@ describe('matchmaking/shortlists/service', () => {
       );
 
       const { isShortlisted } = await import('../service.js');
-      expect(await isShortlisted('profile-1', 'profile-2')).toBe(false);
+      expect(await isShortlisted(asProfileId('profile-1'), asProfileId('profile-2'))).toBe(false);
     });
   });
 
@@ -245,7 +246,7 @@ describe('matchmaking/shortlists/service', () => {
       });
 
       const { listShortlists } = await import('../service.js');
-      const result = await listShortlists('p-1', 1, 20);
+      const result = await listShortlists(asProfileId('p-1'), 1, 20);
 
       expect(result.total).toBe(2);
       expect(result.page).toBe(1);
@@ -277,7 +278,7 @@ describe('matchmaking/shortlists/service', () => {
       });
 
       const { listShortlists } = await import('../service.js');
-      await listShortlists('p-1', 2, 10);
+      await listShortlists(asProfileId('p-1'), 2, 10);
 
       expect(offsetMock).toHaveBeenCalledWith(10);
     });
@@ -304,7 +305,7 @@ describe('matchmaking/shortlists/service', () => {
       });
 
       const { listShortlists } = await import('../service.js');
-      const result = await listShortlists('p-1', 1, 20);
+      const result = await listShortlists(asProfileId('p-1'), 1, 20);
 
       expect(result.items).toHaveLength(0);
       expect(result.total).toBe(0);

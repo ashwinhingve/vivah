@@ -161,3 +161,64 @@ unresolved schema work.
   - Admin toggle UI at `/admin/settings` now writes succeed.
   - Engine reads the flag via `platformSettingsService`; defensive
     try/catch keeps behavior at "flag OFF" if the read ever fails.
+
+---
+
+## 0027 — Digital Invitation Builder (contract Item 16) — PENDING
+
+- **Source:** `packages/db/migrations/0027_invitation_builder.sql` (apply verbatim).
+- **Scope:** fully additive — `invite_status` enum + `wedding_invites` table +
+  `wedding_invites_slug_idx`. No DROP / TRUNCATE / ALTER COLUMN.
+- **Ordering:** generated on the canonical chain; apply after `0026_drift_rollup`.
+- **Verify:** `SELECT to_regclass('public.wedding_invites');`
+- **Validated** 2026-05-31 against a scratch PG16 DB: 12 columns, enum
+  `{DRAFT,PUBLISHED}`, indexes `pkey / wedding_id_unique / slug_unique / slug_idx`.
+
+---
+
+## 0027 — Digital Invitation Builder (contract Item 16) — PENDING
+
+> Generated cleanly on the canonical chain (after the `0026_drift_rollup`
+> rollup lands). Fully additive — one new enum, one new table, one index.
+> No DROP / TRUNCATE / ALTER COLUMN. Safe to apply via Railway SQL console
+> or `psql` with `ON_ERROR_STOP=1`. Source: `migrations/0027_invitation_builder.sql`.
+
+### Apply (all additive)
+
+```sql
+CREATE TYPE "public"."invite_status" AS ENUM('DRAFT', 'PUBLISHED');
+
+CREATE TABLE IF NOT EXISTS "wedding_invites" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"wedding_id" uuid NOT NULL,
+	"slug" varchar(32) NOT NULL,
+	"template_id" varchar(50) DEFAULT 'classic-royal' NOT NULL,
+	"status" "invite_status" DEFAULT 'DRAFT' NOT NULL,
+	"title" varchar(255),
+	"message" text,
+	"rsvp_enabled" boolean DEFAULT true NOT NULL,
+	"asset_key" varchar(500),
+	"published_at" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "wedding_invites_wedding_id_unique" UNIQUE("wedding_id"),
+	CONSTRAINT "wedding_invites_slug_unique" UNIQUE("slug")
+);
+
+DO $$ BEGIN
+ ALTER TABLE "wedding_invites" ADD CONSTRAINT "wedding_invites_wedding_id_weddings_id_fk" FOREIGN KEY ("wedding_id") REFERENCES "public"."weddings"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+CREATE INDEX IF NOT EXISTS "wedding_invites_slug_idx" ON "wedding_invites" USING btree ("slug");
+```
+
+### Verify
+
+```sql
+SELECT enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='invite_status';  -- DRAFT, PUBLISHED
+SELECT to_regclass('public.wedding_invites');  -- wedding_invites
+```
+
+> Locally validated 2026-05-31 against a scratch PG16 DB: 12 columns,
+> enum `{DRAFT,PUBLISHED}`, indexes `pkey / wedding_id_unique / slug_unique / slug_idx`.

@@ -1,3 +1,4 @@
+import { asProfileId } from '@smartshaadi/types';
 /**
  * Smart Shaadi — Profile Views Service Tests
  * apps/api/src/profiles/__tests__/views.service.test.ts
@@ -89,7 +90,7 @@ describe('trackView', () => {
 
   it('skips when viewerProfileId === viewedProfileId (self-view)', async () => {
     const { trackView } = await import('../views.service.js');
-    await trackView('profile-a', 'user-a', 'profile-a');
+    await trackView(asProfileId('profile-a'), 'user-a', asProfileId('profile-a'));
     expect(mockGetFn).not.toHaveBeenCalled();
     expect(mockInsert).not.toHaveBeenCalled();
   });
@@ -97,7 +98,7 @@ describe('trackView', () => {
   it('skips when viewer safetyMode.incognito is true', async () => {
     mockGetFn.mockReturnValueOnce({ safetyMode: { incognito: true } });
     const { trackView } = await import('../views.service.js');
-    await trackView('profile-a', 'user-a', 'profile-b');
+    await trackView(asProfileId('profile-a'), 'user-a', asProfileId('profile-b'));
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
@@ -106,7 +107,7 @@ describe('trackView', () => {
     // Simulate existing row found
     mockQueryResult = [{ id: 'existing-view-id' }];
     const { trackView } = await import('../views.service.js');
-    await trackView('profile-a', 'user-a', 'profile-b');
+    await trackView(asProfileId('profile-a'), 'user-a', asProfileId('profile-b'));
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
@@ -114,7 +115,7 @@ describe('trackView', () => {
     mockGetFn.mockReturnValueOnce({ safetyMode: { incognito: false } });
     mockQueryResult = []; // no existing row
     const { trackView } = await import('../views.service.js');
-    await trackView('profile-a', 'user-a', 'profile-b');
+    await trackView(asProfileId('profile-a'), 'user-a', asProfileId('profile-b'));
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockInsertValues).toHaveBeenCalledWith({
       viewerProfileId: 'profile-a',
@@ -126,7 +127,7 @@ describe('trackView', () => {
     mockGetFn.mockReturnValueOnce({ personal: { fullName: 'Ravi' } }); // no safetyMode key
     mockQueryResult = [];
     const { trackView } = await import('../views.service.js');
-    await trackView('profile-x', 'user-x', 'profile-y');
+    await trackView(asProfileId('profile-x'), 'user-x', asProfileId('profile-y'));
     expect(mockInsert).toHaveBeenCalledTimes(1);
   });
 });
@@ -140,7 +141,7 @@ describe('getRecentViewers', () => {
   it('returns empty array when no views exist', async () => {
     mockQueryResult = [];
     const { getRecentViewers } = await import('../views.service.js');
-    const result = await getRecentViewers('profile-z', 10);
+    const result = await getRecentViewers(asProfileId('profile-z'), 10);
     expect(result).toEqual([]);
   });
 
@@ -161,7 +162,7 @@ describe('getRecentViewers', () => {
       .mockReturnValueOnce({ personal: { fullName: 'Arjun', dob: '1993-03-15' }, location: { city: 'Delhi' } });
 
     const { getRecentViewers } = await import('../views.service.js');
-    const result = await getRecentViewers('profile-z', 10);
+    const result = await getRecentViewers(asProfileId('profile-z'), 10);
 
     expect(result).toHaveLength(2);
     expect(result[0]?.viewerProfileId).toBe('viewer-1');
@@ -181,7 +182,7 @@ describe('getRecentViewers', () => {
     mockGetFn.mockReturnValue(null);
 
     const { getRecentViewers } = await import('../views.service.js');
-    const result = await getRecentViewers('profile-z', 5);
+    const result = await getRecentViewers(asProfileId('profile-z'), 5);
     expect(result).toHaveLength(5);
   });
 
@@ -196,7 +197,7 @@ describe('getRecentViewers', () => {
     });
 
     const { getRecentViewers } = await import('../views.service.js');
-    const [viewer] = await getRecentViewers('profile-z', 10);
+    const [viewer] = await getRecentViewers(asProfileId('profile-z'), 10);
 
     expect(viewer?.name).toBe('Neha Sharma');
     expect(viewer?.city).toBe('Pune');
@@ -212,7 +213,7 @@ describe('getRecentViewers', () => {
     ];
 
     const { getRecentViewers } = await import('../views.service.js');
-    const [viewer] = await getRecentViewers('profile-z', 10);
+    const [viewer] = await getRecentViewers(asProfileId('profile-z'), 10);
 
     expect(viewer?.name).toBe('Unknown');
     expect(viewer?.age).toBeNull();

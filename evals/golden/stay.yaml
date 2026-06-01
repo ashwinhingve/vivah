@@ -1,0 +1,25 @@
+# Stay Quotient (churn risk) — admin-only. Validate probability in [0,1] and
+# a valid risk band + a recommended action string.
+
+- description: 'stay: disengaged user — valid churn probability + risk band'
+  prompts: [ml]
+  providers: [ml]
+  vars:
+    feature: stay
+    payload:
+      user_id: u-1
+      days_since_last_login: 21
+      messages_sent_last_7d: 0
+      profile_views_received_7d: 2
+      matches_accepted_total: 1
+      profile_completeness: 55
+      days_since_signup: 90
+      has_active_match_request: false
+  assert:
+    - type: is-json
+    - type: javascript
+      value: |
+        const r = JSON.parse(output);
+        return r.churn_probability >= 0 && r.churn_probability <= 1
+          && ['low','medium','high','critical'].includes(r.risk_band)
+          && typeof r.recommended_action === 'string' && r.recommended_action.length > 0;

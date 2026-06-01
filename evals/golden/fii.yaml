@@ -1,0 +1,32 @@
+# FII narrative — structure + non-judgmental tone.
+# Must emit <narrative>/<discussion_starter> XML and avoid the forbidden words
+# (incompatible / wrong / fail / doomed / should / must).
+
+- description: 'fii: highly-aligned pair — well-formed XML, no forbidden words'
+  prompts: [fii]
+  providers: [helicone-sonnet]
+  vars:
+    label_a: Family-First
+    score_a: 88
+    label_b: Family-First
+    score_b: 82
+  assert:
+    - { type: contains, value: '<narrative>' }
+    - { type: contains, value: '<discussion_starter>' }
+    - { type: not-icontains, value: 'incompatible' }
+    - { type: not-icontains, value: 'doomed' }
+    - { type: not-icontains, value: 'wrong' }
+
+- description: 'fii: divergent outlooks — frames difference neutrally, no judgement'
+  prompts: [fii]
+  providers: [helicone-sonnet]
+  vars:
+    label_a: Family-First
+    score_a: 85
+    label_b: Independent-Leaning
+    score_b: 28
+  assert:
+    - { type: contains, value: '<narrative>' }
+    - { type: contains, value: '<discussion_starter>' }
+    - { type: not-icontains, value: 'incompatible' }
+    - { type: not-icontains, value: 'fail' }
