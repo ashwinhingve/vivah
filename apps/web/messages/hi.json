@@ -444,6 +444,64 @@
         "title": "अपनी शादी प्लान करें — Smart Shaadi"
       },
       "heading": "अपनी शादी प्लान करें"
+    },
+    "invite": {
+      "builder": {
+        "back": "वापस",
+        "heading": "वेडिंग वेबसाइट",
+        "subtitle": "एक सार्वजनिक पेज जिसे मेहमान देख सकते हैं। लिंक अपने निमंत्रणों के साथ साझा करें।",
+        "liveLabel": "लाइव",
+        "liveUrl": "/w/{slug} · {views} व्यू",
+        "view": "देखें",
+        "slugLabel": "URL स्लग *",
+        "titleLabel": "शीर्षक *",
+        "storyLabel": "हमारी कहानी",
+        "storyPlaceholder": "हम कैसे मिले, हम शादी क्यों कर रहे हैं, मेहमानों को क्या जानना चाहिए…",
+        "heroLabel": "हीरो इमेज R2 की",
+        "themeLegend": "थीम",
+        "primary": "प्राइमरी",
+        "accent": "एक्सेंट",
+        "font": "फ़ॉन्ट",
+        "publishPublic": "सार्वजनिक प्रकाशित करें",
+        "showRsvp": "RSVP दिखाएं",
+        "showRegistry": "रजिस्ट्री दिखाएं",
+        "passwordLabel": "साइट पासवर्ड (वैकल्पिक)",
+        "passwordKeep": "पहले से सेट है — बनाए रखने के लिए खाली छोड़ें",
+        "passwordNone": "बिना पासवर्ड के लिए खाली छोड़ें",
+        "save": "बदलाव सहेजें",
+        "create": "वेबसाइट बनाएं"
+      },
+      "public": {
+        "saveTheDate": "तारीख सुरक्षित रखें",
+        "ourStory": "हमारी कहानी",
+        "schedule": "कार्यक्रम सूची",
+        "dress": "ड्रेस: {code}",
+        "tba": "घोषित किया जाना है",
+        "inspiration": "प्रेरणा",
+        "registry": "गिफ्ट रजिस्ट्री",
+        "claimed": "लिया गया",
+        "claimedBy": "{name} द्वारा लिया गया",
+        "rsvpHeading": "क्या आप हमारे साथ शामिल होंगे?",
+        "rsvpSubtext": "निमंत्रण में आपको भेजे गए व्यक्तिगत RSVP लिंक का उपयोग करें।",
+        "builtFooter": "प्यार के साथ · Smart Shaadi पर बनाया गया"
+      },
+      "send": {
+        "heading": "निमंत्रण भेजें",
+        "selectedCount": "{total} में से {selected} चयनित",
+        "channel": "चैनल",
+        "email": "ईमेल",
+        "sms": "एसएमएस",
+        "whatsapp": "व्हाट्सएप",
+        "note": "व्यक्तिगत संदेश (वैकल्पिक)",
+        "notePlaceholder": "प्यार के साथ, प्रिया और रोहन",
+        "selectAtLeastOne": "कम से कम एक मेहमान चुनें",
+        "failed": "विफल ({status})",
+        "networkError": "नेटवर्क त्रुटि",
+        "sending": "भेजा जा रहा है…",
+        "send": "{count, plural, one {# निमंत्रण भेजें} other {# निमंत्रण भेजें}}",
+        "result": "भेजे गए {sent} · विफल {failed}",
+        "andMore": "…और {count} अधिक"
+      }
     }
   },
   "matchCard": {

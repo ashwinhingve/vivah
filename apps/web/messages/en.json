@@ -444,6 +444,64 @@
         "title": "Plan Your Wedding — Smart Shaadi"
       },
       "heading": "Plan Your Wedding"
+    },
+    "invite": {
+      "builder": {
+        "back": "Back",
+        "heading": "Wedding Website",
+        "subtitle": "A public landing page guests can visit. Share the link via your invitations.",
+        "liveLabel": "Live",
+        "liveUrl": "/w/{slug} · {views} views",
+        "view": "View",
+        "slugLabel": "URL slug *",
+        "titleLabel": "Title *",
+        "storyLabel": "Our story",
+        "storyPlaceholder": "How we met, why we're getting married, what guests should know…",
+        "heroLabel": "Hero image R2 key",
+        "themeLegend": "Theme",
+        "primary": "Primary",
+        "accent": "Accent",
+        "font": "Font",
+        "publishPublic": "Publish public",
+        "showRsvp": "Show RSVP",
+        "showRegistry": "Show registry",
+        "passwordLabel": "Site password (optional)",
+        "passwordKeep": "Already set — leave blank to keep",
+        "passwordNone": "Leave blank for no password",
+        "save": "Save changes",
+        "create": "Create website"
+      },
+      "public": {
+        "saveTheDate": "Save the date",
+        "ourStory": "Our Story",
+        "schedule": "Schedule of Events",
+        "dress": "Dress: {code}",
+        "tba": "TBA",
+        "inspiration": "Inspiration",
+        "registry": "Gift Registry",
+        "claimed": "claimed",
+        "claimedBy": "claimed by {name}",
+        "rsvpHeading": "Will you join us?",
+        "rsvpSubtext": "Use the personal RSVP link sent to you in the invitation.",
+        "builtFooter": "With love · Built on Smart Shaadi"
+      },
+      "send": {
+        "heading": "Send Invitations",
+        "selectedCount": "{selected} of {total} selected",
+        "channel": "Channel",
+        "email": "Email",
+        "sms": "SMS",
+        "whatsapp": "WhatsApp",
+        "note": "Personal note (optional)",
+        "notePlaceholder": "With love, Priya & Rohan",
+        "selectAtLeastOne": "Select at least one guest",
+        "failed": "Failed ({status})",
+        "networkError": "Network error",
+        "sending": "Sending…",
+        "send": "Send {count, plural, one {# invitation} other {# invitations}}",
+        "result": "Sent {sent} · Failed {failed}",
+        "andMore": "…and {count} more"
+      }
     }
   },
   "matchCard": {

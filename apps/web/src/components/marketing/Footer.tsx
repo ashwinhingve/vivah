@@ -48,8 +48,8 @@ const columns: FooterColumn[] = [
   {
     headingKey: 'legalHeading',
     links: [
-      { label: 'Privacy Policy', href: '#', disabled: true },
-      { label: 'Terms of Service', href: '#', disabled: true },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
       { label: 'Refund Policy', href: '#', disabled: true },
       { label: 'Cookie Policy', href: '#', disabled: true },
     ],
