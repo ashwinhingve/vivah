@@ -2,9 +2,9 @@ import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'http'
 import { createAdapter } from '@socket.io/redis-adapter'
 import Redis from 'ioredis'
-import { auth } from '../../auth/config.js'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
+import { authenticateHandshake } from './auth.js'
 
 let ioInstance: Server | null = null
 let socketAdapterKind: 'redis' | 'memory' = 'memory'
@@ -63,20 +63,14 @@ export async function initSocket(server: HttpServer): Promise<Server> {
 
   const chat = io.of('/chat')
 
-  // Verify Better Auth session cookie passed from client handshake
+  // Verify the Better Auth session on the handshake — accepts either the
+  // explicit auth.token or the raw Cookie header (cross-origin withCredentials
+  // path). See authenticateHandshake() in ./auth.ts for the full rationale.
   chat.use(async (socket, next) => {
-    const token = socket.handshake.auth['token'] as string | undefined
-    if (!token) return next(new Error('Unauthorized'))
-    try {
-      const session = await auth.api.getSession({
-        headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
-      })
-      if (!session?.user) return next(new Error('Unauthorized'))
-      socket.data['userId'] = session.user.id
-      next()
-    } catch {
-      next(new Error('Unauthorized'))
-    }
+    const userId = await authenticateHandshake(socket.handshake)
+    if (!userId) return next(new Error('Unauthorized'))
+    socket.data['userId'] = userId
+    next()
   })
 
   chat.on('connection', (socket) => {
