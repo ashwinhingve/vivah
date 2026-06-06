@@ -10,7 +10,7 @@
  * - MongoDB ProfileContent reads are guarded with USE_MOCK_SERVICES
  */
 
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { db } from '../../lib/db.js';
 import { shouldUseMockMongo } from '../../lib/env.js';
 import { shortlists, profiles, profilePhotos } from '@smartshaadi/db';
@@ -21,6 +21,7 @@ import { ProfileContent as ProfileContentModel } from '../../infrastructure/mong
 // Cast it here to the minimal interface we need.
 interface IProfileContent {
   findOne(filter: Record<string, unknown>): { lean(): Promise<ProfileContentDoc | null> };
+  find(filter: Record<string, unknown>): { lean(): Promise<Array<ProfileContentDoc & { userId: string }>> };
 }
 interface ProfileContentDoc {
   personal?: { fullName?: string; dob?: Date };
@@ -161,7 +162,7 @@ export async function listShortlists(
 
   const total = Number(countRow?.count ?? 0);
 
-  const items = await Promise.all((rows as RawShortlistRow[]).map(enrichOne));
+  const items = await enrichMany(rows as RawShortlistRow[]);
 
   return { items, total, page, limit };
 }
@@ -191,72 +192,84 @@ interface RawShortlistRow {
   createdAt: Date;
 }
 
-async function enrichOne(row: RawShortlistRow): Promise<ShortlistItem> {
-  const targetId = row.targetProfileId;
+/**
+ * Batched enrichment — 3 queries TOTAL for any number of rows (was 3 serial
+ * queries PER row: profile + photo + Mongo findOne). One profiles query, one
+ * primary-photo `inArray` query, one mock-guarded `ProfileContent.find($in)`.
+ * Output per row is identical to the old per-row enrichOne.
+ */
+async function enrichMany(rows: RawShortlistRow[]): Promise<ShortlistItem[]> {
+  if (rows.length === 0) return [];
+  const targetIds = rows.map((r) => r.targetProfileId);
 
-  // Fetch verification status from Postgres profiles table
-  const [profileRow] = await db
-    .select({ verificationStatus: profiles.verificationStatus, userId: profiles.userId })
+  // 1) verification status + userId for every target — ONE query
+  const profileRows = await db
+    .select({ id: profiles.id, verificationStatus: profiles.verificationStatus, userId: profiles.userId })
     .from(profiles)
-    .where(eq(profiles.id, targetId))
-    .limit(1);
+    .where(inArray(profiles.id, targetIds));
+  const profById = new Map(profileRows.map((p) => [p.id, p]));
 
-  const verificationStatus = profileRow?.verificationStatus ?? 'PENDING';
-
-  // Fetch primary photo R2 key
-  const [photoRow] = await db
-    .select({ r2Key: profilePhotos.r2Key })
+  // 2) primary photo R2 keys for every target — ONE query
+  const photoRows = await db
+    .select({ profileId: profilePhotos.profileId, r2Key: profilePhotos.r2Key })
     .from(profilePhotos)
-    .where(and(eq(profilePhotos.profileId, targetId), eq(profilePhotos.isPrimary, true)))
-    .limit(1);
+    .where(and(inArray(profilePhotos.profileId, targetIds), eq(profilePhotos.isPrimary, true)));
+  const photoByProfileId = new Map<string, string | null>(
+    photoRows.map((ph) => [ph.profileId, ph.r2Key ?? null]),
+  );
 
-  const primaryPhotoKey = photoRow?.r2Key ?? null;
-
-  // Fetch name, dob, city from MongoDB ProfileContent (mock-guarded)
-  let name: string | null = null;
-  let age: number | null = null;
-  let city: string | null = null;
-
-  if (shouldUseMockMongo) {
-    // In mock mode, MongoDB is not connected — return null fields
-    name = null;
-    age = null;
-    city = null;
-  } else {
-    try {
-      // ProfileContent is keyed by the Better Auth userId (its only
-      // identifier), NOT the postgres profiles.id. Resolve targetId -> userId
-      // first; querying by profileId silently returns null for every profile.
-      const targetUserId = profileRow?.userId ?? null;
-      const content = targetUserId
-        ? await ProfileContent.findOne({ userId: targetUserId }).lean()
-        : null;
-      if (content) {
-        const personal = content.personal as {
-          fullName?: string;
-          dob?: Date;
-        } | undefined;
-        const location = content.location as { city?: string } | undefined;
-        name = personal?.fullName ?? null;
-        age = ageFromDob(personal?.dob ?? null);
-        city = location?.city ?? null;
+  // 3) ProfileContent for every target's userId — ONE batched query (mock-guarded).
+  // ProfileContent is keyed by Better Auth userId, NOT profiles.id — resolve via
+  // the profile rows above. Mock mode leaves the map empty → null fields (legacy).
+  const contentByUserId = new Map<string, ProfileContentDoc>();
+  if (!shouldUseMockMongo) {
+    const userIds = profileRows.map((p) => p.userId).filter((u): u is string => !!u);
+    if (userIds.length > 0) {
+      try {
+        const docs = await ProfileContent.find({ userId: { $in: userIds } }).lean();
+        for (const d of docs) if (d?.userId) contentByUserId.set(d.userId, d);
+      } catch (e) {
+        // Non-fatal — surface null fields rather than crashing the list
+        console.error('[shortlists.enrichMany] ProfileContent batch lookup failed:', e);
       }
-    } catch (e) {
-      // Non-fatal — surface null fields rather than crashing the list
-      console.error('[shortlists.enrichOne] ProfileContent lookup failed:', e);
     }
   }
 
-  return {
-    id:                 row.id,
-    profileId:          row.profileId,
-    targetProfileId:    row.targetProfileId,
-    note:               row.note,
-    createdAt:          row.createdAt,
-    name,
-    age,
-    city,
-    primaryPhotoKey,
-    verificationStatus,
-  };
+  return rows.map((row) => {
+    const prof = profById.get(row.targetProfileId);
+    const verificationStatus = prof?.verificationStatus ?? 'PENDING';
+    const primaryPhotoKey = photoByProfileId.get(row.targetProfileId) ?? null;
+
+    let name: string | null = null;
+    let age: number | null = null;
+    let city: string | null = null;
+    const targetUserId = prof?.userId ?? null;
+    const content = targetUserId ? contentByUserId.get(targetUserId) : undefined;
+    if (content) {
+      const personal = content.personal as { fullName?: string; dob?: Date } | undefined;
+      const location = content.location as { city?: string } | undefined;
+      name = personal?.fullName ?? null;
+      age = ageFromDob(personal?.dob ?? null);
+      city = location?.city ?? null;
+    }
+
+    return {
+      id:                 row.id,
+      profileId:          row.profileId,
+      targetProfileId:    row.targetProfileId,
+      note:               row.note,
+      createdAt:          row.createdAt,
+      name,
+      age,
+      city,
+      primaryPhotoKey,
+      verificationStatus,
+    };
+  });
+}
+
+/** Single-row wrapper over the batched path (used by addShortlist). */
+async function enrichOne(row: RawShortlistRow): Promise<ShortlistItem> {
+  const [item] = await enrichMany([row]);
+  return item!;
 }

@@ -195,8 +195,31 @@ async function loadContentForUser(uid: string): Promise<ContentDoc | null> {
   return (await model.findOne({ userId: uid }).lean()) ?? null;
 }
 
-export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
-  const doc = await loadContentForUser(row.userId);
+/**
+ * Batched content load — ONE Mongo round-trip for ALL candidate userIds (was a
+ * per-candidate findOne inside the feed loop — the N+1 this refactor kills).
+ * Mock-guarded (Rule 11): in mock mode reads the in-memory mockStore per uid
+ * (no round-trips); live mode issues a single `find({ userId: { $in } })`.
+ */
+async function loadContentForUsers(uids: string[]): Promise<Map<string, ContentDoc>> {
+  const map = new Map<string, ContentDoc>();
+  if (uids.length === 0) return map;
+  if (shouldUseMockMongo) {
+    for (const uid of uids) {
+      const doc = mockGet(uid) as ContentDoc | null;
+      if (doc) map.set(uid, doc);
+    }
+    return map;
+  }
+  const model = ProfileContent as unknown as {
+    find: (filter: object) => { lean: () => Promise<Array<ContentDoc & { userId: string }>> }
+  };
+  const docs = await model.find({ userId: { $in: uids } }).lean();
+  for (const d of docs) if (d?.userId) map.set(d.userId, d);
+  return map;
+}
+
+export function enrichRowWithDoc(row: ProfileRow, doc: ContentDoc | null): ProfileRow {
   if (!doc) return row;
   const enriched: ProfileRow = { id: row.id, userId: row.userId, isActive: row.isActive };
   const personal           = doc.personal           ?? row.personal;
@@ -228,6 +251,11 @@ export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
   if (row.latitude  !== undefined) enriched.latitude  = row.latitude;
   if (row.longitude !== undefined) enriched.longitude = row.longitude;
   return enriched;
+}
+
+/** Back-compat single-row wrapper. The feed hot path uses enrichRowWithDoc with a batched map. */
+export async function enrichRow(row: ProfileRow): Promise<ProfileRow> {
+  return enrichRowWithDoc(row, await loadContentForUser(row.userId));
 }
 
 // ── Row → ProfileData converter ───────────────────────────────────────────────
@@ -561,20 +589,25 @@ export async function computeAndCacheFeed(
     if (cz) r.community = cz;
   }
 
-  // Enrich candidates from MongoDB (or mockStore) so downstream filters see
-  // real age / religion / location / preferences, not schema defaults.
-  const eligibleRowsEnriched = await Promise.all(eligibleRowsRaw.map(enrichRow));
+  // Batch-load ProfileContent for every candidate in ONE round-trip (was a
+  // per-candidate findOne — the N+1 this refactor kills). This single map is the
+  // source of truth reused below for enrichment, safety flags, and name/age/city.
+  const contentByUserId = await loadContentForUsers(eligibleRowsRaw.map((r) => r.userId));
 
-  // 3b. Load safety flags for every candidate in one pass; hide incognito users
-  // from other people's feeds entirely. Incognito viewers still see everyone —
-  // the filter is one-directional.
-  const safetyByProfileId = new Map<string, NonNullable<ContentDoc['safetyMode']>>();
-  await Promise.all(
-    eligibleRowsEnriched.map(async (r) => {
-      const doc = await loadContentForUser(r.userId);
-      if (doc?.safetyMode) safetyByProfileId.set(r.id, doc.safetyMode);
-    }),
+  // Enrich candidates from the batched map so downstream filters see real
+  // age / religion / location / preferences, not schema defaults.
+  const eligibleRowsEnriched = eligibleRowsRaw.map(
+    (r) => enrichRowWithDoc(r, contentByUserId.get(r.userId) ?? null),
   );
+
+  // 3b. Load safety flags for every candidate from the same map; hide incognito
+  // users from other people's feeds entirely. Incognito viewers still see
+  // everyone — the filter is one-directional.
+  const safetyByProfileId = new Map<string, NonNullable<ContentDoc['safetyMode']>>();
+  for (const r of eligibleRowsEnriched) {
+    const doc = contentByUserId.get(r.userId);
+    if (doc?.safetyMode) safetyByProfileId.set(r.id, doc.safetyMode);
+  }
   const eligibleRows = eligibleRowsEnriched.filter((r) => {
     const sm = safetyByProfileId.get(r.id);
     return !(sm?.incognito || sm?.hideFromSearch);
@@ -652,18 +685,26 @@ export async function computeAndCacheFeed(
     unlockedProfileIds = new Set(unlockRows.map(r => r.profileId));
   }
   const photoMap = new Map<string, string | null>();
+  // Hidden-and-not-unlocked candidates get a null photo with no query; everyone
+  // else is fetched in ONE batched primary-photo read (was one SELECT per
+  // candidate — the Postgres half of the N+1).
+  const visiblePhotoIds: string[] = [];
   for (const profile of filteredProfiles) {
     if (photoHiddenProfileIds.has(profile.id) && !unlockedProfileIds.has(profile.id)) {
       photoMap.set(profile.id, null);
-      continue;
+    } else {
+      visiblePhotoIds.push(profile.id);
     }
-    const photoRows = await db
-      .select()
+  }
+  if (visiblePhotoIds.length > 0) {
+    const photoRows = await (db as unknown as DrizzleDB)
+      .select({ profileId: profilePhotos.profileId, r2Key: profilePhotos.r2Key })
       .from(profilePhotos)
-      .where(and(eq(profilePhotos.profileId, profile.id), eq(profilePhotos.isPrimary, true)))
-      .limit(1) as unknown[];
-    const photoRow = (photoRows[0] ?? null) as { r2Key?: string } | null;
-    photoMap.set(profile.id, photoRow?.r2Key ?? null);
+      .where(and(inArray(profilePhotos.profileId, visiblePhotoIds), eq(profilePhotos.isPrimary, true)))
+      .limit(visiblePhotoIds.length) as unknown as Array<{ profileId: string; r2Key: string | null }>;
+    const r2ByProfileId = new Map<string, string | null>();
+    for (const pr of photoRows) r2ByProfileId.set(pr.profileId, pr.r2Key ?? null);
+    for (const id of visiblePhotoIds) photoMap.set(id, r2ByProfileId.get(id) ?? null);
   }
 
   // 7. Score and rank
@@ -711,51 +752,39 @@ export async function computeAndCacheFeed(
     .limit(1000) as unknown as { target: string }[];
   const shortlistedSet = new Set(shortlistRows.map((r) => r.target));
 
-  // Attach names/ages/cities enriched from MongoDB ProfileContent
-  const feed: MatchFeedItem[] = await Promise.all(
-    ranked.map(async (item) => {
-      const uid = userIdMap.get(item.profileId);
-      let name = nameMap.get(item.profileId) ?? 'Unknown';
-      let age: number | null = item.age != null && item.age > 0 ? item.age : null;
-      let city = item.city;
+  // Attach names/ages/cities from the SAME batched content map loaded in step 3
+  // (was a per-candidate ProfileContent.findOne here — the last leg of the N+1).
+  // Same fields, same age math → identical output, zero extra round-trips.
+  const feed: MatchFeedItem[] = ranked.map((item) => {
+    const uid = userIdMap.get(item.profileId);
+    let name = nameMap.get(item.profileId) ?? 'Unknown';
+    let age: number | null = item.age != null && item.age > 0 ? item.age : null;
+    let city = item.city;
 
-      if (uid) {
-        if (shouldUseMockMongo) {
-          const mockDoc = mockGet(uid);
-          const mock = mockDoc?.['personal'] as { fullName?: string; dob?: string } | undefined;
-          const mockLoc = mockDoc?.['location'] as { city?: string } | undefined;
-          if (mock?.fullName) name = mock.fullName;
-          if (mock?.dob) age = Math.floor((Date.now() - new Date(mock.dob).getTime()) / 31557600000);
-          if (mockLoc?.city) city = mockLoc.city;
-        } else {
-          type ContentLean = { personal?: { fullName?: string; dob?: Date | string }; location?: { city?: string } };
-          const model = ProfileContent as unknown as { findOne: (filter: object, proj: object) => { lean: () => Promise<ContentLean | null> } };
-          const content = await model.findOne(
-            { userId: uid },
-            { 'personal.fullName': 1, 'personal.dob': 1, 'location.city': 1 },
-          ).lean();
-          if (content?.personal?.fullName) name = content.personal.fullName;
-          if (content?.personal?.dob) age = Math.floor((Date.now() - new Date(content.personal.dob).getTime()) / 31557600000);
-          if (content?.location?.city) city = content.location.city;
-        }
-      }
+    const doc = uid ? contentByUserId.get(uid) : undefined;
+    if (doc) {
+      const personal = doc.personal as { fullName?: string; dob?: Date | string } | undefined;
+      const loc = doc.location as { city?: string } | undefined;
+      if (personal?.fullName) name = personal.fullName;
+      if (personal?.dob) age = Math.floor((Date.now() - new Date(personal.dob).getTime()) / 31557600000);
+      if (loc?.city) city = loc.city;
+    }
 
-      const photoHidden =
-        photoHiddenProfileIds.has(item.profileId) &&
-        !unlockedProfileIds.has(item.profileId);
+    const photoHidden =
+      photoHiddenProfileIds.has(item.profileId) &&
+      !unlockedProfileIds.has(item.profileId);
 
-      return {
-        ...item,
-        name,
-        age,
-        city,
-        // every candidate passes the VERIFIED status gate in step 3 above
-        isVerified:  true,
-        photoHidden,
-        shortlisted: shortlistedSet.has(item.profileId),
-      };
-    }),
-  );
+    return {
+      ...item,
+      name,
+      age,
+      city,
+      // every candidate passes the VERIFIED status gate in step 3 above
+      isVerified:  true,
+      photoHidden,
+      shortlisted: shortlistedSet.has(item.profileId),
+    };
+  });
 
   // 8. Fire-and-forget: enqueue guna recalc for any pairs missing a score
   const pendingPairs = feed
