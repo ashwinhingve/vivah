@@ -8,7 +8,7 @@
 
 import {
   pgTable, pgEnum, uuid, varchar, text, boolean,
-  timestamp, date, integer, smallint, decimal, jsonb,
+  timestamp, date, integer, smallint, decimal, jsonb, vector,
   uniqueIndex, index,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
@@ -494,6 +494,10 @@ export const profiles = pgTable('profiles', {
   longitude:                decimal('longitude', { precision: 9, scale: 6 }),
   lifestyleTags:            lifestyleTagEnum('lifestyle_tags').array(),
   displayReadinessScore:    boolean('display_readiness_score').default(false).notNull(), // user-controlled display toggle for Marriage Readiness Score
+  // pgvector — 1536-dim profile embedding synced from Mongo ProfileContent.aiEmbedding.
+  // Forward infra for embedding-based matching; HNSW cosine index added by hand in 0029.
+  aiEmbedding:              vector('ai_embedding', { dimensions: 1536 }),
+  embeddingUpdatedAt:       timestamp('embedding_updated_at'),
 }, (t) => ({
   userIdx: index('profiles_user_idx').on(t.userId),
   statusIdx: index('profiles_status_idx').on(t.verificationStatus),

@@ -197,6 +197,13 @@
       "when": 1780246783767,
       "tag": "0027_invitation_builder",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1780735487081,
+      "tag": "0029_pgvector_embedding",
+      "breakpoints": true
     }
   ]
 }
