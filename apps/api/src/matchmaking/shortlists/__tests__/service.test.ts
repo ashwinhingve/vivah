@@ -12,10 +12,11 @@ vi.mock('@smartshaadi/db', () => ({
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:   vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and:  vi.fn((...args: unknown[]) => ({ type: 'and', args })),
-  desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
-  sql:  vi.fn(() => ({ type: 'sql' })),
+  eq:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  desc:    vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  sql:     vi.fn(() => ({ type: 'sql' })),
+  inArray: vi.fn((_col: unknown, _vals: unknown[]) => ({ type: 'inArray', _col, _vals })),
 }));
 
 vi.mock('../../../lib/env.js', () => ({
@@ -33,15 +34,19 @@ vi.mock('../../../infrastructure/mongo/models/ProfileContent.js', () => ({
 
 type AnyRecord = Record<string, unknown>;
 
-// A select chain where .limit() resolves (for single-row lookups)
+// A thenable select chain that resolves to `resolveWith` whether the caller
+// awaits at .limit()/.offset() (single-row + list lookups) or directly at
+// .where() (the batched enrichMany profiles/photos reads). Intermediate calls
+// chain; the final await triggers `.then`.
 function makeSelectChainLimitResolves(resolveWith: AnyRecord[]) {
-  return {
-    from:    vi.fn().mockReturnThis(),
-    where:   vi.fn().mockReturnThis(),
-    orderBy: vi.fn().mockReturnThis(),
-    limit:   vi.fn().mockResolvedValue(resolveWith),
-    offset:  vi.fn().mockResolvedValue(resolveWith),
-  };
+  const chain: AnyRecord = {};
+  chain['from']    = vi.fn(() => chain);
+  chain['where']   = vi.fn(() => chain);
+  chain['orderBy'] = vi.fn(() => chain);
+  chain['limit']   = vi.fn(() => chain);
+  chain['offset']  = vi.fn(() => chain);
+  chain['then']    = (resolve: (v: AnyRecord[]) => unknown) => Promise.resolve(resolveWith).then(resolve);
+  return chain;
 }
 
 function makeInsertChain(resolveWith: AnyRecord[]) {
