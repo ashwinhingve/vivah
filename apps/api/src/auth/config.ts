@@ -6,6 +6,8 @@ import { sql, eq as drizzleEq } from 'drizzle-orm';
 import { user, session, account, verification, twoFactor as twoFactorTable } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
+import { sessionCookieAttributes } from './cookieAttributes.js';
+import { authTrustedOrigins } from '../lib/cors.js';
 import { recordAuthEvent, isNewDevice, AuthEventType } from './events.js';
 import { recordOtpSent, recordOtpFailure, recordOtpSuccess, isPhoneLocked } from './otpLockout.js';
 
@@ -54,16 +56,10 @@ export const auth = betterAuth({
     useSecureCookies: false,
     cookies: {
       session_token: {
-        attributes: {
-          httpOnly: true,
-          secure:   env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          // Share the cookie across subdomains in prod so the Next.js app on
-          // smartshaadi.co.in can read the session set by the API on
-          // api.smartshaadi.co.in. The leading dot scopes it to the
-          // registrable domain.
-          ...(env.NODE_ENV === 'production' ? { domain: '.smartshaadi.co.in' } : {}),
-        },
+        // Prod: SameSite=None; Secure (+ Domain=.smartshaadi.co.in) for genuine
+        // cross-site credentialed requests; dev: Lax + insecure for localhost.
+        // See sessionCookieAttributes() for the full rationale.
+        attributes: sessionCookieAttributes(),
       },
     },
   },
@@ -204,7 +200,10 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [env.WEB_URL],
+  // Same allowlist as Express/socket CORS (lib/cors.ts) + Vercel preview globs —
+  // a preflight that CORS allows is useless if Better Auth then rejects the auth
+  // POST on origin grounds. Kept tight (project + team scope), never *.vercel.app.
+  trustedOrigins: authTrustedOrigins(),
 
   /**
    * Lifecycle hooks → audit log.

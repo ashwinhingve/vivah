@@ -2,9 +2,10 @@ import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'http'
 import { createAdapter } from '@socket.io/redis-adapter'
 import Redis from 'ioredis'
-import { auth } from '../../auth/config.js'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
+import { authenticateHandshake } from './auth.js'
+import { corsOriginDelegate } from '../../lib/cors.js'
 
 let ioInstance: Server | null = null
 let socketAdapterKind: 'redis' | 'memory' = 'memory'
@@ -36,17 +37,12 @@ async function attachRedisAdapter(io: Server): Promise<void> {
 }
 
 export async function initSocket(server: HttpServer): Promise<Server> {
-  // Mirrors apps/api/src/index.ts CORS allowlist; sourced from typed env
-  // (env.CORS_ORIGIN previously read via raw process.env — bypassed schema).
-  const allowedOrigins =
-    env.NODE_ENV === 'production'
-      ? [env.CORS_ORIGIN, env.WEB_URL, 'https://smartshaadi.co.in', 'https://www.smartshaadi.co.in']
-          .filter((o): o is string => Boolean(o))
-      : [env.WEB_URL, 'http://localhost:3000']
-
   const io = new Server(server, {
+    // Same allowlist delegate as the Express app (lib/cors.ts) — exact
+    // prod/dev origins + Vercel preview URLs — so REST and socket CORS never
+    // drift. credentials:true carries the session cookie cross-origin.
     cors: {
-      origin: allowedOrigins,
+      origin: corsOriginDelegate,
       credentials: true,
       methods: ['GET', 'POST'],
     },
@@ -63,20 +59,14 @@ export async function initSocket(server: HttpServer): Promise<Server> {
 
   const chat = io.of('/chat')
 
-  // Verify Better Auth session cookie passed from client handshake
+  // Verify the Better Auth session on the handshake — accepts either the
+  // explicit auth.token or the raw Cookie header (cross-origin withCredentials
+  // path). See authenticateHandshake() in ./auth.ts for the full rationale.
   chat.use(async (socket, next) => {
-    const token = socket.handshake.auth['token'] as string | undefined
-    if (!token) return next(new Error('Unauthorized'))
-    try {
-      const session = await auth.api.getSession({
-        headers: new Headers({ cookie: `better-auth.session_token=${token}` }),
-      })
-      if (!session?.user) return next(new Error('Unauthorized'))
-      socket.data['userId'] = session.user.id
-      next()
-    } catch {
-      next(new Error('Unauthorized'))
-    }
+    const userId = await authenticateHandshake(socket.handshake)
+    if (!userId) return next(new Error('Unauthorized'))
+    socket.data['userId'] = userId
+    next()
   })
 
   chat.on('connection', (socket) => {

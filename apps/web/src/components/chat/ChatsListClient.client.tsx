@@ -50,8 +50,9 @@ export default function ChatsListClient({
     const socket: Socket = contextSocket ?? (() => {
       const url = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
       const s = io(`${url}/chat`, {
-        auth:       { token: authToken },
-        transports: ['websocket'],
+        auth:           { token: authToken },
+        withCredentials: true,
+        transports:     ['websocket'],
       })
       ownSocketRef.current = s
       return s

@@ -101,6 +101,7 @@ import { logger } from './lib/logger.js';
 import { requestIdMiddleware } from './lib/requestId.js';
 import { initSentry, setupSentryErrorHandler, captureException } from './lib/sentry.js';
 import { applyGlobalRateLimit, authLimiter } from './lib/rateLimit.js';
+import { corsOriginDelegate } from './lib/cors.js';
 import { behaviorCaptureMiddleware } from './behavior/middleware.js';
 import { registerBehaviorEventWorker } from './behavior/worker.js';
 import {
@@ -119,18 +120,13 @@ app.use(requestIdMiddleware);
 // Security headers — disable CSP (handled by Next.js) and COEP (not needed for REST API)
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
-// CORS allowlist. Production: env.CORS_ORIGIN override (optional) + WEB_URL +
-// the two canonical apex hostnames. Dev: localhost siblings. Raw process.env
-// previously bypassed the typed schema — now sourced from lib/env.ts.
-const allowedOrigins =
-  env.NODE_ENV === 'production'
-    ? [env.CORS_ORIGIN, env.WEB_URL, 'https://smartshaadi.co.in', 'https://www.smartshaadi.co.in']
-        .filter((o): o is string => Boolean(o))
-    : [env.WEB_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
-
+// CORS allowlist — exact prod/dev origins + Vercel preview URLs for our project,
+// via the shared delegate in lib/cors.ts (also used by the chat socket server so
+// the two never drift). credentials:true is required for the session cookie;
+// the delegate never returns a wildcard, which browsers reject with credentials.
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: corsOriginDelegate,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],

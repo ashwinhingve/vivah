@@ -38,6 +38,11 @@ export function SocketProvider({ children }: SocketProviderProps) {
 
     const s = io(`${API_URL}/chat`, {
       auth: { token },
+      // Cross-origin (api.smartshaadi.co.in) clients can't read the httpOnly
+      // session cookie from JS, so `token` is empty there; withCredentials makes
+      // the browser send the cookie in the handshake header, which the server
+      // accepts as a fallback. Same-site (cross-subdomain) so SameSite=Lax sends it.
+      withCredentials: true,
       transports: ['websocket'],
       autoConnect: true,
       reconnection: true,
