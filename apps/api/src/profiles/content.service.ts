@@ -215,8 +215,8 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
     (doc?.partnerPreferences as Record<string, unknown> | undefined)?.ageRange != null;
 
   // Personality: complete when the user has saved the Big-Five style
-  // personalityScores section (sub-document under ProfileContent).
-  const personalityDoc = doc?.personalityScores as Record<string, unknown> | undefined;
+  // personality section (sub-document under ProfileContent — stored key is `personality`).
+  const personalityDoc = doc?.personality as Record<string, unknown> | undefined;
   const personality = personalityDoc != null && Object.keys(personalityDoc).length > 0;
 
   // 3. Get the profileId (uuid) from the profiles table — needed for photos count + upsert

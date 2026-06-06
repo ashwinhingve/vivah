@@ -347,7 +347,7 @@ describe('computeAndUpdateCompleteness', () => {
       lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'NEVER' },
       horoscope: { rashi: 'Aries' },
       partnerPreferences: { ageRange: { min: 25, max: 30 } },
-      personalityScores: { openness: 0.7, conscientiousness: 0.8, extraversion: 0.5, agreeableness: 0.6, neuroticism: 0.3 },
+      personality: { openness: 0.7, conscientiousness: 0.8, extraversion: 0.5, agreeableness: 0.6, neuroticism: 0.3 },
     };
     setupProfileContentFindOne(doc);
     setupSelectReturns([{ id: mockProfileId }], [{ value: 1 }]);
@@ -370,10 +370,10 @@ describe('computeAndUpdateCompleteness', () => {
     expect(score).toBe(15 + 20);  // personal + photos = 35
   });
 
-  it('counts personality complete when personalityScores has any keys', async () => {
+  it('counts personality complete when personality has any keys', async () => {
     const doc = {
       userId: mockUserId,
-      personalityScores: { openness: 0.7 },
+      personality: { openness: 0.7 },
     };
     setupProfileContentFindOne(doc);
     setupSelectReturns([{ id: mockProfileId }], [{ value: 0 }]);
