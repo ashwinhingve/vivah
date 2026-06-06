@@ -1,15 +1,30 @@
 import { env } from './env.js'
 
 /**
- * Vercel deployments of the `smartshaadiofficial` project — production alias and
- * per-branch / per-commit preview URLs:
- *   https://smartshaadiofficial.vercel.app
- *   https://smartshaadiofficial-git-<branch>-<team>.vercel.app
- *   https://smartshaadiofficial-<hash>-<team>.vercel.app
- * Anchored to the project prefix + `.vercel.app` suffix so it never matches an
- * arbitrary third-party *.vercel.app origin.
+ * Vercel deployments of the web app. The Vercel project is `vivah-web` and our
+ * Vercel team scope is `smartshaadiofficial-7717s-projects`, so deploy URLs are:
+ *   https://vivah-web.vercel.app                                            (project alias)
+ *   https://vivah-web-smartshaadiofficial-7717s-projects.vercel.app         (team-scoped alias)
+ *   https://vivah-web-git-<branch>-smartshaadiofficial-7717s-projects.vercel.app  (branch preview)
+ *   https://vivah-web-<hash>-smartshaadiofficial-7717s-projects.vercel.app        (commit preview)
+ * Anchored to BOTH the `vivah-web` project prefix and the unique team suffix so
+ * it never matches an arbitrary third-party *.vercel.app origin.
  */
-const VERCEL_PREVIEW_RE = /^https:\/\/smartshaadiofficial(?:-[a-z0-9-]+)?\.vercel\.app$/
+const VERCEL_PREVIEW_RES = [
+  /^https:\/\/vivah-web(?:-[a-z0-9-]+)?-smartshaadiofficial-7717s-projects\.vercel\.app$/,
+  /^https:\/\/vivah-web\.vercel\.app$/,
+]
+
+/**
+ * Same set expressed as Better Auth `trustedOrigins` glob patterns. Better
+ * Auth matches these with separator `/`, so `*` matches any non-slash host
+ * chars — equivalent to the regexes above for our single-label preview hosts.
+ */
+const VERCEL_PREVIEW_GLOBS = [
+  'https://vivah-web-*-smartshaadiofficial-7717s-projects.vercel.app',
+  'https://vivah-web-smartshaadiofficial-7717s-projects.vercel.app',
+  'https://vivah-web.vercel.app',
+]
 
 /**
  * Exact origins always permitted. Production: optional CORS_ORIGIN override +
@@ -33,7 +48,17 @@ export function staticAllowedOrigins(): string[] {
 export function isAllowedOrigin(origin: string | undefined): boolean {
   if (!origin) return true
   if (staticAllowedOrigins().includes(origin)) return true
-  return VERCEL_PREVIEW_RE.test(origin)
+  return VERCEL_PREVIEW_RES.some((re) => re.test(origin))
+}
+
+/**
+ * Origins Better Auth should trust for CSRF / callback validation. Must cover
+ * the SAME set as isAllowedOrigin() — Express CORS letting a preflight through
+ * is useless if Better Auth then rejects the auth POST on origin grounds. Exact
+ * static origins + the Vercel preview globs.
+ */
+export function authTrustedOrigins(): string[] {
+  return [...staticAllowedOrigins(), ...VERCEL_PREVIEW_GLOBS]
 }
 
 /**

@@ -7,6 +7,7 @@ import { user, session, account, verification, twoFactor as twoFactorTable } fro
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
 import { sessionCookieAttributes } from './cookieAttributes.js';
+import { authTrustedOrigins } from '../lib/cors.js';
 import { recordAuthEvent, isNewDevice, AuthEventType } from './events.js';
 import { recordOtpSent, recordOtpFailure, recordOtpSuccess, isPhoneLocked } from './otpLockout.js';
 
@@ -199,7 +200,10 @@ export const auth = betterAuth({
     },
   },
 
-  trustedOrigins: [env.WEB_URL],
+  // Same allowlist as Express/socket CORS (lib/cors.ts) + Vercel preview globs —
+  // a preflight that CORS allows is useless if Better Auth then rejects the auth
+  // POST on origin grounds. Kept tight (project + team scope), never *.vercel.app.
+  trustedOrigins: authTrustedOrigins(),
 
   /**
    * Lifecycle hooks → audit log.
