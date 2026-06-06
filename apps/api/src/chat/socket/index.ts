@@ -5,6 +5,7 @@ import Redis from 'ioredis'
 import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
 import { authenticateHandshake } from './auth.js'
+import { corsOriginDelegate } from '../../lib/cors.js'
 
 let ioInstance: Server | null = null
 let socketAdapterKind: 'redis' | 'memory' = 'memory'
@@ -36,17 +37,12 @@ async function attachRedisAdapter(io: Server): Promise<void> {
 }
 
 export async function initSocket(server: HttpServer): Promise<Server> {
-  // Mirrors apps/api/src/index.ts CORS allowlist; sourced from typed env
-  // (env.CORS_ORIGIN previously read via raw process.env — bypassed schema).
-  const allowedOrigins =
-    env.NODE_ENV === 'production'
-      ? [env.CORS_ORIGIN, env.WEB_URL, 'https://smartshaadi.co.in', 'https://www.smartshaadi.co.in']
-          .filter((o): o is string => Boolean(o))
-      : [env.WEB_URL, 'http://localhost:3000']
-
   const io = new Server(server, {
+    // Same allowlist delegate as the Express app (lib/cors.ts) — exact
+    // prod/dev origins + Vercel preview URLs — so REST and socket CORS never
+    // drift. credentials:true carries the session cookie cross-origin.
     cors: {
-      origin: allowedOrigins,
+      origin: corsOriginDelegate,
       credentials: true,
       methods: ['GET', 'POST'],
     },
