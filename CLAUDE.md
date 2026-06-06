@@ -140,11 +140,24 @@ pnpm db:studio      # Open Drizzle Studio visual browser
 - `pnpm install` once on the Windows side too — `node_modules` from WSL is not visible to Windows pnpm.
 
 **`drizzle-kit push` failure modes**
-- **Error 42P16 `column "id" is in a primary key`**: drizzle wants to widen/alter a PK-bound column (typically Better Auth `user`/`session`/`account`/`verification`/`two_factor` tables — text-id types). It blindly emits `ALTER COLUMN` without first dropping the PK, so it crashes. Do **not** force this. Fall back to:
-  1. `pnpm --filter @smartshaadi/db exec drizzle-kit push --verbose 2>&1 | Out-File push.log` — capture full SQL plan.
-  2. Inspect `push.log`, identify safe additive statements (CREATE TABLE / ADD COLUMN / CREATE INDEX), skip the destructive ALTERs on Better Auth PK columns.
-  3. Apply selected statements via `psql` directly.
+- **Error 42P16 `column "id" is in a primary key`**: drizzle crashes during schema pull (before showing any plan) when Better Auth tables (`user`/`session`/`account`/`verification`/`two_factor`) have text-id PK columns — it tries `ALTER COLUMN` without dropping the PK first. `db:push` is **completely unusable** against this prod DB. Do NOT retry. Use the Railway SQL console fallback instead (see below).
+- **Data-loss warning on column type change**: drizzle wants to change e.g. `text` → `varchar(N)` — always select **"No, abort"**. Fix by updating the schema to match prod (change to `text`) so no migration is emitted.
 - `drizzle-kit generate` writes an empty `.sql` file when local schema matches drizzle's last meta snapshot. It will **not** detect prod-DB drift — only `push` does.
+
+**Production migration fallback — Railway SQL console (use this instead of db:push)**
+
+`psql` is not installed on this machine. The only way to run SQL against Railway prod is:
+Railway Dashboard → Postgres service → **Data tab → Query**.
+
+For each pending migration file (`packages/db/migrations/00NN_*.sql`), paste the content
+into the Query box. The files are already idempotent (`IF NOT EXISTS`, `duplicate_object`
+guards) — safe to re-run. Apply **one file at a time**, verify row counts after each.
+
+**Never apply 0029_pgvector_embedding.sql** until you first confirm pgvector is available:
+```sql
+SELECT * FROM pg_available_extensions WHERE name = 'vector';
+```
+If that returns no rows, stop — contact Railway support to enable the extension.
 
 **Push-pipeline credentials**
 - Both `git push` (when WSL session runs `gh auth login` first) and Railway/Vercel CI auto-build on `main`. Pushing without `gh auth` fails with "could not read Username for 'https://github.com'" — switch to SSH remote or run `gh auth login` to fix.
