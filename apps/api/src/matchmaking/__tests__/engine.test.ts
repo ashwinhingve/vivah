@@ -73,6 +73,20 @@ vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
     findOne: vi.fn((filter: { userId?: string } = {}) => ({
       lean: () => Promise.resolve(filter.userId ? mockStoreGet(filter.userId) : null),
     })),
+    // Batched read path. Routes each $in userId through the SAME mockStoreGet stub
+    // so both the mock-mode and live-mode branches read one source of truth.
+    find: vi.fn((filter: { userId?: { $in?: string[] } } = {}) => ({
+      lean: () => {
+        const ids = filter.userId?.$in ?? [];
+        const docs = ids
+          .map((uid) => {
+            const d = mockStoreGet(uid);
+            return d ? { ...d, userId: uid } : null;
+          })
+          .filter((d): d is Record<string, unknown> & { userId: string } => d !== null);
+        return Promise.resolve(docs);
+      },
+    })),
   },
 }));
 
@@ -81,6 +95,7 @@ import { getCachedFeed, computeAndCacheFeed } from '../engine.js';
 import { applyHardFilters } from '../filters.js';
 import { scoreCandidate } from '../scorer.js';
 import { matchComputeQueue } from '../../infrastructure/redis/queues.js';
+import { ProfileContent } from '../../infrastructure/mongo/models/ProfileContent.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -284,6 +299,46 @@ describe('computeAndCacheFeed', () => {
     expect(item.isVerified).toBe(true);
     expect(typeof item.photoHidden).toBe('boolean');
     expect(typeof item.shortlisted).toBe('boolean');
+    mockStoreGet.mockReset();
+  });
+
+  // Regression guard for the N+1 batched-read refactor: the same candidate set,
+  // names and scores must come through, while content is read ONCE per user
+  // instead of the old 2N+F per-candidate findOne loop.
+  it('batched read yields the same candidate set + scores, with no per-candidate N+1', async () => {
+    const candidates = [
+      { id: 'p-2', userId: 'u-2', isActive: true },
+      { id: 'p-3', userId: 'u-3', isActive: true },
+      { id: 'p-4', userId: 'u-4', isActive: true },
+    ];
+    const content: Record<string, Record<string, unknown>> = {
+      'u-2': { personal: { fullName: 'Asha',   dob: new Date('1995-01-01') }, location: { city: 'Pune'   } },
+      'u-3': { personal: { fullName: 'Bina',   dob: new Date('1993-06-15') }, location: { city: 'Delhi'  } },
+      'u-4': { personal: { fullName: 'Chitra', dob: new Date('1996-03-20') }, location: { city: 'Mumbai' } },
+    };
+    mockStoreGet.mockImplementation((uid: string) => content[uid] ?? null);
+
+    const redis = makeRedis(null);
+    const result = await computeAndCacheFeed(USER_ID, makeDb({ candidates }) as never, redis);
+
+    // Same candidate set …
+    expect(result.map((r) => r.profileId).sort()).toEqual(['p-2', 'p-3', 'p-4']);
+    // … same names enriched from the batched map …
+    expect(new Set(result.map((r) => r.name))).toEqual(new Set(['Asha', 'Bina', 'Chitra']));
+    // … same cities …
+    expect(new Set(result.map((r) => r.city))).toEqual(new Set(['Pune', 'Delhi', 'Mumbai']));
+    // … same (mocked) scores — ranking unchanged.
+    for (const item of result) expect(item.compatibility.totalScore).toBe(72);
+
+    // N+1 killed: content is read once per user (3 candidates + 1 viewer = 4),
+    // deterministic across the mock/live gate since both route through mockStoreGet.
+    // Old path was 2N + F + 1 = 10.
+    expect(mockStoreGet).toHaveBeenCalledTimes(candidates.length + 1);
+    // The per-candidate findOne loop is gone — at most the single viewer read
+    // (only in the live-gate branch; zero in the mock branch).
+    const findOneMock = (ProfileContent as unknown as { findOne: ReturnType<typeof vi.fn> }).findOne;
+    expect(findOneMock.mock.calls.length).toBeLessThanOrEqual(1);
+
     mockStoreGet.mockReset();
   });
 });
