@@ -1279,7 +1279,7 @@ export const ceremonies = pgTable('ceremonies', {
   id:           uuid('id').primaryKey().defaultRandom(),
   weddingId:    uuid('wedding_id').notNull().references(() => weddings.id, { onDelete: 'cascade' }),
   type:         ceremonyTypeEnum('type').notNull(),
-  customTypeName: varchar('custom_type_name', { length: 100 }),
+  customTypeName: text('custom_type_name'),
   status:       ceremonyStatusEnum('status').default('SCHEDULED').notNull(),
   date:         date('date'),
   venue:        varchar('venue', { length: 255 }),
