@@ -197,6 +197,13 @@
       "when": 1780246783767,
       "tag": "0027_invitation_builder",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1780731736029,
+      "tag": "0028_sturdy_next_avengers",
+      "breakpoints": true
     }
   ]
 }

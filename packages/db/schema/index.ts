@@ -1552,6 +1552,16 @@ export {
   inviteStatusEnum, weddingInvites, weddingInvitesRelations,
 } from './weddingInvites';
 
+// ── Phase 5 (Tier 0) — VUE · Calendar · Pricing · B2B · Contracts ────────────
+export {
+  moneyCurrencyEnum,
+  capacityStatusEnum, vendorCapacity,
+  pricingRuleStatusEnum, pricingRules,
+  calendarEventKindEnum, auspiciousBandEnum, calendarEvents,
+  b2bAccountStatusEnum, b2bAccounts,
+  contractStatusEnum, esignProviderEnum, contracts,
+} from './phase5';
+
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
 // consent_ledger is append-only: every consent record is a new row. When a

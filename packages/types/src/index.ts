@@ -15,3 +15,10 @@ export * from './payments.js';
 export * from './socket.js';
 export * from './ai.js';
 export * from './events.js';
+// ── Phase 5 contracts (Tier 0) ──────────────────────────────────────────────
+export * from './money.js';
+export * from './vue.js';
+export * from './calendar.js';
+export * from './pricing.js';
+export * from './b2b.js';
+export * from './contract.js';

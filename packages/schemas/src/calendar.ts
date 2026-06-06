@@ -1,0 +1,24 @@
+import { z } from 'zod';
+
+// Mirrors @smartshaadi/types calendar.ts (Calendar Intelligence).
+
+export const CALENDAR_EVENT_KINDS = ['MUHURAT', 'FESTIVAL', 'SCHOOL', 'GOVT', 'REGIONAL', 'BLACKOUT'] as const;
+export const CalendarEventKindSchema = z.enum(CALENDAR_EVENT_KINDS);
+
+export const AUSPICIOUS_BANDS = ['NONE', 'LOW', 'MEDIUM', 'HIGH', 'PEAK'] as const;
+export const AuspiciousBandSchema = z.enum(AUSPICIOUS_BANDS);
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const CreateCalendarEventSchema = z.object({
+  kind:           CalendarEventKindSchema,
+  name:           z.string().min(1).max(255),
+  eventDate:      z.string().regex(ISO_DATE),
+  endDate:        z.string().regex(ISO_DATE).nullable().optional(),
+  region:         z.string().max(100).nullable().optional(),
+  source:         z.string().min(1).max(100),
+  auspiciousBand: AuspiciousBandSchema.default('NONE'),
+  metadata:       z.record(z.string(), z.unknown()).nullable().optional(),
+});
+
+export type CreateCalendarEventInput = z.infer<typeof CreateCalendarEventSchema>;
