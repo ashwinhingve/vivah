@@ -595,5 +595,193 @@
   },
   "welcome": {
     "supportFooter": "Questions? Email support@smartshaadi.co.in"
+  },
+  "legal": {
+    "privacy": {
+      "meta": {
+        "title": "Privacy Policy — Smart Shaadi",
+        "description": "How Smart Shaadi collects, uses, and protects your personal data, aligned with India's Digital Personal Data Protection Act, 2023 (DPDP)."
+      },
+      "pageTitle": "Privacy Policy",
+      "lastUpdated": "Last updated 1 June 2026",
+      "disclaimerTitle": "Starter template — not legal advice.",
+      "disclaimerBody": "This document is a placeholder drafted to align with the DPDP Act, 2023. It must be reviewed and finalised by qualified legal counsel (and translated for Hindi readers) before public launch.",
+      "sections": [
+        {
+          "heading": "1. Who we are",
+          "body": [
+            "Smart Shaadi (\"we\", \"us\", \"the Platform\") is a marriage-centric matchmaking and wedding-services platform operated in India. For the purposes of the Digital Personal Data Protection Act, 2023 (\"DPDP Act\"), we act as the Data Fiduciary for the personal data you provide.",
+            "Data Fiduciary: Smart Shaadi (legal entity name and registered address to be inserted before launch)."
+          ]
+        },
+        {
+          "heading": "2. Data we collect",
+          "body": [
+            "Account & profile data: name, date of birth, gender, phone number, email, community, location, photos, lifestyle and family details you choose to add to your profile.",
+            "Verification status only: when you complete KYC we store the verification result and a reference token. We do NOT store your raw Aadhaar number, full KYC documents, or biometric data.",
+            "Usage data: matches viewed, shortlists, chat metadata, device and log information used to operate and secure the service.",
+            "Payment data: handled by our payment processor (Razorpay). We store transaction status and references, not full card numbers."
+          ]
+        },
+        {
+          "heading": "3. Why we use your data (purpose)",
+          "body": [
+            "To create and operate your account, surface reciprocal matches, enable chat and contact sharing, process bookings and payments, run safety and fraud checks, and meet legal obligations.",
+            "Contact details (phone, email) are masked by default and are only revealed to another member after you explicitly unlock contact sharing for that specific match."
+          ]
+        },
+        {
+          "heading": "4. Consent and how to withdraw it",
+          "body": [
+            "We process your personal data on the basis of the consent you give when you register and when you enable specific features (e.g. KYC, contact sharing).",
+            "You may withdraw consent at any time from your account settings or by contacting our Grievance Officer. Withdrawing consent may limit or end your ability to use parts of the Platform. Withdrawal does not affect processing already carried out lawfully."
+          ]
+        },
+        {
+          "heading": "5. Your rights as a Data Principal",
+          "body": [
+            "Under the DPDP Act you have the right to: access a summary of your personal data and how it is processed; request correction or completion of inaccurate or incomplete data; request erasure of your data where it is no longer needed; nominate another individual to exercise your rights in the event of death or incapacity; and raise a grievance.",
+            "To exercise any of these rights, contact our Grievance Officer (below). We will respond within the timelines required by law."
+          ]
+        },
+        {
+          "heading": "6. Grievance redressal",
+          "body": [
+            "Grievance Officer: (name to be inserted before launch).",
+            "Email: grievance@smartshaadi.co.in.",
+            "If you are not satisfied with our response, you may approach the Data Protection Board of India."
+          ]
+        },
+        {
+          "heading": "7. Third-party processors",
+          "body": [
+            "We share the minimum data necessary with trusted processors who act on our instructions: Razorpay (payments), MSG91 (OTP and SMS), DigiLocker (identity verification), Cloudflare R2 (media storage), and AWS SES (email).",
+            "Each processor is bound to use your data only to provide their service to us."
+          ]
+        },
+        {
+          "heading": "8. Data retention",
+          "body": [
+            "We keep your personal data only as long as your account is active or as needed to provide the service and meet legal, tax, and dispute-resolution obligations. When data is no longer required, we delete or anonymise it."
+          ]
+        },
+        {
+          "heading": "9. Security",
+          "body": [
+            "We use industry-standard safeguards including encryption in transit, access controls, masked contact details, and stored verification status rather than raw identity documents. No system is perfectly secure, and we encourage you to protect your account credentials."
+          ]
+        },
+        {
+          "heading": "10. Children",
+          "body": [
+            "The Platform is intended only for individuals aged 18 and above. We do not knowingly create profiles for minors."
+          ]
+        },
+        {
+          "heading": "11. Changes to this policy",
+          "body": [
+            "We may update this policy from time to time. Material changes will be notified through the Platform. The \"Last updated\" date above reflects the latest revision."
+          ]
+        },
+        {
+          "heading": "12. Contact",
+          "body": [
+            "Questions about this policy: privacy@smartshaadi.co.in."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "meta": {
+        "title": "Terms of Service — Smart Shaadi",
+        "description": "The terms governing your use of the Smart Shaadi matchmaking and wedding-services platform."
+      },
+      "pageTitle": "Terms of Service",
+      "lastUpdated": "Last updated 1 June 2026",
+      "disclaimerTitle": "Starter template — not legal advice.",
+      "disclaimerBody": "This document is a placeholder. It must be reviewed and finalised by qualified legal counsel (and translated for Hindi readers) before public launch.",
+      "sections": [
+        {
+          "heading": "1. Acceptance of these terms",
+          "body": [
+            "By creating an account or using Smart Shaadi (the \"Platform\") you agree to these Terms of Service. If you do not agree, do not use the Platform."
+          ]
+        },
+        {
+          "heading": "2. Eligibility",
+          "body": [
+            "You must be at least 18 years old and legally permitted to marry under applicable Indian law to use the Platform. By using it you confirm that the information you provide is true and that you are using the service for genuine matrimonial purposes."
+          ]
+        },
+        {
+          "heading": "3. Your account and authentication",
+          "body": [
+            "Accounts are secured by phone-based OTP authentication. You are responsible for activity under your account and for keeping your device and credentials secure. Notify us immediately of any unauthorised use."
+          ]
+        },
+        {
+          "heading": "4. Acceptable use",
+          "body": [
+            "You agree not to: misrepresent your identity, marital status, or intentions; harass, abuse, or solicit other members; post unlawful, obscene, or fraudulent content; scrape or harvest data; or use the Platform for any purpose other than genuine matchmaking and wedding planning.",
+            "We may suspend or terminate accounts that violate these terms or our community standards."
+          ]
+        },
+        {
+          "heading": "5. Matchmaking — no guarantee",
+          "body": [
+            "The Platform provides tools, compatibility scores (including Guna Milan), and AI-assisted recommendations to help you find a match. We do not guarantee a marriage, a match, or the accuracy of any member-provided information. Decisions about whom you meet or marry are entirely your own, and you should exercise your own judgement and due diligence."
+          ]
+        },
+        {
+          "heading": "6. Payments, subscriptions, and refunds",
+          "body": [
+            "Paid plans and bookings are processed through our payment partner, Razorpay. Subscription pricing and renewal terms are shown at the point of purchase.",
+            "Vendor bookings may use an escrow mechanism; funds are released or refunded according to the booking and dispute terms presented at checkout. Refund eligibility is governed by our Refund Policy."
+          ]
+        },
+        {
+          "heading": "7. Vendors and third-party services",
+          "body": [
+            "Vendors listed on the Platform are independent third parties. We facilitate discovery and booking but are not a party to the contract between you and a vendor and are not liable for the quality or delivery of vendor services."
+          ]
+        },
+        {
+          "heading": "8. Intellectual property",
+          "body": [
+            "The Platform, its software, branding, and content (other than your own user content) are owned by Smart Shaadi or its licensors. You retain rights to content you upload but grant us a licence to host and display it for the purpose of operating the service."
+          ]
+        },
+        {
+          "heading": "9. Limitation of liability",
+          "body": [
+            "To the maximum extent permitted by law, Smart Shaadi is not liable for indirect, incidental, or consequential damages, or for the conduct of other members or vendors. The Platform is provided on an \"as is\" and \"as available\" basis."
+          ]
+        },
+        {
+          "heading": "10. Termination",
+          "body": [
+            "You may close your account at any time. We may suspend or terminate access for breach of these terms, for legal reasons, or to protect members. Provisions that by their nature should survive termination will continue to apply."
+          ]
+        },
+        {
+          "heading": "11. Governing law and disputes",
+          "body": [
+            "These terms are governed by the laws of India. Disputes are subject to the exclusive jurisdiction of the courts at the seat to be specified before launch."
+          ]
+        },
+        {
+          "heading": "12. Changes to these terms",
+          "body": [
+            "We may revise these terms from time to time. Material changes will be notified through the Platform. Continued use after changes take effect constitutes acceptance."
+          ]
+        },
+        {
+          "heading": "13. Contact",
+          "body": [
+            "Questions about these terms: support@smartshaadi.co.in."
+          ]
+        }
+      ]
+    }
   }
 }
