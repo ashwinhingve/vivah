@@ -41,7 +41,9 @@ export function SocketProvider({ children }: SocketProviderProps) {
       // Cross-origin (api.smartshaadi.co.in) clients can't read the httpOnly
       // session cookie from JS, so `token` is empty there; withCredentials makes
       // the browser send the cookie in the handshake header, which the server
-      // accepts as a fallback. Same-site (cross-subdomain) so SameSite=Lax sends it.
+      // accepts as a fallback. The cookie is Domain=.smartshaadi.co.in;
+      // SameSite=None; Secure (ADR-002) — web↔api is cross-site for cookies, so
+      // None (not Lax) is what actually sends it on this cross-origin handshake.
       withCredentials: true,
       transports: ['websocket'],
       autoConnect: true,

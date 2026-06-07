@@ -19,8 +19,11 @@ export interface HandshakeLike {
  *     connecting with `withCredentials` carries the httpOnly session cookie
  *     here; JS cannot read that cookie (auth/config.ts httpOnly:true) so its
  *     `auth.token` is empty. We accept the raw header so that path authenticates
- *     too. Cross-subdomain works because the cookie domain is
- *     `.smartshaadi.co.in` and SameSite=Lax permits same-site sends.
+ *     too. Cross-subdomain works because the cookie is set
+ *     `Domain=.smartshaadi.co.in; SameSite=None; Secure` (ADR-002): the Domain
+ *     shares it across the web/api subdomains, and SameSite=None is required
+ *     because web↔api is a cross-site request for cookie purposes (Lax would be
+ *     dropped on the cross-origin handshake). Dev over http falls back to Lax.
  *
  * Returns null when neither source carries a credential.
  */
