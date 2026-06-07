@@ -32,6 +32,14 @@ export const envSchema = z.object({
   // Lets us flip photos to real R2 in production without dropping the global mock flag.
   R2_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // KYC live override — INVERTED semantics vs MONGO_LIVE/R2_LIVE. KYC (DigiLocker/
+  // Aadhaar/PAN/bank/criminal/faceMatch/liveness) stays MOCKED unless KYC_LIVE='true'.
+  // This lets us flip USE_MOCK_SERVICES=false at payment-launch (real Razorpay + MSG91)
+  // while DigiLocker is still unregistered — KYC keeps returning mock results and the
+  // user-facing flow still reaches MANUAL_REVIEW for admin approval. Set KYC_LIVE=true
+  // only once DigiLocker creds (DIGILOCKER_CLIENT_ID/SECRET) are configured.
+  KYC_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // Pre-launch escape hatch: when 'true', the NODE_ENV=production +
   // USE_MOCK_SERVICES=true guard is bypassed. Intended for the pre-launch
   // window where external provider creds (MSG91 DLT, DigiLocker, Razorpay
@@ -242,15 +250,23 @@ if (env.USE_MOCK_SERVICES) {
  * - shouldUseMockMongo: USE_MOCK_SERVICES=true AND MONGO_LIVE not set
  * - shouldUseMockR2:    USE_MOCK_SERVICES=true AND R2_LIVE not set
  * (MONGO_LIVE / R2_LIVE let a backend go real while the master toggle stays on.)
+ *
+ * - shouldUseMockKyc: USE_MOCK_SERVICES=true OR KYC_LIVE not set — INVERTED logic.
+ *   Unlike the two gates above (which escape to live EARLY), KYC_LIVE keeps KYC
+ *   MOCKED even after the master toggle flips off, so DigiLocker stays stubbed
+ *   until its creds land. Real KYC happens only when KYC_LIVE=true AND
+ *   USE_MOCK_SERVICES=false.
  */
 export function deriveMockFlags(
   useMockServices: boolean,
   mongoLive: boolean,
   r2Live: boolean,
-): { shouldUseMockMongo: boolean; shouldUseMockR2: boolean } {
+  kycLive = false,
+): { shouldUseMockMongo: boolean; shouldUseMockR2: boolean; shouldUseMockKyc: boolean } {
   return {
     shouldUseMockMongo: useMockServices && !mongoLive,
     shouldUseMockR2:    useMockServices && !r2Live,
+    shouldUseMockKyc:   useMockServices || !kycLive,
   };
 }
 
@@ -268,3 +284,11 @@ export const shouldUseMockMongo = deriveMockFlags(
 export const shouldUseMockR2 = deriveMockFlags(
   env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE,
 ).shouldUseMockR2;
+
+/**
+ * KYC mock gate. True (mocked) unless KYC_LIVE=true AND USE_MOCK_SERVICES=false.
+ * Keeps DigiLocker stubbed through the payment-launch master flip — see deriveMockFlags.
+ */
+export const shouldUseMockKyc = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE,
+).shouldUseMockKyc;
