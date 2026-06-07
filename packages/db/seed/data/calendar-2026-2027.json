@@ -281,34 +281,10 @@
       "nakshatra": "Mula"
     },
     {
-      "date": "2026-07-01",
-      "band": "PEAK",
-      "tithi": "Dwitiya",
-      "nakshatra": "Uttara Ashadha"
-    },
-    {
-      "date": "2026-07-06",
-      "band": "PEAK",
-      "tithi": "Saptami",
-      "nakshatra": "Uttara Bhadrapada"
-    },
-    {
       "date": "2026-07-07",
       "band": "PEAK",
       "tithi": "Saptami",
       "nakshatra": "Uttara Bhadrapada"
-    },
-    {
-      "date": "2026-07-11",
-      "band": "PEAK",
-      "tithi": "Dwadashi",
-      "nakshatra": "Rohini"
-    },
-    {
-      "date": "2026-07-12",
-      "band": "PEAK",
-      "tithi": "Trayodashi",
-      "nakshatra": "Rohini, Mrigashira"
     },
     {
       "date": "2026-11-21",
@@ -1108,5 +1084,56 @@
       "date": "2027-10-02",
       "name": "Gandhi Jayanti"
     }
-  ]
+  ],
+  "disputed": {
+    "reason": "Panchang-convention dependent (Devshayani Ekadashi reckoning; Kharmas end). Resolution is an authority decision, not a data fix. See docs/calendar-muhurat-conventions.md.",
+    "julyPendingAuthority": [
+      {
+        "date": "2026-07-01",
+        "band": "MEDIUM",
+        "tithi": "Uttara Ashadha",
+        "nakshatra": "Dwitiya",
+        "note": "Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated."
+      },
+      {
+        "date": "2026-07-06",
+        "band": "MEDIUM",
+        "tithi": "Uttara Bhadrapada",
+        "nakshatra": "Saptami",
+        "note": "Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated."
+      },
+      {
+        "date": "2026-07-11",
+        "band": "MEDIUM",
+        "tithi": "Rohini",
+        "nakshatra": "Dwadashi",
+        "note": "Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated."
+      },
+      {
+        "date": "2026-07-12",
+        "band": "MEDIUM",
+        "tithi": "Rohini, Mrigashira",
+        "nakshatra": "Trayodashi",
+        "note": "Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated."
+      }
+    ],
+    "januaryOmittedPendingAuthority": [
+      {
+        "date": "2026-01-14",
+        "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded."
+      },
+      {
+        "date": "2026-01-23",
+        "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded."
+      },
+      {
+        "date": "2026-01-25",
+        "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded."
+      },
+      {
+        "date": "2026-01-28",
+        "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded."
+      }
+    ]
+  }
 }

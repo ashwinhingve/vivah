@@ -30,8 +30,15 @@ class TestDeterminism:
         assert len(dates) == len(set(dates))
 
     def test_known_counts(self) -> None:
-        assert len(cal.muhurats_for_year(2026)) == 60
+        # 2026 trimmed from 60 -> 56: four disputed July dates (01/06/11/12) held
+        # out pending a panchang-authority ruling on the Devshayani convention.
+        # See docs/calendar-muhurat-conventions.md.
+        assert len(cal.muhurats_for_year(2026)) == 56
         assert len(cal.muhurats_for_year(2027)) == 96
+
+    def test_disputed_july_not_seeded(self) -> None:
+        july = {m.date for m in cal.muhurats_for_year(2026) if m.date.startswith("2026-07")}
+        assert july == {"2026-07-07"}  # only the independently-corroborated date
 
     def test_nakshatra_names_known(self) -> None:
         for year in (2026, 2027):
@@ -106,9 +113,9 @@ class TestEndpoints:
         r = client.get("/ai/calendar/muhurats", params={"year": 2026})
         assert r.status_code == 200
         body = r.json()
-        assert body["count"] == 60
+        assert body["count"] == 56
         assert body["chaturmas"]["devshayani"] == "2026-07-25"
-        assert len(body["muhurats"]) == 60
+        assert len(body["muhurats"]) == 56
 
     def test_events_endpoint_kind_filter(self) -> None:
         r = client.get(

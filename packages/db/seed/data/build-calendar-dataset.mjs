@@ -66,9 +66,11 @@ const MUHURATS_2026 = [
   ['2026-06-23', 'Hasta', 'Navami'], ['2026-06-24', 'Swati', 'Dashami'],
   ['2026-06-25', 'Swati', 'Ekadashi'], ['2026-06-26', 'Anuradha', 'Dwadashi'],
   ['2026-06-27', 'Anuradha', 'Trayodashi'], ['2026-06-29', 'Mula', 'Purnima'],
-  ['2026-07-01', 'Uttara Ashadha', 'Dwitiya'], ['2026-07-06', 'Uttara Bhadrapada', 'Saptami'],
-  ['2026-07-07', 'Uttara Bhadrapada', 'Saptami'], ['2026-07-11', 'Rohini', 'Dwadashi'],
-  ['2026-07-12', 'Rohini, Mrigashira', 'Trayodashi'],
+  ['2026-07-07', 'Uttara Bhadrapada', 'Saptami'],
+  // NOTE: 2026-07-01/06/11/12 are DISPUTED (see DISPUTED_MUHURATS below) — they
+  // depend on Drik's Devshayani=25-Jul reading and are not independently
+  // corroborated; held out of the seeded list pending panchang-authority ruling.
+  // 2026-07-07 is independently corroborated (ProKerala), so it stays.
   // ── Chaturmas 2026: 25-Jul -> 21-Nov (no muhurats) ──
   ['2026-11-21', 'Revati', 'Dwadashi'], ['2026-11-24', 'Rohini', 'Pratipada'],
   ['2026-11-25', 'Rohini, Mrigashira', 'Pratipada'], ['2026-11-26', 'Mrigashira', 'Dwitiya'],
@@ -146,6 +148,31 @@ const FESTIVALS = [
   ['2027-11-14', 'Guru Nanak Jayanti'], ['2027-12-25', 'Christmas'],
 ];
 
+// ── DISPUTED — held out of the seeded `muhurats` list, NOT deleted ────────────
+// Encodes the cross-source disagreement so the knowledge survives. Resolution is
+// a panchang-authority decision (Colonel Deepak), not a data fix — see
+// docs/calendar-muhurat-conventions.md.
+//
+// (1) July 2026 cluster: valid under Drik's Devshayani Ekadashi = 25-Jul reading,
+//     but ProKerala/AstroSage/mPanchang start Chaturmas ~6-Jul and drop them.
+//     No independent source corroborates these four (2026-07-07 IS corroborated
+//     and remains seeded).
+const DISPUTED_MUHURATS = [
+  ['2026-07-01', 'Uttara Ashadha', 'Dwitiya'],
+  ['2026-07-06', 'Uttara Bhadrapada', 'Saptami'],
+  ['2026-07-11', 'Rohini', 'Dwadashi'],
+  ['2026-07-12', 'Rohini, Mrigashira', 'Trayodashi'],
+];
+// (2) January 2026 post-Sankranti dates: Drik + mPanchang list ZERO January
+//     (Kharmas/Dhanurmas); ProKerala includes these four (>= 14-Jan, post Makar
+//     Sankranti). Currently OMITTED (conservative) pending the same ruling.
+const OMITTED_JANUARY = [
+  ['2026-01-14', null, null],
+  ['2026-01-23', null, null],
+  ['2026-01-25', null, null],
+  ['2026-01-28', null, null],
+];
+
 // ── Govt (nationwide secular gazetted holidays) ───────────────────────────────
 const GOVT = [
   ['2026-01-26', 'Republic Day'], ['2026-08-15', 'Independence Day'], ['2026-10-02', 'Gandhi Jayanti'],
@@ -169,13 +196,33 @@ const dataset = {
   })),
   festivals: FESTIVALS.map(([date, name]) => ({ date, name })),
   govt: GOVT.map(([date, name]) => ({ date, name })),
+  // Documented cross-source disagreements — NOT seeded. See conventions doc.
+  disputed: {
+    reason:
+      'Panchang-convention dependent (Devshayani Ekadashi reckoning; Kharmas end). ' +
+      'Resolution is an authority decision, not a data fix. ' +
+      'See docs/calendar-muhurat-conventions.md.',
+    julyPendingAuthority: DISPUTED_MUHURATS.map(([date, tithi, nakshatra]) => ({
+      date,
+      band: bandFor(nakshatra),
+      tithi,
+      nakshatra,
+      note: 'Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated.',
+    })),
+    januaryOmittedPendingAuthority: OMITTED_JANUARY.map(([date]) => ({
+      date,
+      note: 'Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded.',
+    })),
+  },
 };
 
 const outPath = join(dirname(fileURLToPath(import.meta.url)), 'calendar-2026-2027.json');
 writeFileSync(outPath, JSON.stringify(dataset, null, 2) + '\n');
 console.log(
   `Wrote ${outPath}\n` +
-    `  muhurats: ${dataset.muhurats.length} ` +
+    `  muhurats (seeded): ${dataset.muhurats.length} ` +
     `(2026=${MUHURATS_2026.length}, 2027=${MUHURATS_2027.length})\n` +
-    `  festivals: ${dataset.festivals.length}  govt: ${dataset.govt.length}`,
+    `  festivals: ${dataset.festivals.length}  govt: ${dataset.govt.length}\n` +
+    `  disputed (NOT seeded): july=${dataset.disputed.julyPendingAuthority.length}, ` +
+    `january-omitted=${dataset.disputed.januaryOmittedPendingAuthority.length}`,
 );
