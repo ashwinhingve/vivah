@@ -26,17 +26,63 @@ describe('deriveMockFlags truth table', () => {
     expect(shouldUseMockR2).toBe(u && !r);
   });
 
-  it('production (all false) → both stores live', () => {
-    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false });
+  // kycLive omitted → defaults false → shouldUseMockKyc = useMock || !false = true in every row.
+  it('production (all false) → both stores live, KYC mocked', () => {
+    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true });
   });
   it('mock master only → both stores mock', () => {
-    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true });
+    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true });
   });
   it('mock + MONGO_LIVE → mongo live, r2 mock (incremental cutover)', () => {
-    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true });
+    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true });
   });
   it('mock + R2_LIVE → r2 live, mongo mock', () => {
-    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false });
+    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true });
+  });
+});
+
+// ── A2. KYC gate (INVERTED KYC_LIVE semantics) ───────────────────────────────
+// Unlike MONGO_LIVE/R2_LIVE (escape to live EARLY), KYC_LIVE keeps KYC MOCKED even
+// after the master toggle flips off. Real KYC only when KYC_LIVE=true AND master off.
+describe('shouldUseMockKyc (KYC_LIVE inverted override)', () => {
+  it('master off + KYC_LIVE unset → KYC stays MOCKED (the payment-launch case)', () => {
+    expect(deriveMockFlags(false, false, false, false).shouldUseMockKyc).toBe(true);
+  });
+  it('master off + KYC_LIVE=true → KYC goes REAL (DigiLocker registered)', () => {
+    expect(deriveMockFlags(false, false, false, true).shouldUseMockKyc).toBe(false);
+  });
+  it('master on → KYC MOCKED regardless of KYC_LIVE', () => {
+    expect(deriveMockFlags(true, false, false, false).shouldUseMockKyc).toBe(true);
+    expect(deriveMockFlags(true, false, false, true).shouldUseMockKyc).toBe(true);
+  });
+  it('kycLive param defaults to false (mocked) when omitted', () => {
+    expect(deriveMockFlags(false, false, false).shouldUseMockKyc).toBe(true);
+  });
+});
+
+// ── B3. KYC service mock parity (kyc/aadhaar.ts — the DigiLocker swap point) ──
+async function loadAadhaar(useMockKyc: boolean) {
+  vi.resetModules();
+  vi.doMock('../lib/env.js', () => ({
+    shouldUseMockKyc: useMockKyc,
+    shouldUseMockMongo: false,
+    shouldUseMockR2: false,
+    env: {},
+  }));
+  return import('../kyc/aadhaar.js');
+}
+
+describe('KYC mock parity (kyc/aadhaar)', () => {
+  it('shouldUseMockKyc=true → verifyDigiLockerCallback returns mock {verified, refId}', async () => {
+    const aadhaar = await loadAadhaar(true);
+    const result = await aadhaar.verifyDigiLockerCallback('any-code');
+    expect(result.verified).toBe(true);
+    expect(result.refId).toMatch(/^MOCK-/);
+  });
+
+  it('shouldUseMockKyc=false → verifyDigiLockerCallback throws (real DigiLocker unconfigured)', async () => {
+    const aadhaar = await loadAadhaar(false);
+    await expect(aadhaar.verifyDigiLockerCallback('any-code')).rejects.toThrow('Real DigiLocker client not yet configured');
   });
 });
 

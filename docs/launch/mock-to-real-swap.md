@@ -20,21 +20,25 @@ All booleans, default `false`. Parsed + validated at process boot.
 | `USE_MOCK_SERVICES` | Master toggle — when `true`, all external integrations are stubbed. |
 | `MONGO_LIVE` | Override: use real MongoDB even while `USE_MOCK_SERVICES=true`. |
 | `R2_LIVE` | Override: use real Cloudflare R2 even while `USE_MOCK_SERVICES=true`. |
+| `KYC_LIVE` | **Inverted** override: KYC (DigiLocker/Aadhaar/PAN/bank/criminal/faceMatch/liveness) stays **mocked** until this is `true`, even after `USE_MOCK_SERVICES=false`. Keeps DigiLocker stubbed through the master flip. |
 | `ALLOW_MOCK_SERVICES_IN_PROD` | Escape hatch: bypass the `NODE_ENV=production && USE_MOCK_SERVICES=true` boot guard. Do **not** set in a real launch. |
 | `MOCK_OTP_VALUE` | **Required** whenever `USE_MOCK_SERVICES=true` (no default — old `123456` backdoor removed). |
 
 **Derived gates (single source of truth — `deriveMockFlags`):**
 - `shouldUseMockMongo = USE_MOCK_SERVICES && !MONGO_LIVE`
 - `shouldUseMockR2    = USE_MOCK_SERVICES && !R2_LIVE`
+- `shouldUseMockKyc   = USE_MOCK_SERVICES || !KYC_LIVE` *(inverted — real KYC only when `KYC_LIVE=true` AND master off)*
 
 **Boot guards (process exits if violated):**
 - `NODE_ENV=production && USE_MOCK_SERVICES=true && !ALLOW_MOCK_SERVICES_IN_PROD`
 - `USE_MOCK_SERVICES=true && !MOCK_OTP_VALUE`
 
-> ⚠️ **There is no `RAZORPAY_LIVE` flag.** Razorpay (and MSG91, DigiLocker, SES) have
-> no granular override — they go live only when `USE_MOCK_SERVICES=false`. So the
-> incremental-cutover stages below apply to **Mongo and R2 only**; payments/SMS/KYC all
-> flip together at the final step. Plan the cutover window accordingly.
+> ⚠️ **There is no `RAZORPAY_LIVE` flag.** Razorpay and MSG91 have no granular override —
+> they go live only when `USE_MOCK_SERVICES=false`, and flip together at the final step.
+> **KYC is the exception:** it has its own `KYC_LIVE` flag (inverted semantics) so DigiLocker
+> stays mocked when the master flips, until DigiLocker registration lands. So the
+> incremental-cutover stages apply to **Mongo, R2, and KYC**; only payments/SMS flip together
+> at step 6. Plan the cutover window accordingly.
 
 ---
 
@@ -63,12 +67,18 @@ run the verify, and keep the rollback one-liner ready.
 - Takes effect only at step 6 (no `MSG91_LIVE` flag).
 - **Verify (after step 6):** request an OTP to a real handset; confirm delivery + login.
 
-### 4. DigiLocker (KYC) — OAuth callback, no webhook
-- Set `DIGILOCKER_CLIENT_ID` / `DIGILOCKER_CLIENT_SECRET`.
+### 4. DigiLocker (KYC) — OAuth callback, no webhook — own `KYC_LIVE` flag
+- Set `DIGILOCKER_CLIENT_ID` / `DIGILOCKER_CLIENT_SECRET`, then set `KYC_LIVE=true` (Railway).
+- `shouldUseMockKyc` → `false`: `getDigiLockerAuthUrl` / `verifyDigiLockerCallback` (and
+  PAN/bank/criminal/faceMatch/liveness) hit real providers instead of returning mock results.
 - Inbound point is `GET /api/v1/auth/kyc/callback` (session-authed, carries the OAuth
   `code`). Only verification **status** is stored — never raw Aadhaar/KYC documents.
-- Takes effect only at step 6.
-- **Verify (after step 6):** run the DigiLocker consent flow end-to-end; KYC status updates.
+- **This is independent of the master toggle.** Until `KYC_LIVE=true`, KYC stays mocked — even
+  after step 6 flips `USE_MOCK_SERVICES=false`. The mock path still drives a user submission to
+  `MANUAL_REVIEW`, so admin `approveKyc` works end-to-end without real DigiLocker. Leave
+  `KYC_LIVE` **unset** at launch since DigiLocker registration is still pending; flip it later.
+- **Verify (when flipped):** run the DigiLocker consent flow end-to-end; KYC status updates.
+- **Rollback:** unset `KYC_LIVE` (back to mock KYC + `MANUAL_REVIEW`).
 
 ### 5. Razorpay (payments) — two inbound webhooks
 - Railway (API): `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and
@@ -88,8 +98,11 @@ run the verify, and keep the rollback one-liner ready.
 ### 6. Flip the master toggle (LAST)
 - Set `USE_MOCK_SERVICES=false` (Railway + Vercel). Ensure `ALLOW_MOCK_SERVICES_IN_PROD`
   is **unset**. `MONGO_LIVE`/`R2_LIVE` become redundant but harmless.
-- This is when Razorpay, MSG91, DigiLocker, and SES all go live.
-- **Verify:** run steps 3/4/5 verifies; smoke OTP login, a payment, a KYC flow.
+- This is when Razorpay, MSG91, and SES go live. **KYC does NOT go live here** — it stays
+  mocked until `KYC_LIVE=true` is set separately (step 4). Confirm `KYC_LIVE` is unset so the
+  user-facing KYC flow keeps reaching `MANUAL_REVIEW` instead of throwing.
+- **Verify:** run steps 3/5 verifies; smoke OTP login, a payment, and a (mocked) KYC submission
+  that lands in `MANUAL_REVIEW` for admin approval.
 - **Rollback:** set `USE_MOCK_SERVICES=true` (and re-add `MOCK_OTP_VALUE`). All providers
   revert to stubs in one move.
 
@@ -100,7 +113,8 @@ run the verify, and keep the rollback one-liner ready.
 - [ ] `MONGO_LIVE` verified (step 1) and left on (or master about to flip).
 - [ ] `R2_LIVE` verified (step 2).
 - [ ] MSG91 DLT sender + template **approved**.
-- [ ] DigiLocker client credentials issued.
+- [ ] DigiLocker client credentials issued. **`KYC_LIVE` left unset** at launch (registration
+      pending) — KYC stays mocked and reaches `MANUAL_REVIEW`; flip `KYC_LIVE=true` only later.
 - [ ] Both Razorpay webhook endpoints registered with the live `RAZORPAY_WEBHOOK_SECRET`.
 - [ ] `ALLOW_MOCK_SERVICES_IN_PROD` unset; `MOCK_OTP_VALUE` removed from prod.
 - [ ] CI green incl. `*/webhook.replay.test.ts` and `flagParity.test.ts`.
