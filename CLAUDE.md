@@ -130,6 +130,20 @@ docs/              → Architecture, API, database documentation
 
 ---
 
+## Architecture Decisions (ADRs)
+
+Significant, hard-won architecture decisions are recorded in `docs/adr/`. Read
+the relevant one before changing the area it covers.
+
+- **ADR-001** — `docs/adr/ADR-001-pricing-model.md` — Dynamic Pricing v1 model.
+- **ADR-002** — `docs/adr/ADR-002-cross-origin-cookies-cors.md` — cross-origin
+  session cookie + CORS for web↔api (subdomain split: `smartshaadi.co.in` ↔
+  `api.smartshaadi.co.in`). Cookie `SameSite`/`Secure`/`Domain` per env, the
+  socket-handshake cookie fallback, the CORS allowlist, and why Phase 7 mobile
+  needs a token strategy (no cookies), not this path.
+
+---
+
 ## Commands
 
 ```bash
