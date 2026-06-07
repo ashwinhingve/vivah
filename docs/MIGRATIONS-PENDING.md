@@ -258,3 +258,39 @@ reconciliation, no `db:push`, no destructive ALTERs.
 > 🔐 **Security:** the prod `DATABASE_URL` was exposed in a chat transcript during
 > this op — **rotate the Railway Postgres password** (Railway env + Vercel env +
 > local `.env`) as a follow-up.
+
+---
+
+## ⚠️ DRIFT — migration tracking out of sync with prod (recorded 2026-06-07)
+
+Two prod schema changes were applied **outside** `drizzle-kit migrate`, so they are
+**not recorded in `__drizzle_migrations`**. Prod and the migration journal have
+drifted. Documented now while fresh; **reconcile properly later** (do NOT
+`drizzle-kit push` against prod — PK 42P16 hazard per CLAUDE.md).
+
+1. **`0028` (calendar_events) — console-applied, not journaled.**
+   The `calendar_event_kind` + `auspicious_band` enums and the `calendar_events`
+   table (migration file `0028_sturdy_next_avengers.sql`) were applied via the
+   Railway SQL console, not through `drizzle-kit migrate`. The `.sql` file exists
+   in `packages/db/migrations/` but `__drizzle_migrations` has no row for it.
+
+2. **`CREATE EXTENSION vector` — run directly, no migration file.**
+   pgvector was enabled with a direct `CREATE EXTENSION` against prod. There is no
+   migration file for it and no `__drizzle_migrations` entry. (Note: per CLAUDE.md,
+   `0029_pgvector_embedding.sql` must only be applied after confirming
+   `pg_available_extensions` lists `vector` — that confirmation/enable happened
+   out-of-band.)
+
+**Consequence:** a fresh `drizzle-kit migrate` against prod would try to re-apply
+`0028` (the file is idempotent — `IF NOT EXISTS` guards — so it's a safe no-op, but
+the journal still won't match). The migration journal is **not** a reliable record
+of prod state for these two items.
+
+**Reconcile later (not now):** either (a) insert the matching rows into
+`__drizzle_migrations` to mark `0028` (and a pgvector migration) as applied, or
+(b) rebuild the journal from a verified prod snapshot. Verify against prod first;
+never assume the journal is authoritative for `0028`/pgvector.
+
+**Seeded data (not a migration):** `calendar_events` was data-seeded on
+2026-06-07 (190 rows: MUHURAT 152 / FESTIVAL 32 / GOVT 6) via `db:seed:calendar`
+from PowerShell — idempotent (run 1 = 190 inserted, run 2 = 0). Data only, no DDL.
