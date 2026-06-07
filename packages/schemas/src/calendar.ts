@@ -22,3 +22,31 @@ export const CreateCalendarEventSchema = z.object({
 });
 
 export type CreateCalendarEventInput = z.infer<typeof CreateCalendarEventSchema>;
+
+// ── Read / response contracts ─────────────────────────────────────────────────
+
+/** Full calendar_events row as returned by the API. */
+export const CalendarEventSchema = z.object({
+  id:             z.string().uuid(),
+  kind:           CalendarEventKindSchema,
+  name:           z.string().min(1).max(255),
+  eventDate:      z.string().regex(ISO_DATE),
+  endDate:        z.string().regex(ISO_DATE).nullable(),
+  region:         z.string().max(100).nullable(),
+  source:         z.string().min(1).max(100),
+  auspiciousBand: AuspiciousBandSchema,
+  metadata:       z.record(z.string(), z.unknown()).nullable(),
+  createdAt:      z.string(),
+});
+
+export type CalendarEvent = z.infer<typeof CalendarEventSchema>;
+
+/** Query params for GET /api/v1/calendar/events (range + kind/region filter). */
+export const CalendarEventsQuerySchema = z.object({
+  from:   z.string().regex(ISO_DATE).optional(),
+  to:     z.string().regex(ISO_DATE).optional(),
+  kind:   CalendarEventKindSchema.optional(),
+  region: z.string().max(100).optional(),
+});
+
+export type CalendarEventsQuery = z.infer<typeof CalendarEventsQuerySchema>;
