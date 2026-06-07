@@ -1059,6 +1059,200 @@
       "name": "Christmas"
     }
   ],
+  "regionalFestivals": [
+    {
+      "date": "2026-01-13",
+      "name": "Lohri",
+      "region": "Punjab",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Eve of Sankranti; rabi-harvest bonfire"
+    },
+    {
+      "date": "2026-01-14",
+      "name": "Pongal",
+      "region": "Tamil Nadu",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Thai Pongal = Sankranti day (one source lists 15-Jan)"
+    },
+    {
+      "date": "2026-01-14",
+      "name": "Uttarayan",
+      "region": "Gujarat",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Kite festival on the Sankranti day"
+    },
+    {
+      "date": "2026-01-15",
+      "name": "Magh Bihu",
+      "region": "Assam",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Bhogali Bihu, day after Sankranti"
+    },
+    {
+      "date": "2026-03-19",
+      "name": "Ugadi",
+      "region": "Karnataka",
+      "community": null,
+      "astronomicalEvent": "Chaitra Shukla Pratipada",
+      "note": "Telugu/Kannada New Year"
+    },
+    {
+      "date": "2026-03-19",
+      "name": "Gudi Padwa",
+      "region": "Maharashtra",
+      "community": null,
+      "astronomicalEvent": "Chaitra Shukla Pratipada",
+      "note": "Marathi New Year (same tithi as Ugadi)"
+    },
+    {
+      "date": "2026-04-14",
+      "name": "Puthandu",
+      "region": "Tamil Nadu",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Tamil New Year (Chittirai 1)"
+    },
+    {
+      "date": "2026-04-14",
+      "name": "Vaisakhi",
+      "region": "Punjab",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Baisakhi; Sikh new year / harvest"
+    },
+    {
+      "date": "2026-04-15",
+      "name": "Rongali Bihu",
+      "region": "Assam",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Bohag Bihu — Assamese New Year day"
+    },
+    {
+      "date": "2026-04-15",
+      "name": "Pohela Boishakh",
+      "region": "West Bengal",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Bengali New Year (WB India convention)"
+    },
+    {
+      "date": "2026-09-15",
+      "name": "Paryushan (Samvatsari)",
+      "region": null,
+      "community": "Jain",
+      "astronomicalEvent": null,
+      "note": "Svetambara Samvatsari — community, not region-bound"
+    },
+    {
+      "date": "2026-10-19",
+      "name": "Durga Puja (Maha Ashtami)",
+      "region": "West Bengal",
+      "community": null,
+      "astronomicalEvent": null,
+      "note": "Iconic WB Durga Puja day; national Dussehra is 20-Oct"
+    },
+    {
+      "date": "2026-11-15",
+      "name": "Chhath Puja",
+      "region": "Bihar",
+      "community": null,
+      "astronomicalEvent": null,
+      "note": "Main Sandhya Arghya day (6 days after Diwali)"
+    },
+    {
+      "date": "2027-01-13",
+      "name": "Lohri",
+      "region": "Punjab",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Eve of Sankranti"
+    },
+    {
+      "date": "2027-01-15",
+      "name": "Pongal",
+      "region": "Tamil Nadu",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Aligns with national Makar Sankranti 15-Jan-2027"
+    },
+    {
+      "date": "2027-01-15",
+      "name": "Uttarayan",
+      "region": "Gujarat",
+      "community": null,
+      "astronomicalEvent": "Makar Sankranti",
+      "note": "Kite festival on the Sankranti day"
+    },
+    {
+      "date": "2027-04-07",
+      "name": "Ugadi",
+      "region": "Karnataka",
+      "community": null,
+      "astronomicalEvent": "Chaitra Shukla Pratipada",
+      "note": "Telugu/Kannada New Year"
+    },
+    {
+      "date": "2027-04-07",
+      "name": "Gudi Padwa",
+      "region": "Maharashtra",
+      "community": null,
+      "astronomicalEvent": "Chaitra Shukla Pratipada",
+      "note": "Marathi New Year"
+    },
+    {
+      "date": "2027-04-14",
+      "name": "Puthandu",
+      "region": "Tamil Nadu",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Tamil New Year (Chittirai 1)"
+    },
+    {
+      "date": "2027-04-14",
+      "name": "Vaisakhi",
+      "region": "Punjab",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Baisakhi"
+    },
+    {
+      "date": "2027-04-15",
+      "name": "Rongali Bihu",
+      "region": "Assam",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Bohag Bihu — Assamese New Year day"
+    },
+    {
+      "date": "2027-04-15",
+      "name": "Pohela Boishakh",
+      "region": "West Bengal",
+      "community": null,
+      "astronomicalEvent": "Mesha Sankranti",
+      "note": "Bengali New Year"
+    },
+    {
+      "date": "2027-10-07",
+      "name": "Durga Puja (Maha Ashtami)",
+      "region": "West Bengal",
+      "community": null,
+      "astronomicalEvent": null,
+      "note": "Maha Ashtami 7-Oct-2027 (Drik)"
+    },
+    {
+      "date": "2027-11-04",
+      "name": "Chhath Puja",
+      "region": "Bihar",
+      "community": null,
+      "astronomicalEvent": null,
+      "note": "Main Sandhya Arghya day"
+    }
+  ],
   "govt": [
     {
       "date": "2026-01-26",
@@ -1133,6 +1327,20 @@
       {
         "date": "2026-01-28",
         "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded."
+      }
+    ],
+    "regionalPendingAuthority": [
+      {
+        "date": "2026-04-14",
+        "name": "Vishu",
+        "region": "Kerala",
+        "note": "Medam Sankranti timing splits sources Apr 14 vs Apr 15 (Vishukkani next-day rule)."
+      },
+      {
+        "date": "2026-08-26",
+        "name": "Onam (Thiruvonam)",
+        "region": "Kerala",
+        "note": "Majority/Drik list 26-Aug; some list 1-Sep — Thiruvonam-nakshatra reckoning split (6-day delta)."
       }
     ]
   }

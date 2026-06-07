@@ -179,6 +179,66 @@ const GOVT = [
   ['2027-01-26', 'Republic Day'], ['2027-08-15', 'Independence Day'], ['2027-10-02', 'Gandhi Jayanti'],
 ];
 
+// ── REGIONAL / COMMUNITY festival variants ────────────────────────────────────
+// The SAME astronomical event lands on different dates and carries different
+// names by region; a Tamil user wants Pongal, a Punjabi user wants Lohri. Seeded
+// as kind=FESTIVAL with `region` set (NOT kind=REGIONAL) so a kind=FESTIVAL query
+// still surfaces them and the region column discriminates. `region` uses canonical
+// Indian state names (matches vendors.state); `community` (e.g. 'Jain') uses the
+// community_zones.community vocabulary and is region-agnostic.
+//
+// Every date below is corroborated by ≥2 public references (Drik Panchang +
+// ProKerala/Calendar Labs/National Today/state-specific sources, June 2026). The
+// solar Sankranti-cluster dates share the astronomical anchor already seeded as
+// the national Makar/Mesha Sankranti rows. Cross-source deltas and the ±1-day
+// solar-timing ambiguities that could not be cleanly resolved are NOT seeded —
+// they live in DISPUTED_REGIONAL below (encoded, not deleted), exactly like the
+// July muhurat cluster. See docs/calendar-muhurat-conventions.md.
+//
+// Row shape: [ISO date, name, region|null, community|null, astronomicalEvent|null, note?]
+const REGIONAL_FESTIVALS = [
+  // Makar Sankranti cluster (mid-Jan, solar — Sun enters Makara/Capricorn) ──────
+  ['2026-01-13', 'Lohri', 'Punjab', null, 'Makar Sankranti', 'Eve of Sankranti; rabi-harvest bonfire'],
+  ['2026-01-14', 'Pongal', 'Tamil Nadu', null, 'Makar Sankranti', 'Thai Pongal = Sankranti day (one source lists 15-Jan)'],
+  ['2026-01-14', 'Uttarayan', 'Gujarat', null, 'Makar Sankranti', 'Kite festival on the Sankranti day'],
+  ['2026-01-15', 'Magh Bihu', 'Assam', null, 'Makar Sankranti', 'Bhogali Bihu, day after Sankranti'],
+  // Lunar New Year (Chaitra Shukla Pratipada, late Mar) ────────────────────────
+  ['2026-03-19', 'Ugadi', 'Karnataka', null, 'Chaitra Shukla Pratipada', 'Telugu/Kannada New Year'],
+  ['2026-03-19', 'Gudi Padwa', 'Maharashtra', null, 'Chaitra Shukla Pratipada', 'Marathi New Year (same tithi as Ugadi)'],
+  // Mesha Sankranti solar New Year cluster (mid-Apr, Sun enters Mesha/Aries) ────
+  ['2026-04-14', 'Puthandu', 'Tamil Nadu', null, 'Mesha Sankranti', 'Tamil New Year (Chittirai 1)'],
+  ['2026-04-14', 'Vaisakhi', 'Punjab', null, 'Mesha Sankranti', 'Baisakhi; Sikh new year / harvest'],
+  ['2026-04-15', 'Rongali Bihu', 'Assam', null, 'Mesha Sankranti', 'Bohag Bihu — Assamese New Year day'],
+  ['2026-04-15', 'Pohela Boishakh', 'West Bengal', null, 'Mesha Sankranti', 'Bengali New Year (WB India convention)'],
+  // Major regional observances ─────────────────────────────────────────────────
+  ['2026-09-15', 'Paryushan (Samvatsari)', null, 'Jain', null, 'Svetambara Samvatsari — community, not region-bound'],
+  ['2026-10-19', 'Durga Puja (Maha Ashtami)', 'West Bengal', null, null, 'Iconic WB Durga Puja day; national Dussehra is 20-Oct'],
+  ['2026-11-15', 'Chhath Puja', 'Bihar', null, null, 'Main Sandhya Arghya day (6 days after Diwali)'],
+
+  // ── 2027 ──────────────────────────────────────────────────────────────────
+  ['2027-01-13', 'Lohri', 'Punjab', null, 'Makar Sankranti', 'Eve of Sankranti'],
+  ['2027-01-15', 'Pongal', 'Tamil Nadu', null, 'Makar Sankranti', 'Aligns with national Makar Sankranti 15-Jan-2027'],
+  ['2027-01-15', 'Uttarayan', 'Gujarat', null, 'Makar Sankranti', 'Kite festival on the Sankranti day'],
+  ['2027-04-07', 'Ugadi', 'Karnataka', null, 'Chaitra Shukla Pratipada', 'Telugu/Kannada New Year'],
+  ['2027-04-07', 'Gudi Padwa', 'Maharashtra', null, 'Chaitra Shukla Pratipada', 'Marathi New Year'],
+  ['2027-04-14', 'Puthandu', 'Tamil Nadu', null, 'Mesha Sankranti', 'Tamil New Year (Chittirai 1)'],
+  ['2027-04-14', 'Vaisakhi', 'Punjab', null, 'Mesha Sankranti', 'Baisakhi'],
+  ['2027-04-15', 'Rongali Bihu', 'Assam', null, 'Mesha Sankranti', 'Bohag Bihu — Assamese New Year day'],
+  ['2027-04-15', 'Pohela Boishakh', 'West Bengal', null, 'Mesha Sankranti', 'Bengali New Year'],
+  ['2027-10-07', 'Durga Puja (Maha Ashtami)', 'West Bengal', null, null, 'Maha Ashtami 7-Oct-2027 (Drik)'],
+  ['2027-11-04', 'Chhath Puja', 'Bihar', null, null, 'Main Sandhya Arghya day'],
+];
+
+// ── DISPUTED REGIONAL — held out of the seeded list, NOT deleted ──────────────
+// Cross-source disagreements that a panchang-authority ruling (Colonel Deepak)
+// must settle — same policy as the July muhurat cluster. Encoded so the
+// knowledge survives; never seeded.
+//   Row shape: [ISO date, name, region, note]
+const DISPUTED_REGIONAL = [
+  ['2026-04-14', 'Vishu', 'Kerala', 'Medam Sankranti timing splits sources Apr 14 vs Apr 15 (Vishukkani next-day rule).'],
+  ['2026-08-26', 'Onam (Thiruvonam)', 'Kerala', 'Majority/Drik list 26-Aug; some list 1-Sep — Thiruvonam-nakshatra reckoning split (6-day delta).'],
+];
+
 const dataset = {
   version: SOURCE,
   generatedFor: [2026, 2027],
@@ -195,6 +255,15 @@ const dataset = {
     nakshatra,
   })),
   festivals: FESTIVALS.map(([date, name]) => ({ date, name })),
+  // Regional / community festival variants (kind=FESTIVAL + region/community).
+  regionalFestivals: REGIONAL_FESTIVALS.map(([date, name, region, community, astronomicalEvent, note]) => ({
+    date,
+    name,
+    region: region ?? null,
+    community: community ?? null,
+    astronomicalEvent: astronomicalEvent ?? null,
+    note: note ?? null,
+  })),
   govt: GOVT.map(([date, name]) => ({ date, name })),
   // Documented cross-source disagreements — NOT seeded. See conventions doc.
   disputed: {
@@ -213,16 +282,30 @@ const dataset = {
       date,
       note: 'Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded.',
     })),
+    regionalPendingAuthority: DISPUTED_REGIONAL.map(([date, name, region, note]) => ({
+      date,
+      name,
+      region,
+      note,
+    })),
   },
 };
 
 const outPath = join(dirname(fileURLToPath(import.meta.url)), 'calendar-2026-2027.json');
 writeFileSync(outPath, JSON.stringify(dataset, null, 2) + '\n');
+const regionalByRegion = dataset.regionalFestivals.reduce((acc, r) => {
+  const key = r.community ? `community:${r.community}` : (r.region ?? 'national');
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
 console.log(
   `Wrote ${outPath}\n` +
     `  muhurats (seeded): ${dataset.muhurats.length} ` +
     `(2026=${MUHURATS_2026.length}, 2027=${MUHURATS_2027.length})\n` +
-    `  festivals: ${dataset.festivals.length}  govt: ${dataset.govt.length}\n` +
+    `  festivals (national): ${dataset.festivals.length}  govt: ${dataset.govt.length}\n` +
+    `  regionalFestivals (seeded): ${dataset.regionalFestivals.length} ` +
+    `→ ${JSON.stringify(regionalByRegion)}\n` +
     `  disputed (NOT seeded): july=${dataset.disputed.julyPendingAuthority.length}, ` +
-    `january-omitted=${dataset.disputed.januaryOmittedPendingAuthority.length}`,
+    `january-omitted=${dataset.disputed.januaryOmittedPendingAuthority.length}, ` +
+    `regional=${dataset.disputed.regionalPendingAuthority.length}`,
 );
