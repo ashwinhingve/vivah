@@ -1,10 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SWAP FLAG: Set USE_MOCK_SERVICES=false in .env once DigiLocker API approval
-// arrives, then implement the two TODO blocks below using the official SDK.
+// SWAP FLAG: Set KYC_LIVE=true in .env once DigiLocker API approval arrives, then
+// implement the two TODO blocks below using the official SDK. KYC stays mocked
+// while USE_MOCK_SERVICES flips off at payment-launch — only KYC_LIVE flips it real.
 // No other file needs to change.
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 
 export interface DigiLockerAuthUrl {
   authUrl: string;
@@ -18,7 +19,7 @@ export interface DigiLockerVerifyResult {
 }
 
 export async function getDigiLockerAuthUrl(redirectUri: string): Promise<DigiLockerAuthUrl> {
-  if (!env.USE_MOCK_SERVICES) {
+  if (!shouldUseMockKyc) {
     // TODO: import DigiLocker SDK and call getAuthUrl(redirectUri, scopes)
     throw new Error('Real DigiLocker client not yet configured');
   }
@@ -31,7 +32,7 @@ export async function getDigiLockerAuthUrl(redirectUri: string): Promise<DigiLoc
 }
 
 export async function verifyDigiLockerCallback(_code: string): Promise<DigiLockerVerifyResult> {
-  if (!env.USE_MOCK_SERVICES) {
+  if (!shouldUseMockKyc) {
     // TODO: exchange code for token, pull Aadhaar XML, extract name + DOB,
     //       confirm identity, then discard all PII. Return only refId.
     throw new Error('Real DigiLocker client not yet configured');

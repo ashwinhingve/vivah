@@ -4,7 +4,7 @@
 // Returns boolean cleared + provider refId.
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 import type { CriminalCheckResult } from '@smartshaadi/types';
 
 export interface CriminalCheckArgs {
@@ -14,7 +14,7 @@ export interface CriminalCheckArgs {
 }
 
 export async function checkCriminalRecord(args: CriminalCheckArgs): Promise<CriminalCheckResult> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     const upper = args.fullName.toUpperCase();
     const blocked = upper.includes('CRIMINAL') || upper.includes('CONVICT');
     return {

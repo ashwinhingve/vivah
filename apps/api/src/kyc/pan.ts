@@ -1,12 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // PAN verification adapter — NSDL/Karza/Cashfree.
-// SWAP FLAG: set USE_MOCK_SERVICES=false and PAN_PROVIDER + PAN_API_KEY to wire
+// SWAP FLAG: set KYC_LIVE=true and PAN_PROVIDER + PAN_API_KEY to wire
 // real provider. Mock-mode validates the PAN format and stamps a fake refId.
 // Never persist the raw PAN — caller stores last-4 only.
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID, createHash } from 'node:crypto';
 import { PanRegex } from '@smartshaadi/schemas';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 import type { PanVerificationResult } from '@smartshaadi/types';
 
 export interface PanVerifyArgs {
@@ -24,7 +24,7 @@ export async function verifyPan(args: PanVerifyArgs): Promise<PanVerificationRes
   const pan = args.pan.toUpperCase().trim();
   if (!PanRegex.test(pan)) return { verified: false, refId: '', panLast4: '' };
 
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     // Mock heuristics: any well-formed PAN passes EXCEPT 'XXXXX' prefix used in tests
     const blocked = pan.startsWith('XXXXX');
     return {

@@ -4,7 +4,7 @@
 // HEAD_TURN_RIGHT, BLINK, SMILE}. Spoof detection scaffolded — provider
 // integration (FaceX / HyperVerge / IDfy) plugs in here.
 // ─────────────────────────────────────────────────────────────────────────────
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 import type { LivenessResult } from '@smartshaadi/types';
 
 export interface LivenessArgs {
@@ -15,7 +15,7 @@ export interface LivenessArgs {
 const REQUIRED_CHALLENGES = 2;
 
 export async function checkLiveness(args: LivenessArgs): Promise<LivenessResult> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     const passed = args.challengesPassed.length >= REQUIRED_CHALLENGES;
     const baseScore = Math.min(100, args.challengesPassed.length * 28 + 16);
     // Mock spoof flag if no challenges submitted at all

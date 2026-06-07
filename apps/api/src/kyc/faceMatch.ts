@@ -3,7 +3,7 @@
 // Real path: AWS Rekognition CompareFaces. Mock: deterministic score from key.
 // ─────────────────────────────────────────────────────────────────────────────
 import { createHash } from 'node:crypto';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 import type { FaceMatchResult } from '@smartshaadi/types';
 
 export interface FaceMatchArgs {
@@ -15,7 +15,7 @@ export interface FaceMatchArgs {
 const MATCH_THRESHOLD = 75;
 
 export async function compareFaces(args: FaceMatchArgs): Promise<FaceMatchResult> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     // Deterministic 60–98 score from hash so tests are stable
     const h = createHash('sha256').update(args.selfieR2Key + args.aadhaarRefId).digest();
     const score = 60 + (h[0]! % 39);

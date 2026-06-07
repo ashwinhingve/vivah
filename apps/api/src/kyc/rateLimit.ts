@@ -4,7 +4,7 @@
 // In mock-mode (no Redis available) the limiter is a no-op so dev/tests pass.
 // ─────────────────────────────────────────────────────────────────────────────
 import { redis } from '../lib/redis.js';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 
 const DEFAULT_LIMIT = 5;
 const DEFAULT_WINDOW_SECONDS = 24 * 60 * 60;
@@ -19,7 +19,7 @@ export interface RateLimitResult {
 }
 
 export async function checkKycRateLimit(profileId: string, op: string): Promise<RateLimitResult> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     return { allowed: true, count: 0, remaining: DEFAULT_LIMIT, retryAfter: 0, locked: false };
   }
 
@@ -55,7 +55,7 @@ export async function checkKycRateLimit(profileId: string, op: string): Promise<
 }
 
 export async function clearKycRateLimit(profileId: string): Promise<void> {
-  if (env.USE_MOCK_SERVICES) return;
+  if (shouldUseMockKyc) return;
   try {
     const keys = await redis.keys(`kyc:rate:*:${profileId}`);
     if (keys.length > 0) await redis.del(...keys);

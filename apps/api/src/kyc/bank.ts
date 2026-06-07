@@ -4,7 +4,7 @@
 // instantly. We persist only refId + IFSC + last 4 of account.
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
-import { env } from '../lib/env.js';
+import { shouldUseMockKyc } from '../lib/env.js';
 import type { BankVerificationResult } from '@smartshaadi/types';
 
 export interface BankVerifyArgs {
@@ -14,7 +14,7 @@ export interface BankVerifyArgs {
 }
 
 export async function verifyBank(args: BankVerifyArgs): Promise<BankVerificationResult> {
-  if (env.USE_MOCK_SERVICES) {
+  if (shouldUseMockKyc) {
     // Mock: any non-empty account passes UNLESS account starts with 0000
     const blocked = args.accountNumber.startsWith('0000');
     return {
