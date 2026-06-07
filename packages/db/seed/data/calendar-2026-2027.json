@@ -1,0 +1,1112 @@
+{
+  "version": "smartshaadi-panchang-v1",
+  "generatedFor": [
+    2026,
+    2027
+  ],
+  "reference": "Drik Panchang (shubh vivah muhurats + Indian calendar 2026/2027)",
+  "chaturmas": {
+    "2026": {
+      "devshayani": "2026-07-25",
+      "devuthani": "2026-11-21"
+    },
+    "2027": {
+      "devshayani": "2027-07-15",
+      "devuthani": "2027-11-10"
+    }
+  },
+  "muhurats": [
+    {
+      "date": "2026-02-04",
+      "band": "PEAK",
+      "tithi": "Chaturthi",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2026-02-05",
+      "band": "PEAK",
+      "tithi": "Chaturthi",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2026-02-06",
+      "band": "HIGH",
+      "tithi": "Panchami",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2026-02-08",
+      "band": "HIGH",
+      "tithi": "Saptami",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-02-10",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2026-02-12",
+      "band": "HIGH",
+      "tithi": "Ekadashi",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-02-14",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2026-02-19",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2026-02-20",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2026-02-21",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2026-02-24",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2026-02-25",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2026-02-26",
+      "band": "PEAK",
+      "tithi": "Dashami",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2026-03-02",
+      "band": "HIGH",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2026-03-03",
+      "band": "HIGH",
+      "tithi": "Purnima",
+      "nakshatra": "Purva Phalguni, Magha"
+    },
+    {
+      "date": "2026-03-04",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2026-03-07",
+      "band": "HIGH",
+      "tithi": "Chaturthi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-03-09",
+      "band": "HIGH",
+      "tithi": "Shashthi",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2026-03-11",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-03-12",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-04-15",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2026-04-20",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2026-04-21",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2026-04-25",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2026-04-26",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2026-04-27",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Uttara Phalguni, Purva Phalguni"
+    },
+    {
+      "date": "2026-04-28",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Uttara Phalguni, Hasta"
+    },
+    {
+      "date": "2026-04-29",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2026-05-01",
+      "band": "HIGH",
+      "tithi": "Purnima",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-05-03",
+      "band": "HIGH",
+      "tithi": "Dwitiya",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2026-05-05",
+      "band": "HIGH",
+      "tithi": "Chaturthi",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-05-06",
+      "band": "HIGH",
+      "tithi": "Chaturthi",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-05-07",
+      "band": "PEAK",
+      "tithi": "Shashthi",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2026-05-08",
+      "band": "PEAK",
+      "tithi": "Shashthi",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2026-05-13",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Uttara Bhadrapada, Revati"
+    },
+    {
+      "date": "2026-05-14",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2026-06-21",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2026-06-22",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2026-06-23",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2026-06-24",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-06-25",
+      "band": "HIGH",
+      "tithi": "Ekadashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-06-26",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2026-06-27",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2026-06-29",
+      "band": "HIGH",
+      "tithi": "Purnima",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2026-07-01",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2026-07-06",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2026-07-07",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2026-07-11",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2026-07-12",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Rohini, Mrigashira"
+    },
+    {
+      "date": "2026-11-21",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2026-11-24",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2026-11-25",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Rohini, Mrigashira"
+    },
+    {
+      "date": "2026-11-26",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2026-12-02",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2026-12-03",
+      "band": "PEAK",
+      "tithi": "Dashami",
+      "nakshatra": "Uttara Phalguni, Hasta"
+    },
+    {
+      "date": "2026-12-04",
+      "band": "HIGH",
+      "tithi": "Ekadashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2026-12-05",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-12-06",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2026-12-11",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2026-12-12",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-01-15",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-01-18",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Rohini, Krittika"
+    },
+    {
+      "date": "2027-01-19",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Rohini, Mrigashira"
+    },
+    {
+      "date": "2027-01-20",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2027-01-24",
+      "band": "HIGH",
+      "tithi": "Tritiya",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-01-26",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Uttara Phalguni, Hasta"
+    },
+    {
+      "date": "2027-01-27",
+      "band": "HIGH",
+      "tithi": "Shashthi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-01-30",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-01-31",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-02-02",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-02-03",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-02-09",
+      "band": "PEAK",
+      "tithi": "Chaturthi",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-02-10",
+      "band": "PEAK",
+      "tithi": "Chaturthi",
+      "nakshatra": "Uttara Bhadrapada, Revati"
+    },
+    {
+      "date": "2027-02-11",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-02-14",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-02-15",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-02-21",
+      "band": "HIGH",
+      "tithi": "Pratipada",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-02-22",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-02-25",
+      "band": "HIGH",
+      "tithi": "Panchami",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-02-26",
+      "band": "HIGH",
+      "tithi": "Shashthi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-02-27",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-02-28",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-03-01",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-03-02",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-03-03",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-03-04",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-03-09",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-03-10",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Uttara Bhadrapada, Revati"
+    },
+    {
+      "date": "2027-03-14",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-04-18",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-04-19",
+      "band": "HIGH",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-04-21",
+      "band": "HIGH",
+      "tithi": "Pratipada",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-04-23",
+      "band": "HIGH",
+      "tithi": "Tritiya",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-04-24",
+      "band": "HIGH",
+      "tithi": "Chaturthi",
+      "nakshatra": "Jyeshtha, Anuradha"
+    },
+    {
+      "date": "2027-04-25",
+      "band": "HIGH",
+      "tithi": "Panchami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-04-26",
+      "band": "HIGH",
+      "tithi": "Panchami",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-04-27",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-04-28",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-05-04",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-05-07",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-05-08",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2027-05-09",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2027-05-13",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-05-14",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-05-15",
+      "band": "PEAK",
+      "tithi": "Dashami",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-05-16",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-05-17",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-05-18",
+      "band": "HIGH",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-05-19",
+      "band": "HIGH",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-05-20",
+      "band": "HIGH",
+      "tithi": "Pratipada",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-05-21",
+      "band": "HIGH",
+      "tithi": "Pratipada",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-05-22",
+      "band": "HIGH",
+      "tithi": "Tritiya",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-05-23",
+      "band": "HIGH",
+      "tithi": "Tritiya",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-05-24",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-05-25",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-05-30",
+      "band": "PEAK",
+      "tithi": "Dashami",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-05-31",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Uttara Bhadrapada, Revati"
+    },
+    {
+      "date": "2027-06-01",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-06-05",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2027-06-09",
+      "band": "HIGH",
+      "tithi": "Shashthi",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-06-10",
+      "band": "HIGH",
+      "tithi": "Shashthi",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-06-11",
+      "band": "PEAK",
+      "tithi": "Ashtami",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-06-12",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-06-13",
+      "band": "HIGH",
+      "tithi": "Dashami",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-06-15",
+      "band": "HIGH",
+      "tithi": "Dwadashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-06-16",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-06-17",
+      "band": "HIGH",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Anuradha"
+    },
+    {
+      "date": "2027-06-19",
+      "band": "HIGH",
+      "tithi": "Pratipada",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-06-20",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-06-21",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-06-26",
+      "band": "PEAK",
+      "tithi": "Saptami",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-06-27",
+      "band": "PEAK",
+      "tithi": "Ashtami",
+      "nakshatra": "Uttara Bhadrapada, Revati"
+    },
+    {
+      "date": "2027-06-28",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-07-07",
+      "band": "HIGH",
+      "tithi": "Panchami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-07-08",
+      "band": "PEAK",
+      "tithi": "Shashthi",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-07-09",
+      "band": "PEAK",
+      "tithi": "Shashthi",
+      "nakshatra": "Uttara Phalguni"
+    },
+    {
+      "date": "2027-07-11",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-07-12",
+      "band": "HIGH",
+      "tithi": "Navami",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-11-10",
+      "band": "PEAK",
+      "tithi": "Dwadashi",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-11-11",
+      "band": "PEAK",
+      "tithi": "Trayodashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-11-15",
+      "band": "PEAK",
+      "tithi": "Dwitiya",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-11-16",
+      "band": "PEAK",
+      "tithi": "Tritiya",
+      "nakshatra": "Mrigashira"
+    },
+    {
+      "date": "2027-11-20",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-11-21",
+      "band": "HIGH",
+      "tithi": "Ashtami",
+      "nakshatra": "Magha"
+    },
+    {
+      "date": "2027-11-23",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Uttara Phalguni, Hasta"
+    },
+    {
+      "date": "2027-11-24",
+      "band": "HIGH",
+      "tithi": "Ekadashi",
+      "nakshatra": "Hasta"
+    },
+    {
+      "date": "2027-11-25",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-11-26",
+      "band": "HIGH",
+      "tithi": "Trayodashi",
+      "nakshatra": "Swati"
+    },
+    {
+      "date": "2027-11-29",
+      "band": "HIGH",
+      "tithi": "Dwitiya",
+      "nakshatra": "Mula"
+    },
+    {
+      "date": "2027-12-02",
+      "band": "PEAK",
+      "tithi": "Panchami",
+      "nakshatra": "Uttara Ashadha"
+    },
+    {
+      "date": "2027-12-07",
+      "band": "PEAK",
+      "tithi": "Navami",
+      "nakshatra": "Uttara Bhadrapada"
+    },
+    {
+      "date": "2027-12-08",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-12-09",
+      "band": "PEAK",
+      "tithi": "Ekadashi",
+      "nakshatra": "Revati"
+    },
+    {
+      "date": "2027-12-12",
+      "band": "PEAK",
+      "tithi": "Chaturdashi",
+      "nakshatra": "Rohini"
+    },
+    {
+      "date": "2027-12-13",
+      "band": "PEAK",
+      "tithi": "Purnima",
+      "nakshatra": "Rohini, Mrigashira"
+    },
+    {
+      "date": "2027-12-14",
+      "band": "PEAK",
+      "tithi": "Pratipada",
+      "nakshatra": "Mrigashira"
+    }
+  ],
+  "festivals": [
+    {
+      "date": "2026-01-14",
+      "name": "Makar Sankranti"
+    },
+    {
+      "date": "2026-02-15",
+      "name": "Maha Shivratri"
+    },
+    {
+      "date": "2026-03-04",
+      "name": "Holi"
+    },
+    {
+      "date": "2026-03-20",
+      "name": "Eid ul-Fitr"
+    },
+    {
+      "date": "2026-03-27",
+      "name": "Ram Navami"
+    },
+    {
+      "date": "2026-03-31",
+      "name": "Mahavir Jayanti"
+    },
+    {
+      "date": "2026-04-03",
+      "name": "Good Friday"
+    },
+    {
+      "date": "2026-05-01",
+      "name": "Buddha Purnima"
+    },
+    {
+      "date": "2026-05-27",
+      "name": "Eid ul-Adha (Bakrid)"
+    },
+    {
+      "date": "2026-08-28",
+      "name": "Raksha Bandhan"
+    },
+    {
+      "date": "2026-09-04",
+      "name": "Janmashtami"
+    },
+    {
+      "date": "2026-09-14",
+      "name": "Ganesh Chaturthi"
+    },
+    {
+      "date": "2026-10-20",
+      "name": "Dussehra"
+    },
+    {
+      "date": "2026-11-08",
+      "name": "Diwali"
+    },
+    {
+      "date": "2026-11-24",
+      "name": "Guru Nanak Jayanti"
+    },
+    {
+      "date": "2026-12-25",
+      "name": "Christmas"
+    },
+    {
+      "date": "2027-01-15",
+      "name": "Makar Sankranti"
+    },
+    {
+      "date": "2027-03-06",
+      "name": "Maha Shivratri"
+    },
+    {
+      "date": "2027-03-10",
+      "name": "Eid ul-Fitr"
+    },
+    {
+      "date": "2027-03-22",
+      "name": "Holi"
+    },
+    {
+      "date": "2027-03-26",
+      "name": "Good Friday"
+    },
+    {
+      "date": "2027-04-15",
+      "name": "Ram Navami"
+    },
+    {
+      "date": "2027-04-19",
+      "name": "Mahavir Jayanti"
+    },
+    {
+      "date": "2027-05-17",
+      "name": "Eid ul-Adha (Bakrid)"
+    },
+    {
+      "date": "2027-05-20",
+      "name": "Buddha Purnima"
+    },
+    {
+      "date": "2027-08-17",
+      "name": "Raksha Bandhan"
+    },
+    {
+      "date": "2027-08-25",
+      "name": "Janmashtami"
+    },
+    {
+      "date": "2027-09-04",
+      "name": "Ganesh Chaturthi"
+    },
+    {
+      "date": "2027-10-09",
+      "name": "Dussehra"
+    },
+    {
+      "date": "2027-10-29",
+      "name": "Diwali"
+    },
+    {
+      "date": "2027-11-14",
+      "name": "Guru Nanak Jayanti"
+    },
+    {
+      "date": "2027-12-25",
+      "name": "Christmas"
+    }
+  ],
+  "govt": [
+    {
+      "date": "2026-01-26",
+      "name": "Republic Day"
+    },
+    {
+      "date": "2026-08-15",
+      "name": "Independence Day"
+    },
+    {
+      "date": "2026-10-02",
+      "name": "Gandhi Jayanti"
+    },
+    {
+      "date": "2027-01-26",
+      "name": "Republic Day"
+    },
+    {
+      "date": "2027-08-15",
+      "name": "Independence Day"
+    },
+    {
+      "date": "2027-10-02",
+      "name": "Gandhi Jayanti"
+    }
+  ]
+}
