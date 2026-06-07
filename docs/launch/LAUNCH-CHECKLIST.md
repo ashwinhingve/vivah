@@ -15,8 +15,9 @@
 
 **STATUS: 🔴 NO-GO** *(as of 2026-06-07)*
 
-Blocked by 3 external registrations (Razorpay live, MSG91 DLT, legal review) +
-1 engineering reconcile (migration drift). All **code-fixable** P0/P1 are closed
+Blocked by **3 external registrations** (Razorpay live, MSG91 DLT, legal review).
+The 1 engineering blocker (migration drift) is now **DONE** (A4, 2026-06-07). All
+**code-fixable** P0/P1 are closed
 (`docs/PHASE-1-4-AUDIT.md`: 4 P0 open — all external-blocked; 0 code-fixable P1
 open). The codebase is launch-ready; the *platform* is not, because it cannot yet
 send a real OTP, verify identity, or process real INR.
@@ -43,7 +44,7 @@ flip time.
 | A1 | **Razorpay live account** approved; `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET` in Railway + `NEXT_PUBLIC_RAZORPAY_KEY_ID` in Vercel | Colonel (register) → Ashwin (wire) | 🔴 OPEN | Both webhook endpoints registered; send a Razorpay **test event** to each → HTTP 200 + a `webhook_events` row marked **PROCESSED**; a bad-signature delivery → 400 (`/api/v1/payments/webhook`) / 401 (`/api/v1/store/webhook/razorpay`). Per `mock-to-real-swap.md` step 5. |
 | A2 | **MSG91 DLT sender + template** registered/approved; `MSG91_API_KEY` + `MSG91_SENDER_ID`/template ids in Railway | Colonel (register) → Ashwin (wire) | 🔴 OPEN | After master flip, request an OTP to a **real handset** → delivered + login completes. Per swap step 3. DLT approval is regulatory lead-time (weeks). |
 | A3 | **Legal pages human/lawyer reviewed** (T&C, Privacy, Refund, etc.) | Colonel / lawyer | 🔴 OPEN | Written sign-off recorded; reviewed pages live on `smartshaadi.co.in`. |
-| A4 | **Migration drift reconciled** — `0028` (calendar_events) + `CREATE EXTENSION vector` journaled into `__drizzle_migrations` | Ashwin | 🔴 OPEN | `__drizzle_migrations` has rows for both. Reconcile via psql/Railway SQL console **only** — never `drizzle-kit push` (PK 42P16 hazard, per CLAUDE.md). See `docs/MIGRATIONS-PENDING.md`. |
+| A4 | **Migration drift reconciled** — `__drizzle_migrations` baseline-seeded + 0029 finished | Ashwin | 🟢 DONE (2026-06-07) | Done via `scripts/db/reconcile-drift-2026-06-07.sql` (psql, additive/idempotent, verified — 30 rows, 0029 columns+index present). Table was absent on prod; baseline-seeded all 30. Rollback: `scripts/db/rollback-drift-2026-06-07.sql`. See `docs/MIGRATIONS-PENDING.md`. |
 | A5 | **`AI_SERVICE_HEALTH_URL` set in Railway** | Ashwin | 🟢 DONE — re-confirm | `pwsh scripts/health-check.ps1 -Env prod` probes `ai-service health` (row is **not** SKIPPED). Configured 2026-06-07; confirm still present before launch. |
 
 > A1–A3 are **external** and gate on weeks of regulatory/legal lead time, not hours

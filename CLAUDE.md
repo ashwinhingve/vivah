@@ -22,8 +22,8 @@
 Phase:     2 → COMPLETE ✅ + Multi-Event/Polish world-class upgrade landed
            Phase 3 + 4 shipped; Path B (P1-7/8) closed 2026-05-20
 Week:      10 → IN PROGRESS
-Focus:     LAUNCH-READY (code), gated on external registrations + 1 engineering
-           reconcile. Launch is now a followed procedure, not improvised:
+Focus:     LAUNCH-READY (code), gated on external registrations ONLY (migration
+           drift reconciled 2026-06-07). Launch is now a followed procedure:
            docs/launch/LAUNCH-CHECKLIST.md (GO/NO-GO gate list, owner-split) +
            docs/launch/GO-LIVE-RUNBOOK.md (ordered launch-day steps + rollback +
            24h watch). Current verdict: 🔴 NO-GO.
@@ -31,9 +31,11 @@ Status:    docs/PHASE-1-4-AUDIT.md Resolution Log fully populated. Open P0s = 4
            (all external-blocked). Open P1s = 0 code-fixable (P1-5 NIC IRP +
            P1-11 Daily.co external-blocked). Launch BLOCKERS (LAUNCH-CHECKLIST §A):
            Razorpay live reg (Colonel), MSG91 DLT reg (Colonel), legal review
-           (Colonel/lawyer), migration-drift reconcile 0028+vector into
-           __drizzle_migrations (Ashwin). AI_SERVICE_HEALTH_URL set (Railway).
-           KYC stays MOCKED at launch (KYC_LIVE unset → MANUAL_REVIEW) by design.
+           (Colonel/lawyer). ✅ Migration drift RECONCILED 2026-06-07: prod had NO
+           __drizzle_migrations table (push-built); created it + baseline-seeded all
+           30 migs + finished 0029's missing profiles cols+HNSW index. Scripts in
+           scripts/db/reconcile-drift-2026-06-07.sql (+rollback). AI_SERVICE_HEALTH_URL
+           set. KYC stays MOCKED at launch (KYC_LIVE unset → MANUAL_REVIEW) by design.
 Mocks:     `USE_MOCK_SERVICES=false` in `.env.production.example`; env.ts
            hard-rejects `NODE_ENV=production && USE_MOCK_SERVICES=true`.
            Local-dev mock value REQUIRED via `MOCK_OTP_VALUE` (no default).
@@ -235,8 +237,27 @@ Better Auth tables (user, session, account, verification, two_factor) are especi
 42P16 errors — never alter their PKs through drizzle-kit. Treat them as read-only via this tool.
 
 **Connection blocker pattern:**
-WSL2 cannot reach Railway's proxy URLs. Always use PowerShell for production. Local DB pushes
-can run from either WSL or PowerShell — local Postgres is reachable from both.
+`drizzle-kit push` is unusable against prod (PK 42P16 hazard) regardless of shell. For ad-hoc
+SQL, **`psql` from WSL2 now reaches the Railway proxy** (resolved 2026-05-20 — verified again
+2026-06-07 against `shortline.proxy.rlwy.net`, PG 18.3). So the agent can run additive,
+idempotent prod SQL directly via psql; only `drizzle-kit push`/`drizzle-studio` still need
+PowerShell. `pg_dump` from this box is **16.14 — too old to dump PG 18.3** (major-version
+mismatch, no override); use a psql `\copy` snapshot of the affected table as a backup
+substitute when Railway dashboard backups aren't available.
+
+**Agent-run prod ops via gitignored creds file (preferred — keeps the password out of chat):**
+- The prod `DATABASE_URL` is dropped into **`packages/db/.env.prod`** (gitignored — see
+  `.gitignore`; `.env.prod` / `*.env.prod` / `packages/db/.env.prod` all covered). The user
+  creates/pastes it; the agent reads it into an env var with a command that never echoes the
+  value (mask host-only with `sed -E 's#.*@##'`). **Never** paste the prod URL into chat.
+  Note the file may have a **leading space** before `DATABASE_URL=` — parse with
+  `grep -E '^[[:space:]]*DATABASE_URL='`.
+- Only run **additive, idempotent, zero-data-risk** SQL this way (marker rows, `ADD COLUMN
+  IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`). Anything with `DROP`/`TRUNCATE`/`DELETE`/
+  `UPDATE`/type-change → STOP, hand to the operator. Always snapshot the touched table first
+  and write a matching `rollback-*.sql`.
+- After the op: delete `packages/db/.env.prod`; recommend rotating the Railway password since
+  the credential passed through the shell session.
 
 **Post-flight:** Re-run the push — it should report no remaining drift; only the
 `duplicate_object`-guarded `ADD CONSTRAINT` blocks re-emit, and those are no-ops.

@@ -261,12 +261,23 @@ reconciliation, no `db:push`, no destructive ALTERs.
 
 ---
 
-## ⚠️ DRIFT — migration tracking out of sync with prod (recorded 2026-06-07)
+## ✅ DRIFT RECONCILED 2026-06-07 (was: migration tracking out of sync with prod)
 
-Two prod schema changes were applied **outside** `drizzle-kit migrate`, so they are
-**not recorded in `__drizzle_migrations`**. Prod and the migration journal have
-drifted. Documented now while fresh; **reconcile properly later** (do NOT
-`drizzle-kit push` against prod — PK 42P16 hazard per CLAUDE.md).
+> **RESOLVED** via `scripts/db/reconcile-drift-2026-06-07.sql` (psql from WSL2 against
+> the Railway proxy, additive + idempotent, verified). Rollback: `scripts/db/rollback-drift-2026-06-07.sql`.
+> The original drift write-up is kept below for history. **Live finding during the
+> reconcile:** `drizzle.__drizzle_migrations` did not exist on prod *at all* (prod was
+> built by `db:push`/console, never `drizzle migrate`) — and only `CREATE EXTENSION vector`
+> of 0029 had been applied, **not** the `profiles.ai_embedding` / `embedding_updated_at`
+> columns or the HNSW index. The reconcile created the tracking table, baseline-seeded all
+> **30** migrations (0000–0029) with real `sha256(file)` hashes + journal `when` millis, and
+> finished 0029's missing columns+index. Post-state: 30 rows, high-water `1780735487081`,
+> both embedding columns present, no duplicate hashes, re-run is a no-op. A future
+> `drizzle migrate` now applies only 0030+.
+
+Two prod schema changes were applied **outside** `drizzle-kit migrate`, so they were
+**not recorded in `__drizzle_migrations`**. Prod and the migration journal had
+drifted (do NOT `drizzle-kit push` against prod — PK 42P16 hazard per CLAUDE.md).
 
 1. **`0028` (calendar_events) — console-applied, not journaled.**
    The `calendar_event_kind` + `auspicious_band` enums and the `calendar_events`
@@ -286,10 +297,10 @@ drifted. Documented now while fresh; **reconcile properly later** (do NOT
 the journal still won't match). The migration journal is **not** a reliable record
 of prod state for these two items.
 
-**Reconcile later (not now):** either (a) insert the matching rows into
-`__drizzle_migrations` to mark `0028` (and a pgvector migration) as applied, or
-(b) rebuild the journal from a verified prod snapshot. Verify against prod first;
-never assume the journal is authoritative for `0028`/pgvector.
+**Reconcile (DONE 2026-06-07):** chose option (a) — baseline-seed `__drizzle_migrations`
+to match the journal — but extended to all 30 migrations since the table was entirely
+absent, and additionally finished the partially-applied 0029. See the RESOLVED banner at
+the top of this section and `scripts/db/reconcile-drift-2026-06-07.sql`.
 
 **Seeded data (not a migration):** `calendar_events` was data-seeded on
 2026-06-07 (190 rows: MUHURAT 152 / FESTIVAL 32 / GOVT 6) via `db:seed:calendar`

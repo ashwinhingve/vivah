@@ -95,6 +95,13 @@ cookies.txt
 resp_dash*.html
 push.log
 
+# One-off prod credential drop for the drift reconcile — NEVER commit, delete after use
+.env.prod
+*.env.prod
+packages/db/.env.prod
+# Local drift-reconcile artifacts (pre-state snapshot / backup CSV)
+scripts/db/_reconcile-snapshot-*
+
 # Playwright MCP session captures (transient local screenshots + snapshots)
 .playwright-mcp/
 landing-*.png
