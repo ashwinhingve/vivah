@@ -22,15 +22,32 @@
 Phase:     2 → COMPLETE ✅ + Multi-Event/Polish world-class upgrade landed
            Phase 3 + 4 shipped; Path B (P1-7/8) closed 2026-05-20
 Week:      10 → IN PROGRESS
-Focus:     Pre-launch — every code-fixable P0 + P1 closed; awaiting external
-           registrations (MSG91 DLT, DigiLocker, Razorpay live, Daily.co).
+Focus:     LAUNCH-READY (code), gated on external registrations + 1 engineering
+           reconcile. Launch is now a followed procedure, not improvised:
+           docs/launch/LAUNCH-CHECKLIST.md (GO/NO-GO gate list, owner-split) +
+           docs/launch/GO-LIVE-RUNBOOK.md (ordered launch-day steps + rollback +
+           24h watch). Current verdict: 🔴 NO-GO.
 Status:    docs/PHASE-1-4-AUDIT.md Resolution Log fully populated. Open P0s = 4
            (all external-blocked). Open P1s = 0 code-fixable (P1-5 NIC IRP +
-           P1-11 Daily.co external-blocked).
+           P1-11 Daily.co external-blocked). Launch BLOCKERS (LAUNCH-CHECKLIST §A):
+           Razorpay live reg (Colonel), MSG91 DLT reg (Colonel), legal review
+           (Colonel/lawyer), migration-drift reconcile 0028+vector into
+           __drizzle_migrations (Ashwin). AI_SERVICE_HEALTH_URL set (Railway).
+           KYC stays MOCKED at launch (KYC_LIVE unset → MANUAL_REVIEW) by design.
 Mocks:     `USE_MOCK_SERVICES=false` in `.env.production.example`; env.ts
            hard-rejects `NODE_ENV=production && USE_MOCK_SERVICES=true`.
            Local-dev mock value REQUIRED via `MOCK_OTP_VALUE` (no default).
-Last session: 2026-05-20 — Path B: vendor approval workflow (P1-8) + Recent
+           No `RAZORPAY_LIVE`/`MSG91_LIVE` flag — payments+SMS go live only on
+           master flip. Granular overrides exist only for Mongo/R2/KYC.
+Last session: 2026-06-07 — Launch-readiness docs (docs/launch-readiness branch):
+  wrote LAUNCH-CHECKLIST.md (3 sections — BLOCKERS / VERIFY-BEFORE-LAUNCH /
+  KYC-stays-mocked, each item status·owner·verify) + GO-LIVE-RUNBOOK.md
+  (8 ordered steps backup→flip→verify→smoke→announce, rollback per step +
+  first-24h watch list). Docs only, no code. Verdict 🔴 NO-GO (3 external
+  blockers + drift open; all code-fixable P0/P1 closed). Prior ADR-002 +
+  calendar Tier-1 work already on main.
+
+Prior: 2026-05-20 — Path B: vendor approval workflow (P1-8) + Recent
   Conversations dashboard wire-up (P1-7). 4 commits aed23df / 516a156 /
   610128e / (this docs commit). Vendor approval state machine (DRAFT→
   PENDING→UNDER_REVIEW→APPROVED/REJECTED/SUSPENDED) with CAS-locked
