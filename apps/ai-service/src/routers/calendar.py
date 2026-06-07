@@ -49,10 +49,16 @@ def get_events(
     date_from: Optional[str] = Query(default=None, alias="from"),
     date_to: Optional[str] = Query(default=None, alias="to"),
     kind: Optional[str] = Query(default=None),
+    region: Optional[str] = Query(default=None),
+    community: Optional[str] = Query(default=None),
 ) -> CalendarEventsResponse:
-    """Overlay rows filtered by inclusive ISO date range and optional kind."""
+    """
+    Overlay rows by inclusive ISO date range + optional kind. region/community
+    are national-inclusive (a regional user keeps national rows; see
+    calendar_service.events_in_range).
+    """
     for label, value in (("from", date_from), ("to", date_to)):
         if value is not None and len(value) != _ISO_DATE_LEN:
             raise HTTPException(status_code=422, detail=f"{label} must be YYYY-MM-DD")
-    events = calendar_service.events_in_range(date_from, date_to, kind)
+    events = calendar_service.events_in_range(date_from, date_to, kind, region, community)
     return CalendarEventsResponse(count=len(events), events=events)

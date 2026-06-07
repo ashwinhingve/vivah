@@ -41,12 +41,20 @@ export const CalendarEventSchema = z.object({
 
 export type CalendarEvent = z.infer<typeof CalendarEventSchema>;
 
-/** Query params for GET /api/v1/calendar/events (range + kind/region filter). */
+/**
+ * Query params for GET /api/v1/calendar/events (range + kind/region/community).
+ *
+ * `region` and `community` are NATIONAL-INCLUSIVE: passing region='Tamil Nadu'
+ * returns national rows (region null) PLUS Tamil Nadu rows — so a regional user
+ * sees both Diwali and Pongal, never one at the expense of the other. `community`
+ * filters the same way against metadata.community (e.g. 'Jain').
+ */
 export const CalendarEventsQuerySchema = z.object({
-  from:   z.string().regex(ISO_DATE).optional(),
-  to:     z.string().regex(ISO_DATE).optional(),
-  kind:   CalendarEventKindSchema.optional(),
-  region: z.string().max(100).optional(),
+  from:      z.string().regex(ISO_DATE).optional(),
+  to:        z.string().regex(ISO_DATE).optional(),
+  kind:      CalendarEventKindSchema.optional(),
+  region:    z.string().max(100).optional(),
+  community: z.string().max(100).optional(),
 });
 
 export type CalendarEventsQuery = z.infer<typeof CalendarEventsQuerySchema>;

@@ -142,3 +142,82 @@ class TestEndpoints:
     def test_bad_date_rejected(self) -> None:
         r = client.get("/ai/calendar/events", params={"from": "2026-1-1"})
         assert r.status_code == 422
+
+
+class TestRegionalCommunity:
+    """Regional / community festival variants + national-inclusive filtering."""
+
+    def test_regional_festivals_seeded(self) -> None:
+        # 24 curated regional/community rows (8 states + Jain community).
+        regional = [e for e in cal.events_in_range(None, None, "FESTIVAL") if e.region is not None]
+        assert len(regional) == 23  # region-tagged (the 24th is the region-null Jain row)
+        names = {e.name for e in cal.events_in_range(None, None, "FESTIVAL")}
+        assert {"Pongal", "Lohri", "Magh Bihu", "Ugadi", "Vaisakhi", "Chhath Puja"} <= names
+
+    def test_region_filter_is_national_inclusive(self) -> None:
+        # A Tamil user sees Pongal AND national Diwali — never one at the cost of the other.
+        events = cal.events_in_range("2026-01-01", "2026-12-31", None, region="Tamil Nadu")
+        names = {e.name for e in events}
+        assert "Pongal" in names  # Tamil Nadu regional
+        assert "Diwali" in names  # national (region None) survives
+        assert "Puthandu" in names  # Tamil New Year
+        # other regions' rows are excluded
+        assert "Lohri" not in names
+        assert "Magh Bihu" not in names
+
+    def test_punjab_sees_lohri_not_pongal(self) -> None:
+        names = {e.name for e in cal.events_in_range(None, None, None, region="Punjab")}
+        assert "Lohri" in names
+        assert "Vaisakhi" in names
+        assert "Pongal" not in names
+        assert "Diwali" in names  # national still present
+
+    def test_unknown_region_returns_national_only(self) -> None:
+        events = cal.events_in_range("2026-01-01", "2026-12-31", "FESTIVAL", region="Atlantis")
+        assert all(e.region is None for e in events)
+        assert "Diwali" in {e.name for e in events}
+
+    def test_community_filter_national_inclusive(self) -> None:
+        events = cal.events_in_range(None, None, None, community="Jain")
+        names = {e.name for e in events}
+        assert "Paryushan (Samvatsari)" in names  # Jain community row
+        assert "Diwali" in names  # untagged national rows stay visible
+        # a region-tagged row carrying no community tag is still included
+        assert "Pongal" in names
+
+    def test_pongal_anchored_to_makar_sankranti(self) -> None:
+        pongal = [e for e in cal.events_in_range(None, None, "FESTIVAL", region="Tamil Nadu") if e.name == "Pongal"]
+        assert pongal[0].event_date == "2026-01-14"
+        assert pongal[0].metadata is not None
+        assert pongal[0].metadata.get("astronomicalEvent") == "Makar Sankranti"
+
+    def test_disputed_regional_not_seeded(self) -> None:
+        # Vishu / Onam are held out pending a panchang-authority ruling.
+        names = {e.name for e in cal.events_in_range(None, None, "FESTIVAL")}
+        assert "Vishu" not in names
+        assert not any("Onam" in n for n in names)
+
+    def test_region_filter_determinism(self) -> None:
+        a = [(e.name, e.event_date) for e in cal.events_in_range(None, None, None, region="Assam")]
+        b = [(e.name, e.event_date) for e in cal.events_in_range(None, None, None, region="Assam")]
+        assert a == b
+
+    def test_regional_rows_are_festival_kind(self) -> None:
+        # Regional variants are kind=FESTIVAL (NOT REGIONAL) so kind=FESTIVAL surfaces them.
+        for e in cal.events_in_range(None, None, None, region="Karnataka"):
+            if e.name == "Ugadi":
+                assert e.kind == "FESTIVAL"
+
+    def test_events_endpoint_region_param(self) -> None:
+        r = client.get(
+            "/ai/calendar/events",
+            params={"from": "2026-01-01", "to": "2026-12-31", "region": "Tamil Nadu"},
+        )
+        assert r.status_code == 200
+        names = {e["name"] for e in r.json()["events"]}
+        assert "Pongal" in names and "Diwali" in names and "Lohri" not in names
+
+    def test_events_endpoint_community_param(self) -> None:
+        r = client.get("/ai/calendar/events", params={"community": "Jain"})
+        assert r.status_code == 200
+        assert "Paryushan (Samvatsari)" in {e["name"] for e in r.json()["events"]}

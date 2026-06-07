@@ -108,6 +108,27 @@ def _all_events() -> List[CalendarEvent]:
         events.append(
             CalendarEvent(kind="FESTIVAL", name=f["name"], event_date=f["date"], source=src)
         )
+    # Regional / community variants: kind=FESTIVAL discriminated by region (and
+    # metadata.community), NOT kind=REGIONAL — so a kind=FESTIVAL query still
+    # surfaces them. Mirrors packages/db/seed/calendar.ts buildRows().
+    for rf in data.get("regionalFestivals", []):  # type: ignore[attr-defined]
+        metadata = {}
+        if rf.get("community"):
+            metadata["community"] = rf["community"]
+        if rf.get("astronomicalEvent"):
+            metadata["astronomicalEvent"] = rf["astronomicalEvent"]
+        if rf.get("note"):
+            metadata["note"] = rf["note"]
+        events.append(
+            CalendarEvent(
+                kind="FESTIVAL",
+                name=rf["name"],
+                event_date=rf["date"],
+                region=rf.get("region"),
+                source=src,
+                metadata=metadata or None,
+            )
+        )
     for g in data["govt"]:
         events.append(
             CalendarEvent(kind="GOVT", name=g["name"], event_date=g["date"], source=src)
@@ -120,8 +141,15 @@ def events_in_range(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     kind: Optional[str] = None,
+    region: Optional[str] = None,
+    community: Optional[str] = None,
 ) -> List[CalendarEvent]:
-    """Filter overlay rows by inclusive ISO date range and optional kind."""
+    """
+    Filter overlay rows by inclusive ISO date range, optional kind, and
+    national-inclusive region/community. region='Tamil Nadu' returns national
+    rows (region None) PLUS Tamil Nadu rows; community filters the same way
+    against metadata.community — so a regional user never loses national events.
+    """
     out: List[CalendarEvent] = []
     for e in _all_events():
         if date_from is not None and e.event_date < date_from:
@@ -130,6 +158,13 @@ def events_in_range(
             continue
         if kind is not None and e.kind != kind:
             continue
+        # National-inclusive: drop only rows that carry a DIFFERENT region.
+        if region is not None and e.region is not None and e.region != region:
+            continue
+        if community is not None:
+            event_community = (e.metadata or {}).get("community")
+            if event_community is not None and event_community != community:
+                continue
         out.append(e)
     return out
 
