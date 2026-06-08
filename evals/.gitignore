@@ -1,4 +1,7 @@
 node_modules/
 results.json
+results-ml.json
+results-llm.json
 .promptfoo/
 *.log
+pnpm-lock.yaml
