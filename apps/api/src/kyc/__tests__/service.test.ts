@@ -51,6 +51,7 @@ import {
   getKycStatus,
   approveKyc,
   rejectKyc,
+  requestReverification,
 } from '../service.js';
 
 const mockProfile = {
@@ -277,6 +278,29 @@ describe('approveKyc', () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
     await expect(approveKyc('profile-uuid-1', 'admin-uuid-1'))
       .rejects.toMatchObject({ name: KycErrorCode.KYC_INVALID_STATE });
+  });
+});
+
+describe('requestReverification', () => {
+  it('throws REVERIFY_NOT_ALLOWED when no kycVerifications row exists', async () => {
+    // VERIFIED profile but loadKyc returns [] → must not silently write 0 rows
+    // and half-apply the PENDING flip.
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }], []);
+    setupUpdateOk();
+    await expect(requestReverification('user-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.REVERIFY_NOT_ALLOWED });
+    expect(db.update).not.toHaveBeenCalled();
+  });
+
+  it('flips to PENDING and updates kyc when a row exists', async () => {
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'VERIFIED' }],   // loadProfile
+      [{ profileId: 'profile-uuid-1', verificationLevel: 'STANDARD' }], // loadKyc
+    );
+    setupUpdateOk();
+    const out = await requestReverification('user-uuid-1');
+    expect(out.status).toBe('PENDING');
+    expect(db.update).toHaveBeenCalledTimes(2); // kyc_verifications + profiles
   });
 });
 
