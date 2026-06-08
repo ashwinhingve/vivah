@@ -452,6 +452,60 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  describe('leave_room', () => {
+    it('leaves the socket.io room', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      socket._handlers['leave_room']!({ matchRequestId: 'match-abc' })
+      expect(socket.leave).toHaveBeenCalledWith('match-abc')
+    })
+  })
+
+  describe('delivered_ack', () => {
+    it('marks delivery and emits message_delivered on the happy path', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockUpdateOne.mockResolvedValueOnce({})
+      await socket._handlers['delivered_ack']!({
+        matchRequestId: 'match-abc', messageIds: ['m-1', 'm-2'],
+      })
+
+      expect(mockUpdateOne).toHaveBeenCalledTimes(1)
+      const evt = io._toEmitted.find((e) => e.event === 'message_delivered')
+      expect(evt).toBeDefined()
+      expect((evt!.data as { profileId: string }).profileId).toBe('user-1')
+    })
+  })
+
+  // Session identity is resolved once at connect and cached for the socket's
+  // lifetime — documents that a session revoked mid-connection is NOT detected
+  // per-event (auth is enforced only at handshake). A regression here (per-event
+  // re-resolution) would change this contract.
+  describe('session identity caching', () => {
+    it('does not re-resolve profileId once identity has settled', async () => {
+      const { resolveProfileId } = await import('../../../lib/profile.js')
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      // First event settles the cached profileId.
+      await socket._handlers['join_room']!({ matchRequestId: 'match-abc' })
+      const settled = (resolveProfileId as ReturnType<typeof vi.fn>).mock.calls.length
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+      await socket._handlers['send_message']!({ matchRequestId: 'match-abc', content: 'hi', type: 'TEXT' })
+      await socket._handlers['typing']!({ matchRequestId: 'match-abc' })
+
+      // No further resolutions — identity is fixed at connect, not re-checked
+      // per event (so a mid-session revocation is not detected here).
+      expect((resolveProfileId as ReturnType<typeof vi.fn>).mock.calls.length).toBe(settled)
+    })
+  })
+
   describe('typing', () => {
     it('emits user_typing via socket.to (not io.to — not back to sender)', async () => {
       const socket = makeSocket('user-1')
