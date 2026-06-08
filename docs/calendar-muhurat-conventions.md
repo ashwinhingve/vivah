@@ -21,11 +21,40 @@
 Showing a wedding date another major panchang calls **Chaturmas/blocked** is the
 unrecoverable failure (a family acts, their pandit rejects it, trust burned on our
 core competency). Omitting a legitimate date is recoverable and invisible. So
-until an authority rules, we take the conservative side:
+until an authority rules, we take the conservative side. Seeded today:
 
-- **Seeded 2026 muhurats: 56** (trimmed from 60). Seeded total = **190 rows**
-  (MUHURAT 152 = 56 + 96, FESTIVAL 32, GOVT 6).
-- The disputed dates are **encoded, not deleted** — see `disputed` in the JSON.
+| Kind | Count | Notes |
+|------|------:|-------|
+| MUHURAT | 152 | 56 (2026) + 96 (2027); the disputed July/Jan dates are held out |
+| FESTIVAL | 56 | 32 national + 24 regional/community variants |
+| GOVT | 6 | national gazetted holidays |
+| SCHOOL | 4 | CBSE board-exam 2026/2027 + Delhi summer/winter break (date→endDate) |
+| **Total** | **218** | additive, idempotent re-seed |
+
+The disputed dates are **encoded, not deleted** — see `disputed` in the JSON.
+
+## The `conventions` config — one-line rulings
+
+Resolution is now a **single config flip + re-seed**, not a data hunt. The dataset
+carries a top-level `conventions` block; each `disputed` bucket declares the
+convention key (`gatedBy`) and the value that promotes it. **Defaults reproduce
+the conservative live set above (nothing promoted).** Both readers honour it —
+`packages/db/seed/calendar.ts` (via `calendar-data.ts`) and
+`apps/ai-service/src/services/calendar_service.py`.
+
+| Convention key | Default | Other value(s) | Gates (what flipping admits) |
+|---|---|---|---|
+| `devshayani` | `amanta-6jul` | `drik-25jul` | the 4 July muhurats `2026-07-01/06/11/12` (Q1) |
+| `january_post_sankranti` | `omit` | `include` | the 4 Jan muhurats `2026-01-14/23/25/28` (Q2) |
+| `vishu_day` | `unset` | `apr-14` \| `apr-15` | Vishu (Kerala) on the chosen date (Q3) |
+| `onam_reckoning` | `unset` | `aug-26` \| `sep-01` | Onam/Thiruvonam (Kerala) on the chosen date (Q3) |
+
+To enact a ruling: set the value in `conventions`, run `db:seed:calendar`
+(additive — only the newly-admitted rows insert), and update the count assertions
+in `apps/ai-service/tests/test_calendar.py` if the live count changes. Note the
+Chaturmas anchor (`chaturmas.<year>.devshayani`) is a **separate** field and is
+left untouched; `devshayani` here gates only muhurat admission, not the blackout
+boundary (the 4 July dates all precede 25-Jul, so they never violate the guard).
 
 ## OPEN — for Colonel Deepak (panchang-authority decisions)
 
@@ -36,21 +65,41 @@ days. Two other sources start Chaturmas **~6-Jul** → those days are blocked.
 - **Held out (4):** `2026-07-01`, `2026-07-06`, `2026-07-11`, `2026-07-12` —
   not independently corroborated.
 - **Kept (1):** `2026-07-07` — independently corroborated (ProKerala).
-- **Decision needed:** Does Smart Shaadi follow Drik's 25-Jul reading (restore the
-  4) or the 6-Jul camp (leave them out, and reconsider whether 07-Jul stays)?
+- **Flip:** `conventions.devshayani` → `drik-25jul` restores the 4.
 
 ### Q2 — January post-Sankranti dates (Kharmas end)
 Drik + mPanchang list **zero** January 2026 muhurats (Kharmas / Dhanurmas).
 ProKerala includes four post-Makar-Sankranti dates.
 
 - **Omitted (4):** `2026-01-14`, `2026-01-23`, `2026-01-25`, `2026-01-28`.
-- **Decision needed:** Does our tradition admit post-Sankranti January weddings?
-  If yes, add these four.
+- **Flip:** `conventions.january_post_sankranti` → `include`. NB: these dates have
+  no sourced tithi/nakshatra yet — source them before relying on the promoted rows.
+
+### Q3 — Regional reckoning (Vishu / Onam, Kerala)
+- **Vishu:** Medam Sankranti timing splits sources `apr-14` vs `apr-15`
+  (Vishukkani next-day rule). **Flip:** `conventions.vishu_day` → the chosen date.
+- **Onam (Thiruvonam):** majority/Drik list `aug-26`; some list `sep-01`
+  (6-day Thiruvonam-nakshatra delta). **Flip:** `conventions.onam_reckoning`.
+
+## Completeness — sourced additions (not authority decisions)
+
+These are deterministic, ≥2-source-verified, and seeded now (no ruling needed):
+
+- **SCHOOL windows** (`schoolWindows` in the JSON, `kind=SCHOOL`, `date→endDate`):
+  CBSE board exams 2026 (`2026-02-17`→`2026-04-10`) and 2027 (`2027-02-15`→
+  `2027-04-10`), Delhi summer break (`2026-05-11`→`2026-06-30`), Delhi winter
+  break (`2026-01-01`→`2026-01-15`). Each row carries `metadata.sources`.
+- **Held pending sourcing** (in `disputed`, NOT seeded — never invented):
+  `schoolPendingAuthority` (2027 Delhi summer/winter dates not yet published) and
+  `observancesPendingAuthority` (moon-sighting Islamic dates — Muharram,
+  Milad-un-Nabi). The date-stable major observances (Eid ul-Fitr/Adha, Guru Nanak
+  Jayanti, Mahavir Jayanti, Buddha Purnima, Christmas, Good Friday, Janmashtami)
+  are already in `festivals[]`.
 
 ## On resolution
 
-Both are one-line rulings. When decided, edit
-`packages/db/seed/data/build-calendar-dataset.mjs` (move dates between the seeded
-arrays and the `DISPUTED_MUHURATS` / `OMITTED_JANUARY` blocks), regenerate the
-JSON, update the count assertions in `apps/ai-service/tests/test_calendar.py`, and
-re-seed. Do **not** silently delete the disagreement — keep it encoded.
+Prefer the **config flip** above. The legacy generator
+`packages/db/seed/data/build-calendar-dataset.mjs` is kept in sync for provenance,
+but the committed JSON is the runtime source of truth — editing `conventions` +
+re-seeding is all a ruling requires. Do **not** silently delete a disagreement —
+keep it encoded in `disputed`.
