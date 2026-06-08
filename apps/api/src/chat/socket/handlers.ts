@@ -129,13 +129,19 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     }
   })
 
-  async function loadParticipants(matchRequestId: string): Promise<string[]> {
+  async function loadParticipants(matchRequestId: string, scopeProfileId?: string): Promise<string[]> {
     if (shouldUseMockMongo) {
       const stored = mockGet(matchRequestId)
       const chat = stored?.['chat'] as { participants?: string[] } | undefined
       return chat?.participants ?? []
     }
-    const chat = await Chat.findOne({ matchRequestId })
+    // Scope the query to the caller when known so a foreign matchRequestId never
+    // returns another conversation's participant list — defense-in-depth on top
+    // of the assertParticipant membership check below.
+    const filter = scopeProfileId
+      ? { matchRequestId, participants: scopeProfileId }
+      : { matchRequestId }
+    const chat = await Chat.findOne(filter)
     return (chat?.participants as string[] | undefined) ?? []
   }
 
@@ -147,7 +153,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       socket.emit('error', { message: 'Profile not found' })
       return null
     }
-    const participants = await loadParticipants(matchRequestId)
+    const participants = await loadParticipants(matchRequestId, profileId)
     if (!participants.includes(profileId)) {
       console.warn('[chat] rejected non-participant', { profileId, matchRequestId, expectedParticipants: participants })
       socket.emit('error', { message: 'Not a participant' })
@@ -212,7 +218,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
     let replyTo: { messageId: string; senderId: string; type: string; preview: string } | null = null
     if (replyToId && !shouldUseMockMongo) {
       try {
-        const src = await Chat.findOne({ matchRequestId })
+        const src = await Chat.findOne({ matchRequestId, participants: profileId })
           .select('messages._id messages.senderId messages.content messages.type messages.deletedAt')
           .lean()
         const found = (src?.messages as unknown as ChatMessageDoc[] | undefined)?.find(

@@ -218,6 +218,47 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  // Participant-scoped reads — the Chat lookups must filter by the caller's
+  // profileId so a foreign matchRequestId can never surface another
+  // conversation's data (defense-in-depth over the membership check).
+  describe('participant-scoped queries', () => {
+    it('join_room scopes the participant lookup to the caller', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      await socket._handlers['join_room']!({ matchRequestId: 'match-abc' })
+
+      expect(mockFindOne).toHaveBeenCalledWith({
+        matchRequestId: 'match-abc',
+        participants: 'user-1',
+      })
+    })
+
+    it('send_message reply-context lookup is scoped to the caller', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+
+      await socket._handlers['send_message']!({
+        matchRequestId: 'match-abc',
+        content: 'reply!',
+        type: 'TEXT',
+        replyToId: 'msg-1',
+      })
+
+      // The reply-context lookup (2nd findOne, after assertParticipant's) must
+      // carry the participants scope so a foreign matchRequestId can't be probed.
+      expect(mockFindOne.mock.calls.length).toBeGreaterThanOrEqual(2)
+      expect(mockFindOne.mock.calls[1]![0]).toEqual({
+        matchRequestId: 'match-abc',
+        participants: 'user-1',
+      })
+    })
+  })
+
   describe('send_message', () => {
     it('pushes message to Chat via findOneAndUpdate and emits message_received to room', async () => {
       const socket = makeSocket('user-1')
