@@ -57,8 +57,18 @@ export async function checkKycRateLimit(profileId: string, op: string): Promise<
 export async function clearKycRateLimit(profileId: string): Promise<void> {
   if (shouldUseMockKyc) return;
   try {
-    const keys = await redis.keys(`kyc:rate:*:${profileId}`);
-    if (keys.length > 0) await redis.del(...keys);
+    // SCAN cursor loop instead of KEYS — KEYS is O(N) over the whole keyspace
+    // and blocks the single-threaded Redis for every other client. SCAN walks
+    // incrementally with a MATCH filter and never blocks.
+    const pattern = `kyc:rate:*:${profileId}`;
+    const matched: string[] = [];
+    let cursor = '0';
+    do {
+      const [next, batch] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      cursor = next;
+      matched.push(...batch);
+    } while (cursor !== '0');
+    if (matched.length > 0) await redis.del(...matched);
     await redis.del(`kyc:lock:${profileId}`);
   } catch (e) {
     console.error('[kyc/rateLimit] clear failed', e);
