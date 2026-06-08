@@ -433,6 +433,7 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
   }: { matchRequestId: string; messageId: string; emoji: string }) => {
     const profileId = await assertParticipant(matchRequestId)
     if (!profileId) return
+    if (!(await socketRateOk(profileId, 'react_message', 30, 10))) return
     if (!ALLOWED_REACTIONS.has(emoji)) {
       socket.emit('error', { message: 'Reaction not allowed' }); return
     }

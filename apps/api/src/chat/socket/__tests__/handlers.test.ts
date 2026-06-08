@@ -409,6 +409,49 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  describe('react_message', () => {
+    it('emits message_reacted on a valid reaction', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockUpdateOne.mockResolvedValueOnce({})
+      mockFindOneAndUpdate.mockReturnValueOnce({
+        lean: async () => ({
+          messages: [{ _id: 'm1', reactions: [{ profileId: 'user-1', emoji: '❤️', at: new Date() }] }],
+        }),
+      })
+
+      await socket._handlers['react_message']!({
+        matchRequestId: 'match-abc', messageId: 'm1', emoji: '❤️',
+      })
+
+      const evt = io._toEmitted.find((e) => e.event === 'message_reacted')
+      expect(evt).toBeDefined()
+    })
+
+    it('is rate limited (over-limit reaction does no DB work)', async () => {
+      const { redis } = await import('../../../lib/redis.js')
+      // Disable the NODE_ENV='test' short-circuit so socketRateOk hits redis.
+      ;(env as { NODE_ENV: string }).NODE_ENV = 'development'
+      ;(redis.incr as ReturnType<typeof vi.fn>).mockResolvedValueOnce(31) // > 30 limit
+      try {
+        const socket = makeSocket('user-1')
+        const io = makeIo()
+        registerChatHandlers(io as never, socket as never)
+
+        await socket._handlers['react_message']!({
+          matchRequestId: 'match-abc', messageId: 'm1', emoji: '❤️',
+        })
+
+        expect(mockUpdateOne).not.toHaveBeenCalled()
+        expect(mockFindOneAndUpdate).not.toHaveBeenCalled()
+      } finally {
+        ;(env as { NODE_ENV: string }).NODE_ENV = 'test'
+      }
+    })
+  })
+
   describe('typing', () => {
     it('emits user_typing via socket.to (not io.to — not back to sender)', async () => {
       const socket = makeSocket('user-1')
