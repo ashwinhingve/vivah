@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true },
+  "include": [
+    "index.ts",
+    "schema/**/*.ts",
+    "seed/calendar.ts",
+    "seed/calendar-data.ts",
+    "seed/calendar.test.ts"
+  ],
+  "exclude": ["node_modules", "dist", "migrations"]
+}

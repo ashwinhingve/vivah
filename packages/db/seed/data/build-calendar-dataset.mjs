@@ -232,12 +232,57 @@ const REGIONAL_FESTIVALS = [
 // ── DISPUTED REGIONAL — held out of the seeded list, NOT deleted ──────────────
 // Cross-source disagreements that a panchang-authority ruling (Colonel Deepak)
 // must settle — same policy as the July muhurat cluster. Encoded so the
-// knowledge survives; never seeded.
-//   Row shape: [ISO date, name, region, note]
+// knowledge survives; never seeded. Each carries BOTH candidate dates so a
+// `conventions` flip just picks one.
+//   Row shape: [name, region, gatedBy, candidates{}, astronomicalEvent, note]
 const DISPUTED_REGIONAL = [
-  ['2026-04-14', 'Vishu', 'Kerala', 'Medam Sankranti timing splits sources Apr 14 vs Apr 15 (Vishukkani next-day rule).'],
-  ['2026-08-26', 'Onam (Thiruvonam)', 'Kerala', 'Majority/Drik list 26-Aug; some list 1-Sep — Thiruvonam-nakshatra reckoning split (6-day delta).'],
+  ['Vishu', 'Kerala', 'vishu_day', { 'apr-14': '2026-04-14', 'apr-15': '2026-04-15' }, 'Medam Sankranti',
+    'Medam Sankranti timing splits sources Apr 14 vs Apr 15 (Vishukkani next-day rule).'],
+  ['Onam (Thiruvonam)', 'Kerala', 'onam_reckoning', { 'aug-26': '2026-08-26', 'sep-01': '2026-09-01' }, 'Thiruvonam',
+    'Majority/Drik list 26-Aug; some list 1-Sep — Thiruvonam-nakshatra reckoning split (6-day delta).'],
 ];
+
+// ── SCHOOL-calendar blackout windows (kind=SCHOOL, date→endDate) ───────────────
+// Sourced to ≥2 public references (CBSE official datesheet PDFs + coaching/news
+// mirrors; Delhi DoE circular + education portals). National (region null, CBSE)
+// or region-tagged (Delhi). 2027 Delhi break dates are NOT yet published — held
+// in disputed.schoolPendingAuthority, not invented.
+//   Row shape: [name, date, endDate, region|null, note, sources[]]
+const SCHOOL_WINDOWS = [
+  ['CBSE Board Exams (Class 10 & 12)', '2026-02-17', '2026-04-10', null,
+    'Exams begin 2026-02-17; Class 10 ends 2026-03-11, Class 12 ends 2026-04-10. Peak exam-season blackout for families with school-age children.',
+    ['https://www.cbse.gov.in/cbsenew/documents/Date_Sheet_2nd_Board_Exam_X_2026_23042026.pdf',
+     'https://www.vedantu.com/cbse/cbse-date-sheet',
+     'https://www.adda247.com/school/cbse-date-sheet-2026/']],
+  ['CBSE Board Exams (Class 10 & 12)', '2027-02-15', '2027-04-10', null,
+    'Class 10 commences 2027-02-15 and ends 2027-03-10 (announced); Class 12 end approximate per CBSE tentative datesheet — refine when the final 2027 datesheet is published.',
+    ['https://www.cbse.gov.in/cbsenew/documents/Tentative_DateSheet_24092025.pdf',
+     'https://gradehunt.com/blogs/delhi-board-exam-dates',
+     'https://truejobs.co.in/blog/cbse-time-table-2027-class-10-12-pdf-download']],
+  ['Summer Vacation (Delhi schools)', '2026-05-11', '2026-06-30', 'Delhi',
+    'Delhi government schools closed 2026-05-11 to 2026-06-30; reopen 2026-07-01. Representative North-India summer break — overlaps the May/June muhurat season.',
+    ['https://m.dailyhunt.in/news/india/english/india+employment+news-epaper-indemnew/summer+vacation+2026+summer+vacations+in+delhi+government+schools+will+run+from+may+11+to+june+30-newsid-n711568870',
+     'https://school.careers360.com/articles/summer-vacation-dates-2026',
+     'https://sundayguardianlive.com/india/delhi-ncr-schools-closed-news-schools-closed-for-50-days-from-may-11-check-full-summer-holiday-schedule-reopening-date-changed-timings-more-187364/']],
+  ['Winter Vacation (Delhi schools)', '2026-01-01', '2026-01-15', 'Delhi',
+    'Delhi DoE winter break 2026-01-01 to 2026-01-15; may extend on cold-wave/fog. Representative North-India winter break.',
+    ['http://it.delhigovt.nic.in/writereaddata/Cir2024526064.pdf',
+     'https://www.pw.live/school-prep/exams/school-winter-holidays-2026',
+     'https://www.schooldekho.org/school/blog/details/Delhi-School-Holiday-List-2026-2026']],
+];
+
+// ── CONVENTIONS — panchang-convention switches; defaults = conservative live set.
+// Flip ONE value + re-seed to enact a Colonel ruling. See conventions doc.
+const CONVENTIONS = {
+  _doc:
+    'Panchang-convention switches. To enact an authority ruling, flip ONE value below and re-seed — ' +
+    'the resolver promotes the matching `disputed` bucket into live rows. Defaults are the conservative ' +
+    'current state (nothing promoted). See docs/calendar-muhurat-conventions.md.',
+  devshayani: 'amanta-6jul',
+  january_post_sankranti: 'omit',
+  vishu_day: 'unset',
+  onam_reckoning: 'unset',
+};
 
 const dataset = {
   version: SOURCE,
@@ -265,29 +310,76 @@ const dataset = {
     note: note ?? null,
   })),
   govt: GOVT.map(([date, name]) => ({ date, name })),
-  // Documented cross-source disagreements — NOT seeded. See conventions doc.
+  // School-calendar blackout windows (kind=SCHOOL, date→endDate). Seeded.
+  schoolWindows: SCHOOL_WINDOWS.map(([name, date, endDate, region, note, sources]) => ({
+    name,
+    date,
+    endDate,
+    region: region ?? null,
+    note,
+    sources,
+  })),
+  // Panchang-convention switches. Defaults reproduce the conservative live set.
+  conventions: CONVENTIONS,
+  // Documented cross-source disagreements — NOT seeded. Each bucket declares the
+  // convention key (`gatedBy`) + value that promotes it. See conventions doc.
   disputed: {
     reason:
-      'Panchang-convention dependent (Devshayani Ekadashi reckoning; Kharmas end). ' +
-      'Resolution is an authority decision, not a data fix. ' +
+      'Panchang-convention dependent (Devshayani Ekadashi reckoning; Kharmas end; ' +
+      'Medam/Thiruvonam reckoning). Resolution is an authority decision, not a data fix. ' +
+      'Each bucket declares `gatedBy` (the conventions key) and the value that promotes it. ' +
       'See docs/calendar-muhurat-conventions.md.',
-    julyPendingAuthority: DISPUTED_MUHURATS.map(([date, tithi, nakshatra]) => ({
-      date,
-      band: bandFor(nakshatra),
-      tithi,
-      nakshatra,
-      note: 'Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated.',
-    })),
-    januaryOmittedPendingAuthority: OMITTED_JANUARY.map(([date]) => ({
-      date,
-      note: 'Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Currently NOT seeded.',
-    })),
-    regionalPendingAuthority: DISPUTED_REGIONAL.map(([date, name, region, note]) => ({
-      date,
-      name,
-      region,
-      note,
-    })),
+    julyPendingAuthority: {
+      gatedBy: 'devshayani',
+      promoteWhen: 'drik-25jul',
+      kind: 'MUHURAT',
+      muhurats: DISPUTED_MUHURATS.map(([date, tithi, nakshatra]) => ({
+        date,
+        band: bandFor(nakshatra),
+        tithi,
+        nakshatra,
+        note: 'Valid under Drik (Devshayani=25-Jul); rejected by July-6 camp; not independently corroborated.',
+      })),
+    },
+    januaryOmittedPendingAuthority: {
+      gatedBy: 'january_post_sankranti',
+      promoteWhen: 'include',
+      kind: 'MUHURAT',
+      muhurats: OMITTED_JANUARY.map(([date, tithi, nakshatra]) => ({
+        date,
+        band: 'MEDIUM',
+        tithi,
+        nakshatra,
+        note: 'Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Promotion needs tithi/nakshatra sourced before seeding.',
+      })),
+    },
+    regionalPendingAuthority: DISPUTED_REGIONAL.map(
+      ([name, region, gatedBy, candidates, astronomicalEvent, note]) => ({
+        name,
+        region,
+        community: null,
+        gatedBy,
+        candidates,
+        astronomicalEvent,
+        note,
+      }),
+    ),
+    schoolPendingAuthority: [
+      {
+        name: 'Summer Vacation 2027 (Delhi schools)',
+        note: '2027 Delhi summer-break dates not yet published; the 2026 window (May 11–Jun 30) is only a pattern, not a source for 2027. Add when DoE 2027 circular is out.',
+      },
+      {
+        name: 'Winter Vacation 2027 (Delhi schools)',
+        note: '2027 Delhi winter-break dates not yet published; the 2026 window (Jan 1–15) is only a pattern. Add when DoE 2027 circular is out.',
+      },
+    ],
+    observancesPendingAuthority: [
+      {
+        name: 'Muharram / Ashura, Milad-un-Nabi (Eid-e-Milad)',
+        note: 'Moon-sighting-dependent Islamic observances. National festivals[] already carries the date-stable major observances (Eid ul-Fitr, Eid ul-Adha, Guru Nanak Jayanti, Mahavir Jayanti, Buddha Purnima, Christmas, Good Friday, Janmashtami). These lunar dates vary by sighting and are intentionally NOT date-pinned here — seed only once a single authority date is chosen, to avoid inventing a date.',
+      },
+    ],
   },
 };
 
@@ -305,7 +397,10 @@ console.log(
     `  festivals (national): ${dataset.festivals.length}  govt: ${dataset.govt.length}\n` +
     `  regionalFestivals (seeded): ${dataset.regionalFestivals.length} ` +
     `→ ${JSON.stringify(regionalByRegion)}\n` +
-    `  disputed (NOT seeded): july=${dataset.disputed.julyPendingAuthority.length}, ` +
-    `january-omitted=${dataset.disputed.januaryOmittedPendingAuthority.length}, ` +
-    `regional=${dataset.disputed.regionalPendingAuthority.length}`,
+    `  schoolWindows (seeded): ${dataset.schoolWindows.length}\n` +
+    `  conventions: ${JSON.stringify({ ...dataset.conventions, _doc: undefined })}\n` +
+    `  disputed (NOT seeded): july=${dataset.disputed.julyPendingAuthority.muhurats.length}, ` +
+    `january-omitted=${dataset.disputed.januaryOmittedPendingAuthority.muhurats.length}, ` +
+    `regional=${dataset.disputed.regionalPendingAuthority.length}, ` +
+    `school-pending=${dataset.disputed.schoolPendingAuthority.length}`,
 );

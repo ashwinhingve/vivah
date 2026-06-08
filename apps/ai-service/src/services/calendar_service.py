@@ -77,21 +77,71 @@ def chaturmas_window(year: int) -> Optional[ChaturmasWindow]:
     return ChaturmasWindow(year=year, devshayani=entry["devshayani"], devuthani=entry["devuthani"])
 
 
-def muhurats_for_year(year: int) -> List[MuhuratEvent]:
-    """All vivah muhurat dates in `year`, ascending and deterministic."""
+def _resolve_conventions(override: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """Dataset convention defaults, merged with an optional partial override (tests)."""
+    base = {k: v for k, v in dict(_load().get("conventions", {})).items() if k != "_doc"}
+    if override:
+        base.update(override)
+    return base
+
+
+def _promoted_muhurats(conventions: Dict[str, str]) -> List[Dict[str, object]]:
+    """Disputed muhurat dicts whose gating convention is satisfied (else empty)."""
+    disputed = _load().get("disputed", {})
+    assert isinstance(disputed, dict)
+    out: List[Dict[str, object]] = []
+    for key in ("julyPendingAuthority", "januaryOmittedPendingAuthority"):
+        bucket = disputed.get(key)
+        if not isinstance(bucket, dict):
+            continue
+        if conventions.get(str(bucket["gatedBy"])) != bucket["promoteWhen"]:
+            continue
+        out.extend(bucket.get("muhurats", []))
+    return out
+
+
+def _promoted_regional(conventions: Dict[str, str]) -> List[Dict[str, object]]:
+    """Disputed regional festivals with a chosen candidate date (else empty)."""
+    disputed = _load().get("disputed", {})
+    assert isinstance(disputed, dict)
+    out: List[Dict[str, object]] = []
+    for r in disputed.get("regionalPendingAuthority", []):
+        candidates = r.get("candidates", {})
+        date = candidates.get(conventions.get(str(r["gatedBy"])))
+        if not date:
+            continue  # 'unset' or unmatched value → held out
+        out.append({**r, "date": date})
+    return out
+
+
+def muhurats_for_year(year: int, conventions: Optional[Dict[str, str]] = None) -> List[MuhuratEvent]:
+    """All vivah muhurat dates in `year`, ascending and deterministic.
+
+    `conventions` overrides the dataset defaults (partial dict; tests use this to
+    flip e.g. devshayani). Defaults promote nothing, so output is unchanged.
+    """
+    conv = _resolve_conventions(conventions)
     prefix = f"{year:04d}-"
     rows = [m for m in _load()["muhurats"] if str(m["date"]).startswith(prefix)]
+    rows += [m for m in _promoted_muhurats(conv) if str(m["date"]).startswith(prefix)]
     rows.sort(key=lambda m: str(m["date"]))
     return [
-        MuhuratEvent(date=m["date"], band=m["band"], tithi=m["tithi"], nakshatra=m["nakshatra"])
+        MuhuratEvent(
+            date=str(m["date"]), band=m["band"], tithi=m.get("tithi"), nakshatra=m.get("nakshatra")
+        )
         for m in rows
     ]
 
 
-def _all_events() -> List[CalendarEvent]:
-    """Unified, date-sorted overlay rows (MUHURAT + FESTIVAL + GOVT)."""
+def _all_events(conventions: Optional[Dict[str, str]] = None) -> List[CalendarEvent]:
+    """Unified, date-sorted overlay rows (MUHURAT + FESTIVAL + GOVT + SCHOOL).
+
+    Convention-gated disputed rows are appended only when their gate is satisfied
+    (`conventions` overrides dataset defaults). Mirrors packages/db/seed/calendar.ts.
+    """
     data = _load()
     src = source()
+    conv = _resolve_conventions(conventions)
     events: List[CalendarEvent] = []
     for m in data["muhurats"]:
         events.append(
@@ -133,6 +183,53 @@ def _all_events() -> List[CalendarEvent]:
         events.append(
             CalendarEvent(kind="GOVT", name=g["name"], event_date=g["date"], source=src)
         )
+    # SCHOOL-calendar blackout windows (event_date -> end_date). National
+    # (region None, e.g. CBSE) or region-tagged (e.g. Delhi). Affect scheduling.
+    for s in data.get("schoolWindows", []):  # type: ignore[attr-defined]
+        events.append(
+            CalendarEvent(
+                kind="SCHOOL",
+                name=s["name"],
+                event_date=s["date"],
+                end_date=s.get("endDate"),
+                region=s.get("region"),
+                source=src,
+                metadata={"note": s["note"]} if s.get("note") else None,
+            )
+        )
+    # Convention-gated disputed rows — empty under the conservative defaults.
+    for m in _promoted_muhurats(conv):
+        events.append(
+            CalendarEvent(
+                kind="MUHURAT",
+                name="Vivah Muhurat",
+                event_date=str(m["date"]),
+                source=src,
+                auspicious_band=str(m["band"]),
+                metadata={
+                    k: str(m[k]) for k in ("tithi", "nakshatra") if m.get(k) is not None
+                }
+                or None,
+            )
+        )
+    for r in _promoted_regional(conv):
+        meta = {}
+        if r.get("community"):
+            meta["community"] = str(r["community"])
+        if r.get("astronomicalEvent"):
+            meta["astronomicalEvent"] = str(r["astronomicalEvent"])
+        if r.get("note"):
+            meta["note"] = str(r["note"])
+        events.append(
+            CalendarEvent(
+                kind="FESTIVAL",
+                name=str(r["name"]),
+                event_date=str(r["date"]),
+                region=r.get("region"),
+                source=src,
+                metadata=meta or None,
+            )
+        )
     events.sort(key=lambda e: (e.event_date, e.kind))
     return events
 
@@ -143,15 +240,17 @@ def events_in_range(
     kind: Optional[str] = None,
     region: Optional[str] = None,
     community: Optional[str] = None,
+    conventions: Optional[Dict[str, str]] = None,
 ) -> List[CalendarEvent]:
     """
     Filter overlay rows by inclusive ISO date range, optional kind, and
     national-inclusive region/community. region='Tamil Nadu' returns national
     rows (region None) PLUS Tamil Nadu rows; community filters the same way
     against metadata.community — so a regional user never loses national events.
+    `conventions` overrides dataset defaults for disputed-date promotion.
     """
     out: List[CalendarEvent] = []
-    for e in _all_events():
+    for e in _all_events(conventions):
         if date_from is not None and e.event_date < date_from:
             continue
         if date_to is not None and e.event_date > date_to:

@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "tsc && node scripts/fix-esm-imports.mjs",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.seed.json",
+    "test": "tsx seed/calendar.test.ts",
     "lint": "eslint schema",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",

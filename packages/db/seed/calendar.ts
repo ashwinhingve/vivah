@@ -3,13 +3,16 @@
  *
  * Populates `calendar_events` from the curated single-source-of-truth dataset
  * (seed/data/calendar-2026-2027.json) — the SAME file the Python muhurat engine
- * reads. Deterministic data only: vivah muhurats + national festivals + national
- * govt holidays. No users, no vendors, no LLM.
+ * reads. Deterministic data only: vivah muhurats + national/regional festivals +
+ * govt holidays + school-calendar windows. No users, no vendors, no LLM.
+ *
+ * Disputed-date promotion is driven by the dataset `conventions` block (resolved
+ * in calendar-data.ts). Defaults promote nothing, so a re-seed is additive.
  *
  * Idempotency: `calendar_events` has no content-unique constraint and we must NOT
  * add a migration (the table already exists in prod). So we dedupe at the app
- * level — read existing (kind, event_date, name) keys for our source tag and
- * insert ONLY the missing rows. Additive-only (no deletes), safe to re-run.
+ * level — read existing (kind, event_date, name, region, community) keys for our
+ * source tag and insert ONLY the missing rows. Additive-only, safe to re-run.
  *
  * Run (PowerShell, per repo convention):
  *   $env:DATABASE_URL = '...'; pnpm --filter @smartshaadi/db db:seed:calendar
@@ -19,99 +22,14 @@ import { eq } from 'drizzle-orm';
 import pg from 'pg';
 import { config } from 'dotenv';
 import { resolve } from 'path';
-import { readFileSync } from 'node:fs';
 import { calendarEvents } from '../schema/index.js';
+import { applyConventions, buildRows, communityOf, loadDataset, rowKey } from './calendar-data.js';
 
 config({ path: resolve(__dirname, '../../../.env') });
 
-// ── Dataset shape (matches seed/data/calendar-2026-2027.json) ─────────────────
-type AuspiciousBand = 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'PEAK';
-
-interface RegionalFestival {
-  date: string;
-  name: string;
-  region: string | null;
-  community: string | null;
-  astronomicalEvent: string | null;
-  note: string | null;
-}
-
-interface CalendarDataset {
-  version: string;
-  muhurats: Array<{ date: string; band: AuspiciousBand; tithi: string; nakshatra: string }>;
-  festivals: Array<{ date: string; name: string }>;
-  regionalFestivals?: RegionalFestival[];
-  govt: Array<{ date: string; name: string }>;
-}
-
-type CalendarRow = typeof calendarEvents.$inferInsert;
-
-export function loadDataset(): CalendarDataset {
-  const path = resolve(__dirname, 'data/calendar-2026-2027.json');
-  return JSON.parse(readFileSync(path, 'utf-8')) as CalendarDataset;
-}
-
-export function buildRows(data: CalendarDataset): CalendarRow[] {
-  const source = data.version;
-  const rows: CalendarRow[] = [];
-
-  for (const m of data.muhurats) {
-    rows.push({
-      kind: 'MUHURAT',
-      name: 'Vivah Muhurat',
-      eventDate: m.date,
-      region: null,
-      source,
-      auspiciousBand: m.band,
-      metadata: { tithi: m.tithi, nakshatra: m.nakshatra },
-    });
-  }
-  for (const f of data.festivals) {
-    rows.push({ kind: 'FESTIVAL', name: f.name, eventDate: f.date, region: null, source });
-  }
-  for (const rf of data.regionalFestivals ?? []) {
-    // Regional/community variants are FESTIVAL rows discriminated by `region`
-    // (and metadata.community). NOT kind=REGIONAL — so a kind=FESTIVAL query
-    // still surfaces them. community lives in metadata for endpoint filtering.
-    const metadata: Record<string, string> = {};
-    if (rf.community) metadata['community'] = rf.community;
-    if (rf.astronomicalEvent) metadata['astronomicalEvent'] = rf.astronomicalEvent;
-    if (rf.note) metadata['note'] = rf.note;
-    rows.push({
-      kind: 'FESTIVAL',
-      name: rf.name,
-      eventDate: rf.date,
-      region: rf.region,
-      source,
-      metadata: Object.keys(metadata).length > 0 ? metadata : null,
-    });
-  }
-  for (const g of data.govt) {
-    rows.push({ kind: 'GOVT', name: g.name, eventDate: g.date, region: null, source });
-  }
-  return rows;
-}
-
-/** community tag, read out of the jsonb metadata blob (null for most rows). */
-const communityOf = (metadata: unknown): string | null => {
-  if (metadata && typeof metadata === 'object' && 'community' in metadata) {
-    const c = (metadata as { community?: unknown }).community;
-    return typeof c === 'string' ? c : null;
-  }
-  return null;
-};
-
-// Dedupe key includes region + community so regional variants on a shared date
-// (e.g. Pongal/TN + Uttarayan/Gujarat both 14-Jan) are distinct rows, while
-// national rows (region null, no community) keep the SAME key already in prod —
-// additive, idempotent, ON CONFLICT DO NOTHING-equivalent at the app level.
-export const rowKey = (r: {
-  kind: string;
-  eventDate: string;
-  name: string;
-  region?: string | null;
-  community?: string | null;
-}): string => `${r.kind}|${r.eventDate}|${r.name}|${r.region ?? ''}|${r.community ?? ''}`;
+// Re-export the pure helpers so existing importers keep working.
+export { applyConventions, buildRows, communityOf, loadDataset, rowKey };
+export type { CalendarDataset, CalendarRow, Conventions } from './calendar-data.js';
 
 export async function seedCalendar(db: ReturnType<typeof drizzle>): Promise<void> {
   const data = loadDataset();
@@ -160,10 +78,12 @@ export async function seedCalendar(db: ReturnType<typeof drizzle>): Promise<void
       acc[key] = (acc[key] ?? 0) + 1;
       return acc;
     }, {});
+  const promotedCount = applyConventions(data).length;
   console.log(
     `📅 Calendar seed (${data.version}): ${rows.length} curated rows ` +
-      `[MUHURAT=${byKind('MUHURAT')} FESTIVAL=${byKind('FESTIVAL')} GOVT=${byKind('GOVT')}]\n` +
-      `   regional/community FESTIVAL rows: ${JSON.stringify(regionalCounts)}\n` +
+      `[MUHURAT=${byKind('MUHURAT')} FESTIVAL=${byKind('FESTIVAL')} GOVT=${byKind('GOVT')} SCHOOL=${byKind('SCHOOL')}]\n` +
+      `   regional/community + region-tagged rows: ${JSON.stringify(regionalCounts)}\n` +
+      `   convention-promoted disputed rows: ${promotedCount} ${JSON.stringify(data.conventions)}\n` +
       `   inserted ${missing.length} new, skipped ${rows.length - missing.length} existing (idempotent).`,
   );
 }

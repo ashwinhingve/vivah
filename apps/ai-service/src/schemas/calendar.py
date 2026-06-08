@@ -34,8 +34,10 @@ class MuhuratEvent(BaseModel):
 
     date: str = Field(description="ISO date YYYY-MM-DD")
     band: AuspiciousBand
-    tithi: str
-    nakshatra: str
+    # Optional: convention-promoted disputed dates (e.g. the Jan Kharmas dates)
+    # may not yet have sourced tithi/nakshatra. Live dataset rows always carry them.
+    tithi: Optional[str] = None
+    nakshatra: Optional[str] = None
 
 
 class ChaturmasWindow(BaseModel):

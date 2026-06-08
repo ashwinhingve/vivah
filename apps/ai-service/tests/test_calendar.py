@@ -221,3 +221,120 @@ class TestRegionalCommunity:
         r = client.get("/ai/calendar/events", params={"community": "Jain"})
         assert r.status_code == 200
         assert "Paryushan (Samvatsari)" in {e["name"] for e in r.json()["events"]}
+
+
+class TestConventions:
+    """Disputed-date promotion is a one-value convention flip + deterministic."""
+
+    _JULY = {"2026-07-01", "2026-07-06", "2026-07-11", "2026-07-12"}
+    _JAN = {"2026-01-14", "2026-01-23", "2026-01-25", "2026-01-28"}
+
+    def test_defaults_promote_nothing(self) -> None:
+        # Dataset defaults reproduce today's live set exactly.
+        assert len(cal.muhurats_for_year(2026)) == 56
+        assert len(cal.muhurats_for_year(2027)) == 96
+        july = {m.date for m in cal.muhurats_for_year(2026) if m.date.startswith("2026-07")}
+        assert july == {"2026-07-07"}  # only the corroborated date
+
+    def test_devshayani_flip_adds_four_july(self) -> None:
+        flipped = cal.muhurats_for_year(2026, conventions={"devshayani": "drik-25jul"})
+        dates = {m.date for m in flipped}
+        assert len(flipped) == 60  # 56 + 4
+        assert self._JULY <= dates
+        # flipping back (default) removes them again — no leakage via lru_cache
+        assert len(cal.muhurats_for_year(2026)) == 56
+
+    def test_january_flip_adds_four_dates(self) -> None:
+        flipped = cal.muhurats_for_year(2026, conventions={"january_post_sankranti": "include"})
+        dates = {m.date for m in flipped}
+        assert len(flipped) == 60  # 56 + 4
+        assert self._JAN <= dates
+        # promoted Jan dates have no sourced tithi/nakshatra yet (Optional, tolerated)
+        jan = [m for m in flipped if m.date in self._JAN]
+        assert all(m.tithi is None and m.nakshatra is None for m in jan)
+
+    def test_both_flips_are_independent(self) -> None:
+        both = cal.muhurats_for_year(
+            2026, conventions={"devshayani": "drik-25jul", "january_post_sankranti": "include"}
+        )
+        assert len(both) == 64  # 56 + 4 + 4
+
+    def test_vishu_flip_picks_chosen_date(self) -> None:
+        default = {e.name for e in cal.events_in_range(None, None, "FESTIVAL", region="Kerala")}
+        assert "Vishu" not in default  # held out by default
+        flipped = cal.events_in_range(
+            None, None, "FESTIVAL", region="Kerala", conventions={"vishu_day": "apr-15"}
+        )
+        vishu = [e for e in flipped if e.name == "Vishu"]
+        assert len(vishu) == 1
+        assert vishu[0].event_date == "2026-04-15"
+        assert vishu[0].region == "Kerala"
+
+    def test_onam_flip_picks_chosen_date(self) -> None:
+        flipped = cal.events_in_range(
+            None, None, "FESTIVAL", region="Kerala", conventions={"onam_reckoning": "sep-01"}
+        )
+        onam = [e for e in flipped if e.name.startswith("Onam")]
+        assert len(onam) == 1
+        assert onam[0].event_date == "2026-09-01"
+
+    def test_unset_regional_stays_held_out(self) -> None:
+        # explicit 'unset' (the default) promotes neither Vishu nor Onam
+        names = {
+            e.name
+            for e in cal.events_in_range(
+                None, None, "FESTIVAL", conventions={"vishu_day": "unset", "onam_reckoning": "unset"}
+            )
+        }
+        assert "Vishu" not in names
+        assert not any(n.startswith("Onam") for n in names)
+
+    def test_convention_determinism(self) -> None:
+        conv = {"devshayani": "drik-25jul"}
+        a = [m.date for m in cal.muhurats_for_year(2026, conventions=conv)]
+        b = [m.date for m in cal.muhurats_for_year(2026, conventions=conv)]
+        assert a == b
+
+
+class TestSchoolWindows:
+    """School-calendar blackout windows — SCHOOL kind, date -> end_date, sourced."""
+
+    def test_school_windows_present(self) -> None:
+        school = cal.events_in_range(None, None, "SCHOOL")
+        assert len(school) == 4
+        names = {e.name for e in school}
+        assert "CBSE Board Exams (Class 10 & 12)" in names
+        assert "Summer Vacation (Delhi schools)" in names
+        assert "Winter Vacation (Delhi schools)" in names
+
+    def test_school_windows_have_end_date(self) -> None:
+        for e in cal.events_in_range(None, None, "SCHOOL"):
+            assert e.end_date is not None
+            assert e.end_date >= e.event_date
+
+    def test_cbse_2026_window_dates(self) -> None:
+        cbse = [
+            e
+            for e in cal.events_in_range(None, None, "SCHOOL")
+            if e.name.startswith("CBSE") and e.event_date.startswith("2026")
+        ]
+        assert len(cbse) == 1
+        assert cbse[0].event_date == "2026-02-17"
+        assert cbse[0].end_date == "2026-04-10"
+        assert cbse[0].region is None  # national board
+
+    def test_school_region_national_inclusive(self) -> None:
+        # Delhi user sees Delhi breaks AND national CBSE windows.
+        delhi = cal.events_in_range(None, None, "SCHOOL", region="Delhi")
+        assert len(delhi) == 4
+        # Tamil Nadu user sees only the national CBSE windows (no Delhi-tagged breaks).
+        tn = cal.events_in_range(None, None, "SCHOOL", region="Tamil Nadu")
+        assert {e.name for e in tn} == {"CBSE Board Exams (Class 10 & 12)"}
+        assert len(tn) == 2  # 2026 + 2027 CBSE
+
+    def test_school_endpoint(self) -> None:
+        r = client.get("/ai/calendar/events", params={"kind": "SCHOOL"})
+        assert r.status_code == 200
+        events = r.json()["events"]
+        assert len(events) == 4
+        assert all(e["end_date"] for e in events)
