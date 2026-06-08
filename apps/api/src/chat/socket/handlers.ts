@@ -297,11 +297,17 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
       contentEn: null,
     })
 
+    // Load participants once, reused for both the /chats list push and the
+    // receiver-not-in-room notification below (was two identical lookups).
+    let participants: string[] = []
+    try {
+      participants = await loadParticipants(matchRequestId, profileId)
+    } catch { /* best-effort — participants stays [] */ }
+
     // Push lightweight update to each participant's user room so the
     // /chats list reflects last-message + unread without a refresh.
-    try {
-      const partsForUpdate = await loadParticipants(matchRequestId)
-      emitConversationUpdated(matchRequestId, partsForUpdate, {
+    if (participants.length > 0) {
+      emitConversationUpdated(matchRequestId, participants, {
         kind:    'last_message',
         lastMessage: {
           content:  previewFor({ content, type }),
@@ -310,11 +316,10 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
           type,
         },
       })
-    } catch { /* best-effort */ }
+    }
 
     // Notify receiver if not in room
     try {
-      const participants = await loadParticipants(matchRequestId)
       const receiverProfileId = participants.find((p) => p !== profileId)
       if (receiverProfileId) {
         const socketsInRoom = await io.in(matchRequestId).fetchSockets()

@@ -291,6 +291,24 @@ describe('registerChatHandlers', () => {
       expect(msg.type).toBe('TEXT')
     })
 
+    it('loads participants once after persist (no duplicate lookup)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+
+      await socket._handlers['send_message']!({
+        matchRequestId: 'match-abc',
+        content: 'Hello!',
+        type: 'TEXT',
+      })
+
+      // 1 lookup for assertParticipant + 1 consolidated participant load
+      // (was 3: assertParticipant + two identical loadParticipants calls).
+      expect(mockFindOne).toHaveBeenCalledTimes(2)
+    })
+
     it('skips DB call in mock mode but still emits message_received', async () => {
       ;(env as { USE_MOCK_SERVICES: boolean }).USE_MOCK_SERVICES = true
       const socket = makeSocket('user-1')
