@@ -736,7 +736,9 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
   if (profile!.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
   if (profile!.verificationStatus !== 'MANUAL_REVIEW' && profile!.verificationStatus !== 'INFO_REQUESTED') {
-    kycErr(KycErrorCode.KYC_IN_REVIEW);
+    // Profile is NOT in a reviewable state — KYC_IN_REVIEW wrongly implied the
+    // opposite (a review in progress). Report the actual fault: invalid state.
+    kycErr(KycErrorCode.KYC_INVALID_STATE);
   }
 
   const kycRecord = await loadKyc(profileId);
@@ -776,7 +778,8 @@ export async function rejectKyc(profileId: string, adminUserId: string, note?: s
   if (!profile) kycErr(KycErrorCode.PROFILE_NOT_FOUND);
   if (profile!.verificationStatus === 'VERIFIED') kycErr(KycErrorCode.KYC_ALREADY_VERIFIED);
   if (profile!.verificationStatus !== 'MANUAL_REVIEW' && profile!.verificationStatus !== 'INFO_REQUESTED') {
-    kycErr(KycErrorCode.KYC_IN_REVIEW);
+    // Not in a reviewable state — same fix as approveKyc (was KYC_IN_REVIEW).
+    kycErr(KycErrorCode.KYC_INVALID_STATE);
   }
 
   const kycRecord = await loadKyc(profileId);

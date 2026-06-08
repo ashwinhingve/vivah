@@ -273,10 +273,10 @@ describe('approveKyc', () => {
       .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
   });
 
-  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+  it('throws KYC_INVALID_STATE when profile is not in a reviewable status', async () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
     await expect(approveKyc('profile-uuid-1', 'admin-uuid-1'))
-      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_INVALID_STATE });
   });
 });
 
@@ -297,9 +297,9 @@ describe('rejectKyc', () => {
       .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
   });
 
-  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+  it('throws KYC_INVALID_STATE when profile is not in a reviewable status', async () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
     await expect(rejectKyc('profile-uuid-1', 'admin-uuid-1'))
-      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_INVALID_STATE });
   });
 });
