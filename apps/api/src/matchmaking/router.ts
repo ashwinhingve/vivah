@@ -171,10 +171,11 @@ matchmakingRouter.get(
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
     const limit = Math.min(Math.max(Number(req.query['limit'] ?? 50), 1), 100);
+    const page  = Math.min(Math.max(Number(req.query['page'] ?? 1), 1), 1000);
     try {
       const resolved = await getProfileTier(req.user!.id);
       if (!resolved) { err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404); return; }
-      const { items, total } = await getWhoLikedMe(resolved.profileId, limit);
+      const { items, total } = await getWhoLikedMe(resolved.profileId, limit, page);
       const ent = getEntitlements(resolved.tier);
       if (!ent.canViewWhoLikedMe) {
         ok(res, { items: [], total, locked: true, requiredTier: 'PREMIUM' });

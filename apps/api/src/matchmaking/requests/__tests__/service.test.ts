@@ -523,6 +523,38 @@ describe('matchmaking/requests/service', () => {
     });
   });
 
+  // ── getWhoLikedMe (real total + pagination) ──────────────────────────────────
+
+  describe('getWhoLikedMe', () => {
+    it('returns the real pending-likes total, not the page length', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const rows = [
+        { id: 'r1', senderId: 'p1', message: null, priority: 'NORMAL', createdAt: new Date() },
+        { id: 'r2', senderId: 'p2', message: null, priority: 'NORMAL', createdAt: new Date() },
+      ];
+      let sc = 0;
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+        sc += 1;
+        if (sc === 1) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ count: '5' }]) }; // real count
+        if (sc === 2) return {
+          from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(),
+          orderBy: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(),
+          offset: vi.fn().mockResolvedValue(rows),
+        };
+        if (sc === 3) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([
+          { id: 'p1', userId: 'u1', verificationStatus: 'VERIFIED', lastActiveAt: null },
+          { id: 'p2', userId: 'u2', verificationStatus: 'VERIFIED', lastActiveAt: null },
+        ]) };
+        return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([]) }; // photos
+      });
+
+      const { getWhoLikedMe } = await import('../service.js');
+      const out = await getWhoLikedMe(asProfileId('me'), 2, 1);
+      expect(out.items).toHaveLength(2);
+      expect(out.total).toBe(5); // not 2
+    });
+  });
+
   // ── markRequestSeen ──────────────────────────────────────────────────────────
 
   describe('markRequestSeen', () => {

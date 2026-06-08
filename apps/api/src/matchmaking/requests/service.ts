@@ -808,15 +808,28 @@ export interface WhoLikedMeItem {
 export async function getWhoLikedMe(
   receiverProfileId: ProfileId,
   limit: number,
+  page = 1,
 ): Promise<{ items: WhoLikedMeItem[]; total: number }> {
+  const offset = (page - 1) * limit;
+
+  // Real total of pending likes — drives the "N people liked you" badge and
+  // FREE-tier count. Previously total = items.length, capping the badge at the
+  // page size and under-reporting once a profile had more likes than `limit`.
+  const [countRow] = await db
+    .select({ count: sql<string>`count(*)` })
+    .from(matchRequests)
+    .where(and(eq(matchRequests.receiverId, receiverProfileId), eq(matchRequests.status, 'PENDING')));
+  const total = Number(countRow?.count ?? 0);
+
   const requests = await db
     .select()
     .from(matchRequests)
     .where(and(eq(matchRequests.receiverId, receiverProfileId), eq(matchRequests.status, 'PENDING')))
     .orderBy(desc(matchRequests.priority), desc(matchRequests.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
 
-  if (requests.length === 0) return { items: [], total: 0 };
+  if (requests.length === 0) return { items: [], total };
 
   const senderIds = Array.from(new Set(requests.map((r) => r.senderId)));
   const profileRows = await db.select().from(profiles).where(inArray(profiles.id, senderIds));
@@ -872,7 +885,7 @@ export async function getWhoLikedMe(
     };
   });
 
-  return { items, total: items.length };
+  return { items, total };
 }
 
 // ── Match status with a specific profile ──────────────────────────────────────
