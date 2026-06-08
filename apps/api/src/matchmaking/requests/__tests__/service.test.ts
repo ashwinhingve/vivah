@@ -74,9 +74,10 @@ function makeSelectChain(resolveWith: AnyRecord[]) {
 
 function makeInsertChain(resolveWith: AnyRecord[]) {
   return {
-    values:             vi.fn().mockReturnThis(),
+    values:              vi.fn().mockReturnThis(),
     onConflictDoNothing: vi.fn().mockReturnThis(),
-    returning:          vi.fn().mockResolvedValue(resolveWith),
+    onConflictDoUpdate:  vi.fn().mockReturnThis(),
+    returning:           vi.fn().mockResolvedValue(resolveWith),
   };
 }
 
@@ -237,6 +238,41 @@ describe('matchmaking/requests/service', () => {
         expect.objectContaining({ type: 'MATCH_REQUEST_RECEIVED', userId: 'user-2' }),
         expect.any(Object),
       );
+    });
+
+    it('revives a prior WITHDRAWN request via upsert (no raw 23505)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const revived = {
+        id: 'req-1', senderId: 'user-1', receiverId: 'user-2',
+        status: 'PENDING', priority: 'NORMAL', message: 'again',
+        acceptanceMessage: null, declineReason: null, seenAt: null,
+        createdAt: new Date(), updatedAt: new Date(),
+        respondedAt: null, expiresAt: new Date(Date.now() + 14 * 86_400_000),
+      };
+
+      // All pre-insert guards see no active/cooldown rows (prior row is WITHDRAWN,
+      // which none of the guards match) → fall through to the upsert.
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+        const chain: AnyRecord = {
+          from:  vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([]),
+        };
+        chain['then'] = (resolve: (v: unknown[]) => unknown) => Promise.resolve(resolve([]));
+        return chain;
+      });
+
+      const insertMock = vi.fn().mockReturnValue(makeInsertChain([revived]));
+      (dbMod.db as unknown as AnyRecord)['insert'] = insertMock;
+
+      const { sendRequest } = await import('../service.js');
+      const result = await sendRequest(asProfileId('user-1'), asProfileId('user-2'), { message: 'again' });
+
+      expect(result.status).toBe('PENDING');
+      // The conflict path is used so a leftover (sender,receiver) row is revived
+      // rather than throwing a unique-violation.
+      const chainObj = insertMock.mock.results[0]!.value as { onConflictDoUpdate: ReturnType<typeof vi.fn> };
+      expect(chainObj.onConflictDoUpdate).toHaveBeenCalled();
     });
   });
 

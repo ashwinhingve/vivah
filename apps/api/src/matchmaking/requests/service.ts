@@ -192,6 +192,12 @@ export async function sendRequest(
   const expiresAt = new Date(Date.now() + MATCH_REQUEST_TTL_DAYS * 86_400_000);
   const priority: MatchRequestPriority = input.priority ?? 'NORMAL';
 
+  // Upsert on the match_unique_pair (senderId, receiverId) index. By this point
+  // the guards above have ruled out an active (PENDING/ACCEPTED) row and a
+  // DECLINED row still in cool-off, so any conflict is a terminal prior request
+  // (WITHDRAWN / EXPIRED / BLOCKED / DECLINED past cool-off) — revive it to a
+  // fresh PENDING instead of crashing on a raw 23505 unique violation.
+  const now = new Date();
   const [created] = await db
     .insert(matchRequests)
     .values({
@@ -201,6 +207,20 @@ export async function sendRequest(
       priority,
       message:  input.message ?? null,
       expiresAt,
+    })
+    .onConflictDoUpdate({
+      target: [matchRequests.senderId, matchRequests.receiverId],
+      set: {
+        status:            'PENDING',
+        priority,
+        message:           input.message ?? null,
+        acceptanceMessage: null,
+        declineReason:     null,
+        seenAt:            null,
+        respondedAt:       null,
+        expiresAt,
+        updatedAt:         now,
+      },
     })
     .returning();
 
