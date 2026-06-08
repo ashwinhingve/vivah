@@ -476,6 +476,53 @@ describe('matchmaking/requests/service', () => {
     });
   });
 
+  // ── getEnrichedRequests (declineReason privacy) ──────────────────────────────
+
+  describe('getEnrichedRequests', () => {
+    function wireEnrich(row: AnyRecord) {
+      let sc = 0;
+      const dataChain = {
+        from:    vi.fn().mockReturnThis(),
+        where:   vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit:   vi.fn().mockReturnThis(),
+        offset:  vi.fn().mockResolvedValue([row]),
+      };
+      return vi.fn().mockImplementation(() => {
+        sc += 1;
+        if (sc === 1) return dataChain;                                  // data page
+        if (sc === 2) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ count: '1' }]) };
+        if (sc === 3) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ id: 'p2', userId: 'u2', verificationStatus: 'VERIFIED', lastActiveAt: null }]) };
+        return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([]) }; // photos
+      });
+    }
+
+    const declinedRow = {
+      id: 'r1', senderId: 'me', receiverId: 'p2', status: 'DECLINED',
+      priority: 'NORMAL', message: null, acceptanceMessage: null,
+      declineReason: 'NOT_INTERESTED', seenAt: null, respondedAt: null,
+      expiresAt: null, createdAt: new Date(),
+    };
+
+    it('hides declineReason from the sender (side=sent)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['select'] = wireEnrich(declinedRow);
+
+      const { getEnrichedRequests } = await import('../service.js');
+      const out = await getEnrichedRequests(asProfileId('me'), 'sent', 1, 20);
+      expect(out.requests[0]!.declineReason).toBeNull();
+    });
+
+    it('keeps declineReason for the receiver (side=received)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['select'] = wireEnrich({ ...declinedRow, senderId: 'p2', receiverId: 'me' });
+
+      const { getEnrichedRequests } = await import('../service.js');
+      const out = await getEnrichedRequests(asProfileId('me'), 'received', 1, 20);
+      expect(out.requests[0]!.declineReason).toBe('NOT_INTERESTED');
+    });
+  });
+
   // ── markRequestSeen ──────────────────────────────────────────────────────────
 
   describe('markRequestSeen', () => {
