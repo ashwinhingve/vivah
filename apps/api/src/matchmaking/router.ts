@@ -27,6 +27,7 @@ import { matchRequestsRouter } from './requests/router.js';
 import { shortlistsRouter } from './shortlists/router.js';
 import { getWhoLikedMe } from './requests/service.js';
 import { getProfileTier, getEntitlements } from '../lib/entitlements.js';
+import { sliceFeedPage } from './pagination.js';
 
 export const matchmakingRouter = Router();
 
@@ -43,6 +44,7 @@ matchmakingRouter.get(
     }
 
     const userId = req.user!.id;
+    const { page, limit } = parsed.data;
     // ?refresh=1 bypasses Redis cache and recomputes from PG+Mongo. Lets a
     // user (or operator) trigger a fresh compute after editing partner
     // preferences without having to wait for the 24h TTL or shell-bust the
@@ -56,9 +58,8 @@ matchmakingRouter.get(
       if (!refresh) {
         const cached = await getCachedFeed(userId, redis);
         if (cached !== null) {
-          ok(res, { items: cached, total: cached.length, page: 1, limit: cached.length }, 200, {
-            page: 1, limit: cached.length, total: cached.length,
-          });
+          const { slice, total } = sliceFeedPage(cached, page, limit);
+          ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
           return;
         }
       } else {
@@ -66,9 +67,8 @@ matchmakingRouter.get(
       }
 
       const feed = await computeAndCacheFeed(userId, db, redis);
-      ok(res, { items: feed, total: feed.length, page: 1, limit: feed.length }, 200, {
-        page: 1, limit: feed.length, total: feed.length,
-      });
+      const { slice, total } = sliceFeedPage(feed, page, limit);
+      ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
     } catch (e) {
       console.error('[feed][router] computeAndCacheFeed threw', { userId, error: e });
       const message = e instanceof Error ? e.message : 'Failed to load feed';
