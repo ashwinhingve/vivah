@@ -74,9 +74,10 @@ function makeSelectChain(resolveWith: AnyRecord[]) {
 
 function makeInsertChain(resolveWith: AnyRecord[]) {
   return {
-    values:             vi.fn().mockReturnThis(),
+    values:              vi.fn().mockReturnThis(),
     onConflictDoNothing: vi.fn().mockReturnThis(),
-    returning:          vi.fn().mockResolvedValue(resolveWith),
+    onConflictDoUpdate:  vi.fn().mockReturnThis(),
+    returning:           vi.fn().mockResolvedValue(resolveWith),
   };
 }
 
@@ -237,6 +238,41 @@ describe('matchmaking/requests/service', () => {
         expect.objectContaining({ type: 'MATCH_REQUEST_RECEIVED', userId: 'user-2' }),
         expect.any(Object),
       );
+    });
+
+    it('revives a prior WITHDRAWN request via upsert (no raw 23505)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const revived = {
+        id: 'req-1', senderId: 'user-1', receiverId: 'user-2',
+        status: 'PENDING', priority: 'NORMAL', message: 'again',
+        acceptanceMessage: null, declineReason: null, seenAt: null,
+        createdAt: new Date(), updatedAt: new Date(),
+        respondedAt: null, expiresAt: new Date(Date.now() + 14 * 86_400_000),
+      };
+
+      // All pre-insert guards see no active/cooldown rows (prior row is WITHDRAWN,
+      // which none of the guards match) → fall through to the upsert.
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+        const chain: AnyRecord = {
+          from:  vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([]),
+        };
+        chain['then'] = (resolve: (v: unknown[]) => unknown) => Promise.resolve(resolve([]));
+        return chain;
+      });
+
+      const insertMock = vi.fn().mockReturnValue(makeInsertChain([revived]));
+      (dbMod.db as unknown as AnyRecord)['insert'] = insertMock;
+
+      const { sendRequest } = await import('../service.js');
+      const result = await sendRequest(asProfileId('user-1'), asProfileId('user-2'), { message: 'again' });
+
+      expect(result.status).toBe('PENDING');
+      // The conflict path is used so a leftover (sender,receiver) row is revived
+      // rather than throwing a unique-violation.
+      const chainObj = insertMock.mock.results[0]!.value as { onConflictDoUpdate: ReturnType<typeof vi.fn> };
+      expect(chainObj.onConflictDoUpdate).toHaveBeenCalled();
     });
   });
 
@@ -473,6 +509,85 @@ describe('matchmaking/requests/service', () => {
       await getReceivedRequests(asProfileId('user-2'), 2, 10);
 
       expect(offsetMock).toHaveBeenCalledWith(10); // (page-1)*limit = 1*10 = 10
+    });
+  });
+
+  // ── getEnrichedRequests (declineReason privacy) ──────────────────────────────
+
+  describe('getEnrichedRequests', () => {
+    function wireEnrich(row: AnyRecord) {
+      let sc = 0;
+      const dataChain = {
+        from:    vi.fn().mockReturnThis(),
+        where:   vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit:   vi.fn().mockReturnThis(),
+        offset:  vi.fn().mockResolvedValue([row]),
+      };
+      return vi.fn().mockImplementation(() => {
+        sc += 1;
+        if (sc === 1) return dataChain;                                  // data page
+        if (sc === 2) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ count: '1' }]) };
+        if (sc === 3) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ id: 'p2', userId: 'u2', verificationStatus: 'VERIFIED', lastActiveAt: null }]) };
+        return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([]) }; // photos
+      });
+    }
+
+    const declinedRow = {
+      id: 'r1', senderId: 'me', receiverId: 'p2', status: 'DECLINED',
+      priority: 'NORMAL', message: null, acceptanceMessage: null,
+      declineReason: 'NOT_INTERESTED', seenAt: null, respondedAt: null,
+      expiresAt: null, createdAt: new Date(),
+    };
+
+    it('hides declineReason from the sender (side=sent)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['select'] = wireEnrich(declinedRow);
+
+      const { getEnrichedRequests } = await import('../service.js');
+      const out = await getEnrichedRequests(asProfileId('me'), 'sent', 1, 20);
+      expect(out.requests[0]!.declineReason).toBeNull();
+    });
+
+    it('keeps declineReason for the receiver (side=received)', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      (dbMod.db as unknown as AnyRecord)['select'] = wireEnrich({ ...declinedRow, senderId: 'p2', receiverId: 'me' });
+
+      const { getEnrichedRequests } = await import('../service.js');
+      const out = await getEnrichedRequests(asProfileId('me'), 'received', 1, 20);
+      expect(out.requests[0]!.declineReason).toBe('NOT_INTERESTED');
+    });
+  });
+
+  // ── getWhoLikedMe (real total + pagination) ──────────────────────────────────
+
+  describe('getWhoLikedMe', () => {
+    it('returns the real pending-likes total, not the page length', async () => {
+      const dbMod = await import('../../../lib/db.js');
+      const rows = [
+        { id: 'r1', senderId: 'p1', message: null, priority: 'NORMAL', createdAt: new Date() },
+        { id: 'r2', senderId: 'p2', message: null, priority: 'NORMAL', createdAt: new Date() },
+      ];
+      let sc = 0;
+      (dbMod.db as unknown as AnyRecord)['select'] = vi.fn().mockImplementation(() => {
+        sc += 1;
+        if (sc === 1) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([{ count: '5' }]) }; // real count
+        if (sc === 2) return {
+          from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(),
+          orderBy: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(),
+          offset: vi.fn().mockResolvedValue(rows),
+        };
+        if (sc === 3) return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([
+          { id: 'p1', userId: 'u1', verificationStatus: 'VERIFIED', lastActiveAt: null },
+          { id: 'p2', userId: 'u2', verificationStatus: 'VERIFIED', lastActiveAt: null },
+        ]) };
+        return { from: vi.fn().mockReturnThis(), where: vi.fn().mockResolvedValue([]) }; // photos
+      });
+
+      const { getWhoLikedMe } = await import('../service.js');
+      const out = await getWhoLikedMe(asProfileId('me'), 2, 1);
+      expect(out.items).toHaveLength(2);
+      expect(out.total).toBe(5); // not 2
     });
   });
 

@@ -7,7 +7,8 @@
   "scripts": {
     "eval": "promptfoo eval -c promptfooconfig.yaml",
     "eval:ci": "promptfoo eval -c promptfooconfig.yaml --no-progress-bar --no-table --output results.json",
-    "eval:llm": "promptfoo eval -c promptfooconfig.yaml --filter-pattern 'llm:' ",
+    "eval:ml": "promptfoo eval -c promptfooconfig.yaml --filter-providers 'ml_provider' --no-progress-bar --no-table --output results-ml.json",
+    "eval:llm": "promptfoo eval -c promptfooconfig.yaml --filter-providers 'anthropic' --no-progress-bar --no-table --output results-llm.json",
     "view": "promptfoo view"
   },
   "devDependencies": {

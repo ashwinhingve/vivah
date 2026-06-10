@@ -29,6 +29,7 @@ function mapKycError(e: unknown, res: Parameters<typeof ok>[0]): boolean {
     [KycErrorCode.KYC_ALREADY_VERIFIED]:        ['Already verified', 409],
     [KycErrorCode.KYC_REJECTED]:                ['KYC was rejected', 403],
     [KycErrorCode.KYC_IN_REVIEW]:               ['KYC is under review', 409],
+    [KycErrorCode.KYC_INVALID_STATE]:           ['KYC is not in a reviewable state', 409],
     [KycErrorCode.KYC_LOCKED]:                  ['KYC locked due to too many attempts', 423],
     [KycErrorCode.KYC_EXPIRED]:                 ['KYC verification has expired', 410],
     [KycErrorCode.AADHAAR_VERIFICATION_FAILED]: ['Aadhaar verification failed', 422],

@@ -192,6 +192,12 @@ export async function sendRequest(
   const expiresAt = new Date(Date.now() + MATCH_REQUEST_TTL_DAYS * 86_400_000);
   const priority: MatchRequestPriority = input.priority ?? 'NORMAL';
 
+  // Upsert on the match_unique_pair (senderId, receiverId) index. By this point
+  // the guards above have ruled out an active (PENDING/ACCEPTED) row and a
+  // DECLINED row still in cool-off, so any conflict is a terminal prior request
+  // (WITHDRAWN / EXPIRED / BLOCKED / DECLINED past cool-off) — revive it to a
+  // fresh PENDING instead of crashing on a raw 23505 unique violation.
+  const now = new Date();
   const [created] = await db
     .insert(matchRequests)
     .values({
@@ -201,6 +207,20 @@ export async function sendRequest(
       priority,
       message:  input.message ?? null,
       expiresAt,
+    })
+    .onConflictDoUpdate({
+      target: [matchRequests.senderId, matchRequests.receiverId],
+      set: {
+        status:            'PENDING',
+        priority,
+        message:           input.message ?? null,
+        acceptanceMessage: null,
+        declineReason:     null,
+        seenAt:            null,
+        respondedAt:       null,
+        expiresAt,
+        updatedAt:         now,
+      },
     })
     .returning();
 
@@ -765,7 +785,10 @@ export async function getEnrichedRequests(
       priority:          r.priority,
       message:           r.message,
       acceptanceMessage: r.acceptanceMessage,
-      declineReason:     r.declineReason,
+      // Decline reason is moderation-internal + the receiver's own note. The
+      // sender (side='sent') must never see why they were declined — matrimony
+      // etiquette, mirrors the opaque MATCH_DECLINED notification.
+      declineReason:     side === 'sent' ? null : r.declineReason,
       seenAt:            r.seenAt ? new Date(r.seenAt).toISOString() : null,
       respondedAt:       r.respondedAt ? new Date(r.respondedAt).toISOString() : null,
       expiresAt:         r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
@@ -805,15 +828,28 @@ export interface WhoLikedMeItem {
 export async function getWhoLikedMe(
   receiverProfileId: ProfileId,
   limit: number,
+  page = 1,
 ): Promise<{ items: WhoLikedMeItem[]; total: number }> {
+  const offset = (page - 1) * limit;
+
+  // Real total of pending likes — drives the "N people liked you" badge and
+  // FREE-tier count. Previously total = items.length, capping the badge at the
+  // page size and under-reporting once a profile had more likes than `limit`.
+  const [countRow] = await db
+    .select({ count: sql<string>`count(*)` })
+    .from(matchRequests)
+    .where(and(eq(matchRequests.receiverId, receiverProfileId), eq(matchRequests.status, 'PENDING')));
+  const total = Number(countRow?.count ?? 0);
+
   const requests = await db
     .select()
     .from(matchRequests)
     .where(and(eq(matchRequests.receiverId, receiverProfileId), eq(matchRequests.status, 'PENDING')))
     .orderBy(desc(matchRequests.priority), desc(matchRequests.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
 
-  if (requests.length === 0) return { items: [], total: 0 };
+  if (requests.length === 0) return { items: [], total };
 
   const senderIds = Array.from(new Set(requests.map((r) => r.senderId)));
   const profileRows = await db.select().from(profiles).where(inArray(profiles.id, senderIds));
@@ -869,7 +905,7 @@ export async function getWhoLikedMe(
     };
   });
 
-  return { items, total: items.length };
+  return { items, total };
 }
 
 // ── Match status with a specific profile ──────────────────────────────────────

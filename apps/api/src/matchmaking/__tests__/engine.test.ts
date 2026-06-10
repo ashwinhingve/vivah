@@ -144,11 +144,13 @@ function makeDb(options: {
     primaryPhoto    = null,
   } = options;
 
+  const { blockedIds = [] } = options;
+
   // We build a chain builder. Each method returns 'this' except terminal ones.
   // The engine calls several different query patterns so we model each.
   let callCount = 0;
 
-  const chain = {
+  const chain: Record<string, unknown> = {
     from:     vi.fn().mockReturnThis(),
     where:    vi.fn().mockReturnThis(),
     orderBy:  vi.fn().mockReturnThis(),
@@ -157,21 +159,24 @@ function makeDb(options: {
     leftJoin: vi.fn().mockReturnThis(),
   };
 
-  // limit() is a terminal call — returns data depending on call order
-  // Real engine DB call sequence:
+  // The two blocked-user queries terminate at .where() (no .limit cap) — when
+  // the chain itself is awaited it resolves to the blocked rows. Both outbound
+  // (blockerId) and inbound (blockedId) read the same injected set; the engine
+  // picks blockedId / blockerId off each row.
+  chain['then'] = (resolve: (v: unknown[]) => unknown) =>
+    Promise.resolve(resolve(blockedIds.map((id) => ({ blockedId: id, blockerId: id }))));
+
+  // limit() is a terminal call — returns data depending on call order.
+  // Real engine DB call sequence (blocked queries no longer hit limit):
   //   1 → user's own profile row
-  //   2 → blocked outbound (blockerId = userProfileId)
-  //   3 → blocked inbound  (blockedId = userProfileId)
-  //   4 → active candidate profiles
-  //   5 → community_zones bulk lookup (caste/gotra/manglik filters)
-  //   6+ → primary photo per filtered candidate (one call each)
-  chain.limit.mockImplementation(() => {
+  //   2 → active candidate profiles
+  //   3 → community_zones bulk lookup (caste/gotra/manglik filters)
+  //   4+ → primary photo per filtered candidate (one call each)
+  (chain['limit'] as ReturnType<typeof vi.fn>).mockImplementation(() => {
     callCount++;
     if (callCount === 1) return Promise.resolve(userProfile ? [userProfile] : []);
-    if (callCount === 2) return Promise.resolve([]); // blocked outbound — empty by default
-    if (callCount === 3) return Promise.resolve([]); // blocked inbound — empty by default
-    if (callCount === 4) return Promise.resolve(candidates);
-    if (callCount === 5) return Promise.resolve([]); // community_zones — empty by default
+    if (callCount === 2) return Promise.resolve(candidates);
+    if (callCount === 3) return Promise.resolve([]); // community_zones — empty by default
     return Promise.resolve(primaryPhoto ? [primaryPhoto] : []);
   });
 
@@ -243,6 +248,18 @@ describe('computeAndCacheFeed', () => {
     // that when candidates list is empty the engine handles it gracefully.
     const redis = makeRedis(null);
     const db    = makeDb({ candidates: [] });
+
+    const result = await computeAndCacheFeed(USER_ID, db as never, redis);
+    expect(result).toHaveLength(0);
+  });
+
+  it('excludes a blocked candidate even past the old 1000-row cap', async () => {
+    // 1500 blocked ids with the candidate buried at index 1200 — the previous
+    // .limit(1000) would have dropped it and leaked the candidate into the feed.
+    const blockedIds = Array.from({ length: 1500 }, (_, i) => `blocked-${i}`);
+    blockedIds[1200] = CAND_PROF_ID;
+    const redis = makeRedis(null);
+    const db    = makeDb({ blockedIds });
 
     const result = await computeAndCacheFeed(USER_ID, db as never, redis);
     expect(result).toHaveLength(0);

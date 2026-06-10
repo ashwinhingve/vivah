@@ -129,18 +129,16 @@ jobs:
           TRANSFORMERS_OFFLINE: "1"
         run: pytest -q --tb=short
 
-  # ── AI Eval Suite (golden-set regression evals; PR only) ─────────────────────
-  # WARN-FIRST: continue-on-error so prompt/model drift surfaces as a warning
-  # without blocking merges. Promote to required (remove continue-on-error + add
-  # to branch protection) once green across a few PRs. See evals/README.md.
-  # Requires repo secrets HELICONE_API_KEY + ANTHROPIC_API_KEY (LLM features);
-  # the 7 ML/deterministic features run without them.
-  eval:
-    name: AI Eval Suite
+  # ── AI Eval Suite — ML / deterministic (golden-set regression; PR only) ──────
+  # REQUIRED gate. The 7 ML/deterministic features call the real ai-service
+  # functions through a Python provider and need NO API keys, so they can block
+  # merges deterministically. To finish promoting: add "AI Eval Suite (ML)" to
+  # branch-protection required checks. See evals/README.md.
+  eval-ml:
+    name: AI Eval Suite (ML)
     runs-on: ubuntu-latest
     needs: test-ai
     if: github.event_name == 'pull_request'
-    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
@@ -168,15 +166,52 @@ jobs:
         working-directory: evals
         run: pnpm install --ignore-workspace
 
-      - name: Run AI evals
+      - name: Run ML / deterministic evals
+        working-directory: evals
+        env:
+          USE_MOCK_SERVICES: "true"
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_OFFLINE: "1"
+        run: pnpm eval:ml
+
+  # ── AI Eval Suite — LLM (golden-set regression; PR only) ─────────────────────
+  # WARN-FIRST: continue-on-error so prompt/model drift surfaces as a warning
+  # without blocking merges. The 4 LLM features call Anthropic via Helicone and
+  # need repo secrets HELICONE_API_KEY + ANTHROPIC_API_KEY. Until those are set
+  # the run skips cleanly (logged warning, exit 0). To promote once secrets land:
+  # drop continue-on-error + add "AI Eval Suite (LLM)" to branch protection.
+  eval-llm:
+    name: AI Eval Suite (LLM)
+    runs-on: ubuntu-latest
+    needs: test-ai
+    if: github.event_name == 'pull_request'
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # evals is standalone (not in the pnpm workspace).
+      - name: Install eval harness
+        working-directory: evals
+        run: pnpm install --ignore-workspace
+
+      - name: Run LLM evals (skips when secrets absent)
         working-directory: evals
         env:
           HELICONE_API_KEY: ${{ secrets.HELICONE_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          USE_MOCK_SERVICES: "true"
-          HF_HUB_OFFLINE: "1"
-          TRANSFORMERS_OFFLINE: "1"
-        run: pnpm eval:ci
+        run: |
+          if [ -z "$HELICONE_API_KEY" ] || [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::HELICONE_API_KEY / ANTHROPIC_API_KEY not set — skipping LLM evals (warn-first). Add the secrets to enable."
+            exit 0
+          fi
+          pnpm eval:llm
 
   # ── Build ────────────────────────────────────────────────────────────────────
   build:

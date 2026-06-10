@@ -29,13 +29,27 @@ pipeline tolerates offline and falls back to a neutral sub-score).
 
 ```bash
 cd apps/ai-service && pip install -e ".[dev]"   # once — lets the Python provider import services
-cd ../../evals && pnpm install
-HELICONE_API_KEY=... ANTHROPIC_API_KEY=... pnpm eval
+cd ../../evals && ./run-local.sh                # ML always; LLM only if both keys are exported
 ```
 
-- `pnpm eval` — full suite (LLM + ML).
-- `pnpm eval:ci` — non-interactive, writes `results.json`.
-- LLM tests need `ANTHROPIC_API_KEY` + `HELICONE_API_KEY`; ML tests need neither.
+`run-local.sh` installs the harness if needed, always runs the ML evals, and runs the
+LLM evals only when `HELICONE_API_KEY` + `ANTHROPIC_API_KEY` are both in the environment
+(otherwise it logs which are missing and skips them). It NEVER hard-codes secrets.
+
+Scripts (run any directly with `pnpm <name>`):
+
+- `pnpm eval` — full suite (LLM + ML), interactive table.
+- `pnpm eval:ml` — ML / deterministic features only (no API keys). Writes `results-ml.json`.
+- `pnpm eval:llm` — LLM features only (needs both keys). Writes `results-llm.json`.
+- `pnpm eval:ci` — full suite, non-interactive, writes `results.json`.
+
+The ML/LLM split is by **provider** (`--filter-providers`): `ml_provider` for the Python
+features, `anthropic` for the Helicone-routed LLM features.
+
+> WSL note: if `pnpm eval:ml` crashes on a `better-sqlite3` "Could not locate the
+> bindings file" error, run `pnpm rebuild better-sqlite3` once. If the default
+> `python` can't import `apps/ai-service`, point the provider at a venv that can:
+> `PROMPTFOO_PYTHON=/path/to/.venv/bin/python pnpm eval:ml`.
 
 Golden cases live in `golden/<feature>.yaml`. Prompt builders in `prompts/` read the
 **real** versioned prompts in `/prompts/*.md` (Coach/DPI/FII) and the inline assistant
@@ -44,21 +58,22 @@ prompt, not a copy.
 
 ## CI
 
-The `AI Eval Suite` job in `.github/workflows/ci.yml` runs `pnpm eval:ci` on PRs.
+Two jobs in `.github/workflows/ci.yml` run on PRs:
 
-**Warn-first → required.** It currently runs with `continue-on-error: true` so a flaky
-or model-drift failure surfaces as a warning without blocking merges. Once it has been
-green across a few PRs, promote it to a required check by:
+- **`AI Eval Suite (ML)`** — `pnpm eval:ml`. The 7 ML/deterministic features need no
+  API keys, so this is a **required gate** (no `continue-on-error`). Finish promoting by
+  adding `AI Eval Suite (ML)` to the branch-protection required status checks.
+- **`AI Eval Suite (LLM)`** — `pnpm eval:llm`. **Warn-first** (`continue-on-error: true`).
+  When the secrets below are absent the step skips cleanly (logged warning, exit 0); when
+  present it runs the 4 Helicone-routed LLM features.
 
-1. Removing `continue-on-error: true` from the `eval` job.
-2. Adding **AI Eval Suite** to the branch-protection required status checks.
+### Required GitHub secrets (LLM job only)
 
-### Required GitHub secrets (set before the job can call Helicone)
-
-The job reads two repo secrets — add them in **Settings → Secrets and variables →
-Actions** (only `VERCEL_PREVIEW_URL` exists today):
+Add in **Settings → Secrets and variables → Actions** (only `VERCEL_PREVIEW_URL` exists today):
 
 - `HELICONE_API_KEY`
 - `ANTHROPIC_API_KEY`
 
-Until both are set, the LLM tests error (and, while warn-first, do not block).
+Once both are set and the LLM evals are green across a few PRs, promote that job too:
+drop `continue-on-error: true` from `eval-llm` and add `AI Eval Suite (LLM)` to branch
+protection.

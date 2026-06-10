@@ -2,6 +2,7 @@ export const KycErrorCode = {
   PROFILE_NOT_FOUND:           'PROFILE_NOT_FOUND',
   KYC_ALREADY_VERIFIED:        'KYC_ALREADY_VERIFIED',
   KYC_IN_REVIEW:               'KYC_IN_REVIEW',
+  KYC_INVALID_STATE:           'KYC_INVALID_STATE',
   KYC_REJECTED:                'KYC_REJECTED',
   KYC_LOCKED:                  'KYC_LOCKED',
   KYC_EXPIRED:                 'KYC_EXPIRED',

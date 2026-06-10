@@ -501,18 +501,18 @@ export async function computeAndCacheFeed(
   const userRow = await enrichRow(userRowRaw);
   const userProfileId = userRow.id;
 
-  // 2. Get blocked profile IDs (both directions)
-  const blockedRows = await db
-    .select()
+  // 2. Get blocked profile IDs (both directions). No row cap — a >1000 cap
+  // silently let blocks past the feed filter, surfacing people the user
+  // blocked. Block lists are small; fetch all so the exclusion set is complete.
+  const blockedRows = (await (db
+    .select({ blockedId: blockedUsers.blockedId })
     .from(blockedUsers)
-    .where(eq(blockedUsers.blockerId, userProfileId))
-    .limit(1000) as unknown[];
+    .where(eq(blockedUsers.blockerId, userProfileId)) as unknown as Promise<unknown[]>));
 
-  const blockedByRows = await db
-    .select()
+  const blockedByRows = (await (db
+    .select({ blockerId: blockedUsers.blockerId })
     .from(blockedUsers)
-    .where(eq(blockedUsers.blockedId, userProfileId))
-    .limit(1000) as unknown[];
+    .where(eq(blockedUsers.blockedId, userProfileId)) as unknown as Promise<unknown[]>));
 
   const blockedSet = new Set<string>([
     ...(blockedRows as Array<{ blockedId: string }>).map((r) => r.blockedId),

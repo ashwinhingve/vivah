@@ -218,6 +218,47 @@ describe('registerChatHandlers', () => {
     })
   })
 
+  // Participant-scoped reads — the Chat lookups must filter by the caller's
+  // profileId so a foreign matchRequestId can never surface another
+  // conversation's data (defense-in-depth over the membership check).
+  describe('participant-scoped queries', () => {
+    it('join_room scopes the participant lookup to the caller', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      await socket._handlers['join_room']!({ matchRequestId: 'match-abc' })
+
+      expect(mockFindOne).toHaveBeenCalledWith({
+        matchRequestId: 'match-abc',
+        participants: 'user-1',
+      })
+    })
+
+    it('send_message reply-context lookup is scoped to the caller', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+
+      await socket._handlers['send_message']!({
+        matchRequestId: 'match-abc',
+        content: 'reply!',
+        type: 'TEXT',
+        replyToId: 'msg-1',
+      })
+
+      // The reply-context lookup (2nd findOne, after assertParticipant's) must
+      // carry the participants scope so a foreign matchRequestId can't be probed.
+      expect(mockFindOne.mock.calls.length).toBeGreaterThanOrEqual(2)
+      expect(mockFindOne.mock.calls[1]![0]).toEqual({
+        matchRequestId: 'match-abc',
+        participants: 'user-1',
+      })
+    })
+  })
+
   describe('send_message', () => {
     it('pushes message to Chat via findOneAndUpdate and emits message_received to room', async () => {
       const socket = makeSocket('user-1')
@@ -248,6 +289,24 @@ describe('registerChatHandlers', () => {
       expect(msg.senderId).toBe('user-1')
       expect(msg.content).toBe('Hello!')
       expect(msg.type).toBe('TEXT')
+    })
+
+    it('loads participants once after persist (no duplicate lookup)', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+
+      await socket._handlers['send_message']!({
+        matchRequestId: 'match-abc',
+        content: 'Hello!',
+        type: 'TEXT',
+      })
+
+      // 1 lookup for assertParticipant + 1 consolidated participant load
+      // (was 3: assertParticipant + two identical loadParticipants calls).
+      expect(mockFindOne).toHaveBeenCalledTimes(2)
     })
 
     it('skips DB call in mock mode but still emits message_received', async () => {
@@ -347,6 +406,103 @@ describe('registerChatHandlers', () => {
       mockFindOne.mockResolvedValue({ matchRequestId: 'match-abc', participants: ['user-1', 'user-2'] })
       await socket._handlers['delivered_ack']!({ matchRequestId: 'match-abc', messageIds: ids(101) })
       expect(mockUpdateOne).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('react_message', () => {
+    it('emits message_reacted on a valid reaction', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockUpdateOne.mockResolvedValueOnce({})
+      mockFindOneAndUpdate.mockReturnValueOnce({
+        lean: async () => ({
+          messages: [{ _id: 'm1', reactions: [{ profileId: 'user-1', emoji: '❤️', at: new Date() }] }],
+        }),
+      })
+
+      await socket._handlers['react_message']!({
+        matchRequestId: 'match-abc', messageId: 'm1', emoji: '❤️',
+      })
+
+      const evt = io._toEmitted.find((e) => e.event === 'message_reacted')
+      expect(evt).toBeDefined()
+    })
+
+    it('is rate limited (over-limit reaction does no DB work)', async () => {
+      const { redis } = await import('../../../lib/redis.js')
+      // Disable the NODE_ENV='test' short-circuit so socketRateOk hits redis.
+      ;(env as { NODE_ENV: string }).NODE_ENV = 'development'
+      ;(redis.incr as ReturnType<typeof vi.fn>).mockResolvedValueOnce(31) // > 30 limit
+      try {
+        const socket = makeSocket('user-1')
+        const io = makeIo()
+        registerChatHandlers(io as never, socket as never)
+
+        await socket._handlers['react_message']!({
+          matchRequestId: 'match-abc', messageId: 'm1', emoji: '❤️',
+        })
+
+        expect(mockUpdateOne).not.toHaveBeenCalled()
+        expect(mockFindOneAndUpdate).not.toHaveBeenCalled()
+      } finally {
+        ;(env as { NODE_ENV: string }).NODE_ENV = 'test'
+      }
+    })
+  })
+
+  describe('leave_room', () => {
+    it('leaves the socket.io room', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      socket._handlers['leave_room']!({ matchRequestId: 'match-abc' })
+      expect(socket.leave).toHaveBeenCalledWith('match-abc')
+    })
+  })
+
+  describe('delivered_ack', () => {
+    it('marks delivery and emits message_delivered on the happy path', async () => {
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      mockUpdateOne.mockResolvedValueOnce({})
+      await socket._handlers['delivered_ack']!({
+        matchRequestId: 'match-abc', messageIds: ['m-1', 'm-2'],
+      })
+
+      expect(mockUpdateOne).toHaveBeenCalledTimes(1)
+      const evt = io._toEmitted.find((e) => e.event === 'message_delivered')
+      expect(evt).toBeDefined()
+      expect((evt!.data as { profileId: string }).profileId).toBe('user-1')
+    })
+  })
+
+  // Session identity is resolved once at connect and cached for the socket's
+  // lifetime — documents that a session revoked mid-connection is NOT detected
+  // per-event (auth is enforced only at handshake). A regression here (per-event
+  // re-resolution) would change this contract.
+  describe('session identity caching', () => {
+    it('does not re-resolve profileId once identity has settled', async () => {
+      const { resolveProfileId } = await import('../../../lib/profile.js')
+      const socket = makeSocket('user-1')
+      const io = makeIo()
+      registerChatHandlers(io as never, socket as never)
+
+      // First event settles the cached profileId.
+      await socket._handlers['join_room']!({ matchRequestId: 'match-abc' })
+      const settled = (resolveProfileId as ReturnType<typeof vi.fn>).mock.calls.length
+
+      mockFindOneAndUpdate.mockResolvedValueOnce({})
+      await socket._handlers['send_message']!({ matchRequestId: 'match-abc', content: 'hi', type: 'TEXT' })
+      await socket._handlers['typing']!({ matchRequestId: 'match-abc' })
+
+      // No further resolutions — identity is fixed at connect, not re-checked
+      // per event (so a mid-session revocation is not detected here).
+      expect((resolveProfileId as ReturnType<typeof vi.fn>).mock.calls.length).toBe(settled)
     })
   })
 

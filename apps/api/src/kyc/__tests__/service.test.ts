@@ -51,6 +51,7 @@ import {
   getKycStatus,
   approveKyc,
   rejectKyc,
+  requestReverification,
 } from '../service.js';
 
 const mockProfile = {
@@ -261,6 +262,16 @@ describe('approveKyc', () => {
     expect(db.update).toHaveBeenCalledTimes(2);
   });
 
+  it('approves from INFO_REQUESTED → VERIFIED', async () => {
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'INFO_REQUESTED' }],
+      [{ profileId: 'profile-uuid-1' }],
+    );
+    setupUpdateOk();
+    await approveKyc('profile-uuid-1', 'admin-uuid-1');
+    expect(db.update).toHaveBeenCalledTimes(2);
+  });
+
   it('throws PROFILE_NOT_FOUND for unknown profileId', async () => {
     setupSelectReturns([]);
     await expect(approveKyc('bad-id', 'admin-uuid-1'))
@@ -273,10 +284,49 @@ describe('approveKyc', () => {
       .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
   });
 
-  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+  it('throws KYC_INVALID_STATE when profile is not in a reviewable status', async () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
     await expect(approveKyc('profile-uuid-1', 'admin-uuid-1'))
-      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_INVALID_STATE });
+  });
+});
+
+describe('requestReverification', () => {
+  it('throws REVERIFY_NOT_ALLOWED when no kycVerifications row exists', async () => {
+    // VERIFIED profile but loadKyc returns [] → must not silently write 0 rows
+    // and half-apply the PENDING flip.
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }], []);
+    setupUpdateOk();
+    await expect(requestReverification('user-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.REVERIFY_NOT_ALLOWED });
+    expect(db.update).not.toHaveBeenCalled();
+  });
+
+  it('flips to PENDING and updates kyc when a row exists', async () => {
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'VERIFIED' }],   // loadProfile
+      [{ profileId: 'profile-uuid-1', verificationLevel: 'STANDARD' }], // loadKyc
+    );
+    setupUpdateOk();
+    const out = await requestReverification('user-uuid-1');
+    expect(out.status).toBe('PENDING');
+    expect(db.update).toHaveBeenCalledTimes(2); // kyc_verifications + profiles
+  });
+
+  it('allows reverification from EXPIRED → PENDING', async () => {
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'EXPIRED' }],
+      [{ profileId: 'profile-uuid-1', verificationLevel: 'STANDARD' }],
+    );
+    setupUpdateOk();
+    const out = await requestReverification('user-uuid-1');
+    expect(out.status).toBe('PENDING');
+  });
+
+  it('rejects reverification from a non-VERIFIED/EXPIRED status', async () => {
+    setupSelectReturns([{ ...mockProfile, verificationStatus: 'MANUAL_REVIEW' }]);
+    await expect(requestReverification('user-uuid-1'))
+      .rejects.toMatchObject({ name: KycErrorCode.REVERIFY_NOT_ALLOWED });
   });
 });
 
@@ -291,15 +341,25 @@ describe('rejectKyc', () => {
     expect(db.update).toHaveBeenCalledTimes(2);
   });
 
+  it('rejects from INFO_REQUESTED → REJECTED', async () => {
+    setupSelectReturns(
+      [{ ...mockProfile, verificationStatus: 'INFO_REQUESTED' }],
+      [{ profileId: 'profile-uuid-1' }],
+    );
+    setupUpdateOk();
+    await rejectKyc('profile-uuid-1', 'admin-uuid-1', 'Insufficient info');
+    expect(db.update).toHaveBeenCalledTimes(2);
+  });
+
   it('throws KYC_ALREADY_VERIFIED when profile is already VERIFIED', async () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'VERIFIED' }]);
     await expect(rejectKyc('profile-uuid-1', 'admin-uuid-1'))
       .rejects.toMatchObject({ name: KycErrorCode.KYC_ALREADY_VERIFIED });
   });
 
-  it('throws KYC_IN_REVIEW when profile is not in MANUAL_REVIEW status', async () => {
+  it('throws KYC_INVALID_STATE when profile is not in a reviewable status', async () => {
     setupSelectReturns([{ ...mockProfile, verificationStatus: 'PENDING' }]);
     await expect(rejectKyc('profile-uuid-1', 'admin-uuid-1'))
-      .rejects.toMatchObject({ name: KycErrorCode.KYC_IN_REVIEW });
+      .rejects.toMatchObject({ name: KycErrorCode.KYC_INVALID_STATE });
   });
 });
