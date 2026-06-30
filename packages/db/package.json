@@ -20,6 +20,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx seed/index.ts",
     "db:seed:calendar": "tsx seed/calendar.ts",
+    "db:seed:test-accounts": "tsx seed/test-accounts.ts",
+    "db:seed:test-accounts:remove": "tsx seed/test-accounts.ts --remove",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
