@@ -3,13 +3,14 @@ import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw, SlidersHorizontal } from 'lucide-react';
-import type { MatchFeedItem } from '@smartshaadi/types';
+import type { MatchFeedItem, ProfileSectionCompletion } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { FeedPageClient } from './FeedPageClient.client';
 import { MatchCard } from '@/components/matching/MatchCard';
+import { ProfileCompletionGuide } from '@/components/profile/ProfileCompletionGuide';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -19,6 +20,7 @@ type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED'
 
 interface MeResponse {
   profileCompleteness: number;
+  sectionCompletion?: ProfileSectionCompletion;
 }
 
 interface PrefsResponse {
@@ -149,19 +151,12 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             }
           />
         ) : !profileReady ? (
-          <EmptyState
-            icon={Sparkles}
-            title={t('completeProfileTitle')}
-            description={t('completeProfileBody', { percent: completeness })}
-            action={
-              <Button asChild>
-                <Link href="/profile/personal">
-                  {t('completeProfile')}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            }
-          />
+          <FadeUp delay={60}>
+            <ProfileCompletionGuide
+              score={completeness}
+              {...(meRes.data?.sectionCompletion ? { sections: meRes.data.sectionCompletion } : {})}
+            />
+          </FadeUp>
         ) : items.length === 1 ? (
           (() => {
             const only = items[0]!;

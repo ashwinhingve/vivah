@@ -61,9 +61,16 @@
       "badge": "Sign in",
       "heading": "Welcome back",
       "subtext": "Enter your mobile number to receive an OTP.",
+      "phoneLabel": "Mobile number",
+      "reassurance": "We'll text a one-time code. Standard SMS rates may apply.",
       "cta": "Send OTP",
+      "sending": "Sending OTP…",
       "newUser": "New to Smart Shaadi?",
-      "createAccount": "Create account"
+      "createAccount": "Create account",
+      "errors": {
+        "invalidPhone": "Enter a valid 10-digit Indian mobile number",
+        "sendFailed": "Couldn't send the OTP. Please try again."
+      }
     },
     "register": {
       "metadata": {
@@ -72,7 +79,19 @@
       "badge": "Join us",
       "heading": "Create account",
       "subtext": "Join Smart Shaadi — India's smart marriage ecosystem.",
-      "cta": "Send OTP"
+      "nameLabel": "Full name",
+      "namePlaceholder": "Rahul Sharma",
+      "phoneLabel": "Mobile number",
+      "reassurance": "We'll text a one-time code to verify it's you. Your number is never shown publicly.",
+      "cta": "Send OTP",
+      "sending": "Sending OTP…",
+      "alreadyRegistered": "Already registered?",
+      "signIn": "Sign in",
+      "errors": {
+        "nameRequired": "Please enter your full name (at least 2 characters)",
+        "invalidPhone": "Enter a valid 10-digit Indian mobile number",
+        "sendFailed": "Couldn't send the OTP. Please try again."
+      }
     },
     "verify": {
       "metadata": {
@@ -80,6 +99,56 @@
       },
       "heading": "Enter OTP",
       "cta": "Verify OTP"
+    },
+    "verifyOtp": {
+      "metadata": {
+        "title": "Verify OTP — Smart Shaadi"
+      },
+      "badge": "Verify",
+      "heading": "Enter OTP",
+      "sentTo": "We sent a 6-digit code to <b>{phone}</b>",
+      "digitAria": "OTP digit {index} of {total}",
+      "cta": "Verify OTP",
+      "verifying": "Verifying…",
+      "reassurance": "Your number stays private — it's never shown to other members.",
+      "resendIn": "Resend OTP in <b>{seconds}s</b>",
+      "resend": "Resend OTP",
+      "resending": "Sending…",
+      "errors": {
+        "phoneMissing": "Phone number missing. Go back and try again.",
+        "invalidOtp": "Invalid or expired OTP",
+        "resendFailed": "Couldn't resend the OTP. Please try again."
+      }
+    },
+    "role": {
+      "metadata": {
+        "title": "Choose Your Role — Smart Shaadi"
+      },
+      "heading": "I am a…",
+      "subtext": "Choose how you'll use Smart Shaadi",
+      "continue": "Continue",
+      "settingUp": "Setting up your account…",
+      "errors": {
+        "setFailed": "Couldn't save your choice. Please try again."
+      },
+      "roles": {
+        "INDIVIDUAL": {
+          "label": "Individual",
+          "description": "Looking for a life partner"
+        },
+        "FAMILY_MEMBER": {
+          "label": "Family Member",
+          "description": "Searching on behalf of family"
+        },
+        "VENDOR": {
+          "label": "Vendor",
+          "description": "Photographer, caterer, decorator & more"
+        },
+        "EVENT_COORDINATOR": {
+          "label": "Event Coordinator",
+          "description": "Managing multiple wedding events"
+        }
+      }
     }
   },
   "marketing": {
@@ -90,17 +159,29 @@
       }
     },
     "hero": {
+      "eyebrow": "EST. 2026 · India's Smartest Matrimonial",
       "heading": "Where families find their forever.",
       "subtext": "India's first matrimonial platform built around real compatibility — Guna Milan, family values, and reciprocal matching. Verified profiles only.",
+      "badgeVerified": "Verified Profiles",
+      "badgePrivacy": "Privacy First",
+      "badgeRating": "4.8★ Rating",
       "primaryCta": "Find Your Match →",
       "secondaryCta": "Browse Vendors",
       "microcopy": "Free to join · No credit card · 2 min setup"
     },
     "howItWorks": {
+      "eyebrow": "How it Works",
       "sectionHeading": "Three steps to your wedding journey",
+      "subhead": "Designed for both individuals and families. Start together, find together.",
       "step1Title": "Create Your Profile",
+      "step1Desc": "Set up in 2 minutes. Aadhaar-verified identity, horoscope details, family background, and lifestyle preferences — all with full privacy control. Family members can co-create.",
+      "step1Tags": ["KYC Verified", "Family Mode", "Kundli Upload"],
       "step2Title": "Discover Compatible Matches",
-      "step3Title": "Plan Your Wedding Together"
+      "step2Desc": "Our AI analyses Guna Milan scores, lifestyle alignment, and family values. Reciprocal matching means both sides must show interest before contact details unlock — no awkward one-sided reveals.",
+      "step2Tags": ["Guna Milan Score", "Reciprocal Matching", "Daily Suggestions"],
+      "step3Title": "Plan Your Wedding Together",
+      "step3Desc": "Once connected, move seamlessly to the wedding journey: vendor discovery, budget tracking, guest list, and RSVP — all in one platform built for Indian families.",
+      "step3Tags": ["Vendor Marketplace", "Budget Planner", "Guest List & RSVP"]
     },
     "features": {
       "sectionHeading": "Features",
@@ -114,9 +195,12 @@
       "premiumPlanName": "Smart Shaadi Premium"
     },
     "cta": {
+      "eyebrow": "India's Smartest Matrimonial Platform",
       "heading": "Start your journey today.",
+      "body": "Join the community of verified Indian families. Free to join, private by default, family-first by design.",
       "primaryCta": "Start Your Journey →",
-      "secondaryCta": "Talk to Us"
+      "secondaryCta": "Talk to Us",
+      "microcopy": "Free to join · Verified profiles · Privacy guaranteed"
     },
     "footer": {
       "companyHeading": "Company",
@@ -126,17 +210,30 @@
       "copyright": "© 2026 Smart Shaadi. All rights reserved.",
       "contactSupport": "Contact Support"
     },
-    "stats": {
-      "verifiedProfiles": "Verified Profiles",
-      "vendors": "Vendors across 24 Cities",
-      "weddings": "Weddings Planned"
-    },
     "testimonials": {
       "sectionHeading": "Real Families. Real Matches."
     },
     "trust": {
+      "individualsEyebrow": "For Individuals",
       "individualsHeading": "Your Privacy. Your Timeline. Your Choice.",
-      "familiesHeading": "A Platform Built for How Families Actually Work."
+      "individualsBody": "You control everything. Photos stay blurred until you choose to reveal them. Contact details unlock only after mutual interest. Block anyone with one tap.",
+      "individualsPoints": [
+        "Aadhaar-verified profiles — no fake accounts",
+        "Safety Mode — photos hidden until you choose",
+        "Silent decline — they'll never know you passed",
+        "24/7 human support team"
+      ],
+      "individualsCta": "Create Free Profile →",
+      "familiesEyebrow": "For Families",
+      "familiesHeading": "A Platform Built for How Families Actually Work.",
+      "familiesBody": "Indian matrimony has always been a family decision. Smart Shaadi is built for that reality. Parents co-browse profiles. Both families verify each other. Trust is built before any meeting.",
+      "familiesPoints": [
+        "Family-created profiles welcomed and respected",
+        "Parent Mode — separate family dashboard",
+        "Family Verified badge — 4-tier verification system",
+        "Respects community and cultural preferences"
+      ],
+      "familiesCta": "Explore Family Mode →"
     },
     "navbar": {
       "howItWorks": "How it Works",
@@ -156,6 +253,39 @@
     "subtext": "Start free. Upgrade when you're ready."
   },
   "feed": {
+    "openFilters": "Filters",
+    "resetFilters": "Reset filters",
+    "loadMore": "Load more profiles",
+    "loadingMore": "Loading…",
+    "couldNotLoadMore": "Could not load more matches",
+    "requestSentPill": "Request Sent",
+    "filterEmptyTitle": "No profiles match your filters",
+    "filterEmptyBody": "Adjust or reset your filters to see more matches.",
+    "sort": {
+      "label": "Sort matches",
+      "topMatch": "Top Match",
+      "recentlyActive": "Recently Active",
+      "newest": "Newest",
+      "nearest": "Nearest"
+    },
+    "connect": {
+      "title": "Connect with {name}",
+      "noteLabel": "Add a personal note",
+      "optional": "(optional)",
+      "placeholder": "Introduce yourself or share what caught your attention…",
+      "cancel": "Cancel",
+      "send": "Send Request",
+      "sending": "Sending…",
+      "sent": "Sent!",
+      "toast": "Match request sent · We'll notify when {name} responds",
+      "error": "Could not send — please try again"
+    },
+    "passConfirm": {
+      "prompt": "Hide {name}?",
+      "help": "You can unhide from Settings → Hidden Profiles",
+      "keep": "Keep",
+      "hide": "Hide"
+    },
     "metadata": {
       "title": "Discover Matches — Smart Shaadi"
     },
@@ -220,6 +350,35 @@
         "title": "Family Details — Smart Shaadi"
       },
       "heading": "Tell us about your family"
+    }
+  },
+  "profileGuide": {
+    "headlineStart": "Let's build your profile",
+    "headlineProgress": "You're on your way",
+    "subhead": "A thoughtful profile is how families find you. Complete it to start seeing genuinely compatible matches — at your pace.",
+    "progressLabel": "{done} of {total} sections complete",
+    "ringComplete": "complete",
+    "whyItMatters": "Complete profiles get 3× more matches",
+    "trustNote": "Your details stay private — contact info is never shared until you choose to.",
+    "ctaStart": "Start with personal details",
+    "ctaContinue": "Continue your profile",
+    "completenessTitle": "Profile Completeness",
+    "completeThese": "Complete these sections",
+    "goToDashboard": "Go to Dashboard",
+    "greatHeadline": "Your profile is looking great!",
+    "almostHeadline": "Almost there!",
+    "greatSub": "Complete profiles get 3× more responses",
+    "almostSub": "Complete a few more sections to attract better matches",
+    "completeWord": "complete",
+    "sections": {
+      "personal": "Personal details",
+      "photos": "Profile photos",
+      "family": "Family information",
+      "career": "Career & education",
+      "lifestyle": "Lifestyle preferences",
+      "personality": "Personality",
+      "horoscope": "Horoscope details",
+      "preferences": "Partner preferences"
     }
   },
   "chat": {
@@ -505,6 +664,10 @@
     }
   },
   "matchCard": {
+    "connect": "Connect",
+    "shortlist": "Shortlist",
+    "removeShortlist": "Remove from shortlist",
+    "pass": "Pass",
     "tiers": {
       "excellent": "Excellent",
       "good": "Good",

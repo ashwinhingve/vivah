@@ -6,6 +6,7 @@
 >
 > **Companion docs:** `docs/launch/mock-to-real-swap.md` (per-provider swap +
 > verification), `docs/launch/GO-LIVE-RUNBOOK.md` (ordered launch-day steps),
+> `docs/launch/FIRST-24H-MONITORING.md` (post-launch watch + escalation),
 > `docs/MIGRATIONS-PENDING.md` (drift), `docs/calendar-muhurat-conventions.md`
 > (panchang decisions).
 
@@ -13,11 +14,13 @@
 
 ## GO / NO-GO
 
-**STATUS: 🔴 NO-GO** *(as of 2026-06-07)*
+**STATUS: 🔴 NO-GO** *(as of 2026-06-16)*
 
 Blocked by **3 external registrations** (Razorpay live, MSG91 DLT, legal review).
-The 1 engineering blocker (migration drift) is now **DONE** (A4, 2026-06-07). All
-**code-fixable** P0/P1 are closed
+The 1 engineering blocker (migration drift) is **DONE** (A4, 2026-06-07). The code
+that has shipped since this checklist was first written — pricing engine, GDPR
+consent+export, Phase 4.5 hardening — is DONE and listed in **Section D**; none of
+it moves the verdict. All **code-fixable** P0/P1 are closed
 (`docs/PHASE-1-4-AUDIT.md`: 4 P0 open — all external-blocked; 0 code-fixable P1
 open). The codebase is launch-ready; the *platform* is not, because it cannot yet
 send a real OTP, verify identity, or process real INR.
@@ -78,6 +81,25 @@ This is intentional, not an oversight. DigiLocker registration is still pending,
 | C1 | `KYC_LIVE` absent from Railway env at launch | Ashwin | `KYC_LIVE` not set. `shouldUseMockKyc = USE_MOCK_SERVICES \|\| !KYC_LIVE` stays **true**, so DigiLocker stays stubbed even after `USE_MOCK_SERVICES=false`. |
 | C2 | KYC flow reaches `MANUAL_REVIEW` (not a throw) | Ashwin | Submit a (mocked) KYC → lands in `MANUAL_REVIEW`; admin `approveKyc` works end-to-end. |
 | C3 | Flip `KYC_LIVE=true` later, once DigiLocker lands | Ashwin (post-launch) | Tracked as a post-launch item, not a blocker. Per swap step 4. |
+
+---
+
+## Section D — shipped code (DONE, not gating)
+
+Work merged to `main` since this checklist was first written. It is launch-ready
+code and needs no further engineering before go-live. **None of it changes the
+verdict** — the platform is still 🔴 NO-GO purely on the three external
+registrations in Section A.
+
+| # | Item | Status | Provenance |
+|---|------|--------|------------|
+| D1 | **Pricing engine** — deterministic dynamic-pricing (Phase 5 Tier 1) | 🟢 DONE | merged `e490a4f` (core `0c1e465`); `apps/ai-service` pricing router + tests green. |
+| D2 | **GDPR consent + export** | 🟢 DONE | migration `0023_gdpr_consent_and_export.sql` in repo; part of the 30-migration prod baseline reconciled in A4 (`dr-replay-verification.md`) — schema present on prod, not a fresh prod-run. |
+| D3 | **Phase 4.5 hardening** | 🟢 DONE | shipped; all code-fixable P0/P1 closed (`docs/PHASE-1-4-AUDIT.md`). |
+| D4 | **Calendar / muhurat dataset** | 🟢 DONE (code) | seeded (56 muhurats 2026); the only open piece is the **convention call** B2, which is Colonel's, not code. |
+
+> Section D is informational. A green Section D with an open Section A is still a
+> NO-GO — code-readiness never overrides the external-registration gate.
 
 ---
 

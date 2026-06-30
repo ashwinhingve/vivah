@@ -3,7 +3,8 @@ version: "3.9"
 services:
   # ── PostgreSQL ────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    # pgvector-enabled drop-in for postgres:16 — profiles.ai_embedding needs the `vector` type.
+    image: pgvector/pgvector:pg16
     container_name: smart-shaadi-postgres
     environment:
       POSTGRES_USER: vivah

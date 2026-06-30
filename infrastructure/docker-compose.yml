@@ -3,7 +3,7 @@ version: "3.9"
 services:
   # ── PostgreSQL ────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: smart-shaadi-postgres
     environment:
       POSTGRES_USER: vivah

@@ -6,7 +6,8 @@
     "schema/**/*.ts",
     "seed/calendar.ts",
     "seed/calendar-data.ts",
-    "seed/calendar.test.ts"
+    "seed/calendar.test.ts",
+    "seed/test-accounts.ts"
   ],
   "exclude": ["node_modules", "dist", "migrations"]
 }

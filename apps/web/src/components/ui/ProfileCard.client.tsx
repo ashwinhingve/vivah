@@ -1,6 +1,7 @@
 'use client';
 
-import { BadgeCheck, Heart, X } from 'lucide-react';
+import { BadgeCheck, Bookmark, Heart, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { ImageWithFallback } from './ImageWithFallback.client';
 
@@ -8,7 +9,8 @@ import { ImageWithFallback } from './ImageWithFallback.client';
  * Presentational matrimonial profile card. Fully stateless — every
  * interaction is lifted to the parent via callbacks. Mirrors the shape of
  * `MatchFeedItem` (packages/types) without importing it, so it stays a pure
- * client primitive.
+ * client primitive. Labels come from the `matchCard` i18n namespace; the card
+ * is always rendered under the [locale] NextIntl provider.
  */
 export interface ProfileCardProps {
   name: string;
@@ -18,10 +20,11 @@ export interface ProfileCardProps {
   photoUrl?: string | null;
   isNew?: boolean;
   isVerified?: boolean;
+  /** Reserved — not currently surfaced (no online signal in MatchFeedItem). */
   isOnline?: boolean;
-  /** 0–100 compatibility. Renders the teal "x% Match" chip when set. */
+  /** 0–100 compatibility. Renders the teal hero score badge when set. */
   compatibilityPct?: number | null;
-  /** 0–36 Guna. Renders the burgundy "x/36 Guna" badge when set. */
+  /** 0–36 Guna. Renders the gold "x/36 Guna" chip when set. */
   gunaScore?: number | null;
   shortlisted?: boolean;
   onShortlist?: () => void;
@@ -32,40 +35,12 @@ export interface ProfileCardProps {
   className?: string;
 }
 
-function ActionButton({
-  label,
-  onClick,
-  active,
-  variant,
-  children,
-}: {
-  label: string;
-  onClick?: () => void;
-  active?: boolean;
-  variant: 'ghost' | 'solid';
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      aria-pressed={active}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
-      }}
-      className={cn(
-        'flex h-11 min-w-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-all duration-100 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        variant === 'solid' &&
-          'bg-teal text-white shadow-sm hover:-translate-y-px hover:bg-teal-hover hover:shadow-md',
-        variant === 'ghost' &&
-          'text-text-muted hover:bg-surface-muted hover:text-primary',
-        active && variant === 'ghost' && 'text-primary'
-      )}
-    >
-      {children}
-    </button>
-  );
+/** Map a 0–100 compatibility score to a tier key in `matchCard.tiers`. */
+function scoreTier(pct: number): 'excellent' | 'good' | 'average' | 'low' {
+  if (pct >= 90) return 'excellent';
+  if (pct >= 70) return 'good';
+  if (pct >= 50) return 'average';
+  return 'low';
 }
 
 function ProfileCardBase({
@@ -76,7 +51,6 @@ function ProfileCardBase({
   photoUrl,
   isNew,
   isVerified,
-  isOnline,
   compatibilityPct,
   gunaScore,
   shortlisted,
@@ -86,7 +60,15 @@ function ProfileCardBase({
   onOpen,
   className,
 }: ProfileCardProps) {
+  const t = useTranslations('matchCard');
   const meta = [age ? `${age}` : null, city, profession].filter(Boolean).join(' · ');
+  const pct = compatibilityPct != null ? Math.round(compatibilityPct) : null;
+  const tierLabel = pct != null ? t(`tiers.${scoreTier(pct)}`) : null;
+
+  const stop = (fn?: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    fn?.();
+  };
 
   return (
     <article
@@ -120,28 +102,35 @@ function ProfileCardBase({
         {/* Bottom 40% legibility scrim */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />
 
-        {/* Top-left: NEW / online */}
-        <div className="absolute left-3 top-3 flex items-center gap-2">
-          {isNew && (
-            <span className="rounded-full bg-gold px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
-              New
+        {/* Top-left: compatibility hero badge — the primary scan signal */}
+        {pct != null && (
+          <div
+            className="absolute left-3 top-3 flex flex-col items-start rounded-lg bg-teal/95 px-2.5 py-1.5 text-white shadow-sm backdrop-blur-sm"
+            aria-label={t('percentMatch', { percent: pct })}
+          >
+            <span className="font-heading text-base font-bold leading-none">{pct}%</span>
+            {tierLabel && (
+              <span className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-white/85">
+                {tierLabel}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Top-right: verified + new, stacked */}
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+          {isVerified && (
+            <span className="flex items-center gap-1 rounded-full bg-teal px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+              <BadgeCheck className="h-3.5 w-3.5" />
+              {t('verified')}
             </span>
           )}
-          {isOnline && (
-            <span className="flex items-center gap-1 rounded-full bg-black/35 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              Online
+          {isNew && (
+            <span className="rounded-full bg-gold px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
+              {t('new')}
             </span>
           )}
         </div>
-
-        {/* Top-right: verified */}
-        {isVerified && (
-          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-teal px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
-            <BadgeCheck className="h-3.5 w-3.5" />
-            Verified
-          </span>
-        )}
 
         {/* Name + meta over scrim */}
         <div className="absolute inset-x-0 bottom-0 p-3.5">
@@ -153,39 +142,53 @@ function ProfileCardBase({
       </div>
 
       <div className="flex flex-col gap-3 p-3.5">
-        {(compatibilityPct != null || gunaScore != null) && (
+        {gunaScore != null && (
           <div className="flex flex-wrap items-center gap-2">
-            {compatibilityPct != null && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal">
-                <span className="font-heading text-sm leading-none">
-                  {Math.round(compatibilityPct)}%
-                </span>
-                Match
-              </span>
-            )}
-            {gunaScore != null && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-                {Math.round(gunaScore)}/36 Guna
-              </span>
-            )}
+            <span className="rounded-full bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold-muted">
+              {t('gunaScore', { score: Math.round(gunaScore) })}
+            </span>
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <ActionButton
-            label={shortlisted ? 'Remove from shortlist' : 'Shortlist'}
-            onClick={onShortlist}
-            active={shortlisted}
-            variant="ghost"
+        {/* Actions — secondary icons (Shortlist · Pass) above the full-width
+            primary Connect. Two rows so all targets stay ≥44px even on a
+            2-column 375px card where one row can't fit three. */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label={shortlisted ? t('removeShortlist') : t('shortlist')}
+              aria-pressed={shortlisted}
+              onClick={stop(onShortlist)}
+              className={cn(
+                'flex h-11 flex-1 items-center justify-center rounded-lg border transition-all duration-100 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                shortlisted
+                  ? 'border-gold bg-gold/15 text-gold-muted'
+                  : 'border-border text-text-muted hover:border-gold/50 hover:text-gold-muted'
+              )}
+            >
+              <Bookmark className={cn('h-[18px] w-[18px]', shortlisted && 'fill-gold')} />
+            </button>
+
+            <button
+              type="button"
+              aria-label={t('pass')}
+              onClick={stop(onPass)}
+              className="flex h-11 flex-1 items-center justify-center rounded-lg border border-border text-text-muted transition-colors hover:border-border hover:bg-surface-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <X className="h-[18px] w-[18px]" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            aria-label={t('connect')}
+            onClick={stop(onConnect)}
+            className="flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-teal text-sm font-semibold text-white shadow-sm transition-all duration-100 ease-out hover:-translate-y-px hover:bg-teal-hover hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Heart className={cn('h-4 w-4', shortlisted && 'fill-primary text-primary')} />
-          </ActionButton>
-          <ActionButton label="Connect" onClick={onConnect} variant="solid">
-            Connect
-          </ActionButton>
-          <ActionButton label="Pass" onClick={onPass} variant="ghost">
-            <X className="h-4 w-4" />
-          </ActionButton>
+            <Heart className="h-4 w-4" />
+            {t('connect')}
+          </button>
         </div>
       </div>
     </article>
@@ -205,10 +208,15 @@ function ProfileCardSkeleton({ className }: { className?: string }) {
       <div className="skeleton-warm aspect-[4/5] w-full" />
       <div className="flex flex-col gap-3 p-3.5">
         <div className="flex gap-2">
-          <div className="skeleton-warm h-6 w-20 rounded-full" />
           <div className="skeleton-warm h-6 w-24 rounded-full" />
         </div>
-        <div className="skeleton-warm h-11 w-full rounded-lg" />
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <div className="skeleton-warm h-11 flex-1 rounded-lg" />
+            <div className="skeleton-warm h-11 flex-1 rounded-lg" />
+          </div>
+          <div className="skeleton-warm h-11 w-full rounded-lg" />
+        </div>
       </div>
     </article>
   );
