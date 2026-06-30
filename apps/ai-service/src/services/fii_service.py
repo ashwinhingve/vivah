@@ -16,7 +16,6 @@ Module-load assertions:
 from __future__ import annotations
 
 import logging
-import os
 import re
 from pathlib import Path
 
@@ -28,6 +27,7 @@ from src.schemas.fii import (
     FiiProfileScore,
     FiiSignals,
 )
+from src.services.llm_client import get_llm_client
 
 log = structlog.get_logger("fii_service")
 
@@ -376,23 +376,9 @@ def _get_anthropic():
     global _anthropic_client  # noqa: PLW0603
     if _anthropic_client is not None:
         return _anthropic_client
-    try:
-        import anthropic
-
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        helicone_key = os.getenv("HELICONE_API_KEY", "")
-        if helicone_key:
-            _anthropic_client = anthropic.Anthropic(
-                api_key=api_key,
-                base_url="https://anthropic.helicone.ai",
-                default_headers={"Helicone-Auth": f"Bearer {helicone_key}"},
-            )
-        else:
-            _anthropic_client = anthropic.Anthropic(api_key=api_key)
-        return _anthropic_client
-    except Exception as exc:  # noqa: BLE001
-        log.warning("anthropic_init_failed", error=str(exc))
-        return None
+    # Provider chosen by LLM_PROVIDER env (anthropic default | gemini).
+    _anthropic_client = get_llm_client(is_async=False)
+    return _anthropic_client
 
 
 # ---------------------------------------------------------------------------

@@ -205,6 +205,7 @@ def health() -> dict[str, object]:
             "status": status,
             "phase": 3,
             "version": "3.0.0",
+            "llm_provider": os.getenv("LLM_PROVIDER", "anthropic"),
             "models": {
                 "guna_milan": "deterministic",
                 "coach": "llm_sonnet",
