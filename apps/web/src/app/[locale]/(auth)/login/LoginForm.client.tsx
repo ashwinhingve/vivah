@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { Loader2, Phone } from 'lucide-react';
+import { Loader2, Phone, ShieldCheck } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,7 @@ export default function LoginForm() {
     const e164 = normalised.startsWith('+') ? normalised : `+91${normalised}`;
 
     if (!/^\+91[6-9]\d{9}$/.test(e164)) {
-      setError('Enter a valid 10-digit Indian mobile number');
+      setError(t('errors.invalidPhone'));
       return;
     }
 
@@ -35,7 +35,7 @@ export default function LoginForm() {
     const result = await authClient.phoneNumber.sendOtp({ phoneNumber: e164 });
 
     if (result.error) {
-      setError(result.error.message ?? 'Failed to send OTP');
+      setError(result.error.message ?? t('errors.sendFailed'));
       setLoading(false);
       return;
     }
@@ -69,7 +69,7 @@ export default function LoginForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="phone" className="text-sm">
-          Mobile number
+          {t('phoneLabel')}
         </Label>
         <div className="flex">
           <span className="inline-flex select-none items-center rounded-l-lg border border-r-0 border-border bg-surface-muted px-3 text-sm font-semibold text-muted-foreground">
@@ -95,13 +95,17 @@ export default function LoginForm() {
             {error}
           </p>
         ) : null}
+        <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-gold-muted">
+          <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
+          {t('reassurance')}
+        </p>
       </div>
 
       <Button type="submit" disabled={loading} size="lg" className="w-full">
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Sending OTP…
+            {t('sending')}
           </>
         ) : (
           t('cta')

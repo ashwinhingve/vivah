@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent, type ClipboardEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, Lock } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
 
 export default function VerifyOtpForm() {
+  const t = useTranslations('auth.verifyOtp');
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
@@ -40,7 +42,7 @@ export default function VerifyOtpForm() {
   const submitOtp = useCallback(
     async (code: string) => {
       if (!phone) {
-        setError('Phone number missing. Go back and try again.');
+        setError(t('errors.phoneMissing'));
         return;
       }
       setError(null);
@@ -49,7 +51,7 @@ export default function VerifyOtpForm() {
       const result = await authClient.phoneNumber.verify({ phoneNumber: phone, code });
 
       if (result.error) {
-        setError(result.error.message ?? 'Invalid or expired OTP');
+        setError(result.error.message ?? t('errors.invalidOtp'));
         setLoading(false);
         setDigits(Array(OTP_LENGTH).fill(''));
         inputRefs.current[0]?.focus();
@@ -129,7 +131,7 @@ export default function VerifyOtpForm() {
     setResending(false);
 
     if (result.error) {
-      setError(result.error.message ?? 'Failed to resend OTP');
+      setError(result.error.message ?? t('errors.resendFailed'));
       return;
     }
 
@@ -151,14 +153,16 @@ export default function VerifyOtpForm() {
       <div className="relative">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-teal">
           <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-          Verify
+          {t('badge')}
         </span>
         <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
-          Enter OTP
+          {t('heading')}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          We sent a 6-digit code to{' '}
-          <span className="font-semibold text-foreground">{maskedPhone}</span>
+          {t.rich('sentTo', {
+            phone: maskedPhone,
+            b: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>,
+          })}
         </p>
       </div>
 
@@ -177,7 +181,7 @@ export default function VerifyOtpForm() {
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
             disabled={loading}
-            aria-label={`OTP digit ${i + 1} of ${OTP_LENGTH}`}
+            aria-label={t('digitAria', { index: i + 1, total: OTP_LENGTH })}
             aria-invalid={error ? 'true' : 'false'}
             aria-describedby={error ? 'otp-error' : undefined}
             className={cn(
@@ -204,16 +208,19 @@ export default function VerifyOtpForm() {
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Verifying…
+            {t('verifying')}
           </>
         ) : (
-          'Verify OTP'
+          t('cta')
         )}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         {secondsLeft > 0 ? (
-          <>Resend OTP in <span className="font-medium text-foreground">{secondsLeft}s</span></>
+          t.rich('resendIn', {
+            seconds: secondsLeft,
+            b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+          })
         ) : (
           <button
             type="button"
@@ -221,9 +228,14 @@ export default function VerifyOtpForm() {
             disabled={resending}
             className="font-medium text-teal hover:text-teal-hover disabled:opacity-60 transition-colors"
           >
-            {resending ? 'Sending…' : 'Resend OTP'}
+            {resending ? t('resending') : t('resend')}
           </button>
         )}
+      </p>
+
+      <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-gold-muted">
+        <Lock className="h-3 w-3 shrink-0" aria-hidden="true" />
+        {t('reassurance')}
       </p>
     </div>
   );

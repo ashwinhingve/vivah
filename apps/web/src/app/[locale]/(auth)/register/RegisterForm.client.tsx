@@ -4,22 +4,12 @@ import { useState, type FormEvent } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { Loader2, Sparkles, User, Users, Store, ClipboardCheck } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics';
-import type { UserRole } from '@smartshaadi/types';
-
-const ROLES: { value: UserRole; label: string; description: string; icon: LucideIcon }[] = [
-  { value: 'INDIVIDUAL',        label: 'Individual',        description: 'Looking for a life partner',    icon: User },
-  { value: 'FAMILY_MEMBER',     label: 'Family Member',     description: 'Searching on behalf of family', icon: Users },
-  { value: 'VENDOR',            label: 'Vendor',            description: 'Photographer, caterer & more',  icon: Store },
-  { value: 'EVENT_COORDINATOR', label: 'Event Coordinator', description: 'Managing wedding events',       icon: ClipboardCheck },
-];
 
 export default function RegisterForm() {
   const t = useTranslations('auth.register');
@@ -27,7 +17,6 @@ export default function RegisterForm() {
 
   const [name, setName]       = useState('');
   const [phone, setPhone]     = useState('');
-  const [role, setRole]       = useState<UserRole>('INDIVIDUAL');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
@@ -37,7 +26,7 @@ export default function RegisterForm() {
 
     const trimmedName = name.trim();
     if (trimmedName.length < 2) {
-      setError('Please enter your full name (at least 2 characters)');
+      setError(t('errors.nameRequired'));
       return;
     }
 
@@ -45,24 +34,22 @@ export default function RegisterForm() {
     const e164 = normalised.startsWith('+') ? normalised : `+91${normalised}`;
 
     if (!/^\+91[6-9]\d{9}$/.test(e164)) {
-      setError('Enter a valid 10-digit Indian mobile number');
+      setError(t('errors.invalidPhone'));
       return;
     }
 
     setLoading(true);
-    track('register_started', { role });
+    track('register_started', {});
 
     const result = await authClient.phoneNumber.sendOtp({ phoneNumber: e164 });
 
     if (result.error) {
-      setError(result.error.message ?? 'Failed to send OTP');
+      setError(result.error.message ?? t('errors.sendFailed'));
       setLoading(false);
       return;
     }
 
-    router.push(
-      `/verify-otp?phone=${encodeURIComponent(e164)}&name=${encodeURIComponent(trimmedName)}&role=${role}`,
-    );
+    router.push(`/verify-otp?phone=${encodeURIComponent(e164)}`);
   }
 
   return (
@@ -89,12 +76,12 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-sm">Full name</Label>
+        <Label htmlFor="name" className="text-sm">{t('nameLabel')}</Label>
         <Input
           id="name"
           type="text"
           autoComplete="name"
-          placeholder="Rahul Sharma"
+          placeholder={t('namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -104,7 +91,7 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="phone" className="text-sm">Mobile number</Label>
+        <Label htmlFor="phone" className="text-sm">{t('phoneLabel')}</Label>
         <div className="flex">
           <span className="inline-flex select-none items-center rounded-l-lg border border-r-0 border-border bg-surface-muted px-3 text-sm font-semibold text-muted-foreground">
             +91
@@ -124,45 +111,10 @@ export default function RegisterForm() {
             className="rounded-l-none"
           />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-xs font-medium text-foreground">I am a…</p>
-        <div className="grid grid-cols-2 gap-2">
-          {ROLES.map((r) => {
-            const isSelected = role === r.value;
-            const Icon = r.icon;
-            return (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => setRole(r.value)}
-                aria-pressed={isSelected}
-                className={cn(
-                  'group relative flex flex-col gap-1.5 rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                  isSelected
-                    ? 'border-teal bg-teal/5 ring-2 ring-teal/20 shadow-sm'
-                    : 'border-border bg-surface hover:-translate-y-0.5 hover:border-gold hover:shadow-sm'
-                )}
-              >
-                <span
-                  className={cn(
-                    'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
-                    isSelected ? 'bg-teal text-white' : 'bg-gold/15 text-gold-muted group-hover:bg-teal/10 group-hover:text-teal'
-                  )}
-                >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                </span>
-                <span className={cn('text-sm font-semibold leading-tight', isSelected ? 'text-teal' : 'text-foreground')}>
-                  {r.label}
-                </span>
-                <span className="text-[11px] leading-tight text-muted-foreground">
-                  {r.description}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <p className="flex items-center gap-1.5 text-[11px] text-gold-muted">
+          <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
+          {t('reassurance')}
+        </p>
       </div>
 
       {error ? (
@@ -173,7 +125,7 @@ export default function RegisterForm() {
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            Sending OTP…
+            {t('sending')}
           </>
         ) : (
           t('cta')
@@ -181,9 +133,9 @@ export default function RegisterForm() {
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Already registered?{' '}
+        {t('alreadyRegistered')}{' '}
         <Link href="/login" className="font-semibold text-teal underline-offset-4 hover:underline">
-          Sign in
+          {t('signIn')}
         </Link>
       </p>
     </form>

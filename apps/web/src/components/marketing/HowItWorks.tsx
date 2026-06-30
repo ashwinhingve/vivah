@@ -5,32 +5,14 @@ import { NoMatchesIllustration } from '@/components/ui/illustrations';
 interface Step {
   number: string;
   titleKey: string;
-  description: string;
-  tags: string[];
+  descKey: string;
+  tagsKey: string;
 }
 
 const steps: Step[] = [
-  {
-    number: '01',
-    titleKey: 'step1Title',
-    description:
-      'Set up in 2 minutes. Aadhaar-verified identity, horoscope details, family background, and lifestyle preferences — all with full privacy control. Family members can co-create.',
-    tags: ['KYC Verified', 'Family Mode', 'Kundli Upload'],
-  },
-  {
-    number: '02',
-    titleKey: 'step2Title',
-    description:
-      'Our AI analyses Guna Milan scores, lifestyle alignment, and family values. Reciprocal matching means both sides must show interest before contact details unlock — no awkward one-sided reveals.',
-    tags: ['Guna Milan Score', 'Reciprocal Matching', 'Daily Suggestions'],
-  },
-  {
-    number: '03',
-    titleKey: 'step3Title',
-    description:
-      'Once connected, move seamlessly to the wedding journey: vendor discovery, budget tracking, guest list, and RSVP — all in one platform built for Indian families.',
-    tags: ['Vendor Marketplace', 'Budget Planner', 'Guest List & RSVP'],
-  },
+  { number: '01', titleKey: 'step1Title', descKey: 'step1Desc', tagsKey: 'step1Tags' },
+  { number: '02', titleKey: 'step2Title', descKey: 'step2Desc', tagsKey: 'step2Tags' },
+  { number: '03', titleKey: 'step3Title', descKey: 'step3Desc', tagsKey: 'step3Tags' },
 ];
 
 export default async function HowItWorks() {
@@ -46,7 +28,7 @@ export default async function HowItWorks() {
             aria-hidden="true"
             className="text-xs font-semibold uppercase tracking-widest text-gold-muted mb-3"
           >
-            How it Works
+            {t('eyebrow')}
           </p>
           <h2
             className="font-heading font-semibold text-foreground"
@@ -55,7 +37,7 @@ export default async function HowItWorks() {
             {t('sectionHeading')}
           </h2>
           <p className="mt-4 text-muted-foreground max-w-lg mx-auto leading-relaxed">
-            Designed for both individuals and families. Start together, find together.
+            {t('subhead')}
           </p>
         </AnimatedSection>
 
@@ -100,7 +82,7 @@ export default async function HowItWorks() {
                 </h3>
 
                 <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-                  {step.description}
+                  {t(step.descKey)}
                 </p>
 
                 {/* Illustration on middle card */}
@@ -112,7 +94,7 @@ export default async function HowItWorks() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mt-5">
-                  {step.tags.map((tag) => (
+                  {(t.raw(step.tagsKey) as string[]).map((tag) => (
                     <span
                       key={tag}
                       className="text-xs rounded-full border border-border bg-surface px-3 py-1 text-muted-foreground"

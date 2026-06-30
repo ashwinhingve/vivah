@@ -52,7 +52,7 @@ export default async function CtaBanner() {
           aria-hidden="true"
           className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/80 mb-5"
         >
-          India&apos;s Smartest Matrimonial Platform
+          {t('eyebrow')}
         </p>
 
         <h2
@@ -63,8 +63,7 @@ export default async function CtaBanner() {
         </h2>
 
         <p className="mt-6 text-white/85 leading-relaxed text-base md:text-lg max-w-lg mx-auto">
-          Join the community of verified Indian families. Free to join,
-          private by default, family-first by design.
+          {t('body')}
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -75,7 +74,7 @@ export default async function CtaBanner() {
             {t('primaryCta')}
           </Link>
           <a
-            href="mailto:support@smartshaadi.in"
+            href="mailto:support@smartshaadi.co.in"
             className="inline-flex items-center justify-center min-h-[52px] rounded-lg px-9 py-3.5 border-2 border-surface/30 text-white font-semibold text-base transition-all duration-200 backdrop-blur-sm hover:border-surface/60 hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
           >
             {t('secondaryCta')}
@@ -83,7 +82,7 @@ export default async function CtaBanner() {
         </div>
 
         <p className="mt-6 text-white/60 text-sm">
-          Free to join · Verified profiles · Privacy guaranteed
+          {t('microcopy')}
         </p>
       </div>
     </section>
