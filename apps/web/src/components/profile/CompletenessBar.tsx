@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Check, Circle, Sparkles } from 'lucide-react';
 import type { ProfileSectionCompletion } from '@smartshaadi/types';
@@ -7,19 +8,17 @@ interface Props {
   sections: ProfileSectionCompletion;
 }
 
-const SEGMENTS: {
-  key: keyof Omit<ProfileSectionCompletion, 'score'>;
-  label: string;
-  href: string;
-}[] = [
-  { key: 'personal',    label: 'Personal',    href: '/profile/personal'    },
-  { key: 'photos',      label: 'Photos',      href: '/profile/photos'      },
-  { key: 'family',      label: 'Family',      href: '/profile/family'      },
-  { key: 'career',      label: 'Career',      href: '/profile/career'      },
-  { key: 'lifestyle',   label: 'Lifestyle',   href: '/profile/lifestyle'   },
-  { key: 'personality', label: 'Personality', href: '/profile/personality' },
-  { key: 'horoscope',   label: 'Horoscope',   href: '/profile/horoscope'   },
-  { key: 'preferences', label: 'Preferences', href: '/profile/preferences' },
+type SectionKey = keyof Omit<ProfileSectionCompletion, 'score' | 'divorceeOnboardingDone'>;
+
+const SEGMENTS: { key: SectionKey; href: string }[] = [
+  { key: 'personal',    href: '/profile/personal'    },
+  { key: 'photos',      href: '/profile/photos'      },
+  { key: 'family',      href: '/profile/family'      },
+  { key: 'career',      href: '/profile/career'      },
+  { key: 'lifestyle',   href: '/profile/lifestyle'   },
+  { key: 'personality', href: '/profile/personality' },
+  { key: 'horoscope',   href: '/profile/horoscope'   },
+  { key: 'preferences', href: '/profile/preferences' },
 ];
 
 function tone(score: number) {
@@ -28,17 +27,18 @@ function tone(score: number) {
   return { bar: 'from-destructive via-warning to-gold', text: 'text-warning' };
 }
 
-export function CompletenessBar({ sections }: Props) {
+export async function CompletenessBar({ sections }: Props) {
+  const tr = await getTranslations('profileGuide');
   const t = tone(sections.score);
   const done = SEGMENTS.filter((s) => sections[s.key]).length;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <p className="font-heading text-base font-semibold text-primary">Profile Completeness</p>
+          <p className="font-heading text-base font-semibold text-primary">{tr('completenessTitle')}</p>
           <p className="text-xs text-muted-foreground">
-            {done} of {SEGMENTS.length} sections complete
+            {tr('progressLabel', { done, total: SEGMENTS.length })}
           </p>
         </div>
         <span className={cn('inline-flex items-baseline gap-0.5 font-heading text-2xl font-bold', t.text)}>
@@ -59,13 +59,14 @@ export function CompletenessBar({ sections }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {SEGMENTS.map(({ key, label, href }) => {
+        {SEGMENTS.map(({ key, href }) => {
           const complete = sections[key];
+          const label = tr(`sections.${key}` as 'sections.personal');
           return (
             <Link
               key={key}
               href={href}
-              aria-label={`${label} — ${complete ? 'complete' : 'incomplete'}`}
+              aria-label={`${label} — ${complete ? tr('ringComplete') : ''}`.trim()}
               className={cn(
                 'group inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all hover:-translate-y-0.5',
                 complete
@@ -87,7 +88,7 @@ export function CompletenessBar({ sections }: Props) {
       {sections.score < 100 ? (
         <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-          Complete profiles get <span className="font-semibold text-primary">3× more matches</span>
+          {tr('whyItMatters')}
         </p>
       ) : null}
     </div>

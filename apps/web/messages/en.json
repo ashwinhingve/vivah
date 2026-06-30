@@ -222,6 +222,35 @@
       "heading": "Tell us about your family"
     }
   },
+  "profileGuide": {
+    "headlineStart": "Let's build your profile",
+    "headlineProgress": "You're on your way",
+    "subhead": "A thoughtful profile is how families find you. Complete it to start seeing genuinely compatible matches — at your pace.",
+    "progressLabel": "{done} of {total} sections complete",
+    "ringComplete": "complete",
+    "whyItMatters": "Complete profiles get 3× more matches",
+    "trustNote": "Your details stay private — contact info is never shared until you choose to.",
+    "ctaStart": "Start with personal details",
+    "ctaContinue": "Continue your profile",
+    "completenessTitle": "Profile Completeness",
+    "completeThese": "Complete these sections",
+    "goToDashboard": "Go to Dashboard",
+    "greatHeadline": "Your profile is looking great!",
+    "almostHeadline": "Almost there!",
+    "greatSub": "Complete profiles get 3× more responses",
+    "almostSub": "Complete a few more sections to attract better matches",
+    "completeWord": "complete",
+    "sections": {
+      "personal": "Personal details",
+      "photos": "Profile photos",
+      "family": "Family information",
+      "career": "Career & education",
+      "lifestyle": "Lifestyle preferences",
+      "personality": "Personality",
+      "horoscope": "Horoscope details",
+      "preferences": "Partner preferences"
+    }
+  },
   "chat": {
     "metadata": {
       "title": "Chat — Smart Shaadi"

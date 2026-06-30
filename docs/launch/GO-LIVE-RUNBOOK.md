@@ -11,8 +11,19 @@
 > **last**. Bring each backend live individually first so a bad credential is
 > isolated to one provider, not the whole API.
 >
+> ⚠️ **CRITICAL COUPLING — read before Step 2.** `USE_MOCK_SERVICES` is a **single
+> master flag**. Flipping it to `false` makes **Razorpay AND MSG91 go real
+> SIMULTANEOUSLY** — there is **no** `RAZORPAY_LIVE` / `MSG91_LIVE` flag to stage
+> them separately (only Mongo / R2 / KYC have granular overrides). Consequence:
+> **MSG91 DLT must be registered and its creds wired *before* this flip.** If you
+> flip to take payments live while MSG91 is not ready, **OTP login breaks the same
+> instant** — there is no way to keep OTP mocked while payments are real. Do not
+> flip until checklist **A1 (Razorpay)** and **A2 (MSG91 DLT)** are both DONE.
+>
 > **Companion:** `mock-to-real-swap.md` holds the per-provider env vars + the exact
-> verify prose. This runbook sequences them and adds rollback + the 24h watch.
+> verify prose. `FIRST-24H-MONITORING.md` holds the detailed post-launch watch plan
+> (thresholds + escalation). This runbook sequences the cutover and adds rollback +
+> the Step-7 24h watch summary.
 
 ---
 
@@ -69,6 +80,10 @@ unreconciled schema.
   - **`KYC_LIVE` left UNSET** — KYC stays mocked → `MANUAL_REVIEW` (Checklist §C).
   - `ALLOW_MOCK_SERVICES_IN_PROD` **unset**; remove `MOCK_OTP_VALUE` from prod.
 - **Then flip the master last:** `USE_MOCK_SERVICES=false` (Railway + Vercel).
+  ⚠️ This single flip turns **Razorpay AND MSG91 real at the same instant** (no
+  per-provider flag). Confirm MSG91 creds are wired **now** — the moment payments
+  go live, OTP login is also live; a bad/absent MSG91 setup breaks login platform-
+  wide. See the CRITICAL COUPLING note at the top.
 
 **Verify** — API boots clean: no `env.ts` superRefine exit (would mean a missing
 cred). `GET /health` 200. `GET /ready` 200.
@@ -91,10 +106,13 @@ only one provider is bad, prefer the per-provider rollback in Step 3 instead.
   Rollback: unset `R2_LIVE`.
 - **MSG91** — request an OTP to a real handset → delivered + login works. Rollback:
   re-enable mock (`USE_MOCK_SERVICES=true` + `MOCK_OTP_VALUE`).
-- **Razorpay** — send a test event to **both** endpoints →
+- **Razorpay** — two checks. **(a) Signature/webhook:** send a test event to **both** endpoints →
   `POST /api/v1/payments/webhook` and `POST /api/v1/store/webhook/razorpay` → each
   HTTP 200 + `webhook_events` row PROCESSED. Bad-signature → 400 (payments) / 401
-  (store). Rollback: revert Razorpay keys, keep other providers live.
+  (store). **(b) Real ₹1 test payment** (live-money proof, distinct from the
+  signature check): complete a real ₹1 checkout end-to-end → capture succeeds → the
+  resulting webhook marks its `webhook_events` row PROCESSED; refund the ₹1 after.
+  Rollback: revert Razorpay keys, keep other providers live.
 - **KYC (confirm still mocked)** — submit a KYC → lands in `MANUAL_REVIEW`, does
   **not** throw. Confirms `KYC_LIVE` is correctly unset.
 
@@ -141,6 +159,8 @@ A real OTP arrives, a real payment processes, webhook marks PROCESSED.
 ## Step 7 — First-24h watch list
 
 Monitor continuously for the first 24 hours. Each signal has a **rollback trigger**.
+This table is the quick view — the full plan (thresholds, escalation, post-launch
+follow-ups) is in **`FIRST-24H-MONITORING.md`**.
 
 | Signal | Source | Watch | Rollback trigger |
 |--------|--------|-------|------------------|

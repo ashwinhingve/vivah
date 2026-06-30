@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 
@@ -23,16 +24,11 @@ async function getProfileData() {
   }
 }
 
-const SECTION_LABELS: Record<string, string> = {
-  personal:    'Personal details',
-  photos:      'Profile photos',
-  family:      'Family information',
-  career:      'Career & education',
-  lifestyle:   'Lifestyle preferences',
-  personality: 'Personality',
-  horoscope:   'Horoscope details',
-  preferences: 'Partner preferences',
-};
+const SECTION_KEYS = [
+  'personal', 'photos', 'family', 'career',
+  'lifestyle', 'personality', 'horoscope', 'preferences',
+] as const;
+type SectionKey = (typeof SECTION_KEYS)[number];
 
 const SECTION_HREFS: Record<string, string> = {
   personal:    '/profile/personal',
@@ -46,6 +42,7 @@ const SECTION_HREFS: Record<string, string> = {
 };
 
 export default async function ProfileCompletePage() {
+  const t = await getTranslations('profileGuide');
   const data = await getProfileData();
   const score = data?.profileCompleteness ?? 0;
   const sections = data?.sectionCompletion;
@@ -53,13 +50,8 @@ export default async function ProfileCompletePage() {
   const isGreat = score >= 70;
 
   // Find incomplete sections
-  const incomplete = sections
-    ? Object.entries(SECTION_LABELS)
-      .filter(([key]) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const k = key as any;
-        return k !== 'score' && !sections[k];
-      })
+  const incomplete: SectionKey[] = sections
+    ? SECTION_KEYS.filter((key) => !sections[key])
     : [];
 
   return (
@@ -69,19 +61,17 @@ export default async function ProfileCompletePage() {
         <div className="text-center">
           <div className="text-5xl mb-3">{isGreat ? '🎉' : '✨'}</div>
           <h1 className="font-heading text-2xl font-semibold text-primary">
-            {isGreat ? 'Your profile is looking great!' : 'Almost there!'}
+            {isGreat ? t('greatHeadline') : t('almostHeadline')}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isGreat
-              ? 'Complete profiles get 3× more responses'
-              : 'Complete a few more sections to attract better matches'}
+            {isGreat ? t('greatSub') : t('almostSub')}
           </p>
           {/* Big score circle */}
           <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-teal flex flex-col items-center justify-center bg-surface shadow-sm">
             <span className="font-heading text-2xl font-bold text-teal">
               {score}%
             </span>
-            <span className="text-xs text-muted-foreground">complete</span>
+            <span className="text-xs text-muted-foreground">{t('completeWord')}</span>
           </div>
         </div>
 
@@ -90,12 +80,12 @@ export default async function ProfileCompletePage() {
 
         {/* Incomplete sections list */}
         {incomplete.length > 0 && (
-          <div className="bg-surface rounded-xl border border-border p-4 shadow-card">
+          <div className="bg-surface rounded-2xl border border-gold/20 p-4 shadow-card">
             <h2 className="font-heading text-base font-semibold text-primary mb-3">
-              Complete these sections
+              {t('completeThese')}
             </h2>
             <ul className="space-y-1">
-              {incomplete.map(([key, label]) => {
+              {incomplete.map((key) => {
                 const href = SECTION_HREFS[key] ?? '/dashboard';
                 return (
                   <li key={key}>
@@ -105,7 +95,7 @@ export default async function ProfileCompletePage() {
                     >
                       <span className="flex items-center gap-2">
                         <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0 group-hover:border-teal transition-colors" />
-                        {label}
+                        {t(`sections.${key}` as 'sections.personal')}
                       </span>
                       <span className="text-muted-foreground/60 group-hover:text-primary">›</span>
                     </Link>
@@ -121,7 +111,7 @@ export default async function ProfileCompletePage() {
           href="/dashboard"
           className="block w-full bg-teal text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-teal-hover"
         >
-          Go to Dashboard →
+          {t('goToDashboard')} →
         </Link>
       </div>
     </div>
