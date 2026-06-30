@@ -4,22 +4,10 @@ import Image from 'next/image';
 import { Check } from 'lucide-react';
 import { TRUST_INDIVIDUALS, TRUST_FAMILIES } from '@/lib/marketing-images';
 
-const individualPoints = [
-  'Aadhaar-verified profiles — no fake accounts',
-  'Safety Mode — photos hidden until you choose',
-  "Silent decline — they'll never know you passed",
-  '24/7 human support team',
-];
-
-const familyPoints = [
-  'Family-created profiles welcomed and respected',
-  'Parent Mode — separate family dashboard',
-  'Family Verified badge — 4-tier verification system',
-  'Respects community and cultural preferences',
-];
-
 export default async function TrustSection() {
   const t = await getTranslations('marketing.trust');
+  const individualPoints = t.raw('individualsPoints') as string[];
+  const familyPoints = t.raw('familiesPoints') as string[];
 
   return (
     <section id="for-families" className="grid grid-cols-1 lg:grid-cols-2">
@@ -43,15 +31,13 @@ export default async function TrustSection() {
             aria-hidden="true"
             className="text-xs uppercase tracking-widest text-gold mb-3 font-semibold border-l-2 border-gold pl-3"
           >
-            For Individuals
+            {t('individualsEyebrow')}
           </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white font-heading leading-tight [text-shadow:_0_2px_16px_rgba(0,0,0,0.3)]">
             {t('individualsHeading')}
           </h2>
           <p className="text-white/85 mt-6 leading-relaxed text-base [text-shadow:_0_1px_8px_rgba(0,0,0,0.3)]">
-            You control everything. Photos stay blurred until you choose to
-            reveal them. Contact details unlock only after mutual interest.
-            Block anyone with one tap.
+            {t('individualsBody')}
           </p>
 
           <ul className="mt-8 space-y-4">
@@ -74,7 +60,7 @@ export default async function TrustSection() {
             href="/register"
             className="inline-flex items-center justify-center bg-surface text-primary font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
           >
-            Create Free Profile →
+            {t('individualsCta')}
           </Link>
         </div>
       </div>
@@ -99,15 +85,13 @@ export default async function TrustSection() {
             aria-hidden="true"
             className="text-xs uppercase tracking-widest text-primary/70 mb-3 font-semibold border-l-2 border-primary/40 pl-3"
           >
-            For Families
+            {t('familiesEyebrow')}
           </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-heading leading-tight">
             {t('familiesHeading')}
           </h2>
           <p className="text-foreground mt-6 leading-relaxed text-base">
-            Indian matrimony has always been a family decision. Smart Shaadi is
-            built for that reality. Parents co-browse profiles. Both families
-            verify each other. Trust is built before any meeting.
+            {t('familiesBody')}
           </p>
 
           <ul className="mt-8 space-y-4">
@@ -130,7 +114,7 @@ export default async function TrustSection() {
             href="/register?mode=family"
             className="inline-flex items-center justify-center bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
           >
-            Explore Family Mode →
+            {t('familiesCta')}
           </Link>
         </div>
       </div>

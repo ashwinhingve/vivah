@@ -25,7 +25,7 @@ const organizationSchema = {
   '@type': 'Organization',
   name: 'Smart Shaadi',
   description: "India's AI-powered matrimonial platform",
-  url: 'https://smartshaadi.in',
+  url: 'https://smartshaadi.co.in',
   foundingDate: '2026',
   sameAs: [],
 };
@@ -34,7 +34,7 @@ const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Smart Shaadi',
-  url: 'https://smartshaadi.in',
+  url: 'https://smartshaadi.co.in',
 };
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
