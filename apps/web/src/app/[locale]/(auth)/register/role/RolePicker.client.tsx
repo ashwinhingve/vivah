@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import type { UserRole } from '@smartshaadi/types';
+import { authClient } from '@/lib/auth-client';
 import { setRoleAction } from '../../actions';
 
 const ROLES: { value: UserRole; icon: string }[] = [
@@ -15,7 +15,7 @@ const ROLES: { value: UserRole; icon: string }[] = [
 
 export default function RolePicker() {
   const t = useTranslations('auth.role');
-  const router = useRouter();
+  const locale = useLocale();
   const [selected, setSelected] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,12 @@ export default function RolePicker() {
       return;
     }
 
-    router.push('/dashboard');
+    // The DB role was just changed, but Better Auth's 5-min cookie cache still
+    // holds the old role. Force a fresh session read (rewrites the session_data
+    // cache cookie) then hard-navigate so middleware + client both see the new
+    // role immediately — otherwise the user sees the INDIVIDUAL nav for ~5 min.
+    await authClient.getSession({ query: { disableCookieCache: true } });
+    window.location.assign(`/${locale}/dashboard`);
   }
 
   return (

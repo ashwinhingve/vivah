@@ -10,7 +10,7 @@ export const metadata = { title: 'Coordinator Dashboard' };
 export default async function CoordinatorDashboardPage() {
   // Role guard — middleware does the same check, but the page guard prevents
   // any leak if matcher config drifts. Mirrors apps/web/src/app/(app)/admin/page.tsx.
-  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'EVENT_COORDINATOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }

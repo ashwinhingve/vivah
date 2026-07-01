@@ -34,7 +34,7 @@ export const dynamic = 'force-dynamic';
 // ---------------------------------------------------------------------------
 
 interface AuthMe {
-  id: string;
+  userId: string;
   role: string;
   status: string;
 }

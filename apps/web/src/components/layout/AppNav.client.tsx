@@ -5,154 +5,10 @@ import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import {
-  Home,
-  Search,
-  Calendar,
-  User,
-  Cake,
-  Package,
-  ShoppingBag,
-  ShoppingCart,
-  MoreHorizontal,
-  X,
-  Bookmark,
-  Eye,
-  EyeOff,
-  Shield,
-  Heart,
-  MessageCircle,
-  Sparkles,
-  Bell,
-  Wallet,
-  FileText,
-  Receipt,
-  UserCog,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { MoreHorizontal, X } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
-
-type NavItem = { href: string; labelKey: string; Icon: LucideIcon };
-type NavGroup = { titleKey: string; items: NavItem[] };
-
-const INDIVIDUAL_PRIMARY: NavItem[] = [
-  { href: '/feed',      labelKey: 'discover', Icon: Home },
-  { href: '/chats',     labelKey: 'chats',    Icon: MessageCircle },
-  { href: '/weddings',  labelKey: 'wedding',  Icon: Cake },
-  { href: '/dashboard', labelKey: 'profile',  Icon: User },
-];
-
-const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
-  {
-    titleKey: 'groupSocial',
-    items: [
-      { href: '/requests',      labelKey: 'requests',      Icon: Heart },
-      { href: '/matches',       labelKey: 'connections',   Icon: Sparkles },
-      { href: '/notifications', labelKey: 'notifications', Icon: Bell },
-      { href: '/likes',         labelKey: 'likes',         Icon: Heart },
-      { href: '/shortlist',     labelKey: 'shortlist',     Icon: Bookmark },
-      { href: '/viewers',       labelKey: 'viewedMe',      Icon: Eye },
-    ],
-  },
-  {
-    titleKey: 'groupDiscover',
-    items: [
-      { href: '/vendors', labelKey: 'vendors', Icon: Search },
-    ],
-  },
-  {
-    titleKey: 'groupShop',
-    items: [
-      { href: '/store',    labelKey: 'shop',     Icon: ShoppingBag },
-      { href: '/rentals',  labelKey: 'rentals',  Icon: Package },
-      { href: '/bookings', labelKey: 'bookings', Icon: Calendar },
-    ],
-  },
-  {
-    titleKey: 'groupMoney',
-    items: [
-      { href: '/payments',          labelKey: 'payments', Icon: ShoppingCart },
-      { href: '/payments/wallet',   labelKey: 'wallet',   Icon: Wallet },
-      { href: '/payments/invoices', labelKey: 'invoices', Icon: FileText },
-      { href: '/payments/refunds',  labelKey: 'refunds',  Icon: Receipt },
-    ],
-  },
-  {
-    titleKey: 'groupSettings',
-    items: [
-      { href: '/profile/personal',             labelKey: 'editProfile', Icon: UserCog },
-      { href: '/settings/privacy',             labelKey: 'privacy',     Icon: EyeOff },
-      { href: '/settings/security/two-factor', labelKey: 'security',    Icon: Shield },
-    ],
-  },
-];
-
-const INDIVIDUAL_MORE: NavItem[] = INDIVIDUAL_MORE_GROUPS.flatMap((g) => g.items);
-
-// Demo-mode route blocklist — hidden when NEXT_PUBLIC_DEMO_MODE === 'true'.
-// Prefix-match: any href starting with one of these is filtered out.
-const DEMO_HIDDEN_PREFIXES = [
-  '/store',
-  '/rentals',
-  '/admin',
-  '/vendor-dashboard',
-] as const;
-
-function isDemoMode(): boolean {
-  return process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
-}
-
-function filterForDemo<T extends { href: string }>(items: T[]): T[] {
-  if (!isDemoMode()) return items;
-  return items.filter(
-    (i) => !DEMO_HIDDEN_PREFIXES.some((p) => i.href === p || i.href.startsWith(`${p}/`)),
-  );
-}
-
-const VENDOR_NAV: NavItem[] = [
-  { href: '/vendor-dashboard',        labelKey: 'home',     Icon: Home },
-  { href: '/bookings',                labelKey: 'bookings', Icon: Calendar },
-  { href: '/vendor-dashboard/store',  labelKey: 'products', Icon: Package },
-  { href: '/vendor-dashboard/orders', labelKey: 'orders',   Icon: ShoppingCart },
-  { href: '/vendor/payouts',          labelKey: 'payouts',  Icon: ShoppingBag },
-  { href: '/payments/links',          labelKey: 'links',    Icon: MessageCircle },
-  { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
-];
-
-const ADMIN_PRIMARY: NavItem[] = [
-  { href: '/admin',         labelKey: 'admin',    Icon: Home },
-  { href: '/admin/revenue', labelKey: 'revenue',  Icon: Search },
-  { href: '/admin/kyc',     labelKey: 'kyc',      Icon: Shield },
-  { href: '/admin/escrow',  labelKey: 'disputes', Icon: Bookmark },
-];
-
-const ADMIN_MORE_GROUPS: NavGroup[] = [
-  {
-    titleKey: 'groupOperations',
-    items: [
-      { href: '/admin/vendors',   labelKey: 'vendorApprovals', Icon: Search },
-      { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
-    ],
-  },
-  {
-    titleKey: 'groupMoney',
-    items: [
-      { href: '/admin/payouts',        labelKey: 'payouts',        Icon: ShoppingBag },
-      { href: '/admin/refunds',        labelKey: 'refunds',        Icon: Receipt },
-      { href: '/admin/promos',         labelKey: 'promos',         Icon: Heart },
-      { href: '/admin/reconciliation', labelKey: 'reconciliation', Icon: FileText },
-    ],
-  },
-  {
-    titleKey: 'groupSettings',
-    items: [
-      { href: '/admin/settings', labelKey: 'settings', Icon: UserCog },
-    ],
-  },
-];
-
-const ADMIN_MORE: NavItem[] = ADMIN_MORE_GROUPS.flatMap((g) => g.items);
+import { navForRole, filterForDemo, type NavGroup } from './nav-config';
 
 function isActive(pathname: string, href: string) {
   return (
@@ -182,32 +38,14 @@ export function AppNav() {
     return () => window.removeEventListener('keydown', onKey);
   }, [moreOpen]);
 
-  const isAdmin = role === 'ADMIN' || role === 'SUPPORT';
-  const isIndividual = role === 'INDIVIDUAL';
-  const showMore = isIndividual || isAdmin;
-
-  const primaryRaw = isIndividual
-    ? INDIVIDUAL_PRIMARY
-    : isAdmin
-      ? ADMIN_PRIMARY
-      : role === 'VENDOR'
-        ? VENDOR_NAV
-        : INDIVIDUAL_PRIMARY;
-
-  const moreGroups: NavGroup[] = isIndividual
-    ? INDIVIDUAL_MORE_GROUPS
-    : isAdmin
-      ? ADMIN_MORE_GROUPS
-      : [];
-
-  const moreItemsRaw = isIndividual
-    ? INDIVIDUAL_MORE
-    : isAdmin
-      ? ADMIN_MORE
-      : [];
+  const { primary: primaryRaw, moreGroups: moreGroupsRaw } = navForRole(role);
+  const moreGroups: NavGroup[] = moreGroupsRaw
+    .map((g) => ({ ...g, items: filterForDemo(g.items) }))
+    .filter((g) => g.items.length > 0);
+  const moreItems = moreGroups.flatMap((g) => g.items);
+  const showMore = moreItems.length > 0;
 
   const primary = filterForDemo(primaryRaw);
-  const moreItems = filterForDemo(moreItemsRaw);
   const moreActive = showMore && moreItems.some(i => isActive(pathname, i.href));
 
   return (

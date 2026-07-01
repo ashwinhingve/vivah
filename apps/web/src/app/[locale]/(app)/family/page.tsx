@@ -15,7 +15,7 @@ const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
 export default async function FamilyPage() {
   // Role guard — middleware does the same check, but the page guard prevents
   // any leak if matcher config drifts.
-  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }

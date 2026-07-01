@@ -21,7 +21,7 @@ import type {
 } from '@/components/analytics/types';
 
 interface AuthMe {
-  id: string;
+  userId: string;
   role: string;
   status: string;
 }

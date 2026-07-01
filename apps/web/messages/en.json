@@ -50,7 +50,12 @@
       "analytics": "Analytics",
       "reconciliation": "Reconciliation",
       "vendorApprovals": "Vendor Approvals",
-      "settings": "Platform Settings"
+      "settings": "Platform Settings",
+      "support": "Support",
+      "family": "Family",
+      "familyInbox": "Inbox",
+      "parentMode": "Parent Mode",
+      "coordinator": "Coordinator"
     }
   },
   "auth": {

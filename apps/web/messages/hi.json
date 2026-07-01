@@ -50,7 +50,12 @@
       "analytics": "विश्लेषण",
       "reconciliation": "मिलान",
       "vendorApprovals": "वेंडर अनुमोदन",
-      "settings": "प्लेटफ़ॉर्म सेटिंग्स"
+      "settings": "प्लेटफ़ॉर्म सेटिंग्स",
+      "support": "सहायता",
+      "family": "परिवार",
+      "familyInbox": "इनबॉक्स",
+      "parentMode": "पैरेंट मोड",
+      "coordinator": "समन्वयक"
     }
   },
   "auth": {

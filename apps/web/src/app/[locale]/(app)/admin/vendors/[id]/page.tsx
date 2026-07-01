@@ -85,7 +85,7 @@ export default async function AdminVendorDetailPage({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
-  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me', token);
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me', token);
   if (me && me.role !== 'ADMIN') {
     return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
@@ -201,7 +201,7 @@ export default async function AdminVendorDetailPage({
               vendorId={v.id}
               status={v.status}
               reviewedByUserId={v.reviewedByUserId}
-              currentAdminId={me.id}
+              currentAdminId={me.userId}
               rejectionReason={v.rejectionReason}
               rejectionCategory={v.rejectionCategory}
             />

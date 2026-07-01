@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function SupportConsolePage() {
   // Role guard — middleware does the same check; page guard belt-and-braces.
-  const me = await fetchAuth<{ id: string; role: string }>('/api/auth/me');
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'SUPPORT' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }

@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-interface AuthMe { id: string; role: string; status: string }
+interface AuthMe { userId: string; role: string; status: string }
 
 interface KycRow {
   profileId: string; userId: string; verificationStatus: string; verificationLevel: string | null;
