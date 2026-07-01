@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from src.services import reputation_model, reputation_training
+from src.services import reputation_model
 from src.services.reputation_training import (
     FEATURE_NAMES,
     generate_synthetic_data,
@@ -91,7 +91,9 @@ def test_predict_full_feature_dict_returns_expected_keys(trained_paths):
         "ghost_count": 0.0,
         "consistency_score": 0.85,
     })
-    assert {"score_prob", "score_int", "tier", "factor_contributions", "top_3_factors"} == set(result)
+    assert {
+        "score_prob", "score_int", "tier", "factor_contributions", "top_3_factors"
+    } == set(result)
     assert 0.0 <= result["score_prob"] <= 1.0
     assert 0 <= result["score_int"] <= 100
     assert result["tier"] in {"platinum", "gold", "silver", "bronze", "flagged"}

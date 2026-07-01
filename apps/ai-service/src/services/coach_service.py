@@ -9,7 +9,6 @@ Falls back to MOCK_SUGGESTIONS on any error — never fails the user.
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 from datetime import datetime, timezone
@@ -123,7 +122,9 @@ def detect_conversation_state(
         if len(recent) >= 2:
             gaps: list[float] = []
             for i in range(1, len(recent)):
-                gap = (parse_ts(recent[i].timestamp) - parse_ts(recent[i - 1].timestamp)).total_seconds() / 3600
+                gap = (
+                    parse_ts(recent[i].timestamp) - parse_ts(recent[i - 1].timestamp)
+                ).total_seconds() / 3600
                 gaps.append(abs(gap))
             avg_gap = sum(gaps) / len(gaps) if gaps else 0
             if avg_gap > 24:
@@ -141,8 +142,16 @@ def extract_shared_interests(
 
     Falls back to ["general life goals", "family values"] if no overlap.
     """
-    set_a = {item.lower().strip() for item in (profile_a.interests + profile_a.hobbies) if item.strip()}
-    set_b = {item.lower().strip() for item in (profile_b.interests + profile_b.hobbies) if item.strip()}
+    set_a = {
+        item.lower().strip()
+        for item in (profile_a.interests + profile_a.hobbies)
+        if item.strip()
+    }
+    set_b = {
+        item.lower().strip()
+        for item in (profile_b.interests + profile_b.hobbies)
+        if item.strip()
+    }
 
     shared = sorted(set_a & set_b)[:5]
     if not shared:

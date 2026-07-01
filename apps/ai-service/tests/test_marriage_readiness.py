@@ -8,16 +8,14 @@ edge cases (zero communication, full goal clarity, etc.).
 from __future__ import annotations
 
 import math
-import pytest
 
 from src.schemas.marriage_readiness import MarriageReadinessRequest
 from src.services.marriage_readiness_service import (
-    compute_marriage_readiness,
+    _build_next_actions,
     _compute_communication_depth,
     _compute_goal_clarity,
-    _build_next_actions,
+    compute_marriage_readiness,
 )
-
 
 # ── Helper ─────────────────────────────────────────────────────────────────────
 

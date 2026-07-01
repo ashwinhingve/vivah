@@ -19,7 +19,6 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, brier_score_loss, roc_auc_score
 
-
 FEATURE_NAMES: list[str] = [
     "age_gap_years",
     "education_gap",

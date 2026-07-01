@@ -17,11 +17,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app
-from src.schemas.coach import CoachRequest, CoachResponse, CoachSuggestion, Message, ProfileSnapshot
+from src.schemas.coach import CoachRequest, CoachResponse, Message, ProfileSnapshot
 from src.services.coach_service import (
     MOCK_SUGGESTIONS,
-    _parse_xml_suggestions,
-    build_prompt_context,
     detect_conversation_state,
     extract_shared_interests,
     get_suggestions,
@@ -122,7 +120,10 @@ def test_detect_state_cooling_old_last_message() -> None:
 
 def test_detect_state_active() -> None:
     """6+ recent messages with short gaps → ACTIVE."""
-    history = [_make_message("A" if i % 2 == 0 else "B", f"msg {i}", hours_ago=float(i)) for i in range(7)]
+    history = [
+        _make_message("A" if i % 2 == 0 else "B", f"msg {i}", hours_ago=float(i))
+        for i in range(7)
+    ]
     history.sort(key=lambda m: m.timestamp)
     state = detect_conversation_state(history)
     assert state == "ACTIVE"
@@ -253,7 +254,10 @@ async def test_suggestion_xml_parsing_with_valid_response() -> None:
 
     with patch(
         "src.services.coach_service.Path.read_text",
-        return_value="You are a culturally intelligent matchmaking assistant. {state_context} {shared_interests}",
+        return_value=(
+            "You are a culturally intelligent matchmaking assistant. "
+            "{state_context} {shared_interests}"
+        ),
     ):
         result = await get_suggestions(
             request=request,

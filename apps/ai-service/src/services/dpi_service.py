@@ -12,7 +12,6 @@ Orchestrates:
 from __future__ import annotations
 
 import hashlib
-import logging
 import os
 import re
 import xml.etree.ElementTree as ET
@@ -27,7 +26,7 @@ from src.schemas.dpi import (
     DpiRequest,
     DpiResponse,
 )
-from src.services.dpi_model import FEATURE_NAMES, predict
+from src.services.dpi_model import predict
 from src.services.llm_client import get_llm_client
 
 log = structlog.get_logger("dpi-service")

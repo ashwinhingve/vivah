@@ -7,16 +7,13 @@ edge cases (empty bio, max completeness, photo thresholds).
 
 from __future__ import annotations
 
-import pytest
-
 from src.schemas.profile_optimizer import ProfileOptimizerRequest
 from src.services.profile_optimizer_service import (
-    compute_profile_optimizer,
-    _compute_photo_score,
-    _compute_bio_score,
     _build_suggestions,
+    _compute_bio_score,
+    _compute_photo_score,
+    compute_profile_optimizer,
 )
-
 
 # ── Helper ─────────────────────────────────────────────────────────────────────
 

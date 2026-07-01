@@ -11,16 +11,12 @@ import json
 import math
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from src.services import faq_model
 from src.services.faq_training import (
-    FEATURE_NAMES,
-    generate_synthetic_data,
     train_model,
 )
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -326,7 +322,10 @@ def test_predict_response_shape(trained_paths):
 
     result = faq_model.predict(_base_features())
 
-    required_keys = {"predicted_probability", "confidence_band", "direction", "feature_contributions", "model_version"}
+    required_keys = {
+        "predicted_probability", "confidence_band", "direction",
+        "feature_contributions", "model_version",
+    }
     assert required_keys.issubset(result.keys()), f"Missing keys: {required_keys - result.keys()}"
     assert result["model_version"] == "faq-v1.0"
     assert 0.0 <= result["predicted_probability"] <= 1.0

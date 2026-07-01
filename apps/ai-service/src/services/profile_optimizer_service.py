@@ -8,7 +8,6 @@ Per agreement: "rule-based first, machine learning second."
 
 from __future__ import annotations
 
-import math
 import structlog
 
 from src.schemas.profile_optimizer import (

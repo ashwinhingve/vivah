@@ -70,7 +70,10 @@ class TestChaturmasExclusion:
         # Chaturmas covers Aug-Oct entirely in both years.
         for year in (2026, 2027):
             for month in ("08", "09", "10"):
-                hits = [m for m in cal.muhurats_for_year(year) if m.date.startswith(f"{year}-{month}")]
+                hits = [
+                    m for m in cal.muhurats_for_year(year)
+                    if m.date.startswith(f"{year}-{month}")
+                ]
                 assert hits == [], f"{year}-{month} should have no muhurats"
 
 
@@ -186,7 +189,10 @@ class TestRegionalCommunity:
         assert "Pongal" in names
 
     def test_pongal_anchored_to_makar_sankranti(self) -> None:
-        pongal = [e for e in cal.events_in_range(None, None, "FESTIVAL", region="Tamil Nadu") if e.name == "Pongal"]
+        pongal = [
+            e for e in cal.events_in_range(None, None, "FESTIVAL", region="Tamil Nadu")
+            if e.name == "Pongal"
+        ]
         assert pongal[0].event_date == "2026-01-14"
         assert pongal[0].metadata is not None
         assert pongal[0].metadata.get("astronomicalEvent") == "Makar Sankranti"
@@ -283,7 +289,8 @@ class TestConventions:
         names = {
             e.name
             for e in cal.events_in_range(
-                None, None, "FESTIVAL", conventions={"vishu_day": "unset", "onam_reckoning": "unset"}
+                None, None, "FESTIVAL",
+                conventions={"vishu_day": "unset", "onam_reckoning": "unset"},
             )
         }
         assert "Vishu" not in names

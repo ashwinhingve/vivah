@@ -21,6 +21,18 @@ Env vars:
     GEMINI_MODEL       Gemini model for coach/fii/assistant (default gemini-2.5-flash)
     GEMINI_MODEL_OPUS  Gemini model mapped from claude-opus-* (default gemini-2.5-pro)
     GEMINI_BASE_URL    optional override of the Google OpenAI-compatible endpoint
+
+Verification status:
+    Everything in this module is unit-tested with a mocked OpenAI client
+    (see tests/test_llm_client.py): adapter surface, model mapping,
+    system-message conversion, temperature pass-through, provider selection,
+    and the mock-fallback (None) behavior when a key is absent.
+
+    The ONE thing that cannot be verified without a live credential is a real
+    round-trip: set LLM_PROVIDER=gemini + a valid GEMINI_API_KEY and confirm
+    ``get_llm_client(is_async=False).messages.create(...)`` actually reaches
+    Google's OpenAI-compatible endpoint and returns text. There is no way to
+    exercise that path in CI without a paid/free live key.
 """
 
 from __future__ import annotations

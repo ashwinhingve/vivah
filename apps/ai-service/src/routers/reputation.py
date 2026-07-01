@@ -16,7 +16,6 @@ from src.deps.auth import verify_internal_key
 from src.schemas.reputation import ReputationRequest, ReputationResponse
 from src.services.reputation_service import compute_reputation
 
-
 router = APIRouter(prefix="/ai/reputation", tags=["reputation"])
 
 

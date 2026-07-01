@@ -170,5 +170,7 @@ class GunaResultResponse(BaseModel):
     remedies:              list[Remedy]
     blocking_dosha:        bool
     mangal_dosha_conflict: bool  # legacy field
-    interpretation:        Literal["Excellent match", "Good match", "Average match", "Not recommended"]
+    interpretation:        Literal[
+        "Excellent match", "Good match", "Average match", "Not recommended"
+    ]
     recommendation:        str

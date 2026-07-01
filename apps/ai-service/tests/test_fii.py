@@ -16,7 +16,6 @@ from src.schemas.fii import FiiCompatibilityRequest, FiiSignals
 from src.services.fii_service import (
     FORBIDDEN_WORDS,
     TEMPLATES,
-    WEIGHTS,
     _get_template,
     compute_compatibility,
     compute_individual_score,
@@ -164,7 +163,9 @@ async def test_compute_compatibility_returns_full_shape():
     assert 0 <= result.profile_a_score.score <= 100
     assert 0 <= result.profile_b_score.score <= 100
     assert result.delta >= 0
-    assert result.compatibility in ["Highly Aligned", "Mostly Aligned", "Worth Discussing", "Different Outlooks"]
+    assert result.compatibility in [
+        "Highly Aligned", "Mostly Aligned", "Worth Discussing", "Different Outlooks",
+    ]
     assert result.compatibility_color.startswith("#")
     assert len(result.narrative) > 10
     assert len(result.discussion_starter) > 10

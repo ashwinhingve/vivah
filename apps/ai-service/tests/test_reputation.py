@@ -21,7 +21,6 @@ from src.schemas.reputation import (
 )
 from src.services.reputation_service import compute_reputation
 
-
 INTERNAL_KEY_HEADER = {"X-Internal-Key": "dev-internal-key-change-in-prod"}
 
 

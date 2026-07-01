@@ -13,7 +13,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 DISCLAIMER: str = (
     "Reputation Score is computed from platform behavior signals over the "
     "last 30 days. It is informational only and may not reflect a user's "

@@ -19,7 +19,6 @@ from src.schemas.marriage_readiness import (
 )
 from src.services.marriage_readiness_service import compute_marriage_readiness
 
-
 router = APIRouter(prefix="/ai/marriage-readiness", tags=["marriage-readiness"])
 
 
