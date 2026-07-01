@@ -74,7 +74,7 @@ export default function Hero() {
             aria-hidden="true"
             className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-muted border-l-2 border-gold pl-3 mb-6"
           >
-            EST. 2026 · INDIA&apos;S SMARTEST MATRIMONIAL
+            {t('eyebrow')}
           </motion.p>
 
           {/* H1 */}
@@ -101,15 +101,15 @@ export default function Hero() {
           >
             <li className="flex items-center gap-1.5 text-xs text-foreground/70">
               <ShieldCheck className="w-4 h-4 text-teal flex-shrink-0" aria-hidden="true" />
-              Verified Profiles
+              {t('badgeVerified')}
             </li>
             <li className="flex items-center gap-1.5 text-xs text-foreground/70">
               <Lock className="w-4 h-4 text-teal flex-shrink-0" aria-hidden="true" />
-              Privacy First
+              {t('badgePrivacy')}
             </li>
             <li className="flex items-center gap-1.5 text-xs text-foreground/70">
               <Star className="w-4 h-4 text-gold flex-shrink-0" aria-hidden="true" />
-              4.8★ Rating
+              {t('badgeRating')}
             </li>
           </motion.ul>
 

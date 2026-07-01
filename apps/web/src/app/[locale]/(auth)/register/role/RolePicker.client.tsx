@@ -1,38 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import type { UserRole } from '@smartshaadi/types';
 import { setRoleAction } from '../../actions';
 
-const ROLES: { value: UserRole; label: string; description: string; icon: string }[] = [
-  {
-    value: 'INDIVIDUAL',
-    label: 'Individual',
-    description: 'Looking for a life partner',
-    icon: '👤',
-  },
-  {
-    value: 'FAMILY_MEMBER',
-    label: 'Family Member',
-    description: 'Searching on behalf of family',
-    icon: '👨‍👩‍👧',
-  },
-  {
-    value: 'VENDOR',
-    label: 'Vendor',
-    description: 'Photographer, caterer, decorator & more',
-    icon: '🏪',
-  },
-  {
-    value: 'EVENT_COORDINATOR',
-    label: 'Event Coordinator',
-    description: 'Managing multiple wedding events',
-    icon: '📋',
-  },
+const ROLES: { value: UserRole; icon: string }[] = [
+  { value: 'INDIVIDUAL', icon: '👤' },
+  { value: 'FAMILY_MEMBER', icon: '👨‍👩‍👧' },
+  { value: 'VENDOR', icon: '🏪' },
+  { value: 'EVENT_COORDINATOR', icon: '📋' },
 ];
 
 export default function RolePicker() {
+  const t = useTranslations('auth.role');
   const router = useRouter();
   const [selected, setSelected] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,7 +28,7 @@ export default function RolePicker() {
     const result = await setRoleAction(selected);
 
     if (!result.success) {
-      setError(result.error ?? 'Failed to set role. Please try again.');
+      setError(result.error ?? t('errors.setFailed'));
       setLoading(false);
       return;
     }
@@ -57,22 +39,22 @@ export default function RolePicker() {
   return (
     <div className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-gold/20 p-6 space-y-5">
       <div>
-        <h2
-          className="text-2xl font-semibold text-foreground font-heading"
-        >
-          I am a…
+        <h2 className="text-2xl font-semibold text-foreground font-heading">
+          {t('heading')}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">Choose how you'll use Smart Shaadi</p>
+        <p className="text-sm text-muted-foreground mt-1">{t('subtext')}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {ROLES.map((role) => {
           const isSelected = selected === role.value;
+          const label = t(`roles.${role.value}.label`);
           return (
             <button
               key={role.value}
               type="button"
               onClick={() => setSelected(role.value)}
+              aria-pressed={isSelected}
               className={[
                 'flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition-all',
                 isSelected
@@ -80,13 +62,15 @@ export default function RolePicker() {
                   : 'border-gold/40 hover:border-gold/70 bg-surface',
               ].join(' ')}
             >
-              <span className="text-2xl" role="img" aria-label={role.label}>
+              <span className="text-2xl" role="img" aria-label={label}>
                 {role.icon}
               </span>
               <span className={`text-sm font-semibold ${isSelected ? 'text-teal' : 'text-foreground'}`}>
-                {role.label}
+                {label}
               </span>
-              <span className="text-xs text-muted-foreground leading-tight">{role.description}</span>
+              <span className="text-xs text-muted-foreground leading-tight">
+                {t(`roles.${role.value}.description`)}
+              </span>
             </button>
           );
         })}
@@ -103,10 +87,10 @@ export default function RolePicker() {
         {loading ? (
           <>
             <span className="h-4 w-4 rounded-full border-2 border-surface/30 border-t-white animate-spin" />
-            Setting up your account…
+            {t('settingUp')}
           </>
         ) : (
-          'Continue'
+          t('continue')
         )}
       </button>
     </div>
