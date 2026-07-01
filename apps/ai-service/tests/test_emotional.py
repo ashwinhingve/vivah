@@ -14,16 +14,15 @@ from fastapi.testclient import TestClient
 
 from src.main import app
 from src.routers.emotional import get_pipeline
+from src.schemas.emotional import EmotionalBreakdown, EmotionalMessage
 from src.services.emotional_service import (
     compute_combined_score,
     compute_curiosity_score,
     compute_engagement_score,
     compute_enthusiasm_score,
-    compute_sentiment_score,
     determine_label,
     determine_trend,
 )
-from src.schemas.emotional import EmotionalBreakdown, EmotionalMessage
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -182,7 +181,10 @@ def test_enthusiasm_slow_replies_low_score():
 def test_engagement_increasing_length_high():
     # older msgs are short, recent are long
     older = [
-        EmotionalMessage(sender="A" if i % 2 == 0 else "B", text="ok", timestamp=f"2026-05-05T{i:02d}:00:00Z")
+        EmotionalMessage(
+            sender="A" if i % 2 == 0 else "B", text="ok",
+            timestamp=f"2026-05-05T{i:02d}:00:00Z",
+        )
         for i in range(10)
     ]
     recent = [
@@ -209,7 +211,10 @@ def test_engagement_decreasing_length_low():
         for i in range(10)
     ]
     recent = [
-        EmotionalMessage(sender="A" if i % 2 == 0 else "B", text="k", timestamp=f"2026-05-06T{i:02d}:00:00Z")
+        EmotionalMessage(
+            sender="A" if i % 2 == 0 else "B", text="k",
+            timestamp=f"2026-05-06T{i:02d}:00:00Z",
+        )
         for i in range(10)
     ]
     msgs = older + recent
@@ -220,8 +225,14 @@ def test_engagement_decreasing_length_low():
 def test_curiosity_many_questions_high():
     # > 0.4 questions per message → 90
     msgs = [
-        EmotionalMessage(sender="A", text="How are you? What do you like?", timestamp="2026-05-05T10:00:00Z"),
-        EmotionalMessage(sender="B", text="Good! What about you? Do you like hiking?", timestamp="2026-05-05T10:05:00Z"),
+        EmotionalMessage(
+            sender="A", text="How are you? What do you like?",
+            timestamp="2026-05-05T10:00:00Z",
+        ),
+        EmotionalMessage(
+            sender="B", text="Good! What about you? Do you like hiking?",
+            timestamp="2026-05-05T10:05:00Z",
+        ),
     ]
     score = compute_curiosity_score(msgs)
     assert score == 90

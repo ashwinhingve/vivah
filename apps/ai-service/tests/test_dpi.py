@@ -98,7 +98,10 @@ async def test_compute_dpi_low_risk_returns_strong_foundation_label():
 async def test_compute_dpi_medium_risk_returns_areas_to_discuss():
     """Test 2: MEDIUM level → 'Some Areas to Discuss' label."""
     req = _BASE_REQUEST.model_copy()
-    with patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.42, "MEDIUM")):
+    with patch(
+        "src.services.dpi_service.predict",
+        return_value=_make_predict_result(0.42, "MEDIUM"),
+    ):
         result = await compute_dpi(req, anthropic_client=None, use_mock=True)
     assert result.level == "MEDIUM"
     assert result.label == "Some Areas to Discuss"
@@ -211,8 +214,13 @@ async def test_llm_exception_falls_back_to_mock_narrative_silently():
     mock_anthropic.messages.create.side_effect = RuntimeError("Network error")
 
     # Use a real prompt path by patching Path.read_text
-    with patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.42, "MEDIUM")), \
-         patch("pathlib.Path.read_text", return_value="# system prompt"):
+    with (
+        patch(
+            "src.services.dpi_service.predict",
+            return_value=_make_predict_result(0.42, "MEDIUM"),
+        ),
+        patch("pathlib.Path.read_text", return_value="# system prompt"),
+    ):
         result = await compute_dpi(_BASE_REQUEST, anthropic_client=mock_anthropic, use_mock=False)
 
     assert result.narrative == MOCK_NARRATIVES["MEDIUM"]["narrative"]
@@ -227,8 +235,10 @@ async def test_xml_parsing_handles_malformed_response_gracefully():
     mock_anthropic.messages.create.return_value = _make_anthropic_response(
         "This is a totally malformed response with no XML tags at all."
     )
-    with patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.75, "HIGH")), \
-         patch("pathlib.Path.read_text", return_value="# system prompt"):
+    with (
+        patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.75, "HIGH")),
+        patch("pathlib.Path.read_text", return_value="# system prompt"),
+    ):
         result = await compute_dpi(_BASE_REQUEST, anthropic_client=mock_anthropic, use_mock=False)
     # Falls back to mock when XML parsing fails
     assert result.narrative == MOCK_NARRATIVES["HIGH"]["narrative"]
@@ -256,7 +266,9 @@ async def test_label_matches_level_via_level_labels_dict():
             return_value=_make_predict_result(score, level),
         ):
             result = await compute_dpi(_BASE_REQUEST, anthropic_client=None, use_mock=True)
-        assert result.label == expected_label, f"Expected {expected_label!r} for {level}, got {result.label!r}"
+        assert result.label == expected_label, (
+            f"Expected {expected_label!r} for {level}, got {result.label!r}"
+        )
 
 
 @pytest.mark.asyncio
@@ -269,8 +281,10 @@ async def test_forbidden_word_triggers_fallback_to_mock():
     mock_anthropic = MagicMock()
     mock_anthropic.messages.create.return_value = _make_anthropic_response(bad_xml)
 
-    with patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.75, "HIGH")), \
-         patch("pathlib.Path.read_text", return_value="# system prompt"):
+    with (
+        patch("src.services.dpi_service.predict", return_value=_make_predict_result(0.75, "HIGH")),
+        patch("pathlib.Path.read_text", return_value="# system prompt"),
+    ):
         result = await compute_dpi(_BASE_REQUEST, anthropic_client=mock_anthropic, use_mock=False)
 
     # Forbidden word "fail" should have triggered fallback

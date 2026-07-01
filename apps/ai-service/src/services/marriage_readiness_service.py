@@ -9,6 +9,7 @@ Per agreement: user-controlled, not ML.
 from __future__ import annotations
 
 import math
+
 import structlog
 
 from src.schemas.marriage_readiness import (
@@ -77,9 +78,15 @@ def _build_next_actions(
     Return up to 3 action strings for the lowest-scoring dimensions.
     """
     scored: list[tuple[float, str]] = [
-        (communication_depth, "Have more meaningful conversations to demonstrate communication depth"),
+        (
+            communication_depth,
+            "Have more meaningful conversations to demonstrate communication depth",
+        ),
         (completeness_frac, "Complete remaining profile sections — every section adds clarity"),
-        (goal_clarity, "Set clear partner preferences (age, religion, location, education, lifestyle)"),
+        (
+            goal_clarity,
+            "Set clear partner preferences (age, religion, location, education, lifestyle)",
+        ),
     ]
 
     # Only include actions for dimensions that are below threshold

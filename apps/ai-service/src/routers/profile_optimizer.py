@@ -19,7 +19,6 @@ from src.schemas.profile_optimizer import (
 )
 from src.services.profile_optimizer_service import compute_profile_optimizer
 
-
 router = APIRouter(prefix="/ai/profile-optimizer", tags=["profile-optimizer"])
 
 

@@ -308,7 +308,10 @@ FACTOR_META: dict[str, dict[str, str]] = {
         "name_hi": "तारा",
         "max": "3",
         "domain": "destiny",
-        "meaning": "Birth-star auspiciousness counted from each partner's Nakshatra. Health & destiny.",
+        "meaning": (
+            "Birth-star auspiciousness counted from each partner's Nakshatra. "
+            "Health & destiny."
+        ),
     },
     "yoni": {
         "name": "Yoni",
@@ -554,7 +557,9 @@ def analyse_manglik(boy: ManglikStatus, girl: ManglikStatus) -> dict[str, Any]:
     }
 
 
-def analyse_nadi_dosha(boy_nak: str, girl_nak: str, boy_rashi: str, girl_rashi: str) -> dict[str, Any]:
+def analyse_nadi_dosha(
+    boy_nak: str, girl_nak: str, boy_rashi: str, girl_rashi: str
+) -> dict[str, Any]:
     """
     Nadi Dosha analysis with cancellation rules.
     Cancellations (parihara):
@@ -573,7 +578,8 @@ def analyse_nadi_dosha(boy_nak: str, girl_nak: str, boy_rashi: str, girl_rashi: 
     if boy_nadi != girl_nadi:
         return {
             "same_nadi": False, "dosha": False, "cancelled": False,
-            "severity": "none", "boy_nadi": NADI_LABEL[boy_nadi], "girl_nadi": NADI_LABEL[girl_nadi],
+            "severity": "none",
+            "boy_nadi": NADI_LABEL[boy_nadi], "girl_nadi": NADI_LABEL[girl_nadi],
             "reason": "Different Nadis — no Dosha. Health & progeny compatibility good.",
         }
 
@@ -633,7 +639,10 @@ def analyse_bhakoot_dosha(boy_rashi: str, girl_rashi: str) -> dict[str, Any]:
             rel_b = _planet_relation(boy_lord, girl_lord)
             rel_g = _planet_relation(girl_lord, boy_lord)
             if rel_b == "friend" and rel_g == "friend":
-                cancellations.append(f"Rashi lords ({boy_lord} & {girl_lord}) are mutual friends — Dosha cancelled.")
+                cancellations.append(
+                    f"Rashi lords ({boy_lord} & {girl_lord}) are mutual friends — "
+                    "Dosha cancelled."
+                )
 
     cancelled = len(cancellations) > 0
     return {
@@ -664,7 +673,10 @@ def analyse_rajju_dosha(boy_nak: str, girl_nak: str) -> dict[str, Any]:
 def analyse_vedha_dosha(boy_nak: str, girl_nak: str) -> dict[str, Any]:
     """Vedha Dosha — Nakshatra obstruction pair."""
     if not boy_nak or not girl_nak:
-        return {"dosha": False, "severity": "none", "reason": "Nakshatra missing — cannot evaluate."}
+        return {
+            "dosha": False, "severity": "none",
+            "reason": "Nakshatra missing — cannot evaluate.",
+        }
     pair = frozenset({boy_nak, girl_nak})
     if pair in VEDHA_PAIR_SET:
         return {
@@ -672,7 +684,10 @@ def analyse_vedha_dosha(boy_nak: str, girl_nak: str) -> dict[str, Any]:
             "reason": f"{boy_nak} and {girl_nak} are an obstructive (Vedha) Nakshatra pair — "
                       f"may cause friction in matters of timing and luck.",
         }
-    return {"dosha": False, "severity": "none", "reason": "No Vedha Dosha — Nakshatras do not obstruct each other."}
+    return {
+        "dosha": False, "severity": "none",
+        "reason": "No Vedha Dosha — Nakshatras do not obstruct each other.",
+    }
 
 
 def analyse_gana_cancellation(boy_nak: str, girl_nak: str) -> dict[str, Any]:
@@ -836,13 +851,17 @@ def compute_insights(factors: dict[str, dict[str, Any]],
 REMEDY_LIBRARY: dict[str, dict[str, str]] = {
     "manglik": {
         "name": "Mangal Shanti Puja",
-        "description": "Recite Hanuman Chalisa daily, fast on Tuesdays, donate red lentils & jaggery, "
-                       "perform Kumbh Vivah or Vishnu Vivah before marriage.",
+        "description": (
+            "Recite Hanuman Chalisa daily, fast on Tuesdays, donate red lentils "
+            "& jaggery, perform Kumbh Vivah or Vishnu Vivah before marriage."
+        ),
     },
     "nadi": {
         "name": "Nadi Nivaran Puja",
-        "description": "Perform Mahamrityunjaya Jaap (108 times), donate gold or cow, and consult an "
-                       "astrologer for personalised parihara based on birth pada.",
+        "description": (
+            "Perform Mahamrityunjaya Jaap (108 times), donate gold or cow, and "
+            "consult an astrologer for personalised parihara based on birth pada."
+        ),
     },
     "bhakoot": {
         "name": "Bhakoot Shanti",

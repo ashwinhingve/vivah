@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "httpx>=0.27.0",
     "anthropic>=0.37.0",
+    "openai>=1.40.0",
     "redis>=5.0.0",
     "sentry-sdk[fastapi]>=2.18.0",
     "structlog>=24.4.0",
@@ -37,7 +38,19 @@ build-backend = "hatchling.build"
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# App entrypoint deliberately runs load_dotenv() + structlog/Sentry init before
+# importing routers (which read env at import time); the load order is required.
+"src/main.py" = ["E402"]
+
+[tool.ruff.lint.pep8-naming]
+# `X` (and X_train / X_rows / X1 / X2) are the sklearn feature-matrix convention
+# in the ML training/model code — uppercase is intentional, not a naming smell.
+extend-ignore-names = ["X", "X_*", "X1", "X2"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

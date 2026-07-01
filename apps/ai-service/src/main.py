@@ -15,8 +15,8 @@ import os
 import sys
 from datetime import datetime, timezone
 
-
 from dotenv import load_dotenv
+
 load_dotenv()
 import structlog
 from fastapi import FastAPI, HTTPException, Request
@@ -60,20 +60,20 @@ else:
     log.info("sentry_skipped", reason="SENTRY_DSN unset")
 
 # ── App ──────────────────────────────────────────────────────────────────────
-from src.routers.horoscope import router as horoscope_router
+from src.routers._p3_register import register_p3_routers
+from src.routers.calendar import router as calendar_router
 from src.routers.coach import router as coach_router
-from src.routers.emotional import router as emotional_router
 from src.routers.dpi import router as dpi_router
-from src.routers.fii import router as fii_router
+from src.routers.emotional import router as emotional_router
 from src.routers.faq import router as faq_router
+from src.routers.fii import router as fii_router
+from src.routers.horoscope import router as horoscope_router
+from src.routers.marriage_readiness import router as marriage_readiness_router
+from src.routers.pricing import router as pricing_router
+from src.routers.profile_optimizer import router as profile_optimizer_router
+from src.routers.reputation import router as reputation_router
 from src.routers.stay import router as stay_router
 from src.routers.translate import router as translate_router
-from src.routers.reputation import router as reputation_router
-from src.routers.profile_optimizer import router as profile_optimizer_router
-from src.routers.marriage_readiness import router as marriage_readiness_router
-from src.routers.calendar import router as calendar_router
-from src.routers.pricing import router as pricing_router
-from src.routers._p3_register import register_p3_routers
 
 app = FastAPI(
     title="VivahOS AI Service",
@@ -205,6 +205,7 @@ def health() -> dict[str, object]:
             "status": status,
             "phase": 3,
             "version": "3.0.0",
+            "llm_provider": os.getenv("LLM_PROVIDER", "anthropic"),
             "models": {
                 "guna_milan": "deterministic",
                 "coach": "llm_sonnet",

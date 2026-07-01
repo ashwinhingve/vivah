@@ -9,7 +9,6 @@ Falls back to MOCK_SUGGESTIONS on any error — never fails the user.
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 from datetime import datetime, timezone
@@ -19,6 +18,7 @@ from typing import Literal
 import structlog
 
 from src.schemas.coach import CoachRequest, CoachResponse, CoachSuggestion, Message, ProfileSnapshot
+from src.services.llm_client import get_llm_client
 
 log = structlog.get_logger("coach-service")
 
@@ -47,51 +47,20 @@ def _get_redis():
 
 
 def _get_anthropic():
-    """Return a lazy-initialized Anthropic client.
+    """Return a lazy-initialized LLM client exposing the Anthropic surface.
 
-    P1-9 (docs/PHASE-1-4-AUDIT.md): previously the client was constructed
-    with ``api_key=os.getenv("ANTHROPIC_API_KEY", "")`` — an empty string
-    is accepted by the SDK and only fails at first call time, producing
-    an opaque 401 from Anthropic instead of an actionable boot-time
-    error. Now: explicit pre-check. Missing key in real mode returns
-    None so the caller falls back to mock suggestions, and an actionable
-    error is logged once.
+    Delegates to get_llm_client (src/services/llm_client.py), which selects
+    Anthropic (default) or Gemini via the LLM_PROVIDER env. Returns None when
+    the provider key is missing or init fails — an actionable error is logged
+    there once, and callers fall back to mock suggestions (P1-9).
     """
     global _anthropic_client  # noqa: PLW0603
     if _anthropic_client is not None:
         return _anthropic_client
-
-    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if not anthropic_api_key:
-        use_mock = os.getenv("USE_MOCK_SERVICES", "").lower() == "true"
-        if use_mock:
-            log.info("anthropic_disabled_mock_mode")
-        else:
-            log.error(
-                "anthropic_api_key_missing",
-                hint="set ANTHROPIC_API_KEY in Railway env; coach falls back to mock suggestions",
-            )
-        return None
-
-    try:
-        import anthropic
-
-        helicone_api_key = os.getenv("HELICONE_API_KEY", "").strip()
-        if helicone_api_key:
-            # Route through Helicone proxy for observability
-            _anthropic_client = anthropic.Anthropic(
-                api_key=anthropic_api_key,
-                base_url="https://anthropic.helicone.ai",
-                default_headers={
-                    "Helicone-Auth": f"Bearer {helicone_api_key}",
-                },
-            )
-        else:
-            _anthropic_client = anthropic.Anthropic(api_key=anthropic_api_key)
-        return _anthropic_client
-    except Exception as exc:  # noqa: BLE001
-        log.warning("anthropic_init_failed", error=str(exc))
-        return None
+    # Provider chosen by LLM_PROVIDER env (anthropic default | gemini). The
+    # returned client exposes the Anthropic surface either way.
+    _anthropic_client = get_llm_client(is_async=False)
+    return _anthropic_client
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +122,9 @@ def detect_conversation_state(
         if len(recent) >= 2:
             gaps: list[float] = []
             for i in range(1, len(recent)):
-                gap = (parse_ts(recent[i].timestamp) - parse_ts(recent[i - 1].timestamp)).total_seconds() / 3600
+                gap = (
+                    parse_ts(recent[i].timestamp) - parse_ts(recent[i - 1].timestamp)
+                ).total_seconds() / 3600
                 gaps.append(abs(gap))
             avg_gap = sum(gaps) / len(gaps) if gaps else 0
             if avg_gap > 24:
@@ -171,8 +142,16 @@ def extract_shared_interests(
 
     Falls back to ["general life goals", "family values"] if no overlap.
     """
-    set_a = {item.lower().strip() for item in (profile_a.interests + profile_a.hobbies) if item.strip()}
-    set_b = {item.lower().strip() for item in (profile_b.interests + profile_b.hobbies) if item.strip()}
+    set_a = {
+        item.lower().strip()
+        for item in (profile_a.interests + profile_a.hobbies)
+        if item.strip()
+    }
+    set_b = {
+        item.lower().strip()
+        for item in (profile_b.interests + profile_b.hobbies)
+        if item.strip()
+    }
 
     shared = sorted(set_a & set_b)[:5]
     if not shared:

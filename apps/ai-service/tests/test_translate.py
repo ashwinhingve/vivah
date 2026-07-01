@@ -15,7 +15,6 @@ from src.main import app
 from src.schemas.translate import TranslateRequest, TranslateResponse
 from src.services import translate_service
 
-
 HEADERS = {"X-Internal-Key": "dev-internal-key-change-in-prod"}
 
 

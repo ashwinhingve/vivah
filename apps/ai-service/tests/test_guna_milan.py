@@ -4,7 +4,6 @@ Tests for Guna Milan (Ashtakoot) compatibility calculator.
 Run: pytest apps/ai-service/tests/test_guna_milan.py -v
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app
@@ -17,7 +16,6 @@ from src.services.guna_milan import (
     RASHI_LORD,
     RASHI_VARNA,
     RASHI_VASHYA,
-    GunaMilanCalculator,
     calc_bhakoot,
     calc_gana,
     calc_graha_maitri,

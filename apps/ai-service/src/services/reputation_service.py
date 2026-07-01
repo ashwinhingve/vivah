@@ -16,7 +16,6 @@ from src.schemas.reputation import (
 )
 from src.services.reputation_model import FEATURE_NAMES, predict
 
-
 log = structlog.get_logger("ai-service.reputation")
 
 

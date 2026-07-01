@@ -28,6 +28,7 @@ from src.schemas.calendar import (
     ChaturmasWindow,
     MuhuratEvent,
 )
+
 # Reuse the authoritative nakshatra name list — do not duplicate it.
 from src.services.guna_milan import NAKSHATRAS
 
@@ -114,7 +115,9 @@ def _promoted_regional(conventions: Dict[str, str]) -> List[Dict[str, object]]:
     return out
 
 
-def muhurats_for_year(year: int, conventions: Optional[Dict[str, str]] = None) -> List[MuhuratEvent]:
+def muhurats_for_year(
+    year: int, conventions: Optional[Dict[str, str]] = None
+) -> List[MuhuratEvent]:
     """All vivah muhurat dates in `year`, ascending and deterministic.
 
     `conventions` overrides the dataset defaults (partial dict; tests use this to

@@ -22,6 +22,7 @@ from typing import Any
 import structlog
 
 from src.schemas.assistant import AssistantChatRequest, RagContext
+from src.services.llm_client import get_llm_client, llm_api_key_present
 
 log = structlog.get_logger("assistant-service")
 
@@ -34,24 +35,10 @@ def _get_async_anthropic():
     global _anthropic_client  # noqa: PLW0603
     if _anthropic_client is not None:
         return _anthropic_client
-    try:
-        import anthropic
-
-        helicone_api_key = os.getenv("HELICONE_API_KEY", "")
-        if helicone_api_key:
-            _anthropic_client = anthropic.AsyncAnthropic(
-                api_key=os.getenv("ANTHROPIC_API_KEY", ""),
-                base_url="https://anthropic.helicone.ai",
-                default_headers={"Helicone-Auth": f"Bearer {helicone_api_key}"},
-            )
-        else:
-            _anthropic_client = anthropic.AsyncAnthropic(
-                api_key=os.getenv("ANTHROPIC_API_KEY", ""),
-            )
-        return _anthropic_client
-    except Exception as exc:  # noqa: BLE001
-        log.warning("anthropic_init_failed", error=str(exc))
-        return None
+    # Provider chosen by LLM_PROVIDER env (anthropic default | gemini); the
+    # returned async client exposes the Anthropic streaming surface either way.
+    _anthropic_client = get_llm_client(is_async=True)
+    return _anthropic_client
 
 
 def _get_mongo():
@@ -238,7 +225,7 @@ async def stream_chat(
         use_mock = os.getenv("USE_MOCK_SERVICES", "false").lower() == "true"
 
     # ── Mock mode ─────────────────────────────────────────────────────────
-    if use_mock or not os.getenv("ANTHROPIC_API_KEY"):
+    if use_mock or not llm_api_key_present():
         async for line in _stream_mock(conversation_id, request.context):
             yield line
         await persist_turn(
