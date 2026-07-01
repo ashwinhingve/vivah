@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Smart Shaadi">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7B2D42"/>
+      <stop offset="1" stop-color="#5A1F30"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="60" y="60" width="1080" height="510" fill="none" stroke="#C5A47E" stroke-width="2" rx="20"/>
+  <text x="600" y="300" fill="#FEFAF6" font-family="Playfair Display, Georgia, serif" font-size="92" font-weight="700" text-anchor="middle">Smart Shaadi</text>
+  <text x="600" y="372" fill="#C5A47E" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="34" font-weight="500" text-anchor="middle" letter-spacing="1">Premium Indian Matrimony</text>
+  <text x="600" y="440" fill="#E9D9C4" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="26" text-anchor="middle">KYC-verified profiles · Guna Milan compatibility</text>
+</svg>

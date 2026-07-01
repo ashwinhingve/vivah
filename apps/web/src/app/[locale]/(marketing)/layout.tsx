@@ -20,12 +20,14 @@ export const metadata: Metadata = {
   },
 };
 
+const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://smartshaadi.co.in';
+
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Smart Shaadi',
   description: "India's AI-powered matrimonial platform",
-  url: 'https://smartshaadi.co.in',
+  url: SITE_URL,
   foundingDate: '2026',
   sameAs: [],
 };
@@ -34,7 +36,7 @@ const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Smart Shaadi',
-  url: 'https://smartshaadi.co.in',
+  url: SITE_URL,
 };
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {

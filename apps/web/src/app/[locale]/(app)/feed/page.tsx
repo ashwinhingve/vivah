@@ -66,7 +66,8 @@ interface PageProps {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'feed.metadata' });
-  return { title: t('title') };
+  // Logged-in surface — no public value, keep out of the index.
+  return { title: t('title'), robots: { index: false, follow: false } };
 }
 
 export default async function MatchFeedPage({ searchParams }: PageProps) {

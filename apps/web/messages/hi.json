@@ -56,7 +56,7 @@
   "auth": {
     "login": {
       "metadata": {
-        "title": "साइन इन — Smart Shaadi"
+        "title": "साइन इन"
       },
       "badge": "साइन इन",
       "heading": "फिर से स्वागत है",
@@ -74,7 +74,7 @@
     },
     "register": {
       "metadata": {
-        "title": "अकाउंट बनाएं — Smart Shaadi"
+        "title": "अकाउंट बनाएं"
       },
       "badge": "जुड़ें",
       "heading": "अकाउंट बनाएं",
@@ -154,8 +154,8 @@
   "marketing": {
     "landing": {
       "metadata": {
-        "title": "Smart Shaadi — भारत का सबसे स्मार्ट मैट्रिमोनियल प्लेटफ़ॉर्म",
-        "description": "AI-संचालित मैचमेकिंग, गुण मिलान और संपूर्ण विवाह योजना सूट के साथ अपना परफ़ेक्ट मैच पाएं। वेरिफाइड प्रोफ़ाइल। प्राइवेसी पहले।"
+        "title": "अपना जीवनसाथी खोजें",
+        "description": "Smart Shaadi पर अपना जीवनसाथी खोजें — KYC-सत्यापित प्रोफ़ाइल, वैदिक गुण मिलान अनुकूलता, और भारतीय परिवारों का भरोसेमंद प्रीमियम, प्राइवेसी-फर्स्ट मैचमेकिंग अनुभव।"
       }
     },
     "hero": {
@@ -299,7 +299,7 @@
       "hide": "छिपाएँ"
     },
     "metadata": {
-      "title": "मैच खोजें — Smart Shaadi"
+      "title": "मैच खोजें"
     },
     "heading": "मैच खोजें",
     "subtitleCount": "{total} अनुकूल प्रोफ़ाइल · प्रतिदिन ताज़ा",
@@ -346,7 +346,8 @@
   },
   "profileView": {
     "metadata": {
-      "title": "प्रोफ़ाइल — Smart Shaadi"
+      "title": "प्रोफ़ाइल",
+      "descriptionSuffix": "Smart Shaadi पर सत्यापित प्रोफ़ाइल।"
     },
     "heading": "प्रोफ़ाइल"
   },

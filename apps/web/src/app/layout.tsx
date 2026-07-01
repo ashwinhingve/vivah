@@ -23,7 +23,12 @@ const notoDevanagari = Noto_Serif_Devanagari({
   preload: false,
 });
 
+// Single source of truth for the public origin — reused by sitemap.ts + robots.ts.
+const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://smartshaadi.co.in';
+
 export const metadata: Metadata = {
+  // Makes every relative OG/Twitter image + canonical resolve to an absolute URL.
+  metadataBase: new URL(SITE_URL),
   title: {
     default:  "Smart Shaadi — India's Smart Marriage Ecosystem",
     template: '%s | Smart Shaadi',
@@ -32,7 +37,18 @@ export const metadata: Metadata = {
     'Find your life partner with Smart Shaadi — AI-powered matchmaking, Guna Milan compatibility, and complete wedding planning in one platform.',
   keywords: ['matrimonial', 'shaadi', 'marriage', 'Indian wedding', 'matchmaking'],
   authors:  [{ name: 'Smart Shaadi' }],
-  robots:   { index: false, follow: false },
+  // Indexable by default; private routes (profile/feed/auth/dashboard) re-apply
+  // `robots: { index: false }` in their own generateMetadata.
+  robots:   { index: true, follow: true },
+  openGraph: {
+    siteName: 'Smart Shaadi',
+    type: 'website',
+    images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'Smart Shaadi' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og-default.svg'],
+  },
   icons: {
     icon: '/favicon.ico',
   },

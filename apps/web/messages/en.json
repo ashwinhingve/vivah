@@ -56,7 +56,7 @@
   "auth": {
     "login": {
       "metadata": {
-        "title": "Sign In — Smart Shaadi"
+        "title": "Sign In"
       },
       "badge": "Sign in",
       "heading": "Welcome back",
@@ -74,7 +74,7 @@
     },
     "register": {
       "metadata": {
-        "title": "Create Account — Smart Shaadi"
+        "title": "Create Account"
       },
       "badge": "Join us",
       "heading": "Create account",
@@ -154,8 +154,8 @@
   "marketing": {
     "landing": {
       "metadata": {
-        "title": "Smart Shaadi — India's Smartest Matrimonial Platform",
-        "description": "Find your perfect match with AI-powered matchmaking, Guna Milan compatibility, and a complete wedding planning suite. Verified profiles. Privacy first."
+        "title": "Find Your Life Partner",
+        "description": "Find your life partner on Smart Shaadi — KYC-verified profiles, Vedic Guna Milan compatibility, and a premium, privacy-first matchmaking experience trusted by Indian families."
       }
     },
     "hero": {
@@ -299,7 +299,7 @@
       "hide": "Hide"
     },
     "metadata": {
-      "title": "Discover Matches — Smart Shaadi"
+      "title": "Discover Matches"
     },
     "heading": "Discover Matches",
     "subtitleCount": "{total} compatible profiles · Refreshed daily",
@@ -346,7 +346,8 @@
   },
   "profileView": {
     "metadata": {
-      "title": "Profile — Smart Shaadi"
+      "title": "Profile",
+      "descriptionSuffix": "Verified profile on Smart Shaadi."
     },
     "heading": "Profile"
   },

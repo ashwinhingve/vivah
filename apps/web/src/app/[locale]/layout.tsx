@@ -8,6 +8,12 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// NOTE: og:locale is NOT set here. Next.js replaces (not deep-merges) the
+// `openGraph` object down the tree, so an openGraph set on this layout would
+// both wipe the root layout's default og AND be wiped by any page that sets its
+// own og. Instead, `openGraph.locale` is set directly on the pages that build a
+// full og (landing, profile).
+
 export default async function LocaleLayout({
   children,
   params,

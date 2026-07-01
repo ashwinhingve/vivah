@@ -16,7 +16,34 @@ const isDemoMode = process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'marketing.landing.metadata' });
-  return { title: t('title'), description: t('description') };
+  const title = t('title');
+  const description = t('description');
+  const path = locale === 'hi' ? '/hi' : '/';
+  return {
+    title,
+    description,
+    // The one public, indexable entry point.
+    robots: { index: true, follow: true },
+    alternates: {
+      canonical: path,
+      languages: { 'en-IN': '/', 'hi-IN': '/hi' },
+    },
+    openGraph: {
+      title,
+      description,
+      url: path,
+      type: 'website',
+      siteName: 'Smart Shaadi',
+      locale: locale === 'hi' ? 'hi_IN' : 'en_IN',
+      images: ['/og-default.svg'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-default.svg'],
+    },
+  };
 }
 
 export default function LandingPage() {

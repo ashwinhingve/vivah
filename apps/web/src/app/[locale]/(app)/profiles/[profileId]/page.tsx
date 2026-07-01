@@ -215,10 +215,52 @@ interface Props {
   params: Promise<{ profileId: string }>;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; profileId: string }>;
+}): Promise<Metadata> {
+  const { locale, profileId } = await params;
   const t = await getTranslations({ locale, namespace: 'profileView.metadata' });
-  return { title: t('title') };
+
+  // Personal matrimonial data — NEVER indexable. Photos are presigned R2 URLs
+  // that expire, so OG always uses the static brand image, never the photo.
+  const base: Metadata = {
+    robots: { index: false, follow: false },
+    alternates: { canonical: `/profiles/${profileId}` },
+  };
+
+  // Reuses the page's cached getProfile fetch (revalidate: 60) — no extra round-trip.
+  const profile = await getProfile(profileId);
+  if (!profile) {
+    return { ...base, title: t('title') };
+  }
+
+  const name = profile.personal?.fullName ?? profile.name ?? t('title');
+  const age = profile.personal?.dob ? calculateAge(profile.personal.dob) : null;
+  const city = profile.location
+    ? [profile.location.city, profile.location.state].filter(Boolean).join(', ')
+    : '';
+  const titleCore = [name, age != null ? String(age) : null].filter(Boolean).join(', ');
+  const title = city ? `${titleCore} — ${city}` : titleCore;
+
+  const descParts = [profile.profession?.occupation, profile.education?.degree]
+    .filter(Boolean)
+    .join(', ');
+  const description = descParts ? `${descParts}. ${t('descriptionSuffix')}` : t('descriptionSuffix');
+
+  return {
+    ...base,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'Smart Shaadi',
+      locale: locale === 'hi' ? 'hi_IN' : 'en_IN',
+      images: ['/og-default.svg'],
+    },
+  };
 }
 
 export default async function ProfileViewPage({ params }: Props) {
