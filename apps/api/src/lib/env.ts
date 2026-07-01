@@ -32,6 +32,12 @@ export const envSchema = z.object({
   // Lets us flip photos to real R2 in production without dropping the global mock flag.
   R2_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // Video (Daily.co) live override — escape-early like R2_LIVE. When 'true',
+  // create REAL Daily.co rooms even if USE_MOCK_SERVICES=true, so video calls
+  // go live while Razorpay/MSG91 stay mocked. Requires a real DAILY_CO_API_KEY.
+  // shouldUseMockVideo = USE_MOCK_SERVICES && !VIDEO_LIVE.
+  VIDEO_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // KYC live override — INVERTED semantics vs MONGO_LIVE/R2_LIVE. KYC (DigiLocker/
   // Aadhaar/PAN/bank/criminal/faceMatch/liveness) stays MOCKED unless KYC_LIVE='true'.
   // This lets us flip USE_MOCK_SERVICES=false at payment-launch (real Razorpay + MSG91)
@@ -79,6 +85,12 @@ export const envSchema = z.object({
   CLOUDFLARE_R2_ACCESS_KEY: z.string().default(''),
   CLOUDFLARE_R2_SECRET_KEY: z.string().default(''),
   CLOUDFLARE_R2_BUCKET:     z.string().default('smart-shaadi-dev'),
+  // S3-compatible endpoint. When set, used verbatim; otherwise derived from
+  // the account id (<account>.r2.cloudflarestorage.com).
+  CLOUDFLARE_R2_ENDPOINT:   z.string().default(''),
+  // Public base URL for serving objects (documentation/serving — presigned GETs
+  // remain the default read path for private photos).
+  CLOUDFLARE_R2_PUBLIC_URL: z.string().default(''),
 
   AWS_REKOGNITION_REGION: z.string().default('ap-south-1'),
 
@@ -214,6 +226,26 @@ export const envSchema = z.object({
       message: 'MOCK_OTP_VALUE must be set when USE_MOCK_SERVICES=true (generate with `openssl rand -hex 4`; no default — the old 123456 default was a backdoor).',
     });
   }
+}).superRefine((data, ctx) => {
+  // Per-service LIVE overrides (R2_LIVE / VIDEO_LIVE) make REAL external calls
+  // while USE_MOCK_SERVICES is still true — so the block above (which only checks
+  // creds when the master toggle is OFF) never sees them. Guard each live-escape's
+  // credentials here so flipping the flag without creds fails at boot, not at
+  // runtime with a 401/403.
+  if (data.R2_LIVE) {
+    for (const key of ['CLOUDFLARE_R2_ACCOUNT_ID', 'CLOUDFLARE_R2_ACCESS_KEY', 'CLOUDFLARE_R2_SECRET_KEY', 'CLOUDFLARE_R2_BUCKET'] as const) {
+      if (!data[key]) {
+        ctx.addIssue({ code: 'custom', path: [key], message: `${key} must be set when R2_LIVE=true` });
+      }
+    }
+  }
+  if (data.VIDEO_LIVE && (!data.DAILY_CO_API_KEY || data.DAILY_CO_API_KEY === 'mock-daily-key')) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['DAILY_CO_API_KEY'],
+      message: 'DAILY_CO_API_KEY must be set to a real key when VIDEO_LIVE=true',
+    });
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -247,12 +279,14 @@ if (env.USE_MOCK_SERVICES) {
  * here is the demo-week class of bug — writes live, reads mock). Pure + exported
  * so flagParity.test.ts can assert the full truth table without env gymnastics.
  *
- * - shouldUseMockMongo: USE_MOCK_SERVICES=true AND MONGO_LIVE not set
- * - shouldUseMockR2:    USE_MOCK_SERVICES=true AND R2_LIVE not set
- * (MONGO_LIVE / R2_LIVE let a backend go real while the master toggle stays on.)
+ * - shouldUseMockMongo:  USE_MOCK_SERVICES=true AND MONGO_LIVE not set
+ * - shouldUseMockR2:     USE_MOCK_SERVICES=true AND R2_LIVE not set
+ * - shouldUseMockVideo:  USE_MOCK_SERVICES=true AND VIDEO_LIVE not set
+ * (MONGO_LIVE / R2_LIVE / VIDEO_LIVE let a backend go real while the master
+ *  toggle stays on — they escape to live EARLY.)
  *
  * - shouldUseMockKyc: USE_MOCK_SERVICES=true OR KYC_LIVE not set — INVERTED logic.
- *   Unlike the two gates above (which escape to live EARLY), KYC_LIVE keeps KYC
+ *   Unlike the gates above (which escape to live EARLY), KYC_LIVE keeps KYC
  *   MOCKED even after the master toggle flips off, so DigiLocker stays stubbed
  *   until its creds land. Real KYC happens only when KYC_LIVE=true AND
  *   USE_MOCK_SERVICES=false.
@@ -262,11 +296,18 @@ export function deriveMockFlags(
   mongoLive: boolean,
   r2Live: boolean,
   kycLive = false,
-): { shouldUseMockMongo: boolean; shouldUseMockR2: boolean; shouldUseMockKyc: boolean } {
+  videoLive = false,
+): {
+  shouldUseMockMongo: boolean;
+  shouldUseMockR2: boolean;
+  shouldUseMockKyc: boolean;
+  shouldUseMockVideo: boolean;
+} {
   return {
     shouldUseMockMongo: useMockServices && !mongoLive,
     shouldUseMockR2:    useMockServices && !r2Live,
     shouldUseMockKyc:   useMockServices || !kycLive,
+    shouldUseMockVideo: useMockServices && !videoLive,
   };
 }
 
@@ -292,3 +333,11 @@ export const shouldUseMockR2 = deriveMockFlags(
 export const shouldUseMockKyc = deriveMockFlags(
   env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE,
 ).shouldUseMockKyc;
+
+/**
+ * Video (Daily.co) mock gate. Mirrors shouldUseMockR2 — mock unless VIDEO_LIVE=true
+ * escapes the master toggle. Real Daily.co rooms only when NOT mocked.
+ */
+export const shouldUseMockVideo = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE,
+).shouldUseMockVideo;

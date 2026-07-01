@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SWAP FLAG: Set USE_MOCK_SERVICES=false once Daily.co API key is obtained
+// SWAP FLAG: Set VIDEO_LIVE=true (with a real DAILY_CO_API_KEY) to create real
+// Daily.co rooms — this escapes USE_MOCK_SERVICES like R2_LIVE, so video can go
+// live while Razorpay/MSG91 stay mocked. Gate = shouldUseMockVideo.
 // Real: POST https://api.daily.co/v1/rooms with Authorization: Bearer {key}
 // ─────────────────────────────────────────────────────────────────────────────
-import { env } from './env.js';
-
-const USE_MOCK = env.USE_MOCK_SERVICES;
+import { env, shouldUseMockVideo } from './env.js';
 
 export interface DailyRoom {
   id:        string;
@@ -19,7 +19,7 @@ export async function createRoom(
   name: string,
   expiryMinutes = 60,
 ): Promise<DailyRoom> {
-  if (USE_MOCK) {
+  if (shouldUseMockVideo) {
     const mockName = `mock-room-${name}-${Date.now()}`;
     return {
       id:        `mock_${Date.now()}`,
@@ -50,7 +50,7 @@ export async function createRoom(
 }
 
 export async function deleteRoom(roomName: string): Promise<void> {
-  if (USE_MOCK) return;
+  if (shouldUseMockVideo) return;
   await fetch(`https://api.daily.co/v1/rooms/${roomName}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${env.DAILY_CO_API_KEY}` },
@@ -58,7 +58,7 @@ export async function deleteRoom(roomName: string): Promise<void> {
 }
 
 export async function getRoom(roomName: string): Promise<DailyRoom | null> {
-  if (USE_MOCK) return null;
+  if (shouldUseMockVideo) return null;
   const res = await fetch(`https://api.daily.co/v1/rooms/${roomName}`, {
     headers: { Authorization: `Bearer ${env.DAILY_CO_API_KEY}` },
   });
@@ -74,7 +74,7 @@ export interface MeetingTokenInput {
 }
 
 export async function createMeetingToken(input: MeetingTokenInput): Promise<string> {
-  if (USE_MOCK) return `mock-token-${input.roomName}`;
+  if (shouldUseMockVideo) return `mock-token-${input.roomName}`;
   const res = await fetch('https://api.daily.co/v1/meeting-tokens', {
     method:  'POST',
     headers: {

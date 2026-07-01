@@ -6,7 +6,9 @@ import { env, shouldUseMockR2 } from '../lib/env.js';
 
 const r2 = new S3Client({
   region: 'auto',
-  endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  // Prefer the explicit endpoint (matches Railway config); fall back to the
+  // account-derived host for dev/test where only the account id is set.
+  endpoint: env.CLOUDFLARE_R2_ENDPOINT || `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   // Cloudflare R2 does not provision SSL certs for bucket subdomains; the
   // default virtual-hosted style produces `<bucket>.<account>.r2.cloudflarestorage.com`
   // which fails with ERR_SSL_VERSION_OR_CIPHER_MISMATCH in the browser.
