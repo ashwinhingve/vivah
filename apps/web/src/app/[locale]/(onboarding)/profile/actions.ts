@@ -381,6 +381,53 @@ export async function updatePreferences(_prev: unknown, formData: FormData): Pro
   return await redirect('/dashboard');
 }
 
+const PERSONALITY_AXES = [
+  'introvertExtrovert', 'traditionalModern', 'plannerSpontaneous',
+  'religiousSecular', 'ambitiousBalanced', 'familyIndependent',
+] as const;
+
+/**
+ * FormData-based personality save — mirrors updateLifestyle/updatePreferences so
+ * the page can use the shared useActionState + OnboardingNav pattern.
+ * Reads six 1–7 slider values from FormData and posts them to the API.
+ */
+export async function updatePersonality(_prev: unknown, formData: FormData): Promise<{ error?: string; ok?: boolean } | void> {
+  const token = await getAuthToken();
+  if (!token) return { error: 'Not authenticated' };
+
+  const payload: Record<string, number> = {};
+  for (const axis of PERSONALITY_AXES) {
+    const raw = formData.get(axis);
+    const n = Number(raw);
+    if (!Number.isInteger(n) || n < 1 || n > 7) {
+      return { error: 'Please set every slider between 1 and 7.' };
+    }
+    payload[axis] = n;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/v1/profiles/me/personality`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `better-auth.session_token=${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save personality. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
+  revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/personality');
+  return { ok: true };
+}
+
 export async function savePersonalityAction(p: {
   introvertExtrovert: number; traditionalModern: number; plannerSpontaneous: number;
   religiousSecular: number; ambitiousBalanced: number; familyIndependent: number;
