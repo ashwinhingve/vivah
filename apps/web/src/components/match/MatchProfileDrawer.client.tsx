@@ -42,7 +42,7 @@ function useProfileDetail(profileId: string | null): FetchState {
     let cancelled = false;
     setState({ data: null, loading: true, error: null });
 
-    fetch(`${clientEnv.apiUrl}/profiles/${profileId}`, { credentials: 'include' })
+    fetch(`${clientEnv.apiUrl}/api/v1/profiles/${profileId}`, { credentials: 'include' })
       .then(async (res) => {
         if (cancelled) return;
         if (!res.ok) {

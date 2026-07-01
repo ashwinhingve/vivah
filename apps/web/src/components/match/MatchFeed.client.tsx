@@ -158,7 +158,7 @@ function ConnectSheet({
     setStatus('sending');
     setErrorMsg('');
     try {
-      const res = await fetch(`${clientEnv.apiUrl}/matchmaking/requests`, {
+      const res = await fetch(`${clientEnv.apiUrl}/api/v1/matchmaking/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -459,7 +459,7 @@ export function MatchFeed({
     try {
       const nextPage = page + 1;
       const res = await fetch(
-        `${clientEnv.apiUrl}/matchmaking/feed?page=${nextPage}&limit=${PAGE_SIZE}`,
+        `${clientEnv.apiUrl}/api/v1/matchmaking/feed?page=${nextPage}&limit=${PAGE_SIZE}`,
         { credentials: 'include' }
       );
       if (!res.ok) { toast(t('couldNotLoadMore'), 'error'); return; }
@@ -492,7 +492,7 @@ export function MatchFeed({
     }
     // Sync to server
     try {
-      const res = await fetch(`${clientEnv.apiUrl}/matchmaking/shortlists/${profileId}`, {
+      const res = await fetch(`${clientEnv.apiUrl}/api/v1/matchmaking/shortlists/${profileId}`, {
         method: isCurrentlyShortlisted ? 'DELETE' : 'POST',
         credentials: 'include',
       });
