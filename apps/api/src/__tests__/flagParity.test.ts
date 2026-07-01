@@ -28,16 +28,33 @@ describe('deriveMockFlags truth table', () => {
 
   // kycLive omitted → defaults false → shouldUseMockKyc = useMock || !false = true in every row.
   it('production (all false) → both stores live, KYC mocked', () => {
-    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true });
+    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: false });
   });
   it('mock master only → both stores mock', () => {
-    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true });
+    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true });
   });
   it('mock + MONGO_LIVE → mongo live, r2 mock (incremental cutover)', () => {
-    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true });
+    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true });
   });
   it('mock + R2_LIVE → r2 live, mongo mock', () => {
-    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true });
+    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: true });
+  });
+});
+
+// ── A3. Video gate (VIDEO_LIVE escape-early, same shape as R2_LIVE) ───────────
+describe('shouldUseMockVideo (VIDEO_LIVE early-escape override)', () => {
+  it('master on + VIDEO_LIVE unset → video MOCKED', () => {
+    expect(deriveMockFlags(true, false, false, false, false).shouldUseMockVideo).toBe(true);
+  });
+  it('master on + VIDEO_LIVE=true → video REAL (Daily.co live while others mocked)', () => {
+    expect(deriveMockFlags(true, false, false, false, true).shouldUseMockVideo).toBe(false);
+  });
+  it('master off → video REAL regardless of VIDEO_LIVE', () => {
+    expect(deriveMockFlags(false, false, false, false, false).shouldUseMockVideo).toBe(false);
+    expect(deriveMockFlags(false, false, false, false, true).shouldUseMockVideo).toBe(false);
+  });
+  it('videoLive param defaults to false (mocked under master on) when omitted', () => {
+    expect(deriveMockFlags(true, false, false).shouldUseMockVideo).toBe(true);
   });
 });
 
@@ -173,5 +190,42 @@ describe('R2 store read/write parity (storage/service)', () => {
     await svc.getPhotoUrl('photos/a.jpg');                       // READ
     await svc.getPresignedUploadUrl('photos', 'a.jpg', 'image/jpeg'); // WRITE
     expect(getSignedUrl).toHaveBeenCalledTimes(2);
+  });
+});
+
+// ── B4. Video (Daily.co) mock parity (lib/dailyco.ts — the room swap point) ───
+async function loadDailyco(useMockVideo: boolean) {
+  vi.resetModules();
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok:   true,
+    json: async () => ({
+      id: 'real_1', name: 'match-1', url: 'https://smartshaadi.daily.co/match-1',
+      createdAt: '2026-07-01T00:00:00Z', expiresAt: '2026-07-01T01:00:00Z',
+    }),
+  });
+  vi.stubGlobal('fetch', fetchMock);
+  vi.doMock('../lib/env.js', () => ({
+    shouldUseMockVideo: useMockVideo,
+    env: { DAILY_CO_API_KEY: 'real-key' },
+  }));
+  const dailyco = await import('../lib/dailyco.js');
+  return { dailyco, fetchMock };
+}
+
+describe('Video mock parity (lib/dailyco)', () => {
+  it('shouldUseMockVideo=true → createRoom returns a mock room, Daily.co API untouched', async () => {
+    const { dailyco, fetchMock } = await loadDailyco(true);
+    const room = await dailyco.createRoom('match-1', 60);
+    expect(room.isMock).toBe(true);
+    expect(room.url).toContain('smartshaadi.daily.co');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('shouldUseMockVideo=false → createRoom calls the real Daily.co API', async () => {
+    const { dailyco, fetchMock } = await loadDailyco(false);
+    const room = await dailyco.createRoom('match-1', 60);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith('https://api.daily.co/v1/rooms', expect.objectContaining({ method: 'POST' }));
+    expect(room.isMock).toBeUndefined();
   });
 });

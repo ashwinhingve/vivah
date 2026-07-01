@@ -24,7 +24,7 @@ import {
   weddings,
 } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { env, shouldUseMockR2 } from '../lib/env.js';
 import { getPhotoUrl } from '../storage/service.js';
 import { sendEmail } from '../notifications/providers/ses.js';
 
@@ -154,7 +154,7 @@ async function aggregateUserData(userId: string): Promise<ExportArchive> {
 function r2Client(): S3Client {
   return new S3Client({
     region:   'auto',
-    endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: env.CLOUDFLARE_R2_ENDPOINT || `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     credentials: {
       accessKeyId:     env.CLOUDFLARE_R2_ACCESS_KEY,
       secretAccessKey: env.CLOUDFLARE_R2_SECRET_KEY,
@@ -163,7 +163,10 @@ function r2Client(): S3Client {
 }
 
 async function uploadArchive(r2Key: string, body: Buffer): Promise<void> {
-  if (env.USE_MOCK_SERVICES) return;
+  // Honour the R2 live-escape (R2_LIVE) — same gate as storage/service.ts, so a
+  // GDPR archive uploads to real R2 whenever photos do. Was previously gated on
+  // the raw master flag, which silently skipped uploads even with R2_LIVE=true.
+  if (shouldUseMockR2) return;
   const cmd = new PutObjectCommand({
     Bucket:      env.CLOUDFLARE_R2_BUCKET,
     Key:         r2Key,
