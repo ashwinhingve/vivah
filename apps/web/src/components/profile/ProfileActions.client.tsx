@@ -17,6 +17,7 @@
  *    TODO: wire Report to POST /api/v1/profiles/:profileId/report (no endpoint yet)
  */
 import { useState, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Heart, MoreHorizontal, Flag, ShieldOff, Share2, Loader2 } from 'lucide-react';
@@ -58,12 +59,13 @@ function KebabMenu({
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('profileDetail');
   const [blocking, setBlocking] = useState(false);
   useClickOutside(ref, onClose);
 
   async function handleBlock() {
     if (blocking) return;
-    if (!window.confirm(`Block ${displayName}? You won't see them or hear from them again.`)) {
+    if (!window.confirm(t('actions.blockConfirm', { name: displayName }))) {
       return;
     }
     setBlocking(true);
@@ -75,16 +77,16 @@ function KebabMenu({
         body:        JSON.stringify({}),
       });
       if (res.ok) {
-        toast('User blocked', 'success');
+        toast(t('actions.blocked'), 'success');
         onClose();
         router.replace('/feed');
         router.refresh();
       } else {
         const body = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
-        toast(body.error?.message ?? `Block failed (HTTP ${res.status})`, 'error');
+        toast(body.error?.message ?? t('actions.blockFailed'), 'error');
       }
     } catch {
-      toast('Network error — try again', 'error');
+      toast(t('actions.networkError'), 'error');
     } finally {
       setBlocking(false);
     }
@@ -119,7 +121,7 @@ function KebabMenu({
         className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-destructive/5 hover:text-destructive transition-colors"
       >
         <Flag className="w-4 h-4" aria-hidden="true" />
-        Report profile
+        {t('actions.report')}
       </button>
       <div className="h-px bg-border-light mx-3" />
       <button
@@ -134,7 +136,7 @@ function KebabMenu({
         ) : (
           <ShieldOff className="w-4 h-4" aria-hidden="true" />
         )}
-        {blocking ? 'Blocking…' : 'Block user'}
+        {blocking ? t('actions.blocking') : t('actions.block')}
       </button>
       <div className="h-px bg-border-light mx-3" />
       <button
@@ -144,7 +146,7 @@ function KebabMenu({
         className="flex w-full items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted/30 transition-colors"
       >
         <Share2 className="w-4 h-4" aria-hidden="true" />
-        Share profile
+        {t('actions.share')}
       </button>
     </div>
   );
@@ -161,13 +163,15 @@ function ConnectButton({
   onSend: () => void;
   onAccept: () => void;
 }) {
+  const t = useTranslations('profileDetail');
+
   if (status === 'matched' && requestId) {
     return (
       <Link
         href={`/chat/${requestId}`}
         className="flex-1 h-11 rounded-lg bg-teal text-white font-semibold text-sm flex items-center justify-center hover:bg-teal-hover transition-colors"
       >
-        Message
+        {t('actions.message')}
       </Link>
     );
   }
@@ -179,7 +183,7 @@ function ConnectButton({
         onClick={onAccept}
         className="flex-1 h-11 rounded-lg bg-success text-white font-semibold text-sm flex items-center justify-center hover:bg-success/90 transition-colors"
       >
-        Accept Interest
+        {t('actions.accept')}
       </button>
     );
   }
@@ -191,7 +195,7 @@ function ConnectButton({
         disabled
         className="flex-1 h-11 rounded-lg bg-success/15 text-success font-semibold text-sm flex items-center justify-center cursor-not-allowed"
       >
-        Request Pending
+        {t('actions.pending')}
       </button>
     );
   }
@@ -204,7 +208,7 @@ function ConnectButton({
         className="flex-1 h-11 rounded-lg bg-teal/50 text-white font-semibold text-sm flex items-center justify-center cursor-not-allowed"
       >
         <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
-        Please wait…
+        {t('actions.pleaseWait')}
       </button>
     );
   }
@@ -216,7 +220,7 @@ function ConnectButton({
         disabled
         className="flex-1 h-11 rounded-lg bg-muted text-muted-foreground font-semibold text-sm flex items-center justify-center cursor-not-allowed"
       >
-        Interest Declined
+        {t('actions.declined')}
       </button>
     );
   }
@@ -228,7 +232,7 @@ function ConnectButton({
         onClick={onSend}
         className="flex-1 h-11 rounded-lg border-2 border-destructive text-destructive font-semibold text-sm flex items-center justify-center hover:bg-destructive/5 transition-colors"
       >
-        Try Again
+        {t('actions.tryAgain')}
       </button>
     );
   }
@@ -240,7 +244,7 @@ function ConnectButton({
       onClick={onSend}
       className="flex-1 h-11 rounded-lg bg-teal text-white font-semibold text-sm flex items-center justify-center hover:bg-teal-hover transition-colors shadow-sm"
     >
-      Connect
+      {t('actions.connect')}
     </button>
   );
 }
@@ -257,6 +261,7 @@ export function ProfileActions({
   const [shortlisted, setShortlisted] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
+  const t = useTranslations('profileDetail');
 
   async function sendInterest() {
     setStatus('sending');
@@ -302,7 +307,7 @@ export function ProfileActions({
       {/* Shortlist (heart) */}
       <button
         type="button"
-        aria-label={shortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+        aria-label={shortlisted ? t('actions.removeShortlist') : t('actions.addShortlist')}
         onClick={toggleShortlist}
         className={`w-11 h-11 rounded-lg border flex items-center justify-center transition-colors shrink-0 ${
           shortlisted
@@ -329,7 +334,7 @@ export function ProfileActions({
       <div className="relative shrink-0">
         <button
           type="button"
-          aria-label="More options"
+          aria-label={t('actions.more')}
           onClick={() => setShowMenu((v) => !v)}
           className="w-11 h-11 rounded-lg border border-gold/30 flex items-center justify-center text-muted-foreground hover:border-gold hover:text-foreground transition-colors"
         >

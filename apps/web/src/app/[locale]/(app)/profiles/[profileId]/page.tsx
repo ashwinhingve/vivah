@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { Phone, BadgeCheck, Camera, CreditCard, Sparkles, Trophy } from 'lucide-react';
+import { BadgeCheck, Sparkles, ChevronLeft } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { PhotoGallery } from '@/components/profile/PhotoGallery.client';
 import { ProfileCompatibilityCard } from '@/components/profile/ProfileCompatibilityCard';
@@ -129,43 +130,31 @@ function calculateAge(dob: string): number {
 }
 
 /**
- * Verification trust strip. Renders compact Gold/20 pills only for active
- * verifications (unverified items are omitted — showing them erodes trust).
- * Fully-verified profiles get a single Burgundy "Fully Verified" trophy
- * chip in addition to the per-check pills.
+ * Verification trust badge. One cohesive, honest trust element — rendered only
+ * for a genuinely verified profile. A single "Verified Profile" panel reads as a
+ * real trust signal; the previous four near-identical pills (all gated on the
+ * same boolean) implied per-check verification the data doesn't actually carry.
  */
-function VerificationStrip({ verificationStatus }: { verificationStatus: string }) {
-  const verified = verificationStatus === 'VERIFIED';
-
-  const checks: { key: string; icon: typeof Phone; label: string; active: boolean }[] = [
-    { key: 'phone', icon: Phone,      label: 'Phone',          active: verified },
-    { key: 'kyc',   icon: BadgeCheck, label: 'Aadhaar KYC',    active: verified },
-    { key: 'photo', icon: Camera,     label: 'Photo Verified', active: verified },
-    { key: 'govt',  icon: CreditCard, label: 'Govt ID',        active: verified },
-  ];
-
-  const activeChecks = checks.filter((c) => c.active);
-  if (activeChecks.length === 0) return null;
-  const allVerified = activeChecks.length === checks.length;
+function VerificationBadge({
+  verificationStatus,
+  title,
+  subtitle,
+}: {
+  verificationStatus: string;
+  title: string;
+  subtitle: string;
+}) {
+  if (verificationStatus !== 'VERIFIED') return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {activeChecks.map(({ key, icon: Icon, label }) => (
-        <span
-          key={key}
-          className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-teal"
-        >
-          <Icon className="h-3 w-3" aria-hidden="true" />
-          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-          {label}
-        </span>
-      ))}
-      {allVerified && (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-          <Trophy className="h-3 w-3 text-gold" aria-hidden="true" />
-          Fully Verified
-        </span>
-      )}
+    <div className="flex items-center gap-3 rounded-xl border border-gold/40 bg-gold/10 px-3.5 py-2.5 shadow-card">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white shadow-sm ring-2 ring-surface">
+        <BadgeCheck className="h-5 w-5" aria-hidden="true" />
+      </span>
+      <div className="min-w-0">
+        <p className="font-heading text-sm font-semibold leading-tight text-primary">{title}</p>
+        <p className="text-xs leading-tight text-gold-muted">{subtitle}</p>
+      </div>
     </div>
   );
 }
@@ -243,6 +232,8 @@ export default async function ProfileViewPage({ params }: Props) {
 
   if (!profile) notFound();
 
+  const t = await getTranslations('profileDetail');
+
   const age = profile.personal?.dob ? calculateAge(profile.personal.dob) : null;
   const city = profile.location
     ? [profile.location.city, profile.location.state].filter(Boolean).join(', ')
@@ -266,12 +257,28 @@ export default async function ProfileViewPage({ params }: Props) {
 
   return (
     <PageTransition>
-      {/* Desktop: 2-col (60%/40%). Mobile: single column stacked */}
+      {/*
+        Desktop: 2-col (60%/40%). Mobile: single column. The page is split into
+        three grid-placed groups so that on mobile the highest-stakes decision
+        aids — Compatibility + detail Tabs (Group B) — surface right after the
+        photos + identity hero (Group A), instead of below "similar profiles".
+        On desktop, Group B spans both rows of the right column while Group A/C
+        stack in the left column, keeping independent column heights.
+      */}
       <div id="main-content" className="mx-auto max-w-5xl px-4 pb-28 pt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 items-start">
+        {/* Back to feed */}
+        <Link
+          href="/feed"
+          className="mb-3 inline-flex min-h-[44px] items-center gap-1 -ml-1 pr-2 text-sm font-semibold text-teal transition-colors hover:text-teal-hover"
+        >
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          {t('backToMatches')}
+        </Link>
 
-          {/* ── LEFT COLUMN: Photos + Identity Hero ──────────────── */}
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:items-start">
+
+          {/* ── GROUP A (col 1 / row 1): Photos + Identity Hero ──── */}
+          <div className="space-y-4 lg:col-start-1 lg:row-start-1">
 
             {/* Photo gallery — or protected placeholder if empty */}
             <PhotoGallery
@@ -319,8 +326,12 @@ export default async function ProfileViewPage({ params }: Props) {
                   : `Member since ${new Date(profile.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
               </p>
 
-              {/* Verification pills (only truthy) */}
-              <VerificationStrip verificationStatus={profile.verificationStatus} />
+              {/* Verification trust badge (verified profiles only) */}
+              <VerificationBadge
+                verificationStatus={profile.verificationStatus}
+                title={t('verified.title')}
+                subtitle={t('verified.subtitle')}
+              />
 
               {/* Status chips row (Manglik / Distance) */}
               {(profile.horoscope?.manglik || (!isSelf && fullScore?.distanceKm != null)) && (
@@ -364,32 +375,10 @@ export default async function ProfileViewPage({ params }: Props) {
                 isSelf={isSelf}
               />
             )}
-
-            {/* Contact hidden notice (non-self) */}
-            {!isSelf && (
-              <div className="flex items-center gap-2.5 rounded-xl bg-surface border border-gold/20 px-4 py-3 shadow-card">
-                <div className="w-8 h-8 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">Contact details hidden</p>
-                  <p className="text-xs text-muted-foreground">Visible after mutual interest</p>
-                </div>
-              </div>
-            )}
-
-            {/* Similar profiles — mobile shows inline, desktop only shows under left col */}
-            {!isSelf && (
-              <div className="lg:block">
-                <SimilarProfiles sourceProfileId={profileId} />
-              </div>
-            )}
           </div>
 
-          {/* ── RIGHT COLUMN: Compatibility + Tabs + Desktop Actions ── */}
-          <div className="space-y-4">
+          {/* ── GROUP B (col 2 / rows 1-2): Compatibility + Tabs ──── */}
+          <div className="space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2">
 
             {/* Compatibility card — non-self, when score available */}
             {!isSelf && fullScore && (
@@ -405,10 +394,10 @@ export default async function ProfileViewPage({ params }: Props) {
             {!isSelf && !fullScore && (
               <div className="rounded-2xl border border-gold/20 bg-surface shadow-card p-5 text-center space-y-2">
                 <p className="font-heading text-base font-semibold text-primary">
-                  Compatibility unavailable
+                  {t('noScore.title')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Add horoscope data to see full compatibility
+                  {t('noScore.subtitle')}
                 </p>
               </div>
             )}
@@ -427,6 +416,28 @@ export default async function ProfileViewPage({ params }: Props) {
             />
 
           </div>
+
+          {/* ── GROUP C (col 1 / row 2): Contact notice + Similar ── */}
+          {!isSelf && (
+            <div className="space-y-4 lg:col-start-1 lg:row-start-2">
+
+              {/* Contact hidden notice */}
+              <div className="flex items-center gap-2.5 rounded-xl bg-surface border border-gold/20 px-4 py-3 shadow-card">
+                <div className="w-8 h-8 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t('contactHidden.title')}</p>
+                  <p className="text-xs text-muted-foreground">{t('contactHidden.subtitle')}</p>
+                </div>
+              </div>
+
+              {/* Similar profiles */}
+              <SimilarProfiles sourceProfileId={profileId} />
+            </div>
+          )}
         </div>
       </div>
 

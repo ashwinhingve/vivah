@@ -8,6 +8,7 @@
  * Below: numbered "Why we matched you" reasons + optional caveat.
  */
 import { Sparkles, AlertCircle, Info } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import type { CompatibilityScore, MatchExplainer } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
 import { AnimatedNumber } from '@/components/motion/AnimatedNumber.client';
@@ -24,15 +25,21 @@ interface Props {
 const RING_RADIUS = 64;
 const RING_CIRC = 2 * Math.PI * RING_RADIUS;
 
-function getTier(tier: CompatibilityScore['tier']): {
-  color: string; label: string; sub: string;
-} {
+function tierColor(tier: CompatibilityScore['tier']): string {
   switch (tier) {
-    case 'excellent': return { color: 'var(--color-success)',     label: 'Excellent', sub: 'Strong alignment on most dimensions' };
-    case 'good':      return { color: 'var(--color-teal)',        label: 'Strong',    sub: 'Plenty of common ground' };
-    case 'average':   return { color: 'var(--color-warning)',     label: 'Good',      sub: 'Some real overlap, some gaps' };
-    case 'low':       return { color: 'var(--color-destructive)', label: 'Limited',   sub: 'Notable differences to consider' };
+    case 'excellent': return 'var(--color-success)';
+    case 'good':      return 'var(--color-teal)';
+    case 'average':   return 'var(--color-warning)';
+    case 'low':       return 'var(--color-destructive)';
   }
+}
+
+/** Qualitative Guna band (Ashtakoot convention out of 36). */
+function gunaBand(score: number): 'review' | 'good' | 'veryGood' | 'excellent' {
+  if (score < 18) return 'review';
+  if (score < 25) return 'good';
+  if (score < 33) return 'veryGood';
+  return 'excellent';
 }
 
 const DIMENSION_LABELS: Record<keyof CompatibilityScore['breakdown'], string> = {
@@ -83,9 +90,12 @@ function DimensionBar({
   );
 }
 
-export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier, flags }: Props) {
+export async function ProfileCompatibilityCard({ compatibility, explainer, viewerTier, flags }: Props) {
   const { totalScore, breakdown, gunaScore, tier } = compatibility;
-  const t = getTier(tier);
+  const t = await getTranslations('profileDetail');
+  const color = tierColor(tier);
+  const tierLabel = t(`compatibility.tier.${tier}`);
+  const tierSub = t(`compatibility.tierSub.${tier}`);
   const progress = Math.min(Math.max(totalScore, 0) / 100, 1);
   const dashOffset = RING_CIRC * (1 - progress);
   const gunaCalculating = flags.includes('guna_pending') || flags.includes('guna_parse_error');
@@ -98,9 +108,9 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
     <Card premium className="overflow-hidden">
       {/* Header */}
       <div className="px-5 pt-6 pb-4 text-center">
-        <h2 className="font-heading text-[24px] font-semibold text-primary">How compatible are you?</h2>
+        <h2 className="font-heading text-[24px] font-semibold text-primary">{t('compatibility.heading')}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Based on 7 life dimensions and Vedic matching.
+          {t('compatibility.subheading')}
         </p>
         <div className="mx-auto mt-3 h-px w-2/5 bg-gold/40" aria-hidden="true" />
       </div>
@@ -116,7 +126,7 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
               <circle
                 cx="80" cy="80" r={RING_RADIUS}
                 fill="none"
-                stroke={t.color}
+                stroke={color}
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeDasharray={RING_CIRC}
@@ -131,22 +141,22 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
                 percent
                 className="font-heading text-3xl font-bold tabular-nums leading-none text-primary"
               />
-              <span className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">Match</span>
+              <span className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">{t('compatibility.matchLabel')}</span>
             </div>
           </div>
-          <p className="font-heading text-xl text-primary">{t.label} match</p>
-          <p className="max-w-[200px] text-center text-xs text-muted-foreground">{t.sub}</p>
+          <p className="font-heading text-xl text-primary">{t('compatibility.tierLabel', { tier: tierLabel })}</p>
+          <p className="max-w-[200px] text-center text-xs text-muted-foreground">{tierSub}</p>
         </div>
 
         {/* Right — Guna Milan / dimension breakdown */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-base font-semibold text-primary">Guna Milan</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-heading text-base font-semibold text-primary">{t('guna.title')}</h3>
             {gunaCalculating ? (
-              <span className="text-[10px] italic text-muted-foreground">calculating…</span>
+              <span className="text-[10px] italic text-muted-foreground">{t('guna.calculating')}</span>
             ) : gunaScore != null ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-primary">
-                {gunaScore}/36 Guna
+              <span className="inline-flex items-center gap-1 rounded-full border border-teal/30 bg-teal/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-teal">
+                {t('guna.score', { score: gunaScore, band: t(`guna.bands.${gunaBand(gunaScore)}`) })}
               </span>
             ) : null}
           </div>
@@ -157,8 +167,8 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
               className="block rounded-xl border border-dashed border-gold/40 bg-gold/5 px-4 py-3 text-center transition-colors hover:bg-gold/10"
             >
               <Sparkles className="mx-auto h-5 w-5 text-gold-muted" aria-hidden="true" />
-              <p className="mt-1 text-sm font-semibold text-primary">Add horoscope to see Guna score</p>
-              <p className="text-[11px] text-muted-foreground">Unlocks Vedic compatibility →</p>
+              <p className="mt-1 text-sm font-semibold text-primary">{t('guna.addTitle')}</p>
+              <p className="text-[11px] text-muted-foreground">{t('guna.addSub')}</p>
             </Link>
           ) : (
             <div className="space-y-2.5">
@@ -185,7 +195,7 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
       {/* Why we matched you — numbered list */}
       {reasons.length > 0 && (
         <div className="border-t border-gold/10 px-5 py-5">
-          <h3 className="font-heading text-base font-semibold text-primary">Why we matched you</h3>
+          <h3 className="font-heading text-base font-semibold text-primary">{t('whyMatched.title')}</h3>
           <ol className={`mt-3 space-y-2.5 ${reasonsLocked ? 'pointer-events-none select-none blur-sm' : ''}`}>
             {reasons.slice(0, 3).map((reason, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -209,7 +219,7 @@ export function ProfileCompatibilityCard({ compatibility, explainer, viewerTier,
           {explainer?.caveat ? (
             <p className="mt-4 flex items-start gap-2 text-xs text-gold-muted">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              <span>Note: {explainer.caveat}</span>
+              <span>{t('whyMatched.note', { caveat: explainer.caveat })}</span>
             </p>
           ) : null}
         </div>
