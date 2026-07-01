@@ -8,6 +8,7 @@
  * 2-column cards) rather than a uniform grid.
  */
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sparkles, Quote, GraduationCap, BriefcaseBusiness, Calendar, MapPin, Clock } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
@@ -536,17 +537,18 @@ export function ProfileDetailTabs({
   partnerPreferences,
   kundliUrl,
 }: Props) {
+  const t = useTranslations('profileDetail');
   const hasAbout = !!(aboutMe || personal);
   const hasCareer = !!(education || profession);
 
   const tabs: TabDef[] = [
-    hasAbout && { id: 'about' as TabId, label: 'About' },
-    family && { id: 'family' as TabId, label: 'Family' },
-    hasCareer && { id: 'career' as TabId, label: 'Career' },
-    lifestyle && { id: 'lifestyle' as TabId, label: 'Lifestyle' },
-    horoscope && { id: 'horoscope' as TabId, label: 'Horoscope' },
-    partnerPreferences && { id: 'preferences' as TabId, label: 'Preferences' },
-  ].filter((t): t is TabDef => Boolean(t));
+    hasAbout && { id: 'about' as TabId, label: t('tabs.about') },
+    family && { id: 'family' as TabId, label: t('tabs.family') },
+    hasCareer && { id: 'career' as TabId, label: t('tabs.career') },
+    lifestyle && { id: 'lifestyle' as TabId, label: t('tabs.lifestyle') },
+    horoscope && { id: 'horoscope' as TabId, label: t('tabs.horoscope') },
+    partnerPreferences && { id: 'preferences' as TabId, label: t('tabs.preferences') },
+  ].filter((x): x is TabDef => Boolean(x));
 
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0]?.id ?? 'about');
   const [animKey, setAnimKey] = useState(0);

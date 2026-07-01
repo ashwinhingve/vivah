@@ -175,13 +175,25 @@
       "subhead": "Designed for both individuals and families. Start together, find together.",
       "step1Title": "Create Your Profile",
       "step1Desc": "Set up in 2 minutes. Aadhaar-verified identity, horoscope details, family background, and lifestyle preferences — all with full privacy control. Family members can co-create.",
-      "step1Tags": ["KYC Verified", "Family Mode", "Kundli Upload"],
+      "step1Tags": [
+        "KYC Verified",
+        "Family Mode",
+        "Kundli Upload"
+      ],
       "step2Title": "Discover Compatible Matches",
       "step2Desc": "Our AI analyses Guna Milan scores, lifestyle alignment, and family values. Reciprocal matching means both sides must show interest before contact details unlock — no awkward one-sided reveals.",
-      "step2Tags": ["Guna Milan Score", "Reciprocal Matching", "Daily Suggestions"],
+      "step2Tags": [
+        "Guna Milan Score",
+        "Reciprocal Matching",
+        "Daily Suggestions"
+      ],
       "step3Title": "Plan Your Wedding Together",
       "step3Desc": "Once connected, move seamlessly to the wedding journey: vendor discovery, budget tracking, guest list, and RSVP — all in one platform built for Indian families.",
-      "step3Tags": ["Vendor Marketplace", "Budget Planner", "Guest List & RSVP"]
+      "step3Tags": [
+        "Vendor Marketplace",
+        "Budget Planner",
+        "Guest List & RSVP"
+      ]
     },
     "features": {
       "sectionHeading": "Features",
@@ -337,6 +349,84 @@
       "title": "Profile — Smart Shaadi"
     },
     "heading": "Profile"
+  },
+  "profileDetail": {
+    "backToMatches": "Back to matches",
+    "verified": {
+      "title": "Verified Profile",
+      "subtitle": "Identity confirmed by Smart Shaadi"
+    },
+    "compatibility": {
+      "heading": "How compatible are you?",
+      "subheading": "Based on 7 life dimensions and Vedic matching.",
+      "matchLabel": "Match",
+      "tierLabel": "{tier} match",
+      "tier": {
+        "excellent": "Excellent",
+        "good": "Strong",
+        "average": "Good",
+        "low": "Limited"
+      },
+      "tierSub": {
+        "excellent": "Strong alignment on most dimensions",
+        "good": "Plenty of common ground",
+        "average": "Some real overlap, some gaps",
+        "low": "Notable differences to consider"
+      }
+    },
+    "guna": {
+      "title": "Guna Milan",
+      "calculating": "calculating…",
+      "score": "{score}/36 · {band}",
+      "bands": {
+        "review": "Review needed",
+        "good": "Good",
+        "veryGood": "Very Good",
+        "excellent": "Excellent"
+      },
+      "addTitle": "Add horoscope to see Guna score",
+      "addSub": "Unlocks Vedic compatibility →"
+    },
+    "whyMatched": {
+      "title": "Why we matched you",
+      "note": "Note: {caveat}"
+    },
+    "noScore": {
+      "title": "Compatibility unavailable",
+      "subtitle": "Add horoscope data to see full compatibility"
+    },
+    "contactHidden": {
+      "title": "Contact details hidden",
+      "subtitle": "Visible after mutual interest"
+    },
+    "actions": {
+      "connect": "Connect",
+      "message": "Message",
+      "accept": "Accept Interest",
+      "pending": "Request Pending",
+      "pleaseWait": "Please wait…",
+      "declined": "Interest Declined",
+      "tryAgain": "Try Again",
+      "addShortlist": "Add to shortlist",
+      "removeShortlist": "Remove from shortlist",
+      "more": "More options",
+      "report": "Report profile",
+      "block": "Block user",
+      "blocking": "Blocking…",
+      "share": "Share profile",
+      "blockConfirm": "Block {name}? You won't see them or hear from them again.",
+      "blocked": "User blocked",
+      "blockFailed": "Block failed",
+      "networkError": "Network error — try again"
+    },
+    "tabs": {
+      "about": "About",
+      "family": "Family",
+      "career": "Career",
+      "lifestyle": "Lifestyle",
+      "horoscope": "Horoscope",
+      "preferences": "Preferences"
+    }
   },
   "onboarding": {
     "personal": {
