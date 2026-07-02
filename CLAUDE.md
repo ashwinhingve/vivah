@@ -19,67 +19,12 @@
 ## Current Status
 
 ```
-Phase:     2 → COMPLETE ✅ + Multi-Event/Polish world-class upgrade landed
-           Phase 3 + 4 shipped; Path B (P1-7/8) closed 2026-05-20
-Week:      10 → IN PROGRESS
-Focus:     LAUNCH-READY (code), gated on external registrations ONLY (migration
-           drift reconciled 2026-06-07). Launch is now a followed procedure:
-           docs/launch/LAUNCH-CHECKLIST.md (GO/NO-GO gate list, owner-split) +
-           docs/launch/GO-LIVE-RUNBOOK.md (ordered launch-day steps + rollback +
-           24h watch). Current verdict: 🔴 NO-GO.
-Status:    docs/PHASE-1-4-AUDIT.md Resolution Log fully populated. Open P0s = 4
-           (all external-blocked). Open P1s = 0 code-fixable (P1-5 NIC IRP +
-           P1-11 Daily.co external-blocked). Launch BLOCKERS (LAUNCH-CHECKLIST §A):
-           Razorpay live reg (Colonel), MSG91 DLT reg (Colonel), legal review
-           (Colonel/lawyer). ✅ Migration drift RECONCILED 2026-06-07: prod had NO
-           __drizzle_migrations table (push-built); created it + baseline-seeded all
-           30 migs + finished 0029's missing profiles cols+HNSW index. Scripts in
-           scripts/db/reconcile-drift-2026-06-07.sql (+rollback). AI_SERVICE_HEALTH_URL
-           set. KYC stays MOCKED at launch (KYC_LIVE unset → MANUAL_REVIEW) by design.
-Mocks:     `USE_MOCK_SERVICES=false` in `.env.production.example`; env.ts
-           hard-rejects `NODE_ENV=production && USE_MOCK_SERVICES=true`.
-           Local-dev mock value REQUIRED via `MOCK_OTP_VALUE` (no default).
-           No `RAZORPAY_LIVE`/`MSG91_LIVE` flag — payments+SMS go live only on
-           master flip. Granular overrides exist only for Mongo/R2/KYC.
-Last session: 2026-06-07 — Launch-readiness docs (docs/launch-readiness branch):
-  wrote LAUNCH-CHECKLIST.md (3 sections — BLOCKERS / VERIFY-BEFORE-LAUNCH /
-  KYC-stays-mocked, each item status·owner·verify) + GO-LIVE-RUNBOOK.md
-  (8 ordered steps backup→flip→verify→smoke→announce, rollback per step +
-  first-24h watch list). Docs only, no code. Verdict 🔴 NO-GO (3 external
-  blockers + drift open; all code-fixable P0/P1 closed). Prior ADR-002 +
-  calendar Tier-1 work already on main.
-
-Prior: 2026-05-20 — Path B: vendor approval workflow (P1-8) + Recent
-  Conversations dashboard wire-up (P1-7). 4 commits aed23df / 516a156 /
-  610128e / (this docs commit). Vendor approval state machine (DRAFT→
-  PENDING→UNDER_REVIEW→APPROVED/REJECTED/SUSPENDED) with CAS-locked
-  transitions, admin queue at /admin/vendors, review page with claim
-  mechanism + reject/suspend modals, vendor-side status banner on
-  /vendor-dashboard. Public `listVendors` now filters `status='APPROVED'`.
-  Migration SQL pending Railway console application — see
-  `docs/MIGRATIONS-PENDING.md`. GET /api/v1/chat/recent endpoint feeds
-  the customer dashboard's Recent Conversations card with live rows
-  (presence + unread badges + photo or initials avatar). 669/669 api
-  tests + 278 ai-service tests + 2 web tests; type-check 0; build 0.
-
-Prior session: 2026-05-20 — Sprint 0 Parts 1+2 closed 13 of 15 P1s + 4
-  zero-dependency P0s. See PHASE-1-4-AUDIT.md Resolution Log for full
-  per-item provenance.
-
-Earlier: 2026-05-04 — P0 hardening: closed SSRF DNS-rebinding gap (chat/linkPreview)
-  + booking double-book race (unique partial index `booking_active_unique_idx`,
-  23505 → BOOKING_CONFLICT). Verified other 8 P0s already fixed in Milestone A
-  (993b3bb) + May-3 webhook idempotency landing. All 511 tests green; type-check
-  8/8; lint clean. See docs/phase1-2-code-review.md for per-item resolution map.
-  - Phase 0 single agent: ceremony types + muhurat schemas + deterministic escrow jobId (c493cd3)
-  - Phase 1 agent team (3 teammates parallel):
-      video-hardening (9673d3a): deterministic Redis room storage + 409 on duplicate + GET /rooms/:matchId + SCAN cursor loop + respondMeeting status/matchId guards + TTL from scheduledAt + VideoCall proposer profileId fix
-      escrow-hardening (5d428a1): escrowReleaseQueue moved to infrastructure/redis/queues.ts + cancel by deterministic jobId + optimistic lock on raise/resolveDispute + DB-before-Razorpay with RELEASE_PENDING/REFUND_PENDING fallbacks + audit enum swap to DISPUTE_RAISED/DISPUTE_RESOLVED_* + admin UI resolved-state lift
-      rental-hardening + ceremonies (e1311a6, 936a708): tx-wrapped overbook guard + PUT /activate + availableQty + public fetch on browse pages + /rentals/bookings/mine page + confirmRentalBooking crash guard; wedding ceremony CRUD + muhurat suggest/select with Ceremonies tab + Muhurat card on wedding overview
-  - Phase 2 single agent: pnpm db:push applied RELEASE_PENDING + REFUND_PENDING enum additions; full smoke 15/15 API + 4/4 web pages pass (e7f9cc3)
-  - Tests: 277/277 green (was 239 + 38 new). Type-check clean 8/8.
-  - Known issue flagged for Week 9: GET /api/v1/profiles/matches (and similar routes with :profileId) crashes API on non-UUID segment — unhandled Postgres uuid parse error; needs error-handler middleware
-  - Mock mode: Daily.co still mocked (DAILY_CO_API_KEY not set)
+Phase:    4 (complete — launch-ready)
+Week:     Post-launch prep
+Focus:    Awaiting Colonel's registrations to go live
+Mocks:    USE_MOCK_SERVICES=true (Razorpay + MSG91 only)
+          R2_LIVE=true · VIDEO_LIVE=true · LLM_PROVIDER=gemini
+Blocker:  Colonel's company registration — Razorpay + MSG91 DLT + legal review
 ```
 
 > **Update this block at the start of every session.**
@@ -290,12 +235,12 @@ Core API:    Node.js · Express · TypeScript · Drizzle ORM (PostgreSQL)
 AI Service:  Python 3.11 · FastAPI · Scikit-learn · HuggingFace · PyTorch
 Databases:   PostgreSQL (Supabase/Railway) · MongoDB Atlas · Redis (Railway)
 Storage:     Cloudflare R2 (S3-compatible, no egress fees)
-Auth:        Better Auth · Phone OTP · session cookie (30-day, httpOnly, 5-min in-memory cache)
+Auth:        Better Auth · Phone OTP · Session cookies (SameSite=None; Secure; httpOnly · Domain=.smartshaadi.co.in) — NOT JWT
 Payments:    Razorpay (UPI, cards, wallets, EMI, Subscriptions)
 SMS/OTP:     MSG91 (DLT-registered sender)
 Email:       AWS SES
 Push:        Firebase FCM
-AI/LLM:      Anthropic Claude API via Helicone proxy
+AI/LLM:      Gemini (LLM_PROVIDER=gemini) · Anthropic as fallback · Helicone proxy
 Monitoring:  Sentry · PostHog · Helicone · BetterStack
 CI/CD:       GitHub Actions → Vercel (web) + Railway (API + AI service)
 ```

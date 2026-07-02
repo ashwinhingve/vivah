@@ -5,7 +5,7 @@ import { z } from 'zod';
 // fails loudly instead of silently hitting localhost.
 
 const ServerSchema = z.object({
-  NEXT_PUBLIC_API_URL:    z.string().url().default('http://localhost:4000/api/v1'),
+  NEXT_PUBLIC_API_URL:    z.string().url().default('http://localhost:4000'),
   NEXT_PUBLIC_SOCKET_URL: z.string().url().default('http://localhost:4000'),
   NEXT_PUBLIC_APP_NAME:   z.string().min(1).default('Smart Shaadi'),
   NEXT_PUBLIC_POSTHOG_KEY:  z.string().default(''),
