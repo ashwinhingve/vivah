@@ -92,6 +92,11 @@ jobs:
           JWT_REFRESH_SECRET: test-refresh-secret-do-not-use
           BETTER_AUTH_SECRET: test-better-auth-secret-32-chars-min-len-aaaaaa
           NODE_ENV: test
+          # env.ts validation exits the process unless mock mode is on (else it
+          # demands real DAILY/RAZORPAY/MSG91/METRICS creds). Mock mode also
+          # requires an explicit OTP value (no default).
+          USE_MOCK_SERVICES: "true"
+          MOCK_OTP_VALUE: "123456"
 
   # ── AI Service Tests (Python / pytest) ──────────────────────────────────────
   test-ai:
