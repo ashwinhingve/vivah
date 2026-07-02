@@ -73,6 +73,19 @@ interface KycStats {
   sanctions:      number;
 }
 
+// Shape actually returned by GET /api/v1/admin/disputes (booking-level rows —
+// there is no dispute-level `id`, `reason`, or `raisedByType`; `raisedAt` is the
+// booking-created time). See apps/api/src/payments/dispute.ts:getDisputedBookings.
+interface RawDispute {
+  bookingId:    string;
+  customerName: string | null;
+  totalAmount:  string | null;
+  escrowHeld:   string | null;
+  escrowStatus: string;
+  raisedAt:     string | null;
+}
+
+// Normalized shape consumed by <AdminDisputesMini> / the Open Disputes card.
 interface BookingDispute {
   id:          string;
   bookingId:   string;
@@ -199,7 +212,7 @@ export default async function AdminPage() {
     fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),
     fetchAuth<KycStats>('/api/v1/admin/kyc/stats', token),
     fetchAuth<AdminStats>('/api/v1/admin/stats', token),
-    fetchAuth<{ disputes: BookingDispute[] }>('/api/v1/admin/disputes', token),
+    fetchAuth<{ disputes: RawDispute[] }>('/api/v1/admin/disputes', token),
     fetchAuth<{ items: AtRiskUser[]; total: number; cached: boolean }>(
       '/api/v1/admin/users/at-risk?limit=5', token
     ),
@@ -218,7 +231,18 @@ export default async function AdminPage() {
   const totalUsers        = stats?.totalUsers        ?? 0;
   const activeVendors     = stats?.activeVendors     ?? 0;
   const bookingsThisMonth = stats?.bookingsThisMonth ?? 0;
-  const disputes          = disputesData?.disputes   ?? [];
+  // Normalize the API's booking-level rows into the dispute shape the UI expects.
+  // The endpoint has no dispute-level id/reason/raisedByType — derive safe values.
+  const disputes: BookingDispute[] = (disputesData?.disputes ?? []).map((d) => ({
+    id:           d.bookingId,
+    bookingId:    d.bookingId,
+    raisedByType: 'CUSTOMER',
+    raisedBy:     d.customerName ?? '',
+    reason:       'Escrow dispute',
+    status:       d.escrowStatus,
+    amount:       Number(d.totalAmount ?? d.escrowHeld ?? 0) || null,
+    raisedAt:     d.raisedAt ?? '',
+  }));
   const atRiskItems       = atRiskData?.items        ?? [];
   const atRiskTotal       = atRiskData?.total        ?? 0;
   const vendorQueue       = vendorQueueData?.items   ?? [];

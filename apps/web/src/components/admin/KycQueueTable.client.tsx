@@ -29,7 +29,9 @@ type Filter = 'ALL' | 'DUPLICATES' | 'SANCTIONS' | 'HIGH_RISK' | 'LOW_RISK';
 
 function formatDate(s: string | null): string {
   if (!s) return '—';
-  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(s));
+  const date = new Date(s);
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(date);
 }
 
 function riskBadgeClass(score: number | null): string {

@@ -20,13 +20,16 @@ interface Props {
   disputes: BookingDispute[];
 }
 
-function fmt(d: string): string {
+function fmt(d: string | null | undefined): string {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return '—';
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric',
     month: 'short',
     hour: 'numeric',
     minute: '2-digit',
-  }).format(new Date(d));
+  }).format(date);
 }
 
 function severityClass(d: BookingDispute): string {
@@ -55,7 +58,7 @@ export function AdminDisputesMini({ disputes }: Props) {
   return (
     <div className="divide-y divide-gold/10">
       {disputes.map((d) => (
-        <div key={d.id} className="flex items-start gap-3 px-4 py-3">
+        <div key={d.id ?? d.bookingId} className="flex items-start gap-3 px-4 py-3">
           <AlertTriangle
             className="mt-0.5 h-4 w-4 shrink-0 text-warning"
             strokeWidth={1.5}
@@ -64,7 +67,7 @@ export function AdminDisputesMini({ disputes }: Props) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-[11px] text-text-muted">
-                #{d.id.slice(0, 8)}
+                #{(d.id ?? d.bookingId ?? '').slice(0, 8)}
               </span>
               <span
                 className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${severityClass(d)}`}
