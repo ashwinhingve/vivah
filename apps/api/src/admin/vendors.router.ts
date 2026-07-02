@@ -3,13 +3,14 @@
  * vendor-approval workflow (P1-8 / docs/PHASE-1-4-AUDIT.md).
  *
  * Routes:
- *   GET    /admin/vendors/queue        list pending/under-review/recent
- *   GET    /admin/vendors/:id          full vendor detail for review
- *   POST   /admin/vendors/:id/start-review
- *   POST   /admin/vendors/:id/approve
- *   POST   /admin/vendors/:id/reject       body: { reason, category }
- *   POST   /admin/vendors/:id/suspend      body: { reason }
- *   POST   /admin/vendors/:id/reinstate
+ *   (router mounted at /api/v1/admin, so these resolve at /api/v1/admin/vendors/...)
+ *   GET    /vendors/queue        list pending/under-review/recent
+ *   GET    /vendors/:id          full vendor detail for review
+ *   POST   /vendors/:id/start-review
+ *   POST   /vendors/:id/approve
+ *   POST   /vendors/:id/reject       body: { reason, category }
+ *   POST   /vendors/:id/suspend      body: { reason }
+ *   POST   /vendors/:id/reinstate
  *   PUT    /vendors/:id/commission     (pre-existing)
  *   POST   /vendors/:id/verify-bank    (pre-existing)
  */
@@ -46,7 +47,7 @@ const QueueQuerySchema = z.object({
 });
 
 adminVendorsRouter.get(
-  '/admin/vendors/queue',
+  '/vendors/queue',
   authenticate,
   authorize(['ADMIN']),
   async (req: Request, res: Response) => {
@@ -94,7 +95,7 @@ adminVendorsRouter.get(
 // ---------------------------------------------------------------------------
 
 adminVendorsRouter.get(
-  '/admin/vendors/:id',
+  '/vendors/:id',
   authenticate,
   authorize(['ADMIN']),
   async (req: Request, res: Response) => {
@@ -124,7 +125,7 @@ function mapApprovalError(res: Response, e: unknown): void {
 }
 
 adminVendorsRouter.post(
-  '/admin/vendors/:id/start-review',
+  '/vendors/:id/start-review',
   authenticate, authorize(['ADMIN']),
   async (req: Request, res: Response) => {
     try {
@@ -135,7 +136,7 @@ adminVendorsRouter.post(
 );
 
 adminVendorsRouter.post(
-  '/admin/vendors/:id/approve',
+  '/vendors/:id/approve',
   authenticate, authorize(['ADMIN']),
   async (req: Request, res: Response) => {
     try {
@@ -151,7 +152,7 @@ const RejectBodySchema = z.object({
 });
 
 adminVendorsRouter.post(
-  '/admin/vendors/:id/reject',
+  '/vendors/:id/reject',
   authenticate, authorize(['ADMIN']),
   async (req: Request, res: Response) => {
     const parsed = RejectBodySchema.safeParse(req.body);
@@ -168,7 +169,7 @@ adminVendorsRouter.post(
 const SuspendBodySchema = z.object({ reason: z.string().trim().min(10).max(500) });
 
 adminVendorsRouter.post(
-  '/admin/vendors/:id/suspend',
+  '/vendors/:id/suspend',
   authenticate, authorize(['ADMIN']),
   async (req: Request, res: Response) => {
     const parsed = SuspendBodySchema.safeParse(req.body);
@@ -181,7 +182,7 @@ adminVendorsRouter.post(
 );
 
 adminVendorsRouter.post(
-  '/admin/vendors/:id/reinstate',
+  '/vendors/:id/reinstate',
   authenticate, authorize(['ADMIN']),
   async (req: Request, res: Response) => {
     try {
