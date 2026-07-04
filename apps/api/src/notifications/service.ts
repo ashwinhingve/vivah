@@ -20,29 +20,15 @@ import { sendEmail } from './providers/ses.js';
 import { sendSms } from './providers/msg91.js';
 import * as emailTpl from './templates/email.js';
 import * as smsTpl from './templates/sms.js';
+import { emitNotificationToUser } from '../chat/socket/index.js';
+import { notificationCategory, deepLinkFor, type NotificationType } from '@smartshaadi/types';
+import { toNotificationEnum } from './enum-map.js';
 
 type SentVia = 'push' | 'email' | 'sms' | 'inapp';
 
-export type NotificationType =
-  | 'NEW_CHAT_MESSAGE'
-  | 'MATCH_REQUEST_RECEIVED'
-  | 'MATCH_REQUEST_ACCEPTED'
-  | 'PAYMENT_CAPTURED'
-  | 'PAYMENT_FAILED'
-  | 'BOOKING_CONFIRMED'
-  | 'BOOKING_CANCELLED'
-  | 'ESCROW_RELEASED'
-  | 'MEETING_INVITE'
-  | 'MEETING_REMINDER'
-  | 'REFUND_REQUESTED'
-  | 'REFUND_COMPLETED'
-  | 'DISPUTE_RAISED'
-  | 'DISPUTE_RAISED_VENDOR'
-  | 'DISPUTE_NEEDS_REVIEW'
-  | 'DISPUTE_RESOLVED'
-  | 'SUBSCRIPTION_RENEWED'
-  | 'SUBSCRIPTION_FAILED'
-  | 'GENERIC';
+// NotificationType is the canonical job-type union — now owned by
+// @smartshaadi/types and re-exported here for existing importers.
+export type { NotificationType };
 
 export interface NotificationDeliveryJob {
   /** Recipient user.id (Better Auth). Either `userId` OR `profileId` is required. */
@@ -154,6 +140,101 @@ interface RenderedContent {
   ctaUrl?:  string;
 }
 
+/** "MATCH_REQUEST_EXPIRED" → "Match request expired" — readable last resort. */
+function humanize(type: string): string {
+  const t = type.replace(/_/g, ' ').toLowerCase();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/** CTA button label keyed off the coarse category. */
+function ctaLabelFor(type: string): string {
+  switch (notificationCategory(type)) {
+    case 'MESSAGE':    return 'Open chat';
+    case 'VIDEO_CALL': return 'View call';
+    case 'BOOKING':    return 'View booking';
+    case 'PAYMENT':    return 'View details';
+    case 'VENDOR':     return 'Open dashboard';
+    case 'PROFILE':    return 'Review';
+    default:           return 'View';
+  }
+}
+
+/**
+ * Human title/body for every job type not covered by a bespoke render() case.
+ * Reads real payload fields so email/SMS/in-app bodies are never empty. Any
+ * unknown type falls back to a humanized title (never blank).
+ */
+function describe(type: string, payload: Record<string, unknown>): { title: string; body: string } {
+  const s = (k: string): string => (typeof payload[k] === 'string' ? (payload[k] as string) : '');
+  const rupees = `₹${Number(payload['amount'] ?? 0).toLocaleString('en-IN')}`;
+
+  switch (type) {
+    case 'MATCH_REQUEST_RECEIVED':   return { title: 'New interest received',    body: 'Someone is interested in your profile.' };
+    case 'MATCH_REQUEST_SUPER_LIKE': return { title: 'Super interest received ✨', body: 'Someone super-liked your profile.' };
+    case 'MATCH_ACCEPTED':
+    case 'MATCH_REQUEST_ACCEPTED':   return { title: "You're connected 🎉",       body: 'Your interest was accepted — start a conversation.' };
+    case 'MATCH_DECLINED':
+    case 'MATCH_REQUEST_DECLINED':   return { title: 'Interest declined',         body: 'Your interest was politely declined.' };
+    case 'MATCH_WITHDRAWN':          return { title: 'Interest withdrawn',        body: 'A pending interest was withdrawn.' };
+    case 'MATCH_REQUEST_EXPIRED':    return { title: 'Interest expired',          body: 'A pending interest expired without a response.' };
+    case 'NEW_MATCH':                return { title: 'New match',                 body: 'A new profile matches your preferences.' };
+    case 'NEW_MESSAGE':              return { title: 'New message',               body: s('preview') || 'You have a new message.' };
+
+    case 'MEETING_PROPOSED':  return { title: 'Video call proposed',  body: s('scheduledAt') ? `Proposed for ${s('scheduledAt')}.` : 'A video call was proposed.' };
+    case 'MEETING_CONFIRMED': return { title: 'Video call confirmed', body: s('scheduledAt') ? `Confirmed for ${s('scheduledAt')}.` : 'Your video call is confirmed.' };
+    case 'MEETING_REMINDER':  return { title: 'Video call reminder',  body: s('scheduledAt') ? `Starting ${s('scheduledAt')}.` : 'Your video call is starting soon.' };
+
+    case 'NEW_BOOKING_REQUEST': return { title: 'New booking request', body: 'You have a new booking request to review.' };
+    case 'BOOKING_CONFIRMED':   return { title: 'Booking confirmed',   body: 'Your booking has been confirmed.' };
+    case 'BOOKING_CANCELLED':   return { title: 'Booking cancelled',   body: 'A booking was cancelled.' };
+
+    case 'VENDOR_SUBMITTED':  return { title: 'Vendor profile submitted',    body: 'Your listing is under review.' };
+    case 'VENDOR_APPROVED':   return { title: 'Vendor profile approved ✅',   body: s('businessName') ? `${s('businessName')} is now live.` : 'Your listing is now live.' };
+    case 'VENDOR_REJECTED':   return { title: 'Vendor profile needs changes', body: s('reason') || 'Your listing needs updates before approval.' };
+    case 'VENDOR_SUSPENDED':  return { title: 'Vendor profile suspended',    body: s('reason') || 'Your listing has been suspended.' };
+    case 'VENDOR_REINSTATED': return { title: 'Vendor profile reinstated',   body: 'Your listing is active again.' };
+
+    case 'PAYMENT_RECEIVED':      return { title: 'Payment received',    body: `${rupees} received.` };
+    case 'PAYMENT_FAILED':
+    case 'SUBSCRIPTION_FAILED':   return { title: 'Payment failed',      body: 'A payment could not be processed.' };
+    case 'SUBSCRIPTION_RENEWED':  return { title: 'Subscription renewed', body: 'Your plan has been renewed.' };
+    case 'ESCROW_RELEASED':       return { title: 'Funds released',      body: `${rupees} released from escrow.` };
+    case 'REFUND_REQUESTED':      return { title: 'Refund requested',    body: 'A refund request was submitted.' };
+    case 'REFUND_PROCESSED':
+    case 'REFUND_COMPLETED':      return { title: 'Refund processed',    body: `${rupees} refunded.` };
+    case 'PAYOUT_INITIATED':      return { title: 'Payout initiated',    body: `${rupees} is on its way to your account.` };
+    case 'PAYOUT_FAILED':         return { title: 'Payout failed',       body: 'A payout could not be completed.' };
+    case 'INVOICE_AVAILABLE':     return { title: 'Invoice available',   body: 'A new invoice is ready to view.' };
+    case 'WALLET_CREDITED':       return { title: 'Wallet credited',     body: `${rupees} added to your wallet.` };
+    case 'WALLET_DEBITED':        return { title: 'Wallet debited',      body: `${rupees} spent from your wallet.` };
+    case 'PAYMENT_LINK_RECEIVED': return { title: 'Payment link received', body: 'You have a new payment link.' };
+    case 'PROMO_APPLIED':         return { title: 'Promo applied',       body: 'A promo code was applied.' };
+
+    case 'COORDINATOR_ASSIGNED': return { title: 'Coordinator assigned', body: 'A coordinator has been assigned to your wedding.' };
+    case 'INCIDENT_RAISED':      return { title: 'Incident raised',      body: s('summary') || 'A day-of incident was reported.' };
+    case 'CEREMONY_REMINDER':
+    case 'CEREMONY_T_30D':
+    case 'CEREMONY_T_7D':
+    case 'CEREMONY_T_1D':
+    case 'CEREMONY_T_1H':
+    case 'COUNTDOWN':            return { title: 'Ceremony reminder', body: 'Your ceremony is coming up.' };
+    case 'TASK_DUE':            return { title: 'Task due',          body: 'A wedding task is due soon.' };
+    case 'RSVP_RECEIVED':       return { title: 'RSVP received',     body: 'A guest responded to your invitation.' };
+    case 'RSVP_FOLLOWUP':       return { title: 'RSVP follow-up',    body: 'Some guests still need to respond.' };
+    case 'VENDOR_PAYMENT':      return { title: 'Vendor payment due', body: 'A vendor payment is due.' };
+    case 'GUEST_REMINDER':      return { title: 'Guest reminder',    body: 'A reminder about your guest list.' };
+    case 'BUDGET_ALERT':        return { title: 'Budget alert',      body: s('message') || 'Your wedding budget needs attention.' };
+    case 'DAY_OF_CHECKIN':      return { title: 'Day-of check-in',   body: 'Time for your day-of check-in.' };
+
+    case 'PROFILE_REPORTED_MODERATION': return { title: 'Profile reported', body: 'A profile report needs moderation.' };
+
+    default: {
+      const explicit = s('title');
+      return { title: explicit || humanize(type), body: s('body') };
+    }
+  }
+}
+
 function render(type: string, payload: Record<string, unknown>): RenderedContent {
   switch (type) {
     case 'NEW_CHAT_MESSAGE': {
@@ -239,12 +320,11 @@ function render(type: string, payload: Record<string, unknown>): RenderedContent
       };
     }
     default: {
-      const title = (payload['title'] as string) ?? 'Smart Shaadi update';
-      const body  = (payload['body']  as string) ?? '';
-      const ctaUrl = payload['ctaUrl'] as string | undefined;
-      const ctaLabel = payload['ctaLabel'] as string | undefined;
+      const { title, body } = describe(type, payload);
+      const ctaUrl   = deepLinkFor(type, payload);
+      const ctaLabel = ctaLabelFor(type);
       const tplOpts: { title: string; body: string; ctaUrl?: string; ctaLabel?: string } = ctaUrl
-        ? (ctaLabel ? { title, body, ctaUrl, ctaLabel } : { title, body, ctaUrl })
+        ? { title, body, ctaUrl, ctaLabel }
         : { title, body };
       return {
         title,
@@ -280,25 +360,14 @@ export async function deliverNotification(job: NotificationDeliveryJob): Promise
   const contact = await getUserContact(userId);
   const isTransactional = TRANSACTIONAL_TYPES.has(type);
   const content = render(type, payload);
+  const category = notificationCategory(type);
+  // Bespoke render cases set their own ctaUrl; fall back to the derived deep
+  // link so every notification is clickable and carries a route in `data`.
+  const ctaUrl = content.ctaUrl && content.ctaUrl.length > 0
+    ? content.ctaUrl
+    : deepLinkFor(type, payload);
 
-  // 1. In-app — always persist for transactional, gated by inApp flag for others.
-  if (prefs.inApp || isTransactional) {
-    try {
-      await db.insert(notifications).values({
-        userId,
-        type:    (TYPE_ENUM_MAP[type] ?? 'INFO') as never,
-        title:   content.title,
-        body:    content.body,
-        data:    payload,
-        sentVia: [],
-      });
-      sentVia.push('inapp');
-    } catch (err) {
-      console.warn('[notifications] in-app insert failed:', err);
-    }
-  }
-
-  // 2. Push — to all device tokens.
+  // 1. Push — to all device tokens.
   if (prefs.push) {
     const tokens = await getDeviceTokens(userId);
     for (const t of tokens) {
@@ -306,47 +375,71 @@ export async function deliverNotification(job: NotificationDeliveryJob): Promise
         token: t.token,
         title: content.title,
         body:  content.body,
-        ...(content.ctaUrl ? { data: { url: content.ctaUrl, type } } : { data: { type } }),
+        ...(ctaUrl ? { data: { url: ctaUrl, type } } : { data: { type } }),
       };
       const r = await sendPush(pushPayload);
       if (r.ok) sentVia.push('push');
     }
   }
 
-  // 3. Email — only when contact present + pref enabled (or transactional).
+  // 2. Email — only when contact present + pref enabled (or transactional).
   if (contact.email && (prefs.email || isTransactional)) {
     const r = await sendEmail({ to: contact.email, ...content.email });
     if (r.ok) sentVia.push('email');
   }
 
-  // 4. SMS — only transactional or explicit opt-in.
+  // 3. SMS — only transactional or explicit opt-in.
   if (contact.phone && prefs.sms && isTransactional) {
     const r = await sendSms({ phone: contact.phone, message: content.sms });
     if (r.ok) sentVia.push('sms');
   }
 
+  // 4. In-app — persist for the bell/panel, then push over the socket so open
+  //    tabs update live. Persisted last so `sentVia` records every channel this
+  //    notification actually went out on. `data` carries the canonical category,
+  //    original job type and deep-link the UI needs.
+  if (prefs.inApp || isTransactional) {
+    const data = {
+      ...payload,
+      category,
+      jobType: type,
+      ...(ctaUrl ? { ctaUrl } : {}),
+    };
+    try {
+      const [row] = await db
+        .insert(notifications)
+        .values({
+          userId,
+          type:    toNotificationEnum(type) as never,
+          title:   content.title,
+          body:    content.body,
+          data,
+          sentVia: [...sentVia, 'inapp'],
+        })
+        .returning({ id: notifications.id, createdAt: notifications.createdAt });
+      sentVia.push('inapp');
+
+      if (row) {
+        emitNotificationToUser(userId, {
+          id:        row.id,
+          type:      toNotificationEnum(type),
+          category,
+          title:     content.title,
+          body:      content.body,
+          payload:   data,
+          createdAt: row.createdAt instanceof Date
+            ? row.createdAt.toISOString()
+            : String(row.createdAt),
+        });
+      }
+    } catch (err) {
+      console.warn('[notifications] in-app insert failed:', err);
+    }
+  }
+
   return { sentVia };
 }
 
-const TYPE_ENUM_MAP: Record<string, string> = {
-  NEW_CHAT_MESSAGE:        'NEW_MESSAGE',
-  MATCH_REQUEST_RECEIVED:  'NEW_MATCH',
-  MATCH_REQUEST_ACCEPTED:  'MATCH_ACCEPTED',
-  MATCH_REQUEST_DECLINED:  'MATCH_DECLINED',
-  PAYMENT_CAPTURED:        'PAYMENT_RECEIVED',
-  PAYMENT_FAILED:          'PAYMENT_FAILED',
-  BOOKING_CONFIRMED:       'BOOKING_CONFIRMED',
-  BOOKING_CANCELLED:       'BOOKING_CANCELLED',
-  ESCROW_RELEASED:         'ESCROW_RELEASED',
-  MEETING_INVITE:          'SYSTEM',
-  MEETING_REMINDER:        'SYSTEM',
-  REFUND_REQUESTED:        'REFUND_REQUESTED',
-  REFUND_COMPLETED:        'REFUND_PROCESSED',
-  DISPUTE_RAISED:          'SYSTEM',
-  DISPUTE_RAISED_VENDOR:   'SYSTEM',
-  DISPUTE_NEEDS_REVIEW:    'SYSTEM',
-  DISPUTE_RESOLVED:        'SYSTEM',
-  SUBSCRIPTION_RENEWED:    'PAYMENT_RECEIVED',
-  SUBSCRIPTION_FAILED:     'PAYMENT_FAILED',
-  GENERIC:                 'SYSTEM',
-};
+// Job-type → DB-enum resolution lives in ./enum-map.ts (dependency-free so it's
+// unit-testable). Re-exported here for callers/tests that import from service.
+export { toNotificationEnum, isValidNotificationEnum } from './enum-map.js';

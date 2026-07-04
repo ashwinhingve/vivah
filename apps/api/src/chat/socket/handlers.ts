@@ -336,9 +336,14 @@ export function registerChatHandlers(io: Namespace, socket: Socket): void {
           void notificationsQueue.add(
             'NEW_CHAT_MESSAGE',
             {
-              userId:  receiverProfileId,
-              type:    'NEW_CHAT_MESSAGE',
-              payload: { matchRequestId },
+              // receiverProfileId is a profiles.id — pass it as profileId so the
+              // worker resolves it to the Better Auth user.id. Passing it as
+              // userId alone (the old bug) violated the notifications.user_id FK,
+              // so NEW_CHAT_MESSAGE in-app rows never persisted.
+              profileId: receiverProfileId,
+              userId:    receiverProfileId,
+              type:      'NEW_CHAT_MESSAGE',
+              payload:   { matchRequestId },
             },
             { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
           )

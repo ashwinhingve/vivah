@@ -28,6 +28,7 @@ import {
 import type { ProfileId } from '@smartshaadi/types';
 import { Chat } from '../../infrastructure/mongo/models/Chat.js';
 import { notificationsQueue } from '../../infrastructure/redis/queues.js';
+import { notifyAdmins } from '../../notifications/service.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -589,7 +590,11 @@ export async function reportUser(
 
   if (!row) throw serviceError('INSERT_FAILED', 'Failed to record report');
 
-  pushNotify('PROFILE_REPORTED_MODERATION', 'admin', {
+  // Fan out to every admin via the dedicated helper. The old `'admin'` profileId
+  // sentinel passed to pushNotify hit eq(profiles.id, 'admin') on a uuid column
+  // and threw `invalid input syntax for type uuid`, burning 5 BullMQ retries per
+  // report and delivering nothing.
+  void notifyAdmins('PROFILE_REPORTED_MODERATION', {
     reportId:   row.id,
     reporterId,
     reportedId: reportedProfileId,

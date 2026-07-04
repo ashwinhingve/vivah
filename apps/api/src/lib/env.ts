@@ -23,6 +23,10 @@ export const envSchema = z.object({
   // Swap to real by removing this var (or setting to false) — no code change needed.
   USE_MOCK_SERVICES: z.string().default('false').transform(v => v === 'true'),
 
+  // Opt-in to run the notifications BullMQ worker even in mock/dev mode, so the
+  // realtime bell can be exercised locally without USE_MOCK_SERVICES=false.
+  NOTIFICATIONS_WORKER_ENABLED: z.string().default('false').transform(v => v === 'true'),
+
   // MongoDB live override: when 'true', connect to MongoDB even if USE_MOCK_SERVICES=true.
   // Lets us use real Mongo Atlas in production while keeping OTP/Razorpay/etc. mocked
   // until those provider registrations are completed.

@@ -476,6 +476,14 @@ async function bootstrap(): Promise<void> {
     registerP3Workers(workers);
   }
 
+  // Opt-in: run ONLY the notifications worker in mock/dev too, so the realtime
+  // bell can be exercised locally without flipping USE_MOCK_SERVICES=false
+  // (which would force real Razorpay/MSG91/Daily). Idempotent — no-ops if the
+  // block above already started it. Providers still mock-guard individually.
+  if (env.USE_MOCK_SERVICES && env.NOTIFICATIONS_WORKER_ENABLED) {
+    workers.push(startNotificationsWorker());
+  }
+
   // Graceful shutdown — Railway sends SIGTERM before killing containers.
   // Drain HTTP, BullMQ workers, Redis, Postgres, Mongo before exit.
   let shuttingDown = false;
