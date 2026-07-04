@@ -20,7 +20,7 @@ import { sendEmail } from './providers/ses.js';
 import { sendSms } from './providers/msg91.js';
 import * as emailTpl from './templates/email.js';
 import * as smsTpl from './templates/sms.js';
-import { emitNotificationToUser } from '../chat/socket/index.js';
+import { emitNotification } from './realtime.js';
 import { notificationCategory, deepLinkFor, type NotificationType } from '@smartshaadi/types';
 import { toNotificationEnum } from './enum-map.js';
 
@@ -420,7 +420,7 @@ export async function deliverNotification(job: NotificationDeliveryJob): Promise
       sentVia.push('inapp');
 
       if (row) {
-        emitNotificationToUser(userId, {
+        emitNotification(userId, {
           id:        row.id,
           type:      toNotificationEnum(type),
           category,

@@ -59,7 +59,8 @@ vi.mock('../../lib/db.js', () => ({
     insert: vi.fn(() => ({
       values: vi.fn().mockImplementation((row: { userId: string; type: string; title: string; body: string }) => {
         inserted.push(row);
-        return Promise.resolve();
+        // deliverNotification now chains .returning() to get the new row id.
+        return { returning: vi.fn().mockResolvedValue([{ id: 'notif-1', createdAt: new Date() }]) };
       }),
     })),
   },

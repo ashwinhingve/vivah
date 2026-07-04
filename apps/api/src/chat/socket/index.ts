@@ -6,6 +6,7 @@ import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
 import { authenticateHandshake } from './auth.js'
 import { corsOriginDelegate } from '../../lib/cors.js'
+import { setNotificationEmitter } from '../../notifications/realtime.js'
 import type { NotificationEvent } from '@smartshaadi/types'
 
 let ioInstance: Server | null = null
@@ -101,6 +102,10 @@ export async function initSocket(server: HttpServer): Promise<Server> {
   notif.on('connection', (socket) => {
     socket.join(`user:${socket.data['userId'] as string}`)
   })
+
+  // Register the realtime transport with the delivery worker (which never
+  // imports this module — see notifications/realtime.ts for why).
+  setNotificationEmitter(emitNotificationToUser)
 
   return io
 }
