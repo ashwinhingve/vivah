@@ -73,12 +73,12 @@ export interface NotificationRow {
   type:      string;
   title:     string;
   body:      string;
-  /** Arbitrary payload; carries `category`, `jobType`, `ctaUrl` written at insert. */
-  data:      (Record<string, unknown> & {
-    category?: NotificationCategory;
-    jobType?:  string;
-    ctaUrl?:   string;
-  }) | null;
+  /**
+   * Arbitrary payload. New rows carry `category`, `jobType` and `ctaUrl` written
+   * at insert time; read them via the helpers in the web app rather than typing
+   * the bag here (an index-signature `unknown` can't narrow to those unions).
+   */
+  data:      Record<string, unknown> | null;
   read:      boolean;
   sentVia:   string[] | null;
   createdAt: string;
