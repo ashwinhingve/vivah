@@ -1,4 +1,5 @@
 // Shared Socket.IO event contract — server emits + client listens, both ends import.
+import type { NotificationCategory } from './notification.js';
 
 import type { ChatMessage, MessageReaction } from './chat.js';
 
@@ -56,6 +57,8 @@ export interface ConversationUpdatedEvent {
 export interface NotificationEvent {
   id:        string;
   type:      string;
+  /** Coarse UX bucket for the bell/panel — icon, colour, grouping. */
+  category?: NotificationCategory;
   title:     string;
   body:      string;
   payload?:  Record<string, unknown>;

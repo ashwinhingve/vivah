@@ -13,6 +13,7 @@ export * from './store.js';
 export * from './entitlements.js';
 export * from './payments.js';
 export * from './socket.js';
+export * from './notification.js';
 export * from './ai.js';
 export * from './events.js';
 // ── Phase 5 contracts (Tier 0) ──────────────────────────────────────────────

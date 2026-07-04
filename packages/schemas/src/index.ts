@@ -8,6 +8,7 @@ export * from './video.js';
 export * from './rental.js';
 export * from './store.js';
 export * from './payments.js';
+export * from './notification.js';
 // ── Phase 5 contracts (Tier 0) ──────────────────────────────────────────────
 export * from './money.js';
 export * from './vue.js';
