@@ -6,6 +6,7 @@ import { env } from '../../lib/env.js'
 import { registerChatHandlers } from './handlers.js'
 import { authenticateHandshake } from './auth.js'
 import { corsOriginDelegate } from '../../lib/cors.js'
+import type { NotificationEvent } from '@smartshaadi/types'
 
 let ioInstance: Server | null = null
 let socketAdapterKind: 'redis' | 'memory' = 'memory'
@@ -16,6 +17,17 @@ export function getIO(): Server | null {
 
 export function getSocketAdapterKind(): 'redis' | 'memory' {
   return socketAdapterKind
+}
+
+/**
+ * Push a notification to every open tab of a user over the /notifications
+ * namespace. No-op if the socket server hasn't booted. Called by the
+ * notifications delivery worker after the in-app row is persisted.
+ */
+export function emitNotificationToUser(userId: string, event: NotificationEvent): void {
+  const io = getIO()
+  if (!io) return
+  io.of('/notifications').to(`user:${userId}`).emit('notification_received', event)
 }
 
 async function attachRedisAdapter(io: Server): Promise<void> {
@@ -71,6 +83,23 @@ export async function initSocket(server: HttpServer): Promise<Server> {
 
   chat.on('connection', (socket) => {
     registerChatHandlers(chat, socket)
+  })
+
+  // Dedicated per-user notification channel. Kept separate from /chat so
+  // notification sockets never run the chat presence/handler machinery, and
+  // rooms are keyed by Better Auth userId — which works for ALL roles,
+  // including vendors/admins/coordinators that have no `profiles` row. Rooms
+  // are per-namespace, so `user:${userId}` here never collides with /chat's
+  // `user:${profileId}` rooms. Inherits the Redis adapter already set on `io`.
+  const notif = io.of('/notifications')
+  notif.use(async (socket, next) => {
+    const userId = await authenticateHandshake(socket.handshake)
+    if (!userId) return next(new Error('Unauthorized'))
+    socket.data['userId'] = userId
+    next()
+  })
+  notif.on('connection', (socket) => {
+    socket.join(`user:${socket.data['userId'] as string}`)
   })
 
   return io
