@@ -1,6 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { eq, desc, and } from 'drizzle-orm';
-import { z } from 'zod';
+import { eq, desc, and, count } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import {
   user,
@@ -11,6 +10,7 @@ import {
 import { authenticate } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
 import type { UserRole } from '@smartshaadi/types';
+import { NotificationPrefsSchema, RegisterDeviceSchema, NotificationListQuerySchema } from '@smartshaadi/schemas';
 import { getEntitlements, getProfileTier } from '../lib/entitlements.js';
 import { peekInterestQuota } from '../lib/quotas.js';
 
@@ -66,21 +66,34 @@ usersRouter.get('/me/entitlements', authenticate, async (req: Request, res: Resp
 
 /**
  * GET /api/v1/users/me/notifications?limit=50&unreadOnly=true
- * Lists most-recent notifications for the authenticated user.
+ * Lists most-recent notifications + the unread count (one round trip so the
+ * bell can hydrate badge + list from a single server fetch).
  */
 usersRouter.get('/me/notifications', authenticate, async (req: Request, res: Response) => {
-  const limit = Math.min(Number(req.query['limit'] ?? 50), 200);
-  const unreadOnly = req.query['unreadOnly'] === 'true';
+  const parsed = NotificationListQuerySchema.safeParse(req.query);
+  const limit = parsed.success ? parsed.data.limit : 50;
+  const unreadOnly = parsed.success ? parsed.data.unreadOnly : false;
+  const userId = req.user!.id;
+
   const where = unreadOnly
-    ? and(eq(notifications.userId, req.user!.id), eq(notifications.read, false))
-    : eq(notifications.userId, req.user!.id);
-  const items = await db
-    .select()
-    .from(notifications)
-    .where(where)
-    .orderBy(desc(notifications.createdAt))
-    .limit(limit);
-  ok(res, { items });
+    ? and(eq(notifications.userId, userId), eq(notifications.read, false))
+    : eq(notifications.userId, userId);
+
+  const [items, unreadRows] = await Promise.all([
+    db.select().from(notifications).where(where)
+      .orderBy(desc(notifications.createdAt)).limit(limit),
+    db.select({ value: count() }).from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.read, false))),
+  ]);
+
+  ok(res, { items, unreadCount: Number(unreadRows[0]?.value ?? 0) });
+});
+
+/** GET /me/notifications/unread-count — cheap badge poll / recovery */
+usersRouter.get('/me/notifications/unread-count', authenticate, async (req: Request, res: Response) => {
+  const [row] = await db.select({ value: count() }).from(notifications)
+    .where(and(eq(notifications.userId, req.user!.id), eq(notifications.read, false)));
+  ok(res, { unreadCount: Number(row?.value ?? 0) });
 });
 
 /** POST /me/notifications/:id/read — mark single notification read */
@@ -92,11 +105,34 @@ usersRouter.post('/me/notifications/:id/read', authenticate, async (req: Request
   ok(res, { ok: true });
 });
 
+/** POST /me/notifications/:id/unread — mark single notification unread */
+usersRouter.post('/me/notifications/:id/unread', authenticate, async (req: Request, res: Response) => {
+  const id = req.params['id'] ?? '';
+  await db.update(notifications)
+    .set({ read: false })
+    .where(and(eq(notifications.id, id), eq(notifications.userId, req.user!.id)));
+  ok(res, { ok: true });
+});
+
 /** POST /me/notifications/read-all — mark all read */
 usersRouter.post('/me/notifications/read-all', authenticate, async (req: Request, res: Response) => {
   await db.update(notifications)
     .set({ read: true })
     .where(eq(notifications.userId, req.user!.id));
+  ok(res, { ok: true });
+});
+
+/** DELETE /me/notifications/:id — clear a single notification (hard delete) */
+usersRouter.delete('/me/notifications/:id', authenticate, async (req: Request, res: Response) => {
+  const id = req.params['id'] ?? '';
+  await db.delete(notifications)
+    .where(and(eq(notifications.id, id), eq(notifications.userId, req.user!.id)));
+  ok(res, { ok: true });
+});
+
+/** DELETE /me/notifications — clear ALL notifications for the user */
+usersRouter.delete('/me/notifications', authenticate, async (req: Request, res: Response) => {
+  await db.delete(notifications).where(eq(notifications.userId, req.user!.id));
   ok(res, { ok: true });
 });
 
@@ -116,15 +152,6 @@ usersRouter.get('/me/notification-preferences', authenticate, async (req: Reques
     marketing:  row.marketing,
     mutedTypes: (row.mutedTypes as string[] | null) ?? [],
   });
-});
-
-const NotificationPrefsSchema = z.object({
-  push:       z.boolean().optional(),
-  sms:        z.boolean().optional(),
-  email:      z.boolean().optional(),
-  inApp:      z.boolean().optional(),
-  marketing:  z.boolean().optional(),
-  mutedTypes: z.array(z.string()).optional(),
 });
 
 /** PUT /me/notification-preferences — upsert */
@@ -152,12 +179,6 @@ usersRouter.put('/me/notification-preferences', authenticate, async (req: Reques
     });
   }
   ok(res, { ok: true });
-});
-
-const RegisterDeviceSchema = z.object({
-  token:    z.string().min(10),
-  platform: z.enum(['ios', 'android', 'web']),
-  appVersion: z.string().optional(),
 });
 
 /** POST /me/devices — register/refresh device push token */

@@ -22,10 +22,13 @@ export const RegisterDeviceSchema = z.object({
   appVersion: z.string().optional(),
 });
 
-/** Query params for GET /me/notifications. */
+/**
+ * Query params for GET /me/notifications. Note `unreadOnly` uses preprocess,
+ * NOT z.coerce.boolean — the latter maps the string "false" to `true`.
+ */
 export const NotificationListQuerySchema = z.object({
   limit:      z.coerce.number().int().min(1).max(200).default(50),
-  unreadOnly: z.coerce.boolean().default(false),
+  unreadOnly: z.preprocess((v) => v === true || v === 'true', z.boolean()).default(false),
   category:   z.string().optional(),
 });
 
