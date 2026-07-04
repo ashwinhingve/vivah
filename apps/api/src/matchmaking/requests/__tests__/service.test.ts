@@ -12,6 +12,7 @@ vi.mock('@smartshaadi/db', () => ({
   profiles:             {},
   profilePhotos:        {},
   auditLogs:            {},
+  user:                 {},
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -653,6 +654,9 @@ describe('matchmaking/requests/service', () => {
         from:  vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockResolvedValue([]),
+        // notifyAdmins awaits select().from().where() directly (no .limit);
+        // resolve it to one admin so the moderation job is enqueued.
+        then: (resolve: (v: unknown) => void) => { resolve([{ id: 'admin-1' }]); },
       });
       (dbMod.db as unknown as AnyRecord)['insert'] = vi.fn().mockReturnValue(
         makeInsertChain([{ id: 'report-1' }]),
@@ -664,13 +668,15 @@ describe('matchmaking/requests/service', () => {
         details: 'Bad message',
       });
       expect(result.reportId).toBe('report-1');
+      // notifyAdmins fans out one job per admin with the payload nested and the
+      // admin's userId set (replacing the broken 'admin' profileId sentinel).
       expect(mockQueueAdd).toHaveBeenCalledWith(
         'PROFILE_REPORTED_MODERATION',
         expect.objectContaining({
           type: 'PROFILE_REPORTED_MODERATION',
+          userId: 'admin-1',
           payload: expect.objectContaining({ category: 'HARASSMENT' }),
         }),
-        expect.any(Object),
       );
     });
   });

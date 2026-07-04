@@ -594,12 +594,12 @@ export async function reportUser(
   // sentinel passed to pushNotify hit eq(profiles.id, 'admin') on a uuid column
   // and threw `invalid input syntax for type uuid`, burning 5 BullMQ retries per
   // report and delivering nothing.
-  void notifyAdmins('PROFILE_REPORTED_MODERATION', {
+  await notifyAdmins('PROFILE_REPORTED_MODERATION', {
     reportId:   row.id,
     reporterId,
     reportedId: reportedProfileId,
     category:   input.category,
-  });
+  }).catch((e) => console.warn('[matchmaking] report moderation notify failed:', e));
 
   return { reportId: row.id };
 }
