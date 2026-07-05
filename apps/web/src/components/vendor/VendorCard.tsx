@@ -1,14 +1,13 @@
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight, Clock } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { InitialAvatar } from '@/components/ui/InitialAvatar';
+import { ProfileImage } from '@/components/ui/ProfileImage.client';
+import { resolvePhotoUrl } from '@/lib/photo';
 import { FavoriteButton } from './FavoriteButton.client';
-
-const R2_PUBLIC = process.env['NEXT_PUBLIC_R2_PUBLIC_URL'] ?? '';
 
 interface VendorCardProps {
   vendor: VendorProfile;
@@ -45,36 +44,28 @@ function priceRange(vendor: VendorProfile): string | null {
   return `₹${min.toLocaleString('en-IN')} – ₹${max.toLocaleString('en-IN')}`;
 }
 
-function coverUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  if (key.startsWith('http')) return key;
-  if (R2_PUBLIC) return `${R2_PUBLIC}/${key}`;
-  return null;
-}
-
 export function VendorCard({ vendor }: VendorCardProps) {
   const price = priceRange(vendor);
-  const cover = coverUrl(vendor.coverImageKey);
+  const cover = resolvePhotoUrl(vendor.coverImageKey);
 
   return (
     <Card className="group flex flex-col overflow-hidden border-gold/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <div className="relative aspect-[16/10] w-full bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10">
-        {cover ? (
-          <Image
-            src={cover}
-            alt={vendor.businessName}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover"
-          />
-        ) : (
-          <InitialAvatar
-            name={vendor.businessName}
-            size="lg"
-            shape="square"
-            className="h-full w-full rounded-none"
-          />
-        )}
+        <ProfileImage
+          src={cover}
+          fallback={
+            <InitialAvatar
+              name={vendor.businessName}
+              size="lg"
+              shape="square"
+              className="h-full w-full rounded-none"
+            />
+          }
+          alt={vendor.businessName}
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="object-cover"
+        />
 
         <div className="absolute top-2 right-2">
           <FavoriteButton

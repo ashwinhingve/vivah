@@ -33,6 +33,8 @@ interface Props {
   displayName: string;
   initialStatus: MatchStatus;
   requestId: string | null;
+  /** Hydrated from GET /shortlists/is-shortlisted so the heart survives refresh. */
+  initialShortlisted?: boolean;
   /** Render inline (desktop right-col) vs fixed sticky (mobile) */
   sticky?: boolean;
 }
@@ -254,14 +256,17 @@ export function ProfileActions({
   displayName,
   initialStatus,
   requestId,
+  initialShortlisted = false,
   sticky = true,
 }: Props) {
   const [status, setStatus] = useState<InternalStatus>(initialStatus);
   const [activeRequestId, setActiveRequestId] = useState<string | null>(requestId);
-  const [shortlisted, setShortlisted] = useState(false);
+  const [shortlisted, setShortlisted] = useState(initialShortlisted);
+  const [savingShortlist, setSavingShortlist] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
   const t = useTranslations('profileDetail');
+  const { toast } = useToast();
 
   async function sendInterest() {
     setStatus('sending');
@@ -296,10 +301,28 @@ export function ProfileActions({
     }
   }
 
-  function toggleShortlist() {
-    // Optimistic toggle
-    // TODO: wire to POST/DELETE /api/v1/matchmaking/shortlist/:profileId once endpoint exists
-    setShortlisted((v) => !v);
+  async function toggleShortlist() {
+    if (savingShortlist) return;
+    const next = !shortlisted;
+    setShortlisted(next); // optimistic
+    setSavingShortlist(true);
+    try {
+      const res = await fetch(`${API_URL}/api/v1/matchmaking/shortlists/${profileId}`, {
+        method: next ? 'POST' : 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        ...(next ? { body: JSON.stringify({}) } : {}),
+      });
+      if (!res.ok && res.status !== 409) {
+        setShortlisted(!next); // revert
+        toast(t('actions.shortlistFailed'), 'error');
+      }
+    } catch {
+      setShortlisted(!next); // revert
+      toast(t('actions.networkError'), 'error');
+    } finally {
+      setSavingShortlist(false);
+    }
   }
 
   const inner = (
@@ -308,7 +331,9 @@ export function ProfileActions({
       <button
         type="button"
         aria-label={shortlisted ? t('actions.removeShortlist') : t('actions.addShortlist')}
-        onClick={toggleShortlist}
+        aria-pressed={shortlisted}
+        disabled={savingShortlist}
+        onClick={() => { void toggleShortlist(); }}
         className={`w-11 h-11 rounded-lg border flex items-center justify-center transition-colors shrink-0 ${
           shortlisted
             ? 'border-primary bg-primary/10 text-primary'

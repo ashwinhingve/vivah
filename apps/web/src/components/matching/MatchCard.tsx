@@ -21,6 +21,10 @@ interface MatchCardProps {
   isVerified?: boolean;
   gunaPending?: boolean;
   hideGunaHint?: boolean;
+  /** Reflects that interest was already sent — disables + relabels the button. */
+  interestSent?: boolean;
+  /** Reflects that the profile is shortlisted — fills the bookmark icon. */
+  bookmarked?: boolean;
   onSendInterest?: (id: string) => void;
   onBookmark?: (id: string) => void;
   skeleton?: false;
@@ -70,6 +74,8 @@ export function MatchCard(props: Props) {
     isVerified,
     gunaPending,
     hideGunaHint,
+    interestSent,
+    bookmarked,
     onSendInterest,
     onBookmark,
   } = props;
@@ -128,18 +134,36 @@ export function MatchCard(props: Props) {
       <div className="p-3">
         {occupation ? <p className="mb-2 truncate text-xs text-muted-foreground">{occupation}</p> : null}
         <div className="flex gap-2">
-          <Button type="button" className="flex-1" onClick={() => onSendInterest?.(id)}>
-            <Send className="h-4 w-4" aria-hidden="true" />
-            {t('sendInterest')}
+          <Button
+            type="button"
+            className="flex-1"
+            disabled={interestSent}
+            onClick={() => onSendInterest?.(id)}
+          >
+            {interestSent ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                {t('interestSent')}
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" aria-hidden="true" />
+                {t('sendInterest')}
+              </>
+            )}
           </Button>
           <Button
             type="button"
             variant="outline"
             size="icon"
-            aria-label={t('bookmark')}
+            aria-label={bookmarked ? t('removeShortlist') : t('bookmark')}
+            aria-pressed={bookmarked}
             onClick={() => onBookmark?.(id)}
           >
-            <Bookmark className="h-4 w-4" aria-hidden="true" />
+            <Bookmark
+              className={`h-4 w-4 ${bookmarked ? 'fill-current text-primary' : ''}`}
+              aria-hidden="true"
+            />
           </Button>
         </div>
       </div>

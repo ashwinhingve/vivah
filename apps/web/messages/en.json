@@ -423,6 +423,7 @@
       "blockConfirm": "Block {name}? You won't see them or hear from them again.",
       "blocked": "User blocked",
       "blockFailed": "Block failed",
+      "shortlistFailed": "Could not update shortlist",
       "networkError": "Network error — try again"
     },
     "tabs": {
@@ -780,6 +781,9 @@
     "sendInterest": "Send Interest",
     "viewFullProfile": "View full profile",
     "couldNotSend": "Could not send interest",
+    "saved": "Saved to shortlist",
+    "removed": "Removed from shortlist",
+    "couldNotSave": "Could not update shortlist",
     "networkError": "Network error",
     "addHoroscope": "Add horoscope to see Guna score",
     "bookmark": "Bookmark profile",

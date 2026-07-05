@@ -61,6 +61,31 @@ async function getMatchStatusWithProfile(
   }
 }
 
+async function getShortlistStatus(profileId: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('better-auth.session_token')?.value;
+  if (!token) return false;
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/matchmaking/shortlists/is-shortlisted/${profileId}`,
+      {
+        headers: { Cookie: `better-auth.session_token=${token}` },
+        cache: 'no-store',
+      },
+    );
+    if (!res.ok) return false;
+    const json = (await res.json()) as {
+      success: boolean;
+      data?: { isShortlisted?: boolean } | boolean;
+    };
+    if (!json.success) return false;
+    if (typeof json.data === 'boolean') return json.data;
+    return json.data?.isShortlisted ?? false;
+  } catch {
+    return false;
+  }
+}
+
 /** Full CompatibilityScore shape from GET /api/v1/matchmaking/score/:profileId */
 interface FullMatchScore {
   compatibility: CompatibilityScore;
@@ -265,11 +290,12 @@ export async function generateMetadata({
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const [profile, entitlements, fullScore, matchStatus] = await Promise.all([
+  const [profile, entitlements, fullScore, matchStatus, isShortlisted] = await Promise.all([
     getProfile(profileId),
     getEntitlementsForCurrentUser(),
     getFullMatchScore(profileId),
     getMatchStatusWithProfile(profileId),
+    getShortlistStatus(profileId),
   ]);
 
   if (!profile) notFound();
@@ -404,6 +430,7 @@ export default async function ProfileViewPage({ params }: Props) {
                   displayName={displayName}
                   initialStatus={matchStatus.status}
                   requestId={matchStatus.requestId}
+                  initialShortlisted={isShortlisted}
                   sticky={false}
                 />
               </div>
@@ -490,6 +517,7 @@ export default async function ProfileViewPage({ params }: Props) {
           displayName={displayName}
           initialStatus={matchStatus.status}
           requestId={matchStatus.requestId}
+          initialShortlisted={isShortlisted}
           sticky={true}
         />
       )}

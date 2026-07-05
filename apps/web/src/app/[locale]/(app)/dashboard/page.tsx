@@ -20,7 +20,7 @@ import {
 const VIDEO_CALL_RE = /Video call started/i;
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
-import { MatchCard } from '@/components/matching/MatchCard';
+import { DashboardMatches } from '@/components/dashboard/DashboardMatches.client';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -36,7 +36,7 @@ import type {
 } from '@smartshaadi/types';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { formatRelativeIN } from '@/lib/format';
-import { InitialAvatar } from '@/components/ui/InitialAvatar';
+import { ConversationAvatar } from '@/components/dashboard/ConversationAvatar.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,7 +162,7 @@ export default async function DashboardPage({
   return (
     <PageTransition>
       <main id="main-content" className="min-h-screen bg-background">
-        <div className="mx-auto max-w-2xl px-4 py-6 space-y-7">
+        <div className="mx-auto max-w-2xl lg:max-w-6xl px-4 py-6 space-y-7">
 
           {/* ── Hero Greeting ──────────────────────────────────── */}
           <FadeUp delay={0}>
@@ -224,6 +224,7 @@ export default async function DashboardPage({
               icon={Heart}
               variant="teal"
               animDelayMs={0}
+              href="/feed"
               emptyCta={{ label: t('stats.refinePreferences'), href: '/profile/preferences' }}
             />
             <StatsCard
@@ -233,6 +234,7 @@ export default async function DashboardPage({
               icon={Mail}
               variant="gold"
               animDelayMs={100}
+              href="/requests"
               emptyCta={{ label: t('stats.viewPastRequests'), href: '/requests' }}
             />
             <StatsCard
@@ -242,6 +244,7 @@ export default async function DashboardPage({
               icon={Calendar}
               variant={upcomingBookings.length > 0 ? 'success' : 'default'}
               animDelayMs={200}
+              href="/bookings"
               emptyCta={{ label: t('stats.browseVendors'), href: '/vendors' }}
             />
             <StatsCard
@@ -252,6 +255,7 @@ export default async function DashboardPage({
               icon={Gauge}
               variant={completeness >= 70 ? 'success' : 'warning'}
               animDelayMs={300}
+              href="/profile/personal"
             />
           </StaggerList>
 
@@ -261,6 +265,10 @@ export default async function DashboardPage({
               <ProfileCompletenessCard sections={sections} />
             </FadeUp>
           )}
+
+          {/* ── Main column + Sidebar (two-column on lg+) ──────── */}
+          <div className="space-y-7 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+            <div className="space-y-7 lg:col-span-2">
 
           {/* ── Today's Matches ────────────────────────────────── */}
           <FadeUp delay={0.1}>
@@ -287,24 +295,7 @@ export default async function DashboardPage({
                 description={t('todaysMatches.warmingBody')}
               />
             ) : (
-              /* Horizontal scroll on mobile, 4-col grid on md+ */
-              <div className="-mx-4 px-4 overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:overflow-visible">
-                <div className="flex gap-3 sm:grid sm:grid-cols-4">
-                  {feed.slice(0, 4).map((item) => (
-                    <div key={item.profileId} className="w-44 shrink-0 sm:w-auto">
-                      <MatchCard
-                        id={item.profileId}
-                        name={item.name || 'Member'}
-                        age={item.age}
-                        city={item.city}
-                        compatibilityPct={item.compatibility?.totalScore}
-                        gunaPending={item.compatibility?.flags?.includes('guna_pending')}
-                        hideGunaHint
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <DashboardMatches items={feed.slice(0, 4)} />
             )}
           </FadeUp>
 
@@ -416,21 +407,7 @@ export default async function DashboardPage({
                         className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background"
                       >
                         <div className="relative shrink-0">
-                          {photo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={photo}
-                              alt={other?.firstName ?? 'Profile photo'}
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <InitialAvatar
-                              name={other?.firstName ?? ''}
-                              size="sm"
-                              shape="circle"
-                              className="h-10 w-10"
-                            />
-                          )}
+                          <ConversationAvatar src={photo} name={other?.firstName ?? ''} />
                           {other?.isOnline && (
                             <span
                               className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-surface bg-success"
@@ -467,6 +444,10 @@ export default async function DashboardPage({
             )}
           </FadeUp>
 
+            </div>
+
+            <aside className="space-y-7 lg:col-span-1 lg:space-y-6 lg:self-start lg:sticky lg:top-20">
+
           {/* ── My Wedding ─────────────────────────────────────── */}
           <FadeUp delay={0.2}>
             <SectionHeader
@@ -494,7 +475,7 @@ export default async function DashboardPage({
           {/* ── Quick Actions Strip ────────────────────────────── */}
           <FadeUp delay={0.28}>
             <SectionHeader title={t('quickActionsInline.title')} />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-1">
               {([
                 { href: '/feed',         label: t('quickActionsInline.findMatches'),   icon: Search, variant: 'teal'     },
                 { href: '/weddings/new', label: t('quickActionsInline.planWedding'),   icon: Cake,   variant: 'burgundy' },
@@ -532,6 +513,9 @@ export default async function DashboardPage({
               })}
             </div>
           </FadeUp>
+
+            </aside>
+          </div>
 
         </div>
 

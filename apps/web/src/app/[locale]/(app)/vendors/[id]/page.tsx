@@ -1,5 +1,4 @@
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import {
@@ -12,9 +11,10 @@ import { FavoriteButton } from '@/components/vendor/FavoriteButton.client';
 import { InquiryDialog } from '@/components/vendor/InquiryDialog.client';
 import { VendorReviews } from '@/components/vendor/VendorReviews.client';
 import { AvailabilityCalendar } from '@/components/vendor/AvailabilityCalendar.client';
+import { ProfileImage } from '@/components/ui/ProfileImage.client';
+import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-const R2_PUBLIC = process.env['NEXT_PUBLIC_R2_PUBLIC_URL'] ?? '';
 
 type VendorDetail = VendorProfile & { portfolio: PortfolioDoc | null };
 
@@ -74,13 +74,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function coverUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  if (key.startsWith('http')) return key;
-  if (R2_PUBLIC) return `${R2_PUBLIC}/${key}`;
-  return null;
-}
-
 export default async function VendorDetailPage({ params }: PageProps) {
   const { id } = await params;
   const cookieStore = await cookies();
@@ -93,7 +86,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
 
   if (!vendor) notFound();
 
-  const cover = coverUrl(vendor.coverImageKey);
+  const cover = resolvePhotoUrl(vendor.coverImageKey);
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,19 +99,18 @@ export default async function VendorDetailPage({ params }: PageProps) {
 
         {/* Hero with cover */}
         <div className="relative aspect-[16/7] sm:aspect-[16/6] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10 mb-4">
-          {cover ? (
-            <Image
-              src={cover}
-              alt={vendor.businessName}
-              fill
-              sizes="100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-6xl">
-              {vendor.businessName.charAt(0)}
-            </div>
-          )}
+          <ProfileImage
+            src={cover}
+            fallback={
+              <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-6xl">
+                {vendor.businessName.charAt(0)}
+              </div>
+            }
+            alt={vendor.businessName}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <FavoriteButton vendorId={vendor.id} initialFavorite={vendor.isFavorite ?? false} className="bg-surface/90 backdrop-blur" />
           </div>

@@ -20,6 +20,8 @@ interface StatsCardProps {
   animDelayMs?: number;
   /** CTA shown only when the metric is zero — keeps empty cards actionable. */
   emptyCta?: { label: string; href: string };
+  /** When set, the whole tile becomes a link to this route. */
+  href?: string;
 }
 
 const VARIANT_STYLES: Record<StatsVariant, { tile: string; value: string }> = {
@@ -40,6 +42,7 @@ export function StatsCard({
   valuePercent,
   animDelayMs = 0,
   emptyCta,
+  href,
 }: StatsCardProps) {
   const v = VARIANT_STYLES[variant];
   const deltaPositive = delta != null && delta > 0;
@@ -50,13 +53,14 @@ export function StatsCard({
   const isZero = numericValue === 0;
   const delaySec = animDelayMs / 1000;
 
-  return (
-    <div
-      className={cn(
-        'group relative flex h-32 flex-col gap-1.5 rounded-xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
-        v.tile
-      )}
-    >
+  const cardClasses = cn(
+    'group relative flex h-32 flex-col gap-1.5 rounded-xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
+    href && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    v.tile
+  );
+
+  const body = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <p className="min-h-[2.5rem] text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {label}
@@ -97,7 +101,15 @@ export function StatsCard({
         </div>
       </div>
 
-      {isZero && emptyCta ? (
+      {href ? (
+        <p className="inline-flex items-center gap-1 text-[13px] text-muted-foreground">
+          {sub}
+          <ArrowRight
+            className="h-3 w-3 text-teal opacity-0 -translate-x-1 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
+            aria-hidden="true"
+          />
+        </p>
+      ) : isZero && emptyCta ? (
         <Link
           href={emptyCta.href}
           className="inline-flex items-center gap-1 text-xs font-semibold text-teal underline-offset-2 hover:underline"
@@ -108,6 +120,14 @@ export function StatsCard({
       ) : sub ? (
         <p className="text-[13px] text-muted-foreground">{sub}</p>
       ) : null}
-    </div>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className={cardClasses}>
+      {body}
+    </Link>
+  ) : (
+    <div className={cardClasses}>{body}</div>
   );
 }
