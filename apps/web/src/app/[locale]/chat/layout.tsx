@@ -6,7 +6,7 @@ import { SocketProvider } from '@/lib/socket/SocketProvider.client'
 export default function ChatLayout({ children }: { children: ReactNode }) {
   return (
     <SocketProvider>
-      <div className="flex flex-col min-h-screen">{children}</div>
+      <div className="flex h-dvh flex-col overflow-hidden">{children}</div>
     </SocketProvider>
   )
 }

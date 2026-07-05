@@ -298,15 +298,23 @@ async function seedUsers() {
     }).onConflictDoNothing();
   }
 
-  // Profile photos — initials avatar (r2_key = null-equivalent placeholder); 4 for Priya, 5 for Arjun
+  // Profile photos — 4 for Priya, 5 for Arjun. Keys live under the `photos/`
+  // prefix so the /__media redirect (prefix-allowlisted) resolves them, and we
+  // drop a bundled placeholder image at .data/mock-r2/<key> so USE_MOCK_SERVICES
+  // dev serves real bytes (no broken-image icons, no console 404s).
   const photoRows = [
-    ...Array.from({ length: 4 }).map((_, i) => ({ profileId: PRIYA_PROFILE_ID, key: `seed/priya-${i + 1}.jpg`, isPrimary: i === 0, order: i })),
-    ...Array.from({ length: 5 }).map((_, i) => ({ profileId: ARJUN_PROFILE_ID, key: `seed/arjun-${i + 1}.jpg`, isPrimary: i === 0, order: i })),
+    ...Array.from({ length: 4 }).map((_, i) => ({ profileId: PRIYA_PROFILE_ID, key: `photos/seed/priya-${i + 1}.png`, isPrimary: i === 0, order: i })),
+    ...Array.from({ length: 5 }).map((_, i) => ({ profileId: ARJUN_PROFILE_ID, key: `photos/seed/arjun-${i + 1}.png`, isPrimary: i === 0, order: i })),
   ];
+  const MOCK_R2_ROOT = resolve(__dirname, '../../../apps/api/.data/mock-r2');
+  const placeholderBytes = readFileSync(resolve(__dirname, 'assets/placeholder-avatar.png'));
   for (const ph of photoRows) {
     await db.insert(profilePhotos).values({
       profileId: ph.profileId, r2Key: ph.key, isPrimary: ph.isPrimary, displayOrder: ph.order,
     }).onConflictDoNothing();
+    const filePath = resolve(MOCK_R2_ROOT, ph.key);
+    mkdirSync(dirname(filePath), { recursive: true });
+    writeFileSync(filePath, placeholderBytes);
   }
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { Button } from '@/components/ui/button';
 import { subscribeToPlanAction } from './actions';
 
 interface Props {
@@ -49,14 +50,14 @@ export function BillingConfirm({ planCode, planName, amount, interval, features,
         </ul>
       ) : null}
 
-      <button
+      <Button
         type="button"
         onClick={onConfirm}
         disabled={pending}
-        className="w-full rounded-lg bg-teal px-4 py-3 font-semibold text-white transition hover:bg-teal/90 disabled:opacity-60"
+        className="w-full"
       >
         {pending ? 'Processing…' : 'Confirm & Pay'}
-      </button>
+      </Button>
 
       {error ? (
         <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

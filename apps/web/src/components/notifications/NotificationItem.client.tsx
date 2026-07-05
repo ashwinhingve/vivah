@@ -3,7 +3,7 @@
 import { Check, Undo2, X } from 'lucide-react';
 import { notificationMeta, type NotificationRow } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
-import { cn } from '@/lib/utils';
+import { cn, touchTarget } from '@/lib/utils';
 import { CATEGORY_ICON, TONE_CLASSES, rowCategory, rowHref, formatAge } from './notification-ui';
 
 interface Props {
@@ -61,13 +61,14 @@ export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Prop
         </button>
       )}
 
-      <div className="flex shrink-0 flex-col items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+      {/* Always visible on touch (no hover); hover-reveal only on sm+ pointer screens */}
+      <div className="flex shrink-0 flex-row items-center gap-1 opacity-100 transition-opacity sm:flex-col sm:opacity-0 sm:focus-within:opacity-100 sm:group-hover:opacity-100">
         <button
           type="button"
           onClick={() => onToggle(item.id, item.read)}
           title={item.read ? 'Mark as unread' : 'Mark as read'}
           aria-label={item.read ? 'Mark as unread' : 'Mark as read'}
-          className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-teal focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(touchTarget, 'flex items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-teal focus:outline-none focus-visible:ring-2 focus-visible:ring-ring')}
         >
           {item.read ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-4 w-4" />}
         </button>
@@ -76,7 +77,7 @@ export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Prop
           onClick={() => onRemove(item.id)}
           title="Clear"
           aria-label="Clear notification"
-          className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(touchTarget, 'flex items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-ring')}
         >
           <X className="h-3.5 w-3.5" />
         </button>

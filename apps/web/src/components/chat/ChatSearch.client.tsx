@@ -61,7 +61,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
   }
 
   return (
-    <div className="sticky top-0 z-30 flex flex-col gap-2 border-b border-gold/20 bg-surface/95 px-3 py-2 backdrop-blur-xl">
+    <div className="sticky top-0 z-30 flex shrink-0 flex-col gap-2 border-b border-gold/20 bg-surface/95 px-3 py-2 backdrop-blur-xl">
       <div className="flex items-center gap-2">
         <Search className="h-4 w-4 text-muted-foreground" />
         <input

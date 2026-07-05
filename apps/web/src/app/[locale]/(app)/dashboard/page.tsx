@@ -216,7 +216,7 @@ export default async function DashboardPage({
           </FadeUp>
 
           {/* ── Stat Cards ─────────────────────────────────────── */}
-          <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StaggerList className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4">
             <StatsCard
               label={t('stats.newMatches')}
               value={feed.length}
@@ -475,7 +475,7 @@ export default async function DashboardPage({
           {/* ── Quick Actions Strip ────────────────────────────── */}
           <FadeUp delay={0.28}>
             <SectionHeader title={t('quickActionsInline.title')} />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-1">
+            <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4 lg:grid-cols-1">
               {([
                 { href: '/feed',         label: t('quickActionsInline.findMatches'),   icon: Search, variant: 'teal'     },
                 { href: '/weddings/new', label: t('quickActionsInline.planWedding'),   icon: Cake,   variant: 'burgundy' },

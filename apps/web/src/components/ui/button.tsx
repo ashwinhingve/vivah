@@ -4,6 +4,9 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// The base `min-h-[44px]` is an intentional touch-target floor: it wins over every
+// size (including `sm`'s h-9 = 36px), so all Button sizes render at least 44px tall.
+// A deliberately-compact button must override this floor explicitly.
 const buttonVariants = cva(
   'relative inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-100 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:translate-y-0 active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {

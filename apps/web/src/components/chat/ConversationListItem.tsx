@@ -1,14 +1,13 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
-import Image from 'next/image'
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
 import { BellOff, Pin, Image as ImageIcon, Mic, Video } from 'lucide-react'
 import type { ConversationListItem as ConvItem } from '@smartshaadi/types'
 import { resolvePhotoUrl } from '@/lib/photo'
 import { cn } from '@/lib/utils'
-import { InitialAvatar } from '@/components/ui/InitialAvatar'
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client'
 
 interface Props {
   item:             ConvItem
@@ -85,17 +84,14 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
       )}
 
       <div className="relative shrink-0">
-        {photoUrl ? (
-          <Image
-            src={photoUrl}
-            alt={other?.firstName ?? t('fallbackName')}
-            width={48}
-            height={48}
-            className="h-12 w-12 rounded-full object-cover"
-          />
-        ) : (
-          <InitialAvatar name={other?.firstName ?? ''} size="md" shape="circle" />
-        )}
+        <ImageWithFallback
+          src={photoUrl}
+          alt={other?.firstName ?? t('fallbackName')}
+          name={other?.firstName ?? ''}
+          width={48}
+          height={48}
+          wrapperClassName="h-12 w-12 rounded-full"
+        />
         {other?.isOnline ? (
           <span
             aria-label="Online"

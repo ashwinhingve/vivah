@@ -333,7 +333,7 @@ export default async function ProfileViewPage({ params }: Props) {
         On desktop, Group B spans both rows of the right column while Group A/C
         stack in the left column, keeping independent column heights.
       */}
-      <div id="main-content" className="mx-auto max-w-5xl px-4 pb-28 pt-4">
+      <div id="main-content" className="mx-auto max-w-5xl px-4 pb-40 pt-4">
         {/* Back to feed */}
         <Link
           href="/feed"

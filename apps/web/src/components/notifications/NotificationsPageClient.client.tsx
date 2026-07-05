@@ -58,14 +58,14 @@ export function NotificationsPageClient() {
               type="button"
               onClick={markAllRead}
               disabled={unreadCount === 0}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-teal transition-colors hover:bg-teal/10 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-teal transition-colors hover:bg-teal/10 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <CheckCheck className="h-4 w-4" /> <span className="hidden sm:inline">Mark all read</span>
             </button>
             <button
               type="button"
               onClick={clearAll}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Trash2 className="h-4 w-4" /> <span className="hidden sm:inline">Clear all</span>
             </button>
@@ -82,7 +82,7 @@ export function NotificationsPageClient() {
             aria-selected={filter === t.key}
             onClick={() => setFilter(t.key)}
             className={cn(
-              'rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'inline-flex min-h-[44px] items-center rounded-full px-3.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               filter === t.key
                 ? 'bg-primary text-white'
                 : 'border border-border bg-surface text-muted-foreground hover:bg-muted',

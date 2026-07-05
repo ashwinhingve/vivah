@@ -3,6 +3,8 @@ import { eq, desc, and, count } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import {
   user,
+  profiles,
+  profilePhotos,
   notifications,
   notificationPreferences,
   deviceTokens,
@@ -62,6 +64,39 @@ usersRouter.get('/me/entitlements', authenticate, async (req: Request, res: Resp
       },
     },
   });
+});
+
+/**
+ * GET /api/v1/users/me/avatar
+ * Lightweight navbar-avatar source: the user's display name + their primary
+ * profile photo's BARE r2 key (resolved lazily by /__media on the web, only if
+ * the browser actually requests the image). Deliberately does NOT auto-create a
+ * profile row or touch Mongo — returns { photoKey: null } gracefully for roles
+ * with no matchmaking profile (VENDOR / ADMIN), same visual result as before.
+ */
+usersRouter.get('/me/avatar', authenticate, async (req: Request, res: Response) => {
+  const [userRow] = await db
+    .select({ name: user.name })
+    .from(user)
+    .where(eq(user.id, req.user!.id));
+  if (!userRow) { err(res, 'USER_NOT_FOUND', 'User not found', 404); return; }
+
+  const [profile] = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.userId, req.user!.id));
+
+  let photoKey: string | null = null;
+  if (profile) {
+    const [primary] = await db
+      .select({ r2Key: profilePhotos.r2Key })
+      .from(profilePhotos)
+      .where(and(eq(profilePhotos.profileId, profile.id), eq(profilePhotos.isPrimary, true)))
+      .limit(1);
+    photoKey = primary?.r2Key ?? null;
+  }
+
+  ok(res, { name: userRow.name ?? null, photoKey });
 });
 
 /**

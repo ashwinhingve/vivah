@@ -23,6 +23,11 @@ export function VendorPortfolioGallery({ photoKeys, vendorName }: Props) {
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  // Indices whose <img> 404'd — render the ImageOff placeholder instead of the
+  // browser broken-image icon (kept index-based so activeIdx/lightbox stay stable).
+  const [failed, setFailed] = useState<Set<number>>(new Set());
+  const markFailed = (idx: number) =>
+    setFailed((prev) => (prev.has(idx) ? prev : new Set(prev).add(idx)));
 
   if (urls.length === 0) {
     return (
@@ -47,14 +52,21 @@ export function VendorPortfolioGallery({ photoKeys, vendorName }: Props) {
           className="group relative block aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-lg transition-transform duration-200 hover:scale-[1.005]"
         >
           <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl ring-1 ring-inset ring-gold/30" aria-hidden="true" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={active}
-            alt={`${vendorName} portfolio photo ${activeIdx + 1}`}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
+          {failed.has(activeIdx) ? (
+            <div className="flex h-full w-full items-center justify-center bg-gold/10">
+              <ImageOff className="h-8 w-8 text-gold-muted/50" aria-hidden="true" />
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={active}
+              alt={`${vendorName} portfolio photo ${activeIdx + 1}`}
+              loading="lazy"
+              decoding="async"
+              onError={() => markFailed(activeIdx)}
+              className="h-full w-full object-cover"
+            />
+          )}
           <div className="absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
             {activeIdx + 1}/{urls.length} · {urls.length} photo{urls.length === 1 ? '' : 's'}
           </div>
@@ -77,15 +89,22 @@ export function VendorPortfolioGallery({ photoKeys, vendorName }: Props) {
                       : 'border-gold/20 opacity-70 hover:opacity-100',
                   )}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                    aria-hidden="true"
-                  />
+                  {failed.has(idx) ? (
+                    <div className="flex h-full w-full items-center justify-center bg-gold/10" aria-hidden="true">
+                      <ImageOff className="h-4 w-4 text-gold-muted/50" />
+                    </div>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={url}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      onError={() => markFailed(idx)}
+                      className="h-full w-full object-cover"
+                      aria-hidden="true"
+                    />
+                  )}
                 </button>
               );
             })}

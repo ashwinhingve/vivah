@@ -5,6 +5,8 @@ import { DisputeTableClient } from './DisputeTableClient.client';
 
 export const dynamic = 'force-dynamic';
 
+interface AuthMe { userId: string; role: string; status: string }
+
 interface DisputedBookingRow {
   bookingId:    string;
   customerId:   string;
@@ -23,6 +25,12 @@ export default async function AdminEscrowPage() {
   const token       = cookieStore.get('better-auth.session_token')?.value;
   if (!token) {
     return await redirect('/login');
+  }
+  // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
+  // the role here and redirect any non-admin off the page.
+  const me = await fetchAuth<AuthMe>('/api/auth/me');
+  if (me && me.role !== 'ADMIN') {
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   const wrapped = await fetchAuth<{ disputes: DisputedBookingRow[] }>('/api/v1/admin/disputes');

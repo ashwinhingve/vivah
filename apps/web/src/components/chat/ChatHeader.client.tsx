@@ -147,7 +147,7 @@ export default function ChatHeader({
   }
 
   return (
-    <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-gold/20 bg-surface/95 px-3 py-2.5 backdrop-blur-xl">
+    <header className="sticky top-0 z-20 flex shrink-0 items-center gap-3 border-b border-gold/20 bg-surface/95 px-3 py-2.5 backdrop-blur-xl">
       <Link
         href="/chats"
         aria-label="Back to chats"

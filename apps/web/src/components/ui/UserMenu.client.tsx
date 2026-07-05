@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import { User, Settings, CreditCard, LifeBuoy, LogOut } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 
 type MenuLinkKey = 'viewProfile' | 'settings' | 'subscription' | 'helpSupport';
 
@@ -36,7 +37,7 @@ function stripCountryCode(phone: string | null | undefined): string | null {
   return trimmed.replace(/^\+/, '');
 }
 
-export function UserMenu() {
+export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
   const t = useTranslations('profile.dropdown');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,9 +78,20 @@ export function UserMenu() {
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        <span className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center select-none">
-          {initials}
-        </span>
+        {photoUrl ? (
+          <ImageWithFallback
+            src={photoUrl}
+            alt={displayName ?? t('userMenu')}
+            name={displayName}
+            fill
+            sizes="32px"
+            wrapperClassName="h-8 w-8 rounded-full"
+          />
+        ) : (
+          <span className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center select-none">
+            {initials}
+          </span>
+        )}
       </button>
 
       {open && (

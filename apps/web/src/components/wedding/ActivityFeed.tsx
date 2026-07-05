@@ -1,5 +1,5 @@
 import { fetchActivity } from '@/lib/wedding-api';
-import { History } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ACTION_LABEL: Record<string, string> = {
   'guest.add':                  'added a guest',
@@ -35,30 +35,31 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
 
   if (entries.length === 0) {
     return (
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 text-center">
-        <History className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground">No activity yet.</p>
+      <div className="rounded-2xl border border-gold/25 bg-surface shadow-card">
+        <EmptyState
+          variant="no-tasks"
+          title="No activity yet"
+          description="Changes you and your collaborators make will show up here."
+          className="py-10"
+        />
       </div>
     );
   }
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
-      <h3 className="font-medium text-sm text-primary mb-3 flex items-center gap-1.5">
-        <History className="h-4 w-4" /> Recent activity
-      </h3>
-      <ul className="space-y-2">
+    <div className="rounded-2xl border border-gold/25 bg-surface p-5 shadow-card">
+      <ol className="relative space-y-4 before:absolute before:bottom-2 before:left-[15px] before:top-2 before:w-px before:bg-gold/20 before:content-['']">
         {entries.map((e) => {
           const label = ACTION_LABEL[e.action] ?? e.action;
           const initials = (e.actorName ?? 'S').slice(0, 1).toUpperCase();
           return (
-            <li key={e.id} className="flex gap-3 text-sm">
-              <div className="h-7 w-7 rounded-full bg-teal/10 text-teal text-xs font-semibold flex items-center justify-center shrink-0">
+            <li key={e.id} className="relative flex gap-3">
+              <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal/10 text-xs font-semibold text-teal ring-2 ring-surface">
                 {initials}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm">
-                  <span className="font-medium">{e.actorName ?? 'Someone'}</span>{' '}
+              <div className="min-w-0 flex-1 pt-0.5">
+                <p className="text-sm text-foreground">
+                  <span className="font-semibold">{e.actorName ?? 'Someone'}</span>{' '}
                   <span className="text-muted-foreground">{label}</span>
                 </p>
                 <p className="text-[11px] text-muted-foreground">{timeAgo(e.createdAt)}</p>
@@ -66,7 +67,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
             </li>
           );
         })}
-      </ul>
+      </ol>
     </div>
   );
 }

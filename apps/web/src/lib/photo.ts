@@ -5,8 +5,9 @@ const API_ORIGIN = RAW_API_BASE.replace(/\/api\/v1\/?$/, '');
 /**
  * Convert an R2 key (or pre-resolved URL) into something `<Image src>` accepts.
  * - Absolute http(s) URL → passes through unchanged.
- * - Bare R2 key (e.g. "profiles/123/photo.jpg") → prefixed with the API origin's
- *   mock-r2 route, which streams the file in dev mode.
+ * - Bare R2 key (e.g. "photos/123/photo.jpg") → prefixed with the API origin's
+ *   `/__media` route, which 302-redirects to a fresh presigned R2 URL in prod
+ *   (or the local mock-r2 file server in dev). Works in every environment.
  * - Falsy → null (caller should render fallback).
  */
 export function resolvePhotoUrl(photoKey: string | null | undefined): string | null {
@@ -15,5 +16,5 @@ export function resolvePhotoUrl(photoKey: string | null | undefined): string | n
     return photoKey;
   }
   const key = photoKey.replace(/^\/+/, '');
-  return `${API_ORIGIN}/__mock-r2/${key}`;
+  return `${API_ORIGIN}/__media/${key}`;
 }

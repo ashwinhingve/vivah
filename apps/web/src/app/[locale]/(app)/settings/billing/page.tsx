@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/button';
 import { BillingConfirm } from './BillingConfirm.client';
 
 interface Plan {
@@ -175,12 +176,9 @@ export default async function BillingPage({
                   ))}
                 </ul>
               ) : null}
-              <Link
-                href={`/settings/billing?plan=${plan.code}`}
-                className="mt-auto block w-full rounded-lg bg-teal px-4 py-2.5 text-center font-semibold text-white transition hover:bg-teal/90"
-              >
-                Subscribe
-              </Link>
+              <Button asChild className="mt-auto w-full">
+                <Link href={`/settings/billing?plan=${plan.code}`}>Subscribe</Link>
+              </Button>
             </div>
           );
         })}

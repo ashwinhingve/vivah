@@ -247,37 +247,10 @@ export function ProfilePhotoUploader({
   };
 
   /**
-   * Drag-to-reorder: move dragged photo before target photo
+   * Persist a reordered photo list to the API. Shared by drag-to-reorder
+   * (desktop) and the touch/keyboard-friendly Move earlier/later buttons.
    */
-  const handleDrop = async (targetId: string) => {
-    if (!draggedId || draggedId === targetId) {
-      setDraggedId(null);
-      return;
-    }
-
-    const draggedIndex = photos.findIndex((p) => p.id === draggedId);
-    const targetIndex = photos.findIndex((p) => p.id === targetId);
-
-    if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedId(null);
-      return;
-    }
-
-    // Reorder in state
-    const newPhotos = [...photos];
-    const [movedPhoto] = newPhotos.splice(draggedIndex, 1);
-    if (!movedPhoto) {
-      setDraggedId(null);
-      return;
-    }
-    newPhotos.splice(targetIndex, 0, movedPhoto);
-
-    // Update displayOrder
-    const reorderedPhotos = newPhotos.map((p, idx) => ({
-      ...p,
-      displayOrder: idx,
-    }));
-
+  const persistReorder = async (reorderedPhotos: Photo[]) => {
     try {
       const res = await fetch(`${API_BASE}/api/v1/profiles/me/photos/reorder`, {
         method: 'PUT',
@@ -305,9 +278,66 @@ export function ProfilePhotoUploader({
       const errorMessage =
         err instanceof Error ? err.message : 'Reorder failed. Please try again.';
       setError(errorMessage);
-    } finally {
-      setDraggedId(null);
     }
+  };
+
+  /**
+   * Drag-to-reorder (desktop pointer): move dragged photo before target photo.
+   * Progressive enhancement — touch/keyboard users use the Move buttons instead.
+   */
+  const handleDrop = async (targetId: string) => {
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      return;
+    }
+
+    const draggedIndex = photos.findIndex((p) => p.id === draggedId);
+    const targetIndex = photos.findIndex((p) => p.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedId(null);
+      return;
+    }
+
+    const newPhotos = [...photos];
+    const [movedPhoto] = newPhotos.splice(draggedIndex, 1);
+    if (!movedPhoto) {
+      setDraggedId(null);
+      return;
+    }
+    newPhotos.splice(targetIndex, 0, movedPhoto);
+
+    const reorderedPhotos = newPhotos.map((p, idx) => ({
+      ...p,
+      displayOrder: idx,
+    }));
+
+    setDraggedId(null);
+    await persistReorder(reorderedPhotos);
+  };
+
+  /**
+   * Touch/keyboard-friendly reorder: swap a photo with its neighbour.
+   * direction -1 = move earlier (toward main), +1 = move later.
+   */
+  const handleMove = async (photoId: string, direction: -1 | 1) => {
+    const index = photos.findIndex((p) => p.id === photoId);
+    const swapWith = index + direction;
+    if (index === -1 || swapWith < 0 || swapWith >= photos.length) return;
+
+    const newPhotos = [...photos];
+    const current = newPhotos[index];
+    const neighbour = newPhotos[swapWith];
+    if (!current || !neighbour) return;
+    newPhotos[index] = neighbour;
+    newPhotos[swapWith] = current;
+
+    const reorderedPhotos = newPhotos.map((p, idx) => ({
+      ...p,
+      displayOrder: idx,
+    }));
+
+    await persistReorder(reorderedPhotos);
   };
 
   /**
@@ -376,7 +406,7 @@ export function ProfilePhotoUploader({
         </div>
       ) : (
         <div
-          className="grid grid-cols-3 sm:grid-cols-4 gap-2"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4"
           onDragOver={(e) => e.preventDefault()}
         >
           {photos.map((photo, index) => (
@@ -414,6 +444,38 @@ export function ProfilePhotoUploader({
               {photo.isPrimary && (
                 <div className="absolute top-1 left-1 bg-gold text-white text-xs font-semibold rounded-full px-2 py-0.5">
                   ★ Main
+                </div>
+              )}
+
+              {/* Reorder buttons — touch + keyboard friendly (drag is desktop-only) */}
+              {photo.progress == null && photos.length > 1 && (
+                <div className="absolute bottom-0 left-0 flex flex-col">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMove(photo.id, -1);
+                    }}
+                    disabled={index === 0}
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center bg-black/40 text-sm text-white transition hover:bg-black/60 disabled:opacity-30 disabled:hover:bg-black/40"
+                    title="Move earlier"
+                    aria-label="Move photo earlier"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMove(photo.id, 1);
+                    }}
+                    disabled={index === photos.length - 1}
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center bg-black/40 text-sm text-white transition hover:bg-black/60 disabled:opacity-30 disabled:hover:bg-black/40"
+                    title="Move later"
+                    aria-label="Move photo later"
+                  >
+                    ↓
+                  </button>
                 </div>
               )}
 

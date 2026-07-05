@@ -1,8 +1,7 @@
-import Image from 'next/image';
 import { Users, User, UserPlus, CheckCircle2, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PhotoFallback } from '@/components/shared';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { cn } from '@/lib/utils';
 import { ManglikChip } from './ManglikChip';
@@ -70,18 +69,15 @@ export function ProfileHero({
   return (
     <Card className="overflow-hidden">
       <div className="relative aspect-[4/3] w-full overflow-hidden">
-        {photoUrl ? (
-          <Image
-            src={photoUrl}
-            alt={`${name}'s profile photo`}
-            fill
-            priority
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
-            className="object-cover"
-          />
-        ) : (
-          <PhotoFallback name={name} />
-        )}
+        <ImageWithFallback
+          src={photoUrl}
+          alt={`${name}'s profile photo`}
+          name={name}
+          fill
+          priority
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px"
+          wrapperClassName="absolute inset-0"
+        />
 
         <div className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70" aria-hidden="true" />
 

@@ -219,7 +219,7 @@ export default function ChatInput({
 
   return (
     <div
-      className="sticky bottom-0 z-10 border-t border-gold/20 bg-surface/95 px-3 py-2 backdrop-blur-xl"
+      className="sticky bottom-0 z-10 shrink-0 border-t border-gold/20 bg-surface/95 px-3 py-2 backdrop-blur-xl"
       style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
     >
       <SmartReplies

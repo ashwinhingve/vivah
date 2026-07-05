@@ -54,7 +54,7 @@ export function StatsCard({
   const delaySec = animDelayMs / 1000;
 
   const cardClasses = cn(
-    'group relative flex h-32 flex-col gap-1.5 rounded-xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
+    'group relative flex min-h-[7.5rem] flex-col gap-1.5 rounded-xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
     href && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     v.tile
   );
@@ -78,10 +78,10 @@ export function StatsCard({
               delay={delaySec}
               duration={0.8}
               {...(valuePercent != null ? { percent: true } : {})}
-              className={cn('font-heading text-4xl font-bold leading-none', v.value)}
+              className={cn('font-heading text-3xl font-bold leading-none sm:text-4xl', v.value)}
             />
           ) : (
-            <p className={cn('font-heading text-4xl font-bold leading-none', v.value)}>{value}</p>
+            <p className={cn('font-heading text-3xl font-bold leading-none sm:text-4xl', v.value)}>{value}</p>
           )}
           {delta != null ? (
             <span

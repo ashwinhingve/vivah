@@ -12,6 +12,7 @@ import { RoleSwitcher } from '@/components/dev/RoleSwitcher.client';
 import { CreateMatchButton } from '@/components/dev/CreateMatchButton.client';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { fetchAuth } from '@/lib/server-fetch';
+import { resolvePhotoUrl } from '@/lib/photo';
 import { NotificationsProvider } from '@/lib/notifications/NotificationsProvider.client';
 import { NotificationBell } from '@/components/notifications/NotificationBell.client';
 import type { NotificationRow } from '@smartshaadi/types';
@@ -21,11 +22,19 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const sessionCookie = readSessionCookie(cookieStore);
   if (!sessionCookie) return await redirect('/login');
 
-  // Seed the realtime notification provider from the server so the bell badge
-  // and panel render with data on first paint (then stay live over the socket).
-  const initial = (await fetchAuth<{ items: NotificationRow[]; unreadCount: number }>(
-    '/api/v1/users/me/notifications?limit=50',
-  )) ?? { items: [], unreadCount: 0 };
+  // Seed the realtime notification provider + navbar avatar from the server so
+  // the bell badge/panel and profile photo render on first paint (one parallel
+  // round trip; the bell then stays live over the socket).
+  const [initialRaw, avatar] = await Promise.all([
+    fetchAuth<{ items: NotificationRow[]; unreadCount: number }>(
+      '/api/v1/users/me/notifications?limit=50',
+    ),
+    fetchAuth<{ name: string | null; photoKey: string | null }>(
+      '/api/v1/users/me/avatar',
+    ),
+  ]);
+  const initial = initialRaw ?? { items: [], unreadCount: 0 };
+  const avatarUrl = resolvePhotoUrl(avatar?.photoKey);
 
   return (
     <NotificationsProvider initial={initial}>
@@ -49,7 +58,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <LanguageToggle />
             <CartButton />
             <NotificationBell />
-            <UserMenu />
+            <UserMenu photoUrl={avatarUrl} />
           </div>
         </div>
       </header>

@@ -69,6 +69,11 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  // Photos whose <img> 404'd — treated as urlless so we render the initials /
+  // pulse placeholder instead of the browser's broken-image icon.
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+  const markFailed = (id: string) =>
+    setFailedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
 
   if (sorted.length === 0) {
     return <ProtectedPlaceholder name={name} />;
@@ -93,13 +98,14 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
           {/* Inner Gold/30 inset border */}
           <div className="pointer-events-none absolute inset-0 z-10 rounded-3xl ring-1 ring-inset ring-gold/30" aria-hidden="true" />
 
-          {active?.url ? (
+          {active?.url && !failedIds.has(active.id) ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={active.url}
               alt={`${name}'s photo`}
               loading="lazy"
               decoding="async"
+              onError={() => markFailed(active.id)}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -146,9 +152,9 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
                     : 'border-gold/20 opacity-70 hover:opacity-100'
                 )}
               >
-                {photo.url ? (
+                {photo.url && !failedIds.has(photo.id) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photo.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" aria-hidden="true" />
+                  <img src={photo.url} alt="" loading="lazy" decoding="async" onError={() => markFailed(photo.id)} className="h-full w-full object-cover" aria-hidden="true" />
                 ) : (
                   <div className="h-full w-full animate-pulse bg-border" />
                 )}

@@ -16,6 +16,7 @@ import { usersRouter } from './users/router.js';
 import { profilesRouter } from './profiles/router.js';
 import { storageRouter } from './storage/router.js';
 import { mockR2Router } from './storage/mockR2.router.js';
+import { mediaRouter } from './storage/media.router.js';
 import { matchmakingRouter } from './matchmaking/router.js';
 import { chatRouter } from './chat/router.js';
 import { startGunaRecalcWorker } from './jobs/gunaRecalcJob.js';
@@ -149,8 +150,23 @@ app.use('/api/auth', authLimiter, authRouter);
 // statically imported but has no side effects, so a prod bundle that never
 // hits this branch carries an inert router with zero handler attachment.
 if (env.USE_MOCK_SERVICES) {
-  app.use('/__mock-r2', mockR2Router);
+  app.use(
+    '/__mock-r2',
+    (_req, res, next) => {
+      // Same cross-origin <img>/<audio> exposure as /__media below — helmet
+      // defaults CORP to same-origin, which blocks the web↔api origin split.
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      next();
+    },
+    mockR2Router,
+  );
 }
+
+// Always-on media redirect: resolves a bare R2 key to a fresh presigned/mock
+// URL (302). The production counterpart to /__mock-r2 — the web client turns
+// every bare key into `${API_ORIGIN}/__media/${key}`. Unauthenticated by design,
+// scoped to display-media prefixes only (see storage/media.router.ts).
+app.use('/__media', mediaRouter);
 
 // Razorpay webhooks — raw body MUST be parsed before global express.json() so
 // signature verification sees the exact bytes Razorpay signed.

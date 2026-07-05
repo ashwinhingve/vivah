@@ -8,10 +8,9 @@
 
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { PhotoFallback } from '@/components/shared';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import type { MatchFeedItem } from '@smartshaadi/types';
 
@@ -47,11 +46,14 @@ export async function SimilarProfiles({ sourceProfileId }: { sourceProfileId: st
           return (
             <Card key={item.profileId} className="w-40 flex-shrink-0 overflow-hidden">
               <Link href={`/profiles/${item.profileId}`} className="relative block aspect-[4/5]">
-                {photoUrl ? (
-                  <Image src={photoUrl} alt={item.name} fill sizes="160px" className="object-cover" />
-                ) : (
-                  <PhotoFallback name={item.name || 'Member'} />
-                )}
+                <ImageWithFallback
+                  src={photoUrl}
+                  alt={item.name}
+                  name={item.name || 'Member'}
+                  fill
+                  sizes="160px"
+                  wrapperClassName="absolute inset-0"
+                />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-8">
                   <p className="truncate text-xs font-semibold text-white">
                     {item.name || 'Member'}{item.age != null ? <span className="font-normal text-white/80">, {item.age}</span> : null}

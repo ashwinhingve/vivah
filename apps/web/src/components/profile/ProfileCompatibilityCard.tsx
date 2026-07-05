@@ -72,8 +72,8 @@ function DimensionBar({
   const pct = max > 0 ? Math.round((score / max) * 100) : 0;
   const accent = pctColor(pct);
   return (
-    <div className="grid grid-cols-[7rem_1fr_3.5rem] items-center gap-2.5">
-      <span className="truncate text-xs text-foreground">{label}</span>
+    <div className="grid grid-cols-[6rem_1fr_3rem] items-start gap-2 sm:grid-cols-[7rem_1fr_3.5rem] sm:items-center sm:gap-2.5">
+      <span className="line-clamp-2 text-xs leading-tight text-foreground">{label}</span>
       <div className="h-2 overflow-hidden rounded-full bg-border-light">
         <div
           className="h-full rounded-full transition-[width] duration-700 ease-out"

@@ -13,6 +13,7 @@ import { PromoApplySchema, CreatePromoSchema } from '@smartshaadi/schemas';
 import {
   quotePromo,
   listActivePromos,
+  adminListPromos,
   adminCreatePromo,
   adminDeactivatePromo,
   adminActivatePromo,
@@ -42,6 +43,15 @@ promoRouter.get('/active', authenticate, async (req: Request, res: Response) => 
   const scope = (req.query['scope'] as 'BOOKING' | 'STORE' | 'WEDDING' | undefined) ?? undefined;
   try {
     const items = await listActivePromos(scope);
+    ok(res, { items });
+  } catch (e) { handle(res, e); }
+});
+
+promoRouter.get('/admin/list', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
+  const rawLimit = Number(req.query['limit'] ?? 100);
+  const scope = (req.query['scope'] as 'BOOKING' | 'STORE' | 'WEDDING' | undefined) ?? undefined;
+  try {
+    const items = await adminListPromos({ limit: Number.isFinite(rawLimit) ? rawLimit : 100, scope });
     ok(res, { items });
   } catch (e) { handle(res, e); }
 });

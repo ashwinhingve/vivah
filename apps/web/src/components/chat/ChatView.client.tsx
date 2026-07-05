@@ -540,7 +540,7 @@ export default function ChatView({
   )
 
   return (
-    <>
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <ChatHeader
         matchId={matchId}
         initialOther={initialOther}
@@ -571,7 +571,7 @@ export default function ChatView({
         aria-live="polite"
         aria-relevant="additions"
         aria-label="Chat messages"
-        className="relative flex-1 overflow-y-auto px-4 py-4 space-y-2 overscroll-contain"
+        className="relative min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 py-4"
         style={{
           // Account for sticky header + iOS safe area
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -650,7 +650,7 @@ export default function ChatView({
       {fatalError ? (
         <div
           role="alert"
-          className="mx-3 mb-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          className="mx-3 mb-2 shrink-0 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
         >
           <p className="font-semibold">Chat connection issue: {fatalError}</p>
           <p className="mt-0.5 text-destructive/80">Messages can't send until this is resolved. Try refreshing the page.</p>
@@ -696,7 +696,7 @@ export default function ChatView({
 
       {/* otherProfileId reserved for future per-other state */}
       {otherProfileId ? null : null}
-    </>
+    </div>
   )
 }
 

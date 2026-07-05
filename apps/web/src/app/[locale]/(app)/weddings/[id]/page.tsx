@@ -2,20 +2,27 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import {
-  Calendar, MapPin, ArrowLeft,
-  Sparkles, Plus, UserPlus, Store,
-} from 'lucide-react';
+import { Calendar, Wallet, Users, Sparkles, ListChecks } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
-import { formatINR, formatDateIN, daysUntil } from '@/lib/format';
+import { formatINRCompact, formatDateIN, daysUntil } from '@/lib/format';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';
-import { StatCard } from '@/components/ui/StatCard';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
 import { ActivityFeed } from '@/components/wedding/ActivityFeed';
+import { WeddingHero } from '@/components/wedding/WeddingHero';
+import { WeddingReadinessCard, type ReadinessMilestone } from '@/components/wedding/WeddingReadinessCard';
+import { QuickActionsGrid } from '@/components/wedding/QuickActionsGrid';
 import { CeremonyForm } from './CeremonyForm.client';
 import { WeddingHeaderActions } from './WeddingHeaderActions.client';
 import {
@@ -30,38 +37,24 @@ import {
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
-const STATUS_LABELS: Record<string, string> = {
-  PLANNING:  'Planning',
-  CONFIRMED: 'Confirmed',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  PLANNING:  'bg-warning/15 text-warning border-warning/30',
-  CONFIRMED: 'bg-teal/10 text-teal border-teal/30',
-  COMPLETED: 'bg-success/15 text-success border-success/30',
-  CANCELLED: 'bg-muted text-muted-foreground border-muted-foreground/20',
-};
-
 const CEREMONY_LABELS: Record<string, string> = {
-  HALDI:      'Haldi',
-  MEHNDI:     'Mehndi',
-  SANGEET:    'Sangeet',
-  WEDDING:    'Wedding',
-  RECEPTION:  'Reception',
+  HALDI: 'Haldi',
+  MEHNDI: 'Mehndi',
+  SANGEET: 'Sangeet',
+  WEDDING: 'Wedding',
+  RECEPTION: 'Reception',
   ENGAGEMENT: 'Engagement',
-  OTHER:      'Other',
+  OTHER: 'Other',
 };
 
 const CEREMONY_COLORS: Record<string, string> = {
-  HALDI:      'bg-warning/15 text-warning',
-  MEHNDI:     'bg-success/15 text-success',
-  SANGEET:    'bg-primary/15 text-primary',
-  WEDDING:    'bg-primary/20 text-primary',
-  RECEPTION:  'bg-teal/10 text-teal',
+  HALDI: 'bg-warning/15 text-warning',
+  MEHNDI: 'bg-success/15 text-success',
+  SANGEET: 'bg-primary/15 text-primary',
+  WEDDING: 'bg-primary/20 text-primary',
+  RECEPTION: 'bg-teal/10 text-teal',
   ENGAGEMENT: 'bg-teal/15 text-teal',
-  OTHER:      'bg-secondary text-foreground',
+  OTHER: 'bg-secondary text-foreground',
 };
 
 /** Display name for a ceremony — OTHER types show the user's custom label. */
@@ -94,7 +87,11 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'weddings.detail.metadata' });
   return { title: t('title') };
@@ -118,412 +115,328 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
 
   const effectiveDate = selectedMuhurat?.date ?? wedding.weddingDate ?? null;
   const days = daysUntil(effectiveDate);
-  const isFuture = days !== null && days > 0;
 
-  // Budget derived values (plan is embedded in WeddingDetail from /api/v1/weddings/:id)
+  const budgetTotal = wedding.plan?.budget?.total ?? wedding.budgetTotal ?? 0;
   const budgetSpent =
     wedding.plan?.budget?.categories?.reduce((s, c) => s + (c.spent ?? 0), 0) ?? 0;
 
   // Upcoming ceremonies (next 3, future first)
-  const now = new Date().toISOString();
   const upcomingCeremonies = ceremonies
-    .filter((c) => c.date && c.date >= now.slice(0, 10))
+    .filter((c) => c.date && c.date >= today)
     .sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''))
     .slice(0, 3);
 
-  const tabs = [
-    { href: `/weddings/${id}/tasks`,      label: 'Tasks',      desc: 'Checklist & task assignments' },
-    { href: `/weddings/${id}/budget`,     label: 'Budget',     desc: 'Allocate & track spend by category' },
-    { href: `/weddings/${id}/expenses`,   label: 'Expenses',   desc: 'Log payments & receipts' },
-    { href: `/weddings/${id}/guests`,     label: 'Guests',     desc: 'Guest list, RSVP & meal preferences' },
-    { href: `/weddings/${id}/ceremonies`, label: 'Ceremonies', desc: 'All ceremonies & timeline' },
-    { href: `/weddings/${id}/catering`,   label: 'Catering',   desc: 'Menu & headcount estimates' },
-    { href: `/weddings/${id}/seating`,    label: 'Seating',    desc: 'Tables & seat assignments' },
-    { href: `/weddings/${id}/timeline`,   label: 'Schedule',   desc: 'Day-of timeline & run sheet' },
-    { href: `/weddings/${id}/vendors`,    label: 'Vendors',    desc: 'Assigned vendors for your wedding' },
-    { href: `/weddings/${id}/moodboard`,  label: 'Mood Board', desc: 'Save inspiration photos & color palette' },
-    { href: `/weddings/${id}/documents`,  label: 'Docs',       desc: 'Contracts, permits & invoices' },
-    { href: `/weddings/${id}/registry`,   label: 'Registry',   desc: 'Gift registry & wishlist' },
-    { href: `/weddings/${id}/website`,    label: 'Website',    desc: 'Public wedding microsite' },
-    { href: `/weddings/${id}/members`,    label: 'Members',    desc: 'Collaborators & access' },
+  // Planning readiness — five essentials that map cleanly to a section.
+  const milestones: ReadinessMilestone[] = [
+    { key: 'date', label: 'Date', done: Boolean(effectiveDate), seg: 'timeline' },
+    { key: 'ceremonies', label: 'Ceremonies', done: ceremonies.length > 0, seg: 'ceremonies' },
+    { key: 'guests', label: 'Guests', done: wedding.guestCount > 0, seg: 'guests' },
+    { key: 'budget', label: 'Budget', done: budgetTotal > 0, seg: 'budget' },
+    { key: 'tasks', label: 'Tasks', done: total > 0, seg: 'tasks' },
   ];
+  const readinessPct = Math.round((milestones.filter((m) => m.done).length / milestones.length) * 100);
 
   return (
-    <div id="main-content" className="min-h-screen bg-background">
-      <PageTransition className="max-w-4xl mx-auto px-4 py-8 pb-24">
-
-        {/* Back link */}
-        <Link
-          href="/weddings"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 transition-colors min-h-[44px]"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          All Weddings
-        </Link>
-
-        {/* Hero block */}
-        <FadeUp delay={0}>
-          <div className="flex items-start justify-between gap-3 mb-6">
-            <div className="min-w-0 flex-1">
-              {/* Breadcrumb-style category */}
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                Wedding Plan
-              </p>
-              {/* weddingName — primary title */}
-              <h1 className="font-heading text-[32px] sm:text-[36px] font-semibold leading-tight text-primary">
-                {wedding.weddingName ?? wedding.venueName ?? 'Wedding Plan'}
-              </h1>
-
-              {/* Date + venue strip */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
-                {effectiveDate && (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-                    {formatDateIN(effectiveDate)}
-                  </span>
-                )}
-                {(wedding.venueName || wedding.venueCity) && (
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-                    {[wedding.venueName, wedding.venueCity].filter(Boolean).join(', ')}
-                  </span>
-                )}
-              </div>
-
-              {/* Status + days countdown chips */}
-              <div className="flex flex-wrap items-center gap-2 mt-3">
-                <span
-                  className={`text-xs font-semibold px-3 py-1 rounded-full border ${
-                    STATUS_COLORS[wedding.status] ?? 'bg-secondary text-foreground border-transparent'
-                  }`}
-                >
-                  {STATUS_LABELS[wedding.status] ?? wedding.status}
-                </span>
-                {isFuture && (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-gold/20 text-primary border border-gold/40">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    {days} days to go
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Kebab: Edit / Cancel / Delete (keep as-is) */}
+    <PageTransition className="space-y-6 px-4 py-6 lg:px-0 lg:py-0">
+      {/* Invitation hero */}
+      <FadeUp delay={0}>
+        <WeddingHero
+          weddingName={wedding.weddingName ?? wedding.venueName ?? 'Wedding plan'}
+          effectiveDate={effectiveDate}
+          venueName={wedding.venueName ?? null}
+          venueCity={wedding.venueCity ?? null}
+          status={wedding.status}
+          days={days}
+          muhuratSelected={Boolean(selectedMuhurat)}
+          readinessPct={readinessPct}
+          actions={
             <WeddingHeaderActions
               wedding={{
-                weddingName:  wedding.weddingName ?? null,
-                weddingDate:  wedding.weddingDate ?? null,
-                venueName:    wedding.venueName ?? null,
-                venueCity:    wedding.venueCity ?? null,
+                weddingName: wedding.weddingName ?? null,
+                weddingDate: wedding.weddingDate ?? null,
+                venueName: wedding.venueName ?? null,
+                venueCity: wedding.venueCity ?? null,
                 venueAddress: wedding.venueAddress ?? null,
-                budgetTotal:  wedding.budgetTotal ?? null,
+                budgetTotal: wedding.budgetTotal ?? null,
               }}
               editAction={updateWeddingAction.bind(null, id)}
               cancelAction={cancelWeddingAction.bind(null, id)}
               deleteAction={deleteWeddingAction.bind(null, id)}
             />
-          </div>
+          }
+        />
+      </FadeUp>
+
+      {/* Stat row */}
+      <StaggerList className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatsCard
+          label="Budget spent"
+          value={formatINRCompact(budgetSpent)}
+          sub={budgetTotal > 0 ? `of ${formatINRCompact(budgetTotal)}` : 'no budget set'}
+          icon={Wallet}
+          variant="gold"
+          href={`/weddings/${id}/budget`}
+        />
+        <StatsCard
+          label="Guests"
+          value={wedding.guestCount}
+          sub="on the list"
+          icon={Users}
+          variant="teal"
+          href={`/weddings/${id}/guests`}
+        />
+        <StatsCard
+          label="Ceremonies"
+          value={ceremonies.length}
+          sub="planned"
+          icon={Sparkles}
+          variant="default"
+          href={`/weddings/${id}/ceremonies`}
+        />
+        <StatsCard
+          label="Tasks done"
+          value={taskPct}
+          valuePercent={taskPct}
+          sub={`${done}/${total} complete`}
+          icon={ListChecks}
+          variant="success"
+          href={`/weddings/${id}/tasks`}
+        />
+      </StaggerList>
+
+      {/* Quick actions */}
+      <FadeUp delay={0.1}>
+        <SectionHeader title="Quick actions" />
+        <QuickActionsGrid id={id} />
+      </FadeUp>
+
+      {/* Readiness + Muhurat (two-up on desktop) */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <FadeUp delay={0.15}>
+          <WeddingReadinessCard id={id} pct={readinessPct} milestones={milestones} />
         </FadeUp>
 
-        {/* 4 StatCards */}
-        <StaggerList className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard
-            label="Budget Used"
-            value={budgetSpent}
-            staticValue={formatINR(budgetSpent)}
-          />
-          <StatCard
-            label="Ceremonies"
-            value={ceremonies.length}
-          />
-          <StatCard
-            label="Guests"
-            value={wedding.guestCount}
-          />
-          <StatCard
-            label="Tasks Done"
-            value={done}
-            suffix={`/${total}`}
-          />
-        </StaggerList>
-
-        {/* Overall progress bar */}
-        <FadeUp delay={0.15} className="mb-6">
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="font-medium text-foreground">Overall Progress</span>
-              <span className="text-teal font-semibold">{taskPct}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-              <div
-                className="h-2 rounded-full transition-all duration-500"
-                style={{ width: `${taskPct}%`, backgroundColor: 'var(--color-teal)' }}
-              />
-            </div>
-          </div>
-        </FadeUp>
-
-        {/* Muhurat — ui/accordion pattern via native <details> styled as accordion */}
         {muhuratSuggestions.length > 0 && (
-          <FadeUp delay={0.2} className="mb-6">
-            <details className="group bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden">
-              <summary className="cursor-pointer list-none font-semibold text-primary flex items-center gap-2 px-5 py-4 select-none hover:bg-gold/5 transition-colors">
-                <span
-                  className="text-lg leading-none text-muted-foreground transition-transform duration-200 group-open:rotate-90"
-                  aria-hidden="true"
-                >
-                  ›
-                </span>
-                <Calendar className="h-4 w-4 text-gold" aria-hidden="true" />
-                <span>Auspicious Dates (Muhurat)</span>
-                {selectedMuhurat && (
-                  <span className="ml-auto text-xs font-normal text-success bg-success/10 rounded-full px-2 py-0.5 border border-success/30">
-                    Date Selected
+          <FadeUp delay={0.2}>
+            <Accordion
+              type="single"
+              collapsible
+              defaultValue={selectedMuhurat ? undefined : 'muhurat'}
+              className="rounded-2xl border border-gold/25 bg-surface px-5 shadow-card"
+            >
+              <AccordionItem value="muhurat" className="border-b-0">
+                <AccordionTrigger>
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-gold" aria-hidden="true" />
+                    Auspicious dates
+                    {selectedMuhurat && (
+                      <Badge variant="success" className="ml-1">
+                        Date selected
+                      </Badge>
+                    )}
                   </span>
-                )}
-              </summary>
-              <div className="px-5 pb-5 space-y-2 border-t border-gold/10 pt-4">
-                {muhuratSuggestions.map((d) => (
-                  <div
-                    key={d.date}
-                    className={`flex items-center justify-between rounded-lg px-4 py-3 border transition-colors ${
-                      d.selected
-                        ? 'border-gold bg-gold/10'
-                        : 'border-gold/20 bg-background'
-                    }`}
-                  >
-                    <div>
-                      <p className={`text-sm font-semibold ${d.selected ? 'text-gold-muted' : 'text-foreground'}`}>
-                        {d.muhurat}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateIN(d.date)}
-                        {d.tithi ? ` · ${d.tithi}` : ''}
-                      </p>
-                    </div>
-                    {!d.selected ? (
-                      <form action={selectMuhuratAction.bind(null, id)}>
-                        <input type="hidden" name="date"    value={d.date} />
-                        <input type="hidden" name="muhurat" value={d.muhurat} />
-                        {d.tithi && <input type="hidden" name="tithi" value={d.tithi} />}
-                        <button
-                          type="submit"
-                          className="text-xs font-medium min-h-[44px] px-3 rounded-lg border border-gold text-primary hover:bg-gold/10 transition-colors"
-                        >
-                          Select
-                        </button>
-                      </form>
-                    ) : (
-                      <span className="text-xs font-semibold text-gold-muted">✓ Selected</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </details>
-          </FadeUp>
-        )}
-
-        {/* Upcoming ceremonies — horizontal scroll cards */}
-        {upcomingCeremonies.length > 0 && (
-          <FadeUp delay={0.25} className="mb-6">
-            <SectionHeader
-              title="Upcoming Ceremonies"
-              viewAllHref={`/weddings/${id}/ceremonies`}
-              viewAllLabel="All ceremonies"
-            />
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-              {upcomingCeremonies.map((c) => {
-                const colorClass = CEREMONY_COLORS[c.type] ?? CEREMONY_COLORS['OTHER']!;
-                const cdDays = daysUntil(c.date);
-                return (
-                  <div
-                    key={c.id}
-                    className="min-w-[200px] max-w-[220px] shrink-0 bg-surface border border-gold/20 rounded-xl shadow-sm p-4"
-                  >
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium mb-2 ${colorClass}`}>
-                      {ceremonyLabel(c)}
-                    </span>
-                    {c.date && (
-                      <p className="text-sm font-semibold text-foreground">{formatDateIN(c.date)}</p>
-                    )}
-                    {c.startTime && (
-                      <p className="text-xs text-muted-foreground">{c.startTime}</p>
-                    )}
-                    {c.venue && (
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{c.venue}</p>
-                    )}
-                    {cdDays !== null && cdDays > 0 && (
-                      <p className="text-xs font-semibold text-primary mt-2">{cdDays} days away</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </FadeUp>
-        )}
-
-        {/* Ceremonies section — inline add/edit/delete (existing behaviour) */}
-        <FadeUp delay={0.3} className="mb-6">
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-primary">All Ceremonies</h2>
-              <Link
-                href={`/weddings/${id}/ceremonies`}
-                className="text-xs text-teal font-medium hover:text-teal-hover transition-colors"
-              >
-                Full timeline →
-              </Link>
-            </div>
-
-            {ceremonies.length === 0 ? (
-              <EmptyState
-                variant="no-tasks"
-                title="No ceremonies added yet"
-                description="Add ceremonies to build out your wedding-day timeline."
-              />
-            ) : (
-              <ul className="space-y-2 mb-4">
-                {ceremonies.map((c) => {
-                  const colorClass = CEREMONY_COLORS[c.type] ?? CEREMONY_COLORS['OTHER']!;
-                  return (
-                    <li
-                      key={c.id}
-                      className="flex items-start gap-3 rounded-lg border border-gold/20 px-4 py-3"
+                </AccordionTrigger>
+                <AccordionContent className="space-y-2">
+                  {muhuratSuggestions.map((d) => (
+                    <div
+                      key={d.date}
+                      className={`flex items-center justify-between rounded-lg border px-4 py-3 transition-colors ${
+                        d.selected ? 'border-gold bg-gold/10' : 'border-gold/20 bg-background'
+                      }`}
                     >
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${colorClass}`}>
-                        {ceremonyLabel(c)}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        {c.date && (
-                          <p className="text-sm font-medium text-foreground">{formatDateIN(c.date)}</p>
-                        )}
-                        {c.startTime && (
-                          <p className="text-xs text-muted-foreground">{c.startTime}</p>
-                        )}
-                        {c.venue && (
-                          <p className="text-xs text-muted-foreground">{c.venue}</p>
-                        )}
+                      <div>
+                        <p
+                          className={`text-sm font-semibold ${
+                            d.selected ? 'text-gold-muted' : 'text-foreground'
+                          }`}
+                        >
+                          {d.muhurat}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDateIN(d.date)}
+                          {d.tithi ? ` · ${d.tithi}` : ''}
+                        </p>
                       </div>
-                      <details className="shrink-0">
-                        <summary className="cursor-pointer list-none text-xs font-medium min-h-[44px] px-2 py-1 rounded-md border border-transparent text-muted-foreground hover:text-primary hover:border-gold/30 transition-colors">
-                          Edit
-                        </summary>
-                        <form
-                          action={updateCeremonyAction.bind(null, id, c.id)}
-                          className="absolute left-2 right-2 sm:left-auto sm:right-2 mt-1 z-10 sm:w-64 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg"
-                        >
-                          {c.type === 'OTHER' && (
-                            <div>
-                              <label className="block text-[10px] font-medium text-muted-foreground mb-1">Ceremony Name</label>
-                              <input name="customTypeName" type="text" defaultValue={c.customTypeName ?? ''} placeholder="e.g. Manda" className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                            </div>
-                          )}
-                          <div>
-                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Date</label>
-                            <input name="date" type="date" min={today} defaultValue={c.date ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Start</label>
-                            <input name="startTime" type="time" defaultValue={c.startTime ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-medium text-muted-foreground mb-1">Venue</label>
-                            <input name="venue" type="text" defaultValue={c.venue ?? ''} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" />
-                          </div>
-                          <button type="submit" className="w-full rounded-lg bg-primary text-white text-xs min-h-[44px] py-1.5">Save</button>
+                      {!d.selected ? (
+                        <form action={selectMuhuratAction.bind(null, id)}>
+                          <input type="hidden" name="date" value={d.date} />
+                          <input type="hidden" name="muhurat" value={d.muhurat} />
+                          {d.tithi && <input type="hidden" name="tithi" value={d.tithi} />}
+                          <button
+                            type="submit"
+                            className="min-h-[44px] rounded-lg border border-gold px-3 text-xs font-medium text-primary transition-colors hover:bg-gold/10"
+                          >
+                            Select
+                          </button>
                         </form>
-                      </details>
-                      <form action={deleteCeremonyAction.bind(null, id, c.id)}>
-                        <button
-                          type="submit"
-                          aria-label={`Delete ${ceremonyLabel(c)} ceremony`}
-                          className="text-xs font-medium min-h-[44px] px-2 rounded-md border border-transparent text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </form>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+                      ) : (
+                        <span className="text-xs font-semibold text-gold-muted">✓ Selected</span>
+                      )}
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </FadeUp>
+        )}
+      </div>
 
-            {/* Add Ceremony form */}
-            <CeremonyForm action={createCeremonyAction.bind(null, id)} />
+      {/* Upcoming ceremonies */}
+      {upcomingCeremonies.length > 0 && (
+        <FadeUp delay={0.25}>
+          <SectionHeader
+            title="Upcoming ceremonies"
+            viewAllHref={`/weddings/${id}/ceremonies`}
+            viewAllLabel="All ceremonies"
+          />
+          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
+            {upcomingCeremonies.map((c) => {
+              const colorClass = CEREMONY_COLORS[c.type] ?? CEREMONY_COLORS['OTHER']!;
+              const cdDays = daysUntil(c.date);
+              return (
+                <div
+                  key={c.id}
+                  className="min-w-[200px] max-w-[220px] shrink-0 rounded-xl border border-gold/20 bg-surface p-4 shadow-card"
+                >
+                  <span
+                    className={`mb-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClass}`}
+                  >
+                    {ceremonyLabel(c)}
+                  </span>
+                  {c.date && <p className="text-sm font-semibold text-foreground">{formatDateIN(c.date)}</p>}
+                  {c.startTime && <p className="text-xs text-muted-foreground">{c.startTime}</p>}
+                  {c.venue && <p className="mt-0.5 truncate text-xs text-muted-foreground">{c.venue}</p>}
+                  {cdDays !== null && cdDays > 0 && (
+                    <p className="mt-2 text-xs font-semibold text-primary">{cdDays} days away</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </FadeUp>
+      )}
 
-        {/* Recent activity */}
-        <FadeUp delay={0.35} className="mb-6">
-          <SectionHeader title="Recent Activity" />
-          <ActivityFeed weddingId={id} limit={8} />
-        </FadeUp>
-
-        {/* Quick actions */}
-        <FadeUp delay={0.4} className="mb-6">
-          <SectionHeader title="Quick Actions" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* All ceremonies — inline add/edit/delete */}
+      <FadeUp delay={0.3}>
+        <div className="rounded-2xl border border-gold/25 bg-surface p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold text-primary">All ceremonies</h2>
             <Link
               href={`/weddings/${id}/ceremonies`}
-              className="flex items-center gap-3 bg-surface border border-gold/20 rounded-xl p-4 hover:border-gold/40 hover:shadow-sm transition-all group min-h-[44px]"
+              className="text-xs font-medium text-teal transition-colors hover:text-teal-hover"
             >
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Plus className="h-4 w-4 text-primary" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Add Ceremony</p>
-                <p className="text-xs text-muted-foreground">Plan a new event</p>
-              </div>
-            </Link>
-            <Link
-              href={`/weddings/${id}/guests`}
-              className="flex items-center gap-3 bg-surface border border-gold/20 rounded-xl p-4 hover:border-gold/40 hover:shadow-sm transition-all group min-h-[44px]"
-            >
-              <div className="h-9 w-9 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
-                <UserPlus className="h-4 w-4 text-teal" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Invite Guests</p>
-                <p className="text-xs text-muted-foreground">Manage your guest list</p>
-              </div>
-            </Link>
-            <Link
-              href={`/weddings/${id}/vendors`}
-              className="flex items-center gap-3 bg-surface border border-gold/20 rounded-xl p-4 hover:border-gold/40 hover:shadow-sm transition-all group min-h-[44px]"
-            >
-              <div className="h-9 w-9 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                <Store className="h-4 w-4 text-gold-muted" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Browse Vendors</p>
-                <p className="text-xs text-muted-foreground">Find trusted vendors</p>
-              </div>
+              Full timeline →
             </Link>
           </div>
-        </FadeUp>
 
-        {/* Tab nav — scrollable on mobile (ADD Ceremonies tab) */}
-        <FadeUp delay={0.45}>
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
-            <div className="flex gap-1 min-w-max">
-              {tabs.map(({ href, label, desc }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="min-h-[44px] px-4 py-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-colors whitespace-nowrap flex flex-col items-start justify-center"
-                >
-                  <span className="text-sm font-medium leading-tight">{label}</span>
-                  <span className="text-[11px] text-muted-foreground/80 leading-tight">{desc}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </FadeUp>
+          {ceremonies.length === 0 ? (
+            <EmptyState
+              variant="no-tasks"
+              title="No ceremonies added yet"
+              description="Add ceremonies to build out your wedding-day timeline."
+              className="py-8"
+            />
+          ) : (
+            <ul className="mb-4 space-y-2">
+              {ceremonies.map((c) => {
+                const colorClass = CEREMONY_COLORS[c.type] ?? CEREMONY_COLORS['OTHER']!;
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-start gap-3 rounded-lg border border-gold/20 px-4 py-3"
+                  >
+                    <span
+                      className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClass}`}
+                    >
+                      {ceremonyLabel(c)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      {c.date && <p className="text-sm font-medium text-foreground">{formatDateIN(c.date)}</p>}
+                      {c.startTime && <p className="text-xs text-muted-foreground">{c.startTime}</p>}
+                      {c.venue && <p className="text-xs text-muted-foreground">{c.venue}</p>}
+                    </div>
+                    <details className="shrink-0">
+                      <summary className="min-h-[44px] cursor-pointer list-none rounded-md border border-transparent px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/30 hover:text-primary">
+                        Edit
+                      </summary>
+                      <form
+                        action={updateCeremonyAction.bind(null, id, c.id)}
+                        className="absolute left-2 right-2 z-10 mt-1 space-y-2 rounded-lg border border-gold/30 bg-surface p-3 shadow-lg sm:left-auto sm:right-2 sm:w-64"
+                      >
+                        {c.type === 'OTHER' && (
+                          <div>
+                            <label className="mb-1 block text-[10px] font-medium text-muted-foreground">
+                              Ceremony name
+                            </label>
+                            <input
+                              name="customTypeName"
+                              type="text"
+                              defaultValue={c.customTypeName ?? ''}
+                              placeholder="e.g. Manda"
+                              className="w-full rounded border border-gold/30 px-2 py-1 text-xs"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Date</label>
+                          <input
+                            name="date"
+                            type="date"
+                            min={today}
+                            defaultValue={c.date ?? ''}
+                            className="w-full rounded border border-gold/30 px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Start</label>
+                          <input
+                            name="startTime"
+                            type="time"
+                            defaultValue={c.startTime ?? ''}
+                            className="w-full rounded border border-gold/30 px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Venue</label>
+                          <input
+                            name="venue"
+                            type="text"
+                            defaultValue={c.venue ?? ''}
+                            className="w-full rounded border border-gold/30 px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="min-h-[44px] w-full rounded-lg bg-primary py-1.5 text-xs text-white"
+                        >
+                          Save
+                        </button>
+                      </form>
+                    </details>
+                    <form action={deleteCeremonyAction.bind(null, id, c.id)}>
+                      <button
+                        type="submit"
+                        aria-label={`Delete ${ceremonyLabel(c)} ceremony`}
+                        className="min-h-[44px] rounded-md border border-transparent px-2 text-xs font-medium text-muted-foreground transition-colors hover:border-destructive/30 hover:text-destructive"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
-        <p className="text-center text-xs text-muted-foreground">
-          Use the tabs above to manage every part of your wedding plan.
-        </p>
-      </PageTransition>
-    </div>
+          <CeremonyForm action={createCeremonyAction.bind(null, id)} />
+        </div>
+      </FadeUp>
+
+      {/* Recent activity */}
+      <FadeUp delay={0.35}>
+        <SectionHeader title="Recent activity" />
+        <ActivityFeed weddingId={id} limit={8} />
+      </FadeUp>
+    </PageTransition>
   );
 }

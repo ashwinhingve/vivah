@@ -2,6 +2,11 @@
 
 import { useState, useTransition } from 'react';
 
+// Web and API are separate origins in prod (smartshaadi.co.in ↔
+// api.smartshaadi.co.in) with no Next rewrites — a relative fetch 404s. Prefix
+// the API origin like every other admin client component.
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
 interface Props {
   lgbtqEnabled:   boolean;
   lgbtqUpdatedAt: string | null;
@@ -16,7 +21,7 @@ export function PlatformSettingsForm({ lgbtqEnabled, lgbtqUpdatedAt }: Props) {
   function toggleLgbtq(next: boolean) {
     setError(null);
     startTransition(async () => {
-      const res = await fetch('/api/v1/admin/platform-settings/lgbtq_matching_enabled', {
+      const res = await fetch(`${API_URL}/api/v1/admin/platform-settings/lgbtq_matching_enabled`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ value: next }),

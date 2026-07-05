@@ -3,10 +3,14 @@
  * Hybrid: Server Component lists promos + client for create and toggle.
  */
 import { cookies } from 'next/headers';
+import { redirect } from '@/i18n/redirect';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { PromoCodeRecord } from '@smartshaadi/types';
 import { AdminPromosClient } from './AdminPromosClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+interface AuthMe { userId: string; role: string; status: string }
 
 async function fetchPromos(): Promise<PromoCodeRecord[]> {
   const cookieStore = await cookies();
@@ -14,7 +18,7 @@ async function fetchPromos(): Promise<PromoCodeRecord[]> {
   if (!token) return [];
 
   try {
-    const res = await fetch(`${API_URL}/api/v1/payments/promos/active?includeInactive=true&limit=100`, {
+    const res = await fetch(`${API_URL}/api/v1/payments/promos/admin/list?limit=100`, {
       headers: { Cookie: `better-auth.session_token=${token}` },
       cache:   'no-store',
     });
@@ -31,6 +35,12 @@ async function fetchPromos(): Promise<PromoCodeRecord[]> {
 }
 
 export default async function AdminPromosPage() {
+  // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
+  // the role here and redirect any non-admin off the page.
+  const me = await fetchAuth<AuthMe>('/api/auth/me');
+  if (me && me.role !== 'ADMIN') {
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+  }
   const promos = await fetchPromos();
   return <AdminPromosClient initialPromos={promos} />;
 }

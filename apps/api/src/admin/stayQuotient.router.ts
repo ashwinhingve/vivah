@@ -162,17 +162,27 @@ stayQuotientAdminRouter.get(
       .orderBy(asc(profiles.lastActiveAt))
       .limit(AT_RISK_CANDIDATE_CAP);
 
+    // Score in bounded-concurrency batches instead of one-at-a-time: each score
+    // is an AI-service round trip, so serial awaits over up to
+    // AT_RISK_CANDIDATE_CAP candidates could take ~100× a single call and time
+    // out the admin dashboard. Mirrors the chunked idiom in jobs/emotionalScoreJob.
     const scored: StayQuotientResponse[] = [];
-    for (const c of candidates) {
-      try {
-        const features = await extractStayFeatures(c.userId);
-        const result = await getStayQuotient(features);
-        if (!risk_band || result.risk_band === risk_band) {
-          scored.push(result);
+    const AT_RISK_SCORE_CONCURRENCY = 10;
+    for (let i = 0; i < candidates.length; i += AT_RISK_SCORE_CONCURRENCY) {
+      const batch = candidates.slice(i, i + AT_RISK_SCORE_CONCURRENCY);
+      const results = await Promise.allSettled(
+        batch.map(async (c) => {
+          const features = await extractStayFeatures(c.userId);
+          return getStayQuotient(features);
+        }),
+      );
+      results.forEach((r, idx) => {
+        if (r.status === 'fulfilled') {
+          if (!risk_band || r.value.risk_band === risk_band) scored.push(r.value);
+        } else {
+          logger.warn({ err: r.reason, userId: batch[idx]!.userId }, 'stay_at_risk_score_failed');
         }
-      } catch (e) {
-        logger.warn({ err: e, userId: c.userId }, 'stay_at_risk_score_failed');
-      }
+      });
     }
 
     scored.sort((a, b) => b.churn_probability - a.churn_probability);

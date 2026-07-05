@@ -382,7 +382,7 @@ export function ProfileActions({
 
   // Mobile sticky
   return (
-    <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface/95 backdrop-blur-sm border-t border-gold/20 px-4 py-3 shadow-2xl md:hidden">
+    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-gold/20 bg-surface/95 px-4 py-3 shadow-2xl backdrop-blur-sm md:hidden">
       <div className="mx-auto max-w-lg">
         {inner}
       </div>

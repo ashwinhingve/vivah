@@ -152,6 +152,27 @@ export async function listActivePromos(scope?: 'BOOKING' | 'STORE' | 'WEDDING') 
     .limit(50);
 }
 
+/**
+ * Admin listing — returns ALL promos including inactive/expired ones, so the
+ * admin console can re-activate a deactivated code (the customer-facing
+ * listActivePromos filters those out). Newest first, bounded limit.
+ */
+export async function adminListPromos(
+  input: { limit?: number; scope?: 'BOOKING' | 'STORE' | 'WEDDING' } = {},
+) {
+  const limit = Math.min(Math.max(input.limit ?? 100, 1), 500);
+  return db
+    .select()
+    .from(schema.promoCodes)
+    .where(
+      input.scope
+        ? or(eq(schema.promoCodes.scope, input.scope), eq(schema.promoCodes.scope, 'ALL'))
+        : undefined,
+    )
+    .orderBy(desc(schema.promoCodes.createdAt))
+    .limit(limit);
+}
+
 export async function adminCreatePromo(adminId: string, input: CreatePromoInput) {
   const [admin] = await db
     .select({ role: schema.user.role })
