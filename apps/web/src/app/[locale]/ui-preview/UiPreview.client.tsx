@@ -142,7 +142,7 @@ export function UiPreview() {
           </Block>
 
           <Block title="ProfileCard">
-            <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <ProfileCard
                 name="Ananya Sharma"
                 age={27}
@@ -154,6 +154,9 @@ export function UiPreview() {
                 isOnline
                 compatibilityPct={92}
                 gunaScore={30}
+                manglik="NO"
+                distanceKm={8}
+                lastActiveAt="2026-07-04T10:00:00.000Z"
                 onShortlist={noop}
                 onConnect={noop}
                 onPass={noop}
@@ -168,7 +171,10 @@ export function UiPreview() {
                 isVerified
                 compatibilityPct={84}
                 gunaScore={26}
+                manglik="YES"
+                lastActiveAt="2026-07-04T09:00:00.000Z"
                 shortlisted
+                requestSent
                 onShortlist={noop}
                 onConnect={noop}
                 onPass={noop}
@@ -180,6 +186,7 @@ export function UiPreview() {
                 profession="Founder"
                 photoUrl={BROKEN}
                 compatibilityPct={71}
+                manglik="PARTIAL"
                 onConnect={noop}
               />
               <ProfileCardSkeleton />

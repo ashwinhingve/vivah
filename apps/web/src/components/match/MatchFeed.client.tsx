@@ -310,7 +310,6 @@ function FeedCardItem({
   onPass: () => void;
   onOpen: () => void;
 }) {
-  const t = useTranslations('feed');
   const reduced = useReducedMotion();
   const [showPassConfirm, setShowPassConfirm] = useState(false);
   const [passing, setPassing] = useState(false);
@@ -344,14 +343,6 @@ function FeedCardItem({
         />
       )}
 
-      {/* Request Sent pill overlay */}
-      {requestSent && (
-        <div className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full bg-teal px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-          <CheckCircle2 className="h-3 w-3" />
-          {t('requestSentPill')}
-        </div>
-      )}
-
       <ProfileCard
         name={item.name}
         age={item.age}
@@ -359,8 +350,12 @@ function FeedCardItem({
         photoUrl={photoUrl}
         isNew={item.isNew}
         isVerified={item.isVerified}
+        requestSent={requestSent}
         compatibilityPct={item.compatibility.totalScore}
         gunaScore={item.compatibility.gunaScore}
+        manglik={item.manglik ?? null}
+        lastActiveAt={item.lastActiveAt ?? null}
+        distanceKm={item.distanceKm ?? null}
         shortlisted={shortlisted}
         onShortlist={onShortlist}
         onConnect={onConnect}
@@ -666,7 +661,7 @@ export function MatchFeed({
             role="feed"
             aria-label={`${visibleItems.length} match suggestions`}
             aria-busy={loadingMore}
-            className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
             initial="hidden"
             animate="show"
             variants={{

@@ -9,7 +9,8 @@ import { EmptyState } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { FeedPageClient } from './FeedPageClient.client';
-import { MatchCard } from '@/components/matching/MatchCard';
+import { ProfileCard } from '@/components/ui/ProfileCard.client';
+import { resolvePhotoUrl } from '@/lib/photo';
 import { ProfileCompletionGuide } from '@/components/profile/ProfileCompletionGuide';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -186,17 +187,25 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                   {t('recommended')}
                 </span>
                 <div className="mx-auto w-full max-w-[320px]">
-                  <MatchCard
-                    id={only.profileId}
-                    name={only.name || 'Member'}
-                    age={only.age}
-                    city={only.city}
-                    {...(only.photoKey ? { primaryPhotoUrl: only.photoKey } : {})}
-                    compatibilityPct={only.compatibility?.totalScore}
-                    isVerified={only.isVerified}
-                    gunaPending={only.compatibility?.flags?.includes('guna_pending')}
-                    hideGunaHint
-                  />
+                  <Link href={`/profiles/${only.profileId}`} className="block">
+                    <ProfileCard
+                      name={only.name || 'Member'}
+                      age={only.age}
+                      city={only.city}
+                      photoUrl={only.photoHidden ? null : resolvePhotoUrl(only.photoKey)}
+                      isNew={only.isNew}
+                      isVerified={only.isVerified}
+                      compatibilityPct={only.compatibility?.totalScore}
+                      gunaScore={
+                        only.compatibility?.flags?.includes('guna_pending')
+                          ? null
+                          : only.compatibility?.gunaScore
+                      }
+                      manglik={only.manglik ?? null}
+                      lastActiveAt={only.lastActiveAt ?? null}
+                      distanceKm={only.distanceKm ?? null}
+                    />
+                  </Link>
                 </div>
                 <div className="rounded-2xl border border-gold/25 bg-gradient-to-br from-gold/10 via-surface to-teal/5 p-5 text-center shadow-card">
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-teal/10 text-teal">
