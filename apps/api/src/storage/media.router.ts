@@ -11,13 +11,26 @@
 // stable outer URL is what the browser/CDN caches — never the short-lived
 // presigned URL — the 15-minute presign expiry can never race a cached page.
 //
-// Unauthenticated by design (parity with the authorization already performed
-// by whatever endpoint handed the bare key to the client). To stop this from
-// becoming a permanent public gateway to sensitive uploads, it is scoped to
-// display-media key prefixes only — `documents/` (wedding docs / KYC PDFs) and
-// `invitations/` are intentionally excluded and 404 here.
+// Scoped to display-media key prefixes only — `documents/` (wedding docs / KYC
+// PDFs) and `invitations/` are intentionally excluded and 404 here.
+//
+// Auth model: image prefixes (photos/, chat/, portfolios/, products/, avatars/)
+// are rendered through next/image, whose server-side optimizer fetches this URL
+// WITHOUT the user's session cookie — so they cannot be cookie-gated without
+// breaking every image, and instead rely on the allowlist + non-enumerable
+// (UUID-keyed) object names until signed URLs land. The private plain-media
+// prefixes (chat-voice/, audio-intros/, video-intros/) are rendered via
+// <audio>/<video> — a direct browser fetch that DOES carry the cookie — so they
+// require a valid session, and chat-voice additionally verifies the caller is a
+// participant of the match.
 import { Router, type Request, type Response } from 'express';
+import { and, eq, or } from 'drizzle-orm';
 import { getPhotoUrl } from './service.js';
+import { auth } from '../auth/config.js';
+import { fromNodeHeaders } from 'better-auth/node';
+import { db } from '../lib/db.js';
+import { matchRequests } from '@smartshaadi/db';
+import { resolveProfileId } from '../lib/profile.js';
 
 // Every key prefix produced by a getPresignedUploadUrl() caller that is later
 // rendered through resolvePhotoUrl() on the web. Keep in sync when adding a new
@@ -47,6 +60,36 @@ function safeKey(rawKey: string): string | null {
   return key;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Private plain-media prefixes that must not be served to anonymous callers.
+// (Image prefixes are deliberately absent — see the header note.)
+const AUTH_REQUIRED_PREFIXES = ['chat-voice/', 'audio-intros/', 'video-intros/'];
+
+async function sessionUserId(req: Request): Promise<string | null> {
+  const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
+  return session?.user?.id ?? null;
+}
+
+/** chat-voice/<matchId>/… — caller must be a participant (sender/receiver) of the match. */
+async function callerOwnsChatVoice(userId: string, key: string): Promise<boolean> {
+  const matchId = key.split('/')[1] ?? '';
+  if (!UUID_RE.test(matchId)) return false;                 // avoids invalid-uuid query throws
+  const me = await resolveProfileId(userId);
+  if (!me) return false;
+  const [row] = await db
+    .select({ id: matchRequests.id })
+    .from(matchRequests)
+    .where(
+      and(
+        eq(matchRequests.id, matchId),
+        or(eq(matchRequests.senderId, me), eq(matchRequests.receiverId, me)),
+      ),
+    )
+    .limit(1);
+  return Boolean(row);
+}
+
 export const mediaRouter: Router = Router();
 
 mediaRouter.get('/*', async (req: Request, res: Response): Promise<void> => {
@@ -55,6 +98,20 @@ mediaRouter.get('/*', async (req: Request, res: Response): Promise<void> => {
   if (!key) {
     res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Media not found' } });
     return;
+  }
+
+  // Gate the private plain-media prefixes on a valid session; chat-voice also
+  // requires match participation. Image prefixes fall through (see header note).
+  if (AUTH_REQUIRED_PREFIXES.some(p => key.startsWith(p))) {
+    const userId = await sessionUserId(req);
+    if (!userId) {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
+      return;
+    }
+    if (key.startsWith('chat-voice/') && !(await callerOwnsChatVoice(userId, key))) {
+      res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Not authorized for this media' } });
+      return;
+    }
   }
   // helmet defaults Cross-Origin-Resource-Policy to `same-origin`, which blocks
   // raw <img>/<audio> loads across the web↔api origin split. Opt this route out.
