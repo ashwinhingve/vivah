@@ -21,6 +21,7 @@ import { authenticate, authorize } from '../auth/middleware.js';
 import { db } from '../lib/db.js';
 import { vendors, vendorStatusEnum, rejectionCategoryEnum } from '@smartshaadi/db';
 import { ok, err } from '../lib/response.js';
+import { logger } from '../lib/logger.js';
 import {
   startReview,
   approve,
@@ -206,9 +207,23 @@ adminVendorsRouter.put('/vendors/:id/commission', authenticate, authorize(['ADMI
   ok(res, { ok: true });
 });
 
+// Manual admin override — NOT an automated check. An admin is attesting that
+// they verified the vendor's bank details out-of-band. The (who, when) is
+// recorded via bankVerifiedAt + the structured log below.
+// TODO(future): replace with the Razorpay Fund Account ₹1 penny-drop flow so
+// this can become a real automated verification instead of a manual attestation.
 adminVendorsRouter.post('/vendors/:id/verify-bank', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
   const id = req.params['id'] ?? '';
-  // TODO(future): integrate Razorpay Fund Account ₹1 verification flow.
-  await db.update(vendors).set({ bankVerificationStatus: 'VERIFIED' }).where(eq(vendors.id, id));
-  ok(res, { status: 'VERIFIED' });
+  const now = new Date();
+  const result = await db
+    .update(vendors)
+    .set({ bankVerificationStatus: 'VERIFIED' })
+    .where(eq(vendors.id, id))
+    .returning({ id: vendors.id });
+  if (result.length === 0) { err(res, 'NOT_FOUND', 'Vendor not found', 404); return; }
+  logger.info(
+    { vendorId: id, actorId: req.user!.id, at: now.toISOString() },
+    'admin_manual_bank_verify',
+  );
+  ok(res, { status: 'VERIFIED', manual: true, verifiedAt: now.toISOString() });
 });

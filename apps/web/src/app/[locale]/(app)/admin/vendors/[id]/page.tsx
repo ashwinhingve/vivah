@@ -204,6 +204,7 @@ export default async function AdminVendorDetailPage({
               currentAdminId={me.userId}
               rejectionReason={v.rejectionReason}
               rejectionCategory={v.rejectionCategory}
+              bankVerificationStatus={v.bankVerificationStatus}
             />
           </div>
         </div>

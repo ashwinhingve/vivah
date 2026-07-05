@@ -51,7 +51,10 @@ promoRouter.get('/admin/list', authenticate, authorize(['ADMIN']), async (req: R
   const rawLimit = Number(req.query['limit'] ?? 100);
   const scope = (req.query['scope'] as 'BOOKING' | 'STORE' | 'WEDDING' | undefined) ?? undefined;
   try {
-    const items = await adminListPromos({ limit: Number.isFinite(rawLimit) ? rawLimit : 100, scope });
+    const items = await adminListPromos({
+      limit: Number.isFinite(rawLimit) ? rawLimit : 100,
+      ...(scope ? { scope } : {}),
+    });
     ok(res, { items });
   } catch (e) { handle(res, e); }
 });

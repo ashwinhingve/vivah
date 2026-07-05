@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
-import { Loader2, CheckCircle2, ShieldOff, PlayCircle, RotateCcw } from 'lucide-react';
+import { Loader2, CheckCircle2, ShieldOff, PlayCircle, RotateCcw, Banknote } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -22,6 +22,7 @@ interface Props {
   currentAdminId:   string;
   rejectionReason:  string | null;
   rejectionCategory: string | null;
+  bankVerificationStatus: string;
 }
 
 const CATEGORY_LABELS: Record<RejectionCategory, string> = {
@@ -38,12 +39,15 @@ export function VendorReviewActions({
   currentAdminId,
   rejectionReason,
   rejectionCategory,
+  bankVerificationStatus,
 }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [showBankConfirm, setShowBankConfirm] = useState(false);
+  const bankVerified = bankVerificationStatus === 'VERIFIED';
 
   async function callTransition(
     path: string,
@@ -178,6 +182,56 @@ export function VendorReviewActions({
           Vendor has not yet submitted for review.
         </p>
       )}
+
+      {/* ── Bank verification (manual override) ── */}
+      <div className="border-t border-gold/20 pt-4">
+        <div className="flex items-center gap-2">
+          <Banknote className="h-4 w-4 text-gold-muted" aria-hidden="true" />
+          <p className="text-xs font-medium text-muted-foreground">
+            Bank account:{' '}
+            <span className={bankVerified ? 'font-semibold text-success' : 'font-semibold text-warning'}>
+              {bankVerificationStatus}
+            </span>
+          </p>
+        </div>
+        {!bankVerified && !showBankConfirm && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setShowBankConfirm(true)}
+            className="mt-2 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg border border-gold/40 text-sm font-semibold text-gold-muted transition-colors hover:bg-gold/10 disabled:opacity-60"
+          >
+            Mark bank verified — manual
+          </button>
+        )}
+        {!bankVerified && showBankConfirm && (
+          <div className="mt-2 rounded-lg border border-gold/30 bg-background p-3">
+            <p className="text-xs text-muted-foreground">
+              This is a <span className="font-semibold text-foreground">manual attestation</span>, not an
+              automated check. Only confirm if you have verified the vendor&apos;s bank details out-of-band.
+              Vendor payouts depend on this flag. Your action is logged.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowBankConfirm(false)}
+                className="flex h-10 flex-1 items-center justify-center rounded-lg border border-gold/30 text-sm font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => callTransition('verify-bank', undefined, 'Bank marked verified (manual)').then(() => setShowBankConfirm(false))}
+                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-gold text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-px disabled:opacity-60 disabled:cursor-wait"
+              >
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Confirm manual verify
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── Reject modal ── */}
       {showRejectModal && (

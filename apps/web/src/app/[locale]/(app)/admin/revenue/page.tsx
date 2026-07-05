@@ -3,10 +3,14 @@
  * Server Component with client date filter.
  */
 import { cookies } from 'next/headers';
+import { redirect } from '@/i18n/redirect';
+import { fetchAuth } from '@/lib/server-fetch';
 import type { RevenueSummary, RevenueByCategory, DailyRevenuePoint } from '@smartshaadi/types';
 import { AdminRevenueClient } from './AdminRevenueClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+interface AuthMe { userId: string; role: string; status: string }
 
 interface Liability {
   label:  string;
@@ -134,6 +138,12 @@ export default async function AdminRevenuePage({
         <p className="text-muted-foreground">Access denied.</p>
       </div>
     );
+  }
+  // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
+  // the role here and redirect any non-admin off the page.
+  const me = await fetchAuth<AuthMe>('/api/auth/me');
+  if (me && me.role !== 'ADMIN') {
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
   const [summary, daily, categories, topVendors, liabilities] = await Promise.all([

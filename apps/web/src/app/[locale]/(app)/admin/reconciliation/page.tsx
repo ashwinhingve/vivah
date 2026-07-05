@@ -1,6 +1,10 @@
 import { headers } from 'next/headers';
+import { redirect } from '@/i18n/redirect';
+import { fetchAuth } from '@/lib/server-fetch';
 import { Container, PageHeader } from '@/components/shared';
 import { ReconciliationTableClient } from './ReconciliationTableClient.client';
+
+interface AuthMe { userId: string; role: string; status: string }
 
 interface Discrepancy {
   id: string;
@@ -34,6 +38,12 @@ async function fetchDiscrepancies(): Promise<Discrepancy[]> {
 export const dynamic = 'force-dynamic';
 
 export default async function ReconciliationPage() {
+  // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
+  // the role here and redirect any non-admin off the page.
+  const me = await fetchAuth<AuthMe>('/api/auth/me');
+  if (me && me.role !== 'ADMIN') {
+    return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
+  }
   const items = await fetchDiscrepancies();
   return (
     <main className="min-h-screen bg-background py-8">
