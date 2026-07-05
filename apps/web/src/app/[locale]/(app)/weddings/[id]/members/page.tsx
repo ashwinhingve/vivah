@@ -1,5 +1,4 @@
-import { Link } from '@/i18n/navigation';
-import { ArrowLeft, UserPlus, Users, Mail } from 'lucide-react';
+import { UserPlus, Users, Mail } from 'lucide-react';
 import { fetchMembers, fetchInvites } from '@/lib/wedding-api';
 import { inviteMemberAction, updateRoleAction, removeMemberAction } from './actions';
 import { ActivityFeed } from '@/components/wedding/ActivityFeed';
@@ -15,9 +14,6 @@ export default async function MembersPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
         <h1 className="font-heading text-2xl text-primary mb-2">Collaborators</h1>
         <p className="text-sm text-muted-foreground mb-6">Invite family + planners to collaborate on this wedding.</p>
 

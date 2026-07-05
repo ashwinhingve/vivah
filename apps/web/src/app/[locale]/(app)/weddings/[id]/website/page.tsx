@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
-import { ArrowLeft, Globe, Eye, Sparkles } from 'lucide-react';
+import { Globe, Eye, Sparkles } from 'lucide-react';
 import { fetchWebsite } from '@/lib/wedding-api';
 import { saveWebsiteAction } from './actions';
 
@@ -14,9 +13,6 @@ export default async function WebsitePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> {t('back')}
-        </Link>
         <div className="flex items-center gap-2 mb-2">
           <Globe className="h-6 w-6 text-gold" />
           <h1 className="font-heading text-2xl text-primary">{t('heading')}</h1>

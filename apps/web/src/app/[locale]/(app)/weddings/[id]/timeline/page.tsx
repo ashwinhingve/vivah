@@ -1,5 +1,4 @@
-import { Link } from '@/i18n/navigation';
-import { ArrowLeft, Clock, MapPin, Sparkles, Plus } from 'lucide-react';
+import { Clock, MapPin, Sparkles, Plus } from 'lucide-react';
 import { fetchTimeline } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { Ceremony } from '@smartshaadi/types';
@@ -35,9 +34,6 @@ export default async function TimelinePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
 
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-heading text-2xl text-primary">Day-of Schedule</h1>

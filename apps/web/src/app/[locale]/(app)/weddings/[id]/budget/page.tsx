@@ -1,6 +1,5 @@
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { BudgetEditor } from '@/components/wedding/BudgetEditor.client';
 import { BudgetDonut, type BudgetSlice } from '@/components/wedding/BudgetDonut';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -54,14 +53,6 @@ export default async function BudgetPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-        {/* Back */}
-        <Link
-          href={`/weddings/${id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Overview
-        </Link>
 
         <PageHeader
           title="Budget"

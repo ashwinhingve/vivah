@@ -1,6 +1,4 @@
 import { Suspense } from 'react';
-import { Link } from '@/i18n/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { CateringEstimates } from '@/components/wedding/CateringEstimates';
 
 export const metadata = { title: 'Catering Estimates — Smart Shaadi' };
@@ -35,13 +33,6 @@ export default async function CateringPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link
-          href={`/weddings/${id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to wedding
-        </Link>
 
         <h1 className="font-heading text-primary text-3xl mb-2">Catering Estimates</h1>
         <p className="text-muted-foreground text-sm mb-8">

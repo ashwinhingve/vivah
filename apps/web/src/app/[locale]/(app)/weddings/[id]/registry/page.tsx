@@ -1,5 +1,4 @@
-import { Link } from '@/i18n/navigation';
-import { ArrowLeft, Gift, Plus } from 'lucide-react';
+import { Gift, Plus } from 'lucide-react';
 import { fetchRegistry } from '@/lib/wedding-api';
 import { createRegistryItemAction, deleteRegistryItemAction } from './actions';
 
@@ -19,9 +18,6 @@ export default async function RegistryPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
         <div className="flex items-center gap-2 mb-2">
           <Gift className="h-6 w-6 text-gold" />
           <h1 className="font-heading text-2xl text-primary">Gift Registry</h1>
