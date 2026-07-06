@@ -165,14 +165,15 @@
     },
     "hero": {
       "eyebrow": "EST. 2026 · India's Smartest Matrimonial",
-      "heading": "Where families find their forever.",
+      "heading": "Where families find their <em>forever</em>.",
       "subtext": "India's first matrimonial platform built around real compatibility — Guna Milan, family values, and reciprocal matching. Verified profiles only.",
       "badgeVerified": "Verified Profiles",
       "badgePrivacy": "Privacy First",
       "badgeRating": "4.8★ Rating",
       "primaryCta": "Find Your Match →",
       "secondaryCta": "Browse Vendors",
-      "microcopy": "Free to join · No credit card · 2 min setup"
+      "microcopy": "Free to join · No credit card · 2 min setup",
+      "scrollCue": "Scroll to explore"
     },
     "howItWorks": {
       "eyebrow": "How it Works",
@@ -824,7 +825,12 @@
         "privacyDefault": "Privacy by default"
       }
     },
-    "aiDisclosure": "AI-generated demo profiles · Real profiles are verified"
+    "aiDisclosure": "AI-generated demo profiles · Real profiles are verified",
+    "compat": {
+      "match": "match",
+      "guna": "Guna",
+      "verified": "Verified"
+    }
   },
   "common": {
     "loading": "Loading…",
