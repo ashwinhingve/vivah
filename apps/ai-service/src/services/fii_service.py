@@ -26,7 +26,7 @@ from src.schemas.fii import (
     FiiProfileScore,
     FiiSignals,
 )
-from src.services.llm_client import get_llm_client
+from src.services.llm_client import get_llm_client, strip_code_fences
 from src.services.observability import capture_exception
 
 log = structlog.get_logger("fii_service")
@@ -347,6 +347,7 @@ def _contains_forbidden_word(text: str) -> bool:
 
 def _parse_xml_field(text: str, tag: str) -> str | None:
     """Extract content between <tag>…</tag>. Returns None if not found."""
+    text = strip_code_fences(text)
     pattern = rf"<{tag}>(.*?)</{tag}>"
     match = re.search(pattern, text, re.DOTALL)
     return match.group(1).strip() if match else None
@@ -429,7 +430,7 @@ async def compute_compatibility(
                 )
                 response = client.messages.create(
                     model="claude-sonnet-4-6",
-                    max_tokens=512,
+                    max_tokens=900,
                     system=system_prompt,
                     messages=[{"role": "user", "content": user_message}],
                 )

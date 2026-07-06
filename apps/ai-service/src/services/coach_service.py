@@ -18,7 +18,7 @@ from typing import Literal
 import structlog
 
 from src.schemas.coach import CoachRequest, CoachResponse, CoachSuggestion, Message, ProfileSnapshot
-from src.services.llm_client import get_llm_client
+from src.services.llm_client import get_llm_client, strip_code_fences
 from src.services.observability import capture_exception
 
 log = structlog.get_logger("coach-service")
@@ -210,13 +210,14 @@ def _parse_xml_suggestions(xml_text: str) -> list[CoachSuggestion]:
     Returns up to 3 CoachSuggestion objects. Falls back to MOCK_SUGGESTIONS
     if parsing fails or fewer than 3 valid suggestions are found.
     """
+    xml_text = strip_code_fences(xml_text)
     pattern = re.compile(
         r"<suggestion>\s*"
         r"<text>(.*?)</text>\s*"
         r"<reason>(.*?)</reason>\s*"
-        r"<tone>(warm|curious|light)</tone>\s*"
+        r"<tone>\s*(warm|curious|light)\s*</tone>\s*"
         r"</suggestion>",
-        re.DOTALL,
+        re.DOTALL | re.IGNORECASE,
     )
     matches = pattern.findall(xml_text)
 
@@ -226,7 +227,7 @@ def _parse_xml_suggestions(xml_text: str) -> list[CoachSuggestion]:
             CoachSuggestion(
                 text=text.strip(),
                 reason=reason.strip(),
-                tone=tone.strip(),  # type: ignore[arg-type]
+                tone=tone.strip().lower(),  # type: ignore[arg-type]
             )
         )
 
@@ -322,16 +323,24 @@ async def get_suggestions(
         if anthropic_client is None:
             raise RuntimeError("Anthropic client not available")
 
-        response = anthropic_client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=800,
-            temperature=0.7,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_content}],
-            extra_headers=extra_headers,
-        )
-        raw_text: str = response.content[0].text
-        suggestions = _parse_xml_suggestions(raw_text)
+        # Retry once on a parse miss — flash occasionally loops/omits the strict
+        # 3-suggestion XML; a second draft usually complies. Both fail → mock.
+        suggestions = MOCK_SUGGESTIONS
+        for attempt in range(2):
+            response = anthropic_client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1500,  # Gemini flash is verbose — 800 truncated 3-suggestion XML
+                temperature=0.7,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_content}],
+                extra_headers=extra_headers,
+            )
+            raw_text: str = response.content[0].text
+            parsed = _parse_xml_suggestions(raw_text)
+            if parsed is not MOCK_SUGGESTIONS:
+                suggestions = parsed
+                break
+            log.warning("coach_parse_retry", attempt=attempt)
 
     except Exception as exc:  # noqa: BLE001
         log.error("anthropic_call_failed", error=str(exc), fallback="mock_suggestions")
@@ -340,7 +349,9 @@ async def get_suggestions(
 
     # ── 6. Write to Redis ────────────────────────────────────────────────────
     result = CoachResponse(suggestions=suggestions, state=state, cached=False)
-    if redis_client is not None:
+    # Never cache the mock fallback — a transient parse/LLM failure must not
+    # poison the 1h cache with canned suggestions for a real profile pair.
+    if redis_client is not None and suggestions is not MOCK_SUGGESTIONS:
         try:
             payload = {
                 "suggestions": [s.model_dump() for s in suggestions],

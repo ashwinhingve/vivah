@@ -27,7 +27,7 @@ from src.schemas.dpi import (
     DpiResponse,
 )
 from src.services.dpi_model import predict
-from src.services.llm_client import get_llm_client
+from src.services.llm_client import get_llm_client, strip_code_fences
 from src.services.observability import capture_exception
 
 log = structlog.get_logger("dpi-service")
@@ -97,6 +97,7 @@ def _parse_narrative_xml(xml_text: str) -> tuple[str, str] | None:
     Returns (narrative, suggestion) or None if parsing fails.
     Tolerant of extra whitespace or surrounding text.
     """
+    xml_text = strip_code_fences(xml_text)
     # Try structured XML parse first
     try:
         # Wrap in a root element to handle bare tags
@@ -272,7 +273,7 @@ async def compute_dpi(
 
         response = anthropic_client.messages.create(
             model="claude-opus-4-7",
-            max_tokens=400,
+            max_tokens=1000,  # headroom for verbose Gemini narrative+suggestion XML
             temperature=0.5,
             system=system_prompt,
             messages=[{"role": "user", "content": user_content}],

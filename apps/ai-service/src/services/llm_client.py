@@ -84,6 +84,23 @@ def ai_mock_enabled() -> bool:
     return not llm_api_key_present()
 
 
+def strip_code_fences(text: str) -> str:
+    """Strip a wrapping markdown code fence from an LLM reply.
+
+    Gemini often wraps XML/JSON output in ```xml … ``` even when told not to.
+    Removes a leading ```<lang> line and a trailing ``` so downstream XML/regex
+    parsers see the raw payload. No-op when the reply isn't fenced.
+    """
+    t = (text or "").strip()
+    if t.startswith("```"):
+        newline = t.find("\n")
+        if newline != -1:
+            t = t[newline + 1 :]
+        if t.rstrip().endswith("```"):
+            t = t.rstrip()[:-3]
+    return t.strip()
+
+
 def _map_model(claude_model: str) -> str:
     """Map an incoming Claude model id to the configured Gemini model id."""
     if "opus" in (claude_model or "").lower():
