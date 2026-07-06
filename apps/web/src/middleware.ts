@@ -156,5 +156,7 @@ export const config = {
   // Catch every non-asset, non-internal path. No /api exclusion needed —
   // this project has zero route handlers under app/. Matches `/` so the
   // root URL also flows through next-intl (which sets the locale header).
-  matcher: ['/((?!_next|_vercel|.*\\..*).*)'],
+  // `apple-icon` is an extensionless generated metadata route (src/app/apple-icon.tsx);
+  // it must bypass the locale middleware or it renders without an intl provider (500).
+  matcher: ['/((?!_next|_vercel|apple-icon|.*\\..*).*)'],
 };

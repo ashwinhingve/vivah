@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
@@ -49,9 +49,12 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['/og-default.svg'],
   },
-  icons: {
-    icon: '/favicon.ico',
-  },
+  // Favicon + Apple touch icon come from file conventions:
+  // src/app/icon.svg and src/app/apple-icon.tsx — no manual `icons` needed.
+};
+
+export const viewport: Viewport = {
+  themeColor: '#7B2D42',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
