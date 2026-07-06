@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends
 from src.deps.auth import verify_internal_key
 from src.schemas.coach import CoachRequest, CoachResponse
 from src.services.coach_service import get_suggestions
+from src.services.llm_client import ai_mock_enabled
 
 router = APIRouter(prefix="/ai/coach", tags=["coach"])
 
@@ -28,16 +29,13 @@ async def suggest(request: CoachRequest) -> CoachResponse:
     Generate 3 culturally intelligent conversation suggestions for a matched pair.
 
     - Checks Redis cache first (TTL=3600).
-    - In mock mode (USE_MOCK_SERVICES=true), returns pre-set suggestions instantly.
-    - In live mode, calls claude-sonnet-4-6 via Helicone proxy.
+    - Mock only when no provider key is set / AI_FORCE_MOCK (NOT USE_MOCK_SERVICES).
+    - In live mode, calls the configured provider (Gemini/Claude) via the adapter.
     - On any error, gracefully falls back to mock suggestions — never 5xx the caller.
     """
-    import os
-
-    use_mock = os.getenv("USE_MOCK_SERVICES", "true").lower() == "true"
     return await get_suggestions(
         request=request,
         redis_client=None,   # lazy singleton initialised inside coach_service
         anthropic_client=None,
-        use_mock=use_mock,
+        use_mock=ai_mock_enabled(),
     )

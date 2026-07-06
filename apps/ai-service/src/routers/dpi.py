@@ -9,13 +9,12 @@ Returns a DpiResponse with score, level, label, Opus narrative, and top factors.
 
 from __future__ import annotations
 
-import os
-
 from fastapi import APIRouter, Depends
 
 from src.deps.auth import verify_internal_key
 from src.schemas.dpi import DpiRequest, DpiResponse
 from src.services.dpi_service import compute_dpi
+from src.services.llm_client import ai_mock_enabled
 
 router = APIRouter(prefix="/ai/dpi", tags=["dpi"])
 
@@ -30,14 +29,13 @@ async def compute(request: DpiRequest) -> DpiResponse:
     Compute DPI score + Opus-generated narrative for a profile pair.
 
     - Calls dpi_model.predict() for calibrated sklearn probability.
-    - In mock mode (USE_MOCK_SERVICES=true), returns pre-set narrative instantly.
-    - In live mode, calls claude-opus-4-7 via Helicone proxy.
+    - Mock only when no provider key is set / AI_FORCE_MOCK (NOT USE_MOCK_SERVICES).
+    - In live mode, calls the configured provider (Gemini/Claude) for the narrative.
     - On any error, gracefully falls back to mock narrative — never 5xx the caller.
     - Forbidden words in LLM output trigger automatic fallback to mock.
     """
-    use_mock = os.getenv("USE_MOCK_SERVICES", "true").lower() == "true"
     return await compute_dpi(
         request=request,
         anthropic_client=None,  # lazy singleton initialised inside dpi_service
-        use_mock=use_mock,
+        use_mock=ai_mock_enabled(),
     )

@@ -67,6 +67,23 @@ def llm_api_key_present() -> bool:
     return bool(os.getenv("ANTHROPIC_API_KEY", "").strip())
 
 
+def ai_mock_enabled() -> bool:
+    """Whether AI (LLM) features should serve mock output.
+
+    Deliberately DECOUPLED from ``USE_MOCK_SERVICES`` — that flag mocks MSG91 /
+    Razorpay (and Mongo etc.) in the Node api, but must NOT force the AI features
+    to mock. AI runs on the real provider whenever a key is present.
+
+    Mock is on only when:
+      * ``AI_FORCE_MOCK=true`` is set explicitly (CI / offline dev), OR
+      * the selected provider has no API key configured (safety fallback so the
+        service never crashes / spams a bad-key error without a key).
+    """
+    if os.getenv("AI_FORCE_MOCK", "false").strip().lower() == "true":
+        return True
+    return not llm_api_key_present()
+
+
 def _map_model(claude_model: str) -> str:
     """Map an incoming Claude model id to the configured Gemini model id."""
     if "opus" in (claude_model or "").lower():

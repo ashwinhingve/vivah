@@ -10,13 +10,12 @@ compatibility label, template or Sonnet narrative, and discussion starter.
 
 from __future__ import annotations
 
-import os
-
 from fastapi import APIRouter, Depends
 
 from src.deps.auth import verify_internal_key
 from src.schemas.fii import FiiCompatibilityRequest, FiiCompatibilityResponse
 from src.services.fii_service import compute_compatibility
+from src.services.llm_client import ai_mock_enabled
 
 router = APIRouter(prefix="/ai/fii", tags=["fii"])
 
@@ -33,13 +32,13 @@ async def compatibility(request: FiiCompatibilityRequest) -> FiiCompatibilityRes
     - Scores each profile's family inclination (0-100).
     - Computes delta and compatibility label.
     - Returns template narrative by default.
-    - In live mode (USE_MOCK_SERVICES=false) with use_llm_narrative=true,
-      calls claude-sonnet-4-6 for a personalized narrative.
+    - With use_llm_narrative=true and a provider key set, calls the configured
+      provider (Gemini/Claude) for a personalized narrative.
+    - Mock only when no provider key is set / AI_FORCE_MOCK (NOT USE_MOCK_SERVICES).
     - On any LLM error or forbidden-word hit, silently falls back to template.
     """
-    use_mock = os.getenv("USE_MOCK_SERVICES", "true").lower() == "true"
     return await compute_compatibility(
         request=request,
         anthropic_client=None,  # lazy singleton initialised inside fii_service
-        use_mock=use_mock,
+        use_mock=ai_mock_enabled(),
     )

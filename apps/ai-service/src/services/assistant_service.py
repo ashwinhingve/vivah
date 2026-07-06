@@ -6,9 +6,9 @@ coach_service.py lazy-singleton pattern for the Anthropic client + Helicone
 proxy. Persists last 50 messages per conversation to MongoDB collection
 `assistant_conversations` via motor (async).
 
-Mock fallback: when USE_MOCK_SERVICES=true or ANTHROPIC_API_KEY missing,
-yields a canned 3-chunk response so the api/web flows stay testable
-end-to-end without a live Claude key.
+Mock fallback (llm_client.ai_mock_enabled): only when the selected provider has
+no API key, or AI_FORCE_MOCK=true — NOT tied to USE_MOCK_SERVICES (which mocks
+MSG91/Razorpay in the Node api). Keeps api/web flows testable without a live key.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from src.schemas.assistant import AssistantChatRequest, RagContext
 from src.services.assistant_errors import LlmProviderError
 from src.services.assistant_tools import execute_tool_call, get_tool_schemas
 from src.services.llm_client import (
+    ai_mock_enabled,
     append_assistant_turn,
     append_tool_results,
     get_llm_client,
@@ -259,16 +260,18 @@ async def stream_chat(
     4. {type: "done", conversation_id: "..."}
        or {type: "error", message, recoverable} then {type: "done"} on failure.
 
-    Mock chunks are emitted ONLY in intentional mock mode (USE_MOCK_SERVICES or
-    a missing provider key). A genuine live-mode failure surfaces an SSE `error`
-    event (and is captured to Sentry) rather than a fabricated answer — the old
-    silent MOCK_CHUNKS swallow is gone.
+    Mock chunks are emitted ONLY in intentional mock mode (AI_FORCE_MOCK or a
+    missing provider key — see ai_mock_enabled; NOT USE_MOCK_SERVICES). A genuine
+    live-mode failure surfaces an SSE `error` event (and is captured to Sentry)
+    rather than a fabricated answer — the old silent MOCK_CHUNKS swallow is gone.
 
     Persists user + assembled assistant text to MongoDB on completion.
     """
     conversation_id = request.conversation_id or str(uuid.uuid4())
     if use_mock is None:
-        use_mock = os.getenv("USE_MOCK_SERVICES", "false").lower() == "true"
+        # Decoupled from USE_MOCK_SERVICES — the assistant runs on the real
+        # provider whenever a key is present. See llm_client.ai_mock_enabled.
+        use_mock = ai_mock_enabled()
 
     # ── Mock mode ─────────────────────────────────────────────────────────
     if use_mock or not llm_api_key_present():
