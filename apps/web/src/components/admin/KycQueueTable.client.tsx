@@ -131,7 +131,7 @@ export function KycQueueTable({ initialRows }: Props) {
               <tr key={row.profileId} className="border-b border-border last:border-0 hover:bg-background/50">
                 <td className="px-3 py-3 font-mono text-[11px] text-foreground">
                   <Link href={`/admin/kyc/${row.profileId}`} className="hover:underline text-primary">
-                    {row.profileId.slice(0, 8)}…
+                    {(row.profileId ?? '').slice(0, 8)}…
                   </Link>
                 </td>
                 <td className="px-3 py-3">

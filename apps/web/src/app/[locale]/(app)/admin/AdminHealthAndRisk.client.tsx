@@ -26,7 +26,6 @@ interface Props {
 }
 
 interface AtRiskUser {
-  profileId: string;
   userId: string;
   riskBand: string;
   score: number | null;
@@ -45,9 +44,16 @@ function StatusDot({ ok }: { ok: boolean }) {
   );
 }
 
+/** Safely truncate a possibly-undefined string — never throws on undefined,
+ *  so a future API-shape drift can't reintroduce the `undefined.slice()` 500. */
+function short(s: string | null | undefined, n: number): string {
+  return typeof s === 'string' && s.length > 0 ? s.slice(0, n) : '—';
+}
+
 function riskBandClass(band: string): string {
-  if (band === 'HIGH') return 'bg-destructive/10 text-destructive';
-  if (band === 'MEDIUM') return 'bg-warning/10 text-warning';
+  const b = (band ?? '').toUpperCase();
+  if (b === 'HIGH' || b === 'CRITICAL') return 'bg-destructive/10 text-destructive';
+  if (b === 'MEDIUM') return 'bg-warning/10 text-warning';
   return 'bg-muted/40 text-text-muted';
 }
 
@@ -170,19 +176,19 @@ export function AdminHealthAndRisk({
           <div className="overflow-hidden rounded-xl border border-gold/20 bg-surface">
             <div className="divide-y divide-gold/10">
               {atRiskItems.map((u) => (
-                <div key={u.profileId} className="flex items-center gap-3 px-4 py-3">
+                <div key={u.userId} className="flex items-center gap-3 px-4 py-3">
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-xs font-medium text-text-primary">
-                      {u.displayName ?? u.profileId.slice(0, 8) + '…'}
+                      {u.displayName ?? short(u.userId, 8) + '…'}
                     </p>
                     <p className="font-mono text-[10px] text-text-muted">
-                      {u.profileId.slice(0, 12)}…
+                      {short(u.userId, 12)}…
                     </p>
                   </div>
                   <span
                     className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskBandClass(u.riskBand)}`}
                   >
-                    {u.riskBand}
+                    {(u.riskBand ?? '').toUpperCase()}
                   </span>
                   {u.score !== null && (
                     <span className="text-[10px] font-medium text-text-muted">

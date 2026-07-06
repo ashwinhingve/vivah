@@ -23,6 +23,7 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList }    from '@/components/motion/StaggerList.client';
 import { KycQueueTable }  from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar }    from '@/components/admin/KycStatsBar';
+import { AdminSectionBoundary } from '@/components/admin/AdminSectionBoundary.client';
 import { AdminRefreshButton }   from './AdminRefreshButton.client';
 import { AdminDisputesMini }    from './AdminDisputesMini.client';
 import { AdminHealthAndRisk }   from './AdminHealthAndRisk.client';
@@ -97,12 +98,23 @@ interface BookingDispute {
   raisedAt:    string;
 }
 
+// Shape actually returned by GET /api/v1/admin/users/at-risk — the endpoint
+// returns Stay-Quotient scoring rows (see apps/api/src/services/stayService.ts
+// :StayQuotientResponse). There is NO profileId/displayName; keys are snake_case
+// and risk_band is lowercase ('low'|'medium'|'high'|'critical'). Passing these
+// raw into the UI is what caused the recurring undefined.slice() 500.
+interface RawAtRiskUser {
+  user_id:            string;
+  churn_probability:  number;
+  risk_band:          string;
+}
+
+// Normalized shape consumed by <AdminHealthAndRisk>.
 interface AtRiskUser {
-  profileId:   string;
   userId:      string;
-  riskBand:    string;
-  score:       number | null;
-  displayName: string | null;
+  riskBand:    string;       // upper-cased for badge/colour matching
+  score:       number | null; // churn_probability
+  displayName: string | null; // never available from this endpoint
 }
 
 // P1-8: minimal shape for the vendor-approval mini queue on the admin dashboard.
@@ -213,7 +225,7 @@ export default async function AdminPage() {
     fetchAuth<KycStats>('/api/v1/admin/kyc/stats', token),
     fetchAuth<AdminStats>('/api/v1/admin/stats', token),
     fetchAuth<{ disputes: RawDispute[] }>('/api/v1/admin/disputes', token),
-    fetchAuth<{ items: AtRiskUser[]; total: number; cached: boolean }>(
+    fetchAuth<{ items: RawAtRiskUser[]; total: number; cached: boolean }>(
       '/api/v1/admin/users/at-risk?limit=5', token
     ),
     fetchReady(),
@@ -243,7 +255,15 @@ export default async function AdminPage() {
     amount:       Number(d.totalAmount ?? d.escrowHeld ?? 0) || null,
     raisedAt:     d.raisedAt ?? '',
   }));
-  const atRiskItems       = atRiskData?.items        ?? [];
+  // Normalize the API's Stay-Quotient rows into the shape the UI expects.
+  // The endpoint has no profileId/displayName; risk_band is lowercase — map
+  // explicitly (mirrors the RawDispute → BookingDispute normalization above).
+  const atRiskItems: AtRiskUser[] = (atRiskData?.items ?? []).map((u) => ({
+    userId:      u.user_id,
+    riskBand:    (u.risk_band ?? '').toUpperCase(),
+    score:       u.churn_probability,
+    displayName: null,
+  }));
   const atRiskTotal       = atRiskData?.total        ?? 0;
   const vendorQueue       = vendorQueueData?.items   ?? [];
   const vendorQueueTotal  = vendorQueueData?.total   ?? 0;
@@ -291,17 +311,20 @@ export default async function AdminPage() {
         {/* ── System health ── */}
         <section>
           <SectionHeader title="System Health" subtitle="Infrastructure status from /ready" />
-          <AdminHealthAndRisk
-            serviceChecks={serviceChecks}
-            aiModels={aiModels}
-            atRiskItems={atRiskItems}
-            atRiskTotal={atRiskTotal}
-          />
+          <AdminSectionBoundary section="System Health" key={refreshedAt}>
+            <AdminHealthAndRisk
+              serviceChecks={serviceChecks}
+              aiModels={aiModels}
+              atRiskItems={atRiskItems}
+              atRiskTotal={atRiskTotal}
+            />
+          </AdminSectionBoundary>
         </section>
 
         {/* ── Headline metrics ── */}
         <section>
           <SectionHeader title="Platform Metrics" />
+          <AdminSectionBoundary section="Platform Metrics" key={refreshedAt}>
           <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="Total Users"        value={totalUsers} />
             <StatCard label="Active Vendors"     value={activeVendors} />
@@ -329,6 +352,7 @@ export default async function AdminPage() {
               </div>
             </div>
           </StaggerList>
+          </AdminSectionBoundary>
         </section>
 
         {/* ── Action queues ── */}
@@ -337,6 +361,7 @@ export default async function AdminPage() {
           <div className="grid gap-5 lg:grid-cols-3">
 
             {/* KYC queue */}
+            <AdminSectionBoundary section="KYC Review" key={refreshedAt}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
@@ -371,8 +396,10 @@ export default async function AdminPage() {
                 </Link>
               </div>
             </div>
+            </AdminSectionBoundary>
 
             {/* Disputes queue */}
+            <AdminSectionBoundary section="Open Disputes" key={refreshedAt}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
@@ -390,8 +417,10 @@ export default async function AdminPage() {
                 <AdminDisputesMini disputes={disputes.slice(0, 5)} />
               </div>
             </div>
+            </AdminSectionBoundary>
 
             {/* Vendor approval queue (P1-8 — wired) */}
+            <AdminSectionBoundary section="Vendor Approvals" key={refreshedAt}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="flex items-center justify-between border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center gap-2">
@@ -414,14 +443,14 @@ export default async function AdminPage() {
               ) : (
                 <ul className="divide-y divide-gold/10">
                   {vendorQueue.map((v) => (
-                    <li key={v.id}>
+                    <li key={v.id ?? v.businessName}>
                       <Link
                         href={`/admin/vendors/${v.id}`}
                         className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-background"
                       >
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold text-foreground">
-                            {v.businessName}
+                            {v.businessName ?? 'Unnamed vendor'}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {v.category} · {v.city}
@@ -440,12 +469,14 @@ export default async function AdminPage() {
                 Open full queue →
               </Link>
             </div>
+            </AdminSectionBoundary>
           </div>
         </section>
 
         {/* ── Analytics ── */}
         <section>
           <SectionHeader title="Analytics" subtitle="Platform growth, engagement & revenue" />
+          <AdminSectionBoundary section="Analytics" key={refreshedAt}>
           <Link
             href="/admin/analytics"
             className="group flex items-center justify-between gap-4 rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -468,6 +499,7 @@ export default async function AdminPage() {
               aria-hidden
             />
           </Link>
+          </AdminSectionBoundary>
         </section>
 
         {/* ── Activity log placeholder ── */}
