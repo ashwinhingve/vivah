@@ -1,23 +1,41 @@
 /**
  * Smart Shaadi — Embedding sync (Postgres pgvector)
  *
- * The 1536-dim profile embedding canonically lives in Mongo
+ * The 768-dim profile embedding canonically lives in Mongo
  * `ProfileContent.aiEmbedding`. These helpers mirror it into the indexed
- * `profiles.ai_embedding` pgvector column (migration 0029) so matching can run
- * cosine search in Postgres instead of pulling vectors per-candidate.
+ * `profiles.ai_embedding` pgvector column (migrations 0029 + 0030) so matching
+ * can run cosine search in Postgres instead of pulling vectors per-candidate.
  *
- * NOTE: no embedding generator exists yet — nothing writes
- * `ProfileContent.aiEmbedding` today, so `backfillEmbeddingsFromMongo` is a no-op
- * until that lands. `syncProfileEmbedding` is the integration point a future
- * generator calls after producing a vector. Not wired into any request path.
+ * The generator now lives in the ai-service (POST /ai/embedding/profile, local
+ * sentence-transformer). `jobs/embeddingGenerationJob.ts` produces a vector and
+ * calls `syncProfileEmbedding`; `backfillEmbeddingsFromMongo` mirrors any
+ * already-generated Mongo vectors into Postgres.
  */
 import { eq, inArray } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
 import { shouldUseMockMongo } from '../lib/env.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { resolveProfileId } from '../lib/profile.js';
+import { queueEmbeddingGeneration } from '../infrastructure/redis/queues.js';
 
-export const EMBEDDING_DIMS = 1536;
+export const EMBEDDING_DIMS = 768;
+
+/**
+ * Best-effort: enqueue a profile embedding refresh for a userId. Resolves the
+ * profileId and adds a de-duped Bull job. Never throws — embedding freshness is
+ * a non-critical enhancement, so a missing profile / down Redis just skips it.
+ * Call after any profile-content change.
+ */
+export async function enqueueEmbeddingRefresh(userId: string): Promise<void> {
+  try {
+    const profileId = await resolveProfileId(userId);
+    if (!profileId) return;
+    await queueEmbeddingGeneration({ userId, profileId });
+  } catch {
+    /* non-critical */
+  }
+}
 
 /** Write one profile's embedding into the indexed pgvector column. */
 export async function syncProfileEmbedding(profileId: string, embedding: number[]): Promise<void> {

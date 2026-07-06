@@ -61,9 +61,11 @@ def test_build_system_prompt_includes_context_fields() -> None:
     assert "78%" in prompt
     assert "STANDARD" in prompt
     assert "Anika (92%)" in prompt
-    assert "2 match requests" in prompt
-    assert "1 unread messages" in prompt
+    assert "Pending match requests: 2" in prompt
+    assert "Unread messages: 1" in prompt
     assert "family" in prompt
+    # v2 prompt: tool policy + safety rules are present
+    assert "tool" in prompt.lower()
 
 
 def test_build_system_prompt_handles_empty_matches() -> None:
@@ -72,7 +74,7 @@ def test_build_system_prompt_handles_empty_matches() -> None:
     ctx.gaps = []
     prompt = build_system_prompt(ctx)
     assert "(none yet)" in prompt
-    assert "Profile gaps: (none)" in prompt
+    assert "Incomplete profile sections: (none)" in prompt
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +174,168 @@ async def test_fetch_history_returns_last_messages_in_order() -> None:
         {"role": "assistant", "content": "hello"},
         {"role": "user", "content": "and you?"},
     ]
+
+
+# ---------------------------------------------------------------------------
+# stream_chat — live agentic tool-calling
+# ---------------------------------------------------------------------------
+
+
+class _FakeBlock:
+    def __init__(self, *, type="text", text="", id=None, name=None, input=None):
+        self.type = type
+        self.text = text
+        self.id = id
+        self.name = name
+        self.input = input
+
+
+class _FakeResp:
+    def __init__(self, content, stop_reason):
+        self.content = content
+        self.stop_reason = stop_reason
+
+
+class _FakeMessages:
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls: list[dict] = []
+
+    async def create(self, **kwargs):
+        self.calls.append(kwargs)
+        if len(self._responses) > 1:
+            return self._responses.pop(0)
+        return self._responses[0]
+
+
+class _FakeClient:
+    def __init__(self, responses):
+        self.messages = _FakeMessages(responses)
+
+
+def _parse(lines):
+    return [json.loads(line.removeprefix("data: ").strip()) for line in lines]
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_live_answers_from_llm_text(monkeypatch) -> None:
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "a-key")
+    client = _FakeClient([_FakeResp([_FakeBlock(text="Your profile looks great.")], "end_turn")])
+
+    lines: list[str] = []
+    with patch("src.services.assistant_service._conversation_collection", return_value=None):
+        async for line in stream_chat(_make_request(), anthropic_client=client, use_mock=False):
+            lines.append(line)
+
+    parsed = _parse(lines)
+    types = [p["type"] for p in parsed]
+    assert types[0] == "context"
+    assert types[-1] == "done"
+    assert "error" not in types
+    text = "".join(p["content"] for p in parsed if p["type"] == "delta")
+    assert text == "Your profile looks great."
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_live_runs_tool_then_answers(monkeypatch) -> None:
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "a-key")
+    tool_resp = _FakeResp(
+        [_FakeBlock(type="tool_use", id="t1", name="get_my_profile", input={})], "tool_use"
+    )
+    final_resp = _FakeResp([_FakeBlock(text="Your profile is 78% complete.")], "end_turn")
+    client = _FakeClient([tool_resp, final_resp])
+    fake_exec = AsyncMock(
+        return_value={
+            "tool_use_id": "t1",
+            "name": "get_my_profile",
+            "content": '{"completeness_pct": 78}',
+            "is_error": False,
+        }
+    )
+
+    lines: list[str] = []
+    with patch("src.services.assistant_service._conversation_collection", return_value=None), patch(
+        "src.services.assistant_service.execute_tool_call", fake_exec
+    ):
+        async for line in stream_chat(_make_request(), anthropic_client=client, use_mock=False):
+            lines.append(line)
+
+    parsed = _parse(lines)
+    types = [p["type"] for p in parsed]
+    assert "tool_progress" in types
+    prog = [p for p in parsed if p["type"] == "tool_progress"]
+    assert prog[0]["tool"] == "get_my_profile"
+    assert fake_exec.await_count == 1
+    text = "".join(p["content"] for p in parsed if p["type"] == "delta")
+    assert "78%" in text
+    assert types[-1] == "done"
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_live_error_surfaces_error_event_no_fabrication(monkeypatch) -> None:
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "a-key")
+
+    class _BoomMessages:
+        async def create(self, **_):
+            raise RuntimeError("provider down")
+
+    class _BoomClient:
+        def __init__(self):
+            self.messages = _BoomMessages()
+
+    lines: list[str] = []
+    boom = _BoomClient()
+    with patch("src.services.assistant_service._conversation_collection", return_value=None):
+        async for line in stream_chat(_make_request(), anthropic_client=boom, use_mock=False):
+            lines.append(line)
+
+    parsed = _parse(lines)
+    types = [p["type"] for p in parsed]
+    assert "error" in types
+    assert types[-1] == "done"
+    # Critically: NO fabricated mock answer is streamed on a genuine failure.
+    deltas = [p["content"] for p in parsed if p["type"] == "delta"]
+    assert deltas == []
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_live_tool_budget_exhaustion(monkeypatch) -> None:
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "a-key")
+    monkeypatch.setattr("src.services.assistant_service.MAX_TOOL_ROUNDS", 2)
+    always_tool = _FakeResp(
+        [_FakeBlock(type="tool_use", id="t1", name="get_my_profile", input={})], "tool_use"
+    )
+    client = _FakeClient([always_tool])  # single response, repeated every round
+    fake_exec = AsyncMock(
+        return_value={
+            "tool_use_id": "t1",
+            "name": "get_my_profile",
+            "content": "{}",
+            "is_error": False,
+        }
+    )
+
+    lines: list[str] = []
+    with patch("src.services.assistant_service._conversation_collection", return_value=None), patch(
+        "src.services.assistant_service.execute_tool_call", fake_exec
+    ):
+        async for line in stream_chat(_make_request(), anthropic_client=client, use_mock=False):
+            lines.append(line)
+
+    parsed = _parse(lines)
+    types = [p["type"] for p in parsed]
+    assert types[-1] == "done"
+    # rounds 0..MAX_TOOL_ROUNDS inclusive → MAX_TOOL_ROUNDS+1 LLM calls
+    assert len(client.messages.calls) == 3
+    # tools executed only on the non-forced rounds (0 and 1)
+    assert fake_exec.await_count == 2
+    # a non-empty fallback answer is still streamed
+    deltas = "".join(p["content"] for p in parsed if p["type"] == "delta")
+    assert deltas != ""
 
 
 @pytest.mark.asyncio

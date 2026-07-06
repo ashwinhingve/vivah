@@ -9,9 +9,11 @@
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export type AssistantSSEEvent =
-  | { type: 'context'; context: Record<string, unknown> }
-  | { type: 'delta';   content: string }
-  | { type: 'done';    conversation_id: string };
+  | { type: 'context';       context: Record<string, unknown> }
+  | { type: 'delta';         content: string }
+  | { type: 'tool_progress'; tool: string }
+  | { type: 'error';         message: string; recoverable?: boolean }
+  | { type: 'done';          conversation_id: string };
 
 export interface AssistantStreamInput {
   message: string;

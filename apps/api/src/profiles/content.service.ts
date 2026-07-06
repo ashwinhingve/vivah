@@ -5,6 +5,7 @@ import { mockUpsertField, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
 import { bustOwnFeedCache } from '../lib/redis.js';
+import { enqueueEmbeddingRefresh } from '../matchmaking/embeddingSync.js';
 
 function mockUpsert(userId: string, section: string, data: object): Record<string, unknown> {
   return mockUpsertField(userId, section, data);
@@ -65,6 +66,9 @@ async function upsertSection(
   void computeAndUpdateCompleteness(userId).catch((e) => {
     console.error('[content.service] completeness recompute failed:', e);
   });
+  // Profile content changed → refresh the semantic-search embedding (gated,
+  // best-effort, de-duped; never blocks the save response).
+  void enqueueEmbeddingRefresh(userId);
   await bustOwnFeedCache(userId);
   return result;
 }
@@ -167,6 +171,9 @@ export async function updateAboutMe(
   void computeAndUpdateCompleteness(userId).catch((e) => {
     console.error('[content.service] completeness recompute failed:', e);
   });
+  // Profile content changed → refresh the semantic-search embedding (gated,
+  // best-effort, de-duped; never blocks the save response).
+  void enqueueEmbeddingRefresh(userId);
   await bustOwnFeedCache(userId);
   return result;
 }

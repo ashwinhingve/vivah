@@ -16,12 +16,33 @@ function newId(): string {
   return Math.random().toString(36).slice(2, 11);
 }
 
+/** Friendly "thinking" line shown while the assistant runs a data tool. */
+function toolActivityLabel(tool: string): string {
+  const labels: Record<string, string> = {
+    get_my_profile:         'Checking your profile…',
+    get_my_matches:         'Looking at your matches…',
+    get_pending_requests:   'Checking your requests…',
+    get_who_liked_me:       'Seeing who liked you…',
+    get_match_status:       'Checking match status…',
+    list_conversations:     'Reading your chats…',
+    get_unread_count:       'Counting unread messages…',
+    list_weddings:          'Opening your wedding…',
+    get_wedding_budget:     'Reviewing your budget…',
+    get_wedding_tasks:      'Checking your tasks…',
+    get_wedding_ceremonies: 'Looking at your ceremonies…',
+    suggest_muhurat_dates:  'Finding auspicious dates…',
+    find_similar_matches:   'Finding similar profiles…',
+  };
+  return labels[tool] ?? 'Looking that up…';
+}
+
 export function AssistantChat({ compact = false }: { compact?: boolean }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activity, setActivity] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -48,15 +69,25 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
       setError(msg);
     } finally {
       setStreaming(false);
+      setActivity(null);
     }
   }, [draft, streaming, conversationId]);
 
   function applyEvent(event: AssistantSSEEvent, assistantId: string) {
     if (event.type === 'delta') {
+      setActivity(null); // first answer tokens — stop showing tool activity
       setMessages(prev =>
         prev.map(m => (m.id === assistantId ? { ...m, content: m.content + event.content } : m)),
       );
+    } else if (event.type === 'tool_progress') {
+      setActivity(toolActivityLabel(event.tool));
+    } else if (event.type === 'error') {
+      // Genuine live failure surfaced by the ai-service — show it honestly
+      // instead of leaving a fabricated/blank answer.
+      setActivity(null);
+      setError(event.message);
     } else if (event.type === 'done') {
+      setActivity(null);
       setConversationId(event.conversation_id);
     }
   }
@@ -87,6 +118,12 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
             ) : null)}
           </div>
         ))}
+        {activity && streaming && (
+          <div className="mr-auto flex items-center gap-2 text-xs text-muted-foreground italic px-1">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal animate-pulse" aria-hidden="true" />
+            {activity}
+          </div>
+        )}
         {error && (
           <div className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
             {error}

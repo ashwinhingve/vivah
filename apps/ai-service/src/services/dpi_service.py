@@ -28,6 +28,7 @@ from src.schemas.dpi import (
 )
 from src.services.dpi_model import predict
 from src.services.llm_client import get_llm_client
+from src.services.observability import capture_exception
 
 log = structlog.get_logger("dpi-service")
 
@@ -301,6 +302,7 @@ async def compute_dpi(
 
     except Exception as exc:  # noqa: BLE001
         log.warning("dpi_llm_exception", error=str(exc), fallback="mock", level=level)
+        capture_exception(exc, feature="dpi-narrative")
         mock = MOCK_NARRATIVES[level]
         narrative = mock["narrative"]
         suggestion = mock["suggestion"]

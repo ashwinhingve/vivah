@@ -207,3 +207,141 @@ def test_get_llm_client_anthropic_missing_key_returns_none(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "anthropic")
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     assert llm_client.get_llm_client(is_async=False) is None
+
+
+# --- tool-calling: schema translation ----------------------------------------
+
+
+def test_to_openai_tools_translates_schema():
+    tools = [
+        {
+            "name": "get_x",
+            "description": "desc",
+            "input_schema": {"type": "object", "properties": {"a": {"type": "string"}}},
+        }
+    ]
+    out = llm_client._to_openai_tools(tools)
+    assert out == [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_x",
+                "description": "desc",
+                "parameters": {"type": "object", "properties": {"a": {"type": "string"}}},
+            },
+        }
+    ]
+
+
+# --- tool-calling: response normalization ------------------------------------
+
+
+def _fake_tool_completion(
+    *, text=None, name="get_my_profile", args='{"a": 1}', finish="tool_calls"
+):
+    c = MagicMock()
+    choice = MagicMock()
+    choice.finish_reason = finish
+    msg = MagicMock()
+    msg.content = text
+    tc = MagicMock()
+    tc.id = "call_1"
+    tc.function.name = name
+    tc.function.arguments = args
+    msg.tool_calls = [tc]  # a real list (isinstance check passes)
+    choice.message = msg
+    c.choices = [choice]
+    return c
+
+
+def test_completion_to_resp_parses_tool_use():
+    resp = llm_client._completion_to_resp(_fake_tool_completion())
+    assert resp.stop_reason == "tool_use"
+    assert len(resp.content) == 1
+    block = resp.content[0]
+    assert block.type == "tool_use"
+    assert block.id == "call_1"
+    assert block.name == "get_my_profile"
+    assert block.input == {"a": 1}
+
+
+def test_completion_to_resp_text_plus_tool():
+    resp = llm_client._completion_to_resp(_fake_tool_completion(text="thinking"))
+    types = [b.type for b in resp.content]
+    assert types == ["text", "tool_use"]
+    assert resp.content[0].text == "thinking"
+
+
+def test_completion_to_resp_bad_arguments_default_empty():
+    resp = llm_client._completion_to_resp(_fake_tool_completion(args="not-json"))
+    assert resp.content[0].input == {}
+
+
+# --- tool-calling: sync create passes tools through --------------------------
+
+
+def test_sync_create_forwards_tools_and_returns_tool_use():
+    openai_mock = MagicMock()
+    openai_mock.chat.completions.create.return_value = _fake_tool_completion()
+    adapter = llm_client._GeminiSyncAdapter(openai_mock)
+
+    resp = adapter.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=800,
+        messages=[{"role": "user", "content": "u"}],
+        tools=[{"name": "get_my_profile", "description": "d", "input_schema": {"type": "object"}}],
+    )
+    kwargs = openai_mock.chat.completions.create.call_args.kwargs
+    assert kwargs["tool_choice"] == "auto"
+    assert kwargs["tools"][0]["function"]["name"] == "get_my_profile"
+    assert resp.content[0].type == "tool_use"
+
+
+# --- tool-calling: round-trip translators ------------------------------------
+
+
+def test_append_assistant_turn_gemini(monkeypatch):
+    import json as _json
+
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
+    resp = llm_client._Resp(
+        [llm_client._Block(type="tool_use", id="c1", name="foo", input={"a": 1})],
+        "tool_use",
+    )
+    messages: list = []
+    llm_client.append_assistant_turn(messages, resp)
+    assert messages[0]["role"] == "assistant"
+    tc = messages[0]["tool_calls"][0]
+    assert tc["id"] == "c1"
+    assert tc["function"]["name"] == "foo"
+    assert _json.loads(tc["function"]["arguments"]) == {"a": 1}
+
+
+def test_append_assistant_turn_anthropic(monkeypatch):
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)  # default anthropic
+    resp = llm_client._Resp([llm_client._Block(text="hi")], "end_turn")
+    messages: list = []
+    llm_client.append_assistant_turn(messages, resp)
+    assert messages[0] == {"role": "assistant", "content": resp.content}
+
+
+def test_append_tool_results_gemini(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
+    messages: list = []
+    llm_client.append_tool_results(
+        messages, [{"tool_use_id": "c1", "content": "{}", "is_error": False}]
+    )
+    assert messages == [{"role": "tool", "tool_call_id": "c1", "content": "{}"}]
+
+
+def test_append_tool_results_anthropic(monkeypatch):
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)  # default anthropic
+    messages: list = []
+    llm_client.append_tool_results(
+        messages, [{"tool_use_id": "c1", "content": "{}", "is_error": True}]
+    )
+    assert messages[0]["role"] == "user"
+    block = messages[0]["content"][0]
+    assert block["type"] == "tool_result"
+    assert block["tool_use_id"] == "c1"
+    assert block["is_error"] is True

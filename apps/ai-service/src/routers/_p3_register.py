@@ -11,8 +11,10 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from src.routers.assistant import router as assistant_router
+from src.routers.embedding import router as embedding_router
 
 
 def register_p3_routers(app: FastAPI) -> None:
     """Mount all Phase 3 P3 routers on the given app."""
     app.include_router(assistant_router)
+    app.include_router(embedding_router)

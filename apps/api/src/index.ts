@@ -58,6 +58,7 @@ import { webhookHandler } from './payments/webhook.js';
 import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { registerInvitationBlastWorker } from './jobs/invitationBlastJob.js';
+import { registerEmbeddingWorker } from './jobs/embeddingGenerationJob.js';
 import {
   registerAuditChainVerifierWorker,
   scheduleAuditChainVerifierJob,
@@ -489,6 +490,7 @@ async function bootstrap(): Promise<void> {
     workers.push(registerBehaviorEventWorker());
     workers.push(registerBehaviorAggregateWorker());
     void scheduleBehaviorAggregateJob();
+    workers.push(registerEmbeddingWorker());
     registerP3Workers(workers);
   }
 

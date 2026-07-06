@@ -13,16 +13,26 @@ end-to-end without a live Claude key.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import uuid
 from collections.abc import AsyncIterator
+from pathlib import Path
 from typing import Any
 
 import structlog
 
 from src.schemas.assistant import AssistantChatRequest, RagContext
-from src.services.llm_client import get_llm_client, llm_api_key_present
+from src.services.assistant_errors import LlmProviderError
+from src.services.assistant_tools import execute_tool_call, get_tool_schemas
+from src.services.llm_client import (
+    append_assistant_turn,
+    append_tool_results,
+    get_llm_client,
+    llm_api_key_present,
+)
+from src.services.observability import capture_exception, capture_message
 
 log = structlog.get_logger("assistant-service")
 
@@ -74,24 +84,22 @@ def _conversation_collection():
 # Prompt construction
 # ---------------------------------------------------------------------------
 
-_SYSTEM_TEMPLATE = """You are the Smart Shaadi matrimonial assistant. Be warm,
-supportive, and culturally aware (Indian context). Use the user's data below
-to answer their questions. Suggest concrete next actions. Refuse harmful or
-inappropriate requests politely.
+# Versioned prompt file (CLAUDE.md convention). Loaded at request time.
+_PROMPT_PATH = Path(__file__).parents[4] / "prompts" / "matrimony-assistant-v2.md"
 
-User context:
-- Profile: {completeness}% complete, tier: {tier}
-- Recent matches: {matches}
-- Pending: {pending} match requests, {unread} unread messages
-- Profile gaps: {gaps}
-- Last activity: {last_active}
-
-Now answer the user's question helpfully. Keep responses concise (2-4 short
-paragraphs unless a list is clearly warranted)."""
+# Fallback if the prompt file is unreadable — keeps the assistant answering with
+# the essential safety + tool rules baked in.
+_FALLBACK_SYSTEM = (
+    "You are the Smart Shaadi Assistant. Use the provided tools to read the "
+    "authenticated user's OWN data and answer warmly and concisely in the "
+    "Indian matrimonial context. Never reveal other users' contact info. If a "
+    "tool fails, say so honestly rather than guessing.\n\n"
+    "## Current user context\n{{USER_CONTEXT}}"
+)
 
 
-def build_system_prompt(context: RagContext) -> str:
-    """Render the system prompt with the user's RAG snapshot."""
+def _render_context_snapshot(context: RagContext) -> str:
+    """Render the RAG snapshot as a compact orientation block for the prompt."""
     if context.top_matches:
         matches = ", ".join(
             f"{m.display_name} ({m.compatibility_pct}%)" for m in context.top_matches
@@ -99,15 +107,24 @@ def build_system_prompt(context: RagContext) -> str:
     else:
         matches = "(none yet)"
     gaps = ", ".join(context.gaps) if context.gaps else "(none)"
-    return _SYSTEM_TEMPLATE.format(
-        completeness=context.completeness_pct,
-        tier=context.tier,
-        matches=matches,
-        pending=context.pending_requests,
-        unread=context.unread_messages,
-        gaps=gaps,
-        last_active=context.last_active_iso or "(unknown)",
+    return (
+        f"- Profile completeness: {context.completeness_pct}% (tier: {context.tier})\n"
+        f"- Top matches: {matches}\n"
+        f"- Pending match requests: {context.pending_requests}\n"
+        f"- Unread messages: {context.unread_messages}\n"
+        f"- Incomplete profile sections: {gaps}\n"
+        f"- Last active: {context.last_active_iso or '(unknown)'}"
     )
+
+
+def build_system_prompt(context: RagContext) -> str:
+    """Load the v2 system prompt and inject the user's orientation snapshot."""
+    try:
+        template = _PROMPT_PATH.read_text(encoding="utf-8")
+    except OSError:
+        log.error("assistant_prompt_missing", path=str(_PROMPT_PATH))
+        template = _FALLBACK_SYSTEM
+    return template.replace("{{USER_CONTEXT}}", _render_context_snapshot(context))
 
 
 # ---------------------------------------------------------------------------
@@ -188,6 +205,30 @@ MOCK_CHUNKS = [
     "Next step — complete your family section and review your top match.",
 ]
 
+# Agent-loop tuning
+MAX_TOOL_ROUNDS = int(os.getenv("ASSISTANT_MAX_TOOL_ROUNDS", "4"))
+_PER_CALL_TIMEOUT_SEC = float(os.getenv("ASSISTANT_LLM_TIMEOUT_SEC", "30"))
+_DELTA_CHUNK_CHARS = 90
+
+
+def _provider() -> str:
+    return os.getenv("LLM_PROVIDER", "anthropic").strip().lower()
+
+
+def _tool_choice_none() -> Any:
+    """Provider-appropriate 'do not call any tool' directive (forced-final turn)."""
+    return "none" if _provider() == "gemini" else {"type": "none"}
+
+
+def _chunk_text(text: str) -> list[str]:
+    """Split final answer into small slices so SSE deltas render progressively.
+
+    Concatenation on the client reproduces ``text`` exactly (lossless slicing).
+    """
+    if not text:
+        return [""]
+    return [text[i : i + _DELTA_CHUNK_CHARS] for i in range(0, len(text), _DELTA_CHUNK_CHARS)]
+
 
 def _sse_line(payload: dict[str, Any]) -> str:
     return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
@@ -209,16 +250,21 @@ async def stream_chat(
     use_mock: bool | None = None,
 ) -> AsyncIterator[str]:
     """
-    Yield SSE-formatted strings for the chat turn.
+    Yield SSE-formatted strings for the chat turn (agentic tool-calling).
 
     Frame order:
     1. {type: "context", context: {...}}
-    2. {type: "delta", content: "..."} — N chunks from Claude (or canned mock)
-    3. {type: "done", conversation_id: "..."}
+    2. {type: "tool_progress", tool: "..."} — zero or more, as tools run
+    3. {type: "delta", content: "..."} — N chunks of the final answer
+    4. {type: "done", conversation_id: "..."}
+       or {type: "error", message, recoverable} then {type: "done"} on failure.
+
+    Mock chunks are emitted ONLY in intentional mock mode (USE_MOCK_SERVICES or
+    a missing provider key). A genuine live-mode failure surfaces an SSE `error`
+    event (and is captured to Sentry) rather than a fabricated answer — the old
+    silent MOCK_CHUNKS swallow is gone.
 
     Persists user + assembled assistant text to MongoDB on completion.
-    Errors during Claude stream fall back to the mock chunks rather than
-    surfacing to the caller — same posture as coach_service.
     """
     conversation_id = request.conversation_id or str(uuid.uuid4())
     if use_mock is None:
@@ -237,45 +283,110 @@ async def stream_chat(
         )
         return
 
-    # ── Live mode ─────────────────────────────────────────────────────────
+    # ── Live mode (agentic tool-calling) ──────────────────────────────────
     client = anthropic_client if anthropic_client is not None else _get_async_anthropic()
-    if client is None:
-        async for line in _stream_mock(conversation_id, request.context):
-            yield line
-        return
 
     yield _sse_line({"type": "context", "context": request.context.model_dump()})
 
-    history = await fetch_history(request.conversation_id)
-    messages = [*history, {"role": "user", "content": request.message}]
+    # Key is present here (else the mock branch caught it). A None client means
+    # SDK init failed — surface it honestly, do NOT fabricate a mock answer.
+    if client is None:
+        log.error("assistant_client_init_failed")
+        capture_message("assistant_client_init_failed", feature="matrimony-assistant")
+        yield _sse_line({
+            "type": "error",
+            "message": "The assistant is temporarily unavailable. Please try again shortly.",
+            "recoverable": True,
+        })
+        yield _sse_line({"type": "done", "conversation_id": conversation_id})
+        return
 
+    history = await fetch_history(request.conversation_id)
+    messages: list[dict[str, Any]] = [
+        *history,
+        {"role": "user", "content": request.message},
+    ]
+    tools = get_tool_schemas()
     model = os.getenv("ASSISTANT_MODEL", "claude-sonnet-4-6")
     max_tokens = int(os.getenv("ASSISTANT_MAX_TOKENS", "1500"))
     system_prompt = build_system_prompt(request.context)
-
-    extra_headers = {
+    base_headers = {
         "Helicone-Property-Feature": "matrimony-assistant",
         "Helicone-User-Id": request.profile_id,
     }
 
-    assembled: list[str] = []
+    assembled = ""
     try:
-        async with client.messages.stream(
-            model=model,
-            max_tokens=max_tokens,
-            system=system_prompt,
-            messages=messages,
-            extra_headers=extra_headers,
-        ) as stream:
-            async for text in stream.text_stream:
-                assembled.append(text)
-                yield _sse_line({"type": "delta", "content": text})
+        final_text = ""
+        for round_idx in range(MAX_TOOL_ROUNDS + 1):
+            forced_final = round_idx == MAX_TOOL_ROUNDS
+            create_kwargs: dict[str, Any] = {
+                "model": model,
+                "max_tokens": max_tokens,
+                "system": system_prompt,
+                "messages": messages,
+                "tools": tools,
+                "extra_headers": {**base_headers, "Helicone-Property-ToolRound": str(round_idx)},
+            }
+            if forced_final:
+                # Budget exhausted: force a text answer with whatever we gathered.
+                create_kwargs["tool_choice"] = _tool_choice_none()
+                log.warning("agent_tool_budget_exhausted", rounds=MAX_TOOL_ROUNDS)
+
+            try:
+                response = await asyncio.wait_for(
+                    client.messages.create(**create_kwargs),
+                    timeout=_PER_CALL_TIMEOUT_SEC,
+                )
+            except Exception as exc:  # noqa: BLE001 — normalize to a typed error
+                raise LlmProviderError(str(exc)) from exc
+
+            text_parts: list[str] = []
+            tool_uses: list[Any] = []
+            for block in getattr(response, "content", None) or []:
+                if getattr(block, "type", "text") == "tool_use":
+                    tool_uses.append(block)
+                elif getattr(block, "text", ""):
+                    text_parts.append(block.text)
+
+            if not tool_uses or forced_final:
+                final_text = "".join(text_parts).strip()
+                break
+
+            # Announce + run the requested tools, feed results back, loop.
+            for tu in tool_uses:
+                yield _sse_line({"type": "tool_progress", "tool": getattr(tu, "name", "")})
+            append_assistant_turn(messages, response)
+            results = await asyncio.gather(
+                *[
+                    execute_tool_call(
+                        tu, user_id=request.user_id, profile_id=request.profile_id
+                    )
+                    for tu in tool_uses
+                ]
+            )
+            append_tool_results(messages, list(results))
+
+        if not final_text:
+            final_text = (
+                "I looked into that but couldn't put together a full answer just "
+                "now. Could you rephrase, or try again in a moment?"
+            )
+
+        for chunk in _chunk_text(final_text):
+            yield _sse_line({"type": "delta", "content": chunk})
+        assembled = final_text
+
     except Exception as exc:  # noqa: BLE001
-        log.warning("assistant_stream_failed", error=str(exc))
-        if not assembled:
-            for chunk in MOCK_CHUNKS:
-                assembled.append(chunk)
-                yield _sse_line({"type": "delta", "content": chunk})
+        log.error("assistant_agent_failed", error=str(exc))
+        capture_exception(exc, feature="matrimony-assistant")
+        yield _sse_line({
+            "type": "error",
+            "message": "Sorry — I ran into a problem reaching the assistant. Please try again.",
+            "recoverable": True,
+        })
+        yield _sse_line({"type": "done", "conversation_id": conversation_id})
+        return
 
     yield _sse_line({"type": "done", "conversation_id": conversation_id})
 
@@ -284,5 +395,5 @@ async def stream_chat(
         request.user_id,
         request.profile_id,
         request.message,
-        "".join(assembled),
+        assembled,
     )

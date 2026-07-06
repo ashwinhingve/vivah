@@ -19,6 +19,7 @@ import structlog
 
 from src.schemas.coach import CoachRequest, CoachResponse, CoachSuggestion, Message, ProfileSnapshot
 from src.services.llm_client import get_llm_client
+from src.services.observability import capture_exception
 
 log = structlog.get_logger("coach-service")
 
@@ -334,6 +335,7 @@ async def get_suggestions(
 
     except Exception as exc:  # noqa: BLE001
         log.error("anthropic_call_failed", error=str(exc), fallback="mock_suggestions")
+        capture_exception(exc, feature="conversation-coach")
         return CoachResponse(suggestions=MOCK_SUGGESTIONS, state=state, cached=False)
 
     # ── 6. Write to Redis ────────────────────────────────────────────────────

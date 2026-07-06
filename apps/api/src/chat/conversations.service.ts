@@ -212,5 +212,26 @@ export async function listConversations(
   return filtered
 }
 
+/**
+ * Total unread messages for a profile across all conversations.
+ *
+ * Lean projection (only the message fields unreadCountFor needs) so this stays
+ * cheap enough to run on the dashboard / assistant context path. Mock-guarded
+ * per the MongoDB guard rule — returns 0 without touching Mongo in mock mode.
+ */
+export async function getTotalUnreadCount(profileId: string): Promise<number> {
+  if (shouldUseMockMongo) return 0
+
+  const docs = (await Chat.find({ participants: profileId })
+    .select('messages.senderId messages.readBy messages.deletedAt')
+    .lean()) as unknown as Array<{
+    messages?: Array<{ senderId: string; readBy?: string[]; deletedAt?: Date | null }>
+  }>
+
+  let total = 0
+  for (const d of docs) total += unreadCountFor(d.messages ?? [], profileId)
+  return total
+}
+
 /** Suppress unused-import error in mock-only paths. */
 void mockGet

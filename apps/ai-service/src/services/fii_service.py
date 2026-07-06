@@ -27,6 +27,7 @@ from src.schemas.fii import (
     FiiSignals,
 )
 from src.services.llm_client import get_llm_client
+from src.services.observability import capture_exception
 
 log = structlog.get_logger("fii_service")
 
@@ -458,6 +459,7 @@ async def compute_compatibility(
                     )
             except Exception as exc:  # noqa: BLE001
                 log.warning("fii_llm_exception_fallback", error=str(exc))
+                capture_exception(exc, feature="fii-narrative")
 
     return FiiCompatibilityResponse(
         profile_a_score=score_a,

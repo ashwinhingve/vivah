@@ -198,3 +198,32 @@ export const behaviorEventQueue = new Queue<BehaviorEventJob>(
   'behavior-event',
   { connection },
 );
+
+/**
+ * Profile embedding generation — enqueued when a user's profile content changes
+ * so the semantic "find similar matches" vector stays fresh. Never runs
+ * synchronously in a request handler (Rule 8). Deterministic jobId
+ * `embed-${profileId}` de-dupes rapid successive edits into one refresh.
+ */
+export interface EmbeddingGenerationJob {
+  userId:    string;
+  profileId: string;
+}
+
+export const embeddingGenerationQueue = new Queue<EmbeddingGenerationJob>(
+  'embedding-generation',
+  { connection },
+);
+
+/** Enqueue a profile embedding refresh (best-effort — never throws to callers). */
+export async function queueEmbeddingGeneration(job: EmbeddingGenerationJob): Promise<void> {
+  try {
+    await embeddingGenerationQueue.add('generate', job, {
+      jobId: `embed-${job.profileId}`,
+      ...DEFAULT_JOB_OPTS,
+    });
+  } catch {
+    // Redis unreachable (dev/test without infra) — embedding refresh is a
+    // non-critical enhancement; skip silently.
+  }
+}

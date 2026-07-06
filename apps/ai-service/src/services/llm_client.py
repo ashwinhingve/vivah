@@ -37,6 +37,7 @@ Verification status:
 
 from __future__ import annotations
 
+import json
 import os
 from typing import Any
 
@@ -73,35 +74,133 @@ def _map_model(claude_model: str) -> str:
     return os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 
-def _to_openai_messages(system: str | None, messages: list[dict[str, Any]]) -> list[dict[str, str]]:
+def _to_openai_messages(system: str | None, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Anthropic shape (system kwarg + messages) -> OpenAI messages array.
 
-    All call-sites pass plain-string ``content``, so no content-block
-    flattening is needed.
+    Plain turns carry just ``role``/``content``. Tool round-trip messages
+    (assistant-with-``tool_calls`` and ``role:"tool"`` results, produced by
+    ``append_assistant_turn``/``append_tool_results`` on the Gemini path) are
+    already OpenAI-shaped and pass through untouched.
     """
-    out: list[dict[str, str]] = []
+    out: list[dict[str, Any]] = []
     if system:
         out.append({"role": "system", "content": system})
     for m in messages:
-        out.append({"role": m["role"], "content": m["content"]})
+        if "tool_calls" in m or m.get("role") == "tool":
+            out.append(m)
+        else:
+            out.append({"role": m["role"], "content": m.get("content", "")})
     return out
+
+
+def _to_openai_tools(tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Canonical (Anthropic) tool schema -> OpenAI function-tool schema.
+
+    Input: ``{"name", "description", "input_schema": <JSON Schema>}``.
+    Output: ``{"type": "function", "function": {"name", "description", "parameters"}}``.
+    """
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": t["name"],
+                "description": t.get("description", ""),
+                "parameters": t.get("input_schema", {"type": "object", "properties": {}}),
+            },
+        }
+        for t in tools
+    ]
+
+
+_FINISH_REASON_MAP = {
+    "tool_calls": "tool_use",
+    "stop": "end_turn",
+    "length": "max_tokens",
+    "content_filter": "end_turn",
+}
+
+
+def _map_finish_reason(reason: str | None) -> str:
+    """OpenAI ``finish_reason`` -> Anthropic ``stop_reason``."""
+    return _FINISH_REASON_MAP.get(reason or "stop", "end_turn")
+
+
+def _completion_to_resp(completion: Any) -> "_Resp":
+    """Normalize an OpenAI ChatCompletion into the Anthropic response surface.
+
+    Emits a ``_Resp`` whose ``.content`` is a list of ``_Block``s: at most one
+    text block plus one ``tool_use`` block per ``message.tool_calls`` entry, and
+    a ``.stop_reason`` mapped from ``finish_reason`` (``"tool_use"`` whenever any
+    tool call is present). Mirrors what the real Anthropic SDK returns, so the
+    agent loop reads both providers with identical block-walking code.
+    """
+    choice = completion.choices[0]
+    msg = choice.message
+    blocks: list[_Block] = []
+    text = getattr(msg, "content", None) or ""
+    if text:
+        blocks.append(_Block(text))
+    # OpenAI returns a list (or None). Guard against MagicMock auto-attrs in
+    # tests and any non-list so a text-only completion never mis-parses.
+    tool_calls = getattr(msg, "tool_calls", None)
+    if not isinstance(tool_calls, list):
+        tool_calls = []
+    for tc in tool_calls:
+        try:
+            args = json.loads(tc.function.arguments or "{}")
+        except (json.JSONDecodeError, TypeError):
+            args = {}
+        blocks.append(_Block(type="tool_use", id=tc.id, name=tc.function.name, input=args))
+    if not blocks:
+        blocks.append(_Block(""))
+    finish = getattr(choice, "finish_reason", None)
+    stop_reason = "tool_use" if tool_calls else _map_finish_reason(finish)
+    return _Resp(blocks, stop_reason)
 
 
 # --- Anthropic-surface response shims (so `.content[0].text` keeps working) ---
 
 
 class _Block:
-    __slots__ = ("text",)
+    """Anthropic-style content block. ``type`` is ``"text"`` or ``"tool_use"``.
 
-    def __init__(self, text: str) -> None:
+    Legacy callers construct ``_Block("some text")`` positionally; tool-use
+    blocks use the keyword form ``_Block(type="tool_use", id=..., name=...,
+    input=...)``. Attribute names match the real Anthropic SDK blocks so the
+    agent loop can walk either provider's ``response.content`` identically.
+    """
+
+    __slots__ = ("type", "text", "id", "name", "input")
+
+    def __init__(
+        self,
+        text: str = "",
+        *,
+        type: str = "text",
+        id: str | None = None,
+        name: str | None = None,
+        input: dict[str, Any] | None = None,
+    ) -> None:
+        self.type = type
         self.text = text
+        self.id = id
+        self.name = name
+        self.input = input
 
 
 class _Resp:
-    __slots__ = ("content",)
+    """Anthropic-style response: ``.content`` list of ``_Block`` + ``.stop_reason``.
 
-    def __init__(self, text: str) -> None:
-        self.content = [_Block(text)]
+    Accepts either a plain string (legacy single-text-block path, keeps
+    ``coach``/``dpi``/``fii`` byte-for-byte unchanged) or a pre-built list of
+    ``_Block``s (tool-calling path).
+    """
+
+    __slots__ = ("content", "stop_reason")
+
+    def __init__(self, content: Any, stop_reason: str = "end_turn") -> None:
+        self.content = [_Block(content)] if isinstance(content, str) else content
+        self.stop_reason = stop_reason
 
 
 # --- Gemini (OpenAI-compatible) adapters mimicking the Anthropic client ---
@@ -119,6 +218,8 @@ class _GeminiMessages:
         system: str | None = None,
         messages: list[dict[str, Any]] | None = None,
         temperature: Any = _UNSET,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: Any = None,
         extra_headers: dict[str, str] | None = None,  # Helicone — ignored on Gemini path
         **_: Any,
     ) -> _Resp:
@@ -129,9 +230,11 @@ class _GeminiMessages:
         }
         if temperature is not _UNSET:
             kwargs["temperature"] = temperature
+        if tools:
+            kwargs["tools"] = _to_openai_tools(tools)
+            kwargs["tool_choice"] = tool_choice or "auto"
         completion = self._client.chat.completions.create(**kwargs)
-        text = completion.choices[0].message.content or ""
-        return _Resp(text)
+        return _completion_to_resp(completion)
 
 
 class _GeminiSyncAdapter:
@@ -170,6 +273,37 @@ class _GeminiStreamCtx:
 class _GeminiAsyncMessages:
     def __init__(self, openai_client: Any) -> None:
         self._client = openai_client
+
+    async def create(
+        self,
+        *,
+        model: str,
+        max_tokens: int,
+        system: str | None = None,
+        messages: list[dict[str, Any]] | None = None,
+        temperature: Any = _UNSET,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: Any = None,
+        extra_headers: dict[str, str] | None = None,  # Helicone — ignored on Gemini path
+        **_: Any,
+    ) -> _Resp:
+        """Non-streaming async completion — mirrors ``AsyncAnthropic.messages.create``.
+
+        Used by the assistant agent loop for every tool-decision round (and the
+        final answer), so tool-calling stays symmetric across providers.
+        """
+        kwargs: dict[str, Any] = {
+            "model": _map_model(model),
+            "max_tokens": max_tokens,
+            "messages": _to_openai_messages(system, messages or []),
+        }
+        if temperature is not _UNSET:
+            kwargs["temperature"] = temperature
+        if tools:
+            kwargs["tools"] = _to_openai_tools(tools)
+            kwargs["tool_choice"] = tool_choice or "auto"
+        completion = await self._client.chat.completions.create(**kwargs)
+        return _completion_to_resp(completion)
 
     def stream(
         self,
@@ -257,3 +391,68 @@ def get_llm_client(*, is_async: bool) -> Any | None:
     if _provider() == "gemini":
         return _build_gemini(is_async)
     return _build_anthropic(is_async)
+
+
+# --- Tool round-trip helpers (provider-branching, operate on the message list) ---
+#
+# Anthropic and OpenAI-compat structurally disagree on how a tool call and its
+# result are threaded back into the conversation. These two functions hide that
+# divergence so the agent loop appends turns without knowing the provider.
+#   Anthropic : assistant turn carries tool_use content blocks; results come
+#               back as ONE user turn whose content is a list of tool_result
+#               blocks keyed by tool_use_id.
+#   OpenAI    : assistant turn carries a `tool_calls` array; results come back
+#               as ONE separate {role:"tool"} message PER call, keyed by
+#               tool_call_id.
+
+
+def append_assistant_turn(messages: list[dict[str, Any]], response: Any) -> None:
+    """Append the model's (tool-calling) assistant turn to ``messages`` in place."""
+    if _provider() == "gemini":
+        text_parts: list[str] = []
+        tool_calls: list[dict[str, Any]] = []
+        for block in response.content:
+            if getattr(block, "type", "text") == "tool_use":
+                tool_calls.append(
+                    {
+                        "id": block.id,
+                        "type": "function",
+                        "function": {
+                            "name": block.name,
+                            "arguments": json.dumps(block.input or {}, ensure_ascii=False),
+                        },
+                    }
+                )
+            elif getattr(block, "text", ""):
+                text_parts.append(block.text)
+        msg: dict[str, Any] = {"role": "assistant", "content": "".join(text_parts) or None}
+        if tool_calls:
+            msg["tool_calls"] = tool_calls
+        messages.append(msg)
+    else:
+        # Anthropic accepts its own returned content blocks back verbatim.
+        messages.append({"role": "assistant", "content": response.content})
+
+
+def append_tool_results(messages: list[dict[str, Any]], results: list[dict[str, Any]]) -> None:
+    """Append tool results to ``messages`` in place.
+
+    Each result: ``{"tool_use_id": str, "content": str, "is_error": bool}``.
+    """
+    if _provider() == "gemini":
+        for r in results:
+            messages.append(
+                {"role": "tool", "tool_call_id": r["tool_use_id"], "content": r["content"]}
+            )
+    else:
+        blocks: list[dict[str, Any]] = []
+        for r in results:
+            block: dict[str, Any] = {
+                "type": "tool_result",
+                "tool_use_id": r["tool_use_id"],
+                "content": r["content"],
+            }
+            if r.get("is_error"):
+                block["is_error"] = True
+            blocks.append(block)
+        messages.append({"role": "user", "content": blocks})

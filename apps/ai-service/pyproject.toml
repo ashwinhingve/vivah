@@ -22,6 +22,8 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.18.0",
     "structlog>=24.4.0",
     "motor>=3.6.0",
+    # Local, provider-independent profile embeddings (find_similar_matches).
+    "sentence-transformers>=3.0.0",
 ]
 
 [project.optional-dependencies]

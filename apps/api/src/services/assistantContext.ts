@@ -15,6 +15,7 @@ import {
   matchRequests,
   matchScores,
 } from '@smartshaadi/db';
+import { getTotalUnreadCount } from '../chat/conversations.service.js';
 
 export interface TopMatchEntry {
   profile_id: string;
@@ -51,7 +52,7 @@ export async function buildAssistantContext(
   userId: string,
   profileId: string,
 ): Promise<RagContext> {
-  const [profileRow, sectionsRow, topScores, pendingCount] = await Promise.all([
+  const [profileRow, sectionsRow, topScores, pendingCount, unreadCount] = await Promise.all([
     db.select({
         completeness: profiles.profileCompleteness,
         tier:         profiles.premiumTier,
@@ -85,6 +86,8 @@ export async function buildAssistantContext(
       .from(matchRequests)
       .where(and(eq(matchRequests.receiverId, profileId), eq(matchRequests.status, 'PENDING')))
       .catch(() => []),
+
+    getTotalUnreadCount(profileId).catch(() => 0),
   ]);
 
   const completeness_pct = profileRow?.completeness ?? 0;
@@ -116,7 +119,7 @@ export async function buildAssistantContext(
     tier,
     top_matches,
     pending_requests: pendingCount.length,
-    unread_messages:  0,
+    unread_messages:  unreadCount,
     gaps,
     last_active_iso,
   };
