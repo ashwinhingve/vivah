@@ -16,6 +16,25 @@ Mocks:    USE_MOCK_SERVICES=true
 Last updated: 2026-04-21
 ```
 
+### All-roles production sprint (2026-07-07) — `feat/all-roles-production`
+
+Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-check
+(api + web) + prod build green (295 web pages, all new routes registered).
+
+- **SUPPORT** — new tables (`support_tickets`/`ticket_messages`/`ticket_events`,
+  migration `0031`) + `/api/v1/support` router + full staff console (queue, ticket
+  detail with thread/internal-notes/reply/history, chat-abuse reports triage).
+- **ADMIN** — audit-log viewer + user management (list/detail/suspend) routers
+  mounted; web pages + ReputationCard + home recent-activity feed.
+- **VENDOR** — portfolio + event-types write services (7 owner-scoped routes);
+  6-step onboarding wizard; reviews reply UI; insights (views/saves/leads funnel).
+- **FAMILY** — hub + link-creation flow (`/family/link/new`, wires createLink).
+- **COORDINATOR** — rebuilt dashboard + vendor-routing tool + cross-wedding calendar.
+- Nav `*_MORE_GROUPS` for all 4 roles + admin audit/users; i18n keys (en + hi).
+
+**⬜ TODO before prod:** apply `packages/db/migrations/0031_support_tickets.sql`
+(additive/idempotent) to the Railway prod DB — applied to local only.
+
 ### Week 6 shipped (2026-04-21)
 
 - Wedding planning shared contracts (types + schemas + MongoDB WeddingPlan model) — commit `b82ffac`
