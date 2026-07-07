@@ -64,7 +64,14 @@
       "groupFamily": "Family",
       "linkMember": "Link a family member",
       "userManagement": "User management",
-      "auditLog": "Audit log"
+      "auditLog": "Audit log",
+      "groupBusiness": "Business",
+      "groupLeads": "Leads",
+      "vendorSetup": "Profile setup",
+      "insights": "Insights",
+      "reviews": "Reviews",
+      "leads": "Leads",
+      "pipeline": "Pipeline"
     }
   },
   "auth": {

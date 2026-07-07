@@ -64,7 +64,14 @@
       "groupFamily": "परिवार",
       "linkMember": "परिवार के सदस्य को जोड़ें",
       "userManagement": "उपयोगकर्ता प्रबंधन",
-      "auditLog": "ऑडिट लॉग"
+      "auditLog": "ऑडिट लॉग",
+      "groupBusiness": "व्यवसाय",
+      "groupLeads": "लीड्स",
+      "vendorSetup": "प्रोफ़ाइल सेटअप",
+      "insights": "अंतर्दृष्टि",
+      "reviews": "समीक्षाएँ",
+      "leads": "लीड्स",
+      "pipeline": "पाइपलाइन"
     }
   },
   "auth": {

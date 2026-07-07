@@ -95,6 +95,30 @@ const VENDOR_PRIMARY: NavItem[] = [
   { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
 ];
 
+const VENDOR_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupBusiness',
+    items: [
+      { href: '/vendor/onboarding', labelKey: 'vendorSetup', Icon: ClipboardList },
+      { href: '/vendor/insights',   labelKey: 'insights',    Icon: Sparkles },
+      { href: '/vendor/reviews',    labelKey: 'reviews',     Icon: MessageCircle },
+    ],
+  },
+  {
+    titleKey: 'groupLeads',
+    items: [
+      { href: '/vendor/leads',    labelKey: 'leads',    Icon: Heart },
+      { href: '/vendor/pipeline', labelKey: 'pipeline', Icon: Bookmark },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── ADMIN / SUPPORT ───────────────────────────────────────────────────────────
 const ADMIN_PRIMARY: NavItem[] = [
   { href: '/admin',         labelKey: 'admin',    Icon: Home },
@@ -209,7 +233,7 @@ export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavG
     case 'SUPPORT':
       return { primary: SUPPORT_PRIMARY, moreGroups: SUPPORT_MORE_GROUPS };
     case 'VENDOR':
-      return { primary: VENDOR_PRIMARY, moreGroups: [] };
+      return { primary: VENDOR_PRIMARY, moreGroups: VENDOR_MORE_GROUPS };
     case 'FAMILY_MEMBER':
       return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: FAMILY_MEMBER_MORE_GROUPS };
     case 'EVENT_COORDINATOR':
