@@ -302,7 +302,7 @@ async def get_suggestions(
     user_content = build_prompt_context(state, shared, request.conversation_history)
 
     # ── 4. Load prompt template ───────────────────────────────────────────────
-    prompt_path = Path(__file__).parents[4] / "prompts" / "conversation-coach-v1.md"
+    prompt_path = Path(__file__).resolve().parents[1] / "prompts" / "conversation-coach-v1.md"
     try:
         system_prompt = prompt_path.read_text(encoding="utf-8")
     except FileNotFoundError:

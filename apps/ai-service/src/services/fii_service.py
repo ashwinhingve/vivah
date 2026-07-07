@@ -356,7 +356,7 @@ def _parse_xml_field(text: str, tag: str) -> str | None:
 def _load_system_prompt() -> str:
     """Load fii-narrative-v1.md system prompt from prompts directory."""
     prompt_path = (
-        Path(__file__).parent.parent.parent.parent.parent
+        Path(__file__).resolve().parents[1]
         / "prompts"
         / "fii-narrative-v1.md"
     )

@@ -221,7 +221,7 @@ async def compute_dpi(
         )
 
     # ── 5. Load prompt ───────────────────────────────────────────────────────
-    prompt_path = Path(__file__).parents[4] / "prompts" / "dpi-narrative-v1.md"
+    prompt_path = Path(__file__).resolve().parents[1] / "prompts" / "dpi-narrative-v1.md"
     try:
         system_prompt = prompt_path.read_text(encoding="utf-8")
     except FileNotFoundError:

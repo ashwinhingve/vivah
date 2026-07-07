@@ -40,9 +40,11 @@ def _dataset_path() -> Path:
     override = os.getenv("CALENDAR_DATASET_PATH")
     if override:
         return Path(override)
-    # src/services/calendar_service.py -> repo root is parents[4]
-    repo_root = Path(__file__).resolve().parents[4]
-    return repo_root / "packages" / "db" / "seed" / "data" / "calendar-2026-2027.json"
+    # Vendored into the image under src/datasets (Dockerfile: COPY src ./src; note
+    # src/data/ is gitignored, so datasets/ is used). src is parents[1]; the old
+    # parents[4] pointed at the monorepo repo root, which does not exist in the
+    # container (/app/src/services -> IndexError / missing file).
+    return Path(__file__).resolve().parents[1] / "datasets" / "calendar-2026-2027.json"
 
 
 @lru_cache(maxsize=1)

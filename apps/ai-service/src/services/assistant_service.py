@@ -86,7 +86,26 @@ def _conversation_collection():
 # ---------------------------------------------------------------------------
 
 # Versioned prompt file (CLAUDE.md convention). Loaded at request time.
-_PROMPT_PATH = Path(__file__).parents[4] / "prompts" / "matrimony-assistant-v2.md"
+# Resolve robustly across layouts — the monorepo (repo-root ``prompts/``) and the
+# Docker image (vendored ``src/prompts/``; the container only ``COPY src ./src``).
+# A hardcoded ``parents[4]`` crashed the whole service at import in Docker
+# (``/app/src/services/...`` has no 5th parent → IndexError). Never raise here.
+def _resolve_prompt_path() -> Path:
+    here = Path(__file__).resolve()
+    rel = ("prompts", "matrimony-assistant-v2.md")
+    candidates = [
+        here.parent.parent.joinpath(*rel),         # src/prompts (vendored → in Docker image)
+        *(p.joinpath(*rel) for p in here.parents),  # any ancestor (monorepo repo root)
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    # None found: return the vendored location; the request-time read is guarded
+    # (try/except) and falls back to _FALLBACK_SYSTEM.
+    return candidates[0]
+
+
+_PROMPT_PATH = _resolve_prompt_path()
 
 # Fallback if the prompt file is unreadable — keeps the assistant answering with
 # the essential safety + tool rules baked in.
