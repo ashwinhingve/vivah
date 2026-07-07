@@ -1068,5 +1068,60 @@
         }
       ]
     }
+  },
+  "support": {
+    "title": "Support console",
+    "subtitle": "Resolve customer complaints, escalations and account issues.",
+    "reportsTitle": "Chat abuse reports",
+    "newTicket": "New ticket",
+    "search": "Search tickets…",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "mine": "My tickets",
+      "priority": "Priority",
+      "source": "Source"
+    },
+    "stats": {
+      "open": "Open",
+      "overdue": "Overdue",
+      "unassigned": "Unassigned",
+      "resolvedToday": "Resolved today",
+      "abuse": "Abuse reports",
+      "disputes": "Disputes"
+    }
+  },
+  "coordinator": {
+    "title": "Event coordination",
+    "subtitle": "Manage every wedding you run — tasks, timelines and vendor routing.",
+    "routingTitle": "Vendor routing",
+    "calendarTitle": "Cross-wedding calendar",
+    "tasksTitle": "Task inbox",
+    "stats": {
+      "managed": "Managed weddings",
+      "tasks": "Open tasks",
+      "incidents": "Open incidents",
+      "thisWeek": "This week"
+    }
+  },
+  "vendorRole": {
+    "onboarding": {
+      "title": "Vendor onboarding",
+      "subtitle": "Complete each step, then submit your profile for review."
+    },
+    "packages": "Packages",
+    "portfolio": "Portfolio"
+  },
+  "familyRole": {
+    "hubTitle": "Family hub",
+    "browseTitle": "Browse matches",
+    "requestsTitle": "Family requests"
+  },
+  "adminRole": {
+    "title": "Admin console",
+    "subtitle": "Platform health, moderation and operations at a glance."
   }
 }
