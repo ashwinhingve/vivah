@@ -72,6 +72,7 @@ export interface VendorProfile {
   viewCount?:   number
   favoriteCount?: number
   isFavorite?:  boolean
+  bankVerificationStatus?: string
 }
 
 export interface VendorReview {
