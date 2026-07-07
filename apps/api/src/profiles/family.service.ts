@@ -8,6 +8,7 @@
 
 import { eq, desc } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { resolveProfileId as resolveProfileIdCached } from '../lib/profile.js';
 import {
   familyMembers,
   familyVerifications,
@@ -22,7 +23,6 @@ import type {
   FamilySection,
   ProfileId,
 } from '@smartshaadi/types';
-import { asProfileId } from '@smartshaadi/types';
 import type {
   AddFamilyMemberInput,
   UpdateFamilyMemberInput,
@@ -38,9 +38,9 @@ function appErr(msg: string, code: string, status: number): AppError {
 // ── userId → profileId resolver (Rule 12) ────────────────────────────────────
 
 async function resolveProfileId(userId: string): Promise<ProfileId> {
-  const [p] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
-  if (!p) throw appErr('Profile not found', 'NOT_FOUND', 404);
-  return asProfileId(p.id);
+  const profileId = await resolveProfileIdCached(userId);
+  if (!profileId) throw appErr('Profile not found', 'NOT_FOUND', 404);
+  return profileId;
 }
 
 // ── Mappers ───────────────────────────────────────────────────────────────────
