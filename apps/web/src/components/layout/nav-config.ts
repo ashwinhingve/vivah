@@ -21,6 +21,8 @@ import {
   UserCog,
   LifeBuoy,
   ClipboardList,
+  Flag,
+  Route,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -132,6 +134,22 @@ const SUPPORT_PRIMARY: NavItem[] = [
   { href: '/profile/personal', labelKey: 'profile', Icon: User },
 ];
 
+const SUPPORT_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupSupport',
+    items: [
+      { href: '/support',         labelKey: 'ticketQueue',  Icon: LifeBuoy },
+      { href: '/support/reports', labelKey: 'abuseReports', Icon: Flag },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── FAMILY_MEMBER ─────────────────────────────────────────────────────────────
 const FAMILY_MEMBER_PRIMARY: NavItem[] = [
   { href: '/family',             labelKey: 'family',      Icon: Home },
@@ -148,19 +166,35 @@ const COORDINATOR_PRIMARY: NavItem[] = [
   { href: '/profile/personal', labelKey: 'profile',     Icon: User },
 ];
 
+const COORDINATOR_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupTools',
+    items: [
+      { href: '/coordinator/routing', labelKey: 'vendorRouting', Icon: Route },
+      { href: '/vendors',             labelKey: 'vendors',       Icon: Search },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── Selector — single source of truth shared by AppNav + TopNav ────────────────
 export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavGroup[] } {
   switch (role as UserRole) {
     case 'ADMIN':
       return { primary: ADMIN_PRIMARY, moreGroups: ADMIN_MORE_GROUPS };
     case 'SUPPORT':
-      return { primary: SUPPORT_PRIMARY, moreGroups: [] };
+      return { primary: SUPPORT_PRIMARY, moreGroups: SUPPORT_MORE_GROUPS };
     case 'VENDOR':
       return { primary: VENDOR_PRIMARY, moreGroups: [] };
     case 'FAMILY_MEMBER':
       return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: [] };
     case 'EVENT_COORDINATOR':
-      return { primary: COORDINATOR_PRIMARY, moreGroups: [] };
+      return { primary: COORDINATOR_PRIMARY, moreGroups: COORDINATOR_MORE_GROUPS };
     case 'INDIVIDUAL':
     default:
       return { primary: INDIVIDUAL_PRIMARY, moreGroups: INDIVIDUAL_MORE_GROUPS };

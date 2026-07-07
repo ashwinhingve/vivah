@@ -55,7 +55,12 @@
       "family": "Family",
       "familyInbox": "Inbox",
       "parentMode": "Parent Mode",
-      "coordinator": "Coordinator"
+      "coordinator": "Coordinator",
+      "groupSupport": "Help desk",
+      "groupTools": "Tools",
+      "ticketQueue": "Ticket queue",
+      "abuseReports": "Abuse reports",
+      "vendorRouting": "Vendor routing"
     }
   },
   "auth": {

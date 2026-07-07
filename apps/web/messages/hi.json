@@ -55,7 +55,12 @@
       "family": "परिवार",
       "familyInbox": "इनबॉक्स",
       "parentMode": "पैरेंट मोड",
-      "coordinator": "समन्वयक"
+      "coordinator": "समन्वयक",
+      "groupSupport": "सहायता डेस्क",
+      "groupTools": "उपकरण",
+      "ticketQueue": "टिकट कतार",
+      "abuseReports": "दुर्व्यवहार रिपोर्ट",
+      "vendorRouting": "वेंडर रूटिंग"
     }
   },
   "auth": {
