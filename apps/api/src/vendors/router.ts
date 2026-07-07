@@ -21,6 +21,14 @@
  * POST   /vendors/:id/services          → addService         (auth, vendor owner)
  * POST   /vendors/reviews/:reviewId/reply → replyToReview    (auth, vendor)
  * POST   /vendors/inquiries/:inquiryId/reply → replyToInquiry (auth, vendor)
+ *
+ * GET    /vendors/:id/portfolio            → getPortfolio          (auth, vendor owner)
+ * PUT    /vendors/:id/portfolio            → updatePortfolioBasics (auth, vendor owner)
+ * POST   /vendors/:id/portfolio/items      → addPortfolioItem      (auth, vendor owner)
+ * PUT    /vendors/:id/portfolio/items/:idx → updatePortfolioItem   (auth, vendor owner)
+ * DELETE /vendors/:id/portfolio/items/:idx → removePortfolioItem   (auth, vendor owner)
+ * GET    /vendors/:id/event-types          → getEventTypes         (auth, vendor owner)
+ * PUT    /vendors/:id/event-types          → setEventTypes         (auth, vendor owner)
  */
 
 import { Router, type Response } from 'express';
@@ -44,6 +52,9 @@ import {
   CreateInquirySchema,
   InquiryReplySchema,
   BlockedDateSchema,
+  PortfolioBasicsSchema,
+  PortfolioItemSchema,
+  VendorEventTypesSchema,
 } from '@smartshaadi/schemas';
 import {
   listVendors,
@@ -85,6 +96,14 @@ import {
   removeBlockedDate,
   BlockedDateError,
 } from './blockedDates.service.js';
+import {
+  getPortfolio,
+  updatePortfolioBasics,
+  addPortfolioItem,
+  updatePortfolioItem,
+  removePortfolioItem,
+} from './portfolio.service.js';
+import { getEventTypes, setEventTypes } from './eventTypes.service.js';
 
 import { registerUuidParams } from '../middleware/validateUuidParams.js';
 
@@ -401,10 +420,14 @@ type ParsedPackage = z.infer<typeof VendorPackageSchema>;
 const _ensure: (p: ParsedPackage) => VendorPackage = (p) => p;
 void _ensure;
 
-function packageOwnerError(res: Response, e: unknown): boolean {
+// Shared by packages / portfolio / event-types CRUD — all owner-scoped via
+// assertVendorOwner (vendors/service.ts), which throws these two codes; the
+// portfolio item routes additionally throw NOT_FOUND for a bad index.
+function ownerScopedError(res: Response, e: unknown): boolean {
   const code = (e as { code?: string }).code;
   if (code === 'VENDOR_NOT_FOUND') { err(res, 'NOT_FOUND',  'Vendor not found', 404); return true; }
   if (code === 'FORBIDDEN')        { err(res, 'FORBIDDEN', 'Not vendor owner', 403); return true; }
+  if (code === 'NOT_FOUND')        { err(res, 'NOT_FOUND', 'Item not found', 404); return true; }
   return false;
 }
 
@@ -426,7 +449,7 @@ vendorsRouter.post('/:id/packages', authenticate, async (req, res) => {
     const pkgs = await addVendorPackage(id, req.user!.id, parsed.data);
     ok(res, { packages: pkgs }, 201);
   } catch (e) {
-    if (packageOwnerError(res, e)) return;
+    if (ownerScopedError(res, e)) return;
     handleError(res, e, 'VENDOR_PACKAGE_ADD_ERROR');
   }
 });
@@ -444,7 +467,7 @@ vendorsRouter.put('/:id/packages/:idx', authenticate, async (req, res) => {
     const pkgs = await updateVendorPackage(id, req.user!.id, idx, parsed.data);
     ok(res, { packages: pkgs });
   } catch (e) {
-    if (packageOwnerError(res, e)) return;
+    if (ownerScopedError(res, e)) return;
     handleError(res, e, 'VENDOR_PACKAGE_UPDATE_ERROR');
   }
 });
@@ -460,7 +483,114 @@ vendorsRouter.delete('/:id/packages/:idx', authenticate, async (req, res) => {
     const pkgs = await removeVendorPackage(id, req.user!.id, idx);
     ok(res, { packages: pkgs });
   } catch (e) {
-    if (packageOwnerError(res, e)) return;
+    if (ownerScopedError(res, e)) return;
     handleError(res, e, 'VENDOR_PACKAGE_DELETE_ERROR');
+  }
+});
+
+// ── Vendor portfolio (auth, vendor owner) ────────────────────────────────────
+// GET/PUT basics + POST/PUT/DELETE work-sample items — Mongo write path for
+// the onboarding wizard's "portfolio" step.
+
+vendorsRouter.get('/:id/portfolio', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  try {
+    const portfolio = await getPortfolio(id, req.user!.id);
+    ok(res, { portfolio });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_PORTFOLIO_ERROR');
+  }
+});
+
+vendorsRouter.put('/:id/portfolio', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  const parsed = PortfolioBasicsSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const portfolio = await updatePortfolioBasics(id, req.user!.id, parsed.data);
+    ok(res, { portfolio });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_PORTFOLIO_UPDATE_ERROR');
+  }
+});
+
+vendorsRouter.post('/:id/portfolio/items', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  const parsed = PortfolioItemSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const items = await addPortfolioItem(id, req.user!.id, parsed.data);
+    ok(res, { items }, 201);
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_PORTFOLIO_ITEM_ADD_ERROR');
+  }
+});
+
+vendorsRouter.put('/:id/portfolio/items/:idx', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  const idxRaw = req.params['idx'];
+  const idx = idxRaw != null ? parseInt(idxRaw, 10) : NaN;
+  if (!id || !Number.isInteger(idx) || idx < 0) {
+    err(res, 'VALIDATION_ERROR', 'Vendor id and non-negative idx are required', 400); return;
+  }
+  const parsed = PortfolioItemSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const items = await updatePortfolioItem(id, req.user!.id, idx, parsed.data);
+    ok(res, { items });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_PORTFOLIO_ITEM_UPDATE_ERROR');
+  }
+});
+
+vendorsRouter.delete('/:id/portfolio/items/:idx', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  const idxRaw = req.params['idx'];
+  const idx = idxRaw != null ? parseInt(idxRaw, 10) : NaN;
+  if (!id || !Number.isInteger(idx) || idx < 0) {
+    err(res, 'VALIDATION_ERROR', 'Vendor id and non-negative idx are required', 400); return;
+  }
+  try {
+    const items = await removePortfolioItem(id, req.user!.id, idx);
+    ok(res, { items });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_PORTFOLIO_ITEM_DELETE_ERROR');
+  }
+});
+
+// ── Vendor event types (auth, vendor owner) ──────────────────────────────────
+// Routing opt-in consumed by apps/api/src/routes/vendorEngine.ts POST /route.
+
+vendorsRouter.get('/:id/event-types', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  try {
+    const eventTypes = await getEventTypes(id, req.user!.id);
+    ok(res, { eventTypes });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_EVENT_TYPES_ERROR');
+  }
+});
+
+vendorsRouter.put('/:id/event-types', authenticate, async (req, res) => {
+  const id = req.params['id'];
+  if (!id) { err(res, 'VALIDATION_ERROR', 'Vendor id is required', 400); return; }
+  const parsed = VendorEventTypesSchema.safeParse(req.body);
+  if (!parsed.success) { err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid', 400); return; }
+  try {
+    const eventTypes = await setEventTypes(id, req.user!.id, parsed.data.eventTypes);
+    ok(res, { eventTypes });
+  } catch (e) {
+    if (ownerScopedError(res, e)) return;
+    handleError(res, e, 'VENDOR_EVENT_TYPES_UPDATE_ERROR');
   }
 });

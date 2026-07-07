@@ -129,6 +129,17 @@ interface VendorQueueRow {
   rejectionCategory: string | null;
 }
 
+// Recent-activity mini-feed — shape returned by GET /api/v1/admin/audit
+// (apps/api/src/admin/audit.router.ts), trimmed to what the dashboard widget
+// renders.
+interface RecentAuditRow {
+  id:         string;
+  eventType:  string;
+  entityType: string;
+  actorName:  string | null;
+  createdAt:  string;
+}
+
 // Infra health types from /ready
 interface ReadyChecks {
   postgres: string;
@@ -170,6 +181,18 @@ async function fetchReady(): Promise<ReadyResponse | null> {
   } catch {
     return null;
   }
+}
+
+/** Short relative time for the recent-activity feed, e.g. "5m ago" / "3d ago". */
+function relativeAuditTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
 }
 
 // ---------------------------------------------------------------------------
@@ -220,6 +243,7 @@ export default async function AdminPage() {
     atRiskData,
     readyData,
     vendorQueueData,
+    auditData,
   ] = await Promise.all([
     fetchAuth<{ profiles: KycRow[]; total: number }>('/api/v1/admin/kyc/pending', token),
     fetchAuth<KycStats>('/api/v1/admin/kyc/stats', token),
@@ -232,6 +256,7 @@ export default async function AdminPage() {
     fetchAuth<{ items: VendorQueueRow[]; total: number }>(
       '/api/v1/admin/vendors/queue?status=PENDING&limit=5', token
     ),
+    fetchAuth<{ items: RecentAuditRow[]; total: number }>('/api/v1/admin/audit?limit=6', token),
   ]);
 
   // Derive values with safe defaults
@@ -267,6 +292,7 @@ export default async function AdminPage() {
   const atRiskTotal       = atRiskData?.total        ?? 0;
   const vendorQueue       = vendorQueueData?.items   ?? [];
   const vendorQueueTotal  = vendorQueueData?.total   ?? 0;
+  const recentActivity: RecentAuditRow[] = auditData?.items ?? [];
 
   // Health strip — map /ready.checks to labelled ServiceCheck array
   const serviceChecks = readyData
@@ -502,18 +528,39 @@ export default async function AdminPage() {
           </AdminSectionBoundary>
         </section>
 
-        {/* ── Activity log placeholder ── */}
+        {/* ── Recent Activity ── */}
         <section>
-          <SectionHeader title="Recent Activity" />
-          {/* TODO: no audit / activity-log endpoint — add GET /api/v1/admin/audit
-              when the activity-log service ships in a later phase. */}
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-gold/30 bg-surface px-6 py-10 text-center">
-            <Activity className="h-8 w-8 text-gold-muted" strokeWidth={1.25} aria-hidden />
-            <p className="font-heading text-sm font-semibold text-primary">Activity log</p>
-            <p className="text-xs text-text-muted">
-              Admin event stream coming in a later phase — no endpoint available yet.
-            </p>
-          </div>
+          <SectionHeader title="Recent Activity" viewAllHref="/admin/audit" viewAllLabel="View all" />
+          <AdminSectionBoundary section="Recent Activity" key={refreshedAt}>
+            <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
+              {recentActivity.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-8 text-center">
+                  <Activity className="h-8 w-8 text-gold-muted" strokeWidth={1.5} aria-hidden />
+                  <p className="text-sm font-semibold text-primary">No activity yet</p>
+                  <p className="text-xs text-text-muted">Platform events will appear here as they happen.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gold/10">
+                  {recentActivity.map((ev) => (
+                    <div key={ev.id} className="flex items-start gap-3 px-4 py-3">
+                      <Activity className="mt-0.5 h-4 w-4 shrink-0 text-teal" strokeWidth={1.5} aria-hidden />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-semibold text-text-primary">
+                            {ev.eventType.replace(/_/g, ' ')}
+                          </span>
+                          <span className="text-[11px] text-text-muted">· {ev.entityType}</span>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-text-muted">
+                          {ev.actorName ?? 'System'} · {relativeAuditTime(ev.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </AdminSectionBoundary>
         </section>
 
         {/* ── Quick navigation grid ── */}
