@@ -60,7 +60,9 @@
       "groupTools": "Tools",
       "ticketQueue": "Ticket queue",
       "abuseReports": "Abuse reports",
-      "vendorRouting": "Vendor routing"
+      "vendorRouting": "Vendor routing",
+      "groupFamily": "Family",
+      "linkMember": "Link a family member"
     }
   },
   "auth": {

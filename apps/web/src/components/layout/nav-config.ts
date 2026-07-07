@@ -23,6 +23,7 @@ import {
   ClipboardList,
   Flag,
   Route,
+  UserPlus,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -158,6 +159,22 @@ const FAMILY_MEMBER_PRIMARY: NavItem[] = [
   { href: '/profile/personal',   labelKey: 'profile',     Icon: User },
 ];
 
+const FAMILY_MEMBER_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupFamily',
+    items: [
+      { href: '/family/link/new', labelKey: 'linkMember', Icon: UserPlus },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/privacy',             labelKey: 'privacy',  Icon: EyeOff },
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── EVENT_COORDINATOR ─────────────────────────────────────────────────────────
 const COORDINATOR_PRIMARY: NavItem[] = [
   { href: '/coordinator',      labelKey: 'coordinator', Icon: ClipboardList },
@@ -192,7 +209,7 @@ export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavG
     case 'VENDOR':
       return { primary: VENDOR_PRIMARY, moreGroups: [] };
     case 'FAMILY_MEMBER':
-      return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: [] };
+      return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: FAMILY_MEMBER_MORE_GROUPS };
     case 'EVENT_COORDINATOR':
       return { primary: COORDINATOR_PRIMARY, moreGroups: COORDINATOR_MORE_GROUPS };
     case 'INDIVIDUAL':

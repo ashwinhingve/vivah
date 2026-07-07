@@ -60,7 +60,9 @@
       "groupTools": "उपकरण",
       "ticketQueue": "टिकट कतार",
       "abuseReports": "दुर्व्यवहार रिपोर्ट",
-      "vendorRouting": "वेंडर रूटिंग"
+      "vendorRouting": "वेंडर रूटिंग",
+      "groupFamily": "परिवार",
+      "linkMember": "परिवार के सदस्य को जोड़ें"
     }
   },
   "auth": {
