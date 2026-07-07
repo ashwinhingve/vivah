@@ -108,6 +108,8 @@ const ADMIN_MORE_GROUPS: NavGroup[] = [
     titleKey: 'groupOperations',
     items: [
       { href: '/admin/vendors',   labelKey: 'vendorApprovals', Icon: Search },
+      { href: '/admin/users',     labelKey: 'userManagement',  Icon: UserCog },
+      { href: '/admin/audit',     labelKey: 'auditLog',        Icon: ClipboardList },
       { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
     ],
   },

@@ -1,0 +1,80 @@
+import { redirect } from '@/i18n/redirect';
+import { Link } from '@/i18n/navigation';
+import { ArrowRight, Package } from 'lucide-react';
+import { fetchAuth } from '@/lib/server-fetch';
+import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
+import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { AddServiceForm } from './AddServiceForm.client';
+
+export const metadata = { title: 'Services · Vendor onboarding' };
+export const dynamic = 'force-dynamic';
+
+interface ServiceRow {
+  id: string;
+  name: string;
+  priceFrom: number;
+  priceTo: number | null;
+  unit: string;
+}
+interface VendorWithServices {
+  id: string;
+  services?: ServiceRow[];
+}
+
+export default async function ServicesStepPage() {
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
+  if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
+    return await redirect('/dashboard');
+  }
+
+  const vendor = await fetchMyVendor();
+  if (!vendor?.id) return await redirect('/vendor/onboarding/business');
+
+  const detail = await fetchAuth<VendorWithServices>(`/api/v1/vendors/${vendor.id}`);
+  const services = detail?.services ?? [];
+
+  return (
+    <FadeUp>
+      <OnboardingStepper current="services" />
+      <div className="mb-4">
+        <h2 className="font-heading text-lg text-primary">Services &amp; pricing</h2>
+        <p className="text-sm text-muted-foreground">
+          List what you offer. Add as many as you like — you can edit prices later.
+        </p>
+      </div>
+
+      {services.length > 0 && (
+        <ul className="mb-5 space-y-2">
+          {services.map((s) => (
+            <li key={s.id} className="flex items-center justify-between rounded-xl border border-gold/20 bg-surface px-4 py-3 shadow-card">
+              <span className="text-sm font-medium text-primary">{s.name}</span>
+              <span className="text-sm text-text-muted">
+                ₹{s.priceFrom.toLocaleString('en-IN')}
+                {s.priceTo ? `–${s.priceTo.toLocaleString('en-IN')}` : ''} · {s.unit}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {services.length === 0 && (
+        <div className="mb-5">
+          <EmptyState icon={Package} title="No services yet" description="Add your first service below to continue." />
+        </div>
+      )}
+
+      <AddServiceForm vendorId={vendor.id} />
+
+      <div className="mt-6 flex justify-end">
+        <Link
+          href="/vendor/onboarding/portfolio"
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
+        >
+          Continue to portfolio <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </FadeUp>
+  );
+}

@@ -62,7 +62,9 @@
       "abuseReports": "Abuse reports",
       "vendorRouting": "Vendor routing",
       "groupFamily": "Family",
-      "linkMember": "Link a family member"
+      "linkMember": "Link a family member",
+      "userManagement": "User management",
+      "auditLog": "Audit log"
     }
   },
   "auth": {

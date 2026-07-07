@@ -62,7 +62,9 @@
       "abuseReports": "दुर्व्यवहार रिपोर्ट",
       "vendorRouting": "वेंडर रूटिंग",
       "groupFamily": "परिवार",
-      "linkMember": "परिवार के सदस्य को जोड़ें"
+      "linkMember": "परिवार के सदस्य को जोड़ें",
+      "userManagement": "उपयोगकर्ता प्रबंधन",
+      "auditLog": "ऑडिट लॉग"
     }
   },
   "auth": {
