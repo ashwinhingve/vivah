@@ -28,6 +28,7 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          // eslint-disable-next-line no-restricted-syntax -- ImageResponse (Satori) renders PNGs and cannot use Tailwind classNames; the brand burgundy must be a literal hex here.
           background: '#7B2D42',
         }}
       >

@@ -165,7 +165,7 @@ export const ASSISTANT_TOOLS: Record<string, ToolRunner> = {
     const items = await listConversations({ profileId, limit: 20 });
     const conversations = items.map((c: ConversationItem) => ({
       match_request_id: c.matchRequestId,
-      other_name: c.other?.name ?? null,
+      other_name: c.other?.firstName ?? null,
       last_message: c.lastMessage?.content ?? null,
       unread_count: c.unreadCount,
       updated_at: c.updatedAt,
