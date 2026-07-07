@@ -200,7 +200,7 @@ export async function listManagedChildren(parentUserId: string): Promise<ParentC
 
 // ── Authorization helper ─────────────────────────────────────────────────────
 
-async function getActiveLink(parentUserId: string, childUserId: string): Promise<ParentChildLink | null> {
+export async function getActiveLink(parentUserId: string, childUserId: string): Promise<ParentChildLink | null> {
   const [row] = await db
     .select()
     .from(parentChildLinks)
