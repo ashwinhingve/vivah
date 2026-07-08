@@ -18,6 +18,8 @@ import {
   user,
 } from '@smartshaadi/db';
 import { ChatReport } from '../infrastructure/mongo/models/ChatReport.js';
+import { notificationsQueue } from '../infrastructure/redis/queues.js';
+import { notifyAdmins } from '../notifications/service.js';
 
 export type TicketStatus = 'OPEN' | 'PENDING' | 'RESOLVED' | 'CLOSED';
 export type TicketPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
@@ -130,6 +132,20 @@ export async function listTickets(f: QueueFilters): Promise<{ items: TicketListI
     ),
   );
   return { items, total: Number(total) };
+}
+
+export interface StaffOption {
+  id: string;
+  name: string | null;
+}
+
+/** SUPPORT + ADMIN roster for the ticket reassignment picker. */
+export async function listStaff(): Promise<StaffOption[]> {
+  return db
+    .select({ id: user.id, name: user.name })
+    .from(user)
+    .where(inArray(user.role, ['SUPPORT', 'ADMIN']))
+    .orderBy(user.name);
 }
 
 export interface TicketMessageView {
@@ -251,6 +267,19 @@ export async function createTicket(
     .returning({ id: supportTickets.id });
   if (!row) throw fail('Failed to create ticket', 'INTERNAL', 500);
   await logEvent(row.id, raisedByUserId, 'CREATED', { source: input.source ?? 'USER' });
+
+  // Best-effort admin fan-out so a new ticket doesn't sit unseen — mirrors
+  // the DISPUTE_NEEDS_REVIEW pattern in payments/dispute.ts. Never blocks
+  // ticket creation on notification delivery.
+  void notifyAdmins('SUPPORT_TICKET_CREATED', {
+    title: 'New support ticket',
+    body: input.subject,
+    ticketId: row.id,
+    priority,
+    category: input.category ?? 'OTHER',
+    ctaUrl: `/support/tickets/${row.id}`,
+  }).catch((e) => console.warn('[support] new-ticket notify failed:', e));
+
   return { id: row.id };
 }
 
@@ -296,6 +325,36 @@ export async function updateTicket(
   }
   if (set.assignedToUserId !== undefined) {
     await logEvent(id, actorUserId, 'ASSIGNED', { to: patch.assignedToUserId });
+  }
+
+  // Best-effort notifications — never block the PATCH on delivery failures.
+  if (set.assignedToUserId && set.assignedToUserId !== actorUserId) {
+    void notificationsQueue
+      .add('SUPPORT_TICKET_ASSIGNED', {
+        type: 'SUPPORT_TICKET_ASSIGNED',
+        userId: set.assignedToUserId,
+        payload: {
+          title: 'Ticket assigned to you',
+          body: existing.subject,
+          ticketId: id,
+          ctaUrl: `/support/tickets/${id}`,
+        },
+      })
+      .catch((e) => console.warn('[support] assignment notify failed:', e));
+  }
+  if (set.status === 'RESOLVED' && existing.raisedByUserId && existing.raisedByUserId !== actorUserId) {
+    void notificationsQueue
+      .add('SUPPORT_TICKET_RESOLVED', {
+        type: 'SUPPORT_TICKET_RESOLVED',
+        userId: existing.raisedByUserId,
+        payload: {
+          title: 'Your support ticket was resolved',
+          body: existing.subject,
+          ticketId: id,
+          ctaUrl: `/support/tickets/${id}`,
+        },
+      })
+      .catch((e) => console.warn('[support] resolve notify failed:', e));
   }
 }
 

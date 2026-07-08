@@ -72,6 +72,11 @@ export interface ChatReportView {
   createdAt: string;
 }
 
+export interface StaffOption {
+  id: string;
+  name: string | null;
+}
+
 export interface QueueParams {
   status?: TicketStatus;
   priority?: TicketPriority;
@@ -106,4 +111,9 @@ export async function fetchTicket(id: string): Promise<TicketDetail | null> {
 export async function fetchChatReports(status?: string): Promise<{ reports: ChatReportView[] } | null> {
   const qs = status ? `?status=${encodeURIComponent(status)}` : '';
   return fetchAuth<{ reports: ChatReportView[] }>(`/api/v1/support/reports${qs}`);
+}
+
+/** SUPPORT + ADMIN roster for the ticket reassignment picker. */
+export async function fetchSupportStaff(): Promise<{ staff: StaffOption[] } | null> {
+  return fetchAuth<{ staff: StaffOption[] }>('/api/v1/support/staff');
 }

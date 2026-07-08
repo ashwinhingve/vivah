@@ -8,7 +8,7 @@ import { FadeUp } from '@/components/shared/FadeUp.client';
 import { PriorityPill, StatusPill, SlaBadge } from '@/components/support/badges';
 import { TicketThread } from '@/components/support/TicketThread.client';
 import { TicketActionsPanel } from '@/components/support/TicketActionsPanel.client';
-import { fetchTicket } from '@/lib/support-api';
+import { fetchTicket, fetchSupportStaff } from '@/lib/support-api';
 
 export const metadata = { title: 'Ticket · Support' };
 export const dynamic = 'force-dynamic';
@@ -40,8 +40,9 @@ export default async function TicketDetailPage({
   }
 
   const { id } = await params;
-  const ticket = await fetchTicket(id);
+  const [ticket, staffData] = await Promise.all([fetchTicket(id), fetchSupportStaff()]);
   if (!ticket) return notFound();
+  const staff = staffData?.staff ?? [];
 
   const href = linkedHref(ticket.linkedRefType, ticket.linkedRefId);
 
@@ -120,8 +121,10 @@ export default async function TicketDetailPage({
                 ticketId={ticket.id}
                 status={ticket.status}
                 priority={ticket.priority}
+                assignedToUserId={ticket.assignedToUserId}
                 assignedToName={ticket.assignedToName}
                 myUserId={me?.userId ?? ''}
+                staff={staff}
               />
             </FadeUp>
 

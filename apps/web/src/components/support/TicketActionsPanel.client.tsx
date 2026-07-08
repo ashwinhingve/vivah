@@ -8,7 +8,7 @@ import {
   assignToMeAction,
   resolveTicketAction,
 } from '@/app/[locale]/(app)/support/actions';
-import type { TicketPriority, TicketStatus } from '@/lib/support-api';
+import type { TicketPriority, TicketStatus, StaffOption } from '@/lib/support-api';
 
 const STATUSES: TicketStatus[] = ['OPEN', 'PENDING', 'RESOLVED', 'CLOSED'];
 const PRIORITIES: TicketPriority[] = ['LOW', 'NORMAL', 'HIGH', 'URGENT'];
@@ -17,11 +17,21 @@ interface Props {
   ticketId: string;
   status: TicketStatus;
   priority: TicketPriority;
+  assignedToUserId: string | null;
   assignedToName: string | null;
   myUserId: string;
+  staff: StaffOption[];
 }
 
-export function TicketActionsPanel({ ticketId, status, priority, assignedToName, myUserId }: Props) {
+export function TicketActionsPanel({
+  ticketId,
+  status,
+  priority,
+  assignedToUserId,
+  assignedToName,
+  myUserId,
+  staff,
+}: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +88,29 @@ export function TicketActionsPanel({ ticketId, status, priority, assignedToName,
         >
           <UserCheck className="h-4 w-4" /> Assign to me
         </button>
+        {staff.length > 0 && (
+          <div>
+            <label htmlFor="reassign" className="mb-1 block text-xs font-medium text-text-muted">
+              Reassign to
+            </label>
+            <select
+              id="reassign"
+              className={selectCls}
+              defaultValue={assignedToUserId ?? ''}
+              disabled={pending}
+              onChange={(e) =>
+                run(() => patchTicketAction(ticketId, { assignedToUserId: e.target.value || null }))
+              }
+            >
+              <option value="">Unassigned</option>
+              {staff.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name ?? 'Unnamed staff'}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         {status !== 'RESOLVED' && status !== 'CLOSED' && (
           <button
             type="button"

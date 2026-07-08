@@ -13,6 +13,31 @@ interface Props {
   myUserId: string;
 }
 
+// Quick-start presets for the reply composer — populate the textarea, staff
+// still send/edit deliberately. Not persisted; purely a typing shortcut.
+const CANNED_REPLIES: { label: string; body: string }[] = [
+  {
+    label: 'Acknowledge — looking into it',
+    body: "Thanks for reaching out — we're looking into this now and will update you shortly.",
+  },
+  {
+    label: 'Request more info',
+    body: 'Could you share a few more details (screenshots, booking ID, or profile ID) so we can investigate faster?',
+  },
+  {
+    label: 'Resolved — please confirm',
+    body: 'This has been resolved on our end — please refresh and let us know if the issue persists.',
+  },
+  {
+    label: 'Escalated to specialist team',
+    body: "We've escalated this to our specialist team and expect an update within 24 hours.",
+  },
+  {
+    label: 'Closing — thanks for your patience',
+    body: "Thanks for your patience — we're closing this ticket for now. Feel free to reopen if the issue returns.",
+  },
+];
+
 function formatWhen(iso: string): string {
   const d = new Date(iso);
   return (
@@ -25,6 +50,7 @@ function formatWhen(iso: string): string {
 export function TicketThread({ ticketId, messages, myUserId }: Props) {
   const router = useRouter();
   const [body, setBody] = useState('');
+  const [cannedValue, setCannedValue] = useState('');
   const [isInternalNote, setIsInternalNote] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -95,6 +121,26 @@ export function TicketThread({ ticketId, messages, myUserId }: Props) {
       </div>
 
       <div className="border-t border-border px-4 py-3 sm:px-6">
+        <div className="mb-2 flex justify-end">
+          <select
+            aria-label="Insert canned reply"
+            value={cannedValue}
+            disabled={pending}
+            onChange={(e) => {
+              const preset = CANNED_REPLIES.find((c) => c.label === e.target.value);
+              if (preset) setBody(preset.body);
+              setCannedValue('');
+            }}
+            className="h-9 rounded-lg border border-border bg-surface px-2 text-xs text-text-muted focus:border-teal focus:outline-none disabled:opacity-50"
+          >
+            <option value="">Insert canned reply…</option>
+            {CANNED_REPLIES.map((c) => (
+              <option key={c.label} value={c.label}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}

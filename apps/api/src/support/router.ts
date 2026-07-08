@@ -22,6 +22,7 @@ import {
   getStats,
   listChatReports,
   actOnChatReport,
+  listStaff,
   type SupportError,
   type TicketStatus,
   type TicketPriority,
@@ -75,6 +76,12 @@ supportRouter.get('/queue', authenticate, STAFF, async (req: Request, res: Respo
 supportRouter.get('/stats', authenticate, STAFF, async (_req: Request, res: Response): Promise<void> => {
   try { ok(res, await getStats()); }
   catch (e) { handle(res, e, 'Failed to load stats'); }
+});
+
+// ── GET /support/staff — SUPPORT + ADMIN roster for reassignment ─────────────
+supportRouter.get('/staff', authenticate, STAFF, async (_req: Request, res: Response): Promise<void> => {
+  try { ok(res, { staff: await listStaff() }); }
+  catch (e) { handle(res, e, 'Failed to load staff'); }
 });
 
 // ── GET /support/reports — chat-abuse triage list ────────────────────────────

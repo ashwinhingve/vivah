@@ -50,3 +50,22 @@ export function SlaBadge({ slaDueAt, overdue }: { slaDueAt: string | null; overd
     </span>
   );
 }
+
+/**
+ * Chat-abuse reports carry a free-text `reason` (no fixed enum at capture
+ * time — see apps/api/src/infrastructure/mongo/models/ChatReport.ts), so
+ * severity is inferred with a keyword heuristic rather than trusted input.
+ * Reuses the priority colour ramp so triage staff read report severity at a
+ * glance, same as ticket priority.
+ */
+export function reportSeverity(reason: string): TicketPriority {
+  const r = reason.toLowerCase();
+  if (/threat|violen|assault|stalk|blackmail|extort|minor|child|self.?harm|suicide/.test(r)) return 'URGENT';
+  if (/abuse|harass|fraud|scam|impersonat|explicit|nudity|sexual/.test(r)) return 'HIGH';
+  if (/spam|solicit|advertis/.test(r)) return 'LOW';
+  return 'NORMAL';
+}
+
+export function ReportSeverityPill({ reason }: { reason: string }) {
+  return <PriorityPill priority={reportSeverity(reason)} />;
+}
