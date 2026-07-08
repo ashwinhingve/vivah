@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { ArrowRight, Landmark, ShieldCheck } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorStatus } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 
 export const metadata = { title: 'Payouts · Vendor onboarding' };
@@ -24,12 +24,11 @@ export default async function BankStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="bank" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Payouts</h2>
-        <p className="text-sm text-muted-foreground">
-          How you get paid for bookings. No action needed from you right now.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={Landmark}
+        title="Payouts"
+        subtitle="How you get paid for bookings. No action needed from you right now."
+      />
 
       <div className="space-y-4 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
         <div className="flex items-start gap-3">

@@ -6,8 +6,17 @@
  * admin qualification/refund actions live on a separate admin page.
  */
 import { cookies } from 'next/headers';
+import { Users, TrendingUp, Wallet, Receipt, ListFilter } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
+import { RoleHero } from '@/components/shared/RoleHero';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
+import { cn } from '@/lib/utils';
 import {
   fetchMyLeads,
   fetchMyLeadStats,
@@ -63,104 +72,105 @@ export default async function VendorLeadsPage({
   const status = statusFromQuery(params.status);
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-6">
-      <header className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-heading text-primary">Customer leads</h1>
-        <p className="text-sm text-muted-foreground">
-          Inquiries sent directly to your vendor profile. You are charged per qualified lead.
-        </p>
-      </header>
+    <PageTransition>
+      <main className="mx-auto max-w-5xl px-4 py-6">
+        <RoleHero
+          title="Customer leads"
+          subtitle="Inquiries sent directly to your vendor profile. You are charged per qualified lead."
+          icon={Users}
+        />
 
-      {!vendor ? (
-        <div className="border border-dashed border-gold/30 rounded-xl px-4 py-12 text-center text-sm text-muted-foreground">
-          You need a vendor account to view this page.
+        <div className="mt-6">
+          {!vendor ? (
+            <FadeUp>
+              <EmptyState
+                icon={Users}
+                title="Vendor account required"
+                description="You need a vendor account to view this page."
+              />
+            </FadeUp>
+          ) : (
+            <LeadsContent vendorId={vendor.id} status={status} />
+          )}
         </div>
-      ) : (
-        <LeadsContent cookie={cookie} vendorId={vendor.id} status={status} />
-      )}
-    </main>
+      </main>
+    </PageTransition>
   );
 }
 
 async function LeadsContent({
-  cookie,
   vendorId: _vendorId,
   status,
 }: {
-  cookie:   string;
   vendorId: string;
-  status?:  LeadFeeStatus;
+  status?: LeadFeeStatus;
 }) {
+  const cookie = await authCookie();
   const filters: { status?: LeadFeeStatus; limit: number } = { limit: 50 };
   if (status) filters.status = status;
   const [leads, stats] = await Promise.all([
-    fetchMyLeads(cookie, filters),
-    fetchMyLeadStats(cookie),
+    fetchMyLeads(cookie ?? '', filters),
+    fetchMyLeadStats(cookie ?? ''),
   ]);
 
   return (
     <div className="space-y-6">
-      <StatsCard stats={stats} />
+      <LeadStats stats={stats} />
       <StatusFilters active={status} />
       <LeadList leads={leads} />
     </div>
   );
 }
 
-function StatsCard({ stats }: { stats: VendorLeadStats | null }) {
+function LeadStats({ stats }: { stats: VendorLeadStats | null }) {
   if (!stats) {
     return (
-      <div className="border border-gold/20 rounded-xl bg-surface p-4 text-sm text-muted-foreground">
+      <div className="rounded-xl border border-gold/20 bg-surface p-4 text-sm text-muted-foreground">
         Stats unavailable.
       </div>
     );
   }
+  const pct = Math.round(stats.qualifiedRate * 100);
 
-  const pct = (stats.qualifiedRate * 100).toFixed(0);
   return (
-    <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <Stat label="Total leads"   value={stats.totalLeads} />
-      <Stat label="Qualified %"   value={`${pct}%`} />
-      <Stat label="Charges (mo.)" value={`₹${stats.monthChargedInr}`} />
-      <Stat label="Avg fee"       value={`₹${stats.avgFeeInr}`} />
-    </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="border border-gold/20 rounded-xl bg-surface p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="text-lg font-heading text-primary mt-1">{value}</div>
-    </div>
+    <FadeUp>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatsCard label="Total leads" value={stats.totalLeads} icon={Users} variant="default" animDelayMs={0} />
+        <StatsCard label="Qualified" value={pct} valuePercent={pct} icon={TrendingUp} variant="teal" animDelayMs={80} />
+        <StatsCard label="Charges (mo.)" value={`₹${stats.monthChargedInr}`} icon={Wallet} variant="gold" animDelayMs={160} />
+        <StatsCard label="Avg fee" value={`₹${stats.avgFeeInr}`} icon={Receipt} variant="default" animDelayMs={240} />
+      </section>
+    </FadeUp>
   );
 }
 
 function StatusFilters({ active }: { active?: LeadFeeStatus }) {
   const opts: Array<{ label: string; value?: LeadFeeStatus }> = [
     { label: 'All' },
-    { label: 'Pending',  value: 'PENDING' },
-    { label: 'Charged',  value: 'CHARGED' },
+    { label: 'Pending', value: 'PENDING' },
+    { label: 'Charged', value: 'CHARGED' },
     { label: 'Refunded', value: 'REFUNDED' },
-    { label: 'Cancelled',value: 'CANCELLED' },
+    { label: 'Cancelled', value: 'CANCELLED' },
   ];
   return (
-    <nav className="flex flex-wrap gap-2 text-xs">
+    <nav className="flex flex-wrap items-center gap-2 text-xs">
+      <ListFilter className="h-3.5 w-3.5 text-text-muted" aria-hidden="true" />
       {opts.map(o => {
         const isActive = (o.value ?? undefined) === active;
         const href = o.value ? `/vendor/leads?status=${o.value}` : '/vendor/leads';
         return (
-          <a
+          <Link
             key={o.label}
             href={href}
-            className={`px-3 py-1.5 rounded-full border ${
+            className={cn(
+              'rounded-full border px-3 py-1.5 transition-colors',
               isActive
-                ? 'bg-primary text-white border-primary'
-                : 'border-gold/30 text-muted-foreground hover:border-primary/40'
-            }`}
+                ? 'border-primary bg-primary text-white'
+                : 'border-gold/30 text-muted-foreground hover:border-primary/40',
+            )}
           >
             {o.label}
-          </a>
+          </Link>
         );
       })}
     </nav>
@@ -170,23 +180,23 @@ function StatusFilters({ active }: { active?: LeadFeeStatus }) {
 function LeadList({ leads }: { leads: VendorLeadRow[] }) {
   if (leads.length === 0) {
     return (
-      <div className="border border-dashed border-gold/30 rounded-xl px-4 py-12 text-center text-sm text-muted-foreground">
-        No leads in this view yet.
-      </div>
+      <FadeUp>
+        <EmptyState variant="no-leads" />
+      </FadeUp>
     );
   }
   return (
-    <ul className="space-y-3">
+    <StaggerList className="space-y-3">
       {leads.map(l => <LeadRow key={l.id} lead={l} />)}
-    </ul>
+    </StaggerList>
   );
 }
 
 function LeadRow({ lead }: { lead: VendorLeadRow }) {
   const date = lead.eventDate ? new Date(lead.eventDate).toLocaleDateString('en-IN') : '—';
   return (
-    <li className="border border-gold/20 rounded-xl bg-surface p-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="font-heading text-primary truncate">
             {lead.inquirerName ?? 'Anonymous'}
@@ -206,7 +216,7 @@ function LeadRow({ lead }: { lead: VendorLeadRow }) {
       {lead.feeStatus === 'REFUNDED' && lead.refundReason ? (
         <p className="mt-2 text-xs text-warning">Refunded — {lead.refundReason}</p>
       ) : null}
-    </li>
+    </div>
   );
 }
 

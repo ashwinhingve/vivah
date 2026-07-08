@@ -1,9 +1,9 @@
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
-import { ArrowRight, Package } from 'lucide-react';
+import { ArrowRight, Package, ListChecks } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AddServiceForm } from './AddServiceForm.client';
@@ -38,12 +38,11 @@ export default async function ServicesStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="services" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Services &amp; pricing</h2>
-        <p className="text-sm text-muted-foreground">
-          List what you offer. Add as many as you like — you can edit prices later.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={ListChecks}
+        title="Services & pricing"
+        subtitle="List what you offer. Add as many as you like — you can edit prices later."
+      />
 
       {services.length > 0 && (
         <ul className="mb-5 space-y-2">

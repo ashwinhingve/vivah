@@ -1,10 +1,12 @@
 import { redirect } from '@/i18n/redirect';
+import { Images } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { PortfolioForm } from './PortfolioForm.client';
 import { PackageManager, type VendorPackageView } from '@/components/vendor/PackageManager.client';
+import { PortfolioItemManager, type VendorPortfolioItemView } from '@/components/vendor/PortfolioItemManager.client';
 import type { EventTypeValue } from '@smartshaadi/schemas';
 
 export const metadata = { title: 'Portfolio · Vendor onboarding' };
@@ -14,6 +16,7 @@ interface PortfolioBasics {
   about?: string | null;
   awards?: string[] | null;
   certifications?: string[] | null;
+  portfolio?: VendorPortfolioItemView[] | null;
 }
 
 export default async function PortfolioStepPage() {
@@ -36,12 +39,11 @@ export default async function PortfolioStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="portfolio" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Portfolio &amp; credentials</h2>
-        <p className="text-sm text-muted-foreground">
-          Photos &amp; videos can be added from your dashboard after launch. Set the essentials here.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={Images}
+        title="Portfolio & credentials"
+        subtitle="Set your essentials, packages and work samples — this is what couples browse before enquiring."
+      />
       <PortfolioForm
         vendorId={vendor.id}
         about={p?.about ?? ''}
@@ -52,6 +54,10 @@ export default async function PortfolioStepPage() {
 
       <div className="mt-6">
         <PackageManager vendorId={vendor.id} initial={packagesRes?.packages ?? []} />
+      </div>
+
+      <div className="mt-6">
+        <PortfolioItemManager vendorId={vendor.id} initial={p?.portfolio ?? []} />
       </div>
     </FadeUp>
   );

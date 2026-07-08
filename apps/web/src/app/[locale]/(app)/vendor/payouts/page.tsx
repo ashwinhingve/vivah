@@ -3,8 +3,15 @@
  * Server Component
  */
 import { cookies } from 'next/headers';
+import { Wallet, Clock, XCircle, Receipt, LogIn } from 'lucide-react';
 import type { PayoutRecord, PayoutStatus } from '@smartshaadi/types';
-import { Container, EmptyState, PageHeader } from '@/components/shared';
+import { Container } from '@/components/shared';
+import { RoleHero } from '@/components/shared/RoleHero';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -85,6 +92,7 @@ export default async function VendorPayoutsPage() {
       <main className="min-h-screen bg-background py-16">
         <Container variant="narrow">
           <EmptyState
+            icon={LogIn}
             title="Sign in required"
             description="Please sign in to view your payouts."
           />
@@ -95,114 +103,110 @@ export default async function VendorPayoutsPage() {
 
   const [payouts, summary] = await Promise.all([fetchPayouts(cookie), fetchSummary(cookie)]);
 
-  const summaryItems = summary
-    ? [
-        { label: 'Lifetime Paid', value: formatINR(summary.lifetimePaid), tone: 'text-success' },
-        { label: 'Pending', value: formatINR(summary.pending), tone: 'text-warning' },
-        { label: 'Failed', value: formatINR(summary.failed), tone: 'text-destructive' },
-        { label: 'Total Payouts', value: summary.payoutCount.toString(), tone: 'text-teal' },
-      ]
-    : null;
-
   return (
-    <main className="min-h-screen bg-background py-8">
-      <Container variant="narrow">
-        <PageHeader
-          title="My Payouts"
-          subtitle="Track your earnings and payout disbursements"
-        />
-
-        {summaryItems ? (
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {summaryItems.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl border border-gold bg-surface px-4 py-4 text-center shadow-card"
-              >
-                <p className={`text-xl font-bold ${item.tone}`}>{item.value}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {payouts.length === 0 ? (
-          <EmptyState
-            title="No payouts yet"
-            description="Payouts are processed after your bookings are completed and the escrow period ends."
+    <PageTransition>
+      <main className="min-h-screen bg-background py-8">
+        <Container variant="narrow">
+          <RoleHero
+            title="My Payouts"
+            subtitle="Track your earnings and payout disbursements"
+            icon={Wallet}
           />
-        ) : (
-          <ul className="space-y-4">
-            {payouts.map((payout) => {
-              const badge =
-                STATUS_BADGE[payout.status] ?? {
-                  className: 'bg-secondary text-muted-foreground',
-                  label: payout.status,
-                };
-              return (
-                <li
-                  key={payout.id}
-                  className="rounded-xl border border-gold bg-surface p-5 shadow-card"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      {payout.bookingId ? (
-                        <p className="font-mono text-xs text-muted-foreground">
-                          Booking {payout.bookingId.slice(0, 8)}…
+
+          {summary ? (
+            <FadeUp>
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatsCard label="Lifetime Paid" value={formatINR(summary.lifetimePaid)} icon={Wallet} variant="success" animDelayMs={0} />
+                <StatsCard label="Pending" value={formatINR(summary.pending)} icon={Clock} variant="warning" animDelayMs={80} />
+                <StatsCard label="Failed" value={formatINR(summary.failed)} icon={XCircle} variant="default" animDelayMs={160} />
+                <StatsCard label="Total Payouts" value={summary.payoutCount} icon={Receipt} variant="teal" animDelayMs={240} />
+              </div>
+            </FadeUp>
+          ) : null}
+
+          <div className="mt-6">
+            {payouts.length === 0 ? (
+              <FadeUp>
+                <EmptyState
+                  icon={Wallet}
+                  title="No payouts yet"
+                  description="Payouts are processed after your bookings are completed and the escrow period ends."
+                />
+              </FadeUp>
+            ) : (
+              <StaggerList className="space-y-4">
+                {payouts.map((payout) => {
+                  const badge =
+                    STATUS_BADGE[payout.status] ?? {
+                      className: 'bg-secondary text-muted-foreground',
+                      label: payout.status,
+                    };
+                  return (
+                    <div
+                      key={payout.id}
+                      className="rounded-xl border border-gold bg-surface p-5 shadow-card"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          {payout.bookingId ? (
+                            <p className="font-mono text-xs text-muted-foreground">
+                              Booking {payout.bookingId.slice(0, 8)}…
+                            </p>
+                          ) : null}
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            Scheduled {formatDate(payout.scheduledFor)}
+                            {payout.processedAt
+                              ? ` · Processed ${formatDate(payout.processedAt)}`
+                              : ''}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-success">
+                            {formatINR(payout.netAmount)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Gross {formatINR(payout.grossAmount)} − {formatINR(payout.platformFee)} fee
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
+                        >
+                          {badge.label}
+                        </span>
+                        {payout.razorpayPayoutId ? (
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {payout.razorpayPayoutId}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {payout.failureReason ? (
+                        <p className="mt-2 text-xs text-destructive">
+                          Reason: {payout.failureReason}
                         </p>
                       ) : null}
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        Scheduled {formatDate(payout.scheduledFor)}
-                        {payout.processedAt
-                          ? ` · Processed ${formatDate(payout.processedAt)}`
-                          : ''}
-                      </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-success">
-                        {formatINR(payout.netAmount)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Gross {formatINR(payout.grossAmount)} − {formatINR(payout.platformFee)} fee
-                      </p>
-                    </div>
-                  </div>
+                  );
+                })}
+              </StaggerList>
+            )}
+          </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
-                    >
-                      {badge.label}
-                    </span>
-                    {payout.razorpayPayoutId ? (
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {payout.razorpayPayoutId}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {payout.failureReason ? (
-                    <p className="mt-2 text-xs text-destructive">
-                      Reason: {payout.failureReason}
-                    </p>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-
-        <aside className="mt-8 rounded-xl border border-gold bg-secondary px-5 py-4 text-sm">
-          <p className="font-semibold text-primary">Payout Schedule</p>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-            <li>
-              Payouts are initiated 48 hours after your event is marked complete by the customer.
-            </li>
-            <li>Funds arrive in your registered bank account within 3–5 business days.</li>
-            <li>Platform fees of 5–10% are deducted before disbursement.</li>
-          </ul>
-        </aside>
-      </Container>
-    </main>
+          <aside className="mt-8 rounded-xl border border-gold bg-secondary px-5 py-4 text-sm">
+            <p className="font-semibold text-primary">Payout Schedule</p>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
+              <li>
+                Payouts are initiated 48 hours after your event is marked complete by the customer.
+              </li>
+              <li>Funds arrive in your registered bank account within 3–5 business days.</li>
+              <li>Platform fees of 5–10% are deducted before disbursement.</li>
+            </ul>
+          </aside>
+        </Container>
+      </main>
+    </PageTransition>
   );
 }

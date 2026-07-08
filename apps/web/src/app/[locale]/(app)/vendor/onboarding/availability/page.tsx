@@ -1,9 +1,9 @@
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CalendarDays } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorBlockedDates } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AvailabilityManager } from './AvailabilityManager.client';
 
@@ -29,12 +29,11 @@ export default async function AvailabilityStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="availability" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Availability</h2>
-        <p className="text-sm text-muted-foreground">
-          Block out dates you’re unavailable so couples only request open dates. Optional — you can skip this.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={CalendarDays}
+        title="Availability"
+        subtitle="Block out dates you’re unavailable so couples only request open dates. Optional — you can skip this."
+      />
 
       <AvailabilityManager initial={dates} />
 

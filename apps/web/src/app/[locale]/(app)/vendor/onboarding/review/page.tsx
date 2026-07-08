@@ -1,8 +1,8 @@
 import { redirect } from '@/i18n/redirect';
-import { Check, Minus } from 'lucide-react';
+import { Check, Minus, ClipboardCheck } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorStatus } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { SubmitReview } from './SubmitReview.client';
 
@@ -63,12 +63,11 @@ export default async function ReviewStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="review" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Review &amp; submit</h2>
-        <p className="text-sm text-muted-foreground">
-          Here’s what couples will see. Submit when you’re ready — you can keep editing while we review.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={ClipboardCheck}
+        title="Review & submit"
+        subtitle="Here’s what couples will see. Submit when you’re ready — you can keep editing while we review."
+      />
 
       <div className="mb-5 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
         <ul className="divide-y divide-border">

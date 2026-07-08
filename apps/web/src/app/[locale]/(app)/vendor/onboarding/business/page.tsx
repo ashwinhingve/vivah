@@ -1,7 +1,8 @@
 import { redirect } from '@/i18n/redirect';
+import { Building2 } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
-import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
+import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BusinessForm } from './BusinessForm.client';
 
@@ -19,12 +20,11 @@ export default async function BusinessStepPage() {
   return (
     <FadeUp>
       <OnboardingStepper current="business" />
-      <div className="mb-4">
-        <h2 className="font-heading text-lg text-primary">Tell us about your business</h2>
-        <p className="text-sm text-muted-foreground">
-          This is what couples see first. You can refine it anytime after launch.
-        </p>
-      </div>
+      <OnboardingStepHeader
+        icon={Building2}
+        title="Tell us about your business"
+        subtitle="This is what couples see first. You can refine it anytime after launch."
+      />
       <BusinessForm vendor={vendor} />
     </FadeUp>
   );

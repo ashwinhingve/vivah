@@ -4,6 +4,15 @@ import { useActionState, useEffect, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { addServiceAction } from './actions';
 
+const SERVICE_UNITS = [
+  { value: 'per event', label: 'Per event' },
+  { value: 'per day', label: 'Per day' },
+  { value: 'per hour', label: 'Per hour' },
+  { value: 'per plate', label: 'Per plate' },
+  { value: 'per person', label: 'Per person' },
+  { value: 'fixed', label: 'Fixed' },
+];
+
 export function AddServiceForm({ vendorId }: { vendorId: string }) {
   const [state, formAction, pending] = useActionState(addServiceAction, undefined);
   const formRef = useRef<HTMLFormElement>(null);
@@ -37,7 +46,9 @@ export function AddServiceForm({ vendorId }: { vendorId: string }) {
         </div>
         <div>
           <label htmlFor="unit" className={labelCls}>Unit *</label>
-          <input id="unit" name="unit" required disabled={pending} className={inputCls} placeholder="per day / per event" />
+          <select id="unit" name="unit" required disabled={pending} defaultValue="per event" className={inputCls}>
+            {SERVICE_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+          </select>
         </div>
       </div>
 
