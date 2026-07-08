@@ -27,9 +27,16 @@ premium heroes on admin/support/vendor-dashboard; **vendor-dashboard RBAC guard*
 missing); support pagination. Security review fixes: removed user-enumeration lookup,
 scoped name-resolve authorization.
 
-⬜ Remaining: SUPPORT filters/search/new-ticket/notifications; VENDOR package+media CRUD +
-wizard chrome + page consolidation; ADMIN audit-export/filters + bulk user actions; full
-i18n of older pages; live browser 375/1280 verification.
+✅ Then completed (4 parallel squads + solo): SUPPORT filters/search/new-ticket + report
+severity/reassign/canned-replies/notifications; VENDOR package + portfolio-item CRUD + media
+upload + wizard chrome + premium leads/payouts; ADMIN audit export/filters + bulk user actions;
+COORDINATOR task inbox; FAMILY humanized parent-mode + real Pillar-2 + compatibility fix.
+**Runtime-verified**: all 6 roles × key pages = 24/24 render 200, zero 500s, RBAC enforced;
+api+web type-check + prod build green.
+
+⬜ Minor leftovers: full i18n of still-hardcoded role pages; support report content-preview
+(needs ChatReport schema change); R2 media upload verifies on Railway only (TLS-blocked local);
+visual 375/1280 responsive pass (HTTP smoke was render-only).
 
 ### All-roles production sprint (2026-07-07) — `feat/all-roles-production`
 
