@@ -10,11 +10,10 @@ import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { UserRole, UserStatus } from '@smartshaadi/types';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { DataTable, type DataTableColumn } from '@/components/shared/DataTable';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
-import { RolePill, UserStatusPill } from '@/components/admin/badges';
 import { UserFilters } from './UserFilters.client';
+import { UsersTable } from './UsersTable.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,26 +63,6 @@ export default async function AdminUsersPage({
     return `/admin/users?${next.toString()}`;
   }
 
-  const columns: DataTableColumn<UserRow>[] = [
-    {
-      key: 'name',
-      header: 'User',
-      render: (u) => (
-        <Link href={`/admin/users/${u.id}`} className="block">
-          <span className="font-medium text-primary hover:underline">{u.name}</span>
-          <span className="block text-xs text-muted-foreground">{u.email ?? u.phone ?? '—'}</span>
-        </Link>
-      ),
-    },
-    { key: 'role', header: 'Role', render: (u) => <RolePill role={u.role} /> },
-    { key: 'status', header: 'Status', render: (u) => <UserStatusPill status={u.status} /> },
-    {
-      key: 'createdAt',
-      header: 'Joined',
-      render: (u) => new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-    },
-  ];
-
   return (
     <PageTransition>
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
@@ -113,17 +92,7 @@ export default async function AdminUsersPage({
 
         <FadeUp>
           <div className="mt-4">
-            <DataTable
-              columns={columns}
-              data={rows}
-              rowKey={(u) => u.id}
-              empty={{
-                title: 'No users found',
-                description: sp.q || sp.role || sp.status
-                  ? 'Try widening your search or clearing filters.'
-                  : 'No accounts on the platform yet.',
-              }}
-            />
+            <UsersTable rows={rows} />
           </div>
 
           {hasNext || hasPrev ? (

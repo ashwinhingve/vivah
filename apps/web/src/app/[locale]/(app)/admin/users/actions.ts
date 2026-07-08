@@ -43,3 +43,20 @@ export async function setUserStatusAction(
   }
   return r;
 }
+
+export async function bulkSetUserStatusAction(
+  userIds: string[],
+  status: 'SUSPENDED' | 'ACTIVE',
+  reason?: string,
+): Promise<{ ok: boolean; succeeded: number; failed: number; error?: string }> {
+  const ids = Array.from(new Set(userIds)).slice(0, 100);
+  if (ids.length === 0) return { ok: false, succeeded: 0, failed: 0, error: 'No users selected.' };
+
+  const results = await Promise.all(
+    ids.map((id) => patch(`/api/v1/admin/users/${id}/status`, reason ? { status, reason } : { status })),
+  );
+  const succeeded = results.filter((r) => r.ok).length;
+  const failed = results.length - succeeded;
+  revalidatePath('/admin/users');
+  return { ok: failed === 0, succeeded, failed };
+}
