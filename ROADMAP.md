@@ -16,6 +16,21 @@ Mocks:    USE_MOCK_SERVICES=true
 Last updated: 2026-04-21
 ```
 
+### Premium uplift + gap-fill (2026-07-08, in progress) — `feat/all-roles-production`
+
+Audit of all 5 roles found dead links + generic UIs. Landed (api+web type-check +
+prod build green): shared `RoleHero` + illustrated empty-state presets + DataTable
+row-selection + i18n role namespaces; **fixed 2 coordinator 404s** (routing + calendar
+pages); **family co-pilot now works** (browse a linked seeker's matches + draft interest,
+consent-gated) with humanized inbox + secure invite-by-own-code + INDIVIDUAL nav access;
+premium heroes on admin/support/vendor-dashboard; **vendor-dashboard RBAC guard** (was
+missing); support pagination. Security review fixes: removed user-enumeration lookup,
+scoped name-resolve authorization.
+
+⬜ Remaining: SUPPORT filters/search/new-ticket/notifications; VENDOR package+media CRUD +
+wizard chrome + page consolidation; ADMIN audit-export/filters + bulk user actions; full
+i18n of older pages; live browser 375/1280 verification.
+
 ### All-roles production sprint (2026-07-07) — `feat/all-roles-production`
 
 Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-check
