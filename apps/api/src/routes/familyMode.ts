@@ -29,7 +29,7 @@ import { ok, err } from '../lib/response.js';
 import { env } from '../lib/env.js';
 import { redis } from '../lib/redis.js';
 import { db } from '../lib/db.js';
-import { user, profiles, profilePhotos } from '@smartshaadi/db';
+import { user, profiles, profilePhotos, parentChildLinks, parentDraftedActions } from '@smartshaadi/db';
 import { getCachedFeed, computeAndCacheFeed } from '../matchmaking/engine.js';
 import * as familyCompat from '../services/familyCompatService.js';
 import * as parentMode  from '../services/parentModeService.js';
@@ -373,72 +373,79 @@ familyModeRouter.get(
   }),
 );
 
-// ── Parent Mode — Look up a user to link, by phone or email ───────────────────
-// GET /api/v1/family-mode/parent/lookup?q=<phone|email>
-// Exact-match only (no fuzzy enumeration); rate-limited. Returns minimal info
-// so a guardian can confirm before sending a link request.
-familyModeRouter.get(
-  '/parent/lookup',
-  authenticate,
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const meId = req.user!.id;
-    const q = String(req.query.q ?? '').trim();
-    if (q.length < 3) { err(res, 'VALIDATION', 'Enter a phone number or email', 422); return; }
-    if (!(await checkRate('lookup', meId, 30))) {
-      err(res, 'RATE_LIMIT_EXCEEDED', 'Too many lookups — try again later', 429);
-      return;
-    }
-
-    const digits = q.replace(/[^\d]/g, '');
-    const [row] = await db
-      .select({ id: user.id, name: user.name })
-      .from(user)
-      .where(
-        or(
-          eq(user.email, q.toLowerCase()),
-          eq(user.phoneNumber, q),
-          digits.length >= 10 ? eq(user.phoneNumber, `+91${digits.slice(-10)}`) : undefined,
-        ),
-      )
-      .limit(1);
-
-    if (!row || row.id === meId) { ok(res, { found: false }); return; }
-    ok(res, { found: true, userId: row.id, name: row.name });
-  }),
-);
-
 // ── Parent Mode — Resolve ids to display names/photos (humanize UUIDs) ────────
 // POST /api/v1/family-mode/parent/resolve  { userIds?: string[], profileIds?: string[] }
+//
+// Authorization: a caller may ONLY resolve ids they already have a legitimate
+// relationship with — their own links (either direction), the profiles they
+// themselves drafted actions toward, and their linked children's own profiles.
+// Any requested id outside those sets is silently dropped (no data leak, no
+// existence oracle). This is a display-name humanizer, never a directory.
 familyModeRouter.post(
   '/parent/resolve',
   authenticate,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const meId = req.user!.id;
     const body = z.object({
       userIds:    z.array(z.string().min(1)).max(50).optional(),
       profileIds: z.array(z.string().uuid()).max(50).optional(),
     }).safeParse(req.body);
     if (!body.success) { err(res, 'VALIDATION', body.error.message, 422); return; }
 
+    // Build the caller's allow-lists.
+    const linkRows = await db
+      .select({ parentUserId: parentChildLinks.parentUserId, childUserId: parentChildLinks.childUserId })
+      .from(parentChildLinks)
+      .where(or(eq(parentChildLinks.parentUserId, meId), eq(parentChildLinks.childUserId, meId)));
+
+    const allowedUserIds = new Set<string>([meId]);
+    const myChildUserIds: string[] = [];
+    for (const r of linkRows) {
+      allowedUserIds.add(r.parentUserId);
+      allowedUserIds.add(r.childUserId);
+      if (r.parentUserId === meId) myChildUserIds.push(r.childUserId);
+    }
+
+    const allowedProfileIds = new Set<string>();
+    const actionRows = await db
+      .select({ payload: parentDraftedActions.payload })
+      .from(parentDraftedActions)
+      .where(eq(parentDraftedActions.parentUserId, meId));
+    for (const a of actionRows) {
+      const t = (a.payload as Record<string, unknown> | null)?.['targetProfileId'];
+      if (typeof t === 'string') allowedProfileIds.add(t);
+    }
+    if (myChildUserIds.length > 0) {
+      const childProfiles = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(inArray(profiles.userId, myChildUserIds));
+      for (const cp of childProfiles) allowedProfileIds.add(cp.id);
+    }
+
+    const reqUserIds = (body.data.userIds ?? []).filter((id) => allowedUserIds.has(id));
+    const reqProfileIds = (body.data.profileIds ?? []).filter((id) => allowedProfileIds.has(id));
+
     const users: { userId: string; name: string | null }[] = [];
-    if (body.data.userIds?.length) {
+    if (reqUserIds.length > 0) {
       const rows = await db
         .select({ id: user.id, name: user.name })
         .from(user)
-        .where(inArray(user.id, body.data.userIds));
+        .where(inArray(user.id, reqUserIds));
       for (const r of rows) users.push({ userId: r.id, name: r.name });
     }
 
     const profs: { profileId: string; name: string | null; photoKey: string | null }[] = [];
-    if (body.data.profileIds?.length) {
+    if (reqProfileIds.length > 0) {
       const rows = await db
         .select({ profileId: profiles.id, name: user.name })
         .from(profiles)
         .innerJoin(user, eq(user.id, profiles.userId))
-        .where(inArray(profiles.id, body.data.profileIds));
+        .where(inArray(profiles.id, reqProfileIds));
       const photoRows = await db
         .select({ profileId: profilePhotos.profileId, r2Key: profilePhotos.r2Key })
         .from(profilePhotos)
-        .where(and(inArray(profilePhotos.profileId, body.data.profileIds), eq(profilePhotos.isPrimary, true)));
+        .where(and(inArray(profilePhotos.profileId, reqProfileIds), eq(profilePhotos.isPrimary, true)));
       const photoBy = new Map(photoRows.map((p) => [p.profileId, p.r2Key]));
       for (const r of rows) profs.push({ profileId: r.profileId, name: r.name, photoKey: photoBy.get(r.profileId) ?? null });
     }
