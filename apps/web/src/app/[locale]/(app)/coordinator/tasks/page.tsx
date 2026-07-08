@@ -18,12 +18,6 @@ export async function generateMetadata() {
 }
 
 type BucketKey = 'urgent' | 'overdue' | 'week' | 'later';
-const BUCKET_LABELS: Record<BucketKey, string> = {
-  urgent:  'Needs immediate attention',
-  overdue: 'Overdue tasks',
-  week:    'Due this week',
-  later:   'Other open items',
-};
 
 const SEVERITY_STYLES: Record<IncidentSeverity, string> = {
   CRITICAL: 'bg-destructive/15 text-destructive',
@@ -60,6 +54,12 @@ export default async function CoordinatorTasksPage() {
     return await redirect('/dashboard');
   }
   const t = await getTranslations('coordinator');
+  const bucketLabels: Record<BucketKey, string> = {
+    urgent: t('buckets.urgent'),
+    overdue: t('buckets.overdue'),
+    week: t('buckets.week'),
+    later: t('buckets.later'),
+  };
 
   const data = await fetchCoordinatorTasks();
   const items = data?.items ?? [];
@@ -83,7 +83,7 @@ export default async function CoordinatorTasksPage() {
         <RoleHero
           icon={Inbox}
           title={t('tasksTitle')}
-          subtitle="Open tasks and unresolved incidents across every wedding you coordinate, most urgent first."
+          subtitle={t('tasksSubtitle')}
         />
 
         <div className="mt-6 space-y-6">
@@ -100,7 +100,7 @@ export default async function CoordinatorTasksPage() {
                 <FadeUp key={k} delay={0.05 * (gi + 1)}>
                   <section>
                     <h2 className="mb-3 flex items-center gap-2 border-b border-gold/20 pb-2 font-heading text-lg text-primary">
-                      {BUCKET_LABELS[k]}
+                      {bucketLabels[k]}
                       <span className="text-sm font-normal text-text-muted">({buckets[k].length})</span>
                     </h2>
                     <ul className="space-y-3">
@@ -122,7 +122,7 @@ export default async function CoordinatorTasksPage() {
                               <p className="text-sm text-text-muted">
                                 {item.weddingTitle}
                                 {item.kind === 'TASK' && item.dueDate
-                                  ? ` · due ${new Date(item.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
+                                  ? ` · ${t('due')} ${new Date(item.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
                                   : ''}
                               </p>
                             </div>

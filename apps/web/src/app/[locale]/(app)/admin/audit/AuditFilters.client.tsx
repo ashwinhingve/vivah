@@ -4,6 +4,7 @@
  * URL with the chosen query params; the server component re-fetches on nav.
  */
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 
 // Mirrors auditEventTypeEnum in packages/db/schema/index.ts. Kept as a plain
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export function AuditFilters({ initialEventType, initialEntityType, initialEntityId, initialActorId, initialFrom, initialTo }: Props) {
+  const t = useTranslations('adminRole');
   const router = useRouter();
   const [eventType, setEventType] = useState(initialEventType);
   const [entityType, setEntityType] = useState(initialEntityType);
@@ -73,54 +75,54 @@ export function AuditFilters({ initialEventType, initialEntityType, initialEntit
     <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Event type</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.eventType')}</span>
           <select
             value={eventType}
             onChange={(e) => setEventType(e.target.value)}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           >
-            <option value="">All events</option>
-            {EVENT_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
+            <option value="">{t('audit.filters.allEvents')}</option>
+            {EVENT_TYPES.map((et) => (
+              <option key={et} value={et}>{et}</option>
             ))}
           </select>
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Entity type</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.entityType')}</span>
           <input
             type="text"
             value={entityType}
             onChange={(e) => setEntityType(e.target.value)}
-            placeholder="e.g. booking, vendor, user"
+            placeholder={t('audit.filters.entityTypePlaceholder')}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Actor ID</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.actorId')}</span>
           <input
             type="text"
             value={actorId}
             onChange={(e) => setActorId(e.target.value)}
-            placeholder="user id of the actor"
+            placeholder={t('audit.filters.actorIdPlaceholder')}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Entity ID</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.entityId')}</span>
           <input
             type="text"
             value={entityId}
             onChange={(e) => setEntityId(e.target.value)}
-            placeholder="uuid of the entity"
+            placeholder={t('audit.filters.entityIdPlaceholder')}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">From</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.from')}</span>
           <input
             type="date"
             value={from}
@@ -130,7 +132,7 @@ export function AuditFilters({ initialEventType, initialEntityType, initialEntit
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">To</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('audit.filters.to')}</span>
           <input
             type="date"
             value={to}
@@ -146,7 +148,7 @@ export function AuditFilters({ initialEventType, initialEntityType, initialEntit
           onClick={apply}
           className="flex h-10 items-center justify-center rounded-lg bg-teal px-4 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-teal-hover"
         >
-          Apply filters
+          {t('common.applyFilters')}
         </button>
         {hasFilters && (
           <button
@@ -154,7 +156,7 @@ export function AuditFilters({ initialEventType, initialEntityType, initialEntit
             onClick={clear}
             className="flex h-10 items-center justify-center rounded-lg border border-gold/30 px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
-            Clear
+            {t('common.clear')}
           </button>
         )}
       </div>

@@ -1,6 +1,7 @@
 import { type ComponentType } from 'react';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
 import {
   ShieldCheck,
@@ -201,23 +202,23 @@ function relativeAuditTime(iso: string): string {
 // Quick-nav grid config
 // ---------------------------------------------------------------------------
 
-interface NavTile {
-  href:        string;
-  label:       string;
-  description: string;
-  Icon:        ComponentType<{ className?: string }>;
+interface NavTileDef {
+  href: string;
+  key:  'kyc' | 'escrow' | 'payouts' | 'promos' | 'reconciliation' | 'refunds' | 'revenue' | 'analytics' | 'vendors';
+  Icon: ComponentType<{ className?: string }>;
 }
 
-const NAV_TILES: NavTile[] = [
-  { href: '/admin/kyc',            label: 'KYC',            description: 'Identity verification queue',      Icon: ShieldCheck    },
-  { href: '/admin/escrow',         label: 'Escrow',         description: 'Booking disputes & releases',      Icon: Scale          },
-  { href: '/admin/payouts',        label: 'Payouts',        description: 'Vendor payout management',         Icon: ReceiptText    },
-  { href: '/admin/promos',         label: 'Promos',         description: 'Promo codes & discounts',          Icon: BadgePercent   },
-  { href: '/admin/reconciliation', label: 'Reconciliation', description: 'Payment ledger reconciliation',    Icon: ArrowLeftRight },
-  { href: '/admin/refunds',        label: 'Refunds',        description: 'Customer refund processing',       Icon: Undo2          },
-  { href: '/admin/revenue',        label: 'Revenue',        description: 'Platform revenue analytics',       Icon: TrendingUp     },
-  { href: '/admin/analytics',      label: 'Analytics',      description: 'Platform growth & engagement trends', Icon: BarChart3    },
-  { href: '/admin/vendors',        label: 'Vendors',        description: 'Vendor approval queue',             Icon: Store          },
+// Labels/descriptions are translated via adminRole.navTiles.<key> at render time.
+const NAV_TILES: NavTileDef[] = [
+  { href: '/admin/kyc',            key: 'kyc',            Icon: ShieldCheck    },
+  { href: '/admin/escrow',         key: 'escrow',         Icon: Scale          },
+  { href: '/admin/payouts',        key: 'payouts',        Icon: ReceiptText    },
+  { href: '/admin/promos',         key: 'promos',         Icon: BadgePercent   },
+  { href: '/admin/reconciliation', key: 'reconciliation', Icon: ArrowLeftRight },
+  { href: '/admin/refunds',        key: 'refunds',        Icon: Undo2          },
+  { href: '/admin/revenue',        key: 'revenue',        Icon: TrendingUp     },
+  { href: '/admin/analytics',      key: 'analytics',      Icon: BarChart3      },
+  { href: '/admin/vendors',        key: 'vendors',        Icon: Store          },
 ];
 
 // ---------------------------------------------------------------------------
@@ -225,6 +226,7 @@ const NAV_TILES: NavTile[] = [
 // ---------------------------------------------------------------------------
 
 export default async function AdminPage() {
+  const t = await getTranslations('adminRole');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -331,14 +333,19 @@ export default async function AdminPage() {
 
         {/* ── Header ── */}
         <RoleHero
-          title="Admin console"
-          subtitle={`Smart Shaadi platform overview — refreshed ${refreshedAt} IST`}
-          rightSlot={<AdminRefreshButton />}
+          title={t('title')}
+          subtitle={t('subtitle')}
+          rightSlot={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-muted">{t('refreshedAt', { time: refreshedAt })}</span>
+              <AdminRefreshButton />
+            </div>
+          }
         />
 
         {/* ── System health ── */}
         <section>
-          <SectionHeader title="System Health" subtitle="Infrastructure status from /ready" />
+          <SectionHeader title={t('systemHealth.title')} subtitle={t('systemHealth.subtitle')} />
           <AdminSectionBoundary section="System Health" key={refreshedAt}>
             <AdminHealthAndRisk
               serviceChecks={serviceChecks}
@@ -351,19 +358,19 @@ export default async function AdminPage() {
 
         {/* ── Headline metrics ── */}
         <section>
-          <SectionHeader title="Platform Metrics" />
+          <SectionHeader title={t('platformMetrics.title')} />
           <AdminSectionBoundary section="Platform Metrics" key={refreshedAt}>
           <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatsCard label="Total Users"         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
-            <StatsCard label="Active Vendors"      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
-            <StatsCard label="Bookings This Month" value={bookingsThisMonth} icon={CalendarCheck} variant="success" animDelayMs={160} />
+            <StatsCard label={t('platformMetrics.totalUsers')}         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
+            <StatsCard label={t('platformMetrics.activeVendors')}      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
+            <StatsCard label={t('platformMetrics.bookingsThisMonth')}  value={bookingsThisMonth} icon={CalendarCheck} variant="success" animDelayMs={160} />
             <StatsCard
-              label="Open Disputes"
+              label={t('platformMetrics.openDisputes')}
               value={disputes.length}
               icon={Scale}
               variant={disputes.length > 0 ? 'warning' : 'default'}
               href="/admin/escrow"
-              sub={disputes.length > 0 ? 'Action needed' : 'All clear'}
+              sub={disputes.length > 0 ? t('platformMetrics.actionNeeded') : t('platformMetrics.allClear')}
               animDelayMs={240}
             />
           </StaggerList>
@@ -372,7 +379,7 @@ export default async function AdminPage() {
 
         {/* ── Action queues ── */}
         <section>
-          <SectionHeader title="Action Queues" subtitle="Items requiring moderation" />
+          <SectionHeader title={t('actionQueues.title')} subtitle={t('actionQueues.subtitle')} />
           <div className="grid gap-5 lg:grid-cols-3">
 
             {/* KYC queue */}
@@ -381,11 +388,11 @@ export default async function AdminPage() {
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-heading text-base font-semibold text-text-primary">
-                    KYC Review
+                    {t('kyc.title')}
                   </h3>
                   {kycQueue.length > 0 && (
                     <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">
-                      {kycQueue.length} pending
+                      {t('kyc.pendingBadge', { count: kycQueue.length })}
                     </span>
                   )}
                 </div>
@@ -407,7 +414,7 @@ export default async function AdminPage() {
                   href="/admin/kyc"
                   className="text-xs font-semibold text-teal transition-colors hover:text-teal-hover"
                 >
-                  Open full KYC console →
+                  {t('kyc.openConsole')}
                 </Link>
               </div>
             </div>
@@ -419,11 +426,11 @@ export default async function AdminPage() {
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-heading text-base font-semibold text-text-primary">
-                    Open Disputes
+                    {t('platformMetrics.openDisputes')}
                   </h3>
                   {disputes.length > 0 && (
                     <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
-                      {disputes.length} open
+                      {t('disputes.openBadge', { count: disputes.length })}
                     </span>
                   )}
                 </div>
@@ -441,7 +448,7 @@ export default async function AdminPage() {
                 <div className="flex items-center gap-2">
                   <Store className="h-4 w-4 text-gold" aria-hidden="true" />
                   <h3 className="font-heading text-base font-semibold text-text-primary">
-                    Vendor Approvals
+                    {t('vendorApprovals.title')}
                   </h3>
                 </div>
                 <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
@@ -450,9 +457,9 @@ export default async function AdminPage() {
               </div>
               {vendorQueue.length === 0 ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-                  <p className="font-heading text-sm font-semibold text-primary">All caught up</p>
+                  <p className="font-heading text-sm font-semibold text-primary">{t('vendorApprovals.allCaughtUp')}</p>
                   <p className="max-w-[200px] text-xs text-text-muted">
-                    No pending vendor applications.
+                    {t('vendorApprovals.noPending')}
                   </p>
                 </div>
               ) : (
@@ -465,7 +472,7 @@ export default async function AdminPage() {
                       >
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold text-foreground">
-                            {v.businessName ?? 'Unnamed vendor'}
+                            {v.businessName ?? t('vendorApprovals.unnamedVendor')}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {v.category} · {v.city}
@@ -481,7 +488,7 @@ export default async function AdminPage() {
                 href="/admin/vendors"
                 className="border-t border-gold/10 px-5 py-3 text-center text-xs font-semibold text-teal transition-colors hover:bg-background"
               >
-                Open full queue →
+                {t('vendorApprovals.openQueue')}
               </Link>
             </div>
             </AdminSectionBoundary>
@@ -490,7 +497,7 @@ export default async function AdminPage() {
 
         {/* ── Analytics ── */}
         <section>
-          <SectionHeader title="Analytics" subtitle="Platform growth, engagement & revenue" />
+          <SectionHeader title={t('analytics.title')} subtitle={t('analytics.subtitle')} />
           <AdminSectionBoundary section="Analytics" key={refreshedAt}>
           <Link
             href="/admin/analytics"
@@ -502,10 +509,10 @@ export default async function AdminPage() {
               </span>
               <div>
                 <p className="font-heading text-base font-semibold text-primary">
-                  Open Analytics Dashboard
+                  {t('analytics.openDashboard')}
                 </p>
                 <p className="text-sm text-text-muted">
-                  Signups, match activity, engagement risk, revenue &amp; top matches
+                  {t('analytics.description')}
                 </p>
               </div>
             </div>
@@ -519,14 +526,14 @@ export default async function AdminPage() {
 
         {/* ── Recent Activity ── */}
         <section>
-          <SectionHeader title="Recent Activity" viewAllHref="/admin/audit" viewAllLabel="View all" />
+          <SectionHeader title={t('recentActivity.title')} viewAllHref="/admin/audit" viewAllLabel={t('common.viewAll')} />
           <AdminSectionBoundary section="Recent Activity" key={refreshedAt}>
             <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
               {recentActivity.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
                   <Activity className="h-8 w-8 text-gold-muted" strokeWidth={1.5} aria-hidden />
-                  <p className="text-sm font-semibold text-primary">No activity yet</p>
-                  <p className="text-xs text-text-muted">Platform events will appear here as they happen.</p>
+                  <p className="text-sm font-semibold text-primary">{t('recentActivity.emptyTitle')}</p>
+                  <p className="text-xs text-text-muted">{t('recentActivity.emptyDescription')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gold/10">
@@ -541,7 +548,7 @@ export default async function AdminPage() {
                           <span className="text-[11px] text-text-muted">· {ev.entityType}</span>
                         </div>
                         <p className="mt-0.5 text-[11px] text-text-muted">
-                          {ev.actorName ?? 'System'} · {relativeAuditTime(ev.createdAt)}
+                          {ev.actorName ?? t('common.system')} · {relativeAuditTime(ev.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -554,13 +561,15 @@ export default async function AdminPage() {
 
         {/* ── Quick navigation grid ── */}
         <section>
-          <SectionHeader title="Quick Navigation" subtitle="Jump to any admin module" />
+          <SectionHeader title={t('quickNav.title')} subtitle={t('quickNav.subtitle')} />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {NAV_TILES.map(({ href, label, description, Icon }) => {
+            {NAV_TILES.map(({ href, key, Icon }) => {
               const isComingSoon = href === '#';
+              const label = t(`navTiles.${key}.label`);
+              const description = t(`navTiles.${key}.description`);
               return (
                 <Link
-                  key={label}
+                  key={key}
                   href={href}
                   aria-disabled={isComingSoon}
                   tabIndex={isComingSoon ? -1 : undefined}
@@ -578,7 +587,7 @@ export default async function AdminPage() {
                       {label}
                       {isComingSoon && (
                         <span className="ml-1.5 inline-flex items-center rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-gold-muted">
-                          soon
+                          {t('quickNav.soon')}
                         </span>
                       )}
                     </p>

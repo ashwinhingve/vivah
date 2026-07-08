@@ -6,6 +6,7 @@
  */
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -82,6 +83,7 @@ export default async function AdminAuditPage({
     page?: string;
   }>;
 }) {
+  const t = await getTranslations('adminRole');
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
@@ -117,7 +119,7 @@ export default async function AdminAuditPage({
   const columns: DataTableColumn<AuditRow>[] = [
     {
       key: 'eventType',
-      header: 'Event',
+      header: t('audit.table.colEvent'),
       render: (r) => (
         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${eventTone(r.eventType)}`}>
           {r.eventType}
@@ -126,7 +128,7 @@ export default async function AdminAuditPage({
     },
     {
       key: 'entityType',
-      header: 'Entity',
+      header: t('audit.table.colEntity'),
       render: (r) => (
         <span className="text-sm text-foreground">
           {r.entityType} <span className="text-xs text-muted-foreground">#{r.entityId.slice(0, 8)}</span>
@@ -135,11 +137,11 @@ export default async function AdminAuditPage({
     },
     {
       key: 'actorName',
-      header: 'Actor',
-      render: (r) => r.actorName ?? <span className="text-muted-foreground">System</span>,
+      header: t('audit.table.colActor'),
+      render: (r) => r.actorName ?? <span className="text-muted-foreground">{t('common.system')}</span>,
     },
-    { key: 'createdAt', header: 'When', render: (r) => relativeTime(r.createdAt) },
-    { key: 'payload', header: 'Details', render: (r) => <PayloadPreview payload={r.payload} /> },
+    { key: 'createdAt', header: t('audit.table.colWhen'), render: (r) => relativeTime(r.createdAt) },
+    { key: 'payload', header: t('audit.table.colDetails'), render: (r) => <PayloadPreview payload={r.payload} /> },
   ];
 
   return (
@@ -150,14 +152,14 @@ export default async function AdminAuditPage({
           className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Admin Console
+          {t('common.adminConsole')}
         </Link>
 
         <FadeUp>
           <PageHeader
-            title="Audit Log"
-            subtitle={`${total} event${total === 1 ? '' : 's'} in the hash-chained platform trail.`}
-            breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Audit Log' }]}
+            title={t('audit.title')}
+            subtitle={t('audit.subtitle', { count: total })}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('audit.breadcrumb') }]}
           />
         </FadeUp>
 
@@ -182,10 +184,10 @@ export default async function AdminAuditPage({
               data={rows}
               rowKey={(r) => r.id}
               empty={{
-                title: 'No audit events found',
+                title: t('audit.table.emptyTitle'),
                 description: sp.eventType || sp.entityType || sp.from || sp.to
-                  ? 'Try widening your filters or clearing the date range.'
-                  : 'Nothing has been logged yet.',
+                  ? t('audit.table.emptyFiltered')
+                  : t('audit.table.emptyDefault'),
               }}
             />
           </div>
@@ -194,15 +196,15 @@ export default async function AdminAuditPage({
             <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pagination">
               {hasPrev ? (
                 <Link href={pageHref(page - 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
-                  <ChevronLeft className="h-4 w-4" /> Previous
+                  <ChevronLeft className="h-4 w-4" /> {t('common.previous')}
                 </Link>
               ) : <span />}
               <span className="text-xs text-muted-foreground">
-                Page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+                {t('common.pageOf', { page, total: Math.max(1, Math.ceil(total / PAGE_SIZE)) })}
               </span>
               {hasNext ? (
                 <Link href={pageHref(page + 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
-                  Next <ArrowRight className="h-4 w-4" />
+                  {t('common.next')} <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : <span />}
             </nav>

@@ -25,12 +25,6 @@ interface AgendaEntry {
 }
 
 type BucketKey = 'week' | 'month' | 'later' | 'tbc';
-const BUCKET_LABELS: Record<BucketKey, string> = {
-  week: 'This week',
-  month: 'This month',
-  later: 'Later',
-  tbc: 'Date to be confirmed',
-};
 
 function bucketFor(days: number | null): BucketKey {
   if (days === null) return 'tbc';
@@ -45,6 +39,12 @@ export default async function CoordinatorCalendarPage() {
     return await redirect('/dashboard');
   }
   const t = await getTranslations('coordinator');
+  const bucketLabels: Record<BucketKey, string> = {
+    week: t('stats.thisWeek'),
+    month: t('calendarBuckets.month'),
+    later: t('calendarBuckets.later'),
+    tbc: t('calendarBuckets.tbc'),
+  };
 
   const data = await fetchManagedWeddings();
   const weddings = data?.weddings ?? [];
@@ -79,7 +79,7 @@ export default async function CoordinatorCalendarPage() {
         <RoleHero
           icon={CalendarDays}
           title={t('calendarTitle')}
-          subtitle="Upcoming ceremonies across every wedding you coordinate, soonest first."
+          subtitle={t('calendarSubtitle')}
         />
 
         <div className="mt-6 space-y-6">
@@ -96,7 +96,7 @@ export default async function CoordinatorCalendarPage() {
                 <FadeUp key={k} delay={0.05 * (gi + 1)}>
                   <section>
                     <h2 className="mb-3 flex items-center gap-2 border-b border-gold/20 pb-2 font-heading text-lg text-primary">
-                      {BUCKET_LABELS[k]}
+                      {bucketLabels[k]}
                       <span className="text-sm font-normal text-text-muted">({buckets[k].length})</span>
                     </h2>
                     <ul className="space-y-3">
@@ -128,21 +128,21 @@ export default async function CoordinatorCalendarPage() {
                                   : ''}
                                 {w.daysUntil !== null
                                   ? w.daysUntil === 0
-                                    ? 'Today'
-                                    : `in ${w.daysUntil} day${w.daysUntil === 1 ? '' : 's'}`
-                                  : 'Date to be confirmed'}
+                                    ? t('today')
+                                    : t('inDays', { count: w.daysUntil })
+                                  : t('calendarBuckets.tbc')}
                                 {' · '}
-                                {w.ceremoniesCount} ceremon{w.ceremoniesCount === 1 ? 'y' : 'ies'}
+                                {t('ceremoniesCount', { count: w.ceremoniesCount })}
                               </p>
                               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                                 {w.openTasks > 0 && (
                                   <span className="inline-flex items-center gap-1 text-gold-muted">
-                                    <ListTodo className="h-3.5 w-3.5" /> {w.openTasks} open task{w.openTasks === 1 ? '' : 's'}
+                                    <ListTodo className="h-3.5 w-3.5" /> {t('openTasksCount', { count: w.openTasks })}
                                   </span>
                                 )}
                                 {w.openIncidents > 0 && (
                                   <span className="inline-flex items-center gap-1 text-warning">
-                                    <AlertTriangle className="h-3.5 w-3.5" /> {w.openIncidents} incident{w.openIncidents === 1 ? '' : 's'}
+                                    <AlertTriangle className="h-3.5 w-3.5" /> {t('incidentsCount', { count: w.openIncidents })}
                                   </span>
                                 )}
                               </div>

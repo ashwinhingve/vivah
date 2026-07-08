@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Ban, CheckCircle2, Download, X } from 'lucide-react';
 import type { UserRole, UserStatus } from '@smartshaadi/types';
@@ -27,6 +28,7 @@ function toCsv(rows: UserRow[]): string {
 }
 
 export function UsersTable({ rows }: { rows: UserRow[] }) {
+  const t = useTranslations('adminRole');
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [reason, setReason] = useState('');
@@ -51,8 +53,10 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
       const r = await bulkSetUserStatusAction(Array.from(selected), status, reason.trim() || undefined);
       setMsg(
         r.failed > 0
-          ? `${r.succeeded} updated, ${r.failed} failed.`
-          : `${r.succeeded} user${r.succeeded === 1 ? '' : 's'} ${status === 'SUSPENDED' ? 'suspended' : 'reactivated'}.`,
+          ? t('users.table.bulkPartial', { succeeded: r.succeeded, failed: r.failed })
+          : status === 'SUSPENDED'
+            ? t('users.table.bulkSuspended', { count: r.succeeded })
+            : t('users.table.bulkReactivated', { count: r.succeeded }),
       );
       setSelected(new Set());
       setReason('');
@@ -73,7 +77,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
   const columns: DataTableColumn<UserRow>[] = [
     {
       key: 'name',
-      header: 'User',
+      header: t('users.table.colUser'),
       render: (u) => (
         <Link href={`/admin/users/${u.id}`} className="block">
           <span className="font-medium text-primary hover:underline">{u.name}</span>
@@ -81,11 +85,11 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
         </Link>
       ),
     },
-    { key: 'role', header: 'Role', render: (u) => <RolePill role={u.role} /> },
-    { key: 'status', header: 'Status', render: (u) => <UserStatusPill status={u.status} /> },
+    { key: 'role', header: t('users.table.colRole'), render: (u) => <RolePill role={u.role} /> },
+    { key: 'status', header: t('users.table.colStatus'), render: (u) => <UserStatusPill status={u.status} /> },
     {
       key: 'createdAt',
-      header: 'Joined',
+      header: t('users.table.colJoined'),
       render: (u) => new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
     },
   ];
@@ -94,14 +98,16 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
     <div>
       <div className="mb-3 flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">
-          {selected.size > 0 ? `${selected.size} selected` : `${rows.length} on this page`}
+          {selected.size > 0
+            ? t('users.table.selected', { count: selected.size })
+            : t('users.table.onThisPage', { count: rows.length })}
         </p>
         <button
           type="button"
           onClick={exportCsv}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-sm text-primary hover:border-gold/40"
         >
-          <Download className="h-4 w-4" /> Export CSV
+          <Download className="h-4 w-4" /> {t('common.exportCsv')}
         </button>
       </div>
 
@@ -110,7 +116,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
           <input
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Reason (optional, ≥10 chars)"
+            placeholder={t('users.table.reasonPlaceholder')}
             disabled={pending}
             className="h-9 min-w-[180px] flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-teal focus:outline-none"
           />
@@ -120,7 +126,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
             onClick={() => applyBulk('SUSPENDED')}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-destructive px-3 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            <Ban className="h-3.5 w-3.5" /> Suspend
+            <Ban className="h-3.5 w-3.5" /> {t('users.table.suspend')}
           </button>
           <button
             type="button"
@@ -128,13 +134,13 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
             onClick={() => applyBulk('ACTIVE')}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-success px-3 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            <CheckCircle2 className="h-3.5 w-3.5" /> Reactivate
+            <CheckCircle2 className="h-3.5 w-3.5" /> {t('users.table.reactivate')}
           </button>
           <button
             type="button"
             disabled={pending}
             onClick={() => setSelected(new Set())}
-            aria-label="Clear selection"
+            aria-label={t('users.table.clearSelection')}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-muted hover:text-primary"
           >
             <X className="h-4 w-4" />
@@ -152,7 +158,7 @@ export function UsersTable({ rows }: { rows: UserRow[] }) {
         selectedKeys={selected}
         onToggleRow={toggleRow}
         onToggleAll={toggleAll}
-        empty={{ title: 'No users found', description: 'Try widening your search or clearing filters.' }}
+        empty={{ title: t('users.table.emptyTitle'), description: t('users.table.emptyDescription') }}
       />
     </div>
   );

@@ -5,6 +5,7 @@
  * re-fetches on nav. Mirrors admin/audit/AuditFilters.client.tsx.
  */
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import type { UserRole, UserStatus } from '@smartshaadi/types';
 
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function UserFilters({ initialQ, initialRole, initialStatus }: Props) {
+  const t = useTranslations('adminRole');
   const router = useRouter();
   const [q, setQ] = useState(initialQ);
   const [role, setRole] = useState(initialRole);
@@ -44,25 +46,25 @@ export function UserFilters({ initialQ, initialRole, initialStatus }: Props) {
     <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Search</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('users.filters.search')}</span>
           <input
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') apply(); }}
-            placeholder="Name, email or phone"
+            placeholder={t('users.filters.searchPlaceholder')}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Role</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('users.filters.role')}</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           >
-            <option value="">All roles</option>
+            <option value="">{t('users.filters.allRoles')}</option>
             {ROLES.map((r) => (
               <option key={r} value={r}>{r.replace('_', ' ')}</option>
             ))}
@@ -70,13 +72,13 @@ export function UserFilters({ initialQ, initialRole, initialStatus }: Props) {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Status</span>
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">{t('users.filters.status')}</span>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           >
-            <option value="">All statuses</option>
+            <option value="">{t('users.filters.allStatuses')}</option>
             {STATUSES.map((s) => (
               <option key={s} value={s}>{s.replace('_', ' ')}</option>
             ))}
@@ -90,7 +92,7 @@ export function UserFilters({ initialQ, initialRole, initialStatus }: Props) {
           onClick={apply}
           className="flex h-10 items-center justify-center rounded-lg bg-teal px-4 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-teal-hover"
         >
-          Apply filters
+          {t('common.applyFilters')}
         </button>
         {hasFilters && (
           <button
@@ -98,7 +100,7 @@ export function UserFilters({ initialQ, initialRole, initialStatus }: Props) {
             onClick={clear}
             className="flex h-10 items-center justify-center rounded-lg border border-gold/30 px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
-            Clear
+            {t('common.clear')}
           </button>
         )}
       </div>

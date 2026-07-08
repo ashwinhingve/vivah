@@ -6,6 +6,7 @@
  */
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { UserRole, UserStatus } from '@smartshaadi/types';
@@ -34,6 +35,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ q?: string; role?: string; status?: string; page?: string }>;
 }) {
+  const t = await getTranslations('adminRole');
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
@@ -71,14 +73,14 @@ export default async function AdminUsersPage({
           className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Admin Console
+          {t('common.adminConsole')}
         </Link>
 
         <FadeUp>
           <PageHeader
-            title="User Management"
-            subtitle={`${total} account${total === 1 ? '' : 's'} on the platform.`}
-            breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Users' }]}
+            title={t('users.title')}
+            subtitle={t('users.subtitle', { count: total })}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('users.breadcrumb') }]}
           />
         </FadeUp>
 
@@ -99,15 +101,15 @@ export default async function AdminUsersPage({
             <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pagination">
               {hasPrev ? (
                 <Link href={pageHref(page - 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
-                  <ChevronLeft className="h-4 w-4" /> Previous
+                  <ChevronLeft className="h-4 w-4" /> {t('common.previous')}
                 </Link>
               ) : <span />}
               <span className="text-xs text-muted-foreground">
-                Page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+                {t('common.pageOf', { page, total: Math.max(1, Math.ceil(total / PAGE_SIZE)) })}
               </span>
               {hasNext ? (
                 <Link href={pageHref(page + 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
-                  Next <ArrowRight className="h-4 w-4" />
+                  {t('common.next')} <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : <span />}
             </nav>

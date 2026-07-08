@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -18,7 +19,11 @@ import {
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Coordinator Dashboard' };
+
+export async function generateMetadata() {
+  const t = await getTranslations('coordinator');
+  return { title: t('title') };
+}
 
 export default async function CoordinatorDashboardPage() {
   // Role guard — middleware does the same check, but the page guard prevents
@@ -27,6 +32,7 @@ export default async function CoordinatorDashboardPage() {
   if (me && me.role !== 'EVENT_COORDINATOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('coordinator');
 
   const data = await fetchManagedWeddings();
   const weddings = data?.weddings ?? [];
@@ -49,11 +55,10 @@ export default async function CoordinatorDashboardPage() {
               />
               <div className="relative">
                 <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                  Coordinator dashboard
+                  {t('title')}
                 </h1>
                 <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-                  Weddings assigned to you. Track tasks, incidents, and day-of
-                  operations across every event you manage.
+                  {t('subtitle')}
                 </p>
               </div>
             </div>
@@ -62,36 +67,36 @@ export default async function CoordinatorDashboardPage() {
           {/* ── Stat Cards ─────────────────────────────────────── */}
           <StaggerList className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4">
             <StatsCard
-              label="Managed weddings"
+              label={t('stats.managed')}
               value={weddings.length}
-              sub="Assigned to you"
+              sub={t('stats.managedSub')}
               icon={CalendarCheck}
               variant="teal"
               animDelayMs={0}
               href="/coordinator/calendar"
             />
             <StatsCard
-              label="Open tasks"
+              label={t('stats.tasks')}
               value={openTasksTotal}
-              sub="Across all weddings"
+              sub={t('stats.tasksSub')}
               icon={ClipboardList}
               variant="gold"
               animDelayMs={100}
               href="/coordinator/tasks"
             />
             <StatsCard
-              label="Open incidents"
+              label={t('stats.incidents')}
               value={openIncidentsTotal}
-              sub="Needs attention"
+              sub={t('stats.incidentsSub')}
               icon={AlertTriangle}
               variant={openIncidentsTotal > 0 ? 'warning' : 'default'}
               animDelayMs={200}
               href="/coordinator/tasks"
             />
             <StatsCard
-              label="This week"
+              label={t('stats.thisWeek')}
               value={thisWeekCount}
-              sub="Ceremonies within 7 days"
+              sub={t('stats.thisWeekSub')}
               icon={CalendarClock}
               variant={thisWeekCount > 0 ? 'success' : 'default'}
               animDelayMs={300}
@@ -103,15 +108,15 @@ export default async function CoordinatorDashboardPage() {
           <FadeUp delay={0.1}>
             <div className="mb-4 flex items-end justify-between gap-4 border-b border-gold/20 pb-2.5">
               <h2 className="font-heading text-xl font-semibold leading-tight tracking-tight text-foreground">
-                Your weddings
+                {t('yourWeddings')}
               </h2>
             </div>
 
             {weddings.length === 0 ? (
               <EmptyState
                 icon={CalendarCheck}
-                title="No weddings assigned yet"
-                description="When a couple assigns you as a coordinator, the wedding will appear here with countdown, next ceremony, and outstanding tasks."
+                title={t('emptyWeddings.title')}
+                description={t('emptyWeddings.description')}
               />
             ) : (
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -149,10 +154,10 @@ export default async function CoordinatorDashboardPage() {
                         </p>
 
                         <p className="mt-2 text-sm text-foreground">
-                          Next:{' '}
+                          {t('nextLabel')}{' '}
                           {w.nextCeremony
                             ? w.nextCeremony.type.replace(/_/g, ' ').toLowerCase()
-                            : 'No ceremony scheduled'}
+                            : t('noCeremonyScheduled')}
                         </p>
 
                         <div className="mt-3 flex flex-wrap items-center gap-2 pointer-events-auto">
@@ -161,7 +166,7 @@ export default async function CoordinatorDashboardPage() {
                             className="relative z-10 inline-flex items-center gap-1 rounded-full bg-gold/10 px-2.5 py-0.5 text-xs font-medium text-gold-muted transition-colors hover:bg-gold/20"
                           >
                             <ClipboardList className="h-3 w-3" aria-hidden="true" />
-                            {w.openTasks} open task{w.openTasks === 1 ? '' : 's'}
+                            {t('openTasksCount', { count: w.openTasks })}
                           </Link>
                           {w.openIncidents > 0 && (
                             <Link
@@ -169,11 +174,11 @@ export default async function CoordinatorDashboardPage() {
                               className="relative z-10 inline-flex items-center gap-1 rounded-full bg-warning/15 px-2.5 py-0.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25"
                             >
                               <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-                              {w.openIncidents} incident{w.openIncidents === 1 ? '' : 's'}
+                              {t('incidentsCount', { count: w.openIncidents })}
                             </Link>
                           )}
                           <span className="text-xs text-muted-foreground">
-                            {w.ceremoniesCount} ceremon{w.ceremoniesCount === 1 ? 'y' : 'ies'}
+                            {t('ceremoniesCount', { count: w.ceremoniesCount })}
                           </span>
                         </div>
                       </div>
@@ -188,7 +193,7 @@ export default async function CoordinatorDashboardPage() {
           <FadeUp delay={0.2}>
             <div className="mb-4 border-b border-gold/20 pb-2.5">
               <h2 className="font-heading text-xl font-semibold leading-tight tracking-tight text-foreground">
-                Quick actions
+                {t('quickActions')}
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -198,7 +203,7 @@ export default async function CoordinatorDashboardPage() {
               >
                 <Search className="h-5 w-5 text-teal" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                  Route vendors to an event
+                  {t('actions.routeVendors')}
                 </span>
               </Link>
               <Link
@@ -207,7 +212,7 @@ export default async function CoordinatorDashboardPage() {
               >
                 <CalendarDays className="h-5 w-5 text-gold-muted" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                  Cross-wedding calendar
+                  {t('calendarTitle')}
                 </span>
               </Link>
             </div>

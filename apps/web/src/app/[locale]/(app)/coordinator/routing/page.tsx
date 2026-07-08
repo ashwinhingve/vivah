@@ -37,7 +37,7 @@ export default async function CoordinatorRoutingPage() {
         <RoleHero
           icon={RouteIcon}
           title={t('routingTitle')}
-          subtitle="Find the best-fit vendors for an event by type, date and location — ranked by availability and match."
+          subtitle={t('routingSubtitle')}
         />
 
         <div className="mt-6">

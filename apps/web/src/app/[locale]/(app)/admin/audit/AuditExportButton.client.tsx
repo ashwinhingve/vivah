@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Download } from 'lucide-react';
 
 interface AuditExportRow {
@@ -25,6 +26,8 @@ function toCsv(rows: AuditExportRow[]): string {
 }
 
 export function AuditExportButton({ rows }: { rows: AuditExportRow[] }) {
+  const t = useTranslations('adminRole');
+
   function exportCsv() {
     const blob = new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -42,7 +45,7 @@ export function AuditExportButton({ rows }: { rows: AuditExportRow[] }) {
       disabled={rows.length === 0}
       className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-sm text-primary hover:border-gold/40 disabled:opacity-50"
     >
-      <Download className="h-4 w-4" /> Export CSV
+      <Download className="h-4 w-4" /> {t('common.exportCsv')}
     </button>
   );
 }

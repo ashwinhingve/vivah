@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 import type { TicketPriority, TicketSource } from '@/lib/support-api';
 
@@ -18,6 +19,7 @@ function titleCase(s: string): string {
  * by the tab strip; this preserves it.
  */
 export function SupportFilters() {
+  const t = useTranslations('support');
   const router = useRouter();
   const sp = useSearchParams();
   const [q, setQ] = useState(sp.get('q') ?? '');
@@ -48,7 +50,7 @@ export function SupportFilters() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search subject…"
+          placeholder={t('search')}
           className="h-10 w-full rounded-lg border border-border bg-surface pl-9 pr-8 text-sm text-primary focus:border-teal focus:outline-none"
         />
         {q && (
@@ -64,22 +66,22 @@ export function SupportFilters() {
       </form>
 
       <select
-        aria-label="Priority"
+        aria-label={t('filters.priority')}
         value={priority}
         onChange={(e) => push({ priority: e.target.value || null })}
         className={selectCls}
       >
-        <option value="">All priorities</option>
+        <option value="">{t('filters.allPriorities')}</option>
         {PRIORITIES.map((p) => <option key={p} value={p}>{titleCase(p)}</option>)}
       </select>
 
       <select
-        aria-label="Source"
+        aria-label={t('filters.source')}
         value={source}
         onChange={(e) => push({ source: e.target.value || null })}
         className={selectCls}
       >
-        <option value="">All sources</option>
+        <option value="">{t('filters.allSources')}</option>
         {SOURCES.map((s) => <option key={s} value={s}>{titleCase(s)}</option>)}
       </select>
 
@@ -90,7 +92,7 @@ export function SupportFilters() {
           onChange={(e) => push({ mine: e.target.checked ? 'true' : null })}
           className="h-4 w-4 rounded border-border accent-primary"
         />
-        My tickets
+        {t('filters.mine')}
       </label>
     </div>
   );

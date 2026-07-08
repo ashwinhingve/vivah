@@ -1085,7 +1085,9 @@
       "closed": "Closed",
       "mine": "My tickets",
       "priority": "Priority",
-      "source": "Source"
+      "source": "Source",
+      "allPriorities": "All priorities",
+      "allSources": "All sources"
     },
     "stats": {
       "open": "Open",
@@ -1094,6 +1096,40 @@
       "resolvedToday": "Resolved today",
       "abuse": "Abuse reports",
       "disputes": "Disputes"
+    },
+    "kycAppealsBanner": "{count} KYC appeal(s) pending review in the admin KYC console.",
+    "columns": {
+      "subject": "Subject",
+      "status": "Status",
+      "category": "Category",
+      "assignee": "Assignee",
+      "sla": "SLA"
+    },
+    "empty": {
+      "title": "No tickets here",
+      "filtered": "No {status} tickets right now.",
+      "default": "The queue is clear. New complaints will appear here."
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "summary": "Page {page} · {count, plural, one {# ticket} other {# tickets}}"
+    },
+    "newTicketForm": {
+      "subjectLabel": "Subject *",
+      "descriptionLabel": "Description",
+      "subjectRequired": "Enter a subject.",
+      "creating": "Creating…",
+      "submit": "Create ticket"
+    },
+    "reports": {
+      "backToQueue": "Back to queue",
+      "subtitle": "Review flagged conversations. Dismiss false reports or escalate genuine abuse into a tracked ticket.",
+      "reviewed": "Reviewed",
+      "dismissed": "Dismissed",
+      "conversationLabel": "Conversation",
+      "reportedByLabel": "Reported by",
+      "reportedUserLabel": "Reported user"
     }
   },
   "coordinator": {
@@ -1106,8 +1142,43 @@
       "managed": "Managed weddings",
       "tasks": "Open tasks",
       "incidents": "Open incidents",
-      "thisWeek": "This week"
-    }
+      "thisWeek": "This week",
+      "managedSub": "Assigned to you",
+      "tasksSub": "Across all weddings",
+      "incidentsSub": "Needs attention",
+      "thisWeekSub": "Ceremonies within 7 days"
+    },
+    "yourWeddings": "Your weddings",
+    "emptyWeddings": {
+      "title": "No weddings assigned yet",
+      "description": "When a couple assigns you as a coordinator, the wedding will appear here with countdown, next ceremony, and outstanding tasks."
+    },
+    "nextLabel": "Next:",
+    "noCeremonyScheduled": "No ceremony scheduled",
+    "openTasksCount": "{count, plural, one {# open task} other {# open tasks}}",
+    "incidentsCount": "{count, plural, one {# incident} other {# incidents}}",
+    "ceremoniesCount": "{count, plural, one {# ceremony} other {# ceremonies}}",
+    "quickActions": "Quick actions",
+    "actions": {
+      "routeVendors": "Route vendors to an event"
+    },
+    "tasksSubtitle": "Open tasks and unresolved incidents across every wedding you coordinate, most urgent first.",
+    "buckets": {
+      "urgent": "Needs immediate attention",
+      "overdue": "Overdue tasks",
+      "week": "Due this week",
+      "later": "Other open items"
+    },
+    "due": "due",
+    "routingSubtitle": "Find the best-fit vendors for an event by type, date and location — ranked by availability and match.",
+    "calendarSubtitle": "Upcoming ceremonies across every wedding you coordinate, soonest first.",
+    "calendarBuckets": {
+      "month": "This month",
+      "later": "Later",
+      "tbc": "Date to be confirmed"
+    },
+    "today": "Today",
+    "inDays": "{count, plural, one {in # day} other {in # days}}"
   },
   "vendorRole": {
     "onboarding": {
@@ -1124,6 +1195,162 @@
   },
   "adminRole": {
     "title": "Admin console",
-    "subtitle": "Platform health, moderation and operations at a glance."
+    "subtitle": "Platform health, moderation and operations at a glance.",
+    "refreshedAt": "Refreshed {time} IST",
+    "common": {
+      "adminConsole": "Admin Console",
+      "breadcrumbAdmin": "Admin",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "applyFilters": "Apply filters",
+      "clear": "Clear",
+      "exportCsv": "Export CSV",
+      "system": "System",
+      "viewAll": "View all"
+    },
+    "systemHealth": {
+      "title": "System Health",
+      "subtitle": "Infrastructure status from /ready"
+    },
+    "platformMetrics": {
+      "title": "Platform Metrics",
+      "totalUsers": "Total Users",
+      "activeVendors": "Active Vendors",
+      "bookingsThisMonth": "Bookings This Month",
+      "openDisputes": "Open Disputes",
+      "actionNeeded": "Action needed",
+      "allClear": "All clear"
+    },
+    "actionQueues": {
+      "title": "Action Queues",
+      "subtitle": "Items requiring moderation"
+    },
+    "kyc": {
+      "title": "KYC Review",
+      "pendingBadge": "{count} pending",
+      "openConsole": "Open full KYC console →"
+    },
+    "disputes": {
+      "openBadge": "{count} open"
+    },
+    "vendorApprovals": {
+      "title": "Vendor Approvals",
+      "allCaughtUp": "All caught up",
+      "noPending": "No pending vendor applications.",
+      "unnamedVendor": "Unnamed vendor",
+      "openQueue": "Open full queue →"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Platform growth, engagement & revenue",
+      "openDashboard": "Open Analytics Dashboard",
+      "description": "Signups, match activity, engagement risk, revenue & top matches"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "emptyTitle": "No activity yet",
+      "emptyDescription": "Platform events will appear here as they happen."
+    },
+    "quickNav": {
+      "title": "Quick Navigation",
+      "subtitle": "Jump to any admin module",
+      "soon": "soon"
+    },
+    "navTiles": {
+      "kyc": {
+        "label": "KYC",
+        "description": "Identity verification queue"
+      },
+      "escrow": {
+        "label": "Escrow",
+        "description": "Booking disputes & releases"
+      },
+      "payouts": {
+        "label": "Payouts",
+        "description": "Vendor payout management"
+      },
+      "promos": {
+        "label": "Promos",
+        "description": "Promo codes & discounts"
+      },
+      "reconciliation": {
+        "label": "Reconciliation",
+        "description": "Payment ledger reconciliation"
+      },
+      "refunds": {
+        "label": "Refunds",
+        "description": "Customer refund processing"
+      },
+      "revenue": {
+        "label": "Revenue",
+        "description": "Platform revenue analytics"
+      },
+      "analytics": {
+        "label": "Analytics",
+        "description": "Platform growth & engagement trends"
+      },
+      "vendors": {
+        "label": "Vendors",
+        "description": "Vendor approval queue"
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "{count, plural, one {# account} other {# accounts}} on the platform.",
+      "breadcrumb": "Users",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Name, email or phone",
+        "role": "Role",
+        "allRoles": "All roles",
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "table": {
+        "colUser": "User",
+        "colRole": "Role",
+        "colStatus": "Status",
+        "colJoined": "Joined",
+        "selected": "{count} selected",
+        "onThisPage": "{count} on this page",
+        "reasonPlaceholder": "Reason (optional, ≥10 chars)",
+        "suspend": "Suspend",
+        "reactivate": "Reactivate",
+        "clearSelection": "Clear selection",
+        "bulkPartial": "{succeeded} updated, {failed} failed.",
+        "bulkSuspended": "{count, plural, one {# user suspended} other {# users suspended}}.",
+        "bulkReactivated": "{count, plural, one {# user reactivated} other {# users reactivated}}.",
+        "emptyTitle": "No users found",
+        "emptyDescription": "Try widening your search or clearing filters."
+      }
+    },
+    "audit": {
+      "title": "Audit Log",
+      "subtitle": "{count, plural, one {# event} other {# events}} in the hash-chained platform trail.",
+      "breadcrumb": "Audit Log",
+      "filters": {
+        "eventType": "Event type",
+        "allEvents": "All events",
+        "entityType": "Entity type",
+        "entityTypePlaceholder": "e.g. booking, vendor, user",
+        "actorId": "Actor ID",
+        "actorIdPlaceholder": "user id of the actor",
+        "entityId": "Entity ID",
+        "entityIdPlaceholder": "uuid of the entity",
+        "from": "From",
+        "to": "To"
+      },
+      "table": {
+        "colEvent": "Event",
+        "colEntity": "Entity",
+        "colActor": "Actor",
+        "colWhen": "When",
+        "colDetails": "Details",
+        "emptyTitle": "No audit events found",
+        "emptyFiltered": "Try widening your filters or clearing the date range.",
+        "emptyDefault": "Nothing has been logged yet."
+      }
+    }
   }
 }
