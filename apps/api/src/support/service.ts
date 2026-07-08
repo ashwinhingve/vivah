@@ -16,6 +16,7 @@ import {
   bookings,
   kycAppeals,
   user,
+  profiles,
 } from '@smartshaadi/db';
 import { ChatReport } from '../infrastructure/mongo/models/ChatReport.js';
 import { notificationsQueue } from '../infrastructure/redis/queues.js';
@@ -444,6 +445,10 @@ export interface ChatReportView {
   id: string;
   matchRequestId: string;
   reporterProfileId: string;
+  reporterName: string | null;
+  reportedProfileId: string | null;
+  reportedName: string | null;
+  messageExcerpt: string | null;
   reason: string;
   status: string;
   createdAt: string;
@@ -453,14 +458,43 @@ export async function listChatReports(status?: string): Promise<ChatReportView[]
   if (shouldUseMockMongo) return [];
   const filter = status ? { status } : {};
   const docs = await ChatReport.find(filter).sort({ createdAt: -1 }).limit(200).lean();
-  return docs.map((d: Record<string, unknown>) => ({
-    id: String(d['_id']),
-    matchRequestId: String(d['matchRequestId'] ?? ''),
-    reporterProfileId: String(d['reporterProfileId'] ?? ''),
-    reason: String(d['reason'] ?? ''),
-    status: String(d['status'] ?? 'OPEN'),
-    createdAt: d['createdAt'] instanceof Date ? (d['createdAt'] as Date).toISOString() : String(d['createdAt'] ?? ''),
-  }));
+
+  // Staff-side name resolution: reporter + reported profile ids → display names
+  // (support/admin are authorized to see these; this is NOT the family-scoped
+  // resolver). One batched Postgres lookup for the whole page.
+  const ids = new Set<string>();
+  for (const d of docs) {
+    const rp = d['reporterProfileId']; const tp = d['reportedProfileId'];
+    if (typeof rp === 'string') ids.add(rp);
+    if (typeof tp === 'string') ids.add(tp);
+  }
+  const nameById = new Map<string, string | null>();
+  if (ids.size > 0) {
+    const rows = await db
+      .select({ profileId: profiles.id, name: user.name })
+      .from(profiles)
+      .innerJoin(user, eq(user.id, profiles.userId))
+      .where(inArray(profiles.id, [...ids]));
+    for (const r of rows) nameById.set(r.profileId, r.name);
+  }
+
+  return docs.map((d: Record<string, unknown>) => {
+    const reporterProfileId = String(d['reporterProfileId'] ?? '');
+    const reportedProfileId = typeof d['reportedProfileId'] === 'string' ? (d['reportedProfileId'] as string) : null;
+    const excerpt = typeof d['messageExcerpt'] === 'string' ? (d['messageExcerpt'] as string) : null;
+    return {
+      id: String(d['_id']),
+      matchRequestId: String(d['matchRequestId'] ?? ''),
+      reporterProfileId,
+      reporterName: nameById.get(reporterProfileId) ?? null,
+      reportedProfileId,
+      reportedName: reportedProfileId ? (nameById.get(reportedProfileId) ?? null) : null,
+      messageExcerpt: excerpt,
+      reason: String(d['reason'] ?? ''),
+      status: String(d['status'] ?? 'OPEN'),
+      createdAt: d['createdAt'] instanceof Date ? (d['createdAt'] as Date).toISOString() : String(d['createdAt'] ?? ''),
+    };
+  });
 }
 
 /**

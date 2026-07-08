@@ -67,6 +67,10 @@ export interface ChatReportView {
   id: string;
   matchRequestId: string;
   reporterProfileId: string;
+  reporterName: string | null;
+  reportedProfileId: string | null;
+  reportedName: string | null;
+  messageExcerpt: string | null;
   reason: string;
   status: string;
   createdAt: string;

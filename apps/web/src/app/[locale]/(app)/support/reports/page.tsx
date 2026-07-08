@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Flag } from 'lucide-react';
@@ -12,16 +13,16 @@ import { ReportSeverityPill } from '@/components/support/badges';
 import { cn } from '@/lib/utils';
 import { fetchChatReports } from '@/lib/support-api';
 
-export const metadata = { title: 'Abuse reports · Support' };
 export const dynamic = 'force-dynamic';
 
+export async function generateMetadata() {
+  const t = await getTranslations('support');
+  return { title: t('reportsTitle') };
+}
+
 // Mirrors ChatReport's Mongo status enum — apps/api/src/infrastructure/mongo/models/ChatReport.ts
-const REPORT_STATUS_TABS: { key: string; label: string }[] = [
-  { key: 'ALL', label: 'All' },
-  { key: 'OPEN', label: 'Open' },
-  { key: 'REVIEWED', label: 'Reviewed' },
-  { key: 'DISMISSED', label: 'Dismissed' },
-];
+// Validation only — display labels are built inside the component (need `t`).
+const REPORT_STATUS_KEYS = ['ALL', 'OPEN', 'REVIEWED', 'DISMISSED'];
 
 const REPORT_STATUS_STYLES: Record<string, string> = {
   OPEN: 'bg-warning/10 text-warning border-warning/30',
@@ -51,13 +52,21 @@ export default async function SupportReportsPage({
   if (me && me.role !== 'SUPPORT' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('support');
 
   const sp = await searchParams;
   const status =
-    REPORT_STATUS_TABS.some((t) => t.key === sp.status) && sp.status !== 'ALL' ? sp.status : undefined;
+    REPORT_STATUS_KEYS.includes(sp.status ?? '') && sp.status !== 'ALL' ? sp.status : undefined;
 
   const data = await fetchChatReports(status);
   const reports = data?.reports ?? [];
+
+  const reportStatusTabs: { key: string; label: string }[] = [
+    { key: 'ALL', label: t('filters.all') },
+    { key: 'OPEN', label: t('filters.open') },
+    { key: 'REVIEWED', label: t('reports.reviewed') },
+    { key: 'DISMISSED', label: t('reports.dismissed') },
+  ];
 
   return (
     <PageTransition>
@@ -67,17 +76,17 @@ export default async function SupportReportsPage({
             href="/support"
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-primary"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to queue
+            <ArrowLeft className="h-4 w-4" /> {t('reports.backToQueue')}
           </Link>
           <PageHeader
-            title="Chat abuse reports"
-            subtitle="Review flagged conversations. Dismiss false reports or escalate genuine abuse into a tracked ticket."
+            title={t('reportsTitle')}
+            subtitle={t('reports.subtitle')}
           />
         </FadeUp>
 
         <FadeUp>
           <nav className="mb-4 flex flex-wrap gap-2" aria-label="Filter by status">
-            {REPORT_STATUS_TABS.map((tab) => {
+            {reportStatusTabs.map((tab) => {
               const active = (tab.key === 'ALL' && !status) || tab.key === status;
               return (
                 <Link
@@ -123,16 +132,25 @@ export default async function SupportReportsPage({
                         })}
                       </span>
                     </div>
-                    {/* ChatReport only captures the reporter + conversation id — no reported-party
-                        id or message snippet at capture time (see ChatReport.ts). A content preview
-                        needs a schema change (store a message excerpt + reported profileId on
-                        report creation) before this can show more than raw ids. */}
+                    {/* Content preview — reporter/reported names + last-message excerpt are
+                        now captured at report time (ChatReport.reportedProfileId/messageExcerpt)
+                        and resolved staff-side in listChatReports. Falls back gracefully for
+                        older reports that predate these fields. */}
+                    {r.messageExcerpt && (
+                      <p className="mt-2 border-l-2 border-gold/40 pl-3 text-sm italic text-text">
+                        “{r.messageExcerpt}”
+                      </p>
+                    )}
                     <p className="mt-2 text-xs text-text-muted">
-                      Conversation <span className="font-mono text-primary">{r.matchRequestId}</span>
+                      {t('reports.reportedByLabel')}{' '}
+                      <span className="font-medium text-primary">{r.reporterName ?? r.reporterProfileId}</span>
                     </p>
-                    <p className="text-xs text-text-muted">
-                      Reported by <span className="font-mono text-primary">{r.reporterProfileId}</span>
-                    </p>
+                    {(r.reportedName || r.reportedProfileId) && (
+                      <p className="text-xs text-text-muted">
+                        {t('reports.reportedUserLabel')}{' '}
+                        <span className="font-medium text-primary">{r.reportedName ?? r.reportedProfileId}</span>
+                      </p>
+                    )}
                   </div>
                   {r.status === 'OPEN' && <ReportActions reportId={r.id} />}
                 </div>

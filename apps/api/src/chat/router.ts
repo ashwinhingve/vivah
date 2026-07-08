@@ -617,8 +617,17 @@ router.post(
       // (The previous Chat.updateOne filtered on participants; ChatReport.create
       // does not, so re-assert membership here to avoid an IDOR.)
       const chat = await Chat.findOne({ matchRequestId: matchId, participants: profileId })
-        .select('_id').lean()
+        .select('_id participants lastMessage').lean() as
+          | { participants?: string[]; lastMessage?: { preview?: string | null } | null }
+          | null
       if (!chat) { err(res, 'NOT_FOUND', 'Conversation not found', 404); return }
+
+      // Capture the reported party (the other participant) + a short excerpt of
+      // the last message at report time, so staff can triage without opening the
+      // chat (and without a later read that would leak conversation content).
+      const reportedProfileId = (chat.participants ?? []).find((p) => p !== profileId) ?? null
+      const excerpt = chat.lastMessage?.preview ?? null
+      const messageExcerpt = excerpt ? excerpt.slice(0, 140) : null
 
       // Write to the dedicated reports collection — never inline the reason as a
       // SYSTEM message in the chat (that would leak moderation data to any
@@ -626,6 +635,8 @@ router.post(
       await ChatReport.create({
         matchRequestId:    matchId,
         reporterProfileId: profileId,
+        reportedProfileId,
+        messageExcerpt,
         reason:            parsed.data.reason,
       })
       ok(res, { reported: true })
