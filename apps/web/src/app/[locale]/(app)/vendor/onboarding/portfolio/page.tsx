@@ -4,6 +4,7 @@ import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { PortfolioForm } from './PortfolioForm.client';
+import { PackageManager, type VendorPackageView } from '@/components/vendor/PackageManager.client';
 import type { EventTypeValue } from '@smartshaadi/schemas';
 
 export const metadata = { title: 'Portfolio · Vendor onboarding' };
@@ -24,9 +25,10 @@ export default async function PortfolioStepPage() {
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
 
-  const [portfolioRes, eventTypesRes] = await Promise.all([
+  const [portfolioRes, eventTypesRes, packagesRes] = await Promise.all([
     fetchAuth<{ portfolio: PortfolioBasics | null }>(`/api/v1/vendors/${vendor.id}/portfolio`),
     fetchAuth<{ eventTypes: EventTypeValue[] }>(`/api/v1/vendors/${vendor.id}/event-types`),
+    fetchAuth<{ packages: VendorPackageView[] }>(`/api/v1/vendors/${vendor.id}/packages`),
   ]);
 
   const p = portfolioRes?.portfolio ?? null;
@@ -47,6 +49,10 @@ export default async function PortfolioStepPage() {
         certifications={p?.certifications ?? []}
         selectedEventTypes={eventTypesRes?.eventTypes ?? []}
       />
+
+      <div className="mt-6">
+        <PackageManager vendorId={vendor.id} initial={packagesRes?.packages ?? []} />
+      </div>
     </FadeUp>
   );
 }
