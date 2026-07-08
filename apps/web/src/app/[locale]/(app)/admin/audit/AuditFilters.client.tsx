@@ -31,14 +31,18 @@ const EVENT_TYPES = [
 interface Props {
   initialEventType: string;
   initialEntityType: string;
+  initialEntityId: string;
+  initialActorId: string;
   initialFrom: string;
   initialTo: string;
 }
 
-export function AuditFilters({ initialEventType, initialEntityType, initialFrom, initialTo }: Props) {
+export function AuditFilters({ initialEventType, initialEntityType, initialEntityId, initialActorId, initialFrom, initialTo }: Props) {
   const router = useRouter();
   const [eventType, setEventType] = useState(initialEventType);
   const [entityType, setEntityType] = useState(initialEntityType);
+  const [entityId, setEntityId] = useState(initialEntityId);
+  const [actorId, setActorId] = useState(initialActorId);
   const [from, setFrom] = useState(initialFrom);
   const [to, setTo] = useState(initialTo);
 
@@ -46,6 +50,8 @@ export function AuditFilters({ initialEventType, initialEntityType, initialFrom,
     const params = new URLSearchParams();
     if (eventType)  params.set('eventType', eventType);
     if (entityType) params.set('entityType', entityType);
+    if (entityId)   params.set('entityId', entityId.trim());
+    if (actorId)    params.set('actorId', actorId.trim());
     if (from)       params.set('from', from);
     if (to)         params.set('to', to);
     router.push(`/admin/audit${params.toString() ? `?${params.toString()}` : ''}`);
@@ -54,12 +60,14 @@ export function AuditFilters({ initialEventType, initialEntityType, initialFrom,
   function clear() {
     setEventType('');
     setEntityType('');
+    setEntityId('');
+    setActorId('');
     setFrom('');
     setTo('');
     router.push('/admin/audit');
   }
 
-  const hasFilters = Boolean(initialEventType || initialEntityType || initialFrom || initialTo);
+  const hasFilters = Boolean(initialEventType || initialEntityType || initialEntityId || initialActorId || initialFrom || initialTo);
 
   return (
     <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
@@ -85,6 +93,28 @@ export function AuditFilters({ initialEventType, initialEntityType, initialFrom,
             value={entityType}
             onChange={(e) => setEntityType(e.target.value)}
             placeholder="e.g. booking, vendor, user"
+            className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Actor ID</span>
+          <input
+            type="text"
+            value={actorId}
+            onChange={(e) => setActorId(e.target.value)}
+            placeholder="user id of the actor"
+            className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold text-muted-foreground">Entity ID</span>
+          <input
+            type="text"
+            value={entityId}
+            onChange={(e) => setEntityId(e.target.value)}
+            placeholder="uuid of the entity"
             className="block w-full min-h-[44px] rounded-lg border border-gold/30 bg-background px-3 text-sm focus:border-teal focus:outline-none"
           />
         </label>

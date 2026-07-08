@@ -13,6 +13,7 @@ import { DataTable, type DataTableColumn } from '@/components/shared/DataTable';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AuditFilters } from './AuditFilters.client';
+import { AuditExportButton } from './AuditExportButton.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -164,9 +165,14 @@ export default async function AdminAuditPage({
           <AuditFilters
             initialEventType={sp.eventType ?? ''}
             initialEntityType={sp.entityType ?? ''}
+            initialEntityId={sp.entityId ?? ''}
+            initialActorId={sp.actorId ?? ''}
             initialFrom={sp.from ?? ''}
             initialTo={sp.to ?? ''}
           />
+          <div className="mt-3 flex justify-end">
+            <AuditExportButton rows={rows} />
+          </div>
         </FadeUp>
 
         <FadeUp>
