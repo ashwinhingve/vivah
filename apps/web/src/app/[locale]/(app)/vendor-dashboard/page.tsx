@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
+import { redirect } from '@/i18n/redirect';
+import { RoleHero } from '@/components/shared/RoleHero';
 import {
   Calendar,
   Star,
@@ -94,6 +96,12 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
+  // Belt-and-braces role guard (middleware also gates /vendor-dashboard).
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me', token);
+  if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
+    return await redirect('/dashboard');
+  }
+
   const [bookingsData, inquiriesData, blockedData, vendorMine] = await Promise.all([
     fetchAuth<{ bookings: BookingSummary[]; total: number }>('/api/v1/bookings?role=vendor&limit=100', token),
     fetchAuth<{ inquiries: VendorInquiry[]; total: number }>('/api/v1/vendors/inquiries?limit=50', token),
@@ -145,18 +153,12 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
         <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
 
           {/* ── Header ─────────────────────────────────────────── */}
-          <FadeUp delay={0}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                  Welcome, {businessName}
-                </h1>
-                {categoryLabel && (
-                  <p className="mt-0.5 text-sm text-muted-foreground">{categoryLabel}</p>
-                )}
-              </div>
-              {vendorProfile?.rating != null && (
-                <div className="flex items-center gap-1.5 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 shrink-0">
+          <RoleHero
+            title={`Welcome, ${businessName}`}
+            subtitle={categoryLabel || undefined}
+            rightSlot={
+              vendorProfile?.rating != null ? (
+                <div className="flex items-center gap-1.5 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2">
                   <Star className="h-4 w-4 fill-gold text-gold" aria-hidden="true" />
                   <span className="font-heading text-sm font-bold text-gold-muted">
                     {vendorProfile.rating.toFixed(1)}
@@ -165,9 +167,9 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                     ({vendorProfile.totalReviews})
                   </span>
                 </div>
-              )}
-            </div>
-          </FadeUp>
+              ) : undefined
+            }
+          />
 
           {/* ── Tabs ───────────────────────────────────────────── */}
           <FadeUp delay={0.04}>

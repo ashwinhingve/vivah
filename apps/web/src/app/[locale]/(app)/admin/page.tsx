@@ -14,13 +14,15 @@ import {
   BarChart3,
   Activity,
   ArrowRight,
+  Users,
+  CalendarCheck,
 } from 'lucide-react';
 
-import { PageHeader }     from '@/components/ui/PageHeader';
 import { SectionHeader }  from '@/components/ui/SectionHeader';
-import { StatCard }       from '@/components/ui/StatCard';
+import { StatsCard }      from '@/components/dashboard/StatsCard';
+import { RoleHero }       from '@/components/shared/RoleHero';
 import { PageTransition } from '@/components/motion/PageTransition.client';
-import { StaggerList }    from '@/components/motion/StaggerList.client';
+import { StaggerList }    from '@/components/shared/StaggerList.client';
 import { KycQueueTable }  from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar }    from '@/components/admin/KycStatsBar';
 import { AdminSectionBoundary } from '@/components/admin/AdminSectionBoundary.client';
@@ -328,10 +330,10 @@ export default async function AdminPage() {
       <PageTransition className="mx-auto max-w-5xl px-4 py-8 space-y-8">
 
         {/* ── Header ── */}
-        <PageHeader
-          title="Admin Console"
+        <RoleHero
+          title="Admin console"
           subtitle={`Smart Shaadi platform overview — refreshed ${refreshedAt} IST`}
-          actions={<AdminRefreshButton />}
+          rightSlot={<AdminRefreshButton />}
         />
 
         {/* ── System health ── */}
@@ -352,31 +354,18 @@ export default async function AdminPage() {
           <SectionHeader title="Platform Metrics" />
           <AdminSectionBoundary section="Platform Metrics" key={refreshedAt}>
           <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatCard label="Total Users"        value={totalUsers} />
-            <StatCard label="Active Vendors"     value={activeVendors} />
-            <StatCard label="Bookings This Month" value={bookingsThisMonth} />
-            {/* Active disputes — from real /admin/disputes */}
-            <div
-              className={`rounded-2xl border bg-surface p-6 shadow-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-card-hover ${
-                disputes.length > 0
-                  ? 'border-destructive/30'
-                  : 'border-gold/20'
-              }`}
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-                Open Disputes
-              </p>
-              <div className="mt-2 flex items-end justify-between gap-2">
-                <span className={`font-heading text-[32px] font-semibold leading-none ${disputes.length > 0 ? 'text-destructive' : 'text-success'}`}>
-                  {disputes.length}
-                </span>
-                {disputes.length > 0 && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
-                    Action needed
-                  </span>
-                )}
-              </div>
-            </div>
+            <StatsCard label="Total Users"         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
+            <StatsCard label="Active Vendors"      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
+            <StatsCard label="Bookings This Month" value={bookingsThisMonth} icon={CalendarCheck} variant="success" animDelayMs={160} />
+            <StatsCard
+              label="Open Disputes"
+              value={disputes.length}
+              icon={Scale}
+              variant={disputes.length > 0 ? 'warning' : 'default'}
+              href="/admin/escrow"
+              sub={disputes.length > 0 ? 'Action needed' : 'All clear'}
+              animDelayMs={240}
+            />
           </StaggerList>
           </AdminSectionBoundary>
         </section>

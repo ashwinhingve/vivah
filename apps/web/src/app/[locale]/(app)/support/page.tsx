@@ -2,7 +2,7 @@ import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import { LifeBuoy, AlertTriangle, Clock, CheckCircle2, Flag, Scale, ShieldAlert } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { RoleHero } from '@/components/shared/RoleHero';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { DataTable, type DataTableColumn } from '@/components/shared/DataTable';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -85,12 +85,13 @@ export default async function SupportConsolePage({
   return (
     <PageTransition>
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
-        <FadeUp>
-          <PageHeader
+        <div className="mb-6">
+          <RoleHero
+            icon={LifeBuoy}
             title="Support console"
             subtitle="Resolve customer complaints, escalations, and account issues."
           />
-        </FadeUp>
+        </div>
 
         {/* KPI + signal row */}
         <StaggerList className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -151,10 +152,28 @@ export default async function SupportConsolePage({
                 : 'The queue is clear. New complaints will appear here.',
             }}
           />
-          {total > tickets.length && (
-            <p className="mt-3 text-center text-xs text-text-muted">
-              Showing {tickets.length} of {total} tickets
-            </p>
+          {total > 0 && (
+            <nav className="mt-4 flex items-center justify-center gap-3" aria-label="Pagination">
+              {page > 1 && (
+                <Link
+                  href={`/support?${new URLSearchParams({ ...(status ? { status } : {}), page: String(page - 1) }).toString()}`}
+                  className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm text-primary hover:border-gold/40"
+                >
+                  Previous
+                </Link>
+              )}
+              <span className="text-xs text-text-muted">
+                Page {page} · {total} ticket{total === 1 ? '' : 's'}
+              </span>
+              {page * 25 < total && (
+                <Link
+                  href={`/support?${new URLSearchParams({ ...(status ? { status } : {}), page: String(page + 1) }).toString()}`}
+                  className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm text-primary hover:border-gold/40"
+                >
+                  Next
+                </Link>
+              )}
+            </nav>
           )}
         </FadeUp>
       </main>
