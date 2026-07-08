@@ -68,6 +68,7 @@ export default async function CoordinatorDashboardPage() {
               icon={CalendarCheck}
               variant="teal"
               animDelayMs={0}
+              href="/coordinator/calendar"
             />
             <StatsCard
               label="Open tasks"
@@ -76,6 +77,7 @@ export default async function CoordinatorDashboardPage() {
               icon={ClipboardList}
               variant="gold"
               animDelayMs={100}
+              href="/coordinator/tasks"
             />
             <StatsCard
               label="Open incidents"
@@ -84,6 +86,7 @@ export default async function CoordinatorDashboardPage() {
               icon={AlertTriangle}
               variant={openIncidentsTotal > 0 ? 'warning' : 'default'}
               animDelayMs={200}
+              href="/coordinator/tasks"
             />
             <StatsCard
               label="This week"
@@ -115,15 +118,24 @@ export default async function CoordinatorDashboardPage() {
                 {weddings.map((w) => {
                   const urgent = w.daysUntil !== null && w.daysUntil <= 7;
                   return (
-                    <li key={w.weddingId}>
+                    <li
+                      key={w.weddingId}
+                      className={`group relative rounded-xl border p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover ${
+                        urgent ? 'border-warning/40 bg-warning/5' : 'border-gold/20 bg-surface'
+                      }`}
+                    >
+                      {/* Stretched link: whole card opens day-of, but the task/incident
+                          pills below are separate links, so they must live outside this
+                          anchor (no nested <a>) — sibling, positioned to fill the card. */}
                       <Link
                         href={`/weddings/${w.weddingId}/day-of`}
-                        className={`group block rounded-xl border p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover ${
-                          urgent ? 'border-warning/40 bg-warning/5' : 'border-gold/20 bg-surface'
-                        }`}
-                      >
+                        aria-label={`${w.title} — day-of dashboard`}
+                        className="absolute inset-0 z-0 rounded-xl"
+                      />
+
+                      <div className="relative z-[1] pointer-events-none">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-heading text-lg font-semibold text-primary line-clamp-1">
+                          <h3 className="font-heading text-lg font-semibold text-primary line-clamp-1 group-hover:text-primary">
                             {w.title}
                           </h3>
                           <span className="shrink-0 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -143,22 +155,28 @@ export default async function CoordinatorDashboardPage() {
                             : 'No ceremony scheduled'}
                         </p>
 
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-gold/10 px-2.5 py-0.5 text-xs font-medium text-gold-muted">
+                        <div className="mt-3 flex flex-wrap items-center gap-2 pointer-events-auto">
+                          <Link
+                            href={`/weddings/${w.weddingId}/tasks`}
+                            className="relative z-10 inline-flex items-center gap-1 rounded-full bg-gold/10 px-2.5 py-0.5 text-xs font-medium text-gold-muted transition-colors hover:bg-gold/20"
+                          >
                             <ClipboardList className="h-3 w-3" aria-hidden="true" />
                             {w.openTasks} open task{w.openTasks === 1 ? '' : 's'}
-                          </span>
+                          </Link>
                           {w.openIncidents > 0 && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2.5 py-0.5 text-xs font-medium text-warning">
+                            <Link
+                              href={`/weddings/${w.weddingId}/tasks`}
+                              className="relative z-10 inline-flex items-center gap-1 rounded-full bg-warning/15 px-2.5 py-0.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25"
+                            >
                               <AlertTriangle className="h-3 w-3" aria-hidden="true" />
                               {w.openIncidents} incident{w.openIncidents === 1 ? '' : 's'}
-                            </span>
+                            </Link>
                           )}
                           <span className="text-xs text-muted-foreground">
                             {w.ceremoniesCount} ceremon{w.ceremoniesCount === 1 ? 'y' : 'ies'}
                           </span>
                         </div>
-                      </Link>
+                      </div>
                     </li>
                   );
                 })}

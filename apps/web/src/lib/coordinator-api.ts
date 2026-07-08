@@ -8,9 +8,13 @@
 
 import { fetchAuth } from './server-fetch';
 import { mutateApi } from './wedding-api';
-import type { VendorProfile } from '@smartshaadi/types';
+import type { VendorProfile, CoordinatorTaskInboxItem } from '@smartshaadi/types';
 
 export { fetchManagedWeddings } from './wedding-api';
+
+/** Cross-wedding inbox — open tasks + unresolved incidents, urgency-sorted server-side. */
+export const fetchCoordinatorTasks = () =>
+  fetchAuth<{ items: CoordinatorTaskInboxItem[] }>(`/api/v1/coordinator/tasks`);
 
 // Mirrors EVENT_TYPE_VALUES in apps/api/src/routes/vendorEngine.ts — keep in sync.
 export const VENDOR_EVENT_TYPES = [

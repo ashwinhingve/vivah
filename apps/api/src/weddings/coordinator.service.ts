@@ -19,6 +19,8 @@ import type {
   CoordinatorAssignment,
   CoordinatorScope,
   ManagedWeddingSummary,
+  CoordinatorTaskInboxItem,
+  IncidentSeverity,
 } from '@smartshaadi/types';
 import type { AssignCoordinatorInput } from '@smartshaadi/schemas';
 import { requireRole } from './access.js';
@@ -177,14 +179,22 @@ export async function listCoordinatorsForWedding(
   return rows.map((r) => ({ ...toAssignment(r.assign), name: r.name, email: r.email }));
 }
 
-export async function listMyManagedWeddings(userId: string): Promise<ManagedWeddingSummary[]> {
+/**
+ * Resolves the set of weddings a user actively coordinates. Shared by
+ * listMyManagedWeddings and listMyOpenTasksAndIncidents so both endpoints
+ * apply the same role + assignment gate.
+ */
+async function getManagedWeddingIds(
+  userId: string,
+): Promise<{ ids: string[]; scopeByWedding: Map<string, CoordinatorScope> }> {
   const [u] = await db
     .select({ role: userTable.role })
     .from(userTable)
     .where(eq(userTable.id, userId))
     .limit(1);
-  if (!u) return [];
-  if (u.role !== 'EVENT_COORDINATOR' && u.role !== 'ADMIN') return [];
+  const none = { ids: [], scopeByWedding: new Map<string, CoordinatorScope>() };
+  if (!u) return none;
+  if (u.role !== 'EVENT_COORDINATOR' && u.role !== 'ADMIN') return none;
 
   const assignments = await db
     .select({
@@ -197,10 +207,15 @@ export async function listMyManagedWeddings(userId: string): Promise<ManagedWedd
       isNull(weddingCoordinatorAssignments.revokedAt),
     ));
 
-  if (assignments.length === 0) return [];
+  return {
+    ids:            assignments.map((a) => a.weddingId),
+    scopeByWedding: new Map(assignments.map((a) => [a.weddingId, a.scope as CoordinatorScope])),
+  };
+}
 
-  const ids = assignments.map((a) => a.weddingId);
-  const scopeByWedding = new Map(assignments.map((a) => [a.weddingId, a.scope as CoordinatorScope]));
+export async function listMyManagedWeddings(userId: string): Promise<ManagedWeddingSummary[]> {
+  const { ids, scopeByWedding } = await getManagedWeddingIds(userId);
+  if (ids.length === 0) return [];
 
   const weddingRows = await db
     .select({
@@ -267,5 +282,97 @@ export async function listMyManagedWeddings(userId: string): Promise<ManagedWedd
     if (a.daysUntil === null) return 1;
     if (b.daysUntil === null) return -1;
     return a.daysUntil - b.daysUntil;
+  });
+}
+
+const SEVERITY_RANK: Record<IncidentSeverity, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+
+/**
+ * Orders the inbox so the most urgent items surface first: CRITICAL/HIGH
+ * incidents lead, then anything with a due date (overdue sorts earliest
+ * automatically), then remaining incidents by severity, then everything else.
+ */
+function inboxSortKey(item: CoordinatorTaskInboxItem): [number, number, string] {
+  if (item.kind === 'INCIDENT' && item.severity && SEVERITY_RANK[item.severity] <= 1) {
+    return [0, SEVERITY_RANK[item.severity], item.title];
+  }
+  if (item.dueDate) {
+    return [1, new Date(item.dueDate).getTime(), item.title];
+  }
+  if (item.kind === 'INCIDENT' && item.severity) {
+    return [2, SEVERITY_RANK[item.severity], item.title];
+  }
+  return [3, 0, item.title];
+}
+
+/**
+ * Aggregates open tasks + unresolved incidents across every wedding a
+ * coordinator manages into a single, urgency-sorted inbox. Reuses the same
+ * status/resolved filters as listMyManagedWeddings' per-wedding counts.
+ */
+export async function listMyOpenTasksAndIncidents(userId: string): Promise<CoordinatorTaskInboxItem[]> {
+  const { ids } = await getManagedWeddingIds(userId);
+  if (ids.length === 0) return [];
+
+  const weddingRows = await db
+    .select({ id: weddings.id, title: weddings.title })
+    .from(weddings)
+    .where(sql`${weddings.id} IN ${ids}`);
+  const titleByWedding = new Map(weddingRows.map((w) => [w.id, w.title ?? 'Wedding']));
+
+  const taskRows = await db
+    .select({
+      id:        weddingTasks.id,
+      weddingId: weddingTasks.weddingId,
+      title:     weddingTasks.title,
+      dueDate:   weddingTasks.dueDate,
+      status:    weddingTasks.status,
+    })
+    .from(weddingTasks)
+    .where(and(
+      sql`${weddingTasks.weddingId} IN ${ids}`,
+      sql`${weddingTasks.status} IN ('TODO', 'IN_PROGRESS', 'BLOCKED')`,
+    ));
+
+  const incidentRows = await db
+    .select({
+      id:        weddingIncidents.id,
+      weddingId: weddingIncidents.weddingId,
+      title:     weddingIncidents.title,
+      severity:  weddingIncidents.severity,
+    })
+    .from(weddingIncidents)
+    .where(and(
+      sql`${weddingIncidents.weddingId} IN ${ids}`,
+      isNull(weddingIncidents.resolvedAt),
+    ));
+
+  const items: CoordinatorTaskInboxItem[] = [
+    ...taskRows.map((t): CoordinatorTaskInboxItem => ({
+      weddingId:    t.weddingId,
+      weddingTitle: titleByWedding.get(t.weddingId) ?? 'Wedding',
+      kind:         'TASK',
+      id:           t.id,
+      title:        t.title,
+      dueDate:      (t.dueDate as unknown as string | null) ?? null,
+      severity:     null,
+      status:       t.status,
+    })),
+    ...incidentRows.map((i): CoordinatorTaskInboxItem => ({
+      weddingId:    i.weddingId,
+      weddingTitle: titleByWedding.get(i.weddingId) ?? 'Wedding',
+      kind:         'INCIDENT',
+      id:           i.id,
+      title:        i.title,
+      dueDate:      null,
+      severity:     i.severity as IncidentSeverity,
+      status:       null,
+    })),
+  ];
+
+  return items.sort((a, b) => {
+    const ka = inboxSortKey(a);
+    const kb = inboxSortKey(b);
+    return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2]);
   });
 }
