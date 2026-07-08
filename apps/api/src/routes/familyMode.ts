@@ -18,6 +18,7 @@
  *   POST   /api/v1/family-mode/parent/actions/:actionId/reject
  *   GET    /api/v1/family-mode/parent/actions/pending
  *   GET    /api/v1/family-mode/parent/actions/drafted
+ *   GET    /api/v1/family-mode/parent/children/:childUserId/profile
  */
 
 import { Router, type Request, type Response } from 'express';
@@ -370,6 +371,33 @@ familyModeRouter.get(
     const items = feed.slice((page - 1) * limit, (page - 1) * limit + limit);
 
     ok(res, { items, total, page, limit }, 200, { page, limit, total });
+  }),
+);
+
+// ── Parent Mode — Resolve a linked child's own matchmaking profile id ────────
+// GET /api/v1/family-mode/parent/children/:childUserId/profile
+// The family-compatibility view rates a candidate *for* a subject profile —
+// when a parent opens it on behalf of a linked child, this resolves the
+// child's own profile id (the "subject") the same way the candidates route
+// already authorizes browsing that child's feed.
+familyModeRouter.get(
+  '/parent/children/:childUserId/profile',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parentUserId = req.user!.id;
+    const childUserId = String(req.params.childUserId ?? '');
+    if (!childUserId) { err(res, 'INVALID_ID', 'Missing child id', 400); return; }
+
+    const link = await parentMode.getActiveLink(parentUserId, childUserId);
+    if (!link) { err(res, 'NO_LINK', 'No active link with this family member', 403); return; }
+
+    const [childProfile] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, childUserId))
+      .limit(1);
+
+    ok(res, { profileId: childProfile?.id ?? null });
   }),
 );
 

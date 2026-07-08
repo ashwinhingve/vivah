@@ -12,10 +12,10 @@
  * autoGenerateChecklist — bulk-insert default tasks by months-until-wedding
  */
 
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { shouldUseMockMongo, env } from '../lib/env.js';
-import { weddings, weddingTasks, profiles, guestLists, ceremonies } from '@smartshaadi/db';
+import { weddings, weddingTasks, profiles, guestLists, ceremonies, weddingMembers } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import {
@@ -255,6 +255,54 @@ export async function listUserWeddings(
         done:  tasks.filter((t) => t.status === 'DONE').length,
       },
       guestCount:  row.guestCount ?? 0,
+    });
+  }
+
+  return results;
+}
+
+// ── listCollaboratingWeddings ────────────────────────────────────────────────
+// Weddings the caller did NOT create but was invited into as a wedding_members
+// row (family co-planners, e.g. FAMILY_MEMBER accounts helping plan). Owner's
+// own weddings are covered separately by listUserWeddings.
+
+export async function listCollaboratingWeddings(
+  userId: string,
+): Promise<(WeddingSummary & { myRole: 'EDITOR' | 'VIEWER' })[]> {
+  const rows = await db
+    .select({ wedding: weddings, role: weddingMembers.role })
+    .from(weddingMembers)
+    .innerJoin(weddings, eq(weddings.id, weddingMembers.weddingId))
+    .where(and(
+      eq(weddingMembers.userId, userId),
+      isNotNull(weddingMembers.acceptedAt),
+      isNull(weddings.deletedAt),
+    ));
+
+  if (rows.length === 0) return [];
+
+  const results: (WeddingSummary & { myRole: 'EDITOR' | 'VIEWER' })[] = [];
+  for (const { wedding: row, role } of rows) {
+    const tasks = await db
+      .select({ status: weddingTasks.status })
+      .from(weddingTasks)
+      .where(eq(weddingTasks.weddingId, row.id));
+
+    results.push({
+      id:          row.id,
+      weddingName: row.title ?? null,
+      weddingDate: row.weddingDate ?? null,
+      venueName:   row.venueName,
+      venueCity:   row.venueCity,
+      venueAddress: row.venueAddress ?? null,
+      budgetTotal: row.budgetTotal != null ? Number(row.budgetTotal) : null,
+      status:      row.status as WeddingSummary['status'],
+      taskProgress: {
+        total: tasks.length,
+        done:  tasks.filter((t) => t.status === 'DONE').length,
+      },
+      guestCount:  row.guestCount ?? 0,
+      myRole:      role.toUpperCase() === 'EDITOR' ? 'EDITOR' : 'VIEWER',
     });
   }
 

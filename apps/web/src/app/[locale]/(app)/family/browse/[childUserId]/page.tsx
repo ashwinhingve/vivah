@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
-import { Users2, ArrowLeft } from 'lucide-react';
+import { Users2, ArrowLeft, Scale } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -112,6 +112,13 @@ export default async function FamilyBrowsePage({
                       targetProfileId={c.profileId}
                       candidateName={c.name || 'this member'}
                     />
+                    <Link
+                      href={`/family/compatibility/${c.profileId}?childUserId=${childUserId}`}
+                      className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-teal hover:underline"
+                    >
+                      <Scale className="h-3.5 w-3.5" aria-hidden="true" />
+                      See family compatibility
+                    </Link>
                   </div>
                 ))}
               </StaggerList>

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { getMyLinks, getDraftedActions, type DraftedAction } from '@/lib/family-mode-api';
+import { getCollaboratingWeddings } from '@/lib/family-extras-api';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -16,6 +17,7 @@ import { AssistedSeekerCard } from '@/components/family/AssistedSeekerCard';
 import { FamilyMembersClient } from '@/components/family/FamilyMembersClient.client';
 import { RequestFamilyVerification } from '@/components/family/RequestFamilyVerification.client';
 import { ParentActionCard } from '@/components/family/ParentActionCard.client';
+import { WeddingCard } from '@/components/wedding/WeddingCard';
 import type { FamilyView, FamilyVerificationBadge } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
@@ -37,10 +39,11 @@ export default async function FamilyPage() {
   const cookieStore = await cookies();
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
 
-  const [links, drafted, familyView] = await Promise.all([
+  const [links, drafted, familyView, collaboratingWeddings] = await Promise.all([
     getMyLinks(cookieHeader),
     getDraftedActions(cookieHeader),
     fetchAuth<FamilyView>('/api/v1/profiles/me/family'),
+    getCollaboratingWeddings(cookieHeader),
   ]);
 
   const approvedAsParent = (links?.as_parent ?? []).filter(
@@ -167,11 +170,24 @@ export default async function FamilyPage() {
           {/* ── Pillar 2 — Wedding-planning collaborator ────────── */}
           <FadeUp delay={0.2}>
             <SectionHeader title="Weddings you collaborate on" />
-            <EmptyState
-              icon={Cake}
-              title="No wedding collaborations yet"
-              description="Weddings you're invited to help plan will appear here with a direct link into the shared planner, once you're added as a collaborator."
-            />
+            {collaboratingWeddings.length === 0 ? (
+              <EmptyState
+                icon={Cake}
+                title="No wedding collaborations yet"
+                description="Weddings you're invited to help plan will appear here with a direct link into the shared planner, once you're added as a collaborator."
+              />
+            ) : (
+              <div className="space-y-4">
+                {collaboratingWeddings.map((w) => (
+                  <div key={w.id} className="space-y-1.5">
+                    <WeddingCard wedding={w} />
+                    <p className="px-1 text-[11px] text-gold-muted">
+                      Your role: {w.myRole === 'EDITOR' ? 'Editor' : 'Viewer'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </FadeUp>
 
           {/* ── Quick actions ────────────────────────────────────── */}

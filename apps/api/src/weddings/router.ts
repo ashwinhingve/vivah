@@ -2,6 +2,7 @@
  * Smart Shaadi — Weddings Router
  *
  * POST   /weddings                         → createWedding
+ * GET    /weddings/collaborating           → listCollaboratingWeddings (invited-in, not owned)
  * GET    /weddings/:id                     → getWedding
  * PUT    /weddings/:id                     → updateWedding
  * PATCH  /weddings/:id/cancel              → cancelWedding (status = CANCELLED)
@@ -44,6 +45,7 @@ import {
   deleteTask,
   autoGenerateChecklist,
   listUserWeddings,
+  listCollaboratingWeddings,
   addCeremony,
   updateCeremony,
   deleteCeremony,
@@ -106,6 +108,25 @@ weddingRouter.post(
         return;
       }
       err(res, 'WEDDING_CREATE_ERROR', message, 500);
+    }
+  },
+);
+
+// ── GET /weddings/collaborating (weddings I was invited into, not own) ────────
+// Must be registered before GET /:id — otherwise "collaborating" is captured
+// by the :id uuid param guard and rejected as a malformed id.
+
+weddingRouter.get(
+  '/collaborating',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const weddings = await listCollaboratingWeddings(req.user!.id);
+      ok(res, { weddings });
+    } catch (e) {
+      console.error('[weddings:collaborating]', e);
+      const message = e instanceof Error ? e.message : 'Failed to list collaborating weddings';
+      err(res, 'WEDDING_LIST_ERROR', message, 500);
     }
   },
 );
