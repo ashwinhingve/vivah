@@ -24,6 +24,7 @@ import {
   Flag,
   Route,
   UserPlus,
+  Inbox,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -214,6 +215,7 @@ const COORDINATOR_MORE_GROUPS: NavGroup[] = [
   {
     titleKey: 'groupTools',
     items: [
+      { href: '/coordinator/tasks',   labelKey: 'tasksInbox',    Icon: Inbox },
       { href: '/coordinator/routing', labelKey: 'vendorRouting', Icon: Route },
       { href: '/vendors',             labelKey: 'vendors',       Icon: Search },
     ],
