@@ -9,11 +9,15 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PriorityPill, StatusPill, SlaBadge } from '@/components/support/badges';
+import { SupportFilters } from '@/components/support/SupportFilters.client';
+import { NewTicketButton } from '@/components/support/NewTicketButton.client';
 import {
   fetchSupportQueue,
   fetchSupportStats,
   type TicketListItem,
   type TicketStatus,
+  type TicketPriority,
+  type TicketSource,
 } from '@/lib/support-api';
 
 export const metadata = { title: 'Support Console' };
@@ -27,10 +31,13 @@ const STATUS_TABS: { key: TicketStatus | 'ALL'; label: string }[] = [
   { key: 'CLOSED', label: 'Closed' },
 ];
 
+const PRIORITY_VALUES: TicketPriority[] = ['LOW', 'NORMAL', 'HIGH', 'URGENT'];
+const SOURCE_VALUES: TicketSource[] = ['USER', 'CHAT_REPORT', 'DISPUTE', 'KYC_APPEAL', 'SYSTEM'];
+
 export default async function SupportConsolePage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; priority?: string; source?: string; mine?: string }>;
 }) {
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'SUPPORT' && me.role !== 'ADMIN') {
@@ -42,11 +49,21 @@ export default async function SupportConsolePage({
     STATUS_TABS.some((t) => t.key === sp.status) && sp.status !== 'ALL'
       ? (sp.status as TicketStatus)
       : undefined;
+  const priority = PRIORITY_VALUES.includes(sp.priority as TicketPriority) ? (sp.priority as TicketPriority) : undefined;
+  const source = SOURCE_VALUES.includes(sp.source as TicketSource) ? (sp.source as TicketSource) : undefined;
+  const mine = sp.mine === 'true';
+  const q = sp.q?.trim() || undefined;
   const page = Math.max(1, Number(sp.page ?? '1') || 1);
 
   const [stats, queue] = await Promise.all([
     fetchSupportStats(),
-    fetchSupportQueue({ status, page }),
+    fetchSupportQueue({
+      status, page,
+      ...(priority ? { priority } : {}),
+      ...(source ? { source } : {}),
+      ...(mine ? { mine } : {}),
+      ...(q ? { q } : {}),
+    }),
   ]);
 
   const tickets = queue?.items ?? [];
@@ -90,6 +107,7 @@ export default async function SupportConsolePage({
             icon={LifeBuoy}
             title="Support console"
             subtitle="Resolve customer complaints, escalations, and account issues."
+            rightSlot={<NewTicketButton />}
           />
         </div>
 
@@ -141,6 +159,7 @@ export default async function SupportConsolePage({
         </FadeUp>
 
         <FadeUp>
+          <SupportFilters />
           <DataTable
             columns={columns}
             data={tickets}
