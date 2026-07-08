@@ -410,7 +410,7 @@ familyModeRouter.post(
     const actionRows = await db
       .select({ payload: parentDraftedActions.payload })
       .from(parentDraftedActions)
-      .where(eq(parentDraftedActions.parentUserId, meId));
+      .where(or(eq(parentDraftedActions.parentUserId, meId), eq(parentDraftedActions.childUserId, meId)));
     for (const a of actionRows) {
       const t = (a.payload as Record<string, unknown> | null)?.['targetProfileId'];
       if (typeof t === 'string') allowedProfileIds.add(t);

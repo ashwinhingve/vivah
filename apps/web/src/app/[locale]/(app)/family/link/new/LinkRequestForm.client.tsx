@@ -96,8 +96,9 @@ export function LinkRequestForm() {
           autoComplete="off"
         />
         <p className="mt-1 text-xs text-muted-foreground">
-          Ask them for their account ID from <span className="text-primary">Settings → Account</span>.
-          They must have their own Smart Shaadi account.
+          Ask them to open their <span className="text-primary">Family requests</span> page and
+          copy their <span className="text-primary">family code</span>. They must have their own
+          Smart Shaadi account.
         </p>
       </div>
 

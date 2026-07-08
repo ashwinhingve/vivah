@@ -49,6 +49,7 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
       { href: '/likes',         labelKey: 'likes',         Icon: Heart },
       { href: '/shortlist',     labelKey: 'shortlist',     Icon: Bookmark },
       { href: '/viewers',       labelKey: 'viewedMe',      Icon: Eye },
+      { href: '/family/inbox',  labelKey: 'familyRequests', Icon: UserPlus },
     ],
   },
   {

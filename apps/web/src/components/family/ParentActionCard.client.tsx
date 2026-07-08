@@ -6,18 +6,21 @@ import { approveAction, rejectAction, type DraftedAction } from '@/lib/family-mo
 
 interface Props {
   action: DraftedAction;
+  /** profileId → display name, so cards never show a raw UUID. */
+  names?: Record<string, string | null>;
 }
 
-function describePayload(action: DraftedAction): string {
+function describePayload(action: DraftedAction, names?: Record<string, string | null>): string {
   const p = action.payload as { targetProfileId?: string; message?: string; field?: string; value?: unknown };
+  const who = (p.targetProfileId && names?.[p.targetProfileId]) || 'a member';
   switch (action.actionType) {
     case 'SEND_INTEREST':
-      return `Send interest to profile ${p.targetProfileId ?? '(unknown)'}${p.message ? ` — "${p.message}"` : ''}`;
-    case 'ACCEPT_INTEREST':  return `Accept interest from ${p.targetProfileId ?? '(unknown)'}`;
-    case 'REJECT_INTEREST':  return `Reject interest from ${p.targetProfileId ?? '(unknown)'}`;
+      return `Send interest to ${who}${p.message ? ` — "${p.message}"` : ''}`;
+    case 'ACCEPT_INTEREST':  return `Accept interest from ${who}`;
+    case 'REJECT_INTEREST':  return `Reject interest from ${who}`;
     case 'SEND_MESSAGE':     return `Send message: "${p.message ?? ''}"`;
     case 'UPDATE_PROFILE':   return `Update profile field ${p.field ?? '?'}`;
-    case 'BLOCK_USER':       return `Block user ${p.targetProfileId ?? '(unknown)'}`;
+    case 'BLOCK_USER':       return `Block ${who}`;
     default:                 return action.actionType;
   }
 }
@@ -32,7 +35,7 @@ function timeUntil(expiresAt: string | null): string {
   return `${hrs}h left`;
 }
 
-export function ParentActionCard({ action }: Props) {
+export function ParentActionCard({ action, names }: Props) {
   const [busy, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
   const router = useRouter();
@@ -57,7 +60,7 @@ export function ParentActionCard({ action }: Props) {
           <span className="inline-block rounded-full bg-teal/10 text-teal text-xs px-2 py-0.5">
             {action.actionType.replace(/_/g, ' ')}
           </span>
-          <p className="text-sm text-foreground">{describePayload(action)}</p>
+          <p className="text-sm text-foreground">{describePayload(action, names)}</p>
           <p className="text-xs text-gold-muted">
             Drafted {new Date(action.parentDraftedAt).toLocaleString()} · {timeUntil(action.expiresAt)}
           </p>
