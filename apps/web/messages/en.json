@@ -279,6 +279,49 @@
       "pricing": "Pricing",
       "login": "Login",
       "register": "Register Free"
+    },
+    "about": {
+      "meta": {
+        "title": "About Us — Smart Shaadi",
+        "description": "Smart Shaadi is a compatibility-first, family-inclusive matrimonial platform: verified profiles, 8-factor Vedic Guna Milan, and reciprocal matching."
+      },
+      "eyebrow": "About Smart Shaadi",
+      "pageTitle": "Matrimony built on compatibility, not catalogues.",
+      "intro": "Smart Shaadi is a matrimonial platform for Indian families — built around real compatibility, family participation, and privacy by default.",
+      "sections": [
+        {
+          "heading": "Why we exist",
+          "body": [
+            "Finding a life partner in India is a family decision, but most apps treat it like swiping through a catalogue. Smart Shaadi is built for how Indian families actually decide: compatibility both families can read, verification both families can trust, and privacy for the individuals at the centre of it."
+          ]
+        },
+        {
+          "heading": "Compatibility you can inspect",
+          "body": [
+            "Every match includes a full 8-factor Vedic Guna Milan (Ashtakoot) breakdown — real deterministic calculations with Mangal Dosha detection, not a black-box percentage. AI explains the score in plain language so both families understand the why, not just the number."
+          ]
+        },
+        {
+          "heading": "Reciprocal by design",
+          "body": [
+            "No one-sided reveals. Photos, contact details, and full profiles unlock only when both sides show genuine interest. Declines are silent. Family members can co-review matches without awkwardness."
+          ]
+        },
+        {
+          "heading": "Verified and safe",
+          "body": [
+            "Profiles go through identity verification before they can connect. Safety Mode keeps photos hidden until you choose. Blocking is one tap, and our support team is human."
+          ]
+        },
+        {
+          "heading": "From match to mandap",
+          "body": [
+            "Smart Shaadi carries the journey past the match: wedding planning, verified vendors with escrow-protected payments, guest lists, and RSVP — one platform from first hello to the wedding day."
+          ]
+        }
+      ],
+      "cta": "Create Your Free Profile",
+      "contact": "Questions or feedback? Write to us at"
     }
   },
   "pricing": {
@@ -1120,6 +1163,102 @@
           "heading": "13. Contact",
           "body": [
             "Questions about these terms: support@smartshaadi.co.in."
+          ]
+        }
+      ]
+    },
+    "refundPolicy": {
+      "meta": {
+        "title": "Refund Policy — Smart Shaadi",
+        "description": "Refund terms for Smart Shaadi subscription payments: 7-day refund window, how to request a refund, and processing timelines."
+      },
+      "pageTitle": "Refund Policy",
+      "lastUpdated": "Last updated: 2 July 2026",
+      "disclaimerTitle": "Draft — pending legal review.",
+      "disclaimerBody": "This document is a starter draft and not legal advice. It must be reviewed and finalised by qualified legal counsel before public launch.",
+      "sections": [
+        {
+          "heading": "1. What this policy covers",
+          "body": [
+            "This policy applies to payments made to Smart Shaadi for subscription plans (such as Smart Shaadi Premium) processed through our payment partner, Razorpay. Vendor bookings, escrow payments, and rental bookings are governed by their own booking terms and the platform's dispute-resolution process."
+          ]
+        },
+        {
+          "heading": "2. 7-day refund window",
+          "body": [
+            "If you are not satisfied with a paid subscription, you may request a full refund within 7 days of the first payment for that subscription term. Refund requests made after the 7-day window are not eligible, except where required by applicable law."
+          ]
+        },
+        {
+          "heading": "3. How to request a refund",
+          "body": [
+            "Email support@smartshaadi.co.in from the email address or phone number registered to your account, with the payment reference (order or invoice ID). We may ask you to verify account ownership before processing."
+          ]
+        },
+        {
+          "heading": "4. Processing and timelines",
+          "body": [
+            "Approved refunds are issued to the original payment method through Razorpay. Refunds are typically initiated within 5–7 business days of approval; the time for the amount to reflect in your account depends on your bank or payment provider."
+          ]
+        },
+        {
+          "heading": "5. Cases not eligible for refund",
+          "body": [
+            "Renewal charges after the 7-day window of the renewed term; accounts suspended or terminated for violating our Terms of Service; and charges for services already fully delivered at the time of the request."
+          ]
+        },
+        {
+          "heading": "6. Governing law",
+          "body": [
+            "This policy is governed by the laws of India. Any disputes are subject to the jurisdiction of the competent courts in India."
+          ]
+        },
+        {
+          "heading": "7. Contact",
+          "body": [
+            "Questions about this policy: support@smartshaadi.co.in."
+          ]
+        }
+      ]
+    },
+    "cookiePolicy": {
+      "meta": {
+        "title": "Cookie Policy — Smart Shaadi",
+        "description": "Which cookies Smart Shaadi uses: an essential session cookie for sign-in and privacy-respecting product analytics. No advertising cookies."
+      },
+      "pageTitle": "Cookie Policy",
+      "lastUpdated": "Last updated: 2 July 2026",
+      "disclaimerTitle": "Draft — pending legal review.",
+      "disclaimerBody": "This document is a starter draft and not legal advice. It must be reviewed and finalised by qualified legal counsel before public launch.",
+      "sections": [
+        {
+          "heading": "1. Essential cookies",
+          "body": [
+            "Smart Shaadi sets one essential cookie: a secure, httpOnly session cookie that keeps you signed in (valid up to 30 days). It cannot be read by scripts in your browser and is required for the platform to work — blocking it will prevent sign-in."
+          ]
+        },
+        {
+          "heading": "2. Analytics",
+          "body": [
+            "We use PostHog product analytics to understand how the platform is used and to improve it. Analytics data is used internally only and is not sold."
+          ]
+        },
+        {
+          "heading": "3. What we do not do",
+          "body": [
+            "We do not use advertising cookies, cross-site trackers, or third-party ad networks, and we do not sell cookie-derived data."
+          ]
+        },
+        {
+          "heading": "4. Managing cookies",
+          "body": [
+            "You can clear or block cookies in your browser settings. Blocking the essential session cookie will sign you out and prevent login."
+          ]
+        },
+        {
+          "heading": "5. Changes and contact",
+          "body": [
+            "We will update this page if our cookie usage changes. Questions: support@smartshaadi.co.in."
           ]
         }
       ]
