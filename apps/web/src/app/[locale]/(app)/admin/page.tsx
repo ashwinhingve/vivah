@@ -180,7 +180,12 @@ async function fetchReady(): Promise<ReadyResponse | null> {
   try {
     const res = await fetch(`${API_BASE}/ready`, { cache: 'no-store' });
     if (!res.ok) return null;
-    return (await res.json()) as ReadyResponse;
+    // /ready returns the standard { success, data: { status, checks } } envelope
+    // (apps/api/src/index.ts). Unwrap `.data` — mirroring fetchAuth. Returning the
+    // raw envelope left `readyData.checks` undefined, so `readyData.checks.postgres`
+    // 500'd the whole console whenever /ready was healthy (i.e. in production).
+    const json = (await res.json()) as { success: boolean; data: ReadyResponse };
+    return json.success ? json.data : null;
   } catch {
     return null;
   }
@@ -298,8 +303,10 @@ export default async function AdminPage() {
   const vendorQueueTotal  = vendorQueueData?.total   ?? 0;
   const recentActivity: RecentAuditRow[] = auditData?.items ?? [];
 
-  // Health strip — map /ready.checks to labelled ServiceCheck array
-  const serviceChecks = readyData
+  // Health strip — map /ready.checks to labelled ServiceCheck array.
+  // Guard on `readyData?.checks` (not just readyData) so a future envelope-shape
+  // drift can never re-introduce the `undefined.postgres` render crash.
+  const serviceChecks = readyData?.checks
     ? [
         { label: 'PostgreSQL', ok: readyData.checks.postgres === 'ok' },
         { label: 'Redis',      ok: readyData.checks.redis     === 'ok' },
