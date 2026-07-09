@@ -43,6 +43,8 @@ from typing import Any
 
 import structlog
 
+from src.services.assistant_errors import LlmProviderError
+
 log = structlog.get_logger(__name__)
 
 _GEMINI_DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -168,6 +170,11 @@ def _completion_to_resp(completion: Any) -> "_Resp":
     tool call is present). Mirrors what the real Anthropic SDK returns, so the
     agent loop reads both providers with identical block-walking code.
     """
+    if not completion.choices:
+        # Gemini (OpenAI-compat) can return an empty choices list on a
+        # content-filtered/blocked response. Raise a catchable provider error
+        # so the agent loop emits a graceful SSE error frame, not an IndexError.
+        raise LlmProviderError("LLM returned no choices")
     choice = completion.choices[0]
     msg = choice.message
     blocks: list[_Block] = []

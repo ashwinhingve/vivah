@@ -37,6 +37,35 @@ from src.services.observability import capture_exception, capture_message
 
 log = structlog.get_logger("assistant-service")
 
+
+def _env_int(name: str, default: int) -> int:
+    """Parse an int env var, tolerating unset/blank/garbage values.
+
+    os.getenv(name, default) only substitutes the default when the var is
+    *unset* — a present-but-empty value (a blank Railway variable) returns "",
+    and int("") raises ValueError. This never lets that crash the request.
+    """
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw.strip())
+    except ValueError:
+        log.warning("bad_env_int", var=name, value=raw, fallback=default)
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    """Float counterpart to _env_int — same blank/garbage tolerance."""
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return float(raw.strip())
+    except ValueError:
+        log.warning("bad_env_float", var=name, value=raw, fallback=default)
+        return default
+
 _anthropic_client = None
 _mongo_client = None
 
@@ -226,8 +255,8 @@ MOCK_CHUNKS = [
 ]
 
 # Agent-loop tuning
-MAX_TOOL_ROUNDS = int(os.getenv("ASSISTANT_MAX_TOOL_ROUNDS", "4"))
-_PER_CALL_TIMEOUT_SEC = float(os.getenv("ASSISTANT_LLM_TIMEOUT_SEC", "30"))
+MAX_TOOL_ROUNDS = _env_int("ASSISTANT_MAX_TOOL_ROUNDS", 4)
+_PER_CALL_TIMEOUT_SEC = _env_float("ASSISTANT_LLM_TIMEOUT_SEC", 30.0)
 _DELTA_CHUNK_CHARS = 90
 
 
@@ -330,7 +359,7 @@ async def stream_chat(
     ]
     tools = get_tool_schemas()
     model = os.getenv("ASSISTANT_MODEL", "claude-sonnet-4-6")
-    max_tokens = int(os.getenv("ASSISTANT_MAX_TOKENS", "1500"))
+    max_tokens = _env_int("ASSISTANT_MAX_TOKENS", 1500)
     system_prompt = build_system_prompt(request.context)
     base_headers = {
         "Helicone-Property-Feature": "matrimony-assistant",

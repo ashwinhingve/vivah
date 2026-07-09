@@ -16,6 +16,8 @@ import pytest
 from src.schemas.assistant import AssistantChatRequest, RagContext, TopMatchEntry
 from src.services.assistant_service import (
     MOCK_CHUNKS,
+    _env_float,
+    _env_int,
     build_system_prompt,
     fetch_history,
     persist_turn,
@@ -354,3 +356,66 @@ async def test_persist_turn_upserts_user_and_assistant_messages() -> None:
     assert push_payload[0]["content"] == "hello"
     assert push_payload[1]["content"] == "hi back"
     assert kwargs.get("upsert") is True
+
+
+# ---------------------------------------------------------------------------
+# env parsing helpers — blank/garbage tolerance (regression for the prod
+# ValueError: invalid literal for int() with base 10: '')
+# ---------------------------------------------------------------------------
+
+
+def test_env_int_returns_default_when_unset(monkeypatch) -> None:
+    monkeypatch.delenv("ASSISTANT_MAX_TOKENS", raising=False)
+    assert _env_int("ASSISTANT_MAX_TOKENS", 1500) == 1500
+
+
+@pytest.mark.parametrize("blank", ["", "   ", "\t"])
+def test_env_int_returns_default_when_blank(monkeypatch, blank) -> None:
+    # This is the exact prod footgun: a present-but-empty Railway variable.
+    monkeypatch.setenv("ASSISTANT_MAX_TOKENS", blank)
+    assert _env_int("ASSISTANT_MAX_TOKENS", 1500) == 1500
+
+
+def test_env_int_returns_default_on_garbage(monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_MAX_TOKENS", "not-a-number")
+    assert _env_int("ASSISTANT_MAX_TOKENS", 1500) == 1500
+
+
+def test_env_int_parses_valid_value(monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_MAX_TOKENS", " 2000 ")
+    assert _env_int("ASSISTANT_MAX_TOKENS", 1500) == 2000
+
+
+@pytest.mark.parametrize("blank", ["", "  "])
+def test_env_float_returns_default_when_blank(monkeypatch, blank) -> None:
+    monkeypatch.setenv("ASSISTANT_LLM_TIMEOUT_SEC", blank)
+    assert _env_float("ASSISTANT_LLM_TIMEOUT_SEC", 30.0) == 30.0
+
+
+def test_env_float_parses_valid_value(monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_LLM_TIMEOUT_SEC", "45.5")
+    assert _env_float("ASSISTANT_LLM_TIMEOUT_SEC", 30.0) == 45.5
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_survives_blank_max_tokens_env(monkeypatch) -> None:
+    """End-to-end repro of the prod outage: a blank ASSISTANT_MAX_TOKENS must
+    NOT raise ValueError mid-stream — it falls back to the 1500 default and the
+    turn completes normally."""
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "a-key")
+    monkeypatch.setenv("ASSISTANT_MAX_TOKENS", "")  # the offending blank value
+    client = _FakeClient([_FakeResp([_FakeBlock(text="All good.")], "end_turn")])
+
+    lines: list[str] = []
+    with patch("src.services.assistant_service._conversation_collection", return_value=None):
+        async for line in stream_chat(_make_request(), anthropic_client=client, use_mock=False):
+            lines.append(line)
+
+    parsed = _parse(lines)
+    types = [p["type"] for p in parsed]
+    assert types[0] == "context"
+    assert types[-1] == "done"
+    assert "error" not in types
+    # fell back to the default rather than crashing on int("")
+    assert client.messages.calls[0]["max_tokens"] == 1500
