@@ -6,6 +6,7 @@
  */
 
 import { db }              from '../lib/db.js';
+import { resolveProfileId as resolveProfileIdCached } from '../lib/profile.js';
 import { redis }           from '../lib/redis.js';
 import { createRoom, deleteRoom } from '../lib/dailyco.js';
 import { Chat }            from '../infrastructure/mongo/models/Chat.js';
@@ -13,7 +14,7 @@ import { getIO }           from '../chat/socket/index.js';
 import { queueNotification } from '../infrastructure/redis/queues.js';
 import { profiles, matchRequests } from '@smartshaadi/db';
 import { eq, or, and }     from 'drizzle-orm';
-import { asProfileId, type VideoRoom, type MeetingSchedule, type ProfileId } from '@smartshaadi/types';
+import { type VideoRoom, type MeetingSchedule, type ProfileId } from '@smartshaadi/types';
 import type {
   CreateVideoRoomInput,
   ScheduleMeetingInput,
@@ -38,14 +39,9 @@ function makeError(code: string, message: string, status: number): ServiceError 
 
 /** Resolve Better Auth userId → profiles.id (throws 403 if profile missing). */
 async function resolveProfileId(userId: string): Promise<ProfileId> {
-  const rows = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.userId, userId))
-    .limit(1);
-  const row = rows[0];
-  if (!row) throw makeError('FORBIDDEN', 'Profile not found', 403);
-  return asProfileId(row.id);
+  const profileId = await resolveProfileIdCached(userId);
+  if (!profileId) throw makeError('FORBIDDEN', 'Profile not found', 403);
+  return profileId;
 }
 
 /** Resolve the OTHER participant's Better Auth userId for a match. Best-effort. */

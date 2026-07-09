@@ -29,6 +29,11 @@ coordinatorRouter.get('/weddings', authenticate, authorize(['EVENT_COORDINATOR',
   catch (e) { handle(res, e, 'COORD_LIST_ERROR'); }
 });
 
+coordinatorRouter.get('/tasks', authenticate, authorize(['EVENT_COORDINATOR', 'ADMIN']), async (req, res) => {
+  try { ok(res, { items: await coordinator.listMyOpenTasksAndIncidents(req.user!.id) }); }
+  catch (e) { handle(res, e, 'COORD_TASKS_ERROR'); }
+});
+
 // ── /weddings/:id/coordinators — owner-managed assignments ───────────────────
 
 import { registerUuidParams } from '../middleware/validateUuidParams.js';

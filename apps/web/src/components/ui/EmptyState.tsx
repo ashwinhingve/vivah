@@ -11,6 +11,10 @@ import {
   Bell,
   Bookmark,
   WifiOff,
+  LifeBuoy,
+  Users,
+  ShieldCheck,
+  ClipboardList,
   type LucideProps,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,7 +42,11 @@ type EmptyVariant =
   | 'no-notifications'
   | 'no-shortlist'
   | 'no-search-results'
-  | 'no-network';
+  | 'no-network'
+  | 'no-tickets'
+  | 'no-leads'
+  | 'no-reports'
+  | 'no-coordinator-weddings';
 
 type IllustrationComponent = ComponentType<{ className?: string }>;
 
@@ -116,6 +124,30 @@ const PRESETS: Record<
     icon: WifiOff,
     title: 'Couldn’t load this page',
     description: 'Check your connection and try again.',
+  },
+  'no-tickets': {
+    illustration: NoNotificationsIllustration,
+    icon: LifeBuoy,
+    title: 'The queue is clear',
+    description: 'New complaints, escalations and account issues will appear here.',
+  },
+  'no-leads': {
+    illustration: NoMatchesIllustration,
+    icon: Users,
+    title: 'No leads yet',
+    description: 'When couples enquire about your services, their requests will show up here.',
+  },
+  'no-reports': {
+    illustration: NoTasksIllustration,
+    icon: ShieldCheck,
+    title: 'No open reports',
+    description: 'Flagged conversations will appear here for review and action.',
+  },
+  'no-coordinator-weddings': {
+    illustration: NoWeddingPlanIllustration,
+    icon: ClipboardList,
+    title: 'No weddings assigned yet',
+    description: 'Weddings you’re assigned to coordinate will appear here with their tasks and timelines.',
   },
 };
 

@@ -115,6 +115,43 @@ export const BlockedDateSchema = z.object({
   reason: z.string().max(255).optional(),
 })
 
+// ── Vendor portfolio (write path — onboarding wizard) ─────────────────────────
+
+export const PortfolioFaqSchema = z.object({
+  question: z.string().min(1).max(300),
+  answer:   z.string().min(1).max(2000),
+})
+
+export const PortfolioBasicsSchema = z.object({
+  about:          z.string().max(5000).optional(),
+  faqs:           z.array(PortfolioFaqSchema).max(20).optional(),
+  awards:         z.array(z.string().min(1).max(200)).max(20).optional(),
+  certifications: z.array(z.string().min(1).max(200)).max(20).optional(),
+})
+
+export const PortfolioItemSchema = z.object({
+  title:       z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).optional(),
+  eventType:   z.string().max(50).optional(),
+  eventDate:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  photoKeys:   z.array(z.string().min(1).max(500)).max(20).optional(),
+  videoKey:    z.string().max(500).optional(),
+})
+
+// ── Vendor event types (routing opt-in — shared with vendorEngine.ts) ─────────
+// Hoisted so the onboarding write endpoint and the admin/coordinator routing
+// tool (apps/api/src/routes/vendorEngine.ts) agree on one source of truth.
+
+export const EVENT_TYPE_VALUES = [
+  'WEDDING', 'CORPORATE', 'FESTIVAL', 'COMMUNITY_EVENT', 'COMMUNITY',
+  'GOVERNMENT', 'SCHOOL', 'OTHER', 'HALDI', 'MEHNDI', 'SANGEET',
+  'ENGAGEMENT', 'RECEPTION',
+] as const
+
+export const VendorEventTypesSchema = z.object({
+  eventTypes: z.array(z.enum(EVENT_TYPE_VALUES)).max(EVENT_TYPE_VALUES.length),
+})
+
 export const CreatePaymentOrderSchema = z.object({
   bookingId: z.string().uuid(),
 })
@@ -142,3 +179,7 @@ export type ReviewReplyInput      = z.infer<typeof ReviewReplySchema>
 export type CreateInquiryInput    = z.infer<typeof CreateInquirySchema>
 export type InquiryReplyInput     = z.infer<typeof InquiryReplySchema>
 export type BlockedDateInput      = z.infer<typeof BlockedDateSchema>
+export type PortfolioBasicsInput  = z.infer<typeof PortfolioBasicsSchema>
+export type PortfolioItemInput    = z.infer<typeof PortfolioItemSchema>
+export type VendorEventTypesInput = z.infer<typeof VendorEventTypesSchema>
+export type EventTypeValue        = typeof EVENT_TYPE_VALUES[number]

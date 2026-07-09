@@ -19,11 +19,9 @@
 
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { profiles } from '@smartshaadi/db';
 import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { authenticate } from '../../auth/middleware.js';
-import { db } from '../../lib/db.js';
+import { resolveProfileId as resolveProfileIdCached } from '../../lib/profile.js';
 import { ok, err } from '../../lib/response.js';
 import { getProfileTier } from '../../lib/entitlements.js';
 import { checkAndConsumeInterestQuota } from '../../lib/quotas.js';
@@ -120,8 +118,7 @@ function handleServiceError(res: Response, error: unknown): void {
 }
 
 async function resolveProfileId(userId: string): Promise<ProfileId | null> {
-  const [row] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, userId)).limit(1);
-  return row ? asProfileId(row.id) : null;
+  return resolveProfileIdCached(userId);
 }
 
 // ── POST /requests ─────────────────────────────────────────────────────────────

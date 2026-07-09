@@ -1,16 +1,27 @@
+import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
-import { ArrowLeft, ShieldCheck, Users, Sparkles } from 'lucide-react';
+import {
+  ShieldCheck, Users, Sparkles, UserPlus, Bell, UserCog, Cake, Clock,
+} from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
+import { getMyLinks, getDraftedActions, type DraftedAction } from '@/lib/family-mode-api';
+import { getCollaboratingWeddings } from '@/lib/family-extras-api';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { AssistedSeekerCard } from '@/components/family/AssistedSeekerCard';
 import { FamilyMembersClient } from '@/components/family/FamilyMembersClient.client';
 import { RequestFamilyVerification } from '@/components/family/RequestFamilyVerification.client';
+import { ParentActionCard } from '@/components/family/ParentActionCard.client';
+import { WeddingCard } from '@/components/wedding/WeddingCard';
 import type { FamilyView, FamilyVerificationBadge } from '@smartshaadi/types';
 
-const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
-  NONE:            'Not verified',
-  FAMILY_VERIFIED: 'Family verified',
-  PARENT_VERIFIED: 'Parent verified',
-};
+export const dynamic = 'force-dynamic';
 
 export default async function FamilyPage() {
   // Role guard — middleware does the same check, but the page guard prevents
@@ -19,103 +30,233 @@ export default async function FamilyPage() {
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('familyRole.hub');
+  const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
+    NONE:            t('badgeNone'),
+    FAMILY_VERIFIED: t('badgeFamilyVerified'),
+    PARENT_VERIFIED: t('badgeParentVerified'),
+  };
 
-  const view = await fetchAuth<FamilyView>('/api/v1/profiles/me/family');
-  if (!view) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Could not load family information.</p>
-      </div>
-    );
-  }
+  const cookieStore = await cookies();
+  const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
 
-  const { section, members, verification, inclinationScore } = view;
-  const score = inclinationScore ?? 0;
+  const [links, drafted, familyView, collaboratingWeddings] = await Promise.all([
+    getMyLinks(cookieHeader),
+    getDraftedActions(cookieHeader),
+    fetchAuth<FamilyView>('/api/v1/profiles/me/family'),
+    getCollaboratingWeddings(cookieHeader),
+  ]);
+
+  const approvedAsParent = (links?.as_parent ?? []).filter(
+    (l) => l.childConsentStatus === 'APPROVED' && !l.revokedAt,
+  );
+  const allDrafted = drafted ?? [];
+  const pendingDrafted = allDrafted.filter((a) => a.status === 'PENDING');
+  const countPendingFor = (childUserId: string) =>
+    pendingDrafted.filter((a) => a.childUserId === childUserId).length;
+
+  const verification = familyView?.verification ?? null;
+  const score = familyView?.inclinationScore ?? 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> Dashboard
-        </Link>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="mx-auto max-w-2xl space-y-7 px-4 py-6 pb-24 lg:max-w-4xl">
 
-        <h1 className="font-heading text-2xl text-primary mb-1">Family</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          Add structured family details that power matchmaking and trust badges. Free-form intro lives on your profile.
-        </p>
-
-        {/* Top stat row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-          <Card icon={<Users className="h-4 w-4 text-primary" />} title="Family members">
-            <div className="text-2xl font-semibold">{members.length}</div>
-          </Card>
-          <Card icon={<Sparkles className="h-4 w-4 text-teal" />} title="Family signal score">
-            <div className="text-2xl font-semibold">{score}<span className="text-base text-muted-foreground"> / 100</span></div>
-            <div className="h-1.5 bg-secondary rounded mt-2 overflow-hidden">
-              <div className="h-full bg-teal" style={{ width: `${score}%` }} />
+          {/* ── Hero greeting ──────────────────────────────────── */}
+          <FadeUp delay={0}>
+            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card sm:px-7 sm:py-6">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
+              />
+              <h1 className="relative font-heading text-[22px] font-semibold leading-tight tracking-tight text-primary sm:text-[28px]">
+                {t('heroTitle')}
+              </h1>
+              <p className="relative mt-1.5 text-sm text-muted-foreground">
+                {t('heroSubtitle')}
+              </p>
             </div>
-          </Card>
-          <Card icon={<ShieldCheck className="h-4 w-4 text-warning" />} title="Verification">
-            <div className="text-base font-semibold">{verification ? BADGE_LABEL[verification.badge] : 'Not verified'}</div>
-            {verification?.verifiedAt && (
-              <p className="text-[10px] text-muted-foreground">Verified {new Date(verification.verifiedAt).toLocaleDateString()}</p>
-            )}
-            <RequestFamilyVerification verified={verification?.isVerified ?? false} />
-          </Card>
-        </div>
+          </FadeUp>
 
-        {/* Family bio summary */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-6">
-          <h3 className="font-medium text-sm text-primary mb-3">Family details</h3>
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <Field label="Father">{section.fatherName ?? '—'}{section.fatherOccupation ? ` · ${section.fatherOccupation}` : ''}</Field>
-            <Field label="Mother">{section.motherName ?? '—'}{section.motherOccupation ? ` · ${section.motherOccupation}` : ''}</Field>
-            <Field label="Family type">{section.familyType ?? '—'}</Field>
-            <Field label="Family values">{section.familyValues ?? '—'}</Field>
-            <Field label="Native place">{section.nativePlace ?? '—'}</Field>
-            <Field label="Family status">{section.familyStatus ?? '—'}</Field>
-          </dl>
-          {section.siblings && section.siblings.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-gold/10">
-              <p className="text-xs text-muted-foreground mb-1">Siblings</p>
-              <ul className="text-sm space-y-1">
-                {section.siblings.map((s, i) => (
-                  <li key={i}>
-                    {s.name ?? 'Unnamed'}
-                    {s.occupation ? ` · ${s.occupation}` : ''}
-                    {s.married ? ' · married' : ''}
-                  </li>
+          {/* ── KPI row ────────────────────────────────────────── */}
+          <StaggerList className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4">
+            <StatsCard
+              label={t('kpiSeekers')}
+              value={approvedAsParent.length}
+              sub={t('kpiSeekersSub')}
+              icon={Users}
+              variant="teal"
+              animDelayMs={0}
+              href="/family/parent-mode"
+              emptyCta={{ label: t('linkCta'), href: '/family/link/new' }}
+            />
+            <StatsCard
+              label={t('kpiPending')}
+              value={pendingDrafted.length}
+              sub={t('kpiPendingSub')}
+              icon={Clock}
+              variant="gold"
+              animDelayMs={100}
+              href="/family/parent-mode"
+            />
+            <StatsCard
+              label={t('kpiVerification')}
+              value={verification ? BADGE_LABEL[verification.badge] : t('badgeNone')}
+              sub={verification?.verifiedAt ? t('kpiVerificationSince', { date: new Date(verification.verifiedAt).toLocaleDateString() }) : t('kpiVerificationFrom')}
+              icon={ShieldCheck}
+              variant={verification?.isVerified ? 'success' : 'default'}
+              animDelayMs={200}
+            />
+            <StatsCard
+              label={t('kpiScore')}
+              value={score}
+              sub={t('kpiScoreSub')}
+              icon={Sparkles}
+              variant={score >= 60 ? 'success' : 'default'}
+              animDelayMs={300}
+            />
+          </StaggerList>
+
+          {/* ── Pillar 1 — Guardian matchmaking co-pilot ────────── */}
+          <FadeUp delay={0.1}>
+            <SectionHeader
+              title={t('seekersTitle')}
+              viewAllHref="/family/parent-mode"
+              viewAllLabel={t('seekersManageAll')}
+            />
+            {approvedAsParent.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title={t('seekersEmptyTitle')}
+                description={t('seekersEmptyDesc')}
+                action={
+                  <Link
+                    href="/family/link/new"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-teal px-4 text-sm font-medium text-white hover:bg-teal-hover"
+                  >
+                    <UserPlus className="h-4 w-4" aria-hidden="true" />
+                    {t('linkCta')}
+                  </Link>
+                }
+              />
+            ) : (
+              <div className="space-y-3">
+                {approvedAsParent.map((l) => (
+                  <AssistedSeekerCard key={l.id} link={l} pendingCount={countPendingFor(l.childUserId)} />
+                ))}
+              </div>
+            )}
+          </FadeUp>
+
+          {/* ── Pending items across all seekers ────────────────── */}
+          <FadeUp delay={0.15}>
+            <SectionHeader title={t('pendingTitle')} />
+            {pendingDrafted.length === 0 ? (
+              <EmptyState
+                icon={Clock}
+                title={t('pendingEmptyTitle')}
+                description={t('pendingEmptyDesc')}
+              />
+            ) : (
+              <ul className="space-y-3">
+                {pendingDrafted.slice(0, 5).map((a: DraftedAction) => (
+                  <li key={a.id}><ParentActionCard action={a} /></li>
                 ))}
               </ul>
+            )}
+          </FadeUp>
+
+          {/* ── Pillar 2 — Wedding-planning collaborator ────────── */}
+          <FadeUp delay={0.2}>
+            <SectionHeader title={t('collabTitle')} />
+            {collaboratingWeddings.length === 0 ? (
+              <EmptyState
+                icon={Cake}
+                title={t('collabEmptyTitle')}
+                description={t('collabEmptyDesc')}
+              />
+            ) : (
+              <div className="space-y-4">
+                {collaboratingWeddings.map((w) => (
+                  <div key={w.id} className="space-y-1.5">
+                    <WeddingCard wedding={w} />
+                    <p className="px-1 text-[11px] text-gold-muted">
+                      {t('collabRole', { role: w.myRole === 'EDITOR' ? t('roleEditor') : t('roleViewer') })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </FadeUp>
+
+          {/* ── Quick actions ────────────────────────────────────── */}
+          <FadeUp delay={0.25}>
+            <SectionHeader title={t('quickTitle')} />
+            <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
+              <Link
+                href="/family/link/new"
+                className="group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border border-teal/20 bg-teal/5 p-4 transition-all duration-150 hover:-translate-y-0.5 hover:bg-teal/10 hover:shadow-card-hover"
+              >
+                <UserPlus className="h-5 w-5 text-teal" aria-hidden="true" />
+                <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                  {t('linkCta')}
+                </span>
+              </Link>
+              <Link
+                href="/family/inbox"
+                className="group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border border-gold/30 bg-gold/10 p-4 transition-all duration-150 hover:-translate-y-0.5 hover:bg-gold/20 hover:shadow-card-hover"
+              >
+                <Bell className="h-5 w-5 text-gold-muted" aria-hidden="true" />
+                <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                  {t('quickInbox')}
+                </span>
+              </Link>
+              <Link
+                href="/family/parent-mode"
+                className="group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-all duration-150 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-card-hover"
+              >
+                <UserCog className="h-5 w-5 text-primary" aria-hidden="true" />
+                <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                  {t('quickParentMode')}
+                </span>
+              </Link>
             </div>
-          )}
-          {section.familyAbout && (
-            <div className="mt-3 pt-3 border-t border-gold/10">
-              <p className="text-xs text-muted-foreground mb-1">About</p>
-              <p className="text-sm whitespace-pre-line">{section.familyAbout}</p>
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground mt-3">
-            Edit details from <Link href="/profile/family" className="text-teal underline">profile family page</Link>.
-          </p>
+          </FadeUp>
+
+          {/* ── Family details & roster (kept reachable) ─────────── */}
+          <FadeUp delay={0.3}>
+            <SectionHeader title={t('detailsTitle')} />
+            {familyView ? (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card">
+                  <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+                    <Field label={t('fieldFather')}>{familyView.section.fatherName ?? '—'}{familyView.section.fatherOccupation ? ` · ${familyView.section.fatherOccupation}` : ''}</Field>
+                    <Field label={t('fieldMother')}>{familyView.section.motherName ?? '—'}{familyView.section.motherOccupation ? ` · ${familyView.section.motherOccupation}` : ''}</Field>
+                    <Field label={t('fieldFamilyType')}>{familyView.section.familyType ?? '—'}</Field>
+                    <Field label={t('fieldFamilyValues')}>{familyView.section.familyValues ?? '—'}</Field>
+                    <Field label={t('fieldNativePlace')}>{familyView.section.nativePlace ?? '—'}</Field>
+                    <Field label={t('fieldFamilyStatus')}>{familyView.section.familyStatus ?? '—'}</Field>
+                  </dl>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {t('editHintPre')} <Link href="/profile/family" className="text-teal underline">{t('editHintLink')}</Link>.
+                  </p>
+                  <RequestFamilyVerification verified={verification?.isVerified ?? false} />
+                </div>
+                <FamilyMembersClient initial={familyView.members} />
+              </div>
+            ) : (
+              <EmptyState
+                icon={ShieldCheck}
+                title={t('detailsEmptyTitle')}
+                description={t('detailsEmptyDesc')}
+              />
+            )}
+          </FadeUp>
+
         </div>
-
-        {/* Family members CRUD */}
-        <FamilyMembersClient initial={members} />
-      </div>
-    </div>
-  );
-}
-
-function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
-      <div className="flex items-center gap-1.5 mb-1.5">
-        {icon}
-        <span className="text-xs text-muted-foreground">{title}</span>
-      </div>
-      {children}
-    </div>
+      </main>
+    </PageTransition>
   );
 }
 

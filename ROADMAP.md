@@ -16,6 +16,47 @@ Mocks:    USE_MOCK_SERVICES=true
 Last updated: 2026-04-21
 ```
 
+### Premium uplift + gap-fill (2026-07-08, in progress) — `feat/all-roles-production`
+
+Audit of all 5 roles found dead links + generic UIs. Landed (api+web type-check +
+prod build green): shared `RoleHero` + illustrated empty-state presets + DataTable
+row-selection + i18n role namespaces; **fixed 2 coordinator 404s** (routing + calendar
+pages); **family co-pilot now works** (browse a linked seeker's matches + draft interest,
+consent-gated) with humanized inbox + secure invite-by-own-code + INDIVIDUAL nav access;
+premium heroes on admin/support/vendor-dashboard; **vendor-dashboard RBAC guard** (was
+missing); support pagination. Security review fixes: removed user-enumeration lookup,
+scoped name-resolve authorization.
+
+✅ Then completed (4 parallel squads + solo): SUPPORT filters/search/new-ticket + report
+severity/reassign/canned-replies/notifications; VENDOR package + portfolio-item CRUD + media
+upload + wizard chrome + premium leads/payouts; ADMIN audit export/filters + bulk user actions;
+COORDINATOR task inbox; FAMILY humanized parent-mode + real Pillar-2 + compatibility fix.
+**Runtime-verified**: all 6 roles × key pages = 24/24 render 200, zero 500s, RBAC enforced;
+api+web type-check + prod build green.
+
+⬜ Minor leftovers: full i18n of still-hardcoded role pages; support report content-preview
+(needs ChatReport schema change); R2 media upload verifies on Railway only (TLS-blocked local);
+visual 375/1280 responsive pass (HTTP smoke was render-only).
+
+### All-roles production sprint (2026-07-07) — `feat/all-roles-production`
+
+Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-check
+(api + web) + prod build green (295 web pages, all new routes registered).
+
+- **SUPPORT** — new tables (`support_tickets`/`ticket_messages`/`ticket_events`,
+  migration `0031`) + `/api/v1/support` router + full staff console (queue, ticket
+  detail with thread/internal-notes/reply/history, chat-abuse reports triage).
+- **ADMIN** — audit-log viewer + user management (list/detail/suspend) routers
+  mounted; web pages + ReputationCard + home recent-activity feed.
+- **VENDOR** — portfolio + event-types write services (7 owner-scoped routes);
+  6-step onboarding wizard; reviews reply UI; insights (views/saves/leads funnel).
+- **FAMILY** — hub + link-creation flow (`/family/link/new`, wires createLink).
+- **COORDINATOR** — rebuilt dashboard + vendor-routing tool + cross-wedding calendar.
+- Nav `*_MORE_GROUPS` for all 4 roles + admin audit/users; i18n keys (en + hi).
+
+**⬜ TODO before prod:** apply `packages/db/migrations/0031_support_tickets.sql`
+(additive/idempotent) to the Railway prod DB — applied to local only.
+
 ### Week 6 shipped (2026-04-21)
 
 - Wedding planning shared contracts (types + schemas + MongoDB WeddingPlan model) — commit `b82ffac`

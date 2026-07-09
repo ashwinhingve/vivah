@@ -99,6 +99,7 @@ function mapVendorRow(
     viewCount:        vendor.viewCount,
     favoriteCount:    vendor.favoriteCount,
     isFavorite,
+    bankVerificationStatus: vendor.bankVerificationStatus,
   };
 }
 
@@ -460,7 +461,7 @@ export interface VendorPackage {
   photoKeys?:  string[] | undefined;
 }
 
-async function assertVendorOwner(vendorId: string, ownerUserId: string): Promise<void> {
+export async function assertVendorOwner(vendorId: string, ownerUserId: string): Promise<void> {
   const [row] = await db
     .select({ userId: vendors.userId })
     .from(vendors)

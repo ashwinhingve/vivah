@@ -687,6 +687,21 @@ export interface WeddingIncident {
   updatedAt:   string;
 }
 
+/** One row in a coordinator's cross-wedding task inbox — an open task or an unresolved incident. */
+export interface CoordinatorTaskInboxItem {
+  weddingId:    string;
+  weddingTitle: string;
+  kind:         'TASK' | 'INCIDENT';
+  id:           string;
+  title:        string;
+  /** Task due date (YYYY-MM-DD); always null for incidents — they carry no due date. */
+  dueDate:      string | null;
+  /** Set for incidents only. */
+  severity:     IncidentSeverity | null;
+  /** Set for tasks only (TODO | IN_PROGRESS | BLOCKED). */
+  status:       string | null;
+}
+
 // ── Day-of Snapshot ──────────────────────────────────────────────────────────
 
 export interface DayOfSnapshot {

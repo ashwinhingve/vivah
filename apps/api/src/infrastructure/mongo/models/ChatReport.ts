@@ -11,6 +11,11 @@ const ChatReportSchema = new mongoose.Schema(
   {
     matchRequestId:    { type: String, required: true },
     reporterProfileId: { type: String, required: true },
+    // The other participant in the reported conversation + a short excerpt of
+    // its last message, captured at report time so staff can triage without
+    // opening the chat. Optional — older reports predate these fields.
+    reportedProfileId: { type: String, default: null },
+    messageExcerpt:    { type: String, default: null },
     reason:            { type: String, required: true },
     status:            { type: String, enum: ['OPEN', 'REVIEWED', 'DISMISSED'], default: 'OPEN' },
   },

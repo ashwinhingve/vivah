@@ -55,7 +55,25 @@
       "family": "Family",
       "familyInbox": "Inbox",
       "parentMode": "Parent Mode",
-      "coordinator": "Coordinator"
+      "coordinator": "Coordinator",
+      "groupSupport": "Help desk",
+      "groupTools": "Tools",
+      "ticketQueue": "Ticket queue",
+      "abuseReports": "Abuse reports",
+      "vendorRouting": "Vendor routing",
+      "groupFamily": "Family",
+      "linkMember": "Link a family member",
+      "userManagement": "User management",
+      "auditLog": "Audit log",
+      "familyRequests": "Family requests",
+      "tasksInbox": "Task inbox",
+      "groupBusiness": "Business",
+      "groupLeads": "Leads",
+      "vendorSetup": "Profile setup",
+      "insights": "Insights",
+      "reviews": "Reviews",
+      "leads": "Leads",
+      "pipeline": "Pipeline"
     }
   },
   "auth": {
@@ -447,7 +465,61 @@
       "metadata": {
         "title": "Family Details — Smart Shaadi"
       },
-      "heading": "Tell us about your family"
+      "heading": "Tell us about your family",
+      "stepPersonal": "Personal",
+      "stepFamily": "Family",
+      "fatherName": "Father's Name",
+      "fatherNamePh": "Father's full name",
+      "fatherOccupation": "Father's Occupation",
+      "fatherOccupationPh": "e.g. Retired Government Officer",
+      "motherName": "Mother's Name",
+      "motherNamePh": "Mother's full name",
+      "motherOccupation": "Mother's Occupation",
+      "motherOccupationPh": "e.g. Homemaker",
+      "nativePlace": "Native Place",
+      "nativePlacePh": "e.g. Pune, Maharashtra",
+      "familyType": "Family Type",
+      "typeJoint": "Joint",
+      "typeNuclear": "Nuclear",
+      "typeExtended": "Extended",
+      "familyValues": "Family Values",
+      "valuesTraditional": "Traditional",
+      "valuesModerate": "Moderate",
+      "valuesLiberal": "Liberal",
+      "familyStatus": "Family Status",
+      "statusMiddle": "Middle Class",
+      "statusUpperMiddle": "Upper Middle Class",
+      "statusAffluent": "Affluent",
+      "livingArrangement": "Living arrangement with parents",
+      "livingCommitted": "Plan to live with them",
+      "livingOpen": "Open to living with them",
+      "livingNoObjection": "No objection if needed",
+      "livingSeparate": "Prefer separate homes",
+      "decisionInvolvement": "Family involvement in major life decisions",
+      "decisionTogether": "We decide together",
+      "decisionConsult": "I consult them on important things",
+      "decisionInformed": "I keep them informed",
+      "decisionIndependent": "I make my own decisions",
+      "culturalEvents": "Attendance at family/cultural events",
+      "culturalAll": "Attend them all",
+      "culturalImportant": "Attend important ones",
+      "culturalOccasional": "Attend occasionally",
+      "culturalRarely": "Rarely attend",
+      "religiousObservance": "Religious practice with family",
+      "religiousVeryActive": "Very active together",
+      "religiousActiveIndividual": "Active individually",
+      "religiousOccasional": "Occasional",
+      "religiousPersonal": "Personal practice only",
+      "religiousNone": "Not practicing",
+      "aboutLabel": "About Your Family",
+      "aboutPh": "Share a bit about your family background…",
+      "siblings": "Siblings",
+      "addSibling": "+ Add sibling",
+      "noSiblings": "None added yet.",
+      "siblingNamePh": "Name",
+      "siblingOccupationPh": "Occupation",
+      "married": "Married",
+      "remove": "Remove"
     }
   },
   "profileGuide": {
@@ -1051,6 +1123,452 @@
           ]
         }
       ]
+    }
+  },
+  "support": {
+    "title": "Support console",
+    "subtitle": "Resolve customer complaints, escalations and account issues.",
+    "reportsTitle": "Chat abuse reports",
+    "newTicket": "New ticket",
+    "search": "Search tickets…",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "mine": "My tickets",
+      "priority": "Priority",
+      "source": "Source",
+      "allPriorities": "All priorities",
+      "allSources": "All sources"
+    },
+    "stats": {
+      "open": "Open",
+      "overdue": "Overdue",
+      "unassigned": "Unassigned",
+      "resolvedToday": "Resolved today",
+      "abuse": "Abuse reports",
+      "disputes": "Disputes"
+    },
+    "kycAppealsBanner": "{count} KYC appeal(s) pending review in the admin KYC console.",
+    "columns": {
+      "subject": "Subject",
+      "status": "Status",
+      "category": "Category",
+      "assignee": "Assignee",
+      "sla": "SLA"
+    },
+    "empty": {
+      "title": "No tickets here",
+      "filtered": "No {status} tickets right now.",
+      "default": "The queue is clear. New complaints will appear here."
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "summary": "Page {page} · {count, plural, one {# ticket} other {# tickets}}"
+    },
+    "newTicketForm": {
+      "subjectLabel": "Subject *",
+      "descriptionLabel": "Description",
+      "subjectRequired": "Enter a subject.",
+      "creating": "Creating…",
+      "submit": "Create ticket"
+    },
+    "reports": {
+      "backToQueue": "Back to queue",
+      "subtitle": "Review flagged conversations. Dismiss false reports or escalate genuine abuse into a tracked ticket.",
+      "reviewed": "Reviewed",
+      "dismissed": "Dismissed",
+      "conversationLabel": "Conversation",
+      "reportedByLabel": "Reported by",
+      "reportedUserLabel": "Reported user"
+    }
+  },
+  "coordinator": {
+    "title": "Event coordination",
+    "subtitle": "Manage every wedding you run — tasks, timelines and vendor routing.",
+    "routingTitle": "Vendor routing",
+    "calendarTitle": "Cross-wedding calendar",
+    "tasksTitle": "Task inbox",
+    "stats": {
+      "managed": "Managed weddings",
+      "tasks": "Open tasks",
+      "incidents": "Open incidents",
+      "thisWeek": "This week",
+      "managedSub": "Assigned to you",
+      "tasksSub": "Across all weddings",
+      "incidentsSub": "Needs attention",
+      "thisWeekSub": "Ceremonies within 7 days"
+    },
+    "yourWeddings": "Your weddings",
+    "emptyWeddings": {
+      "title": "No weddings assigned yet",
+      "description": "When a couple assigns you as a coordinator, the wedding will appear here with countdown, next ceremony, and outstanding tasks."
+    },
+    "nextLabel": "Next:",
+    "noCeremonyScheduled": "No ceremony scheduled",
+    "openTasksCount": "{count, plural, one {# open task} other {# open tasks}}",
+    "incidentsCount": "{count, plural, one {# incident} other {# incidents}}",
+    "ceremoniesCount": "{count, plural, one {# ceremony} other {# ceremonies}}",
+    "quickActions": "Quick actions",
+    "actions": {
+      "routeVendors": "Route vendors to an event"
+    },
+    "tasksSubtitle": "Open tasks and unresolved incidents across every wedding you coordinate, most urgent first.",
+    "buckets": {
+      "urgent": "Needs immediate attention",
+      "overdue": "Overdue tasks",
+      "week": "Due this week",
+      "later": "Other open items"
+    },
+    "due": "due",
+    "routingSubtitle": "Find the best-fit vendors for an event by type, date and location — ranked by availability and match.",
+    "calendarSubtitle": "Upcoming ceremonies across every wedding you coordinate, soonest first.",
+    "calendarBuckets": {
+      "month": "This month",
+      "later": "Later",
+      "tbc": "Date to be confirmed"
+    },
+    "today": "Today",
+    "inDays": "{count, plural, one {in # day} other {in # days}}"
+  },
+  "vendorRole": {
+    "onboarding": {
+      "title": "Vendor onboarding",
+      "subtitle": "Complete each step, then submit your profile for review.",
+      "business": {
+        "metaTitle": "Business · Vendor onboarding",
+        "title": "Tell us about your business",
+        "subtitle": "This is what couples see first. You can refine it anytime after launch."
+      },
+      "availability": {
+        "metaTitle": "Availability · Vendor onboarding",
+        "title": "Availability",
+        "subtitle": "Block out dates you're unavailable so couples only request open dates. Optional — you can skip this.",
+        "continue": "Continue to payouts"
+      },
+      "bank": {
+        "metaTitle": "Payouts · Vendor onboarding",
+        "title": "Payouts",
+        "subtitle": "How you get paid for bookings. No action needed from you right now.",
+        "verifyTitle": "Bank verification is handled during review",
+        "verifyBody": "Our team verifies your payout account as part of approving your profile — a secure penny-drop check. You don't need to enter bank details here. Once approved, payouts from confirmed bookings settle to your verified account automatically.",
+        "approved": "Your account is approved — payouts are enabled.",
+        "pending": "Payouts unlock once your profile is approved in the next step.",
+        "continue": "Continue to review"
+      },
+      "portfolio": {
+        "metaTitle": "Portfolio · Vendor onboarding",
+        "title": "Portfolio & credentials",
+        "subtitle": "Set your essentials, packages and work samples — this is what couples browse before enquiring."
+      },
+      "services": {
+        "metaTitle": "Services · Vendor onboarding",
+        "title": "Services & pricing",
+        "subtitle": "List what you offer. Add as many as you like — you can edit prices later.",
+        "emptyTitle": "No services yet",
+        "emptyDesc": "Add your first service below to continue.",
+        "continue": "Continue to portfolio"
+      },
+      "review": {
+        "metaTitle": "Review · Vendor onboarding",
+        "title": "Review & submit",
+        "subtitle": "Here's what couples will see. Submit when you're ready — you can keep editing while we review.",
+        "businessDone": "Business: {name}",
+        "businessTodo": "Business details",
+        "servicesDone": "{count, plural, one {# service added} other {# services added}}",
+        "servicesTodo": "At least one service",
+        "aboutDone": "Portfolio “about” written",
+        "aboutTodo": "Portfolio “about” (recommended)",
+        "eventTypesDone": "{count, plural, one {# event type selected} other {# event types selected}}",
+        "eventTypesTodo": "Event types (for coordinator routing)"
+      }
+    },
+    "packages": "Packages",
+    "portfolio": "Portfolio",
+    "dashboard": {
+      "tabs": {
+        "overview": "Overview",
+        "inquiries": "Inquiries",
+        "calendar": "Calendar",
+        "profile": "Profile"
+      },
+      "tabsAria": "Vendor dashboard tabs",
+      "welcome": "Welcome, {name}",
+      "businessFallback": "Your Business",
+      "pendingCallout": "{count, plural, one {# booking awaiting confirmation} other {# bookings awaiting confirmation}}",
+      "pendingHint": "Respond promptly to maintain your response rate.",
+      "review": "Review",
+      "stats": {
+        "todayEvents": "Today's Events",
+        "todayEventsSub": "confirmed today",
+        "monthRevenue": "Month Revenue",
+        "monthRevenueSub": "completed this month",
+        "pending": "Pending",
+        "pendingSub": "need confirmation",
+        "rating": "Rating",
+        "ratingSub": "{count, plural, one {# review} other {# reviews}}"
+      },
+      "todaySchedule": "Today's Schedule",
+      "allEvents": "All events",
+      "todayEmptyTitle": "Nothing booked for today",
+      "todayEmptyDesc": "Upcoming confirmed events will appear here.",
+      "upcomingTitle": "Upcoming Confirmed",
+      "upcomingSubtitle": "Sorted by event date",
+      "confirmed": "Confirmed",
+      "pendingRequestsTitle": "Pending Requests",
+      "pendingRequestsSubtitle": "{count, plural, one {# booking needs your response} other {# bookings need your response}}",
+      "performanceTitle": "Performance",
+      "performanceCompleted": "Completed",
+      "performanceConfirmed": "Confirmed",
+      "performancePending": "Pending",
+      "calendarHint": "Block dates so customers cannot book when you are unavailable.",
+      "profileMissingTitle": "Vendor profile not found",
+      "profileMissingDesc": "Set up your vendor profile to start receiving bookings."
+    }
+  },
+  "familyRole": {
+    "hubTitle": "Family hub",
+    "browseTitle": "Browse matches",
+    "requestsTitle": "Family requests",
+    "hub": {
+      "heroTitle": "Family hub 👨‍👩‍👧",
+      "heroSubtitle": "Assist family members with matchmaking and collaborate on their weddings — every action they didn't do themselves needs their approval.",
+      "kpiSeekers": "Seekers I assist",
+      "kpiSeekersSub": "Approved links",
+      "kpiPending": "Pending drafted actions",
+      "kpiPendingSub": "Awaiting their approval",
+      "kpiVerification": "Family verification",
+      "kpiVerificationSince": "Since {date}",
+      "kpiVerificationFrom": "From your family details",
+      "kpiScore": "Family signal score",
+      "kpiScoreSub": "Out of 100",
+      "badgeNone": "Not verified",
+      "badgeFamilyVerified": "Family verified",
+      "badgeParentVerified": "Parent verified",
+      "linkCta": "Link a family member",
+      "seekersTitle": "Seekers you assist",
+      "seekersManageAll": "Manage all",
+      "seekersEmptyTitle": "You're not linked to anyone yet",
+      "seekersEmptyDesc": "Once a family member approves your link request, you can help them browse matches and draft interests on their behalf.",
+      "pendingTitle": "Pending items",
+      "pendingEmptyTitle": "Nothing pending",
+      "pendingEmptyDesc": "Drafted interests and messages you send on a seeker's behalf will wait here until they respond.",
+      "collabTitle": "Weddings you collaborate on",
+      "collabEmptyTitle": "No wedding collaborations yet",
+      "collabEmptyDesc": "Weddings you're invited to help plan will appear here with a direct link into the shared planner, once you're added as a collaborator.",
+      "collabRole": "Your role: {role}",
+      "roleEditor": "Editor",
+      "roleViewer": "Viewer",
+      "quickTitle": "Quick actions",
+      "quickInbox": "Family inbox",
+      "quickParentMode": "Parent mode",
+      "detailsTitle": "Your family details",
+      "fieldFather": "Father",
+      "fieldMother": "Mother",
+      "fieldFamilyType": "Family type",
+      "fieldFamilyValues": "Family values",
+      "fieldNativePlace": "Native place",
+      "fieldFamilyStatus": "Family status",
+      "editHintPre": "Edit details from",
+      "editHintLink": "profile family page",
+      "detailsEmptyTitle": "Family profile details not available",
+      "detailsEmptyDesc": "This structured family bio applies to accounts with their own matchmaking profile."
+    },
+    "parentMode": {
+      "title": "Parent mode",
+      "subtitle": "Browse matches and draft interests for family members you're linked to — nothing is sent until they approve it.",
+      "assistTitle": "Family members you assist",
+      "assistEmptyTitle": "You're not linked to anyone yet",
+      "assistEmptyDesc": "Linking is parent-initiated: send a link request to a family member's account, and once they approve it from their inbox, they'll appear here.",
+      "linkCta": "Link a family member",
+      "managersTitle": "Your family managers",
+      "review": "Review",
+      "consentNote": "Every interest, message or profile edit you draft on behalf of a family member sits in their inbox for approval — you can never take an action they haven't consented to.",
+      "backLink": "Parent mode",
+      "managing": "Managing {name}",
+      "childSubtitle": "Permission tier: {tier}. Every action drafted here waits in {name}'s inbox for approval.",
+      "browseMatches": "Browse matches",
+      "noActionsTitle": "No actions drafted yet",
+      "noActionsDesc": "Browse {name}'s curated matches and draft an interest — it'll show up here until they approve or decline it.",
+      "childFallback": "this family member"
+    },
+    "browse": {
+      "subtitle": "Curated matches for {name}. Draft an interest — they approve it from their inbox before anything is sent.",
+      "seekerFallback": "your family member",
+      "backLink": "Parent mode",
+      "cantBrowseTitle": "Can't browse right now",
+      "cantBrowseDesc": "You need an approved link with this family member, or their matches aren't ready yet.",
+      "backToParentMode": "Back to parent mode",
+      "noCuratedDesc": "No curated matches yet. Check back as their profile strengthens.",
+      "memberFallback": "Member",
+      "candidateFallback": "this member",
+      "seeCompatibility": "See family compatibility",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page}"
+    }
+  },
+  "adminRole": {
+    "title": "Admin console",
+    "subtitle": "Platform health, moderation and operations at a glance.",
+    "refreshedAt": "Refreshed {time} IST",
+    "common": {
+      "adminConsole": "Admin Console",
+      "breadcrumbAdmin": "Admin",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "applyFilters": "Apply filters",
+      "clear": "Clear",
+      "exportCsv": "Export CSV",
+      "system": "System",
+      "viewAll": "View all"
+    },
+    "systemHealth": {
+      "title": "System Health",
+      "subtitle": "Infrastructure status from /ready"
+    },
+    "platformMetrics": {
+      "title": "Platform Metrics",
+      "totalUsers": "Total Users",
+      "activeVendors": "Active Vendors",
+      "bookingsThisMonth": "Bookings This Month",
+      "openDisputes": "Open Disputes",
+      "actionNeeded": "Action needed",
+      "allClear": "All clear"
+    },
+    "actionQueues": {
+      "title": "Action Queues",
+      "subtitle": "Items requiring moderation"
+    },
+    "kyc": {
+      "title": "KYC Review",
+      "pendingBadge": "{count} pending",
+      "openConsole": "Open full KYC console →"
+    },
+    "disputes": {
+      "openBadge": "{count} open"
+    },
+    "vendorApprovals": {
+      "title": "Vendor Approvals",
+      "allCaughtUp": "All caught up",
+      "noPending": "No pending vendor applications.",
+      "unnamedVendor": "Unnamed vendor",
+      "openQueue": "Open full queue →"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Platform growth, engagement & revenue",
+      "openDashboard": "Open Analytics Dashboard",
+      "description": "Signups, match activity, engagement risk, revenue & top matches"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "emptyTitle": "No activity yet",
+      "emptyDescription": "Platform events will appear here as they happen."
+    },
+    "quickNav": {
+      "title": "Quick Navigation",
+      "subtitle": "Jump to any admin module",
+      "soon": "soon"
+    },
+    "navTiles": {
+      "kyc": {
+        "label": "KYC",
+        "description": "Identity verification queue"
+      },
+      "escrow": {
+        "label": "Escrow",
+        "description": "Booking disputes & releases"
+      },
+      "payouts": {
+        "label": "Payouts",
+        "description": "Vendor payout management"
+      },
+      "promos": {
+        "label": "Promos",
+        "description": "Promo codes & discounts"
+      },
+      "reconciliation": {
+        "label": "Reconciliation",
+        "description": "Payment ledger reconciliation"
+      },
+      "refunds": {
+        "label": "Refunds",
+        "description": "Customer refund processing"
+      },
+      "revenue": {
+        "label": "Revenue",
+        "description": "Platform revenue analytics"
+      },
+      "analytics": {
+        "label": "Analytics",
+        "description": "Platform growth & engagement trends"
+      },
+      "vendors": {
+        "label": "Vendors",
+        "description": "Vendor approval queue"
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "{count, plural, one {# account} other {# accounts}} on the platform.",
+      "breadcrumb": "Users",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Name, email or phone",
+        "role": "Role",
+        "allRoles": "All roles",
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "table": {
+        "colUser": "User",
+        "colRole": "Role",
+        "colStatus": "Status",
+        "colJoined": "Joined",
+        "selected": "{count} selected",
+        "onThisPage": "{count} on this page",
+        "reasonPlaceholder": "Reason (optional, ≥10 chars)",
+        "suspend": "Suspend",
+        "reactivate": "Reactivate",
+        "clearSelection": "Clear selection",
+        "bulkPartial": "{succeeded} updated, {failed} failed.",
+        "bulkSuspended": "{count, plural, one {# user suspended} other {# users suspended}}.",
+        "bulkReactivated": "{count, plural, one {# user reactivated} other {# users reactivated}}.",
+        "emptyTitle": "No users found",
+        "emptyDescription": "Try widening your search or clearing filters."
+      }
+    },
+    "audit": {
+      "title": "Audit Log",
+      "subtitle": "{count, plural, one {# event} other {# events}} in the hash-chained platform trail.",
+      "breadcrumb": "Audit Log",
+      "filters": {
+        "eventType": "Event type",
+        "allEvents": "All events",
+        "entityType": "Entity type",
+        "entityTypePlaceholder": "e.g. booking, vendor, user",
+        "actorId": "Actor ID",
+        "actorIdPlaceholder": "user id of the actor",
+        "entityId": "Entity ID",
+        "entityIdPlaceholder": "uuid of the entity",
+        "from": "From",
+        "to": "To"
+      },
+      "table": {
+        "colEvent": "Event",
+        "colEntity": "Entity",
+        "colActor": "Actor",
+        "colWhen": "When",
+        "colDetails": "Details",
+        "emptyTitle": "No audit events found",
+        "emptyFiltered": "Try widening your filters or clearing the date range.",
+        "emptyDefault": "Nothing has been logged yet."
+      }
     }
   }
 }

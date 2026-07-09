@@ -34,6 +34,15 @@ interface DataTableProps<T> {
   rowKey: (row: T, index: number) => string;
   onRowClick?: (row: T) => void;
   className?: string;
+  /**
+   * Controlled row selection (opt-in). When set, a checkbox column is rendered.
+   * Selection state is owned by the caller — pass these only from a client
+   * component (they're function props, like onRowClick).
+   */
+  selectable?: boolean;
+  selectedKeys?: Set<string>;
+  onToggleRow?: (key: string) => void;
+  onToggleAll?: (allKeys: string[], allSelected: boolean) => void;
 }
 
 function defaultRender<T>(row: T, key: string): ReactNode {
@@ -56,8 +65,12 @@ export function DataTable<T>({
   rowKey,
   onRowClick,
   className,
+  selectable,
+  selectedKeys,
+  onToggleRow,
+  onToggleAll,
 }: DataTableProps<T>) {
-  if (loading) return <TableSkeleton rows={5} cols={columns.length} className={className} />;
+  if (loading) return <TableSkeleton rows={5} cols={columns.length + (selectable ? 1 : 0)} className={className} />;
   if (data.length === 0) {
     return (
       <EmptyState
@@ -69,6 +82,9 @@ export function DataTable<T>({
     );
   }
 
+  const allKeys = data.map((row, i) => rowKey(row, i));
+  const allSelected = selectable ? allKeys.length > 0 && allKeys.every((k) => selectedKeys?.has(k)) : false;
+
   return (
     <>
       {/* Desktop: real table */}
@@ -76,6 +92,17 @@ export function DataTable<T>({
         <Table>
           <TableHeader>
             <TableRow>
+              {selectable && (
+                <TableHead className="w-10">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all rows"
+                    checked={allSelected}
+                    onChange={() => onToggleAll?.(allKeys, allSelected)}
+                    className="h-4 w-4 rounded border-border accent-primary"
+                  />
+                </TableHead>
+              )}
               {columns.map((col) => (
                 <TableHead key={col.key} className={col.headClassName}>
                   {col.header}
@@ -84,19 +111,34 @@ export function DataTable<T>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((row, i) => (
-              <TableRow
-                key={rowKey(row, i)}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                className={onRowClick ? 'cursor-pointer' : undefined}
-              >
-                {columns.map((col) => (
-                  <TableCell key={col.key} className={col.cellClassName}>
-                    {col.render ? col.render(row) : defaultRender(row, col.key)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            {data.map((row, i) => {
+              const key = rowKey(row, i);
+              const selected = selectable ? selectedKeys?.has(key) ?? false : false;
+              return (
+                <TableRow
+                  key={key}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  className={cn(onRowClick && 'cursor-pointer', selected && 'bg-primary/5')}
+                >
+                  {selectable && (
+                    <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        aria-label="Select row"
+                        checked={selected}
+                        onChange={() => onToggleRow?.(key)}
+                        className="h-4 w-4 rounded border-border accent-primary"
+                      />
+                    </TableCell>
+                  )}
+                  {columns.map((col) => (
+                    <TableCell key={col.key} className={col.cellClassName}>
+                      {col.render ? col.render(row) : defaultRender(row, col.key)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -104,8 +146,22 @@ export function DataTable<T>({
       {/* Mobile: card list */}
       <ul className={cn('grid gap-3 md:hidden', className)}>
         {data.map((row, i) => {
+          const key = rowKey(row, i);
+          const selected = selectable ? selectedKeys?.has(key) ?? false : false;
           const Body = (
             <div className="space-y-2">
+              {selectable && (
+                <label className="flex items-center gap-2 pb-1 text-xs text-text-muted" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    aria-label="Select row"
+                    checked={selected}
+                    onChange={() => onToggleRow?.(key)}
+                    className="h-4 w-4 rounded border-border accent-primary"
+                  />
+                  Select
+                </label>
+              )}
               {columns.map((col) => (
                 <div key={col.key} className="flex items-baseline justify-between gap-3">
                   <span className="text-xs font-semibold uppercase tracking-wide text-gold-muted">
@@ -120,9 +176,10 @@ export function DataTable<T>({
           );
           return (
             <li
-              key={rowKey(row, i)}
+              key={key}
               className={cn(
                 'rounded-xl border border-border bg-surface p-4 shadow-card',
+                selected && 'ring-1 ring-primary/30',
                 onRowClick && 'cursor-pointer transition-shadow hover:shadow-card-hover'
               )}
             >

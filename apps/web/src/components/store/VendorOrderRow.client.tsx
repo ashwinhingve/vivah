@@ -14,7 +14,7 @@ const statusBadge: Record<
   { text: string; cls: string }
 > = {
   PENDING:   { text: 'Pending',   cls: 'text-warning bg-warning/10 border border-warning/30' },
-  SHIPPED:   { text: 'Shipped',   cls: 'text-primary bg-primary/10 border border-purple-200' },
+  SHIPPED:   { text: 'Shipped',   cls: 'text-primary bg-primary/10 border border-primary/30' },
   DELIVERED: { text: 'Delivered', cls: 'text-success bg-success/10 border border-success/30' },
 };
 

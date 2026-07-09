@@ -157,6 +157,46 @@ export async function revokeLink(linkId: string): Promise<{ revoked: boolean } |
 
 // ── Parent actions ───────────────────────────────────────────────────────────
 
+// ── Browse candidates for a linked seeker ────────────────────────────────────
+
+import type { MatchFeedItem } from '@smartshaadi/types';
+
+export async function getChildCandidates(
+  childUserId: string,
+  page: number,
+  cookie?: string,
+): Promise<{ items: MatchFeedItem[]; total: number; page: number; limit: number } | null> {
+  return getJson(`/api/v1/family-mode/parent/children/${childUserId}/candidates?page=${page}`, cookie);
+}
+
+export interface ResolvedNames {
+  users: { userId: string; name: string | null }[];
+  profiles: { profileId: string; name: string | null; photoKey: string | null }[];
+}
+
+export async function resolveNames(
+  input: { userIds?: string[]; profileIds?: string[] },
+  cookie?: string,
+): Promise<ResolvedNames | null> {
+  // Uses postJson (browser) or a cookie-forwarding fetch (server).
+  if (cookie !== undefined) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/family-mode/parent/resolve`, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) return null;
+      const json = (await res.json()) as ApiEnvelope<ResolvedNames>;
+      return json.success ? (json.data ?? null) : null;
+    } catch {
+      return null;
+    }
+  }
+  return postJson<ResolvedNames>(`/api/v1/family-mode/parent/resolve`, input);
+}
+
 export async function getPendingActions(cookie?: string): Promise<DraftedAction[] | null> {
   return getJson<DraftedAction[]>(`/api/v1/family-mode/parent/actions/pending`, cookie);
 }

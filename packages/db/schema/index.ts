@@ -1551,6 +1551,14 @@ export {
   parentActionTypeEnum, parentActionStatusEnum,
 } from './familyMode';
 
+// ── Support Console (help-desk ticketing) ────────────────────────────────────
+export {
+  supportTickets, ticketMessages, ticketEvents,
+  ticketCategoryEnum, ticketPriorityEnum, ticketStatusEnum,
+  ticketSourceEnum, ticketEventTypeEnum,
+  supportTicketsRelations, ticketMessagesRelations, ticketEventsRelations,
+} from './support';
+
 // ── Digital Invitation Builder (e-invite card per wedding) ──────────────────
 export {
   inviteStatusEnum, weddingInvites, weddingInvitesRelations,

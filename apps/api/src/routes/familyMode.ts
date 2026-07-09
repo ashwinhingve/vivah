@@ -18,15 +18,20 @@
  *   POST   /api/v1/family-mode/parent/actions/:actionId/reject
  *   GET    /api/v1/family-mode/parent/actions/pending
  *   GET    /api/v1/family-mode/parent/actions/drafted
+ *   GET    /api/v1/family-mode/parent/children/:childUserId/profile
  */
 
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
+import { and, eq, inArray, or } from 'drizzle-orm';
 import { authenticate } from '../auth/middleware.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 import { ok, err } from '../lib/response.js';
 import { env } from '../lib/env.js';
 import { redis } from '../lib/redis.js';
+import { db } from '../lib/db.js';
+import { user, profiles, profilePhotos, parentChildLinks, parentDraftedActions } from '@smartshaadi/db';
+import { getCachedFeed, computeAndCacheFeed } from '../matchmaking/engine.js';
 import * as familyCompat from '../services/familyCompatService.js';
 import * as parentMode  from '../services/parentModeService.js';
 
@@ -338,5 +343,141 @@ familyModeRouter.get(
     const userId = req.user!.id;
     const actions = await parentMode.listDraftedActions(userId);
     ok(res, actions);
+  }),
+);
+
+// ── Parent Mode — Browse candidates for a linked seeker ──────────────────────
+// GET /api/v1/family-mode/parent/children/:childUserId/candidates
+// Consent-gated: the caller must hold an APPROVED, non-revoked link to the
+// child. Returns the child's own reciprocal match feed (keyed by userId) so a
+// guardian can browse, rate and draft interests on their behalf.
+familyModeRouter.get(
+  '/parent/children/:childUserId/candidates',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parentUserId = req.user!.id;
+    const childUserId = String(req.params.childUserId ?? '');
+    if (!childUserId) { err(res, 'INVALID_ID', 'Missing child id', 400); return; }
+
+    const link = await parentMode.getActiveLink(parentUserId, childUserId);
+    if (!link) { err(res, 'NO_LINK', 'No active link with this family member', 403); return; }
+
+    const page  = Math.max(1, Number(req.query.page ?? '1') || 1);
+    const limit = Math.min(48, Math.max(1, Number(req.query.limit ?? '12') || 12));
+
+    const cached = await getCachedFeed(childUserId, redis);
+    const feed = cached ?? await computeAndCacheFeed(childUserId, db, redis);
+    const total = feed.length;
+    const items = feed.slice((page - 1) * limit, (page - 1) * limit + limit);
+
+    ok(res, { items, total, page, limit }, 200, { page, limit, total });
+  }),
+);
+
+// ── Parent Mode — Resolve a linked child's own matchmaking profile id ────────
+// GET /api/v1/family-mode/parent/children/:childUserId/profile
+// The family-compatibility view rates a candidate *for* a subject profile —
+// when a parent opens it on behalf of a linked child, this resolves the
+// child's own profile id (the "subject") the same way the candidates route
+// already authorizes browsing that child's feed.
+familyModeRouter.get(
+  '/parent/children/:childUserId/profile',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parentUserId = req.user!.id;
+    const childUserId = String(req.params.childUserId ?? '');
+    if (!childUserId) { err(res, 'INVALID_ID', 'Missing child id', 400); return; }
+
+    const link = await parentMode.getActiveLink(parentUserId, childUserId);
+    if (!link) { err(res, 'NO_LINK', 'No active link with this family member', 403); return; }
+
+    const [childProfile] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.userId, childUserId))
+      .limit(1);
+
+    ok(res, { profileId: childProfile?.id ?? null });
+  }),
+);
+
+// ── Parent Mode — Resolve ids to display names/photos (humanize UUIDs) ────────
+// POST /api/v1/family-mode/parent/resolve  { userIds?: string[], profileIds?: string[] }
+//
+// Authorization: a caller may ONLY resolve ids they already have a legitimate
+// relationship with — their own links (either direction), the profiles they
+// themselves drafted actions toward, and their linked children's own profiles.
+// Any requested id outside those sets is silently dropped (no data leak, no
+// existence oracle). This is a display-name humanizer, never a directory.
+familyModeRouter.post(
+  '/parent/resolve',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const meId = req.user!.id;
+    const body = z.object({
+      userIds:    z.array(z.string().min(1)).max(50).optional(),
+      profileIds: z.array(z.string().uuid()).max(50).optional(),
+    }).safeParse(req.body);
+    if (!body.success) { err(res, 'VALIDATION', body.error.message, 422); return; }
+
+    // Build the caller's allow-lists.
+    const linkRows = await db
+      .select({ parentUserId: parentChildLinks.parentUserId, childUserId: parentChildLinks.childUserId })
+      .from(parentChildLinks)
+      .where(or(eq(parentChildLinks.parentUserId, meId), eq(parentChildLinks.childUserId, meId)));
+
+    const allowedUserIds = new Set<string>([meId]);
+    const myChildUserIds: string[] = [];
+    for (const r of linkRows) {
+      allowedUserIds.add(r.parentUserId);
+      allowedUserIds.add(r.childUserId);
+      if (r.parentUserId === meId) myChildUserIds.push(r.childUserId);
+    }
+
+    const allowedProfileIds = new Set<string>();
+    const actionRows = await db
+      .select({ payload: parentDraftedActions.payload })
+      .from(parentDraftedActions)
+      .where(or(eq(parentDraftedActions.parentUserId, meId), eq(parentDraftedActions.childUserId, meId)));
+    for (const a of actionRows) {
+      const t = (a.payload as Record<string, unknown> | null)?.['targetProfileId'];
+      if (typeof t === 'string') allowedProfileIds.add(t);
+    }
+    if (myChildUserIds.length > 0) {
+      const childProfiles = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(inArray(profiles.userId, myChildUserIds));
+      for (const cp of childProfiles) allowedProfileIds.add(cp.id);
+    }
+
+    const reqUserIds = (body.data.userIds ?? []).filter((id) => allowedUserIds.has(id));
+    const reqProfileIds = (body.data.profileIds ?? []).filter((id) => allowedProfileIds.has(id));
+
+    const users: { userId: string; name: string | null }[] = [];
+    if (reqUserIds.length > 0) {
+      const rows = await db
+        .select({ id: user.id, name: user.name })
+        .from(user)
+        .where(inArray(user.id, reqUserIds));
+      for (const r of rows) users.push({ userId: r.id, name: r.name });
+    }
+
+    const profs: { profileId: string; name: string | null; photoKey: string | null }[] = [];
+    if (reqProfileIds.length > 0) {
+      const rows = await db
+        .select({ profileId: profiles.id, name: user.name })
+        .from(profiles)
+        .innerJoin(user, eq(user.id, profiles.userId))
+        .where(inArray(profiles.id, reqProfileIds));
+      const photoRows = await db
+        .select({ profileId: profilePhotos.profileId, r2Key: profilePhotos.r2Key })
+        .from(profilePhotos)
+        .where(and(inArray(profilePhotos.profileId, reqProfileIds), eq(profilePhotos.isPrimary, true)));
+      const photoBy = new Map(photoRows.map((p) => [p.profileId, p.r2Key]));
+      for (const r of rows) profs.push({ profileId: r.profileId, name: r.name, photoKey: photoBy.get(r.profileId) ?? null });
+    }
+
+    ok(res, { users, profiles: profs });
   }),
 );

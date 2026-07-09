@@ -6,7 +6,7 @@ import { Upload, Loader2 } from 'lucide-react';
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
-  folder: 'photos' | 'documents';
+  folder: 'photos' | 'documents' | 'portfolios';
   accept?: string;
   label?: string;
   onUploaded: (r2Key: string, file: File) => Promise<void> | void;

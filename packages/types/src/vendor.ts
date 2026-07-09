@@ -72,6 +72,7 @@ export interface VendorProfile {
   viewCount?:   number
   favoriteCount?: number
   isFavorite?:  boolean
+  bankVerificationStatus?: string
 }
 
 export interface VendorReview {
@@ -86,6 +87,31 @@ export interface VendorReview {
   vendorReply:      string | null
   vendorRepliedAt:  string | null
   createdAt:        string
+}
+
+// ── Vendor portfolio (Mongo write path — onboarding wizard) ───────────────────
+
+export interface VendorPortfolioFaq {
+  question: string
+  answer:   string
+}
+
+export interface VendorPortfolioItem {
+  title?:       string | null
+  description?: string | null
+  eventType?:   string | null
+  eventDate?:   string | null
+  photoKeys?:   string[]
+  videoKey?:    string | null
+}
+
+export interface VendorPortfolioDoc {
+  about?:          string | null
+  tagline?:        string | null
+  faqs?:           VendorPortfolioFaq[]
+  awards?:         string[]
+  certifications?: string[]
+  portfolio?:      VendorPortfolioItem[]
 }
 
 export type InquiryStatus = 'NEW' | 'REPLIED' | 'CONVERTED' | 'CLOSED'

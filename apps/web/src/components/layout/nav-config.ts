@@ -21,6 +21,10 @@ import {
   UserCog,
   LifeBuoy,
   ClipboardList,
+  Flag,
+  Route,
+  UserPlus,
+  Inbox,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -46,6 +50,7 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
       { href: '/likes',         labelKey: 'likes',         Icon: Heart },
       { href: '/shortlist',     labelKey: 'shortlist',     Icon: Bookmark },
       { href: '/viewers',       labelKey: 'viewedMe',      Icon: Eye },
+      { href: '/family/inbox',  labelKey: 'familyRequests', Icon: UserPlus },
     ],
   },
   {
@@ -92,6 +97,30 @@ const VENDOR_PRIMARY: NavItem[] = [
   { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
 ];
 
+const VENDOR_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupBusiness',
+    items: [
+      { href: '/vendor/onboarding', labelKey: 'vendorSetup', Icon: ClipboardList },
+      { href: '/vendor/insights',   labelKey: 'insights',    Icon: Sparkles },
+      { href: '/vendor/reviews',    labelKey: 'reviews',     Icon: MessageCircle },
+    ],
+  },
+  {
+    titleKey: 'groupLeads',
+    items: [
+      { href: '/vendor/leads',    labelKey: 'leads',    Icon: Heart },
+      { href: '/vendor/pipeline', labelKey: 'pipeline', Icon: Bookmark },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── ADMIN / SUPPORT ───────────────────────────────────────────────────────────
 const ADMIN_PRIMARY: NavItem[] = [
   { href: '/admin',         labelKey: 'admin',    Icon: Home },
@@ -105,6 +134,8 @@ const ADMIN_MORE_GROUPS: NavGroup[] = [
     titleKey: 'groupOperations',
     items: [
       { href: '/admin/vendors',   labelKey: 'vendorApprovals', Icon: Search },
+      { href: '/admin/users',     labelKey: 'userManagement',  Icon: UserCog },
+      { href: '/admin/audit',     labelKey: 'auditLog',        Icon: ClipboardList },
       { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
     ],
   },
@@ -132,12 +163,44 @@ const SUPPORT_PRIMARY: NavItem[] = [
   { href: '/profile/personal', labelKey: 'profile', Icon: User },
 ];
 
+const SUPPORT_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupSupport',
+    items: [
+      { href: '/support',         labelKey: 'ticketQueue',  Icon: LifeBuoy },
+      { href: '/support/reports', labelKey: 'abuseReports', Icon: Flag },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── FAMILY_MEMBER ─────────────────────────────────────────────────────────────
 const FAMILY_MEMBER_PRIMARY: NavItem[] = [
   { href: '/family',             labelKey: 'family',      Icon: Home },
   { href: '/family/inbox',       labelKey: 'familyInbox', Icon: Bell },
   { href: '/family/parent-mode', labelKey: 'parentMode',  Icon: UserCog },
   { href: '/profile/personal',   labelKey: 'profile',     Icon: User },
+];
+
+const FAMILY_MEMBER_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupFamily',
+    items: [
+      { href: '/family/link/new', labelKey: 'linkMember', Icon: UserPlus },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/privacy',             labelKey: 'privacy',  Icon: EyeOff },
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
 ];
 
 // ── EVENT_COORDINATOR ─────────────────────────────────────────────────────────
@@ -148,19 +211,36 @@ const COORDINATOR_PRIMARY: NavItem[] = [
   { href: '/profile/personal', labelKey: 'profile',     Icon: User },
 ];
 
+const COORDINATOR_MORE_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'groupTools',
+    items: [
+      { href: '/coordinator/tasks',   labelKey: 'tasksInbox',    Icon: Inbox },
+      { href: '/coordinator/routing', labelKey: 'vendorRouting', Icon: Route },
+      { href: '/vendors',             labelKey: 'vendors',       Icon: Search },
+    ],
+  },
+  {
+    titleKey: 'groupSettings',
+    items: [
+      { href: '/settings/security/two-factor', labelKey: 'security', Icon: Shield },
+    ],
+  },
+];
+
 // ── Selector — single source of truth shared by AppNav + TopNav ────────────────
 export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavGroup[] } {
   switch (role as UserRole) {
     case 'ADMIN':
       return { primary: ADMIN_PRIMARY, moreGroups: ADMIN_MORE_GROUPS };
     case 'SUPPORT':
-      return { primary: SUPPORT_PRIMARY, moreGroups: [] };
+      return { primary: SUPPORT_PRIMARY, moreGroups: SUPPORT_MORE_GROUPS };
     case 'VENDOR':
-      return { primary: VENDOR_PRIMARY, moreGroups: [] };
+      return { primary: VENDOR_PRIMARY, moreGroups: VENDOR_MORE_GROUPS };
     case 'FAMILY_MEMBER':
-      return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: [] };
+      return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: FAMILY_MEMBER_MORE_GROUPS };
     case 'EVENT_COORDINATOR':
-      return { primary: COORDINATOR_PRIMARY, moreGroups: [] };
+      return { primary: COORDINATOR_PRIMARY, moreGroups: COORDINATOR_MORE_GROUPS };
     case 'INDIVIDUAL':
     default:
       return { primary: INDIVIDUAL_PRIMARY, moreGroups: INDIVIDUAL_MORE_GROUPS };

@@ -50,10 +50,13 @@ import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { calendarRouter } from './calendar/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
+import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
 import { reputationAdminRouter } from './admin/reputation.router.js';
 import { adminAnalyticsRouter } from './admin/analytics.router.js';
 import { platformSettingsRouter, platformSettingsPublicRouter } from './admin/platformSettings.router.js';
+import { adminUsersRouter } from './admin/users.router.js';
+import { adminAuditRouter } from './admin/audit.router.js';
 import { webhookHandler } from './payments/webhook.js';
 import { storeWebhookHandler } from './store/webhook.js';
 import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
@@ -327,10 +330,13 @@ app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/calendar', calendarRouter);
 app.use('/api/v1/admin', escrowAdminRouter);
+app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);
 app.use('/api/v1/admin', reputationAdminRouter);
 app.use('/api/v1/admin', adminAnalyticsRouter);
 app.use('/api/v1/admin', platformSettingsRouter);
+app.use('/api/v1/admin', adminUsersRouter);
+app.use('/api/v1/admin', adminAuditRouter);
 app.use('/api/v1', platformSettingsPublicRouter);
 
 // Internal service-to-service routes — NO session middleware, authenticated via

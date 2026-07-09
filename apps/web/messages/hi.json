@@ -55,7 +55,25 @@
       "family": "परिवार",
       "familyInbox": "इनबॉक्स",
       "parentMode": "पैरेंट मोड",
-      "coordinator": "समन्वयक"
+      "coordinator": "समन्वयक",
+      "groupSupport": "सहायता डेस्क",
+      "groupTools": "उपकरण",
+      "ticketQueue": "टिकट कतार",
+      "abuseReports": "दुर्व्यवहार रिपोर्ट",
+      "vendorRouting": "वेंडर रूटिंग",
+      "groupFamily": "परिवार",
+      "linkMember": "परिवार के सदस्य को जोड़ें",
+      "userManagement": "उपयोगकर्ता प्रबंधन",
+      "auditLog": "ऑडिट लॉग",
+      "familyRequests": "परिवार अनुरोध",
+      "tasksInbox": "कार्य इनबॉक्स",
+      "groupBusiness": "व्यवसाय",
+      "groupLeads": "लीड्स",
+      "vendorSetup": "प्रोफ़ाइल सेटअप",
+      "insights": "अंतर्दृष्टि",
+      "reviews": "समीक्षाएँ",
+      "leads": "लीड्स",
+      "pipeline": "पाइपलाइन"
     }
   },
   "auth": {
@@ -447,7 +465,61 @@
       "metadata": {
         "title": "पारिवारिक विवरण — Smart Shaadi"
       },
-      "heading": "अपने परिवार के बारे में बताएं"
+      "heading": "अपने परिवार के बारे में बताएं",
+      "stepPersonal": "व्यक्तिगत",
+      "stepFamily": "परिवार",
+      "fatherName": "पिता का नाम",
+      "fatherNamePh": "पिता का पूरा नाम",
+      "fatherOccupation": "पिता का व्यवसाय",
+      "fatherOccupationPh": "जैसे सेवानिवृत्त सरकारी अधिकारी",
+      "motherName": "माता का नाम",
+      "motherNamePh": "माता का पूरा नाम",
+      "motherOccupation": "माता का व्यवसाय",
+      "motherOccupationPh": "जैसे गृहिणी",
+      "nativePlace": "मूल स्थान",
+      "nativePlacePh": "जैसे पुणे, महाराष्ट्र",
+      "familyType": "परिवार का प्रकार",
+      "typeJoint": "संयुक्त",
+      "typeNuclear": "एकल",
+      "typeExtended": "विस्तारित",
+      "familyValues": "पारिवारिक मूल्य",
+      "valuesTraditional": "पारंपरिक",
+      "valuesModerate": "मध्यम",
+      "valuesLiberal": "उदार",
+      "familyStatus": "पारिवारिक स्थिति",
+      "statusMiddle": "मध्यम वर्ग",
+      "statusUpperMiddle": "उच्च मध्यम वर्ग",
+      "statusAffluent": "संपन्न",
+      "livingArrangement": "माता-पिता के साथ रहने की व्यवस्था",
+      "livingCommitted": "उनके साथ रहने की योजना",
+      "livingOpen": "उनके साथ रहने को तैयार",
+      "livingNoObjection": "ज़रूरत पड़ने पर कोई आपत्ति नहीं",
+      "livingSeparate": "अलग घर पसंद करते हैं",
+      "decisionInvolvement": "बड़े जीवन निर्णयों में परिवार की भागीदारी",
+      "decisionTogether": "हम मिलकर निर्णय लेते हैं",
+      "decisionConsult": "महत्वपूर्ण बातों पर मैं उनसे सलाह लेता हूँ",
+      "decisionInformed": "मैं उन्हें सूचित रखता हूँ",
+      "decisionIndependent": "मैं अपने निर्णय स्वयं लेता हूँ",
+      "culturalEvents": "पारिवारिक/सांस्कृतिक आयोजनों में उपस्थिति",
+      "culturalAll": "सभी में शामिल होता हूँ",
+      "culturalImportant": "महत्वपूर्ण में शामिल होता हूँ",
+      "culturalOccasional": "कभी-कभी शामिल होता हूँ",
+      "culturalRarely": "शायद ही कभी शामिल होता हूँ",
+      "religiousObservance": "परिवार के साथ धार्मिक आचरण",
+      "religiousVeryActive": "साथ मिलकर बहुत सक्रिय",
+      "religiousActiveIndividual": "व्यक्तिगत रूप से सक्रिय",
+      "religiousOccasional": "कभी-कभी",
+      "religiousPersonal": "केवल व्यक्तिगत आचरण",
+      "religiousNone": "आचरण नहीं करते",
+      "aboutLabel": "आपके परिवार के बारे में",
+      "aboutPh": "अपने पारिवारिक पृष्ठभूमि के बारे में थोड़ा साझा करें…",
+      "siblings": "भाई-बहन",
+      "addSibling": "+ भाई-बहन जोड़ें",
+      "noSiblings": "अभी तक कोई नहीं जोड़ा गया।",
+      "siblingNamePh": "नाम",
+      "siblingOccupationPh": "व्यवसाय",
+      "married": "विवाहित",
+      "remove": "हटाएं"
     }
   },
   "profileGuide": {
@@ -1051,6 +1123,452 @@
           ]
         }
       ]
+    }
+  },
+  "support": {
+    "title": "सहायता कंसोल",
+    "subtitle": "ग्राहक शिकायतें, एस्केलेशन और खाता समस्याएँ हल करें।",
+    "reportsTitle": "चैट दुर्व्यवहार रिपोर्ट",
+    "newTicket": "नया टिकट",
+    "search": "टिकट खोजें…",
+    "filters": {
+      "all": "सभी",
+      "open": "खुले",
+      "pending": "लंबित",
+      "resolved": "हल",
+      "closed": "बंद",
+      "mine": "मेरे टिकट",
+      "priority": "प्राथमिकता",
+      "source": "स्रोत",
+      "allPriorities": "सभी प्राथमिकताएँ",
+      "allSources": "सभी स्रोत"
+    },
+    "stats": {
+      "open": "खुले",
+      "overdue": "अतिदेय",
+      "unassigned": "अनासाइन",
+      "resolvedToday": "आज हल",
+      "abuse": "दुर्व्यवहार रिपोर्ट",
+      "disputes": "विवाद"
+    },
+    "kycAppealsBanner": "{count} केवाईसी अपील एडमिन केवाईसी कंसोल में समीक्षा हेतु लंबित हैं।",
+    "columns": {
+      "subject": "विषय",
+      "status": "स्थिति",
+      "category": "श्रेणी",
+      "assignee": "जिम्मेदार व्यक्ति",
+      "sla": "एसएलए"
+    },
+    "empty": {
+      "title": "यहाँ कोई टिकट नहीं",
+      "filtered": "अभी कोई {status} टिकट नहीं है।",
+      "default": "कतार खाली है। नई शिकायतें यहाँ दिखेंगी।"
+    },
+    "pagination": {
+      "previous": "पिछला",
+      "next": "अगला",
+      "summary": "पृष्ठ {page} · {count, plural, one {# टिकट} other {# टिकट}}"
+    },
+    "newTicketForm": {
+      "subjectLabel": "विषय *",
+      "descriptionLabel": "विवरण",
+      "subjectRequired": "विषय दर्ज करें।",
+      "creating": "बनाया जा रहा है…",
+      "submit": "टिकट बनाएँ"
+    },
+    "reports": {
+      "backToQueue": "कतार पर वापस जाएँ",
+      "subtitle": "फ़्लैग की गई बातचीत की समीक्षा करें। झूठी रिपोर्ट खारिज करें या वास्तविक दुर्व्यवहार को ट्रैक किए गए टिकट में बदलें।",
+      "reviewed": "समीक्षित",
+      "dismissed": "खारिज",
+      "conversationLabel": "बातचीत",
+      "reportedByLabel": "रिपोर्ट करने वाला",
+      "reportedUserLabel": "रिपोर्ट किया गया उपयोगकर्ता"
+    }
+  },
+  "coordinator": {
+    "title": "इवेंट समन्वय",
+    "subtitle": "अपने हर विवाह का प्रबंधन करें — कार्य, समयरेखा और वेंडर रूटिंग।",
+    "routingTitle": "वेंडर रूटिंग",
+    "calendarTitle": "क्रॉस-विवाह कैलेंडर",
+    "tasksTitle": "कार्य इनबॉक्स",
+    "stats": {
+      "managed": "प्रबंधित विवाह",
+      "tasks": "खुले कार्य",
+      "incidents": "खुली घटनाएँ",
+      "thisWeek": "इस सप्ताह",
+      "managedSub": "आपको सौंपे गए",
+      "tasksSub": "सभी विवाहों में",
+      "incidentsSub": "ध्यान देने योग्य",
+      "thisWeekSub": "7 दिनों के भीतर समारोह"
+    },
+    "yourWeddings": "आपके विवाह",
+    "emptyWeddings": {
+      "title": "अभी तक कोई विवाह असाइन नहीं हुआ",
+      "description": "जब कोई जोड़ा आपको समन्वयक नियुक्त करता है, तो वह विवाह यहाँ काउंटडाउन, अगले समारोह और लंबित कार्यों के साथ दिखाई देगा।"
+    },
+    "nextLabel": "अगला:",
+    "noCeremonyScheduled": "कोई समारोह निर्धारित नहीं",
+    "openTasksCount": "{count, plural, one {# खुला कार्य} other {# खुले कार्य}}",
+    "incidentsCount": "{count, plural, one {# घटना} other {# घटनाएँ}}",
+    "ceremoniesCount": "{count, plural, one {# समारोह} other {# समारोह}}",
+    "quickActions": "त्वरित कार्रवाई",
+    "actions": {
+      "routeVendors": "किसी इवेंट के लिए वेंडर रूट करें"
+    },
+    "tasksSubtitle": "आपके द्वारा समन्वित हर विवाह में खुले कार्य और अनसुलझी घटनाएँ, सबसे अत्यावश्यक पहले।",
+    "buckets": {
+      "urgent": "तत्काल ध्यान चाहिए",
+      "overdue": "अतिदेय कार्य",
+      "week": "इस सप्ताह देय",
+      "later": "अन्य खुले कार्य"
+    },
+    "due": "देय",
+    "routingSubtitle": "प्रकार, तिथि और स्थान के अनुसार किसी इवेंट के लिए सर्वश्रेष्ठ वेंडर खोजें — उपलब्धता और मेल के अनुसार क्रमबद्ध।",
+    "calendarSubtitle": "आपके द्वारा समन्वित हर विवाह के आगामी समारोह, निकटतम पहले।",
+    "calendarBuckets": {
+      "month": "इस महीने",
+      "later": "बाद में",
+      "tbc": "तिथि की पुष्टि होनी बाकी"
+    },
+    "today": "आज",
+    "inDays": "{count, plural, one {# दिन में} other {# दिनों में}}"
+  },
+  "vendorRole": {
+    "onboarding": {
+      "title": "वेंडर ऑनबोर्डिंग",
+      "subtitle": "हर चरण पूरा करें, फिर समीक्षा के लिए अपनी प्रोफ़ाइल सबमिट करें।",
+      "business": {
+        "metaTitle": "व्यवसाय · वेंडर ऑनबोर्डिंग",
+        "title": "अपने व्यवसाय के बारे में बताएं",
+        "subtitle": "जोड़े सबसे पहले यही देखते हैं। लॉन्च के बाद आप इसे कभी भी बेहतर बना सकते हैं।"
+      },
+      "availability": {
+        "metaTitle": "उपलब्धता · वेंडर ऑनबोर्डिंग",
+        "title": "उपलब्धता",
+        "subtitle": "जिन तारीखों पर आप उपलब्ध नहीं हैं उन्हें ब्लॉक करें ताकि जोड़े केवल खुली तारीखों की ही बुकिंग माँगें। वैकल्पिक — आप इसे छोड़ सकते हैं।",
+        "continue": "भुगतान पर जारी रखें"
+      },
+      "bank": {
+        "metaTitle": "भुगतान · वेंडर ऑनबोर्डिंग",
+        "title": "भुगतान",
+        "subtitle": "बुकिंग के लिए आपको भुगतान कैसे मिलता है। अभी आपको कुछ करने की ज़रूरत नहीं है।",
+        "verifyTitle": "बैंक सत्यापन समीक्षा के दौरान किया जाता है",
+        "verifyBody": "हमारी टीम आपकी प्रोफ़ाइल को मंज़ूरी देते समय आपके भुगतान खाते का सत्यापन करती है — एक सुरक्षित पेनी-ड्रॉप जाँच। आपको यहाँ बैंक विवरण दर्ज करने की ज़रूरत नहीं है। मंज़ूरी मिलने के बाद, पुष्ट बुकिंग से भुगतान स्वतः आपके सत्यापित खाते में जमा हो जाएगा।",
+        "approved": "आपका खाता मंज़ूर हो गया है — भुगतान सक्षम हैं।",
+        "pending": "अगले चरण में आपकी प्रोफ़ाइल मंज़ूर होते ही भुगतान चालू हो जाएंगे।",
+        "continue": "समीक्षा पर जारी रखें"
+      },
+      "portfolio": {
+        "metaTitle": "पोर्टफ़ोलियो · वेंडर ऑनबोर्डिंग",
+        "title": "पोर्टफ़ोलियो और प्रमाण-पत्र",
+        "subtitle": "अपनी अनिवार्य जानकारी, पैकेज और काम के नमूने सेट करें — पूछताछ से पहले जोड़े यही देखते हैं।"
+      },
+      "services": {
+        "metaTitle": "सेवाएं · वेंडर ऑनबोर्डिंग",
+        "title": "सेवाएं और मूल्य निर्धारण",
+        "subtitle": "आप जो सेवाएं देते हैं उन्हें सूचीबद्ध करें। जितनी चाहें जोड़ें — कीमतें आप बाद में बदल सकते हैं।",
+        "emptyTitle": "अभी कोई सेवा नहीं",
+        "emptyDesc": "जारी रखने के लिए नीचे अपनी पहली सेवा जोड़ें।",
+        "continue": "पोर्टफ़ोलियो पर जारी रखें"
+      },
+      "review": {
+        "metaTitle": "समीक्षा · वेंडर ऑनबोर्डिंग",
+        "title": "समीक्षा करें और सबमिट करें",
+        "subtitle": "जोड़े यही देखेंगे। तैयार होने पर सबमिट करें — समीक्षा के दौरान आप संपादन जारी रख सकते हैं।",
+        "businessDone": "व्यवसाय: {name}",
+        "businessTodo": "व्यवसाय विवरण",
+        "servicesDone": "{count, plural, one {# सेवा जोड़ी गई} other {# सेवाएं जोड़ी गईं}}",
+        "servicesTodo": "कम से कम एक सेवा",
+        "aboutDone": "पोर्टफ़ोलियो “परिचय” लिखा गया",
+        "aboutTodo": "पोर्टफ़ोलियो “परिचय” (अनुशंसित)",
+        "eventTypesDone": "{count, plural, one {# इवेंट प्रकार चुना गया} other {# इवेंट प्रकार चुने गए}}",
+        "eventTypesTodo": "इवेंट प्रकार (कोऑर्डिनेटर रूटिंग के लिए)"
+      }
+    },
+    "packages": "पैकेज",
+    "portfolio": "पोर्टफ़ोलियो",
+    "dashboard": {
+      "tabs": {
+        "overview": "अवलोकन",
+        "inquiries": "पूछताछ",
+        "calendar": "कैलेंडर",
+        "profile": "प्रोफ़ाइल"
+      },
+      "tabsAria": "वेंडर डैशबोर्ड टैब",
+      "welcome": "स्वागत है, {name}",
+      "businessFallback": "आपका व्यवसाय",
+      "pendingCallout": "{count, plural, one {# बुकिंग पुष्टि की प्रतीक्षा में} other {# बुकिंग पुष्टि की प्रतीक्षा में}}",
+      "pendingHint": "अपनी प्रतिक्रिया दर बनाए रखने के लिए तुरंत जवाब दें।",
+      "review": "समीक्षा करें",
+      "stats": {
+        "todayEvents": "आज के इवेंट",
+        "todayEventsSub": "आज पुष्ट",
+        "monthRevenue": "महीने की आय",
+        "monthRevenueSub": "इस महीने पूर्ण",
+        "pending": "लंबित",
+        "pendingSub": "पुष्टि आवश्यक",
+        "rating": "रेटिंग",
+        "ratingSub": "{count, plural, one {# समीक्षा} other {# समीक्षाएं}}"
+      },
+      "todaySchedule": "आज का शेड्यूल",
+      "allEvents": "सभी इवेंट",
+      "todayEmptyTitle": "आज के लिए कुछ भी बुक नहीं",
+      "todayEmptyDesc": "आगामी पुष्ट इवेंट यहाँ दिखाई देंगे।",
+      "upcomingTitle": "आगामी पुष्ट",
+      "upcomingSubtitle": "इवेंट तारीख के अनुसार क्रमबद्ध",
+      "confirmed": "पुष्ट",
+      "pendingRequestsTitle": "लंबित अनुरोध",
+      "pendingRequestsSubtitle": "{count, plural, one {# बुकिंग को आपकी प्रतिक्रिया चाहिए} other {# बुकिंग को आपकी प्रतिक्रिया चाहिए}}",
+      "performanceTitle": "प्रदर्शन",
+      "performanceCompleted": "पूर्ण",
+      "performanceConfirmed": "पुष्ट",
+      "performancePending": "लंबित",
+      "calendarHint": "तारीखें ब्लॉक करें ताकि जब आप उपलब्ध न हों तो ग्राहक बुक न कर सकें।",
+      "profileMissingTitle": "वेंडर प्रोफ़ाइल नहीं मिली",
+      "profileMissingDesc": "बुकिंग मिलना शुरू करने के लिए अपनी वेंडर प्रोफ़ाइल सेट करें।"
+    }
+  },
+  "familyRole": {
+    "hubTitle": "परिवार हब",
+    "browseTitle": "मैच ब्राउज़ करें",
+    "requestsTitle": "परिवार अनुरोध",
+    "hub": {
+      "heroTitle": "परिवार हब 👨‍👩‍👧",
+      "heroSubtitle": "परिवार के सदस्यों की मैचमेकिंग में सहायता करें और उनकी शादियों में सहयोग करें — जो भी काम उन्होंने खुद नहीं किया उसके लिए उनकी मंज़ूरी ज़रूरी है।",
+      "kpiSeekers": "जिनकी मैं सहायता करता हूँ",
+      "kpiSeekersSub": "मंज़ूर किए गए लिंक",
+      "kpiPending": "लंबित प्रारूपित कार्य",
+      "kpiPendingSub": "उनकी मंज़ूरी की प्रतीक्षा में",
+      "kpiVerification": "परिवार सत्यापन",
+      "kpiVerificationSince": "{date} से",
+      "kpiVerificationFrom": "आपके परिवार विवरण से",
+      "kpiScore": "परिवार सिग्नल स्कोर",
+      "kpiScoreSub": "100 में से",
+      "badgeNone": "सत्यापित नहीं",
+      "badgeFamilyVerified": "परिवार सत्यापित",
+      "badgeParentVerified": "अभिभावक सत्यापित",
+      "linkCta": "परिवार के सदस्य को लिंक करें",
+      "seekersTitle": "जिनकी आप सहायता करते हैं",
+      "seekersManageAll": "सभी प्रबंधित करें",
+      "seekersEmptyTitle": "आप अभी तक किसी से लिंक नहीं हैं",
+      "seekersEmptyDesc": "जैसे ही कोई परिवार सदस्य आपके लिंक अनुरोध को मंज़ूरी देता है, आप उनकी ओर से मैच ब्राउज़ करने और रुचि प्रारूपित करने में मदद कर सकते हैं।",
+      "pendingTitle": "लंबित आइटम",
+      "pendingEmptyTitle": "कुछ भी लंबित नहीं",
+      "pendingEmptyDesc": "किसी सीकर की ओर से आपके भेजे गए प्रारूपित रुचि और संदेश यहाँ तब तक प्रतीक्षा करेंगे जब तक वे जवाब न दें।",
+      "collabTitle": "जिन शादियों में आप सहयोग करते हैं",
+      "collabEmptyTitle": "अभी तक कोई शादी सहयोग नहीं",
+      "collabEmptyDesc": "जिन शादियों की योजना में आपको मदद के लिए आमंत्रित किया गया है, सहयोगी के रूप में जुड़ने के बाद वे यहाँ साझा प्लानर के सीधे लिंक के साथ दिखाई देंगी।",
+      "collabRole": "आपकी भूमिका: {role}",
+      "roleEditor": "संपादक",
+      "roleViewer": "दर्शक",
+      "quickTitle": "त्वरित कार्य",
+      "quickInbox": "परिवार इनबॉक्स",
+      "quickParentMode": "पैरेंट मोड",
+      "detailsTitle": "आपके परिवार का विवरण",
+      "fieldFather": "पिता",
+      "fieldMother": "माता",
+      "fieldFamilyType": "परिवार का प्रकार",
+      "fieldFamilyValues": "पारिवारिक मूल्य",
+      "fieldNativePlace": "मूल स्थान",
+      "fieldFamilyStatus": "पारिवारिक स्थिति",
+      "editHintPre": "विवरण यहाँ से संपादित करें:",
+      "editHintLink": "प्रोफ़ाइल परिवार पेज",
+      "detailsEmptyTitle": "परिवार प्रोफ़ाइल विवरण उपलब्ध नहीं",
+      "detailsEmptyDesc": "यह संरचित परिवार बायो उन खातों पर लागू होता है जिनकी अपनी मैचमेकिंग प्रोफ़ाइल है।"
+    },
+    "parentMode": {
+      "title": "पैरेंट मोड",
+      "subtitle": "जिन परिवार सदस्यों से आप लिंक हैं उनके लिए मैच ब्राउज़ करें और रुचि प्रारूपित करें — जब तक वे मंज़ूरी न दें कुछ भी नहीं भेजा जाता।",
+      "assistTitle": "जिन परिवार सदस्यों की आप सहायता करते हैं",
+      "assistEmptyTitle": "आप अभी तक किसी से लिंक नहीं हैं",
+      "assistEmptyDesc": "लिंकिंग अभिभावक द्वारा शुरू की जाती है: किसी परिवार सदस्य के खाते को लिंक अनुरोध भेजें, और जैसे ही वे इसे अपने इनबॉक्स से मंज़ूरी देंगे, वे यहाँ दिखाई देंगे।",
+      "linkCta": "परिवार के सदस्य को लिंक करें",
+      "managersTitle": "आपके परिवार प्रबंधक",
+      "review": "समीक्षा करें",
+      "consentNote": "किसी परिवार सदस्य की ओर से आपके द्वारा प्रारूपित हर रुचि, संदेश या प्रोफ़ाइल संपादन मंज़ूरी के लिए उनके इनबॉक्स में रहता है — आप कभी भी ऐसी कार्रवाई नहीं कर सकते जिसके लिए उन्होंने सहमति न दी हो।",
+      "backLink": "पैरेंट मोड",
+      "managing": "{name} का प्रबंधन",
+      "childSubtitle": "अनुमति स्तर: {tier}। यहाँ प्रारूपित हर कार्रवाई मंज़ूरी के लिए {name} के इनबॉक्स में प्रतीक्षा करती है।",
+      "browseMatches": "मैच ब्राउज़ करें",
+      "noActionsTitle": "अभी तक कोई कार्रवाई प्रारूपित नहीं",
+      "noActionsDesc": "{name} के चयनित मैच ब्राउज़ करें और रुचि प्रारूपित करें — यह यहाँ तब तक दिखेगा जब तक वे इसे मंज़ूर या अस्वीकार न करें।",
+      "childFallback": "यह परिवार सदस्य"
+    },
+    "browse": {
+      "subtitle": "{name} के लिए चयनित मैच। रुचि प्रारूपित करें — कुछ भी भेजे जाने से पहले वे इसे अपने इनबॉक्स से मंज़ूरी देते हैं।",
+      "seekerFallback": "आपके परिवार सदस्य",
+      "backLink": "पैरेंट मोड",
+      "cantBrowseTitle": "अभी ब्राउज़ नहीं कर सकते",
+      "cantBrowseDesc": "आपको इस परिवार सदस्य के साथ एक मंज़ूर किया गया लिंक चाहिए, या उनके मैच अभी तैयार नहीं हैं।",
+      "backToParentMode": "पैरेंट मोड पर वापस",
+      "noCuratedDesc": "अभी तक कोई चयनित मैच नहीं। उनकी प्रोफ़ाइल मज़बूत होने पर फिर देखें।",
+      "memberFallback": "सदस्य",
+      "candidateFallback": "यह सदस्य",
+      "seeCompatibility": "परिवार अनुकूलता देखें",
+      "previous": "पिछला",
+      "next": "अगला",
+      "page": "पेज {page}"
+    }
+  },
+  "adminRole": {
+    "title": "एडमिन कंसोल",
+    "subtitle": "प्लेटफ़ॉर्म स्वास्थ्य, मॉडरेशन और संचालन एक नज़र में।",
+    "refreshedAt": "{time} IST को रीफ़्रेश किया गया",
+    "common": {
+      "adminConsole": "एडमिन कंसोल",
+      "breadcrumbAdmin": "एडमिन",
+      "previous": "पिछला",
+      "next": "अगला",
+      "pageOf": "पेज {page} / {total}",
+      "applyFilters": "फ़िल्टर लागू करें",
+      "clear": "साफ़ करें",
+      "exportCsv": "CSV निर्यात करें",
+      "system": "सिस्टम",
+      "viewAll": "सभी देखें"
+    },
+    "systemHealth": {
+      "title": "सिस्टम स्वास्थ्य",
+      "subtitle": "/ready से इंफ्रास्ट्रक्चर स्थिति"
+    },
+    "platformMetrics": {
+      "title": "प्लेटफ़ॉर्म मेट्रिक्स",
+      "totalUsers": "कुल उपयोगकर्ता",
+      "activeVendors": "सक्रिय वेंडर",
+      "bookingsThisMonth": "इस माह की बुकिंग",
+      "openDisputes": "खुले विवाद",
+      "actionNeeded": "कार्रवाई आवश्यक",
+      "allClear": "सब ठीक है"
+    },
+    "actionQueues": {
+      "title": "कार्रवाई कतारें",
+      "subtitle": "मॉडरेशन हेतु लंबित आइटम"
+    },
+    "kyc": {
+      "title": "केवाईसी समीक्षा",
+      "pendingBadge": "{count} लंबित",
+      "openConsole": "पूर्ण केवाईसी कंसोल खोलें →"
+    },
+    "disputes": {
+      "openBadge": "{count} खुले"
+    },
+    "vendorApprovals": {
+      "title": "वेंडर अनुमोदन",
+      "allCaughtUp": "सब निपटा दिया गया",
+      "noPending": "कोई लंबित वेंडर आवेदन नहीं।",
+      "unnamedVendor": "अनाम वेंडर",
+      "openQueue": "पूर्ण कतार खोलें →"
+    },
+    "analytics": {
+      "title": "एनालिटिक्स",
+      "subtitle": "प्लेटफ़ॉर्म वृद्धि, जुड़ाव और राजस्व",
+      "openDashboard": "एनालिटिक्स डैशबोर्ड खोलें",
+      "description": "साइनअप, मैच गतिविधि, जुड़ाव जोखिम, राजस्व और शीर्ष मैच"
+    },
+    "recentActivity": {
+      "title": "हाल की गतिविधि",
+      "emptyTitle": "अभी तक कोई गतिविधि नहीं",
+      "emptyDescription": "प्लेटफ़ॉर्म पर होने वाली घटनाएँ यहाँ दिखाई देंगी।"
+    },
+    "quickNav": {
+      "title": "त्वरित नेविगेशन",
+      "subtitle": "किसी भी एडमिन मॉड्यूल पर जाएँ",
+      "soon": "जल्द आ रहा है"
+    },
+    "navTiles": {
+      "kyc": {
+        "label": "केवाईसी",
+        "description": "पहचान सत्यापन कतार"
+      },
+      "escrow": {
+        "label": "एस्क्रो",
+        "description": "बुकिंग विवाद और रिलीज़"
+      },
+      "payouts": {
+        "label": "भुगतान",
+        "description": "वेंडर पेआउट प्रबंधन"
+      },
+      "promos": {
+        "label": "प्रोमो",
+        "description": "प्रोमो कोड और छूट"
+      },
+      "reconciliation": {
+        "label": "रीकॉन्सिलिएशन",
+        "description": "भुगतान लेजर रीकॉन्सिलिएशन"
+      },
+      "refunds": {
+        "label": "रिफ़ंड",
+        "description": "ग्राहक रिफ़ंड प्रोसेसिंग"
+      },
+      "revenue": {
+        "label": "राजस्व",
+        "description": "प्लेटफ़ॉर्म राजस्व एनालिटिक्स"
+      },
+      "analytics": {
+        "label": "एनालिटिक्स",
+        "description": "प्लेटफ़ॉर्म वृद्धि और जुड़ाव रुझान"
+      },
+      "vendors": {
+        "label": "वेंडर",
+        "description": "वेंडर अनुमोदन कतार"
+      }
+    },
+    "users": {
+      "title": "उपयोगकर्ता प्रबंधन",
+      "subtitle": "प्लेटफ़ॉर्म पर {count, plural, one {# खाता} other {# खाते}}।",
+      "breadcrumb": "उपयोगकर्ता",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "नाम, ईमेल या फ़ोन",
+        "role": "भूमिका",
+        "allRoles": "सभी भूमिकाएँ",
+        "status": "स्थिति",
+        "allStatuses": "सभी स्थितियाँ"
+      },
+      "table": {
+        "colUser": "उपयोगकर्ता",
+        "colRole": "भूमिका",
+        "colStatus": "स्थिति",
+        "colJoined": "जुड़ने की तारीख",
+        "selected": "{count} चयनित",
+        "onThisPage": "इस पेज पर {count}",
+        "reasonPlaceholder": "कारण (वैकल्पिक, ≥10 अक्षर)",
+        "suspend": "निलंबित करें",
+        "reactivate": "पुनः सक्रिय करें",
+        "clearSelection": "चयन साफ़ करें",
+        "bulkPartial": "{succeeded} अपडेट किए गए, {failed} विफल।",
+        "bulkSuspended": "{count, plural, one {# उपयोगकर्ता निलंबित किया गया} other {# उपयोगकर्ता निलंबित किए गए}}।",
+        "bulkReactivated": "{count, plural, one {# उपयोगकर्ता पुनः सक्रिय किया गया} other {# उपयोगकर्ता पुनः सक्रिय किए गए}}।",
+        "emptyTitle": "कोई उपयोगकर्ता नहीं मिला",
+        "emptyDescription": "अपनी खोज व्यापक करें या फ़िल्टर साफ़ करें।"
+      }
+    },
+    "audit": {
+      "title": "ऑडिट लॉग",
+      "subtitle": "हैश-चेन्ड प्लेटफ़ॉर्म ट्रेल में {count, plural, one {# घटना} other {# घटनाएँ}}।",
+      "breadcrumb": "ऑडिट लॉग",
+      "filters": {
+        "eventType": "इवेंट प्रकार",
+        "allEvents": "सभी इवेंट",
+        "entityType": "एंटिटी प्रकार",
+        "entityTypePlaceholder": "जैसे booking, vendor, user",
+        "actorId": "एक्टर ID",
+        "actorIdPlaceholder": "एक्टर की उपयोगकर्ता ID",
+        "entityId": "एंटिटी ID",
+        "entityIdPlaceholder": "एंटिटी की uuid",
+        "from": "से",
+        "to": "तक"
+      },
+      "table": {
+        "colEvent": "इवेंट",
+        "colEntity": "एंटिटी",
+        "colActor": "एक्टर",
+        "colWhen": "कब",
+        "colDetails": "विवरण",
+        "emptyTitle": "कोई ऑडिट इवेंट नहीं मिला",
+        "emptyFiltered": "अपने फ़िल्टर व्यापक करें या तारीख़ सीमा साफ़ करें।",
+        "emptyDefault": "अभी तक कुछ भी लॉग नहीं हुआ है।"
+      }
     }
   }
 }

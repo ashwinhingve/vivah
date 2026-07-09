@@ -1,5 +1,8 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { redirect } from '@/i18n/redirect';
+import { RoleHero } from '@/components/shared/RoleHero';
 import {
   Calendar,
   Star,
@@ -27,12 +30,7 @@ export const dynamic = 'force-dynamic';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-const TABS: Array<{ value: string; label: string }> = [
-  { value: 'overview',  label: 'Overview' },
-  { value: 'inquiries', label: 'Inquiries' },
-  { value: 'calendar',  label: 'Calendar' },
-  { value: 'profile',   label: 'Profile' },
-];
+const TAB_VALUES = ['overview', 'inquiries', 'calendar', 'profile'] as const;
 
 async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {
@@ -89,10 +87,17 @@ function getCategoryLabel(cat: string): string {
 
 export default async function VendorDashboardPage({ searchParams }: PageProps) {
   const { tab: tabParam } = await searchParams;
-  const tab = TABS.some((t) => t.value === tabParam) ? tabParam! : 'overview';
+  const tab = TAB_VALUES.includes(tabParam as (typeof TAB_VALUES)[number]) ? tabParam! : 'overview';
 
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
+
+  // Belt-and-braces role guard (middleware also gates /vendor-dashboard).
+  const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me', token);
+  if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
+    return await redirect('/dashboard');
+  }
+  const t = await getTranslations('vendorRole.dashboard');
 
   const [bookingsData, inquiriesData, blockedData, vendorMine] = await Promise.all([
     fetchAuth<{ bookings: BookingSummary[]; total: number }>('/api/v1/bookings?role=vendor&limit=100', token),
@@ -134,7 +139,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
     .filter((b) => b.status === 'CONFIRMED' && new Date(b.eventDate) >= now)
     .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
 
-  const businessName = vendorProfile?.businessName ?? 'Your Business';
+  const businessName = vendorProfile?.businessName ?? t('businessFallback');
   const categoryLabel = vendorProfile?.category ? getCategoryLabel(String(vendorProfile.category)) : null;
 
   return (
@@ -145,18 +150,12 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
         <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
 
           {/* ── Header ─────────────────────────────────────────── */}
-          <FadeUp delay={0}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                  Welcome, {businessName}
-                </h1>
-                {categoryLabel && (
-                  <p className="mt-0.5 text-sm text-muted-foreground">{categoryLabel}</p>
-                )}
-              </div>
-              {vendorProfile?.rating != null && (
-                <div className="flex items-center gap-1.5 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 shrink-0">
+          <RoleHero
+            title={t('welcome', { name: businessName })}
+            subtitle={categoryLabel || undefined}
+            rightSlot={
+              vendorProfile?.rating != null ? (
+                <div className="flex items-center gap-1.5 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2">
                   <Star className="h-4 w-4 fill-gold text-gold" aria-hidden="true" />
                   <span className="font-heading text-sm font-bold text-gold-muted">
                     {vendorProfile.rating.toFixed(1)}
@@ -165,29 +164,29 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                     ({vendorProfile.totalReviews})
                   </span>
                 </div>
-              )}
-            </div>
-          </FadeUp>
+              ) : undefined
+            }
+          />
 
           {/* ── Tabs ───────────────────────────────────────────── */}
           <FadeUp delay={0.04}>
             <div className="-mx-1 overflow-x-auto px-1">
             <nav
               className="flex min-w-max gap-1.5 rounded-xl border border-gold/20 bg-surface p-1.5"
-              aria-label="Vendor dashboard tabs"
+              aria-label={t('tabsAria')}
             >
-              {TABS.map((t) => (
+              {TAB_VALUES.map((value) => (
                 <Link
-                  key={t.value}
-                  href={`/vendor-dashboard?tab=${t.value}`}
+                  key={value}
+                  href={`/vendor-dashboard?tab=${value}`}
                   className={`relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                    tab === t.value
+                    tab === value
                       ? 'bg-primary text-white shadow-sm'
                       : 'text-muted-foreground hover:bg-gold/10 hover:text-foreground'
                   }`}
                 >
-                  {t.label}
-                  {t.value === 'inquiries' && newInquiries > 0 && (
+                  {t(`tabs.${value}`)}
+                  {value === 'inquiries' && newInquiries > 0 && (
                     <span className="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-warning text-[9px] font-bold text-white">
                       {newInquiries > 9 ? '9+' : newInquiries}
                     </span>
@@ -208,17 +207,17 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                     <AlertCircle className="h-5 w-5 shrink-0 text-primary mt-0.5" aria-hidden="true" />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-primary">
-                        {pendingCount} booking{pendingCount !== 1 ? 's' : ''} awaiting confirmation
+                        {t('pendingCallout', { count: pendingCount })}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        Respond promptly to maintain your response rate.
+                        {t('pendingHint')}
                       </p>
                     </div>
                     <Link
                       href="/vendor-dashboard?tab=overview#pending"
                       className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90"
                     >
-                      Review
+                      {t('review')}
                     </Link>
                   </div>
                 </FadeUp>
@@ -227,30 +226,30 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
               {/* 4-card stat row */}
               <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatsCard
-                  label="Today's Events"
+                  label={t('stats.todayEvents')}
                   value={todayBookings.length}
-                  sub="confirmed today"
+                  sub={t('stats.todayEventsSub')}
                   icon={Calendar}
                   variant={todayBookings.length > 0 ? 'success' : 'default'}
                 />
                 <StatsCard
-                  label="Month Revenue"
+                  label={t('stats.monthRevenue')}
                   value={`₹${monthRevenue >= 100_000 ? `${(monthRevenue / 100_000).toFixed(1)}L` : `${(monthRevenue / 1_000).toFixed(1)}k`}`}
-                  sub="completed this month"
+                  sub={t('stats.monthRevenueSub')}
                   icon={IndianRupee}
                   variant="teal"
                 />
                 <StatsCard
-                  label="Pending"
+                  label={t('stats.pending')}
                   value={pendingCount}
-                  sub="need confirmation"
+                  sub={t('stats.pendingSub')}
                   icon={Clock}
                   variant={pendingCount > 0 ? 'warning' : 'default'}
                 />
                 <StatsCard
-                  label="Rating"
+                  label={t('stats.rating')}
                   value={vendorProfile?.rating?.toFixed(1) ?? '—'}
-                  sub={`${vendorProfile?.totalReviews ?? 0} reviews`}
+                  sub={t('stats.ratingSub', { count: vendorProfile?.totalReviews ?? 0 })}
                   icon={Star}
                   variant="gold"
                 />
@@ -264,15 +263,15 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
               {/* Today's bookings */}
               <FadeUp delay={0.18}>
                 <SectionHeader
-                  title="Today's Schedule"
+                  title={t('todaySchedule')}
                   viewAllHref="/vendor-dashboard?tab=overview"
-                  viewAllLabel="All events"
+                  viewAllLabel={t('allEvents')}
                 />
                 {todayBookings.length === 0 ? (
                   <EmptyState
                     icon={Calendar}
-                    title="Nothing booked for today"
-                    description="Upcoming confirmed events will appear here."
+                    title={t('todayEmptyTitle')}
+                    description={t('todayEmptyDesc')}
                   />
                 ) : (
                   <div className="space-y-2.5">
@@ -312,8 +311,8 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
               {upcomingConfirmed.length > 0 && (
                 <FadeUp delay={0.22}>
                   <SectionHeader
-                    title="Upcoming Confirmed"
-                    subtitle="Sorted by event date"
+                    title={t('upcomingTitle')}
+                    subtitle={t('upcomingSubtitle')}
                   />
                   <div className="space-y-2">
                     {upcomingConfirmed.slice(0, 6).map((b) => {
@@ -345,7 +344,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                               ₹{b.totalAmount.toLocaleString('en-IN')}
                             </p>
                             <span className="text-[10px] font-semibold text-success bg-success/10 px-1.5 py-0.5 rounded-full">
-                              Confirmed
+                              {t('confirmed')}
                             </span>
                           </div>
                         </div>
@@ -360,8 +359,8 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                 <FadeUp delay={0.26}>
                   <div id="pending">
                     <SectionHeader
-                      title="Pending Requests"
-                      subtitle={`${pendingCount} booking${pendingCount !== 1 ? 's' : ''} need your response`}
+                      title={t('pendingRequestsTitle')}
+                      subtitle={t('pendingRequestsSubtitle', { count: pendingCount })}
                     />
                     <BookingQueueList initialBookings={allBookings.filter((b) => b.status === 'PENDING')} />
                   </div>
@@ -373,26 +372,26 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                 <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-surface to-gold/5 p-5 shadow-card">
                   <div className="flex items-center gap-2 mb-4">
                     <TrendingUp className="h-4 w-4 text-teal" aria-hidden="true" />
-                    <h3 className="font-heading text-base font-semibold text-primary">Performance</h3>
+                    <h3 className="font-heading text-base font-semibold text-primary">{t('performanceTitle')}</h3>
                   </div>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <p className="font-heading text-xl font-bold text-teal">
                         {allBookings.filter((b) => b.status === 'COMPLETED').length}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">Completed</p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceCompleted')}</p>
                     </div>
                     <div>
                       <p className="font-heading text-xl font-bold text-primary">
                         {allBookings.filter((b) => b.status === 'CONFIRMED').length}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">Confirmed</p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceConfirmed')}</p>
                     </div>
                     <div>
                       <p className="font-heading text-xl font-bold text-warning">
                         {pendingCount}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">Pending</p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performancePending')}</p>
                     </div>
                   </div>
                 </div>
@@ -410,7 +409,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
             <FadeUp delay={0.06}>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Block dates so customers cannot book when you are unavailable.
+                  {t('calendarHint')}
                 </p>
                 <BlockedDatesManager initial={blocked} />
               </div>
@@ -424,8 +423,8 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
               ) : (
                 <EmptyState
                   icon={AlertCircle}
-                  title="Vendor profile not found"
-                  description="Set up your vendor profile to start receiving bookings."
+                  title={t('profileMissingTitle')}
+                  description={t('profileMissingDesc')}
                 />
               )}
             </FadeUp>
