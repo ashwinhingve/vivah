@@ -137,6 +137,17 @@ import {
   getMeetings,
   getActiveRoom,
 } from '../service.js';
+import { invalidateProfileIdCache } from '../../lib/profile.js';
+
+// resolveProfileId now delegates to the cached lib/profile helper (commit 2c4c6a4).
+// Its 60s in-process cache persists across tests and vi.clearAllMocks() does NOT
+// clear it — so a cache hit in later tests skips the profile db.select and shifts
+// every subsequent mockSelect return by one, breaking assertParticipant. Clear it
+// before each test so profile resolution always consumes its mockSelect return.
+beforeEach(() => {
+  invalidateProfileIdCache(USER_ID);
+  invalidateProfileIdCache(OTHER_USER);
+});
 
 // ── createVideoRoom ───────────────────────────────────────────────────────────
 
