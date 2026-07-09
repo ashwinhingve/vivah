@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import {
@@ -22,12 +23,6 @@ import type { FamilyView, FamilyVerificationBadge } from '@smartshaadi/types';
 
 export const dynamic = 'force-dynamic';
 
-const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
-  NONE:            'Not verified',
-  FAMILY_VERIFIED: 'Family verified',
-  PARENT_VERIFIED: 'Parent verified',
-};
-
 export default async function FamilyPage() {
   // Role guard — middleware does the same check, but the page guard prevents
   // any leak if matcher config drifts.
@@ -35,6 +30,12 @@ export default async function FamilyPage() {
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('familyRole.hub');
+  const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
+    NONE:            t('badgeNone'),
+    FAMILY_VERIFIED: t('badgeFamilyVerified'),
+    PARENT_VERIFIED: t('badgeParentVerified'),
+  };
 
   const cookieStore = await cookies();
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
@@ -70,11 +71,10 @@ export default async function FamilyPage() {
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
               />
               <h1 className="relative font-heading text-[22px] font-semibold leading-tight tracking-tight text-primary sm:text-[28px]">
-                Family hub 👨‍👩‍👧
+                {t('heroTitle')}
               </h1>
               <p className="relative mt-1.5 text-sm text-muted-foreground">
-                Assist family members with matchmaking and collaborate on their weddings —
-                every action they didn't do themselves needs their approval.
+                {t('heroSubtitle')}
               </p>
             </div>
           </FadeUp>
@@ -82,36 +82,36 @@ export default async function FamilyPage() {
           {/* ── KPI row ────────────────────────────────────────── */}
           <StaggerList className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4">
             <StatsCard
-              label="Seekers I assist"
+              label={t('kpiSeekers')}
               value={approvedAsParent.length}
-              sub="Approved links"
+              sub={t('kpiSeekersSub')}
               icon={Users}
               variant="teal"
               animDelayMs={0}
               href="/family/parent-mode"
-              emptyCta={{ label: 'Link a family member', href: '/family/link/new' }}
+              emptyCta={{ label: t('linkCta'), href: '/family/link/new' }}
             />
             <StatsCard
-              label="Pending drafted actions"
+              label={t('kpiPending')}
               value={pendingDrafted.length}
-              sub="Awaiting their approval"
+              sub={t('kpiPendingSub')}
               icon={Clock}
               variant="gold"
               animDelayMs={100}
               href="/family/parent-mode"
             />
             <StatsCard
-              label="Family verification"
-              value={verification ? BADGE_LABEL[verification.badge] : 'Not verified'}
-              sub={verification?.verifiedAt ? `Since ${new Date(verification.verifiedAt).toLocaleDateString()}` : 'From your family details'}
+              label={t('kpiVerification')}
+              value={verification ? BADGE_LABEL[verification.badge] : t('badgeNone')}
+              sub={verification?.verifiedAt ? t('kpiVerificationSince', { date: new Date(verification.verifiedAt).toLocaleDateString() }) : t('kpiVerificationFrom')}
               icon={ShieldCheck}
               variant={verification?.isVerified ? 'success' : 'default'}
               animDelayMs={200}
             />
             <StatsCard
-              label="Family signal score"
+              label={t('kpiScore')}
               value={score}
-              sub="Out of 100"
+              sub={t('kpiScoreSub')}
               icon={Sparkles}
               variant={score >= 60 ? 'success' : 'default'}
               animDelayMs={300}
@@ -121,22 +121,22 @@ export default async function FamilyPage() {
           {/* ── Pillar 1 — Guardian matchmaking co-pilot ────────── */}
           <FadeUp delay={0.1}>
             <SectionHeader
-              title="Seekers you assist"
+              title={t('seekersTitle')}
               viewAllHref="/family/parent-mode"
-              viewAllLabel="Manage all"
+              viewAllLabel={t('seekersManageAll')}
             />
             {approvedAsParent.length === 0 ? (
               <EmptyState
                 icon={Users}
-                title="You're not linked to anyone yet"
-                description="Once a family member approves your link request, you can help them browse matches and draft interests on their behalf."
+                title={t('seekersEmptyTitle')}
+                description={t('seekersEmptyDesc')}
                 action={
                   <Link
                     href="/family/link/new"
                     className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-teal px-4 text-sm font-medium text-white hover:bg-teal-hover"
                   >
                     <UserPlus className="h-4 w-4" aria-hidden="true" />
-                    Link a family member
+                    {t('linkCta')}
                   </Link>
                 }
               />
@@ -151,12 +151,12 @@ export default async function FamilyPage() {
 
           {/* ── Pending items across all seekers ────────────────── */}
           <FadeUp delay={0.15}>
-            <SectionHeader title="Pending items" />
+            <SectionHeader title={t('pendingTitle')} />
             {pendingDrafted.length === 0 ? (
               <EmptyState
                 icon={Clock}
-                title="Nothing pending"
-                description="Drafted interests and messages you send on a seeker's behalf will wait here until they respond."
+                title={t('pendingEmptyTitle')}
+                description={t('pendingEmptyDesc')}
               />
             ) : (
               <ul className="space-y-3">
@@ -169,12 +169,12 @@ export default async function FamilyPage() {
 
           {/* ── Pillar 2 — Wedding-planning collaborator ────────── */}
           <FadeUp delay={0.2}>
-            <SectionHeader title="Weddings you collaborate on" />
+            <SectionHeader title={t('collabTitle')} />
             {collaboratingWeddings.length === 0 ? (
               <EmptyState
                 icon={Cake}
-                title="No wedding collaborations yet"
-                description="Weddings you're invited to help plan will appear here with a direct link into the shared planner, once you're added as a collaborator."
+                title={t('collabEmptyTitle')}
+                description={t('collabEmptyDesc')}
               />
             ) : (
               <div className="space-y-4">
@@ -182,7 +182,7 @@ export default async function FamilyPage() {
                   <div key={w.id} className="space-y-1.5">
                     <WeddingCard wedding={w} />
                     <p className="px-1 text-[11px] text-gold-muted">
-                      Your role: {w.myRole === 'EDITOR' ? 'Editor' : 'Viewer'}
+                      {t('collabRole', { role: w.myRole === 'EDITOR' ? t('roleEditor') : t('roleViewer') })}
                     </p>
                   </div>
                 ))}
@@ -192,7 +192,7 @@ export default async function FamilyPage() {
 
           {/* ── Quick actions ────────────────────────────────────── */}
           <FadeUp delay={0.25}>
-            <SectionHeader title="Quick actions" />
+            <SectionHeader title={t('quickTitle')} />
             <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
               <Link
                 href="/family/link/new"
@@ -200,7 +200,7 @@ export default async function FamilyPage() {
               >
                 <UserPlus className="h-5 w-5 text-teal" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                  Link a family member
+                  {t('linkCta')}
                 </span>
               </Link>
               <Link
@@ -209,7 +209,7 @@ export default async function FamilyPage() {
               >
                 <Bell className="h-5 w-5 text-gold-muted" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                  Family inbox
+                  {t('quickInbox')}
                 </span>
               </Link>
               <Link
@@ -218,7 +218,7 @@ export default async function FamilyPage() {
               >
                 <UserCog className="h-5 w-5 text-primary" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary">
-                  Parent mode
+                  {t('quickParentMode')}
                 </span>
               </Link>
             </div>
@@ -226,20 +226,20 @@ export default async function FamilyPage() {
 
           {/* ── Family details & roster (kept reachable) ─────────── */}
           <FadeUp delay={0.3}>
-            <SectionHeader title="Your family details" />
+            <SectionHeader title={t('detailsTitle')} />
             {familyView ? (
               <div className="space-y-4">
                 <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card">
                   <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
-                    <Field label="Father">{familyView.section.fatherName ?? '—'}{familyView.section.fatherOccupation ? ` · ${familyView.section.fatherOccupation}` : ''}</Field>
-                    <Field label="Mother">{familyView.section.motherName ?? '—'}{familyView.section.motherOccupation ? ` · ${familyView.section.motherOccupation}` : ''}</Field>
-                    <Field label="Family type">{familyView.section.familyType ?? '—'}</Field>
-                    <Field label="Family values">{familyView.section.familyValues ?? '—'}</Field>
-                    <Field label="Native place">{familyView.section.nativePlace ?? '—'}</Field>
-                    <Field label="Family status">{familyView.section.familyStatus ?? '—'}</Field>
+                    <Field label={t('fieldFather')}>{familyView.section.fatherName ?? '—'}{familyView.section.fatherOccupation ? ` · ${familyView.section.fatherOccupation}` : ''}</Field>
+                    <Field label={t('fieldMother')}>{familyView.section.motherName ?? '—'}{familyView.section.motherOccupation ? ` · ${familyView.section.motherOccupation}` : ''}</Field>
+                    <Field label={t('fieldFamilyType')}>{familyView.section.familyType ?? '—'}</Field>
+                    <Field label={t('fieldFamilyValues')}>{familyView.section.familyValues ?? '—'}</Field>
+                    <Field label={t('fieldNativePlace')}>{familyView.section.nativePlace ?? '—'}</Field>
+                    <Field label={t('fieldFamilyStatus')}>{familyView.section.familyStatus ?? '—'}</Field>
                   </dl>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Edit details from <Link href="/profile/family" className="text-teal underline">profile family page</Link>.
+                    {t('editHintPre')} <Link href="/profile/family" className="text-teal underline">{t('editHintLink')}</Link>.
                   </p>
                   <RequestFamilyVerification verified={verification?.isVerified ?? false} />
                 </div>
@@ -248,8 +248,8 @@ export default async function FamilyPage() {
             ) : (
               <EmptyState
                 icon={ShieldCheck}
-                title="Family profile details not available"
-                description="This structured family bio applies to accounts with their own matchmaking profile."
+                title={t('detailsEmptyTitle')}
+                description={t('detailsEmptyDesc')}
               />
             )}
           </FadeUp>

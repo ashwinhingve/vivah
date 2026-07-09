@@ -8,11 +8,6 @@ import { updateFamily } from '../actions';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-const STEPS = [
-  { label: 'Personal', done: true, active: false },
-  { label: 'Family', done: false, active: true },
-];
-
 interface SiblingEntry {
   name?: string;
   married?: boolean;
@@ -41,6 +36,10 @@ interface ProfileSnapshot {
 
 export default function FamilyPage() {
   const t = useTranslations('onboarding.family');
+  const steps = [
+    { label: t('stepPersonal'), done: true, active: false },
+    { label: t('stepFamily'), done: false, active: true },
+  ];
   const [state, formAction] = useActionState(updateFamily, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -79,7 +78,7 @@ export default function FamilyPage() {
 
   return (
     <div>
-      <ProfileProgress steps={STEPS} />
+      <ProfileProgress steps={steps} />
       <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
         <h1 className="text-lg font-semibold text-primary mb-6 font-heading">
           {t('heading')}
@@ -92,55 +91,55 @@ export default function FamilyPage() {
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Father&apos;s Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('fatherName')}</label>
               <input
                 name="fatherName"
                 defaultValue={f?.fatherName ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="Father's full name"
+                placeholder={t('fatherNamePh')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Father&apos;s Occupation</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('fatherOccupation')}</label>
               <input
                 name="fatherOccupation"
                 defaultValue={f?.fatherOccupation ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="e.g. Retired Government Officer"
+                placeholder={t('fatherOccupationPh')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Mother&apos;s Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('motherName')}</label>
               <input
                 name="motherName"
                 defaultValue={f?.motherName ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="Mother's full name"
+                placeholder={t('motherNamePh')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Mother&apos;s Occupation</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('motherOccupation')}</label>
               <input
                 name="motherOccupation"
                 defaultValue={f?.motherOccupation ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="e.g. Homemaker"
+                placeholder={t('motherOccupationPh')}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Native Place</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t('nativePlace')}</label>
             <input
               name="nativePlace"
               defaultValue={f?.nativePlace ?? ''}
               className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-              placeholder="e.g. Pune, Maharashtra"
+              placeholder={t('nativePlacePh')}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Family Type</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('familyType')}</label>
             <div className="flex gap-3 flex-wrap">
               {(['JOINT', 'NUCLEAR', 'EXTENDED'] as const).map((type) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer">
@@ -151,14 +150,16 @@ export default function FamilyPage() {
                     defaultChecked={f?.familyType === type}
                     className="accent-teal"
                   />
-                  <span className="text-sm text-foreground">{type.charAt(0) + type.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-foreground">
+                    {t(type === 'JOINT' ? 'typeJoint' : type === 'NUCLEAR' ? 'typeNuclear' : 'typeExtended')}
+                  </span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Family Values</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('familyValues')}</label>
             <div className="flex gap-3 flex-wrap">
               {(['TRADITIONAL', 'MODERATE', 'LIBERAL'] as const).map((v) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -169,19 +170,21 @@ export default function FamilyPage() {
                     defaultChecked={f?.familyValues === v}
                     className="accent-teal"
                   />
-                  <span className="text-sm text-foreground">{v.charAt(0) + v.slice(1).toLowerCase()}</span>
+                  <span className="text-sm text-foreground">
+                    {t(v === 'TRADITIONAL' ? 'valuesTraditional' : v === 'MODERATE' ? 'valuesModerate' : 'valuesLiberal')}
+                  </span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Family Status</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('familyStatus')}</label>
             <div className="flex gap-3 flex-wrap">
               {[
-                ['MIDDLE_CLASS', 'Middle Class'],
-                ['UPPER_MIDDLE', 'Upper Middle Class'],
-                ['AFFLUENT', 'Affluent'],
+                ['MIDDLE_CLASS', t('statusMiddle')],
+                ['UPPER_MIDDLE', t('statusUpperMiddle')],
+                ['AFFLUENT', t('statusAffluent')],
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -198,13 +201,13 @@ export default function FamilyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Living arrangement with parents</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('livingArrangement')}</label>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {[
-                ['YES_COMMITTED', 'Plan to live with them'],
-                ['OPEN', 'Open to living with them'],
-                ['NO_OBJECTION', 'No objection if needed'],
-                ['PREFER_SEPARATE', 'Prefer separate homes'],
+                ['YES_COMMITTED', t('livingCommitted')],
+                ['OPEN', t('livingOpen')],
+                ['NO_OBJECTION', t('livingNoObjection')],
+                ['PREFER_SEPARATE', t('livingSeparate')],
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                   <input
@@ -221,13 +224,13 @@ export default function FamilyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Family involvement in major life decisions</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('decisionInvolvement')}</label>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {[
-                ['HIGH_COLLABORATIVE', 'We decide together'],
-                ['CONSULTATIVE', 'I consult them on important things'],
-                ['INFORMED_ONLY', 'I keep them informed'],
-                ['INDEPENDENT', 'I make my own decisions'],
+                ['HIGH_COLLABORATIVE', t('decisionTogether')],
+                ['CONSULTATIVE', t('decisionConsult')],
+                ['INFORMED_ONLY', t('decisionInformed')],
+                ['INDEPENDENT', t('decisionIndependent')],
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                   <input
@@ -244,13 +247,13 @@ export default function FamilyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Attendance at family/cultural events</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('culturalEvents')}</label>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {[
-                ['ALWAYS', 'Attend them all'],
-                ['IMPORTANT_ONLY', 'Attend important ones'],
-                ['OCCASIONALLY', 'Attend occasionally'],
-                ['RARELY', 'Rarely attend'],
+                ['ALWAYS', t('culturalAll')],
+                ['IMPORTANT_ONLY', t('culturalImportant')],
+                ['OCCASIONALLY', t('culturalOccasional')],
+                ['RARELY', t('culturalRarely')],
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                   <input
@@ -267,14 +270,14 @@ export default function FamilyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Religious practice with family</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('religiousObservance')}</label>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               {[
-                ['VERY_ACTIVE_TOGETHER', 'Very active together'],
-                ['ACTIVE_INDIVIDUALLY', 'Active individually'],
-                ['OCCASIONAL', 'Occasional'],
-                ['PERSONAL_ONLY', 'Personal practice only'],
-                ['NOT_PRACTICING', 'Not practicing'],
+                ['VERY_ACTIVE_TOGETHER', t('religiousVeryActive')],
+                ['ACTIVE_INDIVIDUALLY', t('religiousActiveIndividual')],
+                ['OCCASIONAL', t('religiousOccasional')],
+                ['PERSONAL_ONLY', t('religiousPersonal')],
+                ['NOT_PRACTICING', t('religiousNone')],
               ].map(([v, label]) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer min-h-[44px]">
                   <input
@@ -291,30 +294,30 @@ export default function FamilyPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">About Your Family</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t('aboutLabel')}</label>
             <textarea
               name="familyAbout"
               rows={3}
               defaultValue={f?.familyAbout ?? ''}
               className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none resize-none"
-              placeholder="Share a bit about your family background…"
+              placeholder={t('aboutPh')}
             />
           </div>
 
           {/* Siblings */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-foreground">Siblings</label>
+              <label className="block text-sm font-medium text-foreground">{t('siblings')}</label>
               <button
                 type="button"
                 onClick={addSibling}
                 className="text-xs text-teal hover:underline"
               >
-                + Add sibling
+                {t('addSibling')}
               </button>
             </div>
             {siblings.length === 0 ? (
-              <p className="text-xs text-muted-foreground">None added yet.</p>
+              <p className="text-xs text-muted-foreground">{t('noSiblings')}</p>
             ) : (
               <div className="space-y-2">
                 {siblings.map((sib, idx) => (
@@ -323,14 +326,14 @@ export default function FamilyPage() {
                       name="siblingName"
                       defaultValue={sib.name ?? ''}
                       onChange={(e) => updateSibling(idx, 'name', e.target.value)}
-                      placeholder="Name"
+                      placeholder={t('siblingNamePh')}
                       className="border border-border rounded px-2 py-1.5 text-sm"
                     />
                     <input
                       name="siblingOccupation"
                       defaultValue={sib.occupation ?? ''}
                       onChange={(e) => updateSibling(idx, 'occupation', e.target.value)}
-                      placeholder="Occupation"
+                      placeholder={t('siblingOccupationPh')}
                       className="border border-border rounded px-2 py-1.5 text-sm"
                     />
                     <label className="flex items-center gap-1.5 text-xs whitespace-nowrap">
@@ -340,14 +343,14 @@ export default function FamilyPage() {
                         onChange={() => toggleSiblingMarried(idx)}
                       />
                       <input type="hidden" name="siblingMarried" value={sib.married ? 'true' : 'false'} />
-                      Married
+                      {t('married')}
                     </label>
                     <button
                       type="button"
                       onClick={() => removeSibling(idx)}
                       className="text-destructive text-xs hover:underline"
                     >
-                      Remove
+                      {t('remove')}
                     </button>
                   </div>
                 ))}

@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Building2 } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
@@ -6,7 +7,10 @@ import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/Onb
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BusinessForm } from './BusinessForm.client';
 
-export const metadata = { title: 'Business · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.business');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 export default async function BusinessStepPage() {
@@ -14,6 +18,7 @@ export default async function BusinessStepPage() {
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('vendorRole.onboarding.business');
 
   const vendor = await fetchMyVendor();
 
@@ -22,8 +27,8 @@ export default async function BusinessStepPage() {
       <OnboardingStepper current="business" />
       <OnboardingStepHeader
         icon={Building2}
-        title="Tell us about your business"
-        subtitle="This is what couples see first. You can refine it anytime after launch."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
       <BusinessForm vendor={vendor} />
     </FadeUp>

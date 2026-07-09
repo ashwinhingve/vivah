@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { UserCog, ShieldCheck } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -12,12 +13,17 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { AssistedSeekerCard } from '@/components/family/AssistedSeekerCard';
 
-export const metadata = { title: 'Parent mode' };
+export async function generateMetadata() {
+  const t = await getTranslations('familyRole.parentMode');
+  return { title: t('title') };
+}
 export const dynamic = 'force-dynamic';
 
 export default async function ParentModeDashboardPage() {
   const cookieStore = await cookies();
   if (!readSessionCookie(cookieStore)) return await redirect('/login');
+
+  const t = await getTranslations('familyRole.parentMode');
 
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
   const [links, drafted] = await Promise.all([
@@ -50,20 +56,20 @@ export default async function ParentModeDashboardPage() {
       <main id="main-content" className="mx-auto max-w-3xl px-4 py-8 pb-24">
         <RoleHero
           icon={UserCog}
-          title="Parent mode"
-          subtitle="Browse matches and draft interests for family members you're linked to — nothing is sent until they approve it."
+          title={t('title')}
+          subtitle={t('subtitle')}
         />
 
         <div className="mt-6">
-          <SectionHeader title="Family members you assist" />
+          <SectionHeader title={t('assistTitle')} />
           {approvedAsParent.length === 0 ? (
             <FadeUp>
               <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-matches"
-                  title="You're not linked to anyone yet"
-                  description="Linking is parent-initiated: send a link request to a family member's account, and once they approve it from their inbox, they'll appear here."
-                  actionLabel="Link a family member"
+                  title={t('assistEmptyTitle')}
+                  description={t('assistEmptyDesc')}
+                  actionLabel={t('linkCta')}
                   actionHref="/family/link/new"
                 />
               </div>
@@ -84,7 +90,7 @@ export default async function ParentModeDashboardPage() {
 
         {asChild.length > 0 && (
           <div className="mt-8">
-            <SectionHeader title="Your family managers" />
+            <SectionHeader title={t('managersTitle')} />
             <StaggerList className="space-y-3">
               {asChild.map((l) => (
                 <div
@@ -105,7 +111,7 @@ export default async function ParentModeDashboardPage() {
                       href={`/family/link-request/${l.id}`}
                       className="shrink-0 inline-flex min-h-[44px] items-center rounded-lg border border-primary/25 px-3 text-sm font-medium text-primary hover:bg-primary/5"
                     >
-                      Review
+                      {t('review')}
                     </Link>
                   )}
                 </div>
@@ -119,8 +125,7 @@ export default async function ParentModeDashboardPage() {
             <div className="flex items-start gap-3 rounded-xl border border-gold/20 bg-gold/5 p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold-muted" aria-hidden="true" />
               <p className="text-xs text-muted-foreground">
-                Every interest, message or profile edit you draft on behalf of a family member sits in
-                their inbox for approval — you can never take an action they haven&apos;t consented to.
+                {t('consentNote')}
               </p>
             </div>
           </FadeUp>

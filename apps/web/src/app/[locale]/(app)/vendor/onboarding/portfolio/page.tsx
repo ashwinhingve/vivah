@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Images } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
@@ -9,7 +10,10 @@ import { PackageManager, type VendorPackageView } from '@/components/vendor/Pack
 import { PortfolioItemManager, type VendorPortfolioItemView } from '@/components/vendor/PortfolioItemManager.client';
 import type { EventTypeValue } from '@smartshaadi/schemas';
 
-export const metadata = { title: 'Portfolio · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.portfolio');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 interface PortfolioBasics {
@@ -24,6 +28,8 @@ export default async function PortfolioStepPage() {
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+
+  const t = await getTranslations('vendorRole.onboarding.portfolio');
 
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
@@ -41,8 +47,8 @@ export default async function PortfolioStepPage() {
       <OnboardingStepper current="portfolio" />
       <OnboardingStepHeader
         icon={Images}
-        title="Portfolio & credentials"
-        subtitle="Set your essentials, packages and work samples — this is what couples browse before enquiring."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
       <PortfolioForm
         vendorId={vendor.id}

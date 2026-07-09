@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -7,7 +8,10 @@ import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/Onb
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AvailabilityManager } from './AvailabilityManager.client';
 
-export const metadata = { title: 'Availability · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.availability');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 export default async function AvailabilityStepPage() {
@@ -15,6 +19,7 @@ export default async function AvailabilityStepPage() {
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('vendorRole.onboarding.availability');
 
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
@@ -31,8 +36,8 @@ export default async function AvailabilityStepPage() {
       <OnboardingStepper current="availability" />
       <OnboardingStepHeader
         icon={CalendarDays}
-        title="Availability"
-        subtitle="Block out dates you’re unavailable so couples only request open dates. Optional — you can skip this."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       <AvailabilityManager initial={dates} />
@@ -42,7 +47,7 @@ export default async function AvailabilityStepPage() {
           href="/vendor/onboarding/bank"
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
         >
-          Continue to payouts <ArrowRight className="h-4 w-4" />
+          {t('continue')} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </FadeUp>

@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { UserCog, Heart, ArrowLeft, Clock } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -19,6 +20,8 @@ export default async function ManagedChildPage({ params }: PageProps) {
   const cookieStore = await cookies();
   if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
+  const t = await getTranslations('familyRole.parentMode');
+
   const { childUserId } = await params;
   const cookieHeader = `better-auth.session_token=${cookieStore.get('better-auth.session_token')?.value ?? ''}`;
 
@@ -33,7 +36,7 @@ export default async function ManagedChildPage({ params }: PageProps) {
     resolveNames({ userIds: [childUserId] }, cookieHeader),
   ]);
   const forThisChild = (drafted ?? []).filter((a) => a.childUserId === childUserId);
-  const childName = resolved?.users.find((u) => u.userId === childUserId)?.name ?? 'this family member';
+  const childName = resolved?.users.find((u) => u.userId === childUserId)?.name ?? t('childFallback');
 
   // Names referenced inside drafted-action payloads (target candidates), so
   // ParentActionCard never falls back to a raw UUID.
@@ -56,21 +59,24 @@ export default async function ManagedChildPage({ params }: PageProps) {
             href="/family/parent-mode"
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-primary"
           >
-            <ArrowLeft className="h-4 w-4" /> Parent mode
+            <ArrowLeft className="h-4 w-4" /> {t('backLink')}
           </Link>
         </FadeUp>
 
         <RoleHero
           icon={UserCog}
-          title={`Managing ${childName}`}
-          subtitle={`Permission tier: ${link.permissions.replace(/_/g, ' ').toLowerCase()}. Every action drafted here waits in ${childName}'s inbox for approval.`}
+          title={t('managing', { name: childName })}
+          subtitle={t('childSubtitle', {
+            tier: link.permissions.replace(/_/g, ' ').toLowerCase(),
+            name: childName,
+          })}
           rightSlot={
             <Link
               href={`/family/browse/${childUserId}`}
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-teal px-4 text-sm font-medium text-white hover:bg-teal-hover"
             >
               <Heart className="h-4 w-4" aria-hidden="true" />
-              Browse matches
+              {t('browseMatches')}
             </Link>
           }
         />
@@ -82,9 +88,9 @@ export default async function ManagedChildPage({ params }: PageProps) {
                 <EmptyState
                   variant="no-matches"
                   icon={Clock}
-                  title="No actions drafted yet"
-                  description={`Browse ${childName}'s curated matches and draft an interest — it'll show up here until they approve or decline it.`}
-                  actionLabel="Browse matches"
+                  title={t('noActionsTitle')}
+                  description={t('noActionsDesc', { name: childName })}
+                  actionLabel={t('browseMatches')}
                   actionHref={`/family/browse/${childUserId}`}
                 />
               </div>

@@ -32,7 +32,8 @@ export default async function FamilyBrowsePage({
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
-  const t = await getTranslations('familyRole');
+  const t = await getTranslations('familyRole.browse');
+  const tRoot = await getTranslations('familyRole');
 
   const { childUserId } = await params;
   const sp = await searchParams;
@@ -49,7 +50,7 @@ export default async function FamilyBrowsePage({
   // A null candidates response means no active link (403) or no feed yet.
   const items = candidates?.items ?? [];
   const total = candidates?.total ?? 0;
-  const seekerName = resolved?.users.find((u) => u.userId === childUserId)?.name ?? 'your family member';
+  const seekerName = resolved?.users.find((u) => u.userId === childUserId)?.name ?? t('seekerFallback');
 
   return (
     <PageTransition>
@@ -59,14 +60,14 @@ export default async function FamilyBrowsePage({
             href="/family/parent-mode"
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-primary"
           >
-            <ArrowLeft className="h-4 w-4" /> Parent mode
+            <ArrowLeft className="h-4 w-4" /> {t('backLink')}
           </Link>
         </FadeUp>
 
         <RoleHero
           icon={Users2}
-          title={t('browseTitle')}
-          subtitle={`Curated matches for ${seekerName}. Draft an interest — they approve it from their inbox before anything is sent.`}
+          title={tRoot('browseTitle')}
+          subtitle={t('subtitle', { name: seekerName })}
         />
 
         <div className="mt-6">
@@ -75,9 +76,9 @@ export default async function FamilyBrowsePage({
               <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-matches"
-                  title="Can’t browse right now"
-                  description="You need an approved link with this family member, or their matches aren’t ready yet."
-                  actionLabel="Back to parent mode"
+                  title={t('cantBrowseTitle')}
+                  description={t('cantBrowseDesc')}
+                  actionLabel={t('backToParentMode')}
                   actionHref="/family/parent-mode"
                 />
               </div>
@@ -85,7 +86,7 @@ export default async function FamilyBrowsePage({
           ) : items.length === 0 ? (
             <FadeUp>
               <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
-                <EmptyState variant="no-matches" description="No curated matches yet. Check back as their profile strengthens." />
+                <EmptyState variant="no-matches" description={t('noCuratedDesc')} />
               </div>
             </FadeUp>
           ) : (
@@ -95,7 +96,7 @@ export default async function FamilyBrowsePage({
                   <div key={c.profileId} className="space-y-2">
                     <Link href={`/profiles/${c.profileId}`} className="block">
                       <ProfileCard
-                        name={c.name || 'Member'}
+                        name={c.name || t('memberFallback')}
                         age={c.age}
                         city={c.city}
                         photoUrl={c.photoHidden ? null : resolvePhotoUrl(c.photoKey)}
@@ -110,14 +111,14 @@ export default async function FamilyBrowsePage({
                     <DraftInterestButton
                       childUserId={childUserId}
                       targetProfileId={c.profileId}
-                      candidateName={c.name || 'this member'}
+                      candidateName={c.name || t('candidateFallback')}
                     />
                     <Link
                       href={`/family/compatibility/${c.profileId}?childUserId=${childUserId}`}
                       className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-teal hover:underline"
                     >
                       <Scale className="h-3.5 w-3.5" aria-hidden="true" />
-                      See family compatibility
+                      {t('seeCompatibility')}
                     </Link>
                   </div>
                 ))}
@@ -131,16 +132,16 @@ export default async function FamilyBrowsePage({
                       href={`/family/browse/${childUserId}?page=${page - 1}`}
                       className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm text-primary hover:border-gold/40"
                     >
-                      Previous
+                      {t('previous')}
                     </Link>
                   )}
-                  <span className="text-sm text-text-muted">Page {page}</span>
+                  <span className="text-sm text-text-muted">{t('page', { page })}</span>
                   {page * 12 < total && (
                     <Link
                       href={`/family/browse/${childUserId}?page=${page + 1}`}
                       className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm text-primary hover:border-gold/40"
                     >
-                      Next
+                      {t('next')}
                     </Link>
                   )}
                 </nav>

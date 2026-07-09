@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, Landmark, ShieldCheck } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -6,7 +7,10 @@ import { fetchMyVendor, fetchVendorStatus } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 
-export const metadata = { title: 'Payouts · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.bank');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 export default async function BankStepPage() {
@@ -14,6 +18,7 @@ export default async function BankStepPage() {
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const t = await getTranslations('vendorRole.onboarding.bank');
 
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
@@ -26,8 +31,8 @@ export default async function BankStepPage() {
       <OnboardingStepper current="bank" />
       <OnboardingStepHeader
         icon={Landmark}
-        title="Payouts"
-        subtitle="How you get paid for bookings. No action needed from you right now."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       <div className="space-y-4 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
@@ -36,11 +41,9 @@ export default async function BankStepPage() {
             <Landmark className="h-5 w-5 text-teal" />
           </span>
           <div>
-            <p className="text-sm font-medium text-primary">Bank verification is handled during review</p>
+            <p className="text-sm font-medium text-primary">{t('verifyTitle')}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Our team verifies your payout account as part of approving your profile — a secure
-              penny-drop check. You don’t need to enter bank details here. Once approved, payouts
-              from confirmed bookings settle to your verified account automatically.
+              {t('verifyBody')}
             </p>
           </div>
         </div>
@@ -53,9 +56,7 @@ export default async function BankStepPage() {
           }`}
         >
           <ShieldCheck className="h-4 w-4 shrink-0" />
-          {approved
-            ? 'Your account is approved — payouts are enabled.'
-            : 'Payouts unlock once your profile is approved in the next step.'}
+          {approved ? t('approved') : t('pending')}
         </div>
       </div>
 
@@ -64,7 +65,7 @@ export default async function BankStepPage() {
           href="/vendor/onboarding/review"
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
         >
-          Continue to review <ArrowRight className="h-4 w-4" />
+          {t('continue')} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </FadeUp>

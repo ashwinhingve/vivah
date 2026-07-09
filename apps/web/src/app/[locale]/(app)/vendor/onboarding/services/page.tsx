@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, Package, ListChecks } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -8,7 +9,10 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AddServiceForm } from './AddServiceForm.client';
 
-export const metadata = { title: 'Services · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.services');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 interface ServiceRow {
@@ -29,6 +33,8 @@ export default async function ServicesStepPage() {
     return await redirect('/dashboard');
   }
 
+  const t = await getTranslations('vendorRole.onboarding.services');
+
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
 
@@ -40,8 +46,8 @@ export default async function ServicesStepPage() {
       <OnboardingStepper current="services" />
       <OnboardingStepHeader
         icon={ListChecks}
-        title="Services & pricing"
-        subtitle="List what you offer. Add as many as you like — you can edit prices later."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       {services.length > 0 && (
@@ -60,7 +66,7 @@ export default async function ServicesStepPage() {
 
       {services.length === 0 && (
         <div className="mb-5">
-          <EmptyState icon={Package} title="No services yet" description="Add your first service below to continue." />
+          <EmptyState icon={Package} title={t('emptyTitle')} description={t('emptyDesc')} />
         </div>
       )}
 
@@ -71,7 +77,7 @@ export default async function ServicesStepPage() {
           href="/vendor/onboarding/portfolio"
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
         >
-          Continue to portfolio <ArrowRight className="h-4 w-4" />
+          {t('continue')} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </FadeUp>

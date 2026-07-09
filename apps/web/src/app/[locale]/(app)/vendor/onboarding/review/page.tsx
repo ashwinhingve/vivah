@@ -1,4 +1,5 @@
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { Check, Minus, ClipboardCheck } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorStatus } from '@/lib/vendor-onboarding-api';
@@ -6,7 +7,10 @@ import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/Onb
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { SubmitReview } from './SubmitReview.client';
 
-export const metadata = { title: 'Review · Vendor onboarding' };
+export async function generateMetadata() {
+  const t = await getTranslations('vendorRole.onboarding.review');
+  return { title: t('metaTitle') };
+}
 export const dynamic = 'force-dynamic';
 
 interface ServiceRow { id: string }
@@ -41,6 +45,8 @@ export default async function ReviewStepPage() {
     return await redirect('/dashboard');
   }
 
+  const t = await getTranslations('vendorRole.onboarding.review');
+
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
 
@@ -65,16 +71,16 @@ export default async function ReviewStepPage() {
       <OnboardingStepper current="review" />
       <OnboardingStepHeader
         icon={ClipboardCheck}
-        title="Review & submit"
-        subtitle="Here’s what couples will see. Submit when you’re ready — you can keep editing while we review."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       <div className="mb-5 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
         <ul className="divide-y divide-border">
-          <Row done={hasBusiness} label={hasBusiness ? `Business: ${detail?.businessName}` : 'Business details'} />
-          <Row done={hasServices} label={hasServices ? `${serviceCount} service${serviceCount === 1 ? '' : 's'} added` : 'At least one service'} />
-          <Row done={hasAbout} label={hasAbout ? 'Portfolio “about” written' : 'Portfolio “about” (recommended)'} />
-          <Row done={eventTypeCount > 0} label={eventTypeCount > 0 ? `${eventTypeCount} event type${eventTypeCount === 1 ? '' : 's'} selected` : 'Event types (for coordinator routing)'} />
+          <Row done={hasBusiness} label={hasBusiness ? t('businessDone', { name: detail?.businessName ?? '' }) : t('businessTodo')} />
+          <Row done={hasServices} label={hasServices ? t('servicesDone', { count: serviceCount }) : t('servicesTodo')} />
+          <Row done={hasAbout} label={hasAbout ? t('aboutDone') : t('aboutTodo')} />
+          <Row done={eventTypeCount > 0} label={eventTypeCount > 0 ? t('eventTypesDone', { count: eventTypeCount }) : t('eventTypesTodo')} />
         </ul>
       </div>
 
