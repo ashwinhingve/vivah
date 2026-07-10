@@ -15,9 +15,15 @@ function ReciprocalVenn() {
         {/* Overlap fill — mutual zone */}
         <path
           d="M180 48.6 A90 90 0 0 1 180 191.4 A90 90 0 0 1 180 48.6 Z"
-          fill="color-mix(in srgb, var(--color-gold) 18%, transparent)"
+          fill="color-mix(in srgb, var(--color-gold) 28%, transparent)"
           stroke="var(--color-gold)"
-          strokeWidth="1"
+          strokeWidth="1.5"
+          opacity="0.95"
+        />
+        {/* Gold heart at the top of the mutual zone */}
+        <path
+          d="M180 76 c3.5-4.5 10-2.5 10 3 c0 4.5-6.5 8-10 11.5 c-3.5-3.5-10-7-10-11.5 c0-5.5 6.5-7.5 10-3 Z"
+          fill="var(--color-gold)"
           opacity="0.9"
         />
         {/* Left label */}
@@ -60,7 +66,7 @@ function GunaMilanBars() {
       className="w-full max-w-[360px] mx-auto rounded-2xl border border-gold/20 bg-surface shadow-card p-6"
       aria-label={`Guna Milan compatibility: ${total} out of ${maxTotal}`}
     >
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex justify-between items-center border-b border-gold/20 pb-3 mb-4">
         <p className="text-sm font-semibold text-foreground font-heading">
           Guna Milan Score
         </p>
@@ -76,9 +82,9 @@ function GunaMilanBars() {
         {gunaFactors.map((f) => (
           <div key={f.name} className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground w-24 flex-shrink-0 truncate">{f.name}</span>
-            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+            <div className="flex-1 h-2 rounded-full bg-blush/70 overflow-hidden">
               <div
-                className="h-full rounded-full bg-teal transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-gold to-primary transition-all"
                 style={{ width: `${(f.score / f.max) * 100}%` }}
               />
             </div>
@@ -87,8 +93,10 @@ function GunaMilanBars() {
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-center text-muted-foreground">
+      <p className="mt-4 flex items-center justify-center gap-2 text-xs text-center text-muted-foreground">
+        <span aria-hidden="true" className="h-1 w-1 rotate-45 rounded-[1px] bg-gold/70" />
         Excellent match · Mangal Dosha: None
+        <span aria-hidden="true" className="h-1 w-1 rotate-45 rounded-[1px] bg-gold/70" />
       </p>
     </div>
   );

@@ -76,7 +76,7 @@ export default async function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/90 via-background/80 to-surface/70"
+          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/85 via-background/72 to-surface/60"
         />
 
         <div className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24">

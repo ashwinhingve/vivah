@@ -146,7 +146,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-surface/70 px-3.5 py-1.5 backdrop-blur-sm"
           >
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-muted">
+            <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.14em] text-gold-muted sm:text-[11px] sm:tracking-[0.18em]">
               {t('eyebrow')}
             </span>
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
