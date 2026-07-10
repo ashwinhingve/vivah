@@ -36,6 +36,12 @@
   --color-dark-surface:         #2D2D3A;
   --color-dark-elevated:        #363645;
 
+  /* ── Landing "dusk" palette — plum footer/CTA + blush section tints ─────── */
+  --color-plum:                 #421B2E;
+  --color-plum-elevated:        #552539;
+  --color-blush:                #F7E7E3;
+  --color-rose:                 #D98E96;
+
   /* ── shadcn primitives bridge ──────────────────────────────────────────────
      shadcn components reference these aliases. Each is mapped to a brand
      color so primitives inherit the Smart Shaadi palette automatically. */
@@ -146,9 +152,10 @@
   }
 
   /* Sections targeted by the sticky/fixed navbar's anchor links must offset
-     so the section heading isn't tucked under the 64px navbar after scroll. */
+     so the section heading isn't tucked under the floating navbar (12px inset
+     + 64px bar) after scroll. */
   section[id] {
-    scroll-margin-top: 4rem;
+    scroll-margin-top: 5.5rem;
   }
 
   /* Thin custom scrollbar on desktop */

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Check } from 'lucide-react';
+import { Eyebrow } from './Ornament';
 
 const freeFeatures = [
   'Create complete profile',
@@ -51,12 +52,7 @@ export default async function Pricing() {
   return (
     <section id="pricing" className="bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
-        <p
-          aria-hidden="true"
-          className="text-xs font-semibold uppercase tracking-widest text-primary/70 text-center mb-3"
-        >
-          Pricing
-        </p>
+        <Eyebrow className="mb-3">Pricing</Eyebrow>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-heading">
           {t('sectionHeading')}
         </h2>

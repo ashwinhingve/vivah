@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, MotionConfig, useReducedMotion, type Variants } from 'framer-motion';
-import { ShieldCheck, Lock, Star } from 'lucide-react';
-import { HeroCarousel } from './HeroCarousel.client';
+import { ShieldCheck, Lock, Users, Sparkles, Flower2, UserCheck, type LucideIcon } from 'lucide-react';
+import { MatchPhoneCard } from './MatchPhoneCard.client';
+import floralIvory from '../../../public/landing/floral-ivory.webp';
+import coupleGolden from '../../../public/landing/couple-golden.webp';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -20,25 +23,37 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
 };
 
-// Deterministic particle field (fixed so SSR and client markup match).
-const PARTICLES = [
-  { left: '8%', top: '18%', size: 6, delay: 0, dur: 7 },
-  { left: '22%', top: '68%', size: 4, delay: 1.4, dur: 9 },
-  { left: '38%', top: '30%', size: 5, delay: 0.8, dur: 8 },
-  { left: '54%', top: '80%', size: 3, delay: 2.1, dur: 10 },
-  { left: '70%', top: '22%', size: 5, delay: 0.5, dur: 7.5 },
-  { left: '84%', top: '60%', size: 4, delay: 1.9, dur: 9.5 },
-  { left: '92%', top: '36%', size: 6, delay: 1.1, dur: 8.5 },
-  { left: '16%', top: '46%', size: 3, delay: 2.6, dur: 11 },
-  { left: '63%', top: '50%', size: 4, delay: 0.3, dur: 8 },
-  { left: '46%', top: '12%', size: 5, delay: 1.6, dur: 9 },
+// Deterministic petal field (fixed so SSR and client markup match).
+const PETALS = [
+  { left: '6%',  top: '20%', size: 10, delay: 0,   dur: 9 },
+  { left: '20%', top: '72%', size: 7,  delay: 1.6, dur: 11 },
+  { left: '36%', top: '26%', size: 8,  delay: 0.7, dur: 10 },
+  { left: '52%', top: '82%', size: 6,  delay: 2.2, dur: 12 },
+  { left: '68%', top: '16%', size: 9,  delay: 0.4, dur: 9.5 },
+  { left: '82%', top: '58%', size: 7,  delay: 1.9, dur: 10.5 },
+  { left: '92%', top: '32%', size: 8,  delay: 1.1, dur: 11.5 },
+  { left: '14%', top: '44%', size: 6,  delay: 2.7, dur: 13 },
 ] as const;
+
+// Mughal-arch photo mask (elliptical top, card-radius bottom)
+const ARCH_RADIUS = '50% 50% 1rem 1rem / 36% 36% 1rem 1rem';
+
+type ChipKey = 'chipVerified' | 'chipFamily' | 'chipAI' | 'chipGuna' | 'chipPrivacy' | 'chipHuman';
+
+const CHIPS: ReadonlyArray<{ key: ChipKey; Icon: LucideIcon }> = [
+  { key: 'chipVerified', Icon: ShieldCheck },
+  { key: 'chipFamily',   Icon: Users },
+  { key: 'chipAI',       Icon: Sparkles },
+  { key: 'chipGuna',     Icon: Flower2 },
+  { key: 'chipPrivacy',  Icon: Lock },
+  { key: 'chipHuman',    Icon: UserCheck },
+];
 
 // ── Hero section ──────────────────────────────────────────────────────────────
 export default function Hero() {
   const t = useTranslations('marketing.hero');
   const reduce = useReducedMotion();
-  // Particles are client-only: rendering them during SSR/first paint would
+  // Petals are client-only: rendering them during SSR/first paint would
   // diverge from a reduced-motion client and break hydration.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -51,6 +66,19 @@ export default function Hero() {
       className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-background"
     >
       {/* ── Ambient background ─────────────────────────────────────────────── */}
+      {/* Ivory floral texture (reference asset), softened + faded into page bg */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
+        <Image
+          src={floralIvory}
+          alt=""
+          fill
+          loading="eager"
+          sizes="100vw"
+          className="object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-background/45" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
+      </div>
       {/* Gold mesh, top-right */}
       <div
         aria-hidden="true"
@@ -75,47 +103,23 @@ export default function Hero() {
             ' transparent 72%)',
         }}
       />
-      {/* Faint mandala texture, centered behind visual */}
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 200 200"
-        className="pointer-events-none absolute right-[6%] top-1/2 -z-10 hidden h-[520px] w-[520px] -translate-y-1/2 text-gold opacity-[0.05] lg:block"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        {[92, 74, 56, 38].map((r) => (
-          <circle key={r} cx="100" cy="100" r={r} />
-        ))}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const a = (i * Math.PI) / 12;
-          return (
-            <line
-              key={i}
-              x1={100 + 38 * Math.cos(a)}
-              y1={100 + 38 * Math.sin(a)}
-              x2={100 + 92 * Math.cos(a)}
-              y2={100 + 92 * Math.sin(a)}
-            />
-          );
-        })}
-      </svg>
 
-      {/* Drifting gold particles (client-only to keep hydration stable) */}
+      {/* Drifting rose petals (client-only to keep hydration stable) */}
       {mounted && !reduce && (
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          {PARTICLES.map((p, i) => (
+          {PETALS.map((p, i) => (
             <motion.span
               key={i}
-              className="absolute rounded-full"
+              className="absolute"
               style={{
                 left: p.left,
                 top: p.top,
                 width: p.size,
-                height: p.size,
-                background: 'color-mix(in srgb, var(--color-gold) 70%, transparent)',
+                height: p.size * 0.8,
+                borderRadius: '62% 38% 55% 45% / 48% 60% 40% 52%',
+                background: 'color-mix(in srgb, var(--color-rose) 65%, transparent)',
               }}
-              animate={{ y: [0, -20, 0], opacity: [0.15, 0.5, 0.15] }}
+              animate={{ y: [0, 26, 0], rotate: [0, 24, 0], opacity: [0.12, 0.45, 0.12] }}
               transition={{
                 duration: p.dur,
                 delay: p.delay,
@@ -127,41 +131,42 @@ export default function Hero() {
         </div>
       )}
 
-      {/* ── Content — 54/46 split desktop, stacked + centered mobile ───────── */}
-      <div className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center gap-8 px-4 py-14 sm:gap-10 sm:py-16 md:px-6 md:py-24 lg:flex-row lg:gap-10 lg:py-28">
+      {/* ── Content — 52/48 split desktop, stacked + centered mobile ───────── */}
+      <div className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center gap-10 px-4 pb-16 pt-28 sm:gap-12 sm:pb-20 md:px-6 lg:flex-row lg:gap-8 lg:pb-24 lg:pt-32">
         {/* ── LEFT — the thesis ──────────────────────────────────────────── */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="w-full flex-1 text-center lg:max-w-[54%] lg:text-left"
+          className="w-full flex-1 text-center lg:max-w-[52%] lg:text-left"
         >
           {/* Eyebrow pill */}
           <motion.div
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-surface/70 px-3.5 py-1.5 backdrop-blur-sm"
           >
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
+            <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-muted">
               {t('eyebrow')}
             </span>
+            <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
           </motion.div>
 
-          {/* H1 with self-drawing gold underline on the highlighted word */}
+          {/* H1 — ink first line, burgundy italic emphasis with drawn underline */}
           <motion.h1
             variants={itemVariants}
-            className="mt-5 font-heading font-semibold leading-[1.05] text-primary sm:mt-6"
-            style={{ fontSize: 'clamp(2.15rem, 6.5vw, 4.5rem)' }}
+            className="mt-5 font-heading font-semibold leading-[1.08] text-foreground sm:mt-6"
+            style={{ fontSize: 'clamp(2.15rem, 6vw, 4.25rem)' }}
           >
             {t.rich('heading', {
               em: (chunks) => (
-                <span className="relative inline-block whitespace-nowrap text-gold">
+                <em className="relative inline text-primary">
                   {chunks}
                   <motion.svg
                     aria-hidden="true"
                     viewBox="0 0 200 12"
                     preserveAspectRatio="none"
-                    className="absolute -bottom-1.5 left-0 h-[0.4em] w-full"
+                    className="absolute -bottom-2 left-0 h-[0.32em] w-full"
                     fill="none"
                   >
                     <motion.path
@@ -174,7 +179,7 @@ export default function Hero() {
                       transition={reduce ? { duration: 0 } : { duration: 0.9, delay: 0.85, ease: EASE }}
                     />
                   </motion.svg>
-                </span>
+                </em>
               ),
             })}
           </motion.h1>
@@ -187,23 +192,17 @@ export default function Hero() {
             {t('subtext')}
           </motion.p>
 
-          {/* Trust badges */}
+          {/* Trust chips */}
           <motion.ul
             variants={itemVariants}
-            className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 lg:justify-start"
+            className="mt-7 flex max-w-[560px] flex-wrap justify-center gap-x-5 gap-y-2.5 lg:justify-start"
           >
-            <li className="flex items-center gap-1.5 text-xs text-foreground/70">
-              <ShieldCheck className="h-4 w-4 flex-shrink-0 text-teal" aria-hidden="true" />
-              {t('badgeVerified')}
-            </li>
-            <li className="flex items-center gap-1.5 text-xs text-foreground/70">
-              <Lock className="h-4 w-4 flex-shrink-0 text-teal" aria-hidden="true" />
-              {t('badgePrivacy')}
-            </li>
-            <li className="flex items-center gap-1.5 text-xs text-foreground/70">
-              <Star className="h-4 w-4 flex-shrink-0 text-gold" aria-hidden="true" />
-              {t('badgeRating')}
-            </li>
+            {CHIPS.map(({ key, Icon }) => (
+              <li key={key} className="flex items-center gap-1.5 text-xs text-foreground/70">
+                <Icon className="h-4 w-4 flex-shrink-0 text-gold-muted" aria-hidden="true" />
+                {t(key)}
+              </li>
+            ))}
           </motion.ul>
 
           {/* CTAs */}
@@ -213,7 +212,7 @@ export default function Hero() {
           >
             <Link
               href="/register"
-              className="group relative inline-flex min-h-[52px] items-center justify-center overflow-hidden rounded-xl bg-teal px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-teal/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-teal-hover hover:shadow-xl hover:shadow-teal/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+              className="group relative inline-flex min-h-[52px] items-center justify-center overflow-hidden rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span className="relative z-10">{t('primaryCta')}</span>
               <span
@@ -222,7 +221,7 @@ export default function Hero() {
               />
             </Link>
             <Link
-              href="/vendors"
+              href="/register?mode=family"
               className="inline-flex min-h-[52px] items-center justify-center rounded-xl border border-gold/40 bg-surface px-8 py-3.5 text-base font-semibold text-gold-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-gold hover:bg-gold/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
             >
               {t('secondaryCta')}
@@ -230,39 +229,75 @@ export default function Hero() {
           </motion.div>
 
           {/* Microcopy */}
-          <motion.p variants={itemVariants} className="mt-3 text-xs text-foreground/50">
+          <motion.p variants={itemVariants} className="mt-3 text-xs text-muted-foreground">
             {t('microcopy')}
           </motion.p>
         </motion.div>
 
-        {/* ── RIGHT — the signature (3D match cluster) ───────────────────── */}
+        {/* ── RIGHT — the signature (arch photo + live match card) ────────── */}
         <motion.div
           initial={{ opacity: 0, x: 36 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.85, delay: 0.35, ease: EASE }}
-          className="flex w-full justify-center lg:max-w-[46%]"
+          className="flex w-full justify-center lg:max-w-[48%]"
         >
-          <HeroCarousel />
+          <div className="relative w-full max-w-[440px]">
+            {/* Arch-framed couple photo */}
+            <div
+              className="relative ml-auto w-[80%] border border-gold/40 bg-surface/60 p-1.5 shadow-[var(--shadow-lg)] sm:w-[76%]"
+              style={{ borderRadius: ARCH_RADIUS }}
+            >
+              <div
+                className="relative aspect-[4/5] overflow-hidden"
+                style={{ borderRadius: ARCH_RADIUS }}
+              >
+                {/* Mobile shifts the crop left so the couple clears the overlapping card */}
+                <Image
+                  src={coupleGolden}
+                  alt={t('photoAlt')}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 36vw, 76vw"
+                  className="object-cover object-[20%_22%] sm:object-[48%_22%]"
+                />
+              </div>
+            </div>
+
+            {/* Floating "Safe & Secure" chip */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={
+                reduce
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 1, y: [0, -6, 0] }
+              }
+              transition={
+                reduce
+                  ? { duration: 0 }
+                  : { opacity: { duration: 0.6, delay: 1.0 }, y: { duration: 5, delay: 1.0, repeat: Infinity, ease: 'easeInOut' } }
+              }
+              className="absolute -right-1 top-[12%] flex items-center gap-2 rounded-xl border border-gold/25 bg-surface/95 px-3 py-2 shadow-[var(--shadow-md)] backdrop-blur-sm sm:right-0"
+            >
+              <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-muted" aria-hidden="true" />
+              <span>
+                <span className="block text-xs font-semibold leading-tight text-foreground">{t('safeChipTitle')}</span>
+                <span className="block text-[10px] leading-tight text-muted-foreground">{t('safeChipBody')}</span>
+              </span>
+            </motion.div>
+
+            {/* Match phone card, overlapping the arch */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.65, ease: EASE }}
+              className="absolute bottom-4 left-0 w-[178px] sm:w-[218px]"
+            >
+              <MatchPhoneCard ariaLabel={t('phoneCardAlt')} />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
 
-      {/* Scroll cue */}
-      <motion.div
-        aria-hidden="true"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.6 }}
-        className="pointer-events-none absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1.5 text-gold-muted sm:flex"
-      >
-        <span className="text-[10px] font-medium uppercase tracking-[0.2em]">{t('scrollCue')}</span>
-        <span className="flex h-8 w-5 justify-center rounded-full border border-gold/40 pt-1.5">
-          <motion.span
-            className="block h-1.5 w-1 rounded-full bg-gold"
-            animate={reduce ? {} : { y: [0, 9, 0], opacity: [1, 0.3, 1] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-          />
-        </span>
-      </motion.div>
     </section>
     </MotionConfig>
   );

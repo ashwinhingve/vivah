@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
+import { Eyebrow } from './Ornament';
 
 // ── Visual A: Reciprocal Matching — Venn diagram ──────────────────────────────
 function ReciprocalVenn() {
@@ -253,12 +254,7 @@ export default async function FeaturesGrid() {
             >
               {/* Text column */}
               <div>
-                <p
-                  aria-hidden="true"
-                  className="text-xs font-semibold uppercase tracking-widest text-gold-muted mb-3"
-                >
-                  {f.eyebrow}
-                </p>
+                <Eyebrow align="left" className="mb-3">{f.eyebrow}</Eyebrow>
                 <h2
                   className="font-heading font-semibold text-foreground leading-[1.12] whitespace-pre-line"
                   style={{ fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}

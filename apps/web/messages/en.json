@@ -183,15 +183,21 @@
     },
     "hero": {
       "eyebrow": "EST. 2026 · India's Smartest Matrimonial",
-      "heading": "Where families find their <em>forever</em>.",
+      "heading": "Find the right partner. <em>Not just another profile.</em>",
       "subtext": "India's first matrimonial platform built around real compatibility — Guna Milan, family values, and reciprocal matching. Verified profiles only.",
-      "badgeVerified": "Verified Profiles",
-      "badgePrivacy": "Privacy First",
-      "badgeRating": "4.8★ Rating",
-      "primaryCta": "Find Your Match →",
-      "secondaryCta": "Browse Vendors",
+      "chipVerified": "Verified Profiles",
+      "chipFamily": "Family First",
+      "chipAI": "AI Compatibility",
+      "chipGuna": "Guna Milan",
+      "chipPrivacy": "Privacy Protected",
+      "chipHuman": "Human Verified",
+      "primaryCta": "Find My Match →",
+      "secondaryCta": "Explore Families",
       "microcopy": "Free to join · No credit card · 2 min setup",
-      "scrollCue": "Scroll to explore"
+      "photoAlt": "Bride and groom in traditional wedding attire at a palace celebration",
+      "phoneCardAlt": "Preview of a Smart Shaadi match profile showing 92% compatibility and a Guna Milan score of 32 out of 36",
+      "safeChipTitle": "100% Safe & Secure",
+      "safeChipBody": "Your privacy is our priority"
     },
     "howItWorks": {
       "eyebrow": "How it Works",
@@ -232,7 +238,7 @@
     },
     "cta": {
       "eyebrow": "India's Smartest Matrimonial Platform",
-      "heading": "Start your journey today.",
+      "heading": "Begin your forever.",
       "body": "Join the community of verified Indian families. Free to join, private by default, family-first by design.",
       "primaryCta": "Start Your Journey →",
       "secondaryCta": "Talk to Us",
@@ -244,7 +250,14 @@
       "resourcesHeading": "Resources",
       "legalHeading": "Legal",
       "copyright": "© 2026 Smart Shaadi. All rights reserved.",
-      "contactSupport": "Contact Support"
+      "contactSupport": "Contact Support",
+      "tagline": "Where families find their forever",
+      "description": "India's smartest matrimonial platform, built on real compatibility, family values, and trust.",
+      "quote": "A new beginning of two families, a lifetime of love and trust.",
+      "trustVerified": "Every profile manually verified",
+      "trustPrivacy": "Privacy-first by design",
+      "trustSupport": "24/7 human support",
+      "trustMadeIn": "Made in India, for Indian families"
     },
     "testimonials": {
       "sectionHeading": "Real Families. Real Matches."
@@ -278,7 +291,7 @@
       "vendors": "Vendors",
       "pricing": "Pricing",
       "login": "Login",
-      "register": "Register Free"
+      "register": "Get Started Free"
     },
     "about": {
       "meta": {

@@ -15,7 +15,7 @@ export function DemoPill() {
       <span className="mx-1.5 text-gold">·</span>
       <span>OTP <code className="font-mono">123456</code></span>
       <span className="mx-1.5 text-gold">·</span>
-      <span>Card <code className="font-mono">4111&hairsp;1111</code></span>
+      <span>Card <code className="font-mono">4111{' '}1111</code></span>
     </div>
   );
 }

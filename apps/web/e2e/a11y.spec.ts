@@ -24,8 +24,16 @@ const PUBLIC_ROUTES: { name: string; path: string }[] = [
 test.describe('a11y — public surface', () => {
   for (const route of PUBLIC_ROUTES) {
     test(`${route.name} has no WCAG 2.2 AA critical or serious violations`, async ({ page }) => {
+      // Snap entrance animations to their rest state so axe measures final
+      // colors, not mid-transition blends (framer-motion honors this via
+      // MotionConfig reducedMotion="user").
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(route.path);
       await page.waitForLoadState('networkidle');
+      // Opacity entrance animations still run under reduced motion (framer
+      // only disables transforms). Let them settle so axe measures final
+      // colors, not mid-fade blends.
+      await page.waitForTimeout(2500);
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])

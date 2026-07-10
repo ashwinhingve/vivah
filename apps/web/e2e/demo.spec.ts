@@ -18,7 +18,7 @@ test.describe('Smart Shaadi demo flow', () => {
   test('1. landing page loads + CTA visible', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Smart Shaadi/i);
-    await expect(page.getByRole('link', { name: /get started|sign in/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /get started|find my match|sign in/i }).first()).toBeVisible();
   });
 
   test('2. signup OTP flow — mock OTP accepted', async ({ page }) => {

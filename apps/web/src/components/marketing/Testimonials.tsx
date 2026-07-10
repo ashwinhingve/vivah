@@ -8,6 +8,7 @@
 import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
 import { Heart } from 'lucide-react';
+import { Eyebrow } from './Ornament';
 
 interface Testimonial {
   quote: string;
@@ -89,12 +90,7 @@ export default async function Testimonials() {
       <div className="relative max-w-screen-xl mx-auto px-4 md:px-6">
         {/* Section header */}
         <AnimatedSection className="text-center mb-14">
-          <p
-            aria-hidden="true"
-            className="text-xs font-semibold uppercase tracking-widest text-gold-muted mb-3"
-          >
-            Early Access Feedback
-          </p>
+          <Eyebrow className="mb-3">Early Access Feedback</Eyebrow>
           <h2
             className="font-heading font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}
@@ -107,9 +103,13 @@ export default async function Testimonials() {
         </AnimatedSection>
 
         {/* Cards — horizontal scroll on mobile, 3-col grid on desktop */}
+        {/* Horizontally scrollable region must be keyboard-reachable (axe scrollable-region-focusable) */}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <div
           className="flex gap-5 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 snap-x snap-mandatory"
           role="list"
+          aria-label="Member testimonials"
+          tabIndex={0}
         >
           {testimonials.map((t, idx) => (
             <AnimatedSection
@@ -117,10 +117,10 @@ export default async function Testimonials() {
               delay={idx * 0.1}
               className="flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-auto snap-start"
               as="article"
+              role="listitem"
             >
               <figure
                 className="relative bg-background rounded-2xl p-6 md:p-7 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 h-full flex flex-col"
-                role="listitem"
               >
                 {/* Decorative open-quote */}
                 <span

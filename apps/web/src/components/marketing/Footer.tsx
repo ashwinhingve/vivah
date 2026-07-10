@@ -1,7 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { Instagram, Twitter, Facebook, Youtube, Heart, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { Instagram, Twitter, Facebook, Youtube, Heart, MapPin, ShieldCheck, Lock, Headphones } from 'lucide-react';
 import { LogoWhite } from './Logo';
+import { HeadingRule } from './Ornament';
+import mandapDusk from '../../../public/landing/mandap-dusk.webp';
 
 interface FooterLink {
   label: string;
@@ -65,13 +68,13 @@ const socialLinks = [
 
 function renderLink(link: FooterLink, label: string) {
   const baseClass =
-    'text-sm transition-colors min-h-[44px] inline-flex items-center leading-none text-text-on-dark/50 hover:text-gold';
+    'text-sm transition-colors min-h-[44px] inline-flex items-center leading-none text-text-on-dark/55 hover:text-gold';
 
   if (link.disabled) {
     return (
       <span
         aria-disabled="true"
-        className={`${baseClass} opacity-40 cursor-default hover:text-text-on-dark/50`}
+        className={`${baseClass} opacity-40 cursor-default hover:text-text-on-dark/55`}
       >
         {label}
       </span>
@@ -96,35 +99,70 @@ function renderLink(link: FooterLink, label: string) {
 export default async function Footer() {
   const t = await getTranslations('marketing.footer');
 
+  const trustItems = [
+    { Icon: ShieldCheck, text: t('trustVerified') },
+    { Icon: Lock, text: t('trustPrivacy') },
+    { Icon: Headphones, text: t('trustSupport') },
+  ];
+
   return (
-    <footer className="relative bg-dark-surface pt-16 pb-8">
-      {/* Thin gold gradient line at the top */}
+    <footer className="relative bg-plum">
+      {/* Dusk panorama band — the page's final descent into evening */}
+      <div aria-hidden="true" className="relative h-28 overflow-hidden md:h-40">
+        <Image
+          src={mandapDusk}
+          alt=""
+          fill
+          sizes="100vw"
+          quality={80}
+          className="object-cover"
+          style={{ objectPosition: '50% 45%' }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, transparent 0%,' +
+              ' color-mix(in srgb, var(--color-plum) 35%, transparent) 55%,' +
+              ' var(--color-plum) 100%)',
+          }}
+        />
+      </div>
+
+      {/* Warm gold ambience inside the plum body */}
       <div
         aria-hidden="true"
-        className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 top-28 md:top-40"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 45% at 85% 10%, color-mix(in srgb, var(--color-gold) 7%, transparent) 0%, transparent 70%),' +
+            ' radial-gradient(ellipse 50% 40% at 8% 90%, color-mix(in srgb, var(--color-primary) 30%, transparent) 0%, transparent 70%)',
+        }}
       />
 
-      <div className="max-w-screen-xl mx-auto px-4 md:px-6">
-        {/* Main grid — brand left + 4 link columns right */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 md:gap-10">
+      <div className="relative mx-auto max-w-screen-xl px-4 pb-8 pt-12 md:px-6 md:pt-14">
+        {/* Main grid — brand + 4 link columns + quote card */}
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-6 md:gap-10 xl:grid-cols-8">
 
-          {/* Brand column — spans 2 on desktop */}
+          {/* Brand column */}
           <div className="col-span-2">
             <LogoWhite size={28} />
-            <p className="mt-4 text-sm text-text-on-dark/50 max-w-[220px] leading-relaxed">
-              India&apos;s AI-powered matrimonial platform. Family-trusted.
-              Privacy-first.
+            <p className="mt-2.5 font-heading text-sm italic text-gold-light/90">
+              {t('tagline')}
+            </p>
+            <p className="mt-4 max-w-[240px] text-sm leading-relaxed text-text-on-dark/55">
+              {t('description')}
             </p>
 
             {/* Social icons */}
-            <div className="flex gap-2 mt-6" role="list" aria-label="Social media links">
+            <div className="mt-6 flex gap-2" role="list" aria-label="Social media links">
               {socialLinks.map(({ Icon, label, href }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
                   role="listitem"
-                  className="w-11 h-11 rounded-full border border-text-on-dark/10 hover:border-gold/40 bg-dark-elevated hover:bg-dark-elevated/80 flex items-center justify-center transition-all duration-200 text-text-on-dark/50 hover:text-gold"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/20 bg-plum-elevated/70 text-text-on-dark/55 transition-all duration-200 hover:border-gold/50 hover:text-gold"
                 >
                   <Icon className="w-4 h-4" aria-hidden="true" />
                 </a>
@@ -135,9 +173,10 @@ export default async function Footer() {
           {/* Link columns */}
           {columns.map((col) => (
             <div key={col.headingKey}>
-              <h3 className="text-xs uppercase tracking-wider font-semibold text-text-on-dark/40 mb-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-gold/90">
                 {t(col.headingKey)}
               </h3>
+              <HeadingRule className="mb-4" />
               <ul className="space-y-1">
                 {col.links.map((link) => (
                   <li key={link.label}>
@@ -147,23 +186,48 @@ export default async function Footer() {
               </ul>
             </div>
           ))}
+
+          {/* Ornate quote card */}
+          <div className="col-span-2 sm:col-span-3 md:col-span-6 xl:col-span-2">
+            <div className="mx-auto max-w-[340px] rounded-xl border border-gold/40 p-1 xl:mx-0">
+              <blockquote className="rounded-lg border border-gold/20 px-5 py-6 text-center">
+                <span aria-hidden="true" className="block font-heading text-3xl leading-none text-gold">
+                  &ldquo;
+                </span>
+                <p className="mt-1 font-heading text-base italic leading-relaxed text-peach">
+                  {t('quote')}
+                </p>
+                <span aria-hidden="true" className="mt-4 flex items-center justify-center gap-2">
+                  <span className="h-px w-8 bg-gold/40" />
+                  <Heart className="h-3.5 w-3.5 text-gold/80" fill="currentColor" />
+                  <span className="h-px w-8 bg-gold/40" />
+                </span>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+
+        {/* Trust strip — honest, non-numeric */}
+        <div className="mt-12 grid grid-cols-1 gap-4 border-t border-gold/15 pt-8 sm:grid-cols-2 lg:grid-cols-4">
+          {trustItems.map(({ Icon, text }) => (
+            <span key={text} className="flex items-center justify-center gap-2.5 text-sm text-text-on-dark/65 lg:justify-start">
+              <Icon className="h-4.5 w-4.5 flex-shrink-0 text-gold/80" aria-hidden="true" />
+              {text}
+            </span>
+          ))}
+          <span className="flex items-center justify-center gap-1.5 text-sm text-text-on-dark/65 lg:justify-start">
+            <MapPin className="h-4.5 w-4.5 flex-shrink-0 text-gold/80" aria-hidden="true" />
+            {t('trustMadeIn')}
+            <Heart className="h-3.5 w-3.5 flex-shrink-0 text-gold/80" fill="currentColor" aria-hidden="true" />
+          </span>
         </div>
 
         {/* Bottom strip */}
-        <div className="border-t border-text-on-dark/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-text-on-dark/40">
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-gold/15 pt-6 sm:flex-row">
+          <p className="text-xs text-text-on-dark/45">
             {t('copyright')}
           </p>
-
-          {/* Made in India badge */}
-          <span className="inline-flex items-center gap-1.5 text-xs text-text-on-dark/40 border border-text-on-dark/10 rounded-full px-3 py-1.5">
-            <MapPin className="w-3 h-3 text-gold/60 flex-shrink-0" aria-hidden="true" />
-            Made in India with
-            <Heart className="w-3 h-3 text-gold/70 flex-shrink-0" aria-hidden="true" />
-            for Indian families
-          </span>
-
-          <p className="text-xs text-text-on-dark/30 hidden sm:block">
+          <p className="hidden text-xs text-text-on-dark/35 sm:block">
             MCA21 · DLT Registered · ISO 27001 Compliant
           </p>
         </div>

@@ -50,7 +50,8 @@ export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="pt-16">
+      {/* No top padding: the hero's floral backdrop flows under the floating navbar */}
+      <main id="main-content">
         <Hero />
         <StatsBar />
         <HowItWorks />

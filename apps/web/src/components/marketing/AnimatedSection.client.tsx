@@ -10,6 +10,8 @@ type AnimatedSectionProps = {
   id?: string;
   as?: 'div' | 'section' | 'article' | 'aside';
   direction?: 'up' | 'left' | 'right';
+  /** ARIA role for the rendered element (e.g. listitem when the parent is a role=list). */
+  role?: string;
 };
 
 export default function AnimatedSection({
@@ -19,6 +21,7 @@ export default function AnimatedSection({
   id,
   as = 'div',
   direction = 'up',
+  role,
 }: AnimatedSectionProps) {
   const reduce = useReducedMotion();
 
@@ -39,6 +42,7 @@ export default function AnimatedSection({
     transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] as const },
     className,
     id,
+    role,
   };
 
   if (as === 'section') return <motion.section {...props}>{children}</motion.section>;

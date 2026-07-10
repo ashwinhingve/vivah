@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import AnimatedSection from './AnimatedSection.client';
+import { Eyebrow } from './Ornament';
 import { NoMatchesIllustration } from '@/components/ui/illustrations';
 
 interface Step {
@@ -24,12 +25,7 @@ export default async function HowItWorks() {
 
         {/* Section header */}
         <AnimatedSection className="text-center mb-16">
-          <p
-            aria-hidden="true"
-            className="text-xs font-semibold uppercase tracking-widest text-gold-muted mb-3"
-          >
-            {t('eyebrow')}
-          </p>
+          <Eyebrow className="mb-3">{t('eyebrow')}</Eyebrow>
           <h2
             className="font-heading font-semibold text-foreground"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3rem)' }}

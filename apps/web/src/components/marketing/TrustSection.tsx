@@ -2,7 +2,9 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Check } from 'lucide-react';
-import { TRUST_INDIVIDUALS, TRUST_FAMILIES } from '@/lib/marketing-images';
+import { Eyebrow } from './Ornament';
+import coupleDusk from '../../../public/landing/couple-dusk.webp';
+import floralIvory from '../../../public/landing/floral-ivory.webp';
 
 export default async function TrustSection() {
   const t = await getTranslations('marketing.trust');
@@ -14,8 +16,8 @@ export default async function TrustSection() {
       {/* LEFT — For Individuals (burgundy-overlaid bride photo) */}
       <div className="relative isolate min-h-[600px] lg:min-h-[680px] flex items-center">
         <Image
-          src={TRUST_INDIVIDUALS.src}
-          alt={TRUST_INDIVIDUALS.alt}
+          src={coupleDusk}
+          alt="Couple in wedding attire overlooking a lit palace lake at dusk"
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
           quality={80}
@@ -23,16 +25,13 @@ export default async function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/95 via-primary/88 to-primary-hover/85"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-plum/95 via-primary/85 to-primary-hover/80"
         />
 
         <div className="relative w-full max-w-[640px] ml-auto px-8 md:px-12 py-20 md:py-24">
-          <p
-            aria-hidden="true"
-            className="text-xs uppercase tracking-widest text-gold mb-3 font-semibold border-l-2 border-gold pl-3"
-          >
+          <Eyebrow tone="dark" align="left" className="mb-3">
             {t('individualsEyebrow')}
-          </p>
+          </Eyebrow>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white font-heading leading-tight [text-shadow:_0_2px_16px_rgba(0,0,0,0.3)]">
             {t('individualsHeading')}
           </h2>
@@ -68,8 +67,8 @@ export default async function TrustSection() {
       {/* RIGHT — For Families (ivory-washed family photo) */}
       <div className="relative isolate min-h-[600px] lg:min-h-[680px] flex items-center">
         <Image
-          src={TRUST_FAMILIES.src}
-          alt={TRUST_FAMILIES.alt}
+          src={floralIvory}
+          alt=""
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
           quality={80}
@@ -77,16 +76,13 @@ export default async function TrustSection() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/96 via-background/92 to-surface/88"
+          className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/90 via-background/80 to-surface/70"
         />
 
         <div className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24">
-          <p
-            aria-hidden="true"
-            className="text-xs uppercase tracking-widest text-primary/70 mb-3 font-semibold border-l-2 border-primary/40 pl-3"
-          >
+          <Eyebrow align="left" className="mb-3">
             {t('familiesEyebrow')}
-          </p>
+          </Eyebrow>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-primary font-heading leading-tight">
             {t('familiesHeading')}
           </h2>
