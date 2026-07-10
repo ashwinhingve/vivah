@@ -22,6 +22,8 @@
     "db:seed:calendar": "tsx seed/calendar.ts",
     "db:seed:test-accounts": "tsx seed/test-accounts.ts",
     "db:seed:test-accounts:remove": "tsx seed/test-accounts.ts --remove",
+    "db:seed:demo-01": "tsx seed/demo-01.ts",
+    "db:seed:demo-01:remove": "tsx seed/demo-01.ts --remove",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
