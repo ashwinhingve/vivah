@@ -12,7 +12,7 @@
 
 import { eq, and, ilike, sql, inArray, or, gte, lte, desc, asc, type SQL } from 'drizzle-orm';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { env, shouldUseMockMongo } from '../lib/env.js';
 import {
   vendors,
   vendorServices,
@@ -252,7 +252,10 @@ export async function getVendor(
     .where(and(eq(vendorServices.vendorId, vendorId), eq(vendorServices.isActive, true)));
 
   let portfolio: PortfolioDoc | null = null;
-  if (env.USE_MOCK_SERVICES) {
+  // Gate on shouldUseMockMongo (USE_MOCK_SERVICES && !MONGO_LIVE), not raw
+  // USE_MOCK_SERVICES — otherwise the portfolio never loads when Atlas is live
+  // via the MONGO_LIVE override (mock Razorpay/MSG91 but real MongoDB).
+  if (shouldUseMockMongo) {
     portfolio = null;
   } else {
     try {

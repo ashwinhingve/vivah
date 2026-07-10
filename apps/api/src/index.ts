@@ -262,9 +262,14 @@ app.get('/ready', async (_req: Request, res: Response) => {
     allOk = false;
   }
 
-  // Mongo is gated — connectMongo() is a no-op in mock mode, so a ping would
-  // return false-negatives. Only check when real connection is expected.
-  if (!env.USE_MOCK_SERVICES) {
+  // Mongo is gated on shouldUseMockMongo (USE_MOCK_SERVICES && !MONGO_LIVE) —
+  // the SAME flag connectMongo() uses. When Mongo is intentionally mocked we
+  // report 'mock' (not a false-negative "down"); when a real connection is
+  // expected (incl. the MONGO_LIVE override in mock mode) we probe it.
+  const { shouldUseMockMongo } = await import('./lib/env.js');
+  if (shouldUseMockMongo) {
+    checks['mongo'] = 'mock';
+  } else {
     try {
       const { mongoose } = await import('./lib/mongo.js');
       // 1 = connected, 2 = connecting, others = unhealthy.
