@@ -11,6 +11,8 @@ interface Crumb {
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
+  /** Small uppercase label rendered above the title (e.g. a section name). */
+  eyebrow?: string;
   breadcrumbs?: Crumb[];
   /** Right-aligned actions (desktop); stacks below the heading on mobile. */
   actions?: ReactNode;
@@ -21,6 +23,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   subtitle,
+  eyebrow,
   breadcrumbs,
   actions,
   className,
@@ -54,6 +57,11 @@ export function PageHeader({
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
+          {eyebrow && (
+            <p className="mb-1 text-2xs font-semibold uppercase tracking-wide text-gold-muted">
+              {eyebrow}
+            </p>
+          )}
           <h1 className="font-heading text-[22px] font-semibold leading-tight tracking-tight text-primary sm:text-[28px]">
             {title}
           </h1>
