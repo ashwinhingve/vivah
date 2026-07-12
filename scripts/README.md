@@ -15,7 +15,7 @@ pnpm seed:demo
 
 | Var               | Default                                | Purpose                                                   |
 |-------------------|----------------------------------------|-----------------------------------------------------------|
-| `API_URL`         | `http://localhost:3001`                | Base URL of the api app                                   |
+| `API_URL`         | `http://localhost:4000`                | Base URL of the api app                                   |
 | `SEED_OTP`        | `135246`                               | OTP code (must match `MOCK_OTP_VALUE` in api env)         |
 | `ALLOW_PROD_SEED` | unset                                  | Set to `true` to skip the prod confirmation prompt        |
 | `SKIP_CHAT`       | unset                                  | Set to `true` to skip socket.io chat seeding              |

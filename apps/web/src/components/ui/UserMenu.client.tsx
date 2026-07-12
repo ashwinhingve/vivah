@@ -81,14 +81,19 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
         {photoUrl ? (
           <ImageWithFallback
             src={photoUrl}
-            alt={displayName ?? t('userMenu')}
+            // Stable alt (button already carries aria-label={t('userMenu')}); avoids
+            // an SSR/client hydration mismatch since displayName is client-session-only.
+            alt={t('userMenu')}
             name={displayName}
             fill
             sizes="32px"
             wrapperClassName="h-8 w-8 rounded-full"
           />
         ) : (
-          <span className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center select-none">
+          <span
+            suppressHydrationWarning
+            className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center select-none"
+          >
             {initials}
           </span>
         )}
