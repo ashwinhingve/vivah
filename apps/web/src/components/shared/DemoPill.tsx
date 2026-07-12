@@ -9,7 +9,7 @@ export function DemoPill() {
     <div
       role="note"
       aria-label="Demo mode active"
-      className="fixed bottom-4 right-4 z-[60] max-w-[18rem] rounded-full border border-gold/60 bg-background/95 px-3 py-1.5 text-[11px] text-foreground shadow-lg backdrop-blur sm:bottom-5 sm:right-5 sm:text-xs"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-[60] max-w-[18rem] rounded-full border border-gold/60 bg-background/95 px-3 py-1.5 text-2xs text-foreground shadow-lg backdrop-blur md:bottom-5 md:left-5 md:text-xs"
     >
       <span className="font-semibold tracking-wide text-primary">DEMO MODE</span>
       <span className="mx-1.5 text-gold">·</span>

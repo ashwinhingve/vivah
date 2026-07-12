@@ -20,6 +20,7 @@ import {
   Gift,
   Globe,
   CalendarClock,
+  CalendarDays,
   ChevronLeft,
   ChevronDown,
 } from 'lucide-react';
@@ -35,6 +36,7 @@ const GROUPS: Group[] = [
     title: 'Planning',
     items: [
       { seg: 'timeline', label: 'Timeline', Icon: CalendarRange },
+      { seg: 'calendar', label: 'Calendar', Icon: CalendarDays },
       { seg: 'ceremonies', label: 'Ceremonies', Icon: Sparkles },
       { seg: 'tasks', label: 'Tasks', Icon: ListChecks },
     ],

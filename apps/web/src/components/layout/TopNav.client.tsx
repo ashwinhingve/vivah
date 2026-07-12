@@ -13,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { navForRole, filterForDemo } from './nav-config';
+import { cn } from '@/lib/utils';
+import { navForRole, filterForDemo, activeNavHref } from './nav-config';
 
 /**
  * Desktop horizontal nav bar. Renders only on `md:flex+`. Mobile nav is the
@@ -32,24 +33,35 @@ export function TopNav() {
   const groups = moreGroups
     .map((group) => ({ ...group, items: filterForDemo(group.items) }))
     .filter((group) => group.items.length > 0);
+  const groupItems = groups.flatMap((group) => group.items);
+
+  // Most specific matching href across the whole nav set wins — same logic and
+  // same teal active treatment as the mobile <AppNav>.
+  const currentHref = activeNavHref(
+    pathname,
+    [...items, ...groupItems].map((i) => i.href),
+  );
+  const moreActive = groupItems.some((i) => i.href === currentHref);
 
   return (
     <nav
-      aria-label="Primary"
+      aria-label={t('primaryNav')}
       className="hidden items-center gap-1 md:flex"
     >
       {items.map(({ href, labelKey, Icon }) => {
-        const isActive = pathname === href || pathname.startsWith(href + '/');
+        const isActive = href === currentHref;
         return (
           <Link
             key={href}
             href={href}
             aria-current={isActive ? 'page' : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               isActive
-                ? 'bg-primary/10 text-primary'
-                : 'text-fg-1 hover:bg-surface-muted'
-            }`}
+                ? 'bg-teal/10 text-teal'
+                : 'text-fg-1 hover:bg-surface-muted',
+            )}
           >
             <Icon strokeWidth={1.75} className="h-4 w-4" aria-hidden />
             {t(labelKey)}
@@ -60,7 +72,10 @@ export function TopNav() {
       {groups.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-fg-1 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=open]:bg-surface-muted"
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=open]:bg-surface-muted',
+              moreActive ? 'bg-teal/10 text-teal' : 'text-fg-1',
+            )}
             aria-label={t('moreLabel')}
           >
             {t('more')}
@@ -73,16 +88,27 @@ export function TopNav() {
                 <DropdownMenuLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {t(group.titleKey)}
                 </DropdownMenuLabel>
-                {group.items.map(({ href, labelKey, Icon }) => (
-                  <DropdownMenuItem
-                    key={href}
-                    onSelect={() => router.push(href)}
-                    className="flex cursor-pointer items-center gap-2.5"
-                  >
-                    <Icon strokeWidth={1.75} className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    {t(labelKey)}
-                  </DropdownMenuItem>
-                ))}
+                {group.items.map(({ href, labelKey, Icon }) => {
+                  const isActive = href === currentHref;
+                  return (
+                    <DropdownMenuItem
+                      key={href}
+                      onSelect={() => router.push(href)}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={cn(
+                        'flex cursor-pointer items-center gap-2.5',
+                        isActive && 'bg-teal/10 text-teal focus:bg-teal/15 focus:text-teal',
+                      )}
+                    >
+                      <Icon
+                        strokeWidth={1.75}
+                        className={cn('h-4 w-4', isActive ? 'text-teal' : 'text-muted-foreground')}
+                        aria-hidden
+                      />
+                      {t(labelKey)}
+                    </DropdownMenuItem>
+                  );
+                })}
               </div>
             ))}
           </DropdownMenuContent>

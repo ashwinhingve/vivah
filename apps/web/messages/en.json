@@ -73,7 +73,10 @@
       "insights": "Insights",
       "reviews": "Reviews",
       "leads": "Leads",
-      "pipeline": "Pipeline"
+      "pipeline": "Pipeline",
+      "primaryNav": "Primary navigation",
+      "closeMenu": "Close menu",
+      "moreNavigation": "More navigation"
     }
   },
   "auth": {

@@ -73,7 +73,10 @@
       "insights": "अंतर्दृष्टि",
       "reviews": "समीक्षाएँ",
       "leads": "लीड्स",
-      "pipeline": "पाइपलाइन"
+      "pipeline": "पाइपलाइन",
+      "primaryNav": "प्राथमिक नेविगेशन",
+      "closeMenu": "मेनू बंद करें",
+      "moreNavigation": "अधिक नेविगेशन"
     }
   },
   "auth": {
