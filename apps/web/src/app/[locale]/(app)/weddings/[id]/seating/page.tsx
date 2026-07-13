@@ -1,6 +1,8 @@
 import { Users, Sparkles, Plus, X } from 'lucide-react';
 import { fetchSeating } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import type { GuestSummary } from '@smartshaadi/types';
 import { createTableAction, deleteTableAction, assignSeatAction, unassignSeatAction, autoAssignAction } from './actions';
 
@@ -18,22 +20,24 @@ export default async function SeatingPage({ params }: PageProps) {
   const unseated = guests.filter(g => !seatedIds.has(g.id) && g.rsvpStatus === 'YES');
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-8 pb-24">
-
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-heading text-2xl text-primary">Seating Plan</h1>
-            <p className="text-sm text-muted-foreground">{tables.length} tables · {seatedIds.size} of {guests.filter(g => g.rsvpStatus === 'YES').length} confirmed guests seated</p>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-4 py-8 pb-24">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <PageHeader
+                title="Seating Plan"
+                description={`${tables.length} tables · ${seatedIds.size} of ${guests.filter(g => g.rsvpStatus === 'YES').length} confirmed guests seated`}
+              />
+            </div>
+            {tables.length > 0 && unseated.length > 0 && (
+              <form action={autoAssignAction.bind(null, id)}>
+                <button type="submit" className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <Sparkles className="h-4 w-4" aria-hidden="true" /> Auto-assign
+                </button>
+              </form>
+            )}
           </div>
-          {tables.length > 0 && unseated.length > 0 && (
-            <form action={autoAssignAction.bind(null, id)}>
-              <button type="submit" className="flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
-                <Sparkles className="h-4 w-4" /> Auto-assign
-              </button>
-            </form>
-          )}
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tables */}
@@ -119,7 +123,7 @@ export default async function SeatingPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </PageTransition>
   );
 }

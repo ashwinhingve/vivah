@@ -1,6 +1,8 @@
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { RsvpDeadlineCard } from '@/components/wedding/RsvpDeadlineCard.client';
 import type { RsvpAnalytics, RsvpDeadline, MealPref, RsvpStatus } from '@smartshaadi/types';
 
@@ -22,14 +24,17 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
-        <Link href={`/weddings/${id}/guests`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 min-h-[44px]">
-          <ArrowLeft className="h-4 w-4" /> Guests
-        </Link>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
+          <Link href={`/weddings/${id}/guests`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 min-h-[44px]">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Guests
+          </Link>
 
-        <h1 className="font-heading text-2xl text-primary mb-1">RSVP Analytics</h1>
-        <p className="text-muted-foreground text-sm mb-6">Real-time view of how your guest list is responding.</p>
+          <PageHeader
+            title="RSVP Analytics"
+            description="Real-time view of how your guest list is responding."
+          />
 
         <RsvpDeadlineCard weddingId={id} initial={deadline} />
 
@@ -118,24 +123,25 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
             )}
           </>
         )}
-      </div>
-    </div>
+        </div>
+      </main>
+    </PageTransition>
   );
 }
 
 function Stat({ label, value, subtle }: { label: string; value: number | string; subtle?: string }) {
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-2xl font-semibold text-primary">{value}</div>
-      {subtle && <div className="text-[11px] text-muted-foreground mt-0.5">{subtle}</div>}
+      {subtle && <div className="text-2xs text-muted-foreground mt-0.5">{subtle}</div>}
     </div>
   );
 }
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+    <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
       <h3 className="font-medium text-sm text-primary mb-3">{title}</h3>
       {children}
     </div>

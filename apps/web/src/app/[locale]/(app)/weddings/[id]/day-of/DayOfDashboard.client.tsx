@@ -81,15 +81,18 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
     : 0;
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-6">
-      <header className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="font-heading text-3xl text-foreground">Live day-of dashboard</h1>
-        <p className="text-xs text-muted-foreground">Updated {new Date(snap.asOf).toLocaleTimeString()}</p>
-      </header>
+    <main id="main-content" className="min-h-screen bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <header className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h1 className="font-heading text-3xl text-foreground">Live day-of dashboard</h1>
+            <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(snap.asOf).toLocaleTimeString()}</p>
+          </div>
+        </header>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        {/* Ceremonies */}
-        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
+        <section className="grid gap-4 lg:grid-cols-3">
+          {/* Ceremonies */}
+          <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
           <h2 className="font-heading text-lg text-foreground">Ceremonies</h2>
           <ul className="mt-3 space-y-3">
             {snap.ceremonies.map((c) => {
@@ -117,7 +120,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                       <button
                         type="button"
                         onClick={() => setStatus(c.id, 'IN_PROGRESS')}
-                        className="rounded-md bg-success px-3 py-1 text-xs font-medium text-white hover:bg-success"
+                        className="min-h-[44px] rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/90 transition-colors"
                       >
                         Start
                       </button>
@@ -126,7 +129,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                       <button
                         type="button"
                         onClick={() => setStatus(c.id, 'COMPLETED')}
-                        className="rounded-md bg-foreground px-3 py-1 text-xs font-medium text-white hover:opacity-90"
+                        className="min-h-[44px] rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition-colors"
                       >
                         Complete
                       </button>
@@ -139,7 +142,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
         </div>
 
         {/* Guest arrivals */}
-        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
+        <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
           <h2 className="font-heading text-lg text-foreground">Guest arrivals</h2>
           <p className="mt-3 text-4xl font-semibold text-foreground">
             {snap.guestArrivals.arrived}
@@ -152,7 +155,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
         </div>
 
         {/* Recent incidents */}
-        <div className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
+        <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
           <h2 className="font-heading text-lg text-foreground">Recent incidents</h2>
           {snap.recentIncidents.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">No incidents reported. Smooth sailing.</p>
@@ -184,7 +187,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
       </section>
 
       {/* Vendor check-ins */}
-      <section className="mt-6 rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
+      <section className="mt-6 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
         <h2 className="font-heading text-lg text-foreground">Vendor check-ins</h2>
         {snap.vendorCheckIns.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">No timeline events with vendors assigned.</p>
@@ -201,8 +204,8 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                 <button
                   type="button"
                   onClick={() => checkInVendor(v.eventId, !v.checkedIn)}
-                  className={`rounded-md px-3 py-1 text-xs font-medium ${
-                    v.checkedIn ? 'bg-success text-white hover:bg-success' : 'border border-foreground/15 text-foreground hover:bg-foreground/5'
+                  className={`min-h-[44px] rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                    v.checkedIn ? 'bg-success text-white hover:bg-success/90' : 'border border-gold/30 text-foreground hover:bg-background'
                   }`}
                 >
                   {v.checkedIn ? 'Checked in' : 'Mark arrived'}
@@ -212,6 +215,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
           </ul>
         )}
       </section>
+      </div>
     </main>
   );
 }
