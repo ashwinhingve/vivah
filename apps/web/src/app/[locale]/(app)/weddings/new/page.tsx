@@ -29,7 +29,7 @@ export default async function NewWeddingPage() {
 
           <PageHeader
             title={t('heading')}
-            description="Fill in the basics — you can update everything later."
+            subtitle="Fill in the basics — you can update everything later."
           />
 
           <div className="mt-6 bg-surface border border-gold/20 rounded-2xl shadow-card p-6">

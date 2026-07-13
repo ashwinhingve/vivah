@@ -62,8 +62,8 @@ export default async function VendorReviewsPage() {
           <FadeUp>
             <EmptyState
               icon={MessageSquare}
-              title={t(‘emptyTitle’)}
-              description={t(‘emptyDescription’)}
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
             />
           </FadeUp>
         ) : (

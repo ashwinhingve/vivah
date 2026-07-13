@@ -43,7 +43,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Expenses"
-            description="Track all spending and payment schedules."
+            subtitle="Track all spending and payment schedules."
           />
 
         {/* Summary cards */}

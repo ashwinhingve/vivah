@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { Bookmark, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/PageHeader';

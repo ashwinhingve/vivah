@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { Globe, Eye, Sparkles } from 'lucide-react';
+import { Eye, Sparkles } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { fetchWebsite } from '@/lib/wedding-api';
@@ -18,7 +18,7 @@ export default async function WebsitePage({ params }: PageProps) {
         <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title={t('heading')}
-            description={t('subtitle')}
+            subtitle={t('subtitle')}
           />
 
         {site && site.isPublic && (

@@ -23,7 +23,7 @@ export default async function CheckInPage({ params }: PageProps) {
 
           <PageHeader
             title="Check-in"
-            description="Mark guests as arrived on the day. Search by name or scan a QR if available."
+            subtitle="Mark guests as arrived on the day. Search by name or scan a QR if available."
           />
 
           <CheckInClient weddingId={id} initialGuests={guests} />

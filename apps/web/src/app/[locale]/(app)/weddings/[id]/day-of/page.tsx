@@ -16,7 +16,7 @@ export default async function DayOfPage({ params }: { params: Promise<{ id: stri
         <main id="main-content" className="mx-auto max-w-3xl px-4 py-8">
           <PageHeader
             title="Day-of Dashboard"
-            description="Real-time updates and ceremony coordination."
+            subtitle="Real-time updates and ceremony coordination."
           />
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">

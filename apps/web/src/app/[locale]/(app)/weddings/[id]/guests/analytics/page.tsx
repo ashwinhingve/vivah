@@ -33,7 +33,7 @@ export default async function GuestAnalyticsPage({ params }: PageProps) {
 
           <PageHeader
             title="RSVP Analytics"
-            description="Real-time view of how your guest list is responding."
+            subtitle="Real-time view of how your guest list is responding."
           />
 
         <RsvpDeadlineCard weddingId={id} initial={deadline} />

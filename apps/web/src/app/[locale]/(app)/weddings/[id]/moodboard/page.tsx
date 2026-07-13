@@ -1,4 +1,3 @@
-import { Image as ImageIcon } from 'lucide-react';
 import { fetchMoodboard } from '@/lib/wedding-api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -18,7 +17,7 @@ export default async function MoodBoardPage({ params }: PageProps) {
         <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Mood Board"
-            description="Collect inspiration for your wedding theme, colors, and décor."
+            subtitle="Collect inspiration for your wedding theme, colors, and décor."
           />
           <MoodBoardClient
             weddingId={id}

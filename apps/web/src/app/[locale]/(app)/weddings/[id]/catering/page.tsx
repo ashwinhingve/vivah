@@ -38,7 +38,7 @@ export default async function CateringPage({ params }: PageProps) {
         <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Catering Estimates"
-            description="Predicted attendance per ceremony based on guest RSVP patterns and history."
+            subtitle="Predicted attendance per ceremony based on guest RSVP patterns and history."
           />
 
           <Suspense fallback={<EstimatesSkeleton />}>

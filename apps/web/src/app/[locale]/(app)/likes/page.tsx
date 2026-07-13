@@ -157,9 +157,9 @@ export default async function LikesPage() {
                 </Card>
               );
             })}
-          </div>
+          </StaggerList>
         )}
-      </div>
+      </PageTransition>
     </main>
   );
 }

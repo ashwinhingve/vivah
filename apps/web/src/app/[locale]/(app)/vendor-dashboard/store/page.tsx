@@ -68,7 +68,7 @@ export default async function VendorStorePage() {
           <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatsCard label={t('statTotal')} value={totalProducts} sub={t('statTotalSub')} icon={Package} />
             <StatsCard label={t('statActive')} value={activeProducts} sub={t('statActiveSub')} icon={Package} variant="teal" />
-            <StatsCard label={t('statOutOfStock')} value={outOfStock} sub={t('statOutOfStockSub')} icon={Package} variant="destructive" />
+            <StatsCard label={t('statOutOfStock')} value={outOfStock} sub={t('statOutOfStockSub')} icon={Package} variant="warning" />
             <StatsCard label={t('statRevenue')} value="—" sub={t('statRevenueSub')} icon={Package} variant="gold" />
           </StaggerList>
 

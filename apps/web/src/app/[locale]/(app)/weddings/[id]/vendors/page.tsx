@@ -36,7 +36,7 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
         <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Vendors"
-            description="Shortlist, assign, and track your wedding vendors."
+            subtitle="Shortlist, assign, and track your wedding vendors."
           />
 
         {assignments.length === 0 ? (

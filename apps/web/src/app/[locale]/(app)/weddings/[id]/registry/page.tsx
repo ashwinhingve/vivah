@@ -1,4 +1,4 @@
-import { Gift, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { fetchRegistry } from '@/lib/wedding-api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -23,7 +23,7 @@ export default async function RegistryPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Gift Registry"
-            description="List items guests can claim — appears on your public wedding website if enabled."
+            subtitle="List items guests can claim — appears on your public wedding website if enabled."
           />
 
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm mb-6">

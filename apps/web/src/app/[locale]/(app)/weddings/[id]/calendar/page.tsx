@@ -3,7 +3,6 @@ import type { Ceremony } from '@smartshaadi/types';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTransition } from '@/components/motion/PageTransition.client';
-import { CalendarRange } from 'lucide-react';
 
 export const metadata = { title: 'Wedding Calendar — Smart Shaadi' };
 export const dynamic = 'force-dynamic';
@@ -29,7 +28,7 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
       <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
         <PageHeader
           title="Wedding Calendar"
-          description="All ceremonies in chronological order. Click any to view details or jump to day-of."
+          subtitle="All ceremonies in chronological order. Click any to view details or jump to day-of."
         />
 
         {byDate.size === 0 ? (

@@ -1,4 +1,3 @@
-import { FileText } from 'lucide-react';
 import { fetchDocuments } from '@/lib/wedding-api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -18,7 +17,7 @@ export default async function DocumentsPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Documents"
-            description="Store marriage certificates, legal documents, and important files."
+            subtitle="Store marriage certificates, legal documents, and important files."
           />
           <DocumentsClient
             weddingId={id}

@@ -40,7 +40,7 @@ export default async function TimelinePage({ params }: PageProps) {
           <div className="flex items-center justify-between mb-6">
             <PageHeader
               title="Day-of Schedule"
-              description="Build out your day's timeline and assign vendors."
+              subtitle="Build out your day's timeline and assign vendors."
             />
             {cers.length > 0 && events.length === 0 && (
               <form action={autoGenerateAction.bind(null, id)}>

@@ -60,7 +60,7 @@ export default async function TasksPage({ params, searchParams }: PageProps) {
 
           <PageHeader
             title={t('heading')}
-            description="Drag tasks through the pipeline or use the arrows to move them."
+            subtitle="Drag tasks through the pipeline or use the arrows to move them."
           />
 
           <TaskKanban weddingId={id} initialTasks={tasks} />

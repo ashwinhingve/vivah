@@ -27,7 +27,7 @@ export default async function SeatingPage({ params }: PageProps) {
             <div>
               <PageHeader
                 title="Seating Plan"
-                description={`${tables.length} tables · ${seatedIds.size} of ${guests.filter(g => g.rsvpStatus === 'YES').length} confirmed guests seated`}
+                subtitle={`${tables.length} tables · ${seatedIds.size} of ${guests.filter(g => g.rsvpStatus === 'YES').length} confirmed guests seated`}
               />
             </div>
             {tables.length > 0 && unseated.length > 0 && (
@@ -43,7 +43,7 @@ export default async function SeatingPage({ params }: PageProps) {
           {/* Tables */}
           <div className="lg:col-span-2 space-y-4">
             {tables.length === 0 ? (
-              <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center">
+              <div className="bg-surface border border-dashed border-gold/30 rounded-2xl p-12 text-center">
                 <Users className="h-10 w-10 text-gold mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No tables yet. Add your first table on the right.</p>
               </div>
@@ -51,7 +51,7 @@ export default async function SeatingPage({ params }: PageProps) {
               tables.map(t => {
                 const filled = t.assignedGuests.length;
                 return (
-                  <div key={t.id} className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+                  <div key={t.id} className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-primary">{t.name}</h3>
@@ -92,7 +92,7 @@ export default async function SeatingPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+            <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5">
               <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
                 <Plus className="h-4 w-4" /> New table
               </h3>
@@ -111,7 +111,7 @@ export default async function SeatingPage({ params }: PageProps) {
               </form>
             </div>
 
-            <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+            <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5">
               <h3 className="font-semibold text-primary mb-3">Unseated ({unseated.length})</h3>
               {unseated.length === 0 ? (
                 <p className="text-xs text-muted-foreground">All confirmed guests are seated.</p>
@@ -122,6 +122,7 @@ export default async function SeatingPage({ params }: PageProps) {
               )}
             </div>
           </div>
+        </div>
         </div>
       </main>
     </PageTransition>

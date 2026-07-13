@@ -19,7 +19,7 @@ export default async function MembersPage({ params }: PageProps) {
         <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
           <PageHeader
             title="Collaborators"
-            description="Invite family + planners to collaborate on this wedding."
+            subtitle="Invite family + planners to collaborate on this wedding."
           />
 
         {/* Members list */}

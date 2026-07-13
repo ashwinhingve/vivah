@@ -23,7 +23,7 @@ export default async function RsvpQuestionsPage({ params }: PageProps) {
 
           <PageHeader
             title="Custom RSVP Questions"
-            description="Add follow-up questions guests answer when they RSVP — drink preferences, song requests, transport needs."
+            subtitle="Add follow-up questions guests answer when they RSVP — drink preferences, song requests, transport needs."
           />
 
           <RsvpQuestionsBuilder weddingId={id} initial={questions} />

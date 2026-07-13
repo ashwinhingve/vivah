@@ -1774,7 +1774,10 @@
     "kyc": {
       "title": "KYC Review",
       "pendingBadge": "{count} pending",
-      "openConsole": "Open full KYC console →"
+      "openConsole": "Open full KYC console →",
+      "subtitle": "Review pending verifications, resolve appeals, monitor fraud signals.",
+      "breadcrumb": "KYC",
+      "pendingQueueLabel": "Pending review queue"
     },
     "disputes": {
       "openBadge": "{count} open"
@@ -1896,6 +1899,43 @@
         "emptyFiltered": "Try widening your filters or clearing the date range.",
         "emptyDefault": "Nothing has been logged yet."
       }
+    },
+    "payouts": {
+      "title": "Vendor Payouts",
+      "subtitle": "Manage vendor payout processing and settlement.",
+      "breadcrumb": "Payouts"
+    },
+    "refunds": {
+      "title": "Customer Refunds",
+      "subtitle": "Review and process customer refund requests.",
+      "breadcrumb": "Refunds"
+    },
+    "promos": {
+      "title": "Promo Code Manager",
+      "subtitle": "Create and manage promotional codes and discounts.",
+      "breadcrumb": "Promos"
+    },
+    "revenue": {
+      "title": "Revenue Analytics",
+      "subtitle": "Platform revenue breakdown, liabilities, and top vendors.",
+      "breadcrumb": "Revenue"
+    },
+    "reconciliation": {
+      "title": "Settlement Reconciliation",
+      "subtitle": "Discrepancies between Razorpay settlement reports and local payment ledger",
+      "breadcrumb": "Reconciliation"
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "subtitle": "Global feature toggles that affect every user.",
+      "breadcrumb": "Settings"
+    },
+    "escrow": {
+      "title": "Escrow & Disputes",
+      "subtitle": "Manage booking disputes and escrow fund releases.",
+      "breadcrumb": "Escrow",
+      "emptyTitle": "No open disputes",
+      "emptyDescription": "All escrow disputes have been resolved."
     }
   },
   "settings": {
