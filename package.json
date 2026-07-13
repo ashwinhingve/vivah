@@ -41,6 +41,10 @@
         "jose",
         "zod"
       ]
+    },
+    "supportedArchitectures": {
+      "os": ["win32", "linux", "current"],
+      "cpu": ["x64", "current"]
     }
   }
 }
