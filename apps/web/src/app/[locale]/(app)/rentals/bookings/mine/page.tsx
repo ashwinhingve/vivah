@@ -7,6 +7,7 @@
 
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
+import { ArrowRight } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { RentalBookingSummary } from '@smartshaadi/types';
 
@@ -23,12 +24,6 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   CANCELLED: { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Cancelled' },
   OVERDUE:   { bg: 'bg-warning/15', text: 'text-warning', label: 'Overdue' },
 };
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style:    'currency',
-  currency: 'INR',
-  maximumFractionDigits: 0,
-});
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-IN', {
@@ -57,9 +52,10 @@ export default async function MyRentalsPage() {
           </div>
           <Link
             href="/rentals"
-            className="text-sm font-medium text-teal hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-teal hover:underline min-h-[44px]"
           >
-            Browse catalogue →
+            Browse catalogue
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
 
@@ -116,7 +112,7 @@ export default async function MyRentalsPage() {
                   {/* Quantity + Total */}
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>Qty: <span className="font-medium text-foreground">{booking.quantity}</span></span>
-                    <span>Total: <span className="font-medium text-foreground">{inrFormatter.format(booking.totalAmount)}</span></span>
+                    <span>Total: <span className="font-medium text-foreground">₹{booking.totalAmount.toLocaleString('en-IN')}</span></span>
                   </div>
                 </li>
               );

@@ -6,6 +6,7 @@
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { Link } from '@/i18n/navigation';
 import { RentalCard } from '@/components/rental/RentalCard';
 import { CategoryTabs } from '@/components/rental/CategoryTabs.client';
 import { DateRangePicker } from '@/components/rental/DateRangePicker.client';
@@ -33,12 +34,6 @@ interface SearchParams {
 interface Props {
   searchParams: Promise<SearchParams>;
 }
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style:    'currency',
-  currency: 'INR',
-  maximumFractionDigits: 0,
-});
 
 export default async function RentalsPage({ searchParams }: Props) {
   const params   = await searchParams;
@@ -139,7 +134,7 @@ export default async function RentalsPage({ searchParams }: Props) {
               const pqs = new URLSearchParams(qs.toString());
               pqs.set('page', String(p));
               return (
-                <a
+                <Link
                   key={p}
                   href={`/rentals?${pqs.toString()}`}
                   className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
@@ -150,7 +145,7 @@ export default async function RentalsPage({ searchParams }: Props) {
                   aria-current={p === currentPage ? 'page' : undefined}
                 >
                   {p}
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -159,6 +154,3 @@ export default async function RentalsPage({ searchParams }: Props) {
     </div>
   );
 }
-
-// suppress unused import warning
-void inrFormatter;

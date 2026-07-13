@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { ArrowLeft, Download } from 'lucide-react';
 import type { BookingStatus, BookingAddon } from '@smartshaadi/types';
 import { CancelBookingButton } from '@/components/bookings/CancelBookingButton.client';
 import { RescheduleControls } from '@/components/bookings/RescheduleControls.client';
@@ -86,8 +87,9 @@ export default async function BookingDetailPage({
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl space-y-5">
-        <Link href="/bookings" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-          ← Back to Bookings
+        <Link href="/bookings" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px]">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to Bookings
         </Link>
 
         <div className={`rounded-xl border px-5 py-4 ${STATUS_STYLES[booking.status]}`}>
@@ -196,9 +198,10 @@ export default async function BookingDetailPage({
               href={`${API_URL}/api/v1/bookings/${booking.id}/invoice`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-white hover:bg-success transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 min-h-[44px] text-sm font-medium text-white hover:bg-success transition-colors"
             >
-              ↓ Download Invoice
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Download Invoice
             </a>
           )}
           {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (

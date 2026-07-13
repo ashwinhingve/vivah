@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
+import { ChevronRight } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { DisputeForm } from './DisputeForm.client';
 import type { BookingStatus } from '@smartshaadi/types';
@@ -68,11 +69,11 @@ export default async function DisputePage({
         <Link href="/bookings" className="hover:text-teal transition">
           Bookings
         </Link>
-        <span aria-hidden="true">/</span>
+        <ChevronRight className="h-4 w-4" aria-hidden="true" />
         <Link href={`/bookings/${id}`} className="hover:text-teal transition">
           Booking Details
         </Link>
-        <span aria-hidden="true">/</span>
+        <ChevronRight className="h-4 w-4" aria-hidden="true" />
         <span className="text-foreground font-medium">Raise Dispute</span>
       </nav>
 

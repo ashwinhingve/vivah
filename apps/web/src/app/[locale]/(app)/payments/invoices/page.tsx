@@ -5,12 +5,8 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import type { InvoiceRecord, InvoiceStatus } from '@smartshaadi/types';
-import {
-  Container,
-  DataTable,
-  type DataTableColumn,
-  PageHeader,
-} from '@/components/shared';
+import { Container, DataTable, type DataTableColumn } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 

@@ -4,6 +4,7 @@
  */
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { PaymentSummaryCard } from '@/components/payments/PaymentSummaryCard';
 import { PaymentsPageClient } from '@/components/payments/PaymentsPageClient.client';
 
@@ -111,31 +112,26 @@ export default async function PaymentsPage() {
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
-        {/* Page heading */}
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-2xl font-semibold text-primary">
-              Payment History
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your bookings, wallet, and payment records
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href="/payments/wallet"
-              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary"
-            >
-              Wallet
-            </Link>
-            <Link
-              href="/payments/refunds"
-              className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary"
-            >
-              Refunds
-            </Link>
-          </div>
-        </div>
+        <PageHeader
+          title="Payment History"
+          subtitle="Your bookings, wallet, and payment records"
+          actions={
+            <div className="flex gap-2">
+              <Link
+                href="/payments/wallet"
+                className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary min-h-[44px]"
+              >
+                Wallet
+              </Link>
+              <Link
+                href="/payments/refunds"
+                className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary min-h-[44px]"
+              >
+                Refunds
+              </Link>
+            </div>
+          }
+        />
 
         {/* Summary card */}
         <div className="mb-6">

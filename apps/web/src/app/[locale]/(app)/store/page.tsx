@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { StoreCategoryFilter } from '@/components/store/StoreCategoryFilter.client';
 import type { ProductSummary } from '@smartshaadi/types';
@@ -114,9 +115,10 @@ export default async function StorePage({ searchParams }: PageProps) {
             {page > 1 && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page - 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center gap-1.5 text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
-                ← Previous
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                Previous
               </Link>
             )}
             <span className="text-sm text-muted-foreground px-2">
@@ -125,9 +127,10 @@ export default async function StorePage({ searchParams }: PageProps) {
             {page < totalPages && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page + 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center gap-1.5 text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
-                Next →
+                Next
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             )}
           </div>

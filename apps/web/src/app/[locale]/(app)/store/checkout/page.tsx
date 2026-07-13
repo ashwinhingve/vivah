@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { CheckoutForm } from '@/components/store/CheckoutForm.client';
 
 export default function CheckoutPage() {
@@ -9,9 +10,10 @@ export default function CheckoutPage() {
         <div className="flex items-center gap-3 mb-6">
           <Link
             href="/store/cart"
-            className="text-muted-foreground hover:text-teal transition-colors text-sm"
+            className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-teal transition-colors text-sm min-h-[44px]"
           >
-            ← Cart
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Cart
           </Link>
           <h1 className="font-heading text-primary text-xl font-bold">Checkout</h1>
         </div>

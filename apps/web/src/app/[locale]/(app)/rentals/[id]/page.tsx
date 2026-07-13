@@ -7,6 +7,7 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { BookingForm } from '@/components/rental/BookingForm.client';
 import type { RentalItem } from '@smartshaadi/types';
 
@@ -33,12 +34,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   TABLEWARE:    'Tableware',
   OTHER:        'Other',
 };
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style:    'currency',
-  currency: 'INR',
-  maximumFractionDigits: 0,
-});
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -104,13 +99,13 @@ export default async function RentalDetailPage({ params }: Props) {
           <div className="flex items-baseline gap-4 flex-wrap">
             <div>
               <span className="text-xl font-bold text-foreground">
-                {inrFormatter.format(item.pricePerDay)}
+                ₹{item.pricePerDay.toLocaleString('en-IN')}
               </span>
               <span className="text-sm text-muted-foreground"> / day</span>
             </div>
             {item.deposit > 0 && (
               <div className="text-sm text-muted-foreground">
-                Deposit: <span className="font-medium text-foreground">{inrFormatter.format(item.deposit)}</span>
+                Deposit: <span className="font-medium text-foreground">₹{item.deposit.toLocaleString('en-IN')}</span>
               </div>
             )}
           </div>
@@ -151,9 +146,10 @@ export default async function RentalDetailPage({ params }: Props) {
         {/* Back link */}
         <Link
           href="/rentals"
-          className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="inline-flex items-center justify-center gap-1.5 w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors min-h-[44px]"
         >
-          ← Back to catalogue
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to catalogue
         </Link>
       </div>
     </div>

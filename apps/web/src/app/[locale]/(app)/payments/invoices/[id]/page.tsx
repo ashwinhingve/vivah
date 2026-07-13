@@ -5,6 +5,7 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { PrintInvoiceButton } from '@/components/payments/PrintInvoiceButton.client';
 import type { InvoiceRecord } from '@smartshaadi/types';
 
@@ -66,9 +67,10 @@ export default async function InvoiceDetailPage({
         <div className="mb-4 flex items-center justify-between print:hidden">
           <Link
             href="/payments/invoices"
-            className="text-sm font-medium hover:underline text-teal"
+            className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline text-teal min-h-[44px]"
           >
-            ← Back to Invoices
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to Invoices
           </Link>
           <PrintInvoiceButton />
         </div>

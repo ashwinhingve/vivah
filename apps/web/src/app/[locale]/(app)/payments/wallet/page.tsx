@@ -4,13 +4,9 @@
  */
 import { cookies } from 'next/headers';
 import type { WalletSnapshot, WalletTransaction } from '@smartshaadi/types';
-import {
-  Container,
-  DataTable,
-  type DataTableColumn,
-  EmptyState,
-  PageHeader,
-} from '@/components/shared';
+import { Container, DataTable, type DataTableColumn } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/utils';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
