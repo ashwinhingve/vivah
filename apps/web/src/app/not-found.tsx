@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SearchX } from 'lucide-react';
 
 /**
@@ -23,12 +24,12 @@ export default function NotFound() {
         <p className="mb-6 text-muted-foreground">
           The page you&rsquo;re looking for doesn&rsquo;t exist or may have moved.
         </p>
-        <a
+        <Link
           href="/dashboard"
           className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 font-semibold text-white shadow-card transition-colors hover:bg-primary/90"
         >
           Back to dashboard
-        </a>
+        </Link>
       </div>
     </main>
   );
