@@ -419,7 +419,11 @@
     "metadata": {
       "title": "Your Matches — Smart Shaadi"
     },
-    "heading": "Your Connections"
+    "heading": "Your Connections",
+    "subtitleCount": "{count} accepted match{count, plural, one {} other {es}}",
+    "subtitleEmpty": "Accepted matches appear here",
+    "requestsInbox": "Requests inbox",
+    "checkRequestsInbox": "Check Requests Inbox"
   },
   "compatibility": {
     "metadata": {
@@ -890,6 +894,105 @@
         "result": "Sent {sent} · Failed {failed}",
         "andMore": "…and {count} more"
       }
+    },
+    "overview": {
+      "metadata": {
+        "title": "Wedding Overview — Smart Shaadi"
+      },
+      "heading": "Wedding Overview",
+      "description": "Plan, track, and celebrate your perfect day."
+    },
+    "dayOf": {
+      "metadata": {
+        "title": "Day-of Dashboard — Smart Shaadi"
+      },
+      "heading": "Live Day-of Dashboard",
+      "description": "Real-time updates and ceremony coordination.",
+      "ceremonies": "Ceremonies",
+      "guestArrivals": "Guest Arrivals",
+      "recentIncidents": "Recent Incidents",
+      "vendorCheckIns": "Vendor Check-ins",
+      "startCeremony": "Start",
+      "completeCeremony": "Complete",
+      "checkInVendor": "Mark Arrived",
+      "vendorCheckedIn": "Checked In",
+      "noVendors": "No timeline events with vendors assigned.",
+      "noIncidents": "No incidents reported. Smooth sailing.",
+      "percentage": "{percent}% checked in"
+    },
+    "incidents": {
+      "metadata": {
+        "title": "Incidents — Smart Shaadi"
+      },
+      "heading": "Incidents",
+      "description": "Day-of issues raised by you or your coordinators.",
+      "emptyTitle": "No incidents reported",
+      "emptyDescription": "When you raise a day-of issue (vendor late, missing supplies, weather), it will appear here so coordinators can resolve it."
+    },
+    "calendar": {
+      "metadata": {
+        "title": "Wedding Calendar — Smart Shaadi"
+      },
+      "heading": "Wedding Calendar",
+      "description": "All ceremonies in chronological order. Click any to view details or jump to day-of.",
+      "emptyTitle": "No ceremonies yet",
+      "emptyDescription": "Add your first ceremony from the wedding overview to see it here.",
+      "dateTbd": "Date TBD"
+    },
+    "expenses": {
+      "metadata": {
+        "title": "Expenses — Smart Shaadi"
+      },
+      "heading": "Expenses",
+      "description": "Track all spending and payment schedules.",
+      "budget": "Budget",
+      "committed": "Committed",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "overBudget": "Over budget",
+      "overBudgetDesc": "Committed expenses exceed your total wedding budget.",
+      "byCategory": "By Category",
+      "noExpenses": "No expenses yet.",
+      "upcomingPayments": "Upcoming Payments",
+      "allExpenses": "All Expenses ({count})",
+      "noExpensesYet": "No expenses yet. Add your first one below.",
+      "item": "Item",
+      "category": "Category",
+      "due": "Due",
+      "amount": "Amount",
+      "paidAmount": "Paid",
+      "status": "Status",
+      "actions": "Actions",
+      "pay": "Pay",
+      "recordPayment": "Record",
+      "delete": "Delete",
+      "addExpense": "Add Expense",
+      "addExpenseButton": "Save Expense",
+      "expenseCount": "{count} expense{plural, one {} other {s}} · linked to your wedding plan budget"
+    },
+    "vendors": {
+      "metadata": {
+        "title": "Vendors — Smart Shaadi"
+      },
+      "heading": "Vendors",
+      "description": "Shortlist, assign, and track your wedding vendors.",
+      "noVendors": "No vendors shortlisted yet.",
+      "browseMarketplace": "Browse Vendor Marketplace",
+      "vendor": "Vendor",
+      "role": "Role",
+      "ceremony": "Ceremony",
+      "statusLabel": "Status",
+      "actions": "Actions",
+      "remove": "Remove",
+      "addVendor": "Add Vendor Manually",
+      "addVendorTip": "Tip: browse the vendor marketplace and copy a vendor ID, or use this form to assign a role to an already-shortlisted vendor.",
+      "vendorPlaceholder": "Vendor ID",
+      "roleLabel": "Role *",
+      "ceremonyLabel": "Ceremony",
+      "allCeremonies": "All Ceremonies",
+      "statusSelectLabel": "Status",
+      "notesLabel": "Notes",
+      "assignVendor": "Assign Vendor"
     }
   },
   "matchCard": {
@@ -1482,6 +1585,75 @@
       "calendarHint": "Block dates so customers cannot book when you are unavailable.",
       "profileMissingTitle": "Vendor profile not found",
       "profileMissingDesc": "Set up your vendor profile to start receiving bookings."
+    },
+    "rentals": {
+      "title": "Rental Bookings",
+      "subtitle": "Activate and return customer rentals",
+      "tabAll": "All",
+      "tabPending": "Pending",
+      "tabConfirmed": "Confirmed",
+      "tabActive": "Active",
+      "tabReturned": "Returned",
+      "statPending": "Pending",
+      "statPendingSub": "awaiting confirm",
+      "statConfirmed": "Confirmed",
+      "statConfirmedSub": "ready to hand off",
+      "statActive": "Active",
+      "statActiveSub": "out with customer",
+      "statReturned": "Returned",
+      "statReturnedSub": "completed",
+      "emptyMessage": "No rental bookings match this filter."
+    },
+    "store": {
+      "title": "My Products",
+      "subtitle": "Manage your store catalogue",
+      "addProduct": "Add Product",
+      "statTotal": "Total",
+      "statTotalSub": "products",
+      "statActive": "Active",
+      "statActiveSub": "listed",
+      "statOutOfStock": "Out of Stock",
+      "statOutOfStockSub": "need restocking",
+      "statRevenue": "Revenue",
+      "statRevenueSub": "coming soon",
+      "emptyTitle": "No products yet",
+      "emptyDescription": "Add your first product to start selling on the Smart Shaadi store.",
+      "addFirstProduct": "Add your first product"
+    },
+    "orders": {
+      "title": "Orders",
+      "subtitle": "Fulfil and track customer orders",
+      "statPending": "Pending",
+      "statPendingSub": "to ship",
+      "statShipped": "Shipped",
+      "statShippedSub": "in transit",
+      "statDelivered": "Delivered",
+      "statDeliveredSub": "completed",
+      "statRevenue": "Revenue",
+      "statRevenueSub": "realised (delivered)",
+      "tabAll": "All",
+      "tabPending": "Pending",
+      "tabShipped": "Shipped",
+      "tabDelivered": "Delivered",
+      "emptyAll": "No orders yet",
+      "emptyFiltered": "No {status} orders",
+      "emptyAllDesc": "Orders will appear here once customers purchase your products.",
+      "emptyFilteredDesc": "No orders with {status} status at the moment."
+    },
+    "pipeline": {
+      "title": "Multi-event pipeline",
+      "subtitle": "Track upcoming bookings across weddings, corporate, festival and community events.",
+      "needVendorAccount": "You need a vendor account to view this page.",
+      "dataUnavailable": "Pipeline data is not available right now. Please try again in a minute."
+    },
+    "reviews": {
+      "title": "Reviews",
+      "emptyTitle": "No reviews yet",
+      "emptyDescription": "Reviews from couples you've worked with will appear here. You can reply to each one."
+    },
+    "leads": {
+      "title": "Customer leads",
+      "subtitle": "Inquiries sent directly to your vendor profile. You are charged per qualified lead."
     }
   },
   "familyRole": {
@@ -1725,5 +1897,50 @@
         "emptyDefault": "Nothing has been logged yet."
       }
     }
+  },
+  "settings": {
+    "heading": "Settings",
+    "subtitle": "Unlock unlimited matches, AI matchmaking, and priority support.",
+    "billing": "Billing & Subscription",
+    "billingDesc": "View plans, manage subscriptions, and billing history",
+    "notifications": "Notification Preferences",
+    "notificationsDesc": "Control how and when you receive updates",
+    "privacy": "Privacy & Safety",
+    "privacyDesc": "Decide who sees your profile and activity",
+    "security": "Account & Security",
+    "securityDesc": "Manage devices, authentication, and sign-in history",
+    "blocks": "Blocked Profiles",
+    "blocksDesc": "Manage profiles you've blocked",
+    "referral": "Refer & Earn",
+    "referralDesc": "Share your code and earn credits",
+    "confirmHeading": "Complete Your Subscription",
+    "confirmSubtitle": "Review your plan and confirm to activate.",
+    "twoFactor": "Two-Factor Authentication",
+    "twoFactorDesc": "Adds an authenticator-app code on top of your phone OTP. Strongly recommended.",
+    "backToSecurity": "Back to Security",
+    "referralYourCode": "Your Code",
+    "referralTotalCredits": "Total Credits Earned",
+    "referralRewardInfo": "+50 credits per completed profile · +200 credits per subscription",
+    "referralActivity": "Referral Activity",
+    "referralEmpty": "No referrals yet",
+    "referralEmptyDesc": "Share your code to get started.",
+    "referralTableFriend": "Friend",
+    "referralTableStatus": "Status",
+    "referralTableCredits": "Credits",
+    "referralTableJoined": "Joined"
+  },
+  "shortlist": {
+    "heading": "Your Shortlist",
+    "subtitleCount": "{count} profile{count, plural, one {} other {s}} you're considering",
+    "subtitleEmpty": "Save profiles you want to revisit",
+    "exploreCta": "Explore Matches"
+  },
+  "viewers": {
+    "heading": "Who viewed you",
+    "subtitleCount": "{count} recent visitor{count, plural, one {} other {s}}",
+    "subtitleEmpty": "No recent visitors yet",
+    "lockedFeature": "{count} viewer{count, plural, one {} other {s}}",
+    "lockedMessage": "See who has viewed your profile. Upgrade to Standard to unlock all {count} visitor{count, plural, one {} other {s}}.",
+    "exploreCta": "Explore Matches"
   }
 }
