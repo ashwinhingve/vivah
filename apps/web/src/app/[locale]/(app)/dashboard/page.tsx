@@ -458,16 +458,18 @@ export default async function DashboardPage({
             {myWedding ? (
               <WeddingCard wedding={myWedding} />
             ) : (
-              <EmptyState
-                icon={Cake}
-                title={t('myWedding.emptyTitle')}
-                description={t('myWedding.emptyBody')}
-                action={
-                  <Button asChild>
-                    <Link href="/weddings/new">{t('myWedding.emptyCta')}</Link>
-                  </Button>
-                }
-              />
+              <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 to-gold/10 shadow-card">
+                <EmptyState
+                  icon={Cake}
+                  title={t('myWedding.emptyTitle')}
+                  description={t('myWedding.emptyBody')}
+                  action={
+                    <Button asChild>
+                      <Link href="/weddings/new">{t('myWedding.emptyCta')}</Link>
+                    </Button>
+                  }
+                />
+              </div>
             )}
           </FadeUp>
 

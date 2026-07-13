@@ -139,8 +139,8 @@ function ProfileCardBase({
           </div>
         )}
 
-        {/* Top-right: status pills, stacked — request-sent first, then trust */}
-        <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+        {/* Top-right: status pills, wrapping row — avoids collision with medallion at narrow widths */}
+        <div className="absolute right-3 top-3 flex flex-wrap items-start justify-end gap-1">
           {requestSent && (
             <span className="flex items-center gap-1 rounded-full bg-teal px-2 py-0.5 text-2xs font-semibold text-white shadow-sm">
               <CheckCircle2 className="h-3.5 w-3.5" />
