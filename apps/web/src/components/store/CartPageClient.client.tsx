@@ -36,7 +36,7 @@ export function CartPageClient() {
         {items.map(item => (
           <div
             key={item.productId}
-            className="flex gap-4 bg-surface border border-gold/20 rounded-xl p-4"
+            className="flex gap-4 bg-surface border border-gold/20 rounded-2xl p-4"
           >
             {/* Image */}
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-background">
@@ -99,7 +99,7 @@ export function CartPageClient() {
       </div>
 
       {/* Order summary */}
-      <div className="bg-surface border border-gold/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-primary font-semibold text-base mb-4">Order Summary</h2>
 
         <div className="space-y-2 text-sm">

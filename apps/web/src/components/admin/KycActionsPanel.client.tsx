@@ -46,7 +46,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
   const inactive = status === 'VERIFIED' || status === 'REJECTED';
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Reviewer actions</h3>
 
       {error && <p className="text-xs text-destructive" role="alert">{error}</p>}

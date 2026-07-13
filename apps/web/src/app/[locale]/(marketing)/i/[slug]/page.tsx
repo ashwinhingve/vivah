@@ -70,7 +70,7 @@ export default async function PublicInvitePage({
         )}
 
         {view.rsvpEnabled ? (
-          <section className="rounded-xl border border-gold/30 bg-surface p-5 shadow-card">
+          <section className="rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
             <h2 className="font-heading text-xl text-primary mb-1 text-center">RSVP</h2>
             <p className="text-sm text-muted-foreground mb-4 text-center">
               Kindly let the couple know if you can make it.

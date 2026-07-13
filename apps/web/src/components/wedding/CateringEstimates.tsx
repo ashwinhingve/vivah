@@ -10,7 +10,7 @@ export async function CateringEstimates({ weddingId }: Props) {
 
   if (!summary || summary.ceremonies.length === 0) {
     return (
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-8 text-center">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-8 text-center">
         <p className="text-muted-foreground">
           Catering estimates will appear once guests RSVP.
         </p>

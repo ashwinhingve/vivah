@@ -70,7 +70,7 @@ export function CeremonyAttendanceCard(props: Props) {
     : props.summaryItem.estimated_catering_count;
 
   return (
-    <article className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-4">
+    <article className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5 mb-4">
       <header className="mb-4">
         <h2 className="font-heading text-primary text-xl">
           {CEREMONY_LABEL[ceremonyType] ?? ceremonyType}

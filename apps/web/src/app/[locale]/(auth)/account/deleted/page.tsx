@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Account scheduled for deletion — S
 
 export default function AccountDeletedPage() {
   return (
-    <div className="relative w-full max-w-md space-y-6 rounded-2xl border border-gold/25 bg-surface/92 p-8 shadow-xl backdrop-blur-md">
+    <div className="relative w-full max-w-md space-y-6 rounded-2xl border border-gold/25 bg-surface/92 p-8 shadow-card backdrop-blur-md">
       <div className="flex flex-col items-center text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
           <Trash2 className="h-6 w-6" />
@@ -21,7 +21,7 @@ export default function AccountDeletedPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface-muted p-4">
+      <div className="rounded-2xl border border-gold/20 bg-surface-muted p-4">
         <div className="flex items-start gap-3">
           <Clock className="mt-0.5 h-4 w-4 flex-none text-muted-foreground" />
           <div className="text-sm">

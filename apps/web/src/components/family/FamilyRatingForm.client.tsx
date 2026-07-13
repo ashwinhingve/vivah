@@ -48,7 +48,7 @@ export function FamilyRatingForm({ subjectProfileId, candidateProfileId, initial
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-gold/20 bg-surface p-4 sm:p-6">
+    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6">
       <h3 className="text-base font-heading text-primary">Your family rating</h3>
 
       <label className="block">

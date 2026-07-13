@@ -22,7 +22,7 @@ export default async function LinkRequestPage({ params }: PageProps) {
   if (link.childConsentStatus === 'APPROVED') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6">
-        <p className="rounded-xl border border-success/30 bg-success/10 p-4 text-sm text-success">
+        <p className="rounded-2xl border border-success/30 bg-success/10 p-4 text-sm text-success">
           You've already approved this {link.relationship.toLowerCase()}'s access.
         </p>
       </main>
@@ -32,7 +32,7 @@ export default async function LinkRequestPage({ params }: PageProps) {
   if (link.revokedAt) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6">
-        <p className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+        <p className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
           This link has been revoked.
         </p>
       </main>
@@ -48,7 +48,7 @@ export default async function LinkRequestPage({ params }: PageProps) {
         </p>
       </header>
 
-      <section className="rounded-xl border border-gold/20 bg-surface p-4 sm:p-6 space-y-2">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6 space-y-2">
         <dl className="grid grid-cols-3 gap-2 text-sm">
           <dt className="text-gold-muted">Relationship</dt>
           <dd className="col-span-2 text-foreground">{link.relationship}</dd>

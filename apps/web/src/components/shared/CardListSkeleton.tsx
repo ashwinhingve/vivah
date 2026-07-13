@@ -17,7 +17,7 @@ export function CardListSkeleton({ count = 6, columns = 3, className }: CardList
   return (
     <div className={cn('grid gap-4 sm:gap-6', colClass[columns], className)} aria-busy="true" aria-label="Loading items">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-border bg-surface p-4 shadow-card">
+        <div key={i} className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
           <Skeleton className="aspect-[4/3] w-full rounded-lg" />
           <div className="mt-4 space-y-2">
             <Skeleton className="h-4 w-3/4" />

@@ -41,7 +41,7 @@ export function UpgradeCTA(props: BlurProps | InlineProps) {
 
   if (props.variant === 'inline') {
     return (
-      <div className="rounded-xl border border-warning/30 bg-gradient-to-br from-gold/10 to-surface-muted p-5 shadow-card">
+      <div className="rounded-2xl border border-warning/30 bg-gradient-to-br from-gold/10 to-surface-muted p-5 shadow-card">
         <div className="flex items-start gap-3">
           <Sparkles className="mt-0.5 h-5 w-5 text-warning" />
           <div className="flex-1">
@@ -63,7 +63,7 @@ export function UpgradeCTA(props: BlurProps | InlineProps) {
     <div className="relative">
       <div className="pointer-events-none select-none filter blur-md">{props.children}</div>
       <div className="absolute inset-0 flex items-center justify-center bg-surface/40 backdrop-blur-[2px]">
-        <div className="rounded-2xl border border-border bg-surface px-5 py-4 text-center shadow-lg">
+        <div className="rounded-2xl border border-gold/20 bg-surface px-5 py-4 text-center shadow-card">
           <Lock className="mx-auto h-5 w-5 text-primary" />
           <h3 className="mt-2 text-sm font-semibold text-foreground">{heading}</h3>
           <p className="mt-1 text-xs text-muted-foreground">{sub}</p>

@@ -4,7 +4,7 @@ import { Bell } from 'lucide-react';
 export async function ActivityFeed() {
   const t = await getTranslations('dashboard.activityFeed');
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
       <h2 className="mb-3 font-heading text-base font-semibold text-primary">
         {t('title')}
       </h2>

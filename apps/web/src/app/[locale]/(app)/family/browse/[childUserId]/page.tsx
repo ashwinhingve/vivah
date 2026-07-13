@@ -73,7 +73,7 @@ export default async function FamilyBrowsePage({
         <div className="mt-6">
           {candidates === null ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-matches"
                   title={t('cantBrowseTitle')}
@@ -85,7 +85,7 @@ export default async function FamilyBrowsePage({
             </FadeUp>
           ) : items.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState variant="no-matches" description={t('noCuratedDesc')} />
               </div>
             </FadeUp>

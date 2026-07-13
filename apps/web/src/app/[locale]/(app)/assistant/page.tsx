@@ -15,7 +15,7 @@ export default async function AssistantPage() {
           Apke matches, profile tips, aur platform questions ka instant guidance.
         </p>
       </header>
-      <div className="h-full border border-gold/20 rounded-xl bg-surface shadow-card overflow-hidden">
+      <div className="h-full border border-gold/20 rounded-2xl bg-surface shadow-card overflow-hidden">
         <AssistantChat />
       </div>
     </main>

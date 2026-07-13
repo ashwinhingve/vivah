@@ -255,7 +255,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
 
       {/* Schedule form */}
       {showSchedule && (
-        <form onSubmit={handleSchedule} className="rounded-xl border border-border bg-secondary p-4 space-y-3">
+        <form onSubmit={handleSchedule} className="rounded-2xl border border-gold/20 bg-secondary p-4 space-y-3">
           <h3 className="text-sm font-semibold text-foreground">Schedule a video call</h3>
 
           <div className="flex flex-col gap-1">
@@ -348,7 +348,7 @@ export function VideoCall({ matchId, currentUserId }: VideoCallProps) {
               return (
                 <li
                   key={meeting.id}
-                  className="rounded-xl border border-border bg-surface p-3 space-y-2"
+                  className="rounded-2xl border border-gold/20 bg-surface p-3 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>

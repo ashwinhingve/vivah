@@ -9,7 +9,7 @@ export default function AuthError({
 }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="bg-surface rounded-xl shadow-sm border border-border p-6 text-center max-w-sm w-full">
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6 text-center max-w-sm w-full">
         <p className="text-destructive text-sm mb-4">
           {error.message || 'Something went wrong'}
         </p>

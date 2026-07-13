@@ -89,7 +89,7 @@ export function AdminHealthAndRisk({
           {serviceChecks.map((check) => (
             <div
               key={check.label}
-              className="flex items-center gap-2 rounded-xl border border-gold/20 bg-surface px-4 py-3"
+              className="flex items-center gap-2 rounded-2xl border border-gold/20 bg-surface px-4 py-3"
             >
               <StatusDot ok={check.ok} />
               <span className="text-xs font-medium text-text-primary capitalize">
@@ -130,28 +130,28 @@ export function AdminHealthAndRisk({
 
         {/* TODO: no endpoint for API request count or error rate — show "—" placeholders */}
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div className="rounded-xl border border-gold/20 bg-surface px-4 py-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
               API Requests / hr
             </p>
             {/* TODO: no endpoint for real-time request count — wire once metrics service ships */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
-          <div className="rounded-xl border border-gold/20 bg-surface px-4 py-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
               Error Rate
             </p>
             {/* TODO: no endpoint for error rate — wire from Sentry when metrics endpoint ships */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
-          <div className="rounded-xl border border-gold/20 bg-surface px-4 py-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
               P95 Latency
             </p>
             {/* TODO: no endpoint — wire from BetterStack or APM once available */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
-          <div className="rounded-xl border border-gold/20 bg-surface px-4 py-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
               Uptime (30d)
             </p>
@@ -173,7 +173,7 @@ export function AdminHealthAndRisk({
             </span>
             {/* No dedicated at-risk route exists yet — omit link per brief */}
           </div>
-          <div className="overflow-hidden rounded-xl border border-gold/20 bg-surface">
+          <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface">
             <div className="divide-y divide-gold/10">
               {atRiskItems.map((u) => (
                 <div key={u.userId} className="flex items-center gap-3 px-4 py-3">

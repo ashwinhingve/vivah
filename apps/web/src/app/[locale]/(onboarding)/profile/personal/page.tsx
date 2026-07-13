@@ -94,7 +94,7 @@ export default function PersonalPage() {
     <div>
       <ProfileProgress steps={STEPS} />
 
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 overflow-hidden">
         <div className="bg-gradient-to-r from-primary/5 to-transparent px-5 py-4 border-b border-gold/10 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
             👤

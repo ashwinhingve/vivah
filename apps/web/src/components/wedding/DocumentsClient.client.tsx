@@ -46,7 +46,7 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
 
   return (
     <div className="space-y-6">
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5">
         <h3 className="font-semibold text-primary mb-3">Upload document</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="sm:col-span-2">
@@ -68,12 +68,12 @@ export function DocumentsClient({ weddingId, initialDocs, addAction, deleteActio
       </div>
 
       {initialDocs.length === 0 ? (
-        <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center">
+        <div className="bg-surface border border-dashed border-gold/30 rounded-2xl p-12 text-center">
           <FileText className="h-10 w-10 text-gold mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">No documents yet.</p>
         </div>
       ) : (
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-x-auto">
+        <div className="bg-surface border border-gold/20 rounded-2xl shadow-card overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-gold/10 bg-background text-left">

@@ -27,7 +27,7 @@ interface StatsCardProps {
 const VARIANT_STYLES: Record<StatsVariant, { tile: string; value: string }> = {
   default: { tile: 'from-surface to-surface-muted/70 border-gold/20', value: 'text-primary' },
   teal:    { tile: 'from-surface to-teal/5 border-teal/20',           value: 'text-primary' },
-  gold:    { tile: 'from-surface to-gold/10 border-gold/30',          value: 'text-primary' },
+  gold:    { tile: 'from-surface to-gold/10 border-gold/20',          value: 'text-primary' },
   success: { tile: 'from-surface to-success/5 border-success/20',     value: 'text-primary' },
   warning: { tile: 'from-surface to-warning/5 border-warning/20',     value: 'text-primary' },
 };
@@ -54,7 +54,7 @@ export function StatsCard({
   const delaySec = animDelayMs / 1000;
 
   const cardClasses = cn(
-    'group relative flex min-h-[7.5rem] flex-col gap-1.5 rounded-xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
+    'group relative flex min-h-[7.5rem] flex-col gap-1.5 rounded-2xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
     href && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     v.tile
   );

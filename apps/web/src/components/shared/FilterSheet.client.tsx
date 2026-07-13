@@ -64,7 +64,7 @@ export function FilterSheet({
       {/* Desktop sidebar (when desktopInline) */}
       {desktopInline ? (
         <aside className="hidden lg:block lg:w-72 lg:shrink-0">
-          <div className="sticky top-20 rounded-xl border border-border bg-surface p-5 shadow-card">
+          <div className="sticky top-20 rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
             <h2 className="font-heading text-base font-semibold text-primary">{title}</h2>
             {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
             <div className="mt-4">{children}</div>

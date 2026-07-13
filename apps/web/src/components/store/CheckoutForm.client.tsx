@@ -271,7 +271,7 @@ export function CheckoutForm() {
       </form>
 
       {/* Order summary sidebar */}
-      <div className="bg-surface border border-gold/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-primary font-semibold text-base mb-3">Order Summary</h2>
 
         <div className="space-y-2.5 mb-4">

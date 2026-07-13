@@ -139,7 +139,7 @@ export default function CommunityPage() {
             />
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-surface p-4">
             <input
               type="checkbox"
               id="gotraExclusionEnabled"
@@ -197,7 +197,7 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-surface p-4">
             <input
               type="checkbox"
               id="lgbtqProfile"

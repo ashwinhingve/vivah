@@ -81,7 +81,7 @@ export function KycQueueTable({ initialRows }: Props) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gold/40 bg-surface p-8 text-center">
+      <div className="rounded-2xl border border-dashed border-gold/20 bg-surface p-8 text-center">
         <p className="text-sm font-semibold text-primary">KYC queue empty</p>
         <p className="text-xs text-muted-foreground mt-1">All profiles reviewed</p>
       </div>
@@ -113,7 +113,7 @@ export function KycQueueTable({ initialRows }: Props) {
         </div>
       )}
 
-      <div className="rounded-xl border border-gold/30 bg-surface overflow-x-auto">
+      <div className="rounded-2xl border border-gold/20 bg-surface overflow-x-auto">
         <table className="w-full text-sm min-w-[720px]">
           <thead>
             <tr className="border-b border-border bg-background">

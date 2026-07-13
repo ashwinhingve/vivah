@@ -47,7 +47,7 @@ export default async function NewFamilyLinkPage() {
 
         {pending.length > 0 && (
           <FadeUp>
-            <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+            <div className="mb-6 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
               <h2 className="mb-3 flex items-center gap-2 font-heading text-base text-primary">
                 <Clock className="h-4 w-4 text-gold-muted" /> Awaiting their approval
               </h2>

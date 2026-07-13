@@ -58,7 +58,7 @@ export function DisputeTableClient({ disputes }: Props) {
       )}
 
       {/* Disputes table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
         {/* Mobile scroll hint */}
         <div className="block sm:hidden px-4 py-2 text-xs text-muted-foreground bg-secondary border-b border-border">
           Scroll right to see all columns →

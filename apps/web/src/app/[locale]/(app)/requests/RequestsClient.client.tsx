@@ -109,7 +109,7 @@ function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-xl">
+      <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold text-primary font-heading">Decline this request?</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground">
@@ -175,7 +175,7 @@ function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-xl">
+      <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold text-primary font-heading">
             Accept {counterpartyName ?? 'this request'}?
@@ -315,7 +315,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
   const initial = r.name?.charAt(0)?.toUpperCase() ?? '?';
 
   return (
-    <div className={`rounded-xl border ${isSuper ? 'border-warning/40 bg-warning/10/40' : 'border-border bg-surface'} p-4 space-y-3`}>
+    <div className={`rounded-2xl border ${isSuper ? 'border-warning/40 bg-warning/10/40' : 'border-gold/20 bg-surface'} p-4 space-y-3`}>
       <div className="flex items-center gap-3">
         {r.primaryPhotoKey ? (
           <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-teal/20 grid place-items-center shrink-0 text-primary font-bold">

@@ -85,7 +85,7 @@ export default async function CoordinatorCalendarPage() {
         <div className="mt-6 space-y-6">
           {weddings.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState variant="no-coordinator-weddings" />
               </div>
             </FadeUp>
@@ -104,7 +104,7 @@ export default async function CoordinatorCalendarPage() {
                         <li key={w.weddingId}>
                           <Link
                             href={`/weddings/${w.weddingId}/ceremonies`}
-                            className="group flex items-center gap-4 rounded-xl border border-gold/20 bg-surface p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+                            className="group flex items-center gap-4 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
                           >
                             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-gold/25 bg-gold/5 text-center">
                               {date ? (

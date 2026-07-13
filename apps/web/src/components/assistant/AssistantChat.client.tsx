@@ -110,7 +110,7 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
             className={
               m.role === 'user'
                 ? 'ml-auto max-w-[85%] rounded-xl bg-primary text-white px-4 py-2 text-sm'
-                : 'mr-auto max-w-[85%] rounded-xl bg-surface border border-gold/20 text-foreground px-4 py-2 text-sm shadow-card'
+                : 'mr-auto max-w-[85%] rounded-2xl bg-surface border border-gold/20 text-foreground px-4 py-2 text-sm shadow-card'
             }
           >
             {m.content || (m.role === 'assistant' && streaming ? (

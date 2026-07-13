@@ -48,7 +48,7 @@ export default function MessageMenu({
       ref={ref}
       role="menu"
       className={cn(
-        'absolute z-30 w-44 rounded-xl border border-gold/30 bg-surface shadow-xl py-1',
+        'absolute z-30 w-44 rounded-2xl border border-gold/20 bg-surface shadow-card py-1',
         align === 'right' ? 'right-0 top-9' : 'left-0 top-9',
       )}
     >

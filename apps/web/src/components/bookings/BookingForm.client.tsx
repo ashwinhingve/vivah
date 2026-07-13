@@ -130,7 +130,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
   return (
     <form onSubmit={submit} className="space-y-5">
       {/* Date picker */}
-      <section className="rounded-2xl border border-gold/30 bg-surface p-5">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-5">
         <h2 className="text-base font-semibold text-primary mb-3">1. Pick a date</h2>
         <AvailabilityCalendar
           vendorId={vendor.id}
@@ -145,7 +145,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
       </section>
 
       {/* Ceremony + service */}
-      <section className="rounded-2xl border border-gold/30 bg-surface p-5 space-y-3">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-3">
         <h2 className="text-base font-semibold text-primary">2. Ceremony & service</h2>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -183,7 +183,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
 
       {/* Packages */}
       {packages.length > 0 && (
-        <section className="rounded-2xl border border-gold/30 bg-surface p-5">
+        <section className="rounded-2xl border border-gold/20 bg-surface p-5">
           <h2 className="text-base font-semibold text-primary mb-3">3. Choose a package</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {packages.map((p, idx) => {
@@ -193,7 +193,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
                   key={`${p.name}-${idx}`}
                   type="button"
                   onClick={() => setPackageIdx(idx === packageIdx ? -1 : idx)}
-                  className={`text-left rounded-xl border p-4 transition-colors ${selected ? 'border-teal bg-teal/5 ring-2 ring-teal' : 'border-gold/30 bg-surface hover:bg-gold/5'}`}
+                  className={`text-left rounded-xl border p-4 transition-colors ${selected ? 'border-teal bg-teal/5 ring-2 ring-teal' : 'border-gold/20 bg-surface hover:bg-gold/5'}`}
                 >
                   <div className="flex items-start justify-between">
                     <p className="font-semibold text-primary">{p.name}</p>
@@ -215,7 +215,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
       )}
 
       {/* Event details */}
-      <section className="rounded-2xl border border-gold/30 bg-surface p-5 space-y-3">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-3">
         <h2 className="text-base font-semibold text-primary">{packages.length > 0 ? '4.' : '3.'} Event details</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -257,7 +257,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
       </section>
 
       {/* Add-ons */}
-      <section className="rounded-2xl border border-gold/30 bg-surface p-5">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold text-primary">{packages.length > 0 ? '5.' : '4.'} Add-ons</h2>
           <button
@@ -312,7 +312,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
       </section>
 
       {/* Total + submit */}
-      <section className="sticky bottom-2 rounded-2xl border border-gold/40 bg-surface/95 p-5 shadow-sm backdrop-blur">
+      <section className="sticky bottom-2 rounded-2xl border border-gold/20 bg-surface/95 p-5 shadow-sm backdrop-blur">
         <div className="flex items-center justify-between text-sm mb-1">
           <span className="text-muted-foreground">Base</span>
           <span className="text-foreground">
@@ -325,7 +325,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
             <span className="text-foreground">₹{addonsTotal.toLocaleString('en-IN')}</span>
           </div>
         )}
-        <div className="flex items-center justify-between border-t border-gold/30 pt-2 mt-2">
+        <div className="flex items-center justify-between border-t border-gold/20 pt-2 mt-2">
           <span className="text-base font-semibold text-primary">Total</span>
           <span className="text-xl font-bold text-teal">₹{total.toLocaleString('en-IN')}</span>
         </div>

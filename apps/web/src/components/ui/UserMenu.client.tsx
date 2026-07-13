@@ -103,7 +103,7 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
           />
           <div
             role="menu"
-            className="absolute right-0 z-40 mt-2 w-56 rounded-xl border border-gold/20 bg-surface py-1 shadow-lg"
+            className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-gold/20 bg-surface py-1 shadow-lg"
           >
             {(displayName || contact) && (
               <div className="border-b border-gold/15 px-4 py-2">

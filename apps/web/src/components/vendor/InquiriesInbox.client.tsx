@@ -70,7 +70,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
 
   if (list.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gold/30 bg-surface p-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-gold/30 bg-surface p-8 text-center text-sm text-muted-foreground">
         No inquiries yet. Customers will message you here before booking.
       </div>
     );

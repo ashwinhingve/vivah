@@ -11,7 +11,7 @@ export default function OnboardingError({
   useEffect(() => { console.error(error); }, [error]);
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="bg-surface rounded-xl border border-border shadow-sm p-6 max-w-sm w-full text-center">
+      <div className="bg-surface rounded-2xl border border-gold/20 shadow-card p-6 max-w-sm w-full text-center">
         <p className="font-heading text-lg text-primary mb-2">Something went wrong</p>
         <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
         <button

@@ -54,7 +54,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             items.map((item) => (
               <div
                 key={item.productId}
-                className="flex gap-3 rounded-xl border border-border bg-surface p-3"
+                className="flex gap-3 rounded-2xl border border-gold/20 bg-surface p-3"
               >
                 <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-secondary">
                   {item.imageKey ? (

@@ -130,7 +130,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
           {/* Left column — record */}
           <div className="space-y-4 min-w-0">
             {/* Identity signals */}
-            <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
+            <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Identity verifications</h3>
               <ul className="text-sm space-y-1.5">
                 <li className="flex items-center justify-between"><span>Aadhaar</span>
@@ -161,7 +161,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
 
             {/* Risk factors */}
             {kyc?.riskFactors && kyc.riskFactors.length > 0 && (
-              <div className="rounded-xl border border-border bg-surface p-5 space-y-2">
+              <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">Risk factors</h3>
                 <ul className="space-y-1">
                   {kyc.riskFactors.map((f) => (
@@ -191,7 +191,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
             )}
 
             {/* Documents */}
-            <div className="rounded-xl border border-border bg-surface p-5 space-y-2">
+            <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Documents ({documents.length})</h3>
               {documents.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No supplementary documents uploaded.</p>

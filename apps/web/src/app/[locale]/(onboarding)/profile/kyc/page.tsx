@@ -125,7 +125,7 @@ function SignalGrid({ s }: { s: KycStatus }) {
     { label: 'Photo real', ok: !!s.photoAnalysis?.isRealPerson },
   ];
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Verification signals</h3>
         {s.riskScore !== null && (
@@ -225,7 +225,7 @@ export default async function KycPage() {
 
         {/* ── Aadhaar action (if not verified) ───────────── */}
         {!status.aadhaarVerified && !isLocked && !isRejected && (
-          <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-3">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Step 1 — Verify Aadhaar via DigiLocker</h3>
               <p className="text-xs text-muted-foreground mt-1">Required for the Basic tier. Aadhaar number is never stored.</p>
@@ -265,7 +265,7 @@ export default async function KycPage() {
         <AuditTimeline entries={audit} />
 
         {/* ── Privacy footer ─────────────────────────────── */}
-        <div className="rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 flex items-start gap-3">
+        <div className="rounded-2xl border border-gold/20 bg-gold/5 px-5 py-4 flex items-start gap-3">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0" aria-hidden="true">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             <polyline points="9 12 11 14 15 10" />
@@ -277,7 +277,7 @@ export default async function KycPage() {
         </div>
 
         {isReview && (
-          <div className="rounded-xl border border-border bg-surface p-4 flex items-center gap-3">
+          <div className="rounded-2xl border border-gold/20 bg-surface p-4 flex items-center gap-3">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.09h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.29 6.29l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
             </svg>

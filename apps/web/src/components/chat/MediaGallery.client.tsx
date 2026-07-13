@@ -115,7 +115,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
             ) : (
               <ul className="space-y-2">
                 {voices.map((v) => (
-                  <li key={v.messageId} className="rounded-xl border border-gold/20 p-2">
+                  <li key={v.messageId} className="rounded-2xl border border-gold/20 p-2">
                     <p className="px-1 pb-1 text-[11px] text-muted-foreground">
                       {new Date(v.sentAt).toLocaleString('en-IN', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',

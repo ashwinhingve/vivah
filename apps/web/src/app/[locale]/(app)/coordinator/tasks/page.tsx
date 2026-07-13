@@ -89,7 +89,7 @@ export default async function CoordinatorTasksPage() {
         <div className="mt-6 space-y-6">
           {items.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState variant="no-tasks" />
               </div>
             </FadeUp>
@@ -108,7 +108,7 @@ export default async function CoordinatorTasksPage() {
                         <li key={`${item.kind}-${item.id}`}>
                           <Link
                             href={itemHref(item)}
-                            className="group flex items-center gap-4 rounded-xl border border-gold/20 bg-surface p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+                            className="group flex items-center gap-4 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
                           >
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gold/25 bg-gold/5">
                               {item.kind === 'TASK' ? (

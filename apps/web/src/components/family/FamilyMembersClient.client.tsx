@@ -65,7 +65,7 @@ export function FamilyMembersClient({ initial }: Props) {
   }
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-4">
+    <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-sm text-primary">Family members</h3>
         <button

@@ -175,7 +175,7 @@ export default function HoroscopePage() {
             <p className="mt-1 text-xs text-muted-foreground">Coming soon — upload your birth chart PDF or image</p>
           </div>
 
-          <div className="rounded-xl border border-teal/20 bg-teal/5 p-5 text-center">
+          <div className="rounded-2xl border border-teal/20 bg-teal/5 p-5 text-center">
             <p className="text-sm font-medium text-teal">Guna Milan Score</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Your compatibility score will appear once both profiles are complete

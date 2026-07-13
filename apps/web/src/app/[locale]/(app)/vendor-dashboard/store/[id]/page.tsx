@@ -72,7 +72,7 @@ export default async function EditProductPage({ params }: PageProps) {
         </div>
 
         {/* Quick stock update */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-4">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 mb-4">
           <h2 className="font-heading text-primary font-semibold text-base mb-3">
             Quick Stock Update
           </h2>
@@ -80,7 +80,7 @@ export default async function EditProductPage({ params }: PageProps) {
         </div>
 
         {/* Full edit form */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5">
           <h2 className="font-heading text-primary font-semibold text-base mb-4">
             Product Details
           </h2>

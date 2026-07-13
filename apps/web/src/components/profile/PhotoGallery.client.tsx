@@ -40,7 +40,7 @@ function ProtectedPlaceholder({ name }: { name: string }) {
 
       {/* Backdrop blur overlay card */}
       <div className="absolute inset-0 flex items-center justify-center backdrop-blur-md">
-        <div className="mx-6 max-w-[280px] rounded-2xl border border-gold/30 bg-surface/95 p-5 text-center shadow-card">
+        <div className="mx-6 max-w-[280px] rounded-2xl border border-gold/20 bg-surface/95 p-5 text-center shadow-card">
           <Lock className="mx-auto h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden="true" />
           <p className="mt-2 font-heading text-base font-semibold text-primary">
             Photos protected by Safety Mode

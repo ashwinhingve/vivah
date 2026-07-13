@@ -35,7 +35,7 @@ function PackageCard({ pkg, popular }: { pkg: PortfolioPackage; popular?: boolea
   return (
     <div
       className={cn(
-        'relative rounded-xl border bg-surface p-4 transition-shadow',
+        'relative rounded-2xl border bg-surface p-4 transition-shadow',
         popular ? 'border-gold/60 shadow-md ring-1 ring-gold/30' : 'border-gold/40',
       )}
     >

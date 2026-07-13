@@ -76,7 +76,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
   return (
     <div>
       {/* Add form */}
-      <form onSubmit={handleAdd} className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-6">
+      <form onSubmit={handleAdd} className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4 mb-6">
         <h3 className="font-medium text-sm text-primary mb-3">Add a question</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input

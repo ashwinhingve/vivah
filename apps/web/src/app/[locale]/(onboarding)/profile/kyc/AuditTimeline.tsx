@@ -57,13 +57,13 @@ function fmt(d: string) {
 export function AuditTimeline({ entries }: { entries: AuditEntry[] }) {
   if (entries.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-5 text-center">
+      <div className="rounded-2xl border border-gold/20 bg-surface p-5 text-center">
         <p className="text-sm text-muted-foreground">No verification events yet.</p>
       </div>
     );
   }
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Verification timeline</h3>
         <span className="text-[11px] text-muted-foreground">{entries.length} event{entries.length === 1 ? '' : 's'}</span>

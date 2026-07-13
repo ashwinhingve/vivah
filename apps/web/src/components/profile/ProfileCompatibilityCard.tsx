@@ -164,7 +164,7 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
           {horoscopeMissing ? (
             <Link
               href="/profile/horoscope"
-              className="block rounded-xl border border-dashed border-gold/40 bg-gold/5 px-4 py-3 text-center transition-colors hover:bg-gold/10"
+              className="block rounded-2xl border border-dashed border-gold/40 bg-gold/5 px-4 py-3 text-center transition-colors hover:bg-gold/10"
             >
               <Sparkles className="mx-auto h-5 w-5 text-gold-muted" aria-hidden="true" />
               <p className="mt-1 text-sm font-semibold text-primary">{t('guna.addTitle')}</p>

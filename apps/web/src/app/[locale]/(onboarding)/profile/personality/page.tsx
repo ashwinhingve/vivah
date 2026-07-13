@@ -96,7 +96,7 @@ export default function PersonalityPage(): JSX.Element {
   return (
     <div>
       <ProfileProgress steps={STEPS} />
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
         <h1 className="text-lg font-semibold text-primary font-heading mb-1">Personality</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Six quick sliders. Helps us surface people who genuinely fit you.

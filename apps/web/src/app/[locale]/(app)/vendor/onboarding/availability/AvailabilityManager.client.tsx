@@ -49,7 +49,7 @@ export function AvailabilityManager({ initial }: { initial: BlockedDate[] }) {
           <p className="mb-2 text-sm font-medium text-primary">Blocked dates</p>
           <ul className="space-y-2">
             {initial.map((d) => (
-              <li key={d.id} className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-2.5 shadow-card">
+              <li key={d.id} className="flex items-center justify-between rounded-xl border border-gold/20 bg-surface px-4 py-2.5 shadow-card">
                 <span className="text-sm text-primary">
                   {new Date(d.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {d.reason ? <span className="text-text-muted"> · {d.reason}</span> : null}

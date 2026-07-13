@@ -44,7 +44,7 @@ export function DesktopFilterSidebar({ maritalPrefs, filters, onFiltersChange, a
   const t = useTranslations('feed.filters');
   return (
     <aside className="hidden lg:block lg:w-[260px] lg:shrink-0">
-      <div className="sticky top-20 flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-card">
+      <div className="sticky top-20 flex flex-col gap-5 rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
         <div>
           <h2 className="font-heading text-base font-semibold text-primary">{t('filtersTitle')}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{t('filtersSubtitle')}</p>

@@ -156,7 +156,7 @@ function PendingDeletionBanner({ deletionRequestedAt }: { deletionRequestedAt: s
   };
 
   return (
-    <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+    <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" aria-hidden="true" />
         <div className="flex-1 min-w-0">
@@ -608,7 +608,7 @@ function DangerZoneCard({ deletionRequestedAt }: { deletionRequestedAt: string |
 function Card({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <section className={cn(
-      'rounded-xl border border-border bg-surface p-5 shadow-sm',
+      'rounded-2xl border border-gold/20 bg-surface p-5 shadow-card',
       className,
     )}>
       {children}

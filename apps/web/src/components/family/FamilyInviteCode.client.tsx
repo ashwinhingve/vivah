@@ -22,7 +22,7 @@ export function FamilyInviteCode({ code }: { code: string }) {
   }
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-5">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-5">
       <div className="flex items-center gap-2">
         <KeyRound className="h-4 w-4 text-gold-muted" />
         <h2 className="font-heading text-base text-primary">Your family code</h2>

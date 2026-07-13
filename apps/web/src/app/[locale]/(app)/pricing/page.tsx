@@ -64,7 +64,7 @@ export default async function PricingPage() {
         {plans.map(plan => (
           <div
             key={plan.id}
-            className={`rounded-xl border bg-surface p-6 shadow-sm ${plan.tier === 'PREMIUM' ? 'border-teal ring-2 ring-teal/20' : 'border-border'}`}
+            className={`rounded-2xl border bg-surface p-6 shadow-card ${plan.tier === 'PREMIUM' ? 'border-teal ring-2 ring-teal/20' : 'border-gold/20'}`}
           >
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-primary">{plan.name}</h2>

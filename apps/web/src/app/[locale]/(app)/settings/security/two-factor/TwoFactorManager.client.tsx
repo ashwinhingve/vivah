@@ -117,7 +117,7 @@ export function TwoFactorManager({ initialEnabled }: Props) {
         <p className="text-sm text-muted-foreground mt-1">
           Open your authenticator app and scan the QR code. Or enter the secret manually.
         </p>
-        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-muted p-6">
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface-muted p-6">
           <QrCode value={totpUri} />
           <ManualSecret uri={totpUri} />
         </div>
@@ -168,7 +168,7 @@ export function TwoFactorManager({ initialEnabled }: Props) {
             </p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg border border-border bg-surface-muted p-4 font-mono text-sm">
+        <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-surface-muted p-4 font-mono text-sm">
           {backupCodes.length === 0 ? (
             <p className="col-span-2 text-muted-foreground text-xs">No backup codes returned.</p>
           ) : null}
@@ -224,7 +224,7 @@ function DisableCard({
               Disable two-factor
             </Button>
           ) : (
-            <div className="mt-4 space-y-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+            <div className="mt-4 space-y-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-3">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" />
                 <p className="text-xs text-foreground/80">
@@ -278,7 +278,7 @@ function QrCode({ value }: { value: string }) {
       <div
         role="status"
         aria-label="Generating authenticator QR code"
-        className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border border-border bg-surface"
+        className="flex h-[200px] w-[200px] items-center justify-center rounded-2xl border border-border bg-surface"
       >
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
@@ -290,7 +290,7 @@ function QrCode({ value }: { value: string }) {
       width={200}
       height={200}
       alt="Authenticator QR code"
-      className="rounded-lg border border-border bg-surface p-1"
+      className="rounded-2xl border border-border bg-surface p-1"
     />
   );
 }
@@ -318,7 +318,7 @@ function ManualSecret({ uri }: { uri: string }) {
 
 function Card({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn('rounded-xl border border-border bg-surface p-5 shadow-sm', className)}>
+    <section className={cn('rounded-2xl border border-border bg-surface p-5 shadow-card', className)}>
       {children}
     </section>
   );

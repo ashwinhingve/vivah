@@ -100,7 +100,7 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         />
 
         {/* Sub-tab nav (preserved from original) */}
-        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6 overflow-x-auto">
+        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-card p-1 mb-6 overflow-x-auto">
           {[
             { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
             { href: `/weddings/${id}/guests/analytics`,  label: 'Analytics', active: false },

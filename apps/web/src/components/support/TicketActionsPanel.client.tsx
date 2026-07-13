@@ -49,7 +49,7 @@ export function TicketActionsPanel({
     'h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-teal focus:outline-none disabled:opacity-50';
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
       <h2 className="mb-4 font-heading text-lg text-primary">Actions</h2>
 
       <label className="mb-1 block text-xs font-medium text-text-muted">Status</label>

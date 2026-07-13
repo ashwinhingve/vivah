@@ -79,7 +79,7 @@ export default function FamilyPage() {
   return (
     <div>
       <ProfileProgress steps={steps} />
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
         <h1 className="text-lg font-semibold text-primary mb-6 font-heading">
           {t('heading')}
         </h1>

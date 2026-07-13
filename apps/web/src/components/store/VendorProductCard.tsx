@@ -15,7 +15,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
 
   return (
     <div
-      className={`bg-surface border border-gold/20 rounded-xl shadow-card overflow-hidden flex flex-col transition-opacity ${
+      className={`bg-surface border border-gold/20 rounded-2xl shadow-card overflow-hidden flex flex-col transition-opacity ${
         !product.isActive ? 'opacity-60' : ''
       }`}
     >

@@ -72,7 +72,7 @@ export function GuestImportModal({ weddingId }: GuestImportModalProps) {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg rounded-xl bg-surface border border-gold/20 p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl bg-surface border border-gold/20 p-6 shadow-card max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-heading text-lg text-primary">Import Guests</h2>
               <button

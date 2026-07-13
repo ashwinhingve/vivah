@@ -39,8 +39,8 @@ export function KycAppealResolver({ appeal }: { appeal: Appeal }) {
   const closed = appeal.status === 'UPHELD' || appeal.status === 'DENIED' || appeal.status === 'WITHDRAWN';
 
   return (
-    <div className={`rounded-xl border p-4 space-y-3 ${
-      closed ? 'border-border bg-surface' : 'border-warning/30 bg-warning/5'
+    <div className={`rounded-2xl border p-4 space-y-3 ${
+      closed ? 'border-gold/20 bg-surface' : 'border-warning/30 bg-warning/5'
     }`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">Appeal · {appeal.status}</p>

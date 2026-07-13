@@ -40,8 +40,8 @@ export function LevelTierCards({ current, levels }: Props) {
       <div className="space-y-2">
         {levels.map((l) => (
           <div key={l.level}
-            className={`rounded-xl border p-4 transition-colors ${
-              l.unlocked ? 'border-success/30 bg-success/5' : 'border-border bg-surface'
+            className={`rounded-2xl border p-4 transition-colors ${
+              l.unlocked ? 'border-success/30 bg-success/5' : 'border-gold/20 bg-surface'
             }`}>
             <div className="flex items-start gap-3">
               <span className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${

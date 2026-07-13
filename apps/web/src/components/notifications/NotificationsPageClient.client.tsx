@@ -96,7 +96,7 @@ export function NotificationsPageClient() {
       {filtered.length === 0 ? (
         <EmptyState variant="no-notifications" />
       ) : (
-        <div className="rounded-xl border border-border bg-surface p-2 shadow-card">
+        <div className="rounded-2xl border border-gold/20 bg-surface p-2 shadow-card">
           {BUCKETS.filter((b) => grouped[b].length > 0).map((b) => (
             <div key={b} className="mb-2 last:mb-0">
               <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gold-muted">{b}</p>
