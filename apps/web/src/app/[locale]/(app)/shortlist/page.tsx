@@ -1,10 +1,14 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Bookmark, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EmptyState, PhotoFallback } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PhotoFallback } from '@/components/shared';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -44,6 +48,7 @@ async function fetchShortlist(token: string): Promise<PaginatedShortlists | null
 }
 
 export default async function ShortlistPage() {
+  const t = await getTranslations('shortlist');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const result = await fetchShortlist(token);
@@ -51,25 +56,19 @@ export default async function ShortlistPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-primary">Your Shortlist</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {items.length > 0
-              ? `${items.length} profile${items.length !== 1 ? 's' : ''} you&apos;re considering`
-              : 'Save profiles you want to revisit'}
-          </p>
-        </div>
+      <PageTransition className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+        <PageHeader
+          title={t('heading')}
+          subtitle={items.length > 0 ? t('subtitleCount', { count: items.length }) : t('subtitleEmpty')}
+        />
 
         {items.length === 0 ? (
           <EmptyState
-            icon={Bookmark}
-            title="No shortlisted profiles yet"
-            description="Tap the bookmark icon on any match to save them here. Your list is private — only you can see it."
+            variant="no-shortlist"
             action={
               <Button asChild>
                 <Link href="/feed">
-                  Explore Matches
+                  {t('exploreCta')}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
@@ -81,7 +80,7 @@ export default async function ShortlistPage() {
               const photoUrl = resolvePhotoUrl(item.primaryPhotoKey);
               const name = item.name ?? 'Profile';
               return (
-                <Card key={item.id} className="group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
+                <Card key={item.id} className="group overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
                   <Link href={`/profiles/${item.targetProfileId}`} className="relative block aspect-[4/5]">
                     {photoUrl ? (
                       <Image
@@ -113,7 +112,7 @@ export default async function ShortlistPage() {
             })}
           </div>
         )}
-      </div>
+      </PageTransition>
     </main>
   );
 }
