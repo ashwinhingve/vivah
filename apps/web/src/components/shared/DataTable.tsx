@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { cn } from '@/lib/utils';
 

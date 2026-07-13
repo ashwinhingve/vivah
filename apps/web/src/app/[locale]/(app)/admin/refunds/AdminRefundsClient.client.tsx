@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import type { RefundRecord } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
-import { Container, EmptyState, PageHeader } from '@/components/shared';
+import { Container } from '@/components/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { cn } from '@/lib/utils';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';

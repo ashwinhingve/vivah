@@ -4,8 +4,7 @@ import type { VendorProfile } from '@smartshaadi/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { InitialAvatar } from '@/components/ui/InitialAvatar';
-import { ProfileImage } from '@/components/ui/ProfileImage.client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { FavoriteButton } from './FavoriteButton.client';
 
@@ -51,20 +50,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
   return (
     <Card className="group flex flex-col overflow-hidden border-gold/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <div className="relative aspect-[16/10] w-full bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10">
-        <ProfileImage
+        <ImageWithFallback
           src={cover}
-          fallback={
-            <InitialAvatar
-              name={vendor.businessName}
-              size="lg"
-              shape="square"
-              className="h-full w-full rounded-none"
-            />
-          }
+          name={vendor.businessName}
           alt={vendor.businessName}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="object-cover"
+          wrapperClassName="absolute inset-0"
         />
 
         <div className="absolute top-2 right-2">

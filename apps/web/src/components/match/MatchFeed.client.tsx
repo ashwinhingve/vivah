@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import type { MatchFeedItem } from '@smartshaadi/types';
 import { ProfileCard } from '@/components/ui/ProfileCard.client';
-import { EmptyState } from '@/components/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { clientEnv } from '@/lib/env';

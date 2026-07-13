@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ProfileImage } from '@/components/ui/ProfileImage.client'
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client'
 import { Link } from '@/i18n/navigation';
 import {
   ArrowLeft, MoreVertical, Search as SearchIcon, BellOff, Bell,
@@ -61,7 +61,6 @@ export default function ChatHeader({
   }, [menuOpen])
 
   const photoUrl = initialOther?.primaryPhotoKey ? resolvePhotoUrl(initialOther.primaryPhotoKey) : null
-  const initial = initialOther?.firstName?.[0]?.toUpperCase() ?? '?'
   const isOnline = presence?.isOnline ?? initialOther?.isOnline ?? false
   const lastSeenAt = presence?.lastSeenAt ?? initialOther?.lastSeenAt ?? null
 
@@ -162,17 +161,11 @@ export default function ChatHeader({
         aria-label="View profile"
       >
         <div className="relative shrink-0">
-          <ProfileImage
+          <ImageWithFallback
             src={photoUrl}
             alt={initialOther?.firstName ?? 'Participant'}
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full object-cover"
-            fallback={
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal">
-                {initial}
-              </div>
-            }
+            name={initialOther?.firstName}
+            wrapperClassName="h-10 w-10 rounded-full"
           />
           <span
             aria-label={isOnline ? 'Online' : 'Offline'}

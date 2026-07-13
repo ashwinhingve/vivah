@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { ProfileImage } from '@/components/ui/ProfileImage.client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import type { MatchRequest, ProfileDetailResponse } from '@smartshaadi/types';
 import { fetchAuth } from '@/lib/server-fetch';
 import { resolvePhotoUrl } from '@/lib/photo';
@@ -30,17 +30,14 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
     <div className="bg-surface rounded-xl border border-border shadow-card p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 bg-primary/10">
-          <ProfileImage
+          <ImageWithFallback
             src={photoUrl}
             alt={name}
             fill
             sizes="56px"
             className="object-cover"
-            fallback={
-              <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-primary">
-                {name.slice(0, 2).toUpperCase()}
-              </span>
-            }
+            name={name}
+            wrapperClassName="absolute inset-0"
           />
         </div>
         <div className="min-w-0 flex-1">
