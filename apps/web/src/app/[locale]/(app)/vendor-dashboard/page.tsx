@@ -18,7 +18,7 @@ import { BlockedDatesManager } from '@/components/vendor/BlockedDatesManager.cli
 import { VendorProfileEditor } from '@/components/vendor/VendorProfileEditor.client';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { RevenueSparkline } from '@/components/dashboard/RevenueSparkline.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';

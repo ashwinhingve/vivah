@@ -7,8 +7,14 @@
  * (no auth, no vendor account, infra unreachable).
  */
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
+import { BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import {
   MultiEventPipeline,
   type MultiEventPipelineData,
@@ -57,6 +63,7 @@ async function fetchPipeline(
 }
 
 export default async function VendorPipelinePage() {
+  const t = await getTranslations('vendorRole.pipeline');
   const cookieStore = await cookies();
   if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
@@ -66,24 +73,28 @@ export default async function VendorPipelinePage() {
   const vendor = await fetchVendorMe(cookie);
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-6">
-      <header className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-heading text-primary">
-          Multi-event pipeline
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Track upcoming bookings across weddings, corporate, festival and community events.
-        </p>
-      </header>
+    <PageTransition>
+      <main id="main-content" className="max-w-5xl mx-auto px-4 py-6">
+        <FadeUp>
+          <PageHeader
+            title={t('title')}
+            subtitle={t('subtitle')}
+          />
+        </FadeUp>
 
-      {!vendor ? (
-        <div className="border border-dashed border-gold/30 rounded-xl px-4 py-12 text-center text-sm text-muted-foreground">
-          You need a vendor account to view this page.
-        </div>
-      ) : (
-        <VendorPipelineContent cookie={cookie} vendorId={vendor.id} />
-      )}
-    </main>
+        <FadeUp>
+          {!vendor ? (
+            <EmptyState
+              icon={BarChart3}
+              title="Vendor account required"
+              description={t('needVendorAccount')}
+            />
+          ) : (
+            <VendorPipelineContent cookie={cookie} vendorId={vendor.id} />
+          )}
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }
 
@@ -94,12 +105,15 @@ async function VendorPipelineContent({
   cookie: string;
   vendorId: string;
 }) {
+  const t = await getTranslations('vendorRole.pipeline');
   const data = await fetchPipeline(cookie, vendorId);
   if (!data) {
     return (
-      <div className="border border-dashed border-gold/30 rounded-xl px-4 py-12 text-center text-sm text-muted-foreground">
-        Pipeline data is not available right now. Please try again in a minute.
-      </div>
+      <EmptyState
+        icon={BarChart3}
+        title="Pipeline unavailable"
+        description={t('dataUnavailable')}
+      />
     );
   }
   return <MultiEventPipeline data={data} />;

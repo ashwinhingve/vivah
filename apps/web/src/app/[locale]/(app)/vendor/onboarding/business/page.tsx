@@ -4,6 +4,7 @@ import { Building2 } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BusinessForm } from './BusinessForm.client';
 
@@ -23,14 +24,16 @@ export default async function BusinessStepPage() {
   const vendor = await fetchMyVendor();
 
   return (
-    <FadeUp>
-      <OnboardingStepper current="business" />
-      <OnboardingStepHeader
-        icon={Building2}
-        title={t('title')}
-        subtitle={t('subtitle')}
-      />
-      <BusinessForm vendor={vendor} />
-    </FadeUp>
+    <PageTransition>
+      <FadeUp>
+        <OnboardingStepper current="business" />
+        <OnboardingStepHeader
+          icon={Building2}
+          title={t('title')}
+          subtitle={t('subtitle')}
+        />
+        <BusinessForm vendor={vendor} />
+      </FadeUp>
+    </PageTransition>
   );
 }

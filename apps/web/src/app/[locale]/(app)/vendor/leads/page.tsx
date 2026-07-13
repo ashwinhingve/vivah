@@ -6,11 +6,12 @@
  * admin qualification/refund actions live on a separate admin page.
  */
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Users, TrendingUp, Wallet, Receipt, ListFilter } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
-import { RoleHero } from '@/components/shared/RoleHero';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -61,6 +62,7 @@ export default async function VendorLeadsPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  const t = await getTranslations('vendorRole.leads');
   const cookieStore = await cookies();
   if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
@@ -73,12 +75,13 @@ export default async function VendorLeadsPage({
 
   return (
     <PageTransition>
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        <RoleHero
-          title="Customer leads"
-          subtitle="Inquiries sent directly to your vendor profile. You are charged per qualified lead."
-          icon={Users}
-        />
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-6">
+        <FadeUp>
+          <PageHeader
+            title={t('title')}
+            subtitle={t('subtitle')}
+          />
+        </FadeUp>
 
         <div className="mt-6">
           {!vendor ? (

@@ -4,6 +4,7 @@ import { Images } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { PortfolioForm } from './PortfolioForm.client';
 import { PackageManager, type VendorPackageView } from '@/components/vendor/PackageManager.client';
@@ -43,28 +44,30 @@ export default async function PortfolioStepPage() {
   const p = portfolioRes?.portfolio ?? null;
 
   return (
-    <FadeUp>
-      <OnboardingStepper current="portfolio" />
-      <OnboardingStepHeader
-        icon={Images}
-        title={t('title')}
-        subtitle={t('subtitle')}
-      />
-      <PortfolioForm
-        vendorId={vendor.id}
-        about={p?.about ?? ''}
-        awards={p?.awards ?? []}
-        certifications={p?.certifications ?? []}
-        selectedEventTypes={eventTypesRes?.eventTypes ?? []}
-      />
+    <PageTransition>
+      <FadeUp>
+        <OnboardingStepper current="portfolio" />
+        <OnboardingStepHeader
+          icon={Images}
+          title={t('title')}
+          subtitle={t('subtitle')}
+        />
+        <PortfolioForm
+          vendorId={vendor.id}
+          about={p?.about ?? ''}
+          awards={p?.awards ?? []}
+          certifications={p?.certifications ?? []}
+          selectedEventTypes={eventTypesRes?.eventTypes ?? []}
+        />
 
-      <div className="mt-6">
-        <PackageManager vendorId={vendor.id} initial={packagesRes?.packages ?? []} />
-      </div>
+        <div className="mt-6">
+          <PackageManager vendorId={vendor.id} initial={packagesRes?.packages ?? []} />
+        </div>
 
-      <div className="mt-6">
-        <PortfolioItemManager vendorId={vendor.id} initial={p?.portfolio ?? []} />
-      </div>
-    </FadeUp>
+        <div className="mt-6">
+          <PortfolioItemManager vendorId={vendor.id} initial={p?.portfolio ?? []} />
+        </div>
+      </FadeUp>
+    </PageTransition>
   );
 }
