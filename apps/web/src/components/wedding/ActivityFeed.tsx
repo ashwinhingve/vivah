@@ -62,7 +62,7 @@ export async function ActivityFeed({ weddingId, limit = 20 }: { weddingId: strin
                   <span className="font-semibold">{e.actorName ?? 'Someone'}</span>{' '}
                   <span className="text-muted-foreground">{label}</span>
                 </p>
-                <p className="text-[11px] text-muted-foreground">{timeAgo(e.createdAt)}</p>
+                <p className="text-2xs text-muted-foreground">{timeAgo(e.createdAt)}</p>
               </div>
             </li>
           );

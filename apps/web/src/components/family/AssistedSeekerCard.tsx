@@ -38,7 +38,7 @@ export function AssistedSeekerCard({ link, pendingCount, name }: Props) {
           </p>
         </div>
         {pendingCount > 0 && (
-          <span className="shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">
+          <span className="shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-2xs font-semibold text-warning">
             {pendingCount} pending
           </span>
         )}

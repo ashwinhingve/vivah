@@ -83,7 +83,7 @@ export function ReputationCard({ data }: Props) {
           </p>
         </div>
         {data.cached ? (
-          <span className="shrink-0 rounded-full border border-gold/30 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          <span className="shrink-0 rounded-full border border-gold/30 bg-background px-2 py-0.5 text-2xs font-medium text-muted-foreground">
             Cached
           </span>
         ) : null}
@@ -125,7 +125,7 @@ export function ReputationCard({ data }: Props) {
         </div>
       ) : null}
 
-      <p className="border-t border-gold/20 pt-3 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="border-t border-gold/20 pt-3 text-2xs leading-relaxed text-muted-foreground">
         {data.disclaimer}
       </p>
     </section>

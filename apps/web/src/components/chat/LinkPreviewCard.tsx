@@ -42,7 +42,7 @@ export default function LinkPreviewCard({ preview, isSentByMe }: LinkPreviewCard
       ) : null}
       <div className="px-3 py-2">
         <p className={cn(
-          'flex items-center gap-1 text-[10px] uppercase tracking-wide',
+          'flex items-center gap-1 text-2xs uppercase tracking-wide',
           isSentByMe ? 'text-white/70' : 'text-muted-foreground',
         )}>
           <Link2 className="h-3 w-3" />

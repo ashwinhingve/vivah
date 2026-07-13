@@ -73,7 +73,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-foreground">{item.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{item.vendorName}</p>
+                  <p className="text-2xs text-muted-foreground">{item.vendorName}</p>
                   <p className="mt-0.5 text-sm font-semibold text-teal">
                     ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                   </p>

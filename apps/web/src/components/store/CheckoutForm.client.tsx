@@ -299,7 +299,7 @@ export function CheckoutForm() {
                 <button
                   type="button"
                   onClick={removePromo}
-                  className="text-[10px] text-muted-foreground hover:text-destructive ml-1"
+                  className="text-2xs text-muted-foreground hover:text-destructive ml-1"
                   aria-label="Remove promo"
                 >
                   ✕

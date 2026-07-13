@@ -89,7 +89,7 @@ export function ProfileInfoGrid({ info }: { info: ProfileInfoData }) {
 function Cell({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div className="flex flex-col">
-      <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-fg-2">{label}</dt>
+      <dt className="text-2xs font-medium uppercase tracking-[0.08em] text-fg-2">{label}</dt>
       <dd className="mt-0.5 text-sm font-medium text-fg-1">{value ?? '—'}</dd>
     </div>
   );
@@ -108,7 +108,7 @@ function MaskedCell({
 }) {
   return (
     <div className="flex flex-col">
-      <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-fg-2">{label}</dt>
+      <dt className="text-2xs font-medium uppercase tracking-[0.08em] text-fg-2">{label}</dt>
       <dd className="mt-0.5">
         {value ? (
           <MaskedField value={value} kind={kind} unlocked={!!unlocked} />

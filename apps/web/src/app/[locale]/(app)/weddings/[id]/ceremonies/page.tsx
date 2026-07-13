@@ -202,7 +202,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                             >
                               {c.type === 'OTHER' && (
                                 <div>
-                                  <label className="block text-[10px] font-medium text-muted-foreground mb-1">Ceremony Name</label>
+                                  <label className="block text-2xs font-medium text-muted-foreground mb-1">Ceremony Name</label>
                                   <input
                                     name="customTypeName"
                                     type="text"
@@ -213,7 +213,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 </div>
                               )}
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Date</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Date</label>
                                 <input
                                   name="date"
                                   type="date"
@@ -222,7 +222,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Start Time</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Start Time</label>
                                 <input
                                   name="startTime"
                                   type="time"
@@ -231,7 +231,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Venue</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Venue</label>
                                 <input
                                   name="venue"
                                   type="text"
@@ -240,7 +240,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Notes</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Notes</label>
                                 <input
                                   name="notes"
                                   type="text"

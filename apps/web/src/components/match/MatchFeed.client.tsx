@@ -600,7 +600,7 @@ export function MatchFeed({
             <SlidersHorizontal className="h-4 w-4" />
             {t('openFilters')}
             {filterCount > 0 && (
-              <span className="flex h-5 min-w-[18px] items-center justify-center rounded-full bg-teal px-1 text-[10px] font-bold text-white">
+              <span className="flex h-5 min-w-[18px] items-center justify-center rounded-full bg-teal px-1 text-2xs font-bold text-white">
                 {filterCount}
               </span>
             )}

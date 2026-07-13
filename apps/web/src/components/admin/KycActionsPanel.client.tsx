@@ -78,7 +78,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
             return (
               <button key={d} type="button"
                 onClick={() => setRequiredDocs(on ? requiredDocs.filter(x => x !== d) : [...requiredDocs, d])}
-                className={`text-[11px] font-semibold rounded-full px-2 py-1 transition-colors ${
+                className={`text-2xs font-semibold rounded-full px-2 py-1 transition-colors ${
                   on ? 'bg-primary text-white' : 'bg-muted/40 text-foreground hover:bg-muted/60'
                 }`}>
                 {d.replace(/_/g, ' ').toLowerCase()}
@@ -97,7 +97,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
       </div>
 
       {inactive && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-2xs text-muted-foreground">
           Profile already in terminal state ({status}). Actions disabled.
         </p>
       )}

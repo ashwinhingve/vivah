@@ -7,6 +7,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { RentalCard } from '@/components/rental/RentalCard';
 import { CategoryTabs } from '@/components/rental/CategoryTabs.client';
 import { DateRangePicker } from '@/components/rental/DateRangePicker.client';
@@ -71,12 +72,10 @@ export default async function RentalsPage({ searchParams }: Props) {
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-primary font-heading">Rent for Your Wedding</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Browse decor, costumes, AV equipment and more
-          </p>
-        </div>
+        <PageHeader
+          title="Rent for Your Wedding"
+          subtitle="Browse decor, costumes, AV equipment and more"
+        />
 
         {/* Filters */}
         <div className="space-y-3">

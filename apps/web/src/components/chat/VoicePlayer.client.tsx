@@ -129,7 +129,7 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
       </div>
       <span
         className={cn(
-          'text-[11px] font-mono tabular-nums shrink-0',
+          'text-2xs font-mono tabular-nums shrink-0',
           isSentByMe ? 'text-white/85' : 'text-muted-foreground',
         )}
       >

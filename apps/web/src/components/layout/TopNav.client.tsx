@@ -85,7 +85,7 @@ export function TopNav() {
             {groups.map((group, gi) => (
               <div key={group.titleKey}>
                 {gi > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <DropdownMenuLabel className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t(group.titleKey)}
                 </DropdownMenuLabel>
                 {group.items.map(({ href, labelKey, Icon }) => {

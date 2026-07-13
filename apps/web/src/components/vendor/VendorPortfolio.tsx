@@ -40,7 +40,7 @@ function PackageCard({ pkg, popular }: { pkg: PortfolioPackage; popular?: boolea
       )}
     >
       {popular && (
-        <span className="absolute -top-2 left-4 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+        <span className="absolute -top-2 left-4 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-2xs font-bold uppercase tracking-widest text-white shadow-sm">
           <Star className="h-3 w-3" aria-hidden="true" />
           Most Popular
         </span>

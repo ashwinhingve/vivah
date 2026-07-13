@@ -341,7 +341,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
               <Verified className="h-4 w-4 text-success shrink-0" aria-label="Verified" />
             )}
             {isSuper && (
-              <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning shrink-0 flex items-center gap-0.5">
+              <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-2xs font-bold text-warning shrink-0 flex items-center gap-0.5">
                 <Star className="h-2.5 w-2.5 fill-warning text-warning" /> SUPER
               </span>
             )}

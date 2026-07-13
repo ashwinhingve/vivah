@@ -23,7 +23,7 @@ export function ProfileByPill({ creator, className, inverse }: Props) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium',
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-medium',
         inverse ? 'bg-white/20 text-white backdrop-blur-sm' : 'bg-primary/10 text-primary',
         className,
       )}

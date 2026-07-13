@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateHoroscope } from '../actions';
@@ -64,10 +65,11 @@ export default function HoroscopePage() {
       <div className="mx-auto max-w-lg px-4 py-8">
         <ProfileProgress steps={STEPS} />
 
-        <h1 className="mt-6 text-2xl font-bold font-heading text-primary">Horoscope Details</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Help us find your most compatible match.
-        </p>
+        <PageHeader
+          title="Horoscope Details"
+          subtitle="Help us find your most compatible match."
+          className="mt-6 mb-6"
+        />
 
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
           {state?.error && (

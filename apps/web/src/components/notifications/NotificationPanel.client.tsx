@@ -36,7 +36,7 @@ export function NotificationPanel({ onClose }: { onClose?: () => void }) {
         <div className="flex items-center gap-2">
           <h2 className="font-heading text-base font-semibold text-primary">Notifications</h2>
           {unreadCount > 0 && (
-            <span className="rounded-full bg-teal px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+            <span className="rounded-full bg-teal px-1.5 py-0.5 text-2xs font-semibold leading-none text-white">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
@@ -74,7 +74,7 @@ export function NotificationPanel({ onClose }: { onClose?: () => void }) {
         ) : (
           BUCKETS.filter((b) => grouped[b].length > 0).map((b) => (
             <div key={b} className="mb-1">
-              <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gold-muted">{b}</p>
+              <p className="px-3 pb-1 pt-2 text-2xs font-semibold uppercase tracking-wide text-gold-muted">{b}</p>
               {grouped[b].map((n) => (
                 <NotificationItem
                   key={n.id}

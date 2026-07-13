@@ -6,7 +6,7 @@
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { redirect } from '@/i18n/redirect';
-import { ArrowLeft, BadgeCheck, Mail, Phone, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BadgeCheck, Mail, Phone, Calendar } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { UserRole, UserStatus } from '@smartshaadi/types';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -119,9 +119,10 @@ export default async function AdminUserDetailPage({
                 {data.profileId ? (
                   <Link
                     href={`/admin/kyc/${data.profileId}`}
-                    className="rounded-lg border border-gold/30 px-3 py-2 text-sm text-teal transition-colors hover:bg-gold/10"
+                    className="inline-flex items-center gap-1 rounded-lg border border-gold/30 px-3 py-2 text-sm text-teal transition-colors hover:bg-gold/10"
                   >
-                    View matchmaking profile / KYC →
+                    View matchmaking profile / KYC
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 ) : (
                   <span className="text-sm text-muted-foreground">No matchmaking profile</span>
@@ -129,9 +130,10 @@ export default async function AdminUserDetailPage({
                 {data.vendorId ? (
                   <Link
                     href={`/admin/vendors/${data.vendorId}`}
-                    className="rounded-lg border border-gold/30 px-3 py-2 text-sm text-teal transition-colors hover:bg-gold/10"
+                    className="inline-flex items-center gap-1 rounded-lg border border-gold/30 px-3 py-2 text-sm text-teal transition-colors hover:bg-gold/10"
                   >
-                    View vendor listing →
+                    View vendor listing
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 ) : (
                   <span className="text-sm text-muted-foreground">No vendor listing</span>

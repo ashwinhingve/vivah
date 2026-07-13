@@ -136,12 +136,12 @@ export default async function ViewersPage() {
                       <p className="truncate text-xs text-white/75">{v.city ?? ''}</p>
                     </div>
                     {v.verificationStatus === 'VERIFIED' ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-[10px] font-bold text-success shadow-sm">
+                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         Verified
                       </span>
                     ) : null}
-                    <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                    <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-2xs font-semibold text-white shadow-sm">
                       {timeAgo(v.viewedAt)}
                     </span>
                   </Link>

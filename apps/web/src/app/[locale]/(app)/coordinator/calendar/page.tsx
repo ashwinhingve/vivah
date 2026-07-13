@@ -112,7 +112,7 @@ export default async function CoordinatorCalendarPage() {
                                   <span className="text-lg font-semibold leading-none text-primary">
                                     {date.toLocaleDateString('en-IN', { day: 'numeric' })}
                                   </span>
-                                  <span className="text-[11px] uppercase text-gold-muted">
+                                  <span className="text-2xs uppercase text-gold-muted">
                                     {date.toLocaleDateString('en-IN', { month: 'short' })}
                                   </span>
                                 </>

@@ -58,7 +58,7 @@ export async function SimilarProfiles({ sourceProfileId }: { sourceProfileId: st
                   <p className="truncate text-xs font-semibold text-white">
                     {item.name || 'Member'}{item.age != null ? <span className="font-normal text-white/80">, {item.age}</span> : null}
                   </p>
-                  <p className="truncate text-[10px] text-white/75">{item.city}</p>
+                  <p className="truncate text-2xs text-white/75">{item.city}</p>
                 </div>
                 {item.isVerified ? (
                   <span className="absolute right-1.5 top-1.5 rounded-full bg-surface/95 p-0.5 text-success shadow-sm">

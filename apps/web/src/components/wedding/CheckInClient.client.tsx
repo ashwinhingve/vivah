@@ -84,7 +84,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
                     {arrived && <CheckCircle2 className="h-4 w-4 text-success shrink-0" />}
                     <span className="truncate">{g.name}</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-2xs text-muted-foreground">
                     {g.relationship ?? '—'} · {g.rsvpStatus}{g.plusOnes > 0 ? ` · +${g.plusOnes}` : ''}{g.isVip ? ' · VIP' : ''}
                   </p>
                 </div>

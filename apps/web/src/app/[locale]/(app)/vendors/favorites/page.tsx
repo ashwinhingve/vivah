@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import type { VendorProfile } from '@smartshaadi/types';
 
@@ -31,10 +32,10 @@ export default async function FavoritesPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-6">
-          <h1 className="font-heading text-2xl font-semibold text-primary">Saved Vendors</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Your shortlist of favorite vendors.</p>
-        </div>
+        <PageHeader
+          title="Saved Vendors"
+          subtitle="Your shortlist of favorite vendors."
+        />
 
         {vendors.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gold/30 bg-surface p-12 text-center">

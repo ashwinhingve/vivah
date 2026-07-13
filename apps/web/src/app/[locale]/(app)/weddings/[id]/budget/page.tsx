@@ -116,7 +116,7 @@ export default async function BudgetPage({ params }: PageProps) {
                       <span className="font-heading text-base font-bold text-primary leading-tight">
                         {formatINRCompact(totalSpent)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">of {formatINRCompact(totalBudget)}</span>
+                      <span className="text-2xs text-muted-foreground">of {formatINRCompact(totalBudget)}</span>
                     </div>
                   </div>
 

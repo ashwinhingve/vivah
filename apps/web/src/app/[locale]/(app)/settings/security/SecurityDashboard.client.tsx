@@ -209,7 +209,7 @@ function Row({ label, value, verified }: { label: string; value: string; verifie
         {verified !== undefined ? (
           <span
             className={cn(
-              'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+              'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold',
               verified ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning',
             )}
           >
@@ -319,7 +319,7 @@ function SessionsCard({ initialSessions }: { initialSessions: SessionRow[] }) {
               <p className="font-medium text-foreground truncate">
                 {deviceLabel(s.userAgent)}
                 {s.isCurrent ? (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                  <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-2xs font-semibold text-success">
                     This device
                   </span>
                 ) : null}

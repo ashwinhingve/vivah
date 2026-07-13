@@ -106,7 +106,7 @@ export async function WeddingCard({ wedding }: WeddingCardProps) {
         {/* Task progress */}
         {total > 0 && (
           <div className="mb-3">
-            <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="mb-1 flex items-center justify-between text-2xs text-muted-foreground">
               <span>{t('planningProgress')}</span>
               <span className="font-semibold text-primary">{taskPct}%</span>
             </div>

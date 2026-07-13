@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 interface Plan {
   id:       string;
   code:     string;
@@ -55,10 +56,11 @@ export default async function PricingPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="text-center mb-10">
-        <h1 className="font-heading text-3xl font-semibold text-primary">{t('heading')}</h1>
-        <p className="mt-2 text-muted-foreground">{t('subtext')}</p>
-      </div>
+      <PageHeader
+        title={t('heading')}
+        subtitle={t('subtext')}
+        className="text-center mb-10"
+      />
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map(plan => (

@@ -296,14 +296,14 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
                       {guest.isVip && <Star className="h-3.5 w-3.5 fill-yellow-400 text-warning" aria-label="VIP" />}
                       <p className="font-medium text-foreground">{guest.name}</p>
                       {guest.ageGroup !== 'ADULT' && (
-                        <span className="text-[10px] uppercase tracking-wide bg-gold/20 text-primary rounded-full px-1.5 py-0.5">{guest.ageGroup}</span>
+                        <span className="text-2xs uppercase tracking-wide bg-gold/20 text-primary rounded-full px-1.5 py-0.5">{guest.ageGroup}</span>
                       )}
                       {guest.arrivedAt && <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-label="Checked in" />}
                     </div>
                     <div className="flex gap-2 mt-0.5 flex-wrap">
-                      {guest.phone && <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground"><Phone className="h-2.5 w-2.5" />{guest.phone}</span>}
-                      {guest.plusOnes > 0 && <span className="text-[10px] text-muted-foreground">+{guest.plusOnes}</span>}
-                      {guest.invitedToCeremonies.length > 0 && <span className="text-[10px] text-muted-foreground">{guest.invitedToCeremonies.length} ceremon{guest.invitedToCeremonies.length === 1 ? 'y' : 'ies'}</span>}
+                      {guest.phone && <span className="inline-flex items-center gap-0.5 text-2xs text-muted-foreground"><Phone className="h-2.5 w-2.5" />{guest.phone}</span>}
+                      {guest.plusOnes > 0 && <span className="text-2xs text-muted-foreground">+{guest.plusOnes}</span>}
+                      {guest.invitedToCeremonies.length > 0 && <span className="text-2xs text-muted-foreground">{guest.invitedToCeremonies.length} ceremon{guest.invitedToCeremonies.length === 1 ? 'y' : 'ies'}</span>}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{guest.relationship ?? '—'}</td>

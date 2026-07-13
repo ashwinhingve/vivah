@@ -29,7 +29,7 @@ export function StatCard({ label, value, prefix, suffix, staticValue, trendPct, 
         className
       )}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+      <p className="text-2xs font-semibold uppercase tracking-wide text-text-muted">
         {label}
       </p>
       <div className="mt-2 flex items-end justify-between gap-2">

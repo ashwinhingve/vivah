@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { Users, ShieldCheck, Bell, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { markWelcomeSeen } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -67,14 +68,11 @@ export default async function WelcomePage() {
   return (
     <main id="main-content" className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
-        <header className="text-center">
-          <h1 className="font-heading text-3xl sm:text-4xl font-semibold text-primary">
-            {firstName ? `Welcome, ${firstName}` : 'Welcome to Smart Shaadi'} <span aria-hidden="true">👋</span>
-          </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            You&rsquo;re among our founding members. Here&rsquo;s what to expect.
-          </p>
-        </header>
+        <PageHeader
+          title={firstName ? `Welcome, ${firstName}` : 'Welcome to Smart Shaadi'}
+          subtitle="You're among our founding members. Here's what to expect."
+          className="text-center"
+        />
 
         <ul className="mt-10 grid gap-5 md:grid-cols-3">
           {CARDS.map(({ Icon, title, body }) => (

@@ -97,7 +97,7 @@ export default function EmotionalScoreBadge({ matchId }: EmotionalScoreBadgeProp
             aria-label={`Conversation tone ${labelText(score.label)}`}
             className={cn(
               'inline-flex shrink-0 items-center gap-1 rounded-full border font-medium',
-              'h-6 px-2 text-[10px] sm:h-7 sm:px-3 sm:text-xs',
+              'h-6 px-2 text-2xs sm:h-7 sm:px-3 sm:text-xs',
               badgeStyles(score.label),
             )}
           >

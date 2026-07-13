@@ -50,7 +50,7 @@ export function ProfileProgress({ steps }: ProfileProgressProps) {
                 )}
               </div>
               <span
-                className={`text-[10px] mt-1 text-center leading-tight w-full ${
+                className={`text-2xs mt-1 text-center leading-tight w-full ${
                   step.active ? 'text-primary font-semibold' : 'text-muted-foreground'
                 }`}
               >

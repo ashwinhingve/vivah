@@ -128,17 +128,17 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 return (
                   <div className="mb-2 flex flex-wrap items-center gap-1.5">
                     {vendor.verified && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-teal">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-teal">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Verified
                       </span>
                     )}
                     {topRated && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-primary">
                         ⭐ Top Rated
                       </span>
                     )}
                     {affordable && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-gold-muted">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-gold-muted">
                         💰 Affordable
                       </span>
                     )}

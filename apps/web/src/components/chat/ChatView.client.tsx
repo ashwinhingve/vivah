@@ -583,7 +583,7 @@ export default function ChatView({
           </div>
         ) : null}
         {!hasMore && messages.length > PAGE_SIZE ? (
-          <p className="text-center text-[11px] text-muted-foreground py-2">Beginning of conversation</p>
+          <p className="text-center text-2xs text-muted-foreground py-2">Beginning of conversation</p>
         ) : null}
 
         {messages.length === 0 ? (

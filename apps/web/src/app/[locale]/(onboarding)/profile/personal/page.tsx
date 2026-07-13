@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updatePersonal } from '../actions';
@@ -95,13 +96,11 @@ export default function PersonalPage() {
       <ProfileProgress steps={STEPS} />
 
       <div className="bg-surface rounded-2xl shadow-card border border-gold/20 overflow-hidden">
-        <div className="bg-gradient-to-r from-primary/5 to-transparent px-5 py-4 border-b border-gold/10 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
-            👤
-          </div>
-          <h1 className="font-semibold text-primary text-lg font-heading">
-            {t('heading')}
-          </h1>
+        <div className="px-5 py-4 border-b border-gold/10">
+          <PageHeader
+            title={t('heading')}
+            className="mb-0"
+          />
         </div>
 
         <div className="p-5">

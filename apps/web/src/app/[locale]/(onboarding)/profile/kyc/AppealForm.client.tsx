@@ -39,7 +39,7 @@ export function AppealForm() {
         rows={5} maxLength={2000} required minLength={20}
         placeholder="Explain in detail (min 20 characters)…"
         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-      <p className="text-[11px] text-muted-foreground text-right">{message.length}/2000</p>
+      <p className="text-2xs text-muted-foreground text-right">{message.length}/2000</p>
       {error && <p className="text-xs text-destructive" role="alert">{error}</p>}
       <button type="submit" disabled={busy}
         className="w-full bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-4 py-2.5 text-sm min-h-[44px] disabled:opacity-60 transition-colors">

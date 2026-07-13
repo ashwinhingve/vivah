@@ -235,7 +235,7 @@ export function UiPreview() {
               {ILLUSTRATIONS.map(([label, Art]) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <Art className="h-24 w-24 text-primary/30" />
-                  <span className="text-[11px] text-text-muted">{label}</span>
+                  <span className="text-2xs text-text-muted">{label}</span>
                 </div>
               ))}
             </div>

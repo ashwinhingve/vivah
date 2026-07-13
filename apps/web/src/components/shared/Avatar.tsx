@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 const avatarVariants = cva('', {
   variants: {
     size: {
-      sm: 'h-8 w-8 text-[10px]',
+      sm: 'h-8 w-8 text-2xs',
       md: 'h-10 w-10 text-xs',
       lg: 'h-12 w-12 text-sm',
       xl: 'h-16 w-16 text-lg',

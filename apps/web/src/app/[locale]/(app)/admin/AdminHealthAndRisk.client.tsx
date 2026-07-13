@@ -96,7 +96,7 @@ export function AdminHealthAndRisk({
                 {check.label}
               </span>
               <span
-                className={`ml-auto text-[10px] font-semibold uppercase tracking-wide ${check.ok ? 'text-success' : 'text-destructive'}`}
+                className={`ml-auto text-2xs font-semibold uppercase tracking-wide ${check.ok ? 'text-success' : 'text-destructive'}`}
               >
                 {check.ok ? 'OK' : 'ERR'}
               </span>
@@ -113,7 +113,7 @@ export function AdminHealthAndRisk({
                 className="flex items-center gap-1.5 rounded-lg border border-gold/20 bg-surface px-3 py-1.5"
               >
                 <StatusDot ok={m.ok} />
-                <span className="text-[11px] font-medium text-text-muted">{m.name}</span>
+                <span className="text-2xs font-medium text-text-muted">{m.name}</span>
               </div>
             ))}
           </div>
@@ -123,7 +123,7 @@ export function AdminHealthAndRisk({
         {/* TODO: AI-service health URL is not exposed via NEXT_PUBLIC env; /ready only covers postgres·redis·mongo.
             To add AI health, expose NEXT_PUBLIC_AI_SERVICE_URL and fetch ${AI_SERVICE_URL}/health server-side. */}
         {aiModels === null && (
-          <p className="mt-2 text-[11px] text-text-muted">
+          <p className="mt-2 text-2xs text-text-muted">
             AI service health — not reachable from web layer (see TODO in AdminHealthAndRisk.client.tsx)
           </p>
         )}
@@ -131,28 +131,28 @@ export function AdminHealthAndRisk({
         {/* TODO: no endpoint for API request count or error rate — show "—" placeholders */}
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-text-muted">
               API Requests / hr
             </p>
             {/* TODO: no endpoint for real-time request count — wire once metrics service ships */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
           <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-text-muted">
               Error Rate
             </p>
             {/* TODO: no endpoint for error rate — wire from Sentry when metrics endpoint ships */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
           <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-text-muted">
               P95 Latency
             </p>
             {/* TODO: no endpoint — wire from BetterStack or APM once available */}
             <p className="mt-1 font-heading text-xl font-semibold text-text-primary">—</p>
           </div>
           <div className="rounded-2xl border border-gold/20 bg-surface px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-text-muted">
               Uptime (30d)
             </p>
             {/* TODO: no endpoint — pull from BetterStack monitor once configured */}
@@ -167,7 +167,7 @@ export function AdminHealthAndRisk({
           <div className="mb-3 flex items-center justify-between gap-2">
             <span className="text-sm font-semibold text-text-primary">
               At-risk users
-              <span className="ml-2 inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+              <span className="ml-2 inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-2xs font-semibold text-destructive">
                 {atRiskTotal}
               </span>
             </span>
@@ -181,17 +181,17 @@ export function AdminHealthAndRisk({
                     <p className="truncate text-xs font-medium text-text-primary">
                       {u.displayName ?? short(u.userId, 8) + '…'}
                     </p>
-                    <p className="font-mono text-[10px] text-text-muted">
+                    <p className="font-mono text-2xs text-text-muted">
                       {short(u.userId, 12)}…
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${riskBandClass(u.riskBand)}`}
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold ${riskBandClass(u.riskBand)}`}
                   >
                     {(u.riskBand ?? '').toUpperCase()}
                   </span>
                   {u.score !== null && (
-                    <span className="text-[10px] font-medium text-text-muted">
+                    <span className="text-2xs font-medium text-text-muted">
                       {Math.round(u.score * 100)}%
                     </span>
                   )}

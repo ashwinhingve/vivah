@@ -119,7 +119,7 @@ export function RsvpQuestionsBuilder({ weddingId, initial }: Props) {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{q.questionText}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-2xs text-muted-foreground mt-0.5">
                     {q.questionType}{q.isRequired ? ' · required' : ''}{q.choices ? ` · ${q.choices.length} options` : ''}
                   </p>
                 </div>

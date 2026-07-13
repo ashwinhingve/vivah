@@ -180,7 +180,7 @@ export function RoutingForm() {
                   </div>
                   <VendorCard vendor={r.vendor} />
                   {r.reasons.length > 0 && (
-                    <p className="px-1 text-[11px] text-muted-foreground">
+                    <p className="px-1 text-2xs text-muted-foreground">
                       {r.reasons.map(humanizeReason).join(' · ')}
                     </p>
                   )}

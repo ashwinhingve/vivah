@@ -88,7 +88,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               {item.productName}
             </h3>
             <span
-              className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge.cls}`}
+              className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${badge.cls}`}
             >
               {badge.text}
             </span>
@@ -108,7 +108,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
           </p>
           {item.trackingNumber && (
             <p className="text-xs text-muted-foreground">
-              Tracking: <span className="font-mono text-foreground text-[11px]">{item.trackingNumber}</span>
+              Tracking: <span className="font-mono text-foreground text-2xs">{item.trackingNumber}</span>
             </p>
           )}
         </div>

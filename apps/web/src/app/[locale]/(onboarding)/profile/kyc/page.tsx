@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { KycInitiateButton } from './KycInitiateButton.client';
 import { PanVerifyCard } from './PanVerifyCard.client';
 import { BankVerifyCard } from './BankVerifyCard.client';
@@ -129,7 +130,7 @@ function SignalGrid({ s }: { s: KycStatus }) {
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Verification signals</h3>
         {s.riskScore !== null && (
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
             Trust score <strong className="text-foreground">{s.riskScore}/100</strong>
           </span>
         )}
@@ -139,10 +140,10 @@ function SignalGrid({ s }: { s: KycStatus }) {
           <div key={it.label} className={`rounded-lg border px-3 py-2 ${
             it.ok ? 'border-success/30 bg-success/5' : 'border-border bg-background'
           }`}>
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{it.label}</p>
+            <p className="text-2xs uppercase tracking-wider text-muted-foreground">{it.label}</p>
             <p className={`mt-0.5 text-sm font-semibold ${it.ok ? 'text-success' : 'text-muted-foreground'}`}>
               {it.ok ? 'Verified' : 'Pending'}
-              {it.detail && <span className="ml-1 text-[11px] font-normal text-muted-foreground">({it.detail})</span>}
+              {it.detail && <span className="ml-1 text-2xs font-normal text-muted-foreground">({it.detail})</span>}
             </p>
           </div>
         ))}
@@ -173,11 +174,12 @@ export default async function KycPage() {
         </Link>
 
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold text-primary font-heading">Identity & Trust</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Build trust with families. Each tier you unlock boosts visibility and response rates.
-            </p>
+          <div className="flex-1">
+            <PageHeader
+              title="Identity & Trust"
+              subtitle="Build trust with families. Each tier you unlock boosts visibility and response rates."
+              className="mb-0"
+            />
           </div>
           <StatusBadge status={status.verificationStatus} level={status.verificationLevel} />
         </div>

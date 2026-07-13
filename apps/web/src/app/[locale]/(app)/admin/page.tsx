@@ -398,7 +398,7 @@ export default async function AdminPage() {
                     {t('kyc.title')}
                   </h3>
                   {kycQueue.length > 0 && (
-                    <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">
+                    <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-2xs font-semibold text-warning">
                       {t('kyc.pendingBadge', { count: kycQueue.length })}
                     </span>
                   )}
@@ -436,7 +436,7 @@ export default async function AdminPage() {
                     {t('platformMetrics.openDisputes')}
                   </h3>
                   {disputes.length > 0 && (
-                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-2xs font-semibold text-destructive">
                       {t('disputes.openBadge', { count: disputes.length })}
                     </span>
                   )}
@@ -552,9 +552,9 @@ export default async function AdminPage() {
                           <span className="text-xs font-semibold text-text-primary">
                             {ev.eventType.replace(/_/g, ' ')}
                           </span>
-                          <span className="text-[11px] text-text-muted">· {ev.entityType}</span>
+                          <span className="text-2xs text-text-muted">· {ev.entityType}</span>
                         </div>
-                        <p className="mt-0.5 text-[11px] text-text-muted">
+                        <p className="mt-0.5 text-2xs text-text-muted">
                           {ev.actorName ?? t('common.system')} · {relativeAuditTime(ev.createdAt)}
                         </p>
                       </div>
@@ -598,7 +598,7 @@ export default async function AdminPage() {
                         </span>
                       )}
                     </p>
-                    <p className="mt-0.5 text-[11px] leading-snug text-text-muted">
+                    <p className="mt-0.5 text-2xs leading-snug text-text-muted">
                       {description}
                     </p>
                   </div>

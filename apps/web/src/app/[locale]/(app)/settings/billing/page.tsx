@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -131,8 +132,9 @@ export default async function BillingPage({
               />
             </FadeUp>
             <FadeUp delay={0.2} className="mt-6 text-center">
-              <Link href="/settings/billing" className="text-teal hover:underline text-sm">
-                ← Choose a different plan
+              <Link href="/settings/billing" className="inline-flex items-center gap-1 text-teal hover:text-teal-hover text-sm">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                Choose a different plan
               </Link>
             </FadeUp>
           </main>

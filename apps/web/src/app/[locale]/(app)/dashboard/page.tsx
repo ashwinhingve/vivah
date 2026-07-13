@@ -184,7 +184,7 @@ export default async function DashboardPage({
                       {tier}
                     </span>
                   )}
-                  <span className="inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-muted">
+                  <span className="inline-block rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-2xs font-medium text-gold-muted">
                     {formatDatePill(now, locale)}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export default async function DashboardPage({
               {completeness < 70 && (
                 <Link
                   href="/profile/personal"
-                  className="mt-2 inline-block text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
+                  className="mt-2 inline-block text-2xs font-semibold text-teal underline-offset-2 hover:underline"
                 >
                   {t('profileBar.completeCta')}
                 </Link>
@@ -330,7 +330,7 @@ export default async function DashboardPage({
                     >
                       {/* Calendar block */}
                       <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-gold/30 bg-primary/5 text-center">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60">
+                        <span className="text-2xs font-bold uppercase tracking-wider text-primary/60">
                           {dateObj.toLocaleDateString(dateLocale, { month: 'short', numberingSystem: 'latn' } as Intl.DateTimeFormatOptions)}
                         </span>
                         <span className="font-heading text-lg font-bold leading-none text-primary">
@@ -348,11 +348,11 @@ export default async function DashboardPage({
                       </div>
 
                       <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="rounded-full bg-success/10 px-2 py-0.5 text-2xs font-semibold text-success">
                           {t('upcomingEvents.confirmed')}
                         </span>
                         {days <= 30 && (
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-2xs text-muted-foreground">
                             {days === 0 ? t('upcomingEvents.today') : t('upcomingEvents.daysAway', { days })}
                           </span>
                         )}
@@ -421,7 +421,7 @@ export default async function DashboardPage({
                               {other?.firstName ?? tChats('unknownName')}
                             </p>
                             {relTime && (
-                              <span className="shrink-0 text-[11px] text-muted-foreground">{relTime}</span>
+                              <span className="shrink-0 text-2xs text-muted-foreground">{relTime}</span>
                             )}
                           </div>
                           <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
@@ -432,7 +432,7 @@ export default async function DashboardPage({
                           </p>
                         </div>
                         {c.unreadCount > 0 && (
-                          <span className="shrink-0 rounded-full bg-teal/15 px-2 py-0.5 text-[11px] font-semibold text-teal">
+                          <span className="shrink-0 rounded-full bg-teal/15 px-2 py-0.5 text-2xs font-semibold text-teal">
                             {c.unreadCount > 9 ? '9+' : c.unreadCount}
                           </span>
                         )}

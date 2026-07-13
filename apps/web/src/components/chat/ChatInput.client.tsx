@@ -232,7 +232,7 @@ export default function ChatInput({
       {(reply || editing) ? (
         <div className="mb-2 flex items-stretch gap-2 rounded-lg border border-teal/30 bg-teal/5 px-2 py-1.5">
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-teal">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-teal">
               {editing ? 'Editing message' : 'Replying to'}
             </p>
             <p className="truncate text-xs text-foreground">

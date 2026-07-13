@@ -233,7 +233,7 @@ function StatusBadge({ status }: { status: LeadFeeStatus }) {
     PENDING_PAYMENT: 'bg-warning/20 text-warning border-warning/40',
   };
   return (
-    <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border ${styles[status]}`}>
+    <span className={`text-2xs uppercase tracking-wide px-2 py-0.5 rounded-full border ${styles[status]}`}>
       {status.replace('_', ' ')}
     </span>
   );

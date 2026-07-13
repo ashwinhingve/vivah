@@ -126,7 +126,7 @@ export function FamilyMembersClient({ initial }: Props) {
             <li key={m.id} className="py-2.5 flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm">{m.name}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {m.relationship}
                   {m.isManaging && ' · manages profile'}
                   {m.phone && ` · ${m.phone}`}

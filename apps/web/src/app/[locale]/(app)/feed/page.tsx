@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { MatchFeedItem, ProfileSectionCompletion } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
@@ -99,27 +100,28 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   // Pre-compute available cities from first-page items to seed city filter
   const availableCities = [...new Set(items.map((i) => i.city).filter(Boolean))].sort();
 
+  const feedSubtitle = items.length === 0
+    ? profileReady
+      ? t('subtitleWarming')
+      : t('subtitleCompleteProfile')
+    : total > 5
+      ? t('subtitleCount', { total })
+      : t('subtitleDefault');
+
   return (
     <main id="main-content" className="min-h-screen bg-background">
       <PageTransition className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
         {/* ── Page header ──────────────────────────────────────────────── */}
         <FadeUp delay={0} className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">{t('heading')}</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {items.length === 0
-                ? profileReady
-                  ? t('subtitleWarming')
-                  : t('subtitleCompleteProfile')
-                : total > 5
-                  ? t('subtitleCount', { total })
-                  : t('subtitleDefault')}
-            </p>
-          </div>
+          <PageHeader
+            title={t('heading')}
+            subtitle={feedSubtitle}
+            className="mb-0 flex-1"
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             {profileReady && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-gold-muted">
+              <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-2xs font-semibold uppercase tracking-widest text-gold-muted">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 {completeness}% {t('complete')}
               </span>
@@ -182,7 +184,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                     </Link>
                   ))}
                 </div>
-                <span className="self-center inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                <span className="self-center inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-2xs font-bold uppercase tracking-widest text-white shadow-sm">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   {t('recommended')}
                 </span>

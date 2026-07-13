@@ -63,7 +63,7 @@ export default function RegisterForm() {
       />
 
       <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-2xs font-semibold uppercase tracking-widest text-primary">
           <Sparkles className="h-3 w-3" aria-hidden="true" />
           {t('badge')}
         </span>
@@ -111,7 +111,7 @@ export default function RegisterForm() {
             className="rounded-l-none"
           />
         </div>
-        <p className="flex items-center gap-1.5 text-[11px] text-gold-muted">
+        <p className="flex items-center gap-1.5 text-2xs text-gold-muted">
           <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
           {t('reassurance')}
         </p>

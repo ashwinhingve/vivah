@@ -136,7 +136,7 @@ export default async function LikesPage() {
                       <p className="truncate text-xs text-white/75">{item.city ?? ''}</p>
                     </div>
                     {item.isVerified ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-[10px] font-bold text-success shadow-sm">
+                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         Verified
                       </span>

@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import type { MatchRequest, ProfileDetailResponse } from '@smartshaadi/types';
@@ -81,9 +82,10 @@ export async function AcceptedMatchCard({ request, perspective }: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <Link
           href={`/matches/${request.id}/compatibility`}
-          className="text-xs text-teal hover:underline"
+          className="inline-flex items-center gap-1 text-xs text-teal hover:underline"
         >
-          View compatibility analysis →
+          View compatibility analysis
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
         <FiiCardBadge matchId={request.id} />
       </div>

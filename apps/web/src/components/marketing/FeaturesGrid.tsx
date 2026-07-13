@@ -176,7 +176,7 @@ function WeddingPlannerMock() {
             >
               {task.label}
             </span>
-            <span className="text-[10px] rounded-full border border-border px-2 py-0.5 text-muted-foreground flex-shrink-0">
+            <span className="text-2xs rounded-full border border-border px-2 py-0.5 text-muted-foreground flex-shrink-0">
               {task.category}
             </span>
           </div>

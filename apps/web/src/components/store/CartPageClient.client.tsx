@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 
 export function CartPageClient() {
@@ -126,9 +126,10 @@ export function CartPageClient() {
 
         <Link
           href="/store"
-          className="block text-center mt-2 text-xs text-muted-foreground hover:text-teal transition-colors py-2"
+          className="inline-flex items-center justify-center gap-1 w-full text-center mt-2 text-xs text-muted-foreground hover:text-teal transition-colors py-2"
         >
-          ← Continue Shopping
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+          Continue Shopping
         </Link>
       </div>
     </div>

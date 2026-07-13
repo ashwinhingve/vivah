@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -12,8 +13,9 @@ export default async function BlockedProfilesPage() {
       <main className="min-h-screen bg-background">
         <div className="mx-auto max-w-2xl space-y-5 px-4 py-8">
           <FadeUp>
-            <Link href="/settings/privacy" className="text-xs text-muted-foreground hover:text-primary inline-block mb-4">
-              ← {t('privacy')}
+            <Link href="/settings/privacy" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mb-4">
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              {t('privacy')}
             </Link>
           </FadeUp>
           <FadeUp delay={0.1}>

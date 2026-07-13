@@ -1,4 +1,4 @@
-import { Users, User, UserPlus, CheckCircle2, Sparkles } from 'lucide-react';
+import { Users, User, UserPlus, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
@@ -130,7 +130,10 @@ export function ProfileHero({
               Profile <span className="font-bold text-foreground">{completeness}%</span> complete
             </span>
             {completeness < 60 ? (
-              <span className={cn('text-xs font-semibold', tone.text)}>Add more details →</span>
+              <span className={cn('inline-flex items-center gap-1 text-xs font-semibold', tone.text)}>
+                Add more details
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />

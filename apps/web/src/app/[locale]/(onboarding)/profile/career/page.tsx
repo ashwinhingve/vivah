@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateCareer } from '../actions';
@@ -70,7 +71,10 @@ export default function CareerPage() {
     <div>
       <ProfileProgress steps={STEPS} />
       <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
-        <h1 className="text-lg font-semibold text-primary font-heading mb-6">Education & Career</h1>
+        <PageHeader
+          title="Education & Career"
+          className="mb-6"
+        />
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">

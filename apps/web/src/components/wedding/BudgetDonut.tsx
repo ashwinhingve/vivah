@@ -67,7 +67,7 @@ export function BudgetDonut({ slices, totalBudget, size = 200, className }: Prop
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[10px] uppercase tracking-[0.12em] text-fg-2">Spent</span>
+          <span className="text-2xs uppercase tracking-[0.12em] text-fg-2">Spent</span>
           <span className="font-heading text-2xl font-bold text-primary">
             {Math.round(usedPct * 100)}%
           </span>

@@ -186,7 +186,7 @@ export default function VoiceRecorder({ matchId, onSent, disabled }: VoiceRecord
       {error ? (
         <p
           role="alert"
-          className="absolute -top-7 left-0 whitespace-nowrap text-[10px] text-destructive"
+          className="absolute -top-7 left-0 whitespace-nowrap text-2xs text-destructive"
         >
           {error}
         </p>

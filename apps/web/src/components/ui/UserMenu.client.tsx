@@ -113,7 +113,7 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
                 {contact && (
                   <p className="truncate text-xs text-muted-foreground">{contact}</p>
                 )}
-                <span className="mt-1 inline-block rounded-full bg-teal/10 px-2 py-0.5 text-[11px] font-medium text-teal">
+                <span className="mt-1 inline-block rounded-full bg-teal/10 px-2 py-0.5 text-2xs font-medium text-teal">
                   {roleLabel}
                 </span>
               </div>

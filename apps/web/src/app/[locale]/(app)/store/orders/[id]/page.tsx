@@ -85,9 +85,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Qty {item.quantity} × ₹{item.unitPrice.toLocaleString('en-IN')}
                     </p>
-                    <p className={`text-[10px] font-medium mt-0.5 ${ful.cls}`}>{ful.label}</p>
+                    <p className={`text-2xs font-medium mt-0.5 ${ful.cls}`}>{ful.label}</p>
                     {item.trackingNumber && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                      <p className="text-2xs text-muted-foreground mt-0.5">
                         Tracking: <span className="font-mono font-medium">{item.trackingNumber}</span>
                       </p>
                     )}

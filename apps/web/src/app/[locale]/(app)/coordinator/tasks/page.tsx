@@ -128,7 +128,7 @@ export default async function CoordinatorTasksPage() {
                             </div>
                             {item.kind === 'INCIDENT' && item.severity ? (
                               <span
-                                className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide ${SEVERITY_STYLES[item.severity]}`}
+                                className={`shrink-0 rounded-full px-2.5 py-0.5 text-2xs font-medium uppercase tracking-wide ${SEVERITY_STYLES[item.severity]}`}
                               >
                                 {item.severity}
                               </span>

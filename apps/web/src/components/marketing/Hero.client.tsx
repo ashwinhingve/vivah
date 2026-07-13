@@ -146,7 +146,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-surface/70 px-3.5 py-1.5 backdrop-blur-sm"
           >
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
-            <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.14em] text-gold-muted sm:text-[11px] sm:tracking-[0.18em]">
+            <span className="whitespace-nowrap text-2xs font-semibold uppercase tracking-[0.14em] text-gold-muted sm:tracking-[0.18em]">
               {t('eyebrow')}
             </span>
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
@@ -281,7 +281,7 @@ export default function Hero() {
               <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-muted" aria-hidden="true" />
               <span>
                 <span className="block text-xs font-semibold leading-tight text-foreground">{t('safeChipTitle')}</span>
-                <span className="block text-[10px] leading-tight text-muted-foreground">{t('safeChipBody')}</span>
+                <span className="block text-2xs leading-tight text-muted-foreground">{t('safeChipBody')}</span>
               </span>
             </motion.div>
 

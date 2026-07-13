@@ -375,7 +375,7 @@ export function ProductForm({ defaultValues, productId, mode }: ProductFormProps
             </button>
           </>
         )}
-        <p className="mt-3 text-[11px] text-muted-foreground">
+        <p className="mt-3 text-2xs text-muted-foreground">
           Images upload directly to Cloudflare R2. First image becomes the product thumbnail.
         </p>
       </div>

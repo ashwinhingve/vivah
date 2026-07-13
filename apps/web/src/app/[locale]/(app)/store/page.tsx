@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { StoreCategoryFilter } from '@/components/store/StoreCategoryFilter.client';
 import type { ProductSummary } from '@smartshaadi/types';
@@ -80,10 +81,10 @@ export default async function StorePage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-heading text-primary text-2xl font-bold mb-1">Wedding Store</h1>
-          <p className="text-muted-foreground text-sm">Gifts, trousseau, ethnic wear & more</p>
-        </div>
+        <PageHeader
+          title="Wedding Store"
+          subtitle="Gifts, trousseau, ethnic wear & more"
+        />
 
         {/* Filters */}
         <Suspense fallback={null}>

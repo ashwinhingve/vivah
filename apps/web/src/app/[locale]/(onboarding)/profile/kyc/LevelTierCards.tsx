@@ -52,7 +52,7 @@ export function LevelTierCards({ current, levels }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <p className={`text-sm font-semibold ${l.unlocked ? 'text-success' : 'text-foreground'}`}>{LABEL[l.level]}</p>
-                  <span className={`text-[11px] font-semibold uppercase tracking-wider ${
+                  <span className={`text-2xs font-semibold uppercase tracking-wider ${
                     l.unlocked ? 'text-success' : 'text-muted-foreground'
                   }`}>
                     {l.unlocked ? 'Unlocked' : 'Locked'}
@@ -70,7 +70,7 @@ export function LevelTierCards({ current, levels }: Props) {
                 )}
                 {!l.unlocked && l.missing.length > 0 && (
                   <div className="mt-2 rounded-lg border border-warning/20 bg-warning/5 px-3 py-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-warning">To unlock</p>
+                    <p className="text-2xs font-semibold uppercase tracking-wider text-warning">To unlock</p>
                     <ul className="mt-1 space-y-0.5">
                       {l.missing.map((m) => (
                         <li key={m} className="text-xs text-foreground">• {m}</li>

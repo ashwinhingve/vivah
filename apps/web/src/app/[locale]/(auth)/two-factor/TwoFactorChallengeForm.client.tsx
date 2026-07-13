@@ -87,7 +87,7 @@ export default function TwoFactorChallengeForm() {
         className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 h-24 w-48 rounded-full bg-teal/15 blur-3xl"
       />
       <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-teal">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-2xs font-semibold uppercase tracking-widest text-teal">
           <ShieldCheck className="h-3 w-3" />
           Verify
         </span>

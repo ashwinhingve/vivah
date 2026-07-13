@@ -149,7 +149,7 @@ export function BudgetEditor({ weddingId, total, currency, categories }: BudgetE
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-muted-foreground">{p}%</span>
+                      <span className="text-2xs text-muted-foreground">{p}%</span>
                     </td>
                   </tr>
                 );

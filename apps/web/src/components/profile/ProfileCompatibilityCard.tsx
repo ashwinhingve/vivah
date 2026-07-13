@@ -141,7 +141,7 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
                 percent
                 className="font-heading text-3xl font-bold tabular-nums leading-none text-primary"
               />
-              <span className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">{t('compatibility.matchLabel')}</span>
+              <span className="mt-1 text-2xs uppercase tracking-widest text-muted-foreground">{t('compatibility.matchLabel')}</span>
             </div>
           </div>
           <p className="font-heading text-xl text-primary">{t('compatibility.tierLabel', { tier: tierLabel })}</p>
@@ -153,7 +153,7 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-heading text-base font-semibold text-primary">{t('guna.title')}</h3>
             {gunaCalculating ? (
-              <span className="text-[10px] italic text-muted-foreground">{t('guna.calculating')}</span>
+              <span className="text-2xs italic text-muted-foreground">{t('guna.calculating')}</span>
             ) : gunaScore != null ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-teal/30 bg-teal/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-teal">
                 {t('guna.score', { score: gunaScore, band: t(`guna.bands.${gunaBand(gunaScore)}`) })}
@@ -168,7 +168,7 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
             >
               <Sparkles className="mx-auto h-5 w-5 text-gold-muted" aria-hidden="true" />
               <p className="mt-1 text-sm font-semibold text-primary">{t('guna.addTitle')}</p>
-              <p className="text-[11px] text-muted-foreground">{t('guna.addSub')}</p>
+              <p className="text-2xs text-muted-foreground">{t('guna.addSub')}</p>
             </Link>
           ) : (
             <div className="space-y-2.5">

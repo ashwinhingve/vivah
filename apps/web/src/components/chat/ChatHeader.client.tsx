@@ -181,7 +181,7 @@ export default function ChatHeader({
             {initialOther?.firstName ?? 'Match'}
             {initialOther?.age ? <span className="font-normal text-muted-foreground"> · {initialOther.age}</span> : null}
           </p>
-          <p className={cn('truncate text-[11px]', isOnline ? 'text-success' : 'text-muted-foreground')}>
+          <p className={cn('truncate text-2xs', isOnline ? 'text-success' : 'text-muted-foreground')}>
             {subtitle}
             {initialOther?.city ? ` · ${initialOther.city}` : ''}
           </p>

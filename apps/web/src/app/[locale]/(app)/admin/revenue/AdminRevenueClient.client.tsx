@@ -199,11 +199,11 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
                     <span className="text-xs font-bold text-muted-foreground w-4 shrink-0">{i + 1}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-foreground truncate">{v.vendorName}</p>
-                      <p className="text-[10px] text-muted-foreground">{v.count} bookings</p>
+                      <p className="text-2xs text-muted-foreground">{v.count} bookings</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-xs font-semibold text-foreground">{formatINR(v.revenue)}</p>
-                      <p className="text-[10px] text-muted-foreground">paid out {formatINR(v.payouts)}</p>
+                      <p className="text-2xs text-muted-foreground">paid out {formatINR(v.payouts)}</p>
                     </div>
                   </div>
                 ))}

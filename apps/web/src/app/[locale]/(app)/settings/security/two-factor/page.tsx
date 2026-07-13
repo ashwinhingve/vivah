@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
+import { ArrowLeft } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -54,9 +55,10 @@ export default async function TwoFactorPage() {
           <FadeUp delay={0.2}>
             <Link
               href="/settings/security"
-              className="inline-block text-sm text-muted-foreground underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:underline"
             >
-              ← {t('backToSecurity')}
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              {t('backToSecurity')}
             </Link>
           </FadeUp>
         </div>

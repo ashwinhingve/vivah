@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 
 interface BookingDispute {
   id: string;
@@ -66,22 +66,22 @@ export function AdminDisputesMini({ disputes }: Props) {
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-[11px] text-text-muted">
+              <span className="font-mono text-2xs text-text-muted">
                 #{(d.id ?? d.bookingId ?? '').slice(0, 8)}
               </span>
               <span
-                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${severityClass(d)}`}
+                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-2xs font-semibold ${severityClass(d)}`}
               >
                 {severityLabel(d)}
               </span>
-              <span className="text-[11px] text-text-muted capitalize">
+              <span className="text-2xs text-text-muted capitalize">
                 by {d.raisedByType}
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs font-medium text-text-primary">
               {d.reason ?? 'Dispute raised'}
             </p>
-            <div className="mt-0.5 flex items-center gap-3 text-[10px] text-text-muted">
+            <div className="mt-0.5 flex items-center gap-3 text-2xs text-text-muted">
               {d.amount != null && (
                 <span>
                   ₹{d.amount.toLocaleString('en-IN')}
@@ -95,9 +95,10 @@ export function AdminDisputesMini({ disputes }: Props) {
       <div className="px-4 py-3">
         <Link
           href="/admin/escrow"
-          className="text-xs font-semibold text-teal transition-colors hover:text-teal-hover"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-teal transition-colors hover:text-teal-hover"
         >
-          View all disputes →
+          View all disputes
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       </div>
     </div>

@@ -106,7 +106,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                         {c.date ?? 'TBD'} {c.startTime ? `· ${c.startTime}` : ''}
                       </p>
                     </div>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                    <span className={`rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide ${
                       c.status === 'IN_PROGRESS' ? 'bg-success text-success' :
                       c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
                       c.status === 'CANCELLED'   ? 'bg-destructive text-destructive' :
@@ -165,7 +165,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
                 <li key={i.id} className="rounded-md border border-foreground/10 p-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-foreground">{i.title}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                    <span className={`rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide ${
                       i.severity === 'CRITICAL' ? 'bg-destructive text-destructive' :
                       i.severity === 'HIGH'     ? 'bg-warning/20 text-warning' :
                       i.severity === 'MEDIUM'   ? 'bg-warning/15 text-warning' :

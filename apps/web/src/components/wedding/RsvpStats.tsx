@@ -77,8 +77,8 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
                 <span className="text-lg font-bold" style={{ color: RSVP_CONFIG[status].color }}>
                   {count}
                 </span>
-                <span className="text-[10px] text-muted-foreground">{RSVP_CONFIG[status].label}</span>
-                <span className="text-[10px] font-medium" style={{ color: RSVP_CONFIG[status].color }}>
+                <span className="text-2xs text-muted-foreground">{RSVP_CONFIG[status].label}</span>
+                <span className="text-2xs font-medium" style={{ color: RSVP_CONFIG[status].color }}>
                   {pct}%
                 </span>
               </div>

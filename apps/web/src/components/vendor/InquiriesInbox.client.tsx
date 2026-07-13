@@ -106,7 +106,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-sm text-primary truncate">{i.customerName ?? 'Customer'}</span>
-                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                  <span className={`text-2xs uppercase font-bold px-2 py-0.5 rounded-full ${
                     i.status === 'NEW'       ? 'bg-warning/15 text-warning' :
                     i.status === 'REPLIED'   ? 'bg-teal/15 text-teal' :
                     i.status === 'CONVERTED' ? 'bg-success/15 text-success' :
@@ -114,7 +114,7 @@ export function InquiriesInbox({ initial }: InquiriesInboxProps) {
                   }`}>{i.status}</span>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{i.message}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
+                <p className="text-2xs text-muted-foreground mt-1">
                   {i.eventDate && `📅 ${new Date(i.eventDate).toLocaleDateString('en-IN')}`}
                   {i.budgetMin != null && ` · ₹${i.budgetMin.toLocaleString('en-IN')}+`}
                 </p>

@@ -123,7 +123,7 @@ export function AppNav() {
                 />
                 <span
                   className={cn(
-                    'text-[10px] leading-none',
+                    'text-2xs leading-none',
                     active ? 'font-semibold' : 'font-medium'
                   )}
                 >
@@ -176,7 +176,7 @@ export function AppNav() {
               )}
               <span
                 className={cn(
-                  'text-[10px] leading-none',
+                  'text-2xs leading-none',
                   moreActive || moreOpen ? 'font-semibold' : 'font-medium'
                 )}
               >
@@ -233,7 +233,7 @@ export function AppNav() {
                     </button>
                   </div>
                   <div className="px-5 pb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-gold-muted" aria-hidden="true">
+                    <p className="text-2xs font-semibold uppercase tracking-widest text-gold-muted" aria-hidden="true">
                       {t('more')}
                     </p>
                     <h2 className="font-heading text-lg font-semibold text-primary">
@@ -243,7 +243,7 @@ export function AppNav() {
                   <div className="max-h-[70vh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
                     {moreGroups.map((group) => (
                       <section key={group.titleKey} className="mt-2 first:mt-0">
-                        <h3 className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        <h3 className="px-3 pt-3 pb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                           {t(group.titleKey)}
                         </h3>
                         <ul>
