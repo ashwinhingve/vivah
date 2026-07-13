@@ -129,10 +129,7 @@ export function CompatibilityDisplay({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p
-            className="text-xl font-semibold text-primary"
-            style={{ fontFamily: '"Noto Serif Devanagari", "Playfair Display", serif' }}
-          >
+          <p className="font-heading text-xl font-semibold text-primary">
             गुण मिलान
           </p>
           <p className="text-sm text-muted-foreground">Ashtakoot Compatibility</p>
