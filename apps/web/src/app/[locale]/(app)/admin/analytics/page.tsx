@@ -1,7 +1,12 @@
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { OverviewCards } from '@/components/analytics/OverviewCards.client';
 import { SignupsChart } from '@/components/analytics/SignupsChart.client';
@@ -48,6 +53,7 @@ export default async function AnalyticsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const t = await getTranslations('adminRole');
   const me = await fetchAuth<AuthMe>('/api/auth/me');
   if (me && me.role !== 'ADMIN') {
     return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
@@ -73,21 +79,28 @@ export default async function AnalyticsPage({
   return (
     <PageTransition>
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary sm:text-3xl">
-              Analytics
-            </h1>
-            <p className="mt-1 text-sm text-text-muted">
-              Platform growth, engagement &amp; revenue trends
-            </p>
-          </div>
-          <ExportButton overview={overview} signups={signupData} matches={matchData} />
-        </div>
+        <Link
+          href="/admin"
+          className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
 
-        <div className="mb-6">
-          <DateRangeFilter />
-        </div>
+        <FadeUp>
+          <PageHeader
+            title={t('analytics.title')}
+            subtitle={t('analytics.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('analytics.title') }]}
+            actions={<ExportButton overview={overview} signups={signupData} matches={matchData} />}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <div className="mb-6">
+            <DateRangeFilter />
+          </div>
+        </FadeUp>
 
         <StaggerList className="space-y-8">
           <section>

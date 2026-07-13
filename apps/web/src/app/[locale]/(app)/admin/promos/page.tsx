@@ -3,9 +3,15 @@
  * Hybrid: Server Component lists promos + client for create and toggle.
  */
 import { cookies } from 'next/headers';
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { PromoCodeRecord } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AdminPromosClient } from './AdminPromosClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -35,6 +41,7 @@ async function fetchPromos(): Promise<PromoCodeRecord[]> {
 }
 
 export default async function AdminPromosPage() {
+  const t = await getTranslations('adminRole');
   // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
   // the role here and redirect any non-admin off the page.
   const me = await fetchAuth<AuthMe>('/api/auth/me');
@@ -42,5 +49,27 @@ export default async function AdminPromosPage() {
     return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
   const promos = await fetchPromos();
-  return <AdminPromosClient initialPromos={promos} />;
+
+  return (
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
+
+        <FadeUp>
+          <PageHeader
+            title={t('promos.title')}
+            subtitle={t('promos.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('promos.breadcrumb') }]}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <AdminPromosClient initialPromos={promos} />
+        </FadeUp>
+      </main>
+    </PageTransition>
+  );
 }

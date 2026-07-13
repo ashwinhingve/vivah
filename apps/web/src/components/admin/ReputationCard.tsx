@@ -8,7 +8,7 @@
  */
 import { ShieldQuestion } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export type ReputationTier = 'platinum' | 'gold' | 'silver' | 'bronze' | 'flagged';
 

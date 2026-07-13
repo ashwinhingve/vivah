@@ -3,9 +3,15 @@
  * Hybrid: Server Component fetches + client component handles decisions.
  */
 import { cookies } from 'next/headers';
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { RefundRecord } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AdminRefundsClient } from './AdminRefundsClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -35,6 +41,7 @@ export default async function AdminRefundsPage({
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
+  const t = await getTranslations('adminRole');
   const sp = await searchParams;
   const status = sp['status'] ?? 'REQUESTED';
 
@@ -58,5 +65,26 @@ export default async function AdminRefundsPage({
   const cookie  = `better-auth.session_token=${token}`;
   const refunds = await fetchRefunds(cookie, status);
 
-  return <AdminRefundsClient initialRefunds={refunds} initialStatus={status} />;
+  return (
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
+
+        <FadeUp>
+          <PageHeader
+            title={t('refunds.title')}
+            subtitle={t('refunds.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('refunds.breadcrumb') }]}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <AdminRefundsClient initialRefunds={refunds} initialStatus={status} />
+        </FadeUp>
+      </main>
+    </PageTransition>
+  );
 }

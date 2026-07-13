@@ -1,7 +1,12 @@
 import { headers } from 'next/headers';
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
-import { Container, PageHeader } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { ReconciliationTableClient } from './ReconciliationTableClient.client';
 
 interface AuthMe { userId: string; role: string; status: string }
@@ -38,6 +43,7 @@ async function fetchDiscrepancies(): Promise<Discrepancy[]> {
 export const dynamic = 'force-dynamic';
 
 export default async function ReconciliationPage() {
+  const t = await getTranslations('adminRole');
   // Defense-in-depth: middleware fail-opens if /api/auth/me errors, so re-check
   // the role here and redirect any non-admin off the page.
   const me = await fetchAuth<AuthMe>('/api/auth/me');
@@ -46,14 +52,25 @@ export default async function ReconciliationPage() {
   }
   const items = await fetchDiscrepancies();
   return (
-    <main className="min-h-screen bg-background py-8">
-      <Container variant="wide">
-        <PageHeader
-          title="Settlement reconciliation"
-          subtitle="Discrepancies between Razorpay settlement reports and local payment ledger"
-        />
-        <ReconciliationTableClient items={items} />
-      </Container>
-    </main>
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
+
+        <FadeUp>
+          <PageHeader
+            title={t('reconciliation.title')}
+            subtitle={t('reconciliation.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('reconciliation.breadcrumb') }]}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <ReconciliationTableClient items={items} />
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }
