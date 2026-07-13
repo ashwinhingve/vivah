@@ -9,7 +9,7 @@ import { fetchAuth } from '@/lib/server-fetch';
 import { getMyLinks, getDraftedActions, type DraftedAction } from '@/lib/family-mode-api';
 import { getCollaboratingWeddings } from '@/lib/family-extras-api';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';

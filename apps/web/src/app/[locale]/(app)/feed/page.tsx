@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { MatchFeedItem, ProfileSectionCompletion } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { FeedPageClient } from './FeedPageClient.client';

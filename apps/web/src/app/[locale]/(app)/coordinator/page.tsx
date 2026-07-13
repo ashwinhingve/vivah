@@ -5,7 +5,7 @@ import { fetchAuth } from '@/lib/server-fetch';
 import { fetchManagedWeddings } from '@/lib/coordinator-api';
 import { formatDateIN } from '@/lib/format';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';

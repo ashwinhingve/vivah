@@ -23,7 +23,7 @@ import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompleten
 import { DashboardMatches } from '@/components/dashboard/DashboardMatches.client';
 import { WeddingCard } from '@/components/wedding/WeddingCard';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
@@ -326,7 +326,7 @@ export default async function DashboardPage({
                     <Link
                       key={b.id}
                       href={`/bookings/${b.id}`}
-                      className="group flex items-center gap-3.5 rounded-xl border border-gold/20 bg-surface px-4 py-3.5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+                      className="group flex items-center gap-3.5 rounded-2xl border border-gold/20 bg-surface px-4 py-3.5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
                     >
                       {/* Calendar block */}
                       <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-gold/30 bg-primary/5 text-center">
@@ -502,7 +502,7 @@ export default async function DashboardPage({
                   <Link
                     key={href}
                     href={href}
-                    className={`group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-xl border p-4 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover ${tint}`}
+                    className={`group flex min-h-[64px] flex-col items-start justify-center gap-0.5 rounded-2xl border p-4 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover ${tint}`}
                   >
                     <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />
                     <span className="text-sm font-semibold text-foreground group-hover:text-primary">
