@@ -1,4 +1,9 @@
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { DataTable, type DataTableColumn } from '@/components/shared/DataTable';
 import { fetchMyCode, fetchMyActivity, type ReferralActivityItem } from '@/lib/referral-api';
 import { ReferralActions } from './ReferralActions.client';
 
@@ -25,6 +30,7 @@ function formatDate(iso: string): string {
 }
 
 export default async function ReferralSettingsPage() {
+  const t = await getTranslations('settings');
   const h = await headers();
   const cookie = h.get('cookie') ?? '';
 
@@ -35,12 +41,20 @@ export default async function ReferralSettingsPage() {
 
   if (!code) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="font-heading text-3xl font-semibold text-primary">Refer & earn</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          We couldn&apos;t load your referral code. Try again in a moment.
-        </p>
-      </main>
+      <PageTransition>
+        <main className="mx-auto max-w-3xl px-4 py-8">
+          <FadeUp>
+            <PageHeader
+              title={t('referral')}
+            />
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <p className="mt-4 text-sm text-muted-foreground">
+              We couldn&apos;t load your referral code. Try again in a moment.
+            </p>
+          </FadeUp>
+        </main>
+      </PageTransition>
     );
   }
 
@@ -48,80 +62,96 @@ export default async function ReferralSettingsPage() {
   const referrals: ReferralActivityItem[] = activity?.referrals ?? [];
 
   const proto = h.get('x-forwarded-proto') ?? 'https';
-  const host  = h.get('x-forwarded-host') ?? h.get('host') ?? 'smartshaadi.in';
+  const host  = h.get('x-forwarded-host') ?? h.get('host') ?? 'smartshaadi.co.in';
   const shareUrl = `${proto}://${host}/register?ref=${encodeURIComponent(code.code)}`;
 
+  const tableColumns: DataTableColumn<ReferralActivityItem>[] = [
+    {
+      key: 'referred_name',
+      header: t('referralTableFriend'),
+      render: (r) => r.referred_name ?? 'New member',
+      mobileLabel: t('referralTableFriend'),
+    },
+    {
+      key: 'status',
+      header: t('referralTableStatus'),
+      render: (r) => <StatusBadge status={r.status} />,
+      mobileLabel: t('referralTableStatus'),
+    },
+    {
+      key: 'reward_amount_credits',
+      header: t('referralTableCredits'),
+      cellClassName: 'text-right',
+      headClassName: 'text-right',
+      render: (r) => (
+        <span className="font-mono text-gold">
+          {r.reward_amount_credits > 0 ? `+${r.reward_amount_credits}` : '—'}
+        </span>
+      ),
+      mobileLabel: t('referralTableCredits'),
+    },
+    {
+      key: 'created_at',
+      header: t('referralTableJoined'),
+      cellClassName: 'text-right',
+      headClassName: 'text-right',
+      render: (r) => formatDate(r.created_at),
+      mobileLabel: t('referralTableJoined'),
+    },
+  ];
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-heading text-3xl font-semibold text-primary">Refer &amp; earn</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Share your code with friends and family. Earn credits when they complete their profile or subscribe.
-      </p>
+    <PageTransition>
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        <FadeUp>
+          <PageHeader
+            title={t('referral')}
+            subtitle={t('referralDesc')}
+          />
+        </FadeUp>
 
-      <section className="mt-8 rounded-xl border border-gold/40 bg-surface p-6 shadow-card">
-        <p className="text-xs uppercase tracking-wider text-gold-muted">Your code</p>
-        <div className="mt-2 font-mono text-3xl font-semibold text-primary sm:text-4xl">
-          {code.code}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {code.uses_count} {code.uses_count === 1 ? 'use' : 'uses'} so far
-        </p>
-        <div className="mt-4">
-          <ReferralActions code={code.code} shareUrl={shareUrl} />
-        </div>
-      </section>
+        <FadeUp delay={0.1}>
+          <section className="rounded-xl border border-gold/40 bg-surface p-6 shadow-card">
+            <p className="text-xs uppercase tracking-wider text-gold-muted">{t('referralYourCode')}</p>
+            <div className="mt-2 font-mono text-3xl font-semibold text-primary sm:text-4xl">
+              {code.code}
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {code.uses_count} {code.uses_count === 1 ? 'use' : 'uses'} so far
+            </p>
+            <div className="mt-4">
+              <ReferralActions code={code.code} shareUrl={shareUrl} />
+            </div>
+          </section>
+        </FadeUp>
 
-      <section className="mt-6 rounded-xl border border-gold/40 bg-surface p-6 shadow-card">
-        <p className="text-xs uppercase tracking-wider text-gold-muted">Total credits earned</p>
-        <div className="mt-1 text-4xl font-bold text-gold">
-          {totalCredits.toLocaleString('en-IN')}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          +50 credits per completed profile · +200 credits per subscription
-        </p>
-      </section>
+        <FadeUp delay={0.2}>
+          <section className="mt-6 rounded-xl border border-gold/40 bg-surface p-6 shadow-card">
+            <p className="text-xs uppercase tracking-wider text-gold-muted">{t('referralTotalCredits')}</p>
+            <div className="mt-1 text-4xl font-bold text-gold">
+              {totalCredits.toLocaleString('en-IN')}
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t('referralRewardInfo')}
+            </p>
+          </section>
+        </FadeUp>
 
-      <section className="mt-6 rounded-xl border border-gold/40 bg-surface shadow-card">
-        <header className="border-b border-gold/30 px-6 py-4">
-          <h2 className="text-lg font-semibold text-primary">Referral activity</h2>
-        </header>
-        {referrals.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-muted-foreground">
-            No referrals yet. Share your code to get started.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-background text-xs uppercase tracking-wider text-gold-muted">
-                <tr>
-                  <th className="px-4 py-3 text-left">Friend</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Credits</th>
-                  <th className="px-4 py-3 text-right">Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {referrals.map((r) => (
-                  <tr key={r.id} className="border-t border-gold/20">
-                    <td className="px-4 py-3 text-primary">
-                      {r.referred_name ?? 'New member'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={r.status} />
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono text-gold">
-                      {r.reward_amount_credits > 0 ? `+${r.reward_amount_credits}` : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-muted-foreground">
-                      {formatDate(r.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </main>
+        <FadeUp delay={0.3}>
+          <section className="mt-6">
+            <h2 className="mb-4 text-lg font-semibold text-primary">{t('referralActivity')}</h2>
+            <DataTable
+              columns={tableColumns}
+              data={referrals}
+              rowKey={(r) => r.id}
+              empty={{
+                title: t('referralEmpty'),
+                description: t('referralEmptyDesc'),
+              }}
+            />
+          </section>
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

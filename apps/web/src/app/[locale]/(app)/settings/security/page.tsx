@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { ShieldCheck } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { SecurityDashboard } from './SecurityDashboard.client';
 
@@ -57,6 +60,7 @@ async function fetchJson<T>(url: string, cookieHeader: string): Promise<T | null
 }
 
 export default async function SecuritySettingsPage() {
+  const t = await getTranslations('settings');
   const cookieStore = await cookies();
   const sessionCookie = readSessionCookie(cookieStore);
   const cookieHeader = sessionCookie ? `${sessionCookie.name}=${sessionCookie.value}` : '';
@@ -68,26 +72,25 @@ export default async function SecuritySettingsPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <header className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="font-heading text-2xl font-bold text-primary">Account &amp; Security</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Manage devices, two-factor authentication, account recovery, and your sign-in history.
-            </p>
-          </div>
-        </header>
+    <PageTransition>
+      <main className="min-h-screen bg-background">
+        <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+          <FadeUp>
+            <PageHeader
+              title={t('security')}
+              subtitle={t('securityDesc')}
+            />
+          </FadeUp>
 
-        <SecurityDashboard
-          overview={overview}
-          sessions={sessionsData?.sessions ?? []}
-          events={eventsData?.events ?? []}
-        />
-      </div>
-    </main>
+          <FadeUp delay={0.1}>
+            <SecurityDashboard
+              overview={overview}
+              sessions={sessionsData?.sessions ?? []}
+              events={eventsData?.events ?? []}
+            />
+          </FadeUp>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

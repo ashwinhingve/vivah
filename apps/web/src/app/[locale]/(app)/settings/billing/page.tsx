@@ -3,6 +3,9 @@ import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BillingConfirm } from './BillingConfirm.client';
 
 interface Plan {
@@ -109,80 +112,94 @@ export default async function BillingPage({
     const plan = plans.find((p) => p.code === planCode) ?? null;
     if (plan) {
       return (
-        <main className="mx-auto max-w-2xl px-4 py-10">
-          <h1 className="mb-2 text-center font-heading text-3xl font-semibold text-primary">Complete your subscription</h1>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
-            Review your plan and confirm to activate.
-          </p>
-          <BillingConfirm
-            planCode={plan.code}
-            planName={plan.name}
-            amount={plan.amount}
-            interval={INTERVAL_LABELS[plan.interval] ?? plan.interval}
-            features={featureList(plan.features)}
-            isMock={isMock}
-          />
-          <p className="mt-6 text-center text-sm">
-            <Link href="/settings/billing" className="text-teal hover:underline">
-              ← Choose a different plan
-            </Link>
-          </p>
-        </main>
+        <PageTransition>
+          <main className="mx-auto max-w-2xl px-4 py-8">
+            <FadeUp>
+              <PageHeader
+                title={t('confirmHeading')}
+                subtitle={t('confirmSubtitle')}
+              />
+            </FadeUp>
+            <FadeUp delay={0.1}>
+              <BillingConfirm
+                planCode={plan.code}
+                planName={plan.name}
+                amount={plan.amount}
+                interval={INTERVAL_LABELS[plan.interval] ?? plan.interval}
+                features={featureList(plan.features)}
+                isMock={isMock}
+              />
+            </FadeUp>
+            <FadeUp delay={0.2} className="mt-6 text-center">
+              <Link href="/settings/billing" className="text-teal hover:underline text-sm">
+                ← Choose a different plan
+              </Link>
+            </FadeUp>
+          </main>
+        </PageTransition>
       );
     }
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="mb-2 text-center font-heading text-3xl font-semibold text-primary">{t('heading')}</h1>
-      <p className="mb-8 text-center text-sm text-muted-foreground">
-        Unlock unlimited matches, AI matchmaking, and priority support.
-      </p>
-      {isMock ? (
-        <div className="mx-auto mb-8 max-w-2xl rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-center text-sm text-warning">
-          Test Mode — no real charge will be made
-        </div>
-      ) : null}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {plans.map((plan) => {
-          const features = featureList(plan.features);
-          const isPremium = plan.tier === 'PREMIUM';
-          return (
-            <div
-              key={plan.code}
-              className={`flex flex-col rounded-xl border bg-surface p-6 shadow-card ${
-                isPremium ? 'border-gold/60' : 'border-gold/30'
-              }`}
-            >
-              {isPremium ? (
-                <span className="mb-2 inline-block w-fit rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-gold-muted">
-                  Premium
-                </span>
-              ) : null}
-              <h2 className="mb-1 text-xl font-semibold text-primary">{plan.name}</h2>
-              <p className="mb-4 text-2xl font-bold text-foreground">
-                ₹{plan.amount.toLocaleString('en-IN')}
-                <span className="ml-1 text-sm font-normal text-muted-foreground">
-                  / {INTERVAL_LABELS[plan.interval] ?? plan.interval}
-                </span>
-              </p>
-              {features.length > 0 ? (
-                <ul className="mb-6 flex-1 space-y-2 text-sm text-foreground">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <span className="mt-0.5 text-success">✓</span>
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              <Button asChild className="mt-auto w-full">
-                <Link href={`/settings/billing?plan=${plan.code}`}>Subscribe</Link>
-              </Button>
+    <PageTransition>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <FadeUp>
+          <PageHeader
+            title={t('heading')}
+            subtitle={t('subtitle')}
+          />
+        </FadeUp>
+        {isMock ? (
+          <FadeUp delay={0.1}>
+            <div className="mx-auto mb-8 max-w-2xl rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-center text-sm text-warning">
+              Test Mode — no real charge will be made
             </div>
-          );
-        })}
-      </div>
-    </main>
+          </FadeUp>
+        ) : null}
+        <FadeUp delay={isMock ? 0.2 : 0.1}>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {plans.map((plan) => {
+              const features = featureList(plan.features);
+              const isPremium = plan.tier === 'PREMIUM';
+              return (
+                <div
+                  key={plan.code}
+                  className={`flex flex-col rounded-xl border bg-surface p-6 shadow-card ${
+                    isPremium ? 'border-gold/60' : 'border-gold/30'
+                  }`}
+                >
+                  {isPremium ? (
+                    <span className="mb-2 inline-block w-fit rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-gold-muted">
+                      Premium
+                    </span>
+                  ) : null}
+                  <h2 className="mb-1 text-xl font-semibold text-primary">{plan.name}</h2>
+                  <p className="mb-4 text-2xl font-bold text-foreground">
+                    ₹{plan.amount.toLocaleString('en-IN')}
+                    <span className="ml-1 text-sm font-normal text-muted-foreground">
+                      / {INTERVAL_LABELS[plan.interval] ?? plan.interval}
+                    </span>
+                  </p>
+                  {features.length > 0 ? (
+                    <ul className="mb-6 flex-1 space-y-2 text-sm text-foreground">
+                      {features.map((f) => (
+                        <li key={f} className="flex items-start gap-2">
+                          <span className="mt-0.5 text-success">✓</span>
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <Button asChild className="mt-auto w-full">
+                    <Link href={`/settings/billing?plan=${plan.code}`}>Subscribe</Link>
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }
