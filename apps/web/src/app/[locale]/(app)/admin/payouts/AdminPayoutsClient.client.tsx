@@ -4,9 +4,7 @@ import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import type { PayoutRecord, PayoutStatus } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
-import { Container } from '@/components/shared';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { cn } from '@/lib/utils';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -111,14 +109,8 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-background py-8">
-      <Container variant="default">
-        <PageHeader
-          title="Vendor Payouts"
-          subtitle="Manage and process vendor payout disbursements"
-        />
-
-        <div
+    <div>
+      <div
           role="tablist"
           aria-label="Payout status filter"
           className="mb-5 flex gap-1.5 overflow-x-auto pb-1"
@@ -163,7 +155,7 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
               return (
                 <li
                   key={payout.id}
-                  className="rounded-xl border border-gold bg-surface p-5 shadow-card"
+                  className="rounded-2xl border border-gold/20 bg-surface p-5 shadow-card"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -239,7 +231,6 @@ export function AdminPayoutsClient({ initialPayouts, initialStatus }: Props) {
             })}
           </ul>
         )}
-      </Container>
-    </main>
+    </div>
   );
 }

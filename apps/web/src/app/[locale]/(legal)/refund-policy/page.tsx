@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { Receipt, Info } from 'lucide-react';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -28,6 +29,9 @@ export default async function RefundPolicyPage({ params }: Props) {
     <main id="main-content" className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
         <header className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gold/10">
+            <Receipt className="h-6 w-6 text-gold-muted" aria-hidden="true" />
+          </div>
           <h1 className="font-heading text-3xl sm:text-4xl font-semibold text-primary">
             {t('pageTitle')}
           </h1>
@@ -36,10 +40,13 @@ export default async function RefundPolicyPage({ params }: Props) {
 
         <div
           role="note"
-          className="mt-8 rounded-2xl border border-gold/40 bg-surface p-4 text-sm leading-relaxed text-gold-muted shadow-card"
+          className="mt-8 flex gap-3 rounded-2xl border border-gold/40 bg-surface p-4 text-sm leading-relaxed text-gold-muted shadow-card"
         >
-          <strong className="font-semibold">{t('disclaimerTitle')}</strong>{' '}
-          {t('disclaimerBody')}
+          <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <p>
+            <strong className="font-semibold">{t('disclaimerTitle')}</strong>{' '}
+            {t('disclaimerBody')}
+          </p>
         </div>
 
         <div className="mt-10 space-y-8">

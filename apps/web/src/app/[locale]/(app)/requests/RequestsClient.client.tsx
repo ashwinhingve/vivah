@@ -4,10 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import {
-  Heart, Star, Clock, CheckCheck, Flag, MoreHorizontal, ShieldX, Sparkles, Verified,
+  Heart, Star, Clock, CheckCheck, ChevronRight, Flag, MoreHorizontal, ShieldX, Sparkles, Verified,
   Loader2, X,
 } from 'lucide-react';
 import type { EnrichedMatchRequest } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
+import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -33,7 +39,7 @@ const REPORT_CATEGORIES: { value: string; label: string; tone: string }[] = [
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   PENDING:   { label: 'Pending',   cls: 'bg-warning/10 text-warning' },
   ACCEPTED:  { label: 'Matched',   cls: 'bg-success/10 text-success' },
-  DECLINED:  { label: 'Declined',  cls: 'bg-destructive text-destructive' },
+  DECLINED:  { label: 'Declined',  cls: 'bg-destructive/10 text-destructive' },
   WITHDRAWN: { label: 'Withdrawn', cls: 'bg-secondary text-muted-foreground' },
   BLOCKED:   { label: 'Blocked',   cls: 'bg-secondary text-muted-foreground' },
   EXPIRED:   { label: 'Expired',   cls: 'bg-secondary text-muted-foreground' },
@@ -312,20 +318,17 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
   const expires = side === 'received' && r.status === 'PENDING' ? expiresIn(r.expiresAt) : null;
   const lastActive = lastActiveLabel(r.lastActiveAt);
 
-  const initial = r.name?.charAt(0)?.toUpperCase() ?? '?';
-
   return (
-    <div className={`rounded-2xl border ${isSuper ? 'border-warning/40 bg-warning/10/40' : 'border-gold/20 bg-surface'} p-4 space-y-3`}>
+    <div className={`rounded-2xl border ${isSuper ? 'border-warning/40 bg-warning/5' : 'border-gold/20 bg-surface'} p-4 space-y-3 shadow-card`}>
       <div className="flex items-center gap-3">
-        {r.primaryPhotoKey ? (
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-teal/20 grid place-items-center shrink-0 text-primary font-bold">
-            {initial}
-          </div>
-        ) : (
-          <div className="h-12 w-12 rounded-full bg-muted grid place-items-center shrink-0 text-muted-foreground font-bold">
-            {initial}
-          </div>
-        )}
+        <ImageWithFallback
+          src={resolvePhotoUrl(r.primaryPhotoKey)}
+          alt={r.name ?? 'Profile photo'}
+          name={r.name}
+          fill
+          sizes="48px"
+          wrapperClassName="h-12 w-12 shrink-0 rounded-full"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 min-w-0">
             <Link
@@ -339,7 +342,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
             )}
             {isSuper && (
               <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning shrink-0 flex items-center gap-0.5">
-                <Star className="h-2.5 w-2.5 fill-amber-500 text-warning" /> SUPER
+                <Star className="h-2.5 w-2.5 fill-warning text-warning" /> SUPER
               </span>
             )}
           </div>
@@ -677,11 +680,12 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-lg px-4 py-8 space-y-5">
-        <div>
-          <h1 className="text-2xl font-bold text-primary font-heading">Requests</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage your match interests</p>
-        </div>
+      <FadeUp className="mx-auto max-w-lg px-4 py-8 space-y-5">
+        <PageHeader
+          title="Requests"
+          subtitle="Manage your match interests"
+          className="mb-0"
+        />
 
         <div className="flex rounded-lg bg-surface border border-border p-1 gap-1">
           {(['received', 'sent'] as const).map((t) => {
@@ -724,33 +728,39 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         {!loading && tab === 'received' && (
           <div className="space-y-3">
             {pendingReceived.length === 0 && pastReceived.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground text-sm">
-                No requests received yet. Explore profiles to get noticed!
-              </div>
+              <EmptyState
+                variant="no-matches"
+                title="No requests yet"
+                description="When someone sends you an interest, it will appear here. Explore profiles to get noticed!"
+                actionLabel="Browse profiles"
+                actionHref="/feed"
+              />
             )}
 
-            {pendingReceived.map((r) => (
-              <div key={r.id}>
-                <RequestCard
-                  r={r}
-                  side="received"
-                  busy={busyIds.has(r.id)}
-                  onAccept={() => setAcceptModal(r)}
-                  onDecline={() => setDeclineModal(r)}
-                  onWithdraw={() => {}}
-                  onBlock={() => void handleBlock(r)}
-                  onReport={() => setReportModal(r)}
-                />
-                {actionError[r.id] && (
-                  <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
-                )}
-              </div>
-            ))}
+            <StaggerList className="space-y-3">
+              {pendingReceived.map((r) => (
+                <div key={r.id}>
+                  <RequestCard
+                    r={r}
+                    side="received"
+                    busy={busyIds.has(r.id)}
+                    onAccept={() => setAcceptModal(r)}
+                    onDecline={() => setDeclineModal(r)}
+                    onWithdraw={() => {}}
+                    onBlock={() => void handleBlock(r)}
+                    onReport={() => setReportModal(r)}
+                  />
+                  {actionError[r.id] && (
+                    <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
+                  )}
+                </div>
+              ))}
+            </StaggerList>
 
             {pastReceived.length > 0 && (
               <details className="group">
                 <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
-                  <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
+                  <ChevronRight className="h-3.5 w-3.5 group-open:rotate-90 transition-transform" aria-hidden="true" />
                   Past requests ({pastReceived.length})
                 </summary>
                 <div className="space-y-2 mt-2">
@@ -780,34 +790,39 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         {!loading && tab === 'sent' && (
           <div className="space-y-3">
             {pendingSent.length === 0 && pastSent.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground text-sm">
-                You haven’t sent any interests yet.{' '}
-                <Link href="/feed" className="text-teal font-semibold">Browse profiles →</Link>
-              </div>
+              <EmptyState
+                variant="no-matches"
+                title="No interests sent yet"
+                description="Browse profiles and send an interest to start your journey."
+                actionLabel="Browse profiles"
+                actionHref="/feed"
+              />
             )}
 
-            {pendingSent.map((r) => (
-              <div key={r.id}>
-                <RequestCard
-                  r={r}
-                  side="sent"
-                  busy={busyIds.has(r.id)}
-                  onAccept={() => {}}
-                  onDecline={() => {}}
-                  onWithdraw={() => void handleWithdraw(r)}
-                  onBlock={() => void handleBlock(r)}
-                  onReport={() => setReportModal(r)}
-                />
-                {actionError[r.id] && (
-                  <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
-                )}
-              </div>
-            ))}
+            <StaggerList className="space-y-3">
+              {pendingSent.map((r) => (
+                <div key={r.id}>
+                  <RequestCard
+                    r={r}
+                    side="sent"
+                    busy={busyIds.has(r.id)}
+                    onAccept={() => {}}
+                    onDecline={() => {}}
+                    onWithdraw={() => void handleWithdraw(r)}
+                    onBlock={() => void handleBlock(r)}
+                    onReport={() => setReportModal(r)}
+                  />
+                  {actionError[r.id] && (
+                    <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
+                  )}
+                </div>
+              ))}
+            </StaggerList>
 
             {pastSent.length > 0 && (
               <details className="group">
                 <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
-                  <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
+                  <ChevronRight className="h-3.5 w-3.5 group-open:rotate-90 transition-transform" aria-hidden="true" />
                   Past requests ({pastSent.length})
                 </summary>
                 <div className="space-y-2 mt-2">
@@ -833,7 +848,7 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
             )}
           </div>
         )}
-      </div>
+      </FadeUp>
 
       <AcceptModal
         open={!!acceptModal}
