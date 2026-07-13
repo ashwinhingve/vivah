@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary } from '@smartshaadi/types';
-import { StaggerList } from '@/components/shared/StaggerList.client';
+import { StaggerList } from '@/components/motion/StaggerList.client';
 
 async function fetchWeddings(): Promise<{ weddings: WeddingSummary[]; error: boolean }> {
   const data = await fetchAuth<{ weddings: WeddingSummary[] }>('/api/v1/weddings');

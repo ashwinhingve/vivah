@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -36,12 +37,14 @@ function todayISO(): string {
 export function AvailabilityCalendar({
   vendorId, selectedDate, onSelect, className = '',
 }: AvailabilityCalendarProps) {
+  const t = useTranslations('vendorRole.components.availabilityCalendar');
   const [cursor, setCursor] = useState(() => new Date());
   const [booked, setBooked]   = useState<Set<string>>(new Set());
   const [blocked, setBlocked] = useState<Map<string, string | null>>(new Map());
   const [loading, setLoading] = useState(false);
 
   const month = formatYearMonth(cursor);
+  const weekdays = t.raw('weekdays') as string[];
 
   useEffect(() => {
     setLoading(true);
@@ -79,15 +82,15 @@ export function AvailabilityCalendar({
   }
 
   return (
-    <div className={`rounded-xl border border-gold/30 bg-surface p-4 ${className}`}>
+    <div className={`rounded-2xl border border-gold/20 bg-surface shadow-card p-4 sm:p-6 ${className}`}>
       <div className="flex items-center justify-between mb-3">
         <button
           type="button"
           onClick={() => shift(-1)}
-          className="rounded-lg p-2 hover:bg-gold/10"
-          aria-label="Previous month"
+          className="rounded-lg p-2 hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          aria-label={t('previousMonth')}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
         <p className="font-semibold text-primary">
           {cursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
@@ -95,15 +98,15 @@ export function AvailabilityCalendar({
         <button
           type="button"
           onClick={() => shift(1)}
-          className="rounded-lg p-2 hover:bg-gold/10"
-          aria-label="Next month"
+          className="rounded-lg p-2 hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          aria-label={t('nextMonth')}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground mb-1">
-        {['S','M','T','W','T','F','S'].map((d, i) => <div key={i}>{d}</div>)}
+        {weekdays.map((d, i) => <div key={i}>{d}</div>)}
       </div>
 
       <div className="grid grid-cols-7 gap-1">
@@ -116,7 +119,7 @@ export function AvailabilityCalendar({
           const dayNum = parseInt(d.slice(-2), 10);
 
           const disabled = isPast || isBooked || isBlocked;
-          const base = 'aspect-square flex items-center justify-center text-sm rounded-lg transition-colors';
+          const base = 'aspect-square flex items-center justify-center text-sm rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal';
           const color = isSelected
             ? 'bg-teal text-white font-semibold'
             : isPast
@@ -127,13 +130,20 @@ export function AvailabilityCalendar({
                   ? 'bg-secondary text-muted-foreground cursor-not-allowed'
                   : 'hover:bg-teal/10 cursor-pointer text-foreground';
 
+          const blockedReason = blocked.get(d);
+          const title = isBlocked
+            ? (blockedReason ? `${t('blocked')}: ${blockedReason}` : t('blocked'))
+            : isBooked
+              ? t('alreadyBooked')
+              : '';
+
           return (
             <button
               key={d}
               type="button"
               disabled={disabled}
               onClick={() => onSelect?.(d)}
-              title={isBlocked ? `Blocked${blocked.get(d) ? ': ' + blocked.get(d) : ''}` : isBooked ? 'Already booked' : ''}
+              title={title}
               className={`${base} ${color}`}
             >
               {dayNum}
@@ -144,15 +154,15 @@ export function AvailabilityCalendar({
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-sm bg-teal" /> Selected
+          <span className="h-2.5 w-2.5 rounded-sm bg-teal" aria-hidden="true" /> {t('selected')}
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-sm bg-destructive/10 border border-destructive/30" /> Booked
+          <span className="h-2.5 w-2.5 rounded-sm bg-destructive/10 border border-destructive/30" aria-hidden="true" /> {t('booked')}
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-sm bg-secondary border border-border" /> Blocked
+          <span className="h-2.5 w-2.5 rounded-sm bg-secondary border border-border" aria-hidden="true" /> {t('blocked')}
         </span>
-        {loading && <span>Loading…</span>}
+        {loading && <span>{t('loading')}</span>}
       </div>
     </div>
   );

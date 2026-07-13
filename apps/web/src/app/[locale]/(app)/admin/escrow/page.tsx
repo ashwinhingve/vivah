@@ -1,6 +1,13 @@
 import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { DisputeTableClient } from './DisputeTableClient.client';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +27,7 @@ interface DisputedBookingRow {
 }
 
 export default async function AdminEscrowPage() {
+  const t = await getTranslations('adminRole');
   // Auth gate — rely on middleware for role check, just verify session exists
   const cookieStore = await cookies();
   const token       = cookieStore.get('better-auth.session_token')?.value;
@@ -37,31 +45,36 @@ export default async function AdminEscrowPage() {
   const disputes = wrapped?.disputes ?? [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold text-primary">Escrow Disputes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review and resolve disputed escrow payments
-          </p>
-        </div>
-      </div>
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+        <Link
+          href="/admin"
+          className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
 
-      {/* Empty state */}
-      {(!disputes || disputes.length === 0) && (
-        <div className="rounded-xl border border-border bg-surface p-12 text-center shadow-sm">
-          <p className="font-medium text-foreground">No disputed bookings</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            All escrow disputes have been resolved or none have been raised yet.
-          </p>
-        </div>
-      )}
+        <FadeUp>
+          <PageHeader
+            title={t('escrow.title')}
+            subtitle={t('escrow.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('escrow.breadcrumb') }]}
+          />
+        </FadeUp>
 
-      {/* Disputes table — lifted state for resolved count + toast */}
-      {disputes && disputes.length > 0 && (
-        <DisputeTableClient disputes={disputes} />
-      )}
-    </div>
+        <FadeUp>
+          {disputes.length === 0 ? (
+            <EmptyState
+              icon={undefined}
+              title={t('escrow.emptyTitle')}
+              description={t('escrow.emptyDescription')}
+            />
+          ) : (
+            <DisputeTableClient disputes={disputes} />
+          )}
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

@@ -5,12 +5,17 @@
  */
 
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Heart, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EmptyState, PhotoFallback } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PhotoFallback } from '@/components/shared';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StaggerList } from '@/components/motion/StaggerList.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
@@ -55,6 +60,7 @@ async function fetchLikes(token: string): Promise<WhoLikedResponse | null> {
 }
 
 export default async function LikesPage() {
+  const t = await getTranslations('likes');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const [data, entitlements] = await Promise.all([
@@ -68,19 +74,17 @@ export default async function LikesPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-primary">Likes you</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {total > 0 ? `${total} pending interest${total !== 1 ? 's' : ''}` : 'No new interests yet'}
-          </p>
-        </div>
+      <PageTransition className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+        <PageHeader
+          title={t('heading')}
+          subtitle={total > 0 ? t('subtitleCount', { count: total }) : t('subtitleEmpty')}
+        />
 
         {locked && total > 0 ? (
           <UpgradeCTA
             requiredTier="PREMIUM"
-            feature={`${total} member${total !== 1 ? 's' : ''} liked you`}
-            message={`Unlock to see who's interested. Upgrade to Premium to see all ${total}.`}
+            feature={t('lockedFeature', { count: total })}
+            message={t('lockedMessage', { count: total })}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: Math.min(total, 6) }).map((_, i) => (
@@ -95,19 +99,19 @@ export default async function LikesPage() {
         ) : items.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="No likes yet"
-            description="When someone sends you an interest, you'll see them here. A complete profile attracts more interest."
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
             action={
               <Button asChild>
                 <Link href="/feed">
-                  Explore Matches
+                  {t('exploreCta')}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             }
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerList className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => {
               const photoUrl = resolvePhotoUrl(item.primaryPhotoKey);
               return (

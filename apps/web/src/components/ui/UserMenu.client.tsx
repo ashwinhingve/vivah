@@ -19,7 +19,7 @@ type MenuLink = {
 
 const MENU_LINKS: readonly MenuLink[] = [
   { href: '/dashboard',        key: 'viewProfile',  Icon: User },
-  { href: '/settings/privacy', key: 'settings',     Icon: Settings },
+  { href: '/settings',         key: 'settings',     Icon: Settings },
   { href: '/settings/billing', key: 'subscription', Icon: CreditCard },
   {
     href: 'mailto:support@smartshaadi.co.in?subject=Help%20with%20Smart%20Shaadi',
