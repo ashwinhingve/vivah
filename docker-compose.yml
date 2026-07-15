@@ -11,7 +11,10 @@ services:
       POSTGRES_PASSWORD: vivah
       POSTGRES_DB: smart_shaadi
     ports:
-      - "5432:5432"
+      # Host 5433: a native Windows PostgreSQL 18 service squats 5432 on this
+      # dev box (both IPv4+IPv6) and silently answers connections meant for
+      # this container. Keep root .env DATABASE_URL on localhost:5433.
+      - "5433:5432"
     volumes:
       - smart-shaadi-postgres-data:/var/lib/postgresql/data
     healthcheck:
