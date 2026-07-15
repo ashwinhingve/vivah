@@ -420,7 +420,7 @@
       "title": "आपके मैच — Smart Shaadi"
     },
     "heading": "आपके कनेक्शन",
-    "subtitleCount": "{count} स्वीकृत मेल",
+    "subtitleCount": "{count} स्वीकृत मेल{count, plural, one {} other {}}",
     "subtitleEmpty": "स्वीकृत मेल यहां दिखाई देंगे",
     "requestsInbox": "अनुरोध इनबॉक्स",
     "checkRequestsInbox": "अनुरोध इनबॉक्स जांचें"
@@ -934,7 +934,7 @@
         "title": "शादी कैलेंडर — स्मार्ट शादी"
       },
       "heading": "शादी कैलेंडर",
-      "description": "सभी समारोह कालानुक्रमिक क्रम में। विवरण देखने या विवाह दिवस पर जाने के लिए किसी को क्लिक करें।",
+      "description": "सभी समारोह कालानुक्रमिक क्रम में। विवरण देखने या विवाह दिवस पर जाने के लिए किसी पर क्लिक करें।",
       "emptyTitle": "अभी कोई समारोह नहीं",
       "emptyDescription": "शादी के अवलोकन से अपना पहला समारोह जोड़ें इसे यहां देखने के लिए।",
       "dateTbd": "तारीख TBD"
@@ -1971,16 +1971,16 @@
   },
   "shortlist": {
     "heading": "आपकी शॉर्टलिस्ट",
-    "subtitleCount": "{count} प्रोफाइल जिसे आप विचार कर रहे हैं",
+    "subtitleCount": "{count} प्रोफ़ाइल{count, plural, one {} other {}} जिसे आप विचार कर रहे हैं",
     "subtitleEmpty": "जो प्रोफाइल आप दोबारा देखना चाहते हैं उन्हें सेव करें",
     "exploreCta": "मेल खोजें"
   },
   "viewers": {
     "heading": "आपको किसने देखा",
-    "subtitleCount": "{count} हाल ही का आगंतुक",
+    "subtitleCount": "{count} हाल ही का आगंतुक{count, plural, one {} other {}}",
     "subtitleEmpty": "अभी तक कोई हाल ही का आगंतुक नहीं",
-    "lockedFeature": "{count} दर्शक",
-    "lockedMessage": "देखें कि किसने आपकी प्रोफाइल देखी है। सभी {count} आगंतुकों को अनलॉक करने के लिए स्टैंडर्ड अपग्रेड करें।",
+    "lockedFeature": "{count} दर्शक{count, plural, one {} other {}}",
+    "lockedMessage": "देखें कि किसने आपकी प्रोफाइल देखी है। सभी {count} आगंतुक{count, plural, one {} other {ों}} को अनलॉक करने के लिए स्टैंडर्ड अपग्रेड करें।",
     "exploreCta": "मेल खोजें"
   }
 }
