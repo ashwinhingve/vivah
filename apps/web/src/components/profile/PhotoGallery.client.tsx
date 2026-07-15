@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, BadgeCheck, ImageOff } from 'lucide-react';
+import { Lock, BadgeCheck, ImageOff, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { PhotoLightboxModal } from '@/components/ui/PhotoLightboxModal.client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 
 interface Photo {
   id: string;
@@ -40,7 +41,7 @@ function ProtectedPlaceholder({ name }: { name: string }) {
 
       {/* Backdrop blur overlay card */}
       <div className="absolute inset-0 flex items-center justify-center backdrop-blur-md">
-        <div className="mx-6 max-w-[280px] rounded-2xl border border-gold/30 bg-surface/95 p-5 text-center shadow-card">
+        <div className="mx-6 max-w-[280px] rounded-2xl border border-gold/20 bg-surface/95 p-5 text-center shadow-card">
           <Lock className="mx-auto h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden="true" />
           <p className="mt-2 font-heading text-base font-semibold text-primary">
             Photos protected by Safety Mode
@@ -50,9 +51,10 @@ function ProtectedPlaceholder({ name }: { name: string }) {
           </p>
           <Link
             href="/feed"
-            className="mt-3 inline-block text-xs font-semibold text-teal underline-offset-2 hover:underline"
+            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-teal underline-offset-2 hover:underline"
           >
-            Send Interest →
+            Send Interest
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </div>
       </div>
@@ -69,11 +71,6 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  // Photos whose <img> 404'd — treated as urlless so we render the initials /
-  // pulse placeholder instead of the browser's broken-image icon.
-  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
-  const markFailed = (id: string) =>
-    setFailedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
 
   if (sorted.length === 0) {
     return <ProtectedPlaceholder name={name} />;
@@ -98,23 +95,15 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
           {/* Inner Gold/30 inset border */}
           <div className="pointer-events-none absolute inset-0 z-10 rounded-3xl ring-1 ring-inset ring-gold/30" aria-hidden="true" />
 
-          {active?.url && !failedIds.has(active.id) ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={active.url}
-              alt={`${name}'s photo`}
-              loading="lazy"
-              decoding="async"
-              onError={() => markFailed(active.id)}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gold/20">
-              <span className="font-heading text-7xl font-semibold text-primary">
-                {name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          <ImageWithFallback
+            src={active?.url}
+            alt={`${name}'s photo`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 800px"
+            wrapperClassName="absolute inset-0"
+            name={name}
+            className="h-full w-full object-cover"
+          />
 
           {/* Bottom legibility scrim */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" aria-hidden="true" />
@@ -146,18 +135,21 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
                 onClick={() => setActiveIdx(idx)}
                 aria-label={`View photo ${idx + 1}`}
                 className={cn(
-                  'aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-150',
+                  'relative aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-150',
                   isActive
                     ? 'scale-105 border-teal'
                     : 'border-gold/20 opacity-70 hover:opacity-100'
                 )}
               >
-                {photo.url && !failedIds.has(photo.id) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photo.url} alt="" loading="lazy" decoding="async" onError={() => markFailed(photo.id)} className="h-full w-full object-cover" aria-hidden="true" />
-                ) : (
-                  <div className="h-full w-full animate-pulse bg-border" />
-                )}
+                <ImageWithFallback
+                  src={photo.url}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  wrapperClassName="h-full w-full"
+                  name={name}
+                  className="h-full w-full object-cover"
+                />
               </button>
             );
           })}

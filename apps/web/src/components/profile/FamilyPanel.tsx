@@ -30,7 +30,7 @@ export function FamilyPanel({ family }: { family: FamilyData }) {
               i < rows.length - 1 ? 'border-b border-border-light pb-2.5' : ''
             }`}
           >
-            <dt className="text-[11px] font-medium uppercase tracking-[0.04em] text-fg-2">
+            <dt className="text-2xs font-medium uppercase tracking-[0.04em] text-fg-2">
               {row.label}
             </dt>
             <dd className="text-sm font-medium text-fg-1">{row.value ?? '—'}</dd>

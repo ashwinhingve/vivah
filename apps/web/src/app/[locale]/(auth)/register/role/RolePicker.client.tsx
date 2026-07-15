@@ -42,7 +42,7 @@ export default function RolePicker() {
   }
 
   return (
-    <div className="w-full max-w-sm bg-surface rounded-xl shadow-sm border border-gold/20 p-6 space-y-5">
+    <div className="w-full max-w-sm bg-surface rounded-2xl shadow-card border border-gold/20 p-6 space-y-5">
       <div>
         <h2 className="text-2xl font-semibold text-foreground font-heading">
           {t('heading')}

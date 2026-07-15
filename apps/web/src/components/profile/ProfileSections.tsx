@@ -28,7 +28,7 @@ function cmToFtIn(cm: number): string {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-surface rounded-xl border border-border shadow-card overflow-hidden">
+    <div className="bg-surface rounded-2xl border border-gold/20 shadow-card overflow-hidden">
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <h2 className="text-base font-semibold text-primary font-heading">{title}</h2>
       </div>

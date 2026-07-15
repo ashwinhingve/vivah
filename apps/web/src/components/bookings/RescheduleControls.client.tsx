@@ -47,7 +47,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
 
   if (props.proposedDate) {
     return (
-      <div className="rounded-xl border border-warning/40 bg-warning/10 p-4">
+      <div className="rounded-2xl border border-warning/40 bg-warning/10 p-4">
         <p className="text-sm font-semibold text-warning mb-1">
           {props.proposedByYou ? 'You proposed a new date' : 'New date proposed'}
         </p>
@@ -95,7 +95,7 @@ export function RescheduleControls(props: RescheduleControlsProps) {
   return (
     <div>
       {open ? (
-        <div className="rounded-xl border border-gold/40 bg-surface p-4">
+        <div className="rounded-2xl border border-gold/20 bg-surface p-4">
           <p className="text-sm font-semibold text-primary mb-3">Propose a new date</p>
           <div className="space-y-2">
             <input

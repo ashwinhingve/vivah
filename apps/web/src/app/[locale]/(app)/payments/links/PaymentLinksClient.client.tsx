@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import type { PaymentLinkRecord, PaymentLinkStatus } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
-import { Container, EmptyState, PageHeader, Section } from '@/components/shared';
+import { Container, Section } from '@/components/shared';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { extractErrorMessage } from '@/lib/api-envelope';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -129,7 +131,7 @@ export function PaymentLinksClient({ initialLinks }: Props) {
         <PageHeader
           title="Payment Links"
           subtitle="Create and share payment links with your customers"
-          action={
+          actions={
             <Button
               type="button"
               onClick={() => {

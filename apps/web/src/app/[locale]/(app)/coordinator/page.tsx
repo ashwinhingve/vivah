@@ -4,8 +4,9 @@ import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchManagedWeddings } from '@/lib/coordinator-api';
 import { formatDateIN } from '@/lib/format';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -48,20 +49,10 @@ export default async function CoordinatorDashboardPage() {
 
           {/* ── Hero Greeting ──────────────────────────────────── */}
           <FadeUp delay={0}>
-            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card sm:px-7 sm:py-6">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
-              />
-              <div className="relative">
-                <h1 className="font-heading text-[22px] sm:text-[28px] font-semibold leading-tight tracking-tight text-primary">
-                  {t('title')}
-                </h1>
-                <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-                  {t('subtitle')}
-                </p>
-              </div>
-            </div>
+            <PageHeader
+              title={t('title')}
+              subtitle={t('subtitle')}
+            />
           </FadeUp>
 
           {/* ── Stat Cards ─────────────────────────────────────── */}
@@ -143,7 +134,7 @@ export default async function CoordinatorDashboardPage() {
                           <h3 className="font-heading text-lg font-semibold text-primary line-clamp-1 group-hover:text-primary">
                             {w.title}
                           </h3>
-                          <span className="shrink-0 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <span className="shrink-0 rounded-full bg-foreground/5 px-2 py-0.5 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
                             {w.scope}
                           </span>
                         </div>

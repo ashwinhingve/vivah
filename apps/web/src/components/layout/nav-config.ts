@@ -101,9 +101,10 @@ const VENDOR_MORE_GROUPS: NavGroup[] = [
   {
     titleKey: 'groupBusiness',
     items: [
-      { href: '/vendor/onboarding', labelKey: 'vendorSetup', Icon: ClipboardList },
-      { href: '/vendor/insights',   labelKey: 'insights',    Icon: Sparkles },
-      { href: '/vendor/reviews',    labelKey: 'reviews',     Icon: MessageCircle },
+      { href: '/vendor/onboarding',        labelKey: 'vendorSetup', Icon: ClipboardList },
+      { href: '/vendor/insights',          labelKey: 'insights',    Icon: Sparkles },
+      { href: '/vendor/reviews',           labelKey: 'reviews',     Icon: MessageCircle },
+      { href: '/vendor-dashboard/rentals', labelKey: 'rentals',     Icon: Package },
     ],
   },
   {
@@ -227,6 +228,28 @@ const COORDINATOR_MORE_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+// ── Active-route matching — single source of truth shared by AppNav + TopNav ──
+// Exact match, or a slash-boundary prefix match (`/chats` matches `/chats/123`
+// but not `/chats-archive`). `/dashboard` and `/` are exact-only so the profile
+// tab doesn't light up for every sub-route.
+export function isNavActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  if (href === '/dashboard' || href === '/') return false;
+  return pathname.startsWith(`${href}/`);
+}
+
+// With nested hrefs in one nav set (`/payments` + `/payments/wallet`,
+// `/vendor-dashboard` + `/vendor-dashboard/rentals`) the plain prefix match
+// lights both. The most specific (longest) matching href wins instead.
+export function activeNavHref(pathname: string, hrefs: string[]): string | null {
+  let best: string | null = null;
+  for (const href of hrefs) {
+    if (!isNavActive(pathname, href)) continue;
+    if (!best || href.length > best.length) best = href;
+  }
+  return best;
+}
 
 // ── Selector — single source of truth shared by AppNav + TopNav ────────────────
 export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavGroup[] } {

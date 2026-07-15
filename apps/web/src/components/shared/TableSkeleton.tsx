@@ -9,7 +9,7 @@ interface TableSkeletonProps {
 
 export function TableSkeleton({ rows = 5, cols = 4, className }: TableSkeletonProps) {
   return (
-    <div className={cn('overflow-hidden rounded-xl border border-border bg-surface', className)} aria-busy="true" aria-label="Loading rows">
+    <div className={cn('overflow-hidden rounded-2xl border border-gold/20 bg-surface', className)} aria-busy="true" aria-label="Loading rows">
       {/* header */}
       <div
         className="hidden border-b border-border bg-secondary/40 px-3 py-3 md:grid"

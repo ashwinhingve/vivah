@@ -15,7 +15,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
 
   return (
     <div
-      className={`bg-surface border border-gold/20 rounded-xl shadow-card overflow-hidden flex flex-col transition-opacity ${
+      className={`bg-surface border border-gold/20 rounded-2xl shadow-card overflow-hidden flex flex-col transition-opacity ${
         !product.isActive ? 'opacity-60' : ''
       }`}
     >
@@ -49,12 +49,12 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {!product.isActive && (
-            <span className="bg-muted-foreground text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-muted-foreground text-white text-2xs font-semibold px-2 py-0.5 rounded-full">
               Inactive
             </span>
           )}
           {product.isFeatured && product.isActive && (
-            <span className="bg-gold text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-gold text-white text-2xs font-semibold px-2 py-0.5 rounded-full">
               Featured
             </span>
           )}
@@ -64,7 +64,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
       {/* Body */}
       <div className="p-3 flex flex-col gap-1.5 flex-1">
         {/* Category badge */}
-        <span className="inline-block self-start text-[10px] font-medium bg-gold/10 text-gold px-2 py-0.5 rounded-full">
+        <span className="inline-block self-start text-2xs font-medium bg-gold/10 text-gold px-2 py-0.5 rounded-full">
           {product.category}
         </span>
 
@@ -87,7 +87,7 @@ export function VendorProductCard({ product }: VendorProductCardProps) {
 
         {/* Stock badge */}
         <span
-          className={`text-[10px] font-medium px-2 py-0.5 rounded-full self-start ${stockBadge.cls}`}
+          className={`text-2xs font-medium px-2 py-0.5 rounded-full self-start ${stockBadge.cls}`}
         >
           {stockBadge.text}
         </span>

@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { CateringEstimates } from '@/components/wedding/CateringEstimates';
 
 export const metadata = { title: 'Catering Estimates — Smart Shaadi' };
@@ -31,18 +33,19 @@ export default async function CateringPage({ params }: PageProps) {
   const { id } = await params;
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
+          <PageHeader
+            title="Catering Estimates"
+            subtitle="Predicted attendance per ceremony based on guest RSVP patterns and history."
+          />
 
-        <h1 className="font-heading text-primary text-3xl mb-2">Catering Estimates</h1>
-        <p className="text-muted-foreground text-sm mb-8">
-          Predicted attendance per ceremony based on guest RSVP patterns and history.
-        </p>
-
-        <Suspense fallback={<EstimatesSkeleton />}>
-          <CateringEstimates weddingId={id} />
-        </Suspense>
-      </div>
-    </main>
+          <Suspense fallback={<EstimatesSkeleton />}>
+            <CateringEstimates weddingId={id} />
+          </Suspense>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

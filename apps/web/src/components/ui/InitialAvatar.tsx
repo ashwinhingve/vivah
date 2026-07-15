@@ -20,7 +20,7 @@ const SIZE_BOX: Record<Size, string> = {
 };
 
 const SIZE_TEXT: Record<Size, string> = {
-  xs: 'text-[11px]',
+  xs: 'text-2xs',
   sm: 'text-sm',
   md: 'text-xl',
   lg: 'text-4xl',

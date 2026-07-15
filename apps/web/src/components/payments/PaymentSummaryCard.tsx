@@ -33,13 +33,13 @@ export function PaymentSummaryCard({
       {items.map(({ label, value, color }) => (
         <div
           key={label}
-          className="rounded-xl bg-surface border px-4 py-4 text-center shadow-card"
+          className="rounded-2xl bg-surface border px-4 py-4 text-center shadow-card"
           style={{ borderColor: 'var(--color-gold)' }}
         >
           <p className="text-lg font-bold sm:text-xl" style={{ color }}>
             {value}
           </p>
-          <p className="mt-1 text-[11px] text-muted-foreground leading-tight">{label}</p>
+          <p className="mt-1 text-2xs text-muted-foreground leading-tight">{label}</p>
         </div>
       ))}
     </div>

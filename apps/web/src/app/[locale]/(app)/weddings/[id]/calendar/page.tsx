@@ -1,9 +1,10 @@
 import { fetchAuth } from '@/lib/server-fetch';
 import type { Ceremony } from '@smartshaadi/types';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { CalendarRange } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 
-export const metadata = { title: 'Wedding Calendar' };
+export const metadata = { title: 'Wedding Calendar — Smart Shaadi' };
 export const dynamic = 'force-dynamic';
 
 export default async function CalendarPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,21 +24,20 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
-      <header className="mb-6">
-        <h1 className="font-heading text-3xl text-foreground">Wedding calendar</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          All ceremonies in chronological order. Click any to view details or jump to day-of.
-        </p>
-      </header>
-
-      {byDate.size === 0 ? (
-        <EmptyState
-          icon={CalendarRange}
-          title="No ceremonies yet"
-          description="Add your first ceremony from the wedding overview to see it here."
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
+        <PageHeader
+          title="Wedding Calendar"
+          subtitle="All ceremonies in chronological order. Click any to view details or jump to day-of."
         />
-      ) : (
+
+        {byDate.size === 0 ? (
+          <EmptyState
+            variant="no-tasks"
+            title="No ceremonies yet"
+            description="Add your first ceremony from the wedding overview to see it here."
+          />
+        ) : (
         <ol className="space-y-6">
           {[...byDate.entries()].map(([date, list]) => (
             <li key={date}>
@@ -48,13 +48,13 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
               </h2>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {list.map((c) => (
-                  <li key={c.id} className="rounded-xl border border-foreground/10 bg-surface p-4 shadow-sm">
+                  <li key={c.id} className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card transition-shadow hover:shadow-card-hover">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-foreground">{c.type}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                      <span className={`rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide ${
                         c.status === 'IN_PROGRESS' ? 'bg-success/15 text-success' :
                         c.status === 'COMPLETED'   ? 'bg-foreground/10 text-foreground' :
-                        c.status === 'CANCELLED'   ? 'bg-destructive text-destructive' :
+                        c.status === 'CANCELLED'   ? 'bg-destructive/15 text-destructive' :
                         'bg-warning/15 text-warning'
                       }`}>
                         {c.status}
@@ -72,7 +72,8 @@ export default async function CalendarPage({ params }: { params: Promise<{ id: s
             </li>
           ))}
         </ol>
-      )}
-    </main>
+        )}
+      </main>
+    </PageTransition>
   );
 }

@@ -84,7 +84,7 @@ export default async function ManagedChildPage({ params }: PageProps) {
         <div className="mt-6">
           {forThisChild.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-matches"
                   icon={Clock}

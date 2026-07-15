@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import { VendorFilterBar } from '@/components/vendor/VendorFilterBar.client';
+import { PageHeader } from '@/components/ui/PageHeader';
 import type { VendorProfile } from '@smartshaadi/types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -77,24 +79,24 @@ export default async function VendorsPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-end justify-between gap-3">
-          <div>
-            <h1 className="font-heading text-2xl font-semibold text-primary">Find Wedding Vendors</h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {total > 0
-                ? `${total.toLocaleString('en-IN')} vendor${total === 1 ? '' : 's'} found`
-                : 'Discover photographers, caterers, decorators and more.'}
-            </p>
-          </div>
-          <Link
-            href="/vendors/favorites"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm font-medium text-primary hover:bg-gold/10"
-          >
-            ❤ Saved
-          </Link>
-        </div>
+        <PageHeader
+          title="Find Wedding Vendors"
+          subtitle={
+            total > 0
+              ? `${total.toLocaleString('en-IN')} vendor${total === 1 ? '' : 's'} found`
+              : 'Discover photographers, caterers, decorators and more.'
+          }
+          actions={
+            <Link
+              href="/vendors/favorites"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-gold/40 bg-surface px-3 py-2 text-sm font-medium text-primary hover:bg-gold/10"
+            >
+              ❤ Saved
+            </Link>
+          }
+        />
 
-        <div className="bg-surface border border-border rounded-xl p-4 mb-6 shadow-sm">
+        <div className="bg-surface border border-gold/20 rounded-xl p-4 mb-6 shadow-card">
           <Suspense fallback={<div className="h-10 animate-pulse bg-secondary rounded-lg" />}>
             <VendorFilterBar />
           </Suspense>
@@ -127,18 +129,20 @@ export default async function VendorsPage({ searchParams }: PageProps) {
             {hasPrev && (
               <Link
                 href={buildPageHref(page - 1)}
-                className="min-h-[44px] px-5 py-2.5 border border-gold/40 text-foreground text-sm font-medium rounded-lg hover:bg-background transition-colors flex items-center"
+                className="min-h-[44px] px-5 py-2.5 border border-gold/40 text-foreground text-sm font-medium rounded-lg hover:bg-background transition-colors inline-flex items-center gap-1.5"
               >
-                ← Previous
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                Previous
               </Link>
             )}
             <span className="text-muted-foreground text-sm">Page {page}</span>
             {hasNext && (
               <Link
                 href={buildPageHref(page + 1)}
-                className="min-h-[44px] px-5 py-2.5 bg-teal hover:bg-teal-hover text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+                className="min-h-[44px] px-5 py-2.5 bg-teal hover:bg-teal-hover text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-1.5"
               >
-                Next →
+                Next
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             )}
           </div>

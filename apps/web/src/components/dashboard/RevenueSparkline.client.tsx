@@ -94,7 +94,7 @@ export function RevenueSparkline({ data, className = '' }: RevenueSparklineProps
   return (
     <div className={`relative rounded-2xl border border-gold/20 bg-surface p-4 shadow-card ${className}`}>
       <div className="mb-3 flex items-baseline justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
           30-Day Revenue
         </p>
         <p className="font-heading text-lg font-bold text-primary">{formatRs(totalRevenue)}</p>
@@ -192,7 +192,7 @@ export function RevenueSparkline({ data, className = '' }: RevenueSparklineProps
               minWidth: 80,
             }}
           >
-            <p className="text-[10px] text-muted-foreground">{formatDate(tooltip.day.date)}</p>
+            <p className="text-2xs text-muted-foreground">{formatDate(tooltip.day.date)}</p>
             <p className="font-heading text-sm font-semibold text-primary">{formatRs(tooltip.day.amount)}</p>
           </div>
         )}

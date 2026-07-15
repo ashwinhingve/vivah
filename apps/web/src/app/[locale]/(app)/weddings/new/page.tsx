@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { WeddingNewForm } from './WeddingNewForm.client';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -14,25 +16,27 @@ export default async function NewWeddingPage() {
   const t = await getTranslations('weddings.new');
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-lg mx-auto px-4 py-8 pb-24">
-        <Link
-          href="/weddings"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to Weddings
-        </Link>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-lg mx-auto px-4 py-8 pb-24">
+          <Link
+            href="/weddings"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to Weddings
+          </Link>
 
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-6">
-          <h1 className="font-heading text-2xl text-primary mb-1">{t('heading')}</h1>
-          <p className="text-muted-foreground text-sm mb-6">
-            Fill in the basics — you can update everything later.
-          </p>
+          <PageHeader
+            title={t('heading')}
+            subtitle="Fill in the basics — you can update everything later."
+          />
 
-          <WeddingNewForm />
+          <div className="mt-6 bg-surface border border-gold/20 rounded-2xl shadow-card p-6">
+            <WeddingNewForm />
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </PageTransition>
   );
 }

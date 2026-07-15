@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
+import { LogoMark } from '@/components/marketing/Logo';
 import { AppNav } from '@/components/layout/AppNav.client';
 import { TopNav } from '@/components/layout/TopNav.client';
 import { CartButton } from '@/components/store/CartButton.client';
@@ -43,9 +44,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           <Link
             href="/dashboard"
-            className="font-bold text-primary text-base sm:text-lg font-heading truncate"
+            className="flex min-w-0 items-center gap-2"
           >
-            Smart Shaadi
+            <LogoMark size={28} decorative className="shrink-0" />
+            <span className="truncate font-bold text-primary text-base sm:text-lg font-heading">
+              Smart Shaadi
+            </span>
           </Link>
           <TopNav />
           <div className="flex items-center gap-1.5 sm:gap-3">

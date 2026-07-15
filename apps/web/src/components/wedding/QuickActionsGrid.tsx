@@ -30,7 +30,7 @@ export function QuickActionsGrid({ id }: { id: string }) {
         <Link
           key={a.seg + a.label}
           href={`/weddings/${id}/${a.seg}`}
-          className="group flex min-h-[44px] items-center gap-3 rounded-xl border border-gold/20 bg-surface p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="group flex min-h-[44px] items-center gap-3 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span
             className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', TONE[a.tone])}

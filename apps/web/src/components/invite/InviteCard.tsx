@@ -36,7 +36,7 @@ export function InviteCard({ view }: { view: PublicInviteView }) {
 
   return (
     <article
-      className={`${t.card} mx-auto w-full max-w-md rounded-xl shadow-card p-6 sm:p-8 text-center`}
+      className={`${t.card} mx-auto w-full max-w-md rounded-2xl shadow-card p-6 sm:p-8 text-center`}
     >
       <p className={`${t.eyebrow} text-xs uppercase tracking-[0.2em] mb-4`}>
         Together with their families

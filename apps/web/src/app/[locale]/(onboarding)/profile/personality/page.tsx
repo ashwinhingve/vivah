@@ -1,8 +1,10 @@
 'use client';
 
 import { useActionState, useEffect, useState, type JSX } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { useFormStatus } from 'react-dom';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { updatePersonality } from '../actions';
 
@@ -96,11 +98,12 @@ export default function PersonalityPage(): JSX.Element {
   return (
     <div>
       <ProfileProgress steps={STEPS} />
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
-        <h1 className="text-lg font-semibold text-primary font-heading mb-1">Personality</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Six quick sliders. Helps us surface people who genuinely fit you.
-        </p>
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
+        <PageHeader
+          title="Personality"
+          subtitle="Six quick sliders. Helps us surface people who genuinely fit you."
+          className="mb-6"
+        />
 
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-6">
           {state?.error && (
@@ -130,7 +133,7 @@ export default function PersonalityPage(): JSX.Element {
                 onChange={(e) => setVals((v) => ({ ...v, [axis.key]: Number(e.target.value) }))}
                 className="w-full accent-teal"
               />
-              <div className="flex justify-between text-[11px] text-muted-foreground">
+              <div className="flex justify-between text-2xs text-muted-foreground">
                 <span>{axis.left}</span>
                 <span>{axis.right}</span>
               </div>
@@ -140,9 +143,10 @@ export default function PersonalityPage(): JSX.Element {
           <div className="flex items-center gap-3 pt-2">
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-primary hover:text-primary-hover transition-colors min-h-[44px] inline-flex items-center"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover transition-colors min-h-[44px]"
             >
-              ← Back
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back
             </Link>
             <SaveButton />
           </div>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, MotionConfig, useReducedMotion, type Variants } from 'framer-motion';
-import { ShieldCheck, Lock, Users, Sparkles, Flower2, UserCheck, type LucideIcon } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Lock, Users, Sparkles, Flower2, UserCheck, type LucideIcon } from 'lucide-react';
 import { MatchPhoneCard } from './MatchPhoneCard.client';
 import floralIvory from '../../../public/landing/floral-ivory.webp';
 import coupleGolden from '../../../public/landing/couple-golden.webp';
@@ -146,7 +146,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-surface/70 px-3.5 py-1.5 backdrop-blur-sm"
           >
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
-            <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.14em] text-gold-muted sm:text-[11px] sm:tracking-[0.18em]">
+            <span className="whitespace-nowrap text-2xs font-semibold uppercase tracking-[0.14em] text-gold-muted sm:tracking-[0.18em]">
               {t('eyebrow')}
             </span>
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
@@ -214,7 +214,10 @@ export default function Hero() {
               href="/register"
               className="group relative inline-flex min-h-[52px] items-center justify-center overflow-hidden rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              <span className="relative z-10">{t('primaryCta')}</span>
+              <span className="relative z-10 inline-flex items-center gap-2">
+                {t('primaryCta')}
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+              </span>
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
@@ -281,7 +284,7 @@ export default function Hero() {
               <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-muted" aria-hidden="true" />
               <span>
                 <span className="block text-xs font-semibold leading-tight text-foreground">{t('safeChipTitle')}</span>
-                <span className="block text-[10px] leading-tight text-muted-foreground">{t('safeChipBody')}</span>
+                <span className="block text-2xs leading-tight text-muted-foreground">{t('safeChipBody')}</span>
               </span>
             </motion.div>
 

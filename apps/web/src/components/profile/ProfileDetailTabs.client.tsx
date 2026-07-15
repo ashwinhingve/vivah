@@ -9,7 +9,7 @@
  */
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Sparkles, Quote, GraduationCap, BriefcaseBusiness, Calendar, MapPin, Clock } from 'lucide-react';
+import { Sparkles, Quote, GraduationCap, BriefcaseBusiness, Calendar, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -88,7 +88,7 @@ function Avatar({ name, size = 'md' }: { name?: string; size?: 'sm' | 'md' }) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
       <span className="text-[15px] text-foreground">{value}</span>
     </div>
   );
@@ -116,7 +116,7 @@ function Chip({
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{children}</h3>
+    <h3 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">{children}</h3>
   );
 }
 
@@ -409,7 +409,8 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope: HoroscopeSection; k
           href="/profile/horoscope"
           className="mt-4 inline-flex items-center gap-1 rounded-lg bg-teal px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-hover"
         >
-          Add Horoscope →
+          Add Horoscope
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
     );
@@ -423,7 +424,7 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope: HoroscopeSection; k
         <div className="flex items-center justify-between gap-2 border-b border-gold/20 pb-3">
           <h3 className="font-heading text-base font-semibold text-primary">Vedic Profile</h3>
           {pill && (
-            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold shadow-sm', pill.className)}>
+            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-2xs font-semibold shadow-sm', pill.className)}>
               {pill.label}
             </span>
           )}
@@ -431,18 +432,18 @@ function HoroscopeTab({ horoscope, kundliUrl }: { horoscope: HoroscopeSection; k
         <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3">
           {horoscope.rashi && (
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Rashi</p>
+              <p className="text-2xs uppercase tracking-widest text-muted-foreground">Rashi</p>
               <p className="mt-0.5 font-heading text-base text-foreground">{horoscope.rashi}</p>
             </div>
           )}
           {horoscope.nakshatra && (
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Nakshatra</p>
+              <p className="text-2xs uppercase tracking-widest text-muted-foreground">Nakshatra</p>
               <p className="mt-0.5 font-heading text-base text-foreground">{horoscope.nakshatra}</p>
             </div>
           )}
         </div>
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-gold/15 pt-3 text-[11px] text-muted-foreground">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-gold/15 pt-3 text-2xs text-muted-foreground">
           {horoscope.dob && (
             <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" aria-hidden="true" /> {new Date(horoscope.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           )}

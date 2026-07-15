@@ -8,8 +8,9 @@ import {
 import { fetchAuth } from '@/lib/server-fetch';
 import { getMyLinks, getDraftedActions, type DraftedAction } from '@/lib/family-mode-api';
 import { getCollaboratingWeddings } from '@/lib/family-extras-api';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
@@ -65,18 +66,10 @@ export default async function FamilyPage() {
 
           {/* ── Hero greeting ──────────────────────────────────── */}
           <FadeUp delay={0}>
-            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 via-surface to-gold/10 px-5 py-5 shadow-card sm:px-7 sm:py-6">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
-              />
-              <h1 className="relative font-heading text-[22px] font-semibold leading-tight tracking-tight text-primary sm:text-[28px]">
-                {t('heroTitle')}
-              </h1>
-              <p className="relative mt-1.5 text-sm text-muted-foreground">
-                {t('heroSubtitle')}
-              </p>
-            </div>
+            <PageHeader
+              title={t('heroTitle')}
+              subtitle={t('heroSubtitle')}
+            />
           </FadeUp>
 
           {/* ── KPI row ────────────────────────────────────────── */}
@@ -181,7 +174,7 @@ export default async function FamilyPage() {
                 {collaboratingWeddings.map((w) => (
                   <div key={w.id} className="space-y-1.5">
                     <WeddingCard wedding={w} />
-                    <p className="px-1 text-[11px] text-gold-muted">
+                    <p className="px-1 text-2xs text-gold-muted">
                       {t('collabRole', { role: w.myRole === 'EDITOR' ? t('roleEditor') : t('roleViewer') })}
                     </p>
                   </div>

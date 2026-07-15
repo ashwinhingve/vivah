@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { OrderSummary, OrderStatus } from '@smartshaadi/types';
 
@@ -29,17 +30,16 @@ export default async function OrdersPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/store" className="text-muted-foreground hover:text-teal transition-colors text-sm">
-            ← Store
+          <Link href="/store" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-teal transition-colors text-sm min-h-[44px]">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Store
           </Link>
           <h1 className="font-heading text-primary text-xl font-bold">My Orders</h1>
         </div>
 
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-muted-foreground">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-gold/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
+            <ShoppingBag className="w-12 h-12 text-gold/30" aria-hidden="true" />
             <p className="text-sm font-medium">No orders yet</p>
             <Link
               href="/store"
@@ -73,7 +73,7 @@ export default async function OrdersPage() {
                         })}
                       </p>
                     </div>
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0 ${cfg.cls}`}>
+                    <span className={`text-2xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${cfg.cls}`}>
                       {cfg.label}
                     </span>
                   </div>

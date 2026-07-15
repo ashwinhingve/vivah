@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { AcceptedMatchCard } from '@/components/matching/AcceptedMatchCard';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { AcceptedMatchCard } from '@/components/matching/AcceptedMatchCard';
 import type { MatchRequest, MatchRequestsResponse } from '@smartshaadi/types';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -71,30 +73,24 @@ export default async function MatchesPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-screen-lg px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-primary font-heading">{t('heading')}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {matches.length > 0
-                ? `${matches.length} accepted match${matches.length !== 1 ? 'es' : ''}`
-                : 'Accepted matches appear here'}
-            </p>
-          </div>
-          <Link
-            href="/requests"
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-medium text-foreground shadow-sm hover:border-gold transition-colors min-h-[44px]"
-          >
-            Requests inbox
-          </Link>
-        </div>
+      <PageTransition className="mx-auto max-w-screen-lg px-4 py-8">
+        <PageHeader
+          title={t('heading')}
+          subtitle={matches.length > 0 ? t('subtitleCount', { count: matches.length }) : t('subtitleEmpty')}
+          actions={
+            <Link
+              href="/requests"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-medium text-foreground shadow-sm hover:border-gold transition-colors min-h-[44px]"
+            >
+              {t('requestsInbox')}
+            </Link>
+          }
+        />
 
         {matches.length === 0 ? (
           <EmptyState
             variant="no-matches"
-            title="No accepted matches yet"
-            description="When someone accepts your interest (or you accept theirs), they appear here."
-            actionLabel="Check Requests Inbox"
+            actionLabel={t('checkRequestsInbox')}
             actionHref="/requests"
           />
         ) : (
@@ -104,7 +100,7 @@ export default async function MatchesPage() {
             ))}
           </div>
         )}
-      </div>
+      </PageTransition>
     </main>
   );
 }

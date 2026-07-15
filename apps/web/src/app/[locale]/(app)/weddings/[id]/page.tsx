@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import { Calendar, Wallet, Users, Sparkles, ListChecks } from 'lucide-react';
+import { Calendar, Wallet, Users, Sparkles, ListChecks, ArrowRight } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { formatINRCompact, formatDateIN, daysUntil } from '@/lib/format';
 import type { WeddingSummary, WeddingPlan, Ceremony, MuhuratDate } from '@smartshaadi/types';
@@ -323,9 +323,10 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
             <h2 className="font-heading text-lg font-semibold text-primary">All ceremonies</h2>
             <Link
               href={`/weddings/${id}/ceremonies`}
-              className="text-xs font-medium text-teal transition-colors hover:text-teal-hover"
+              className="inline-flex items-center gap-1 text-xs font-medium text-teal transition-colors hover:text-teal-hover"
             >
-              Full timeline →
+              Full timeline
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
 
@@ -365,7 +366,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                       >
                         {c.type === 'OTHER' && (
                           <div>
-                            <label className="mb-1 block text-[10px] font-medium text-muted-foreground">
+                            <label className="mb-1 block text-2xs font-medium text-muted-foreground">
                               Ceremony name
                             </label>
                             <input
@@ -378,7 +379,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                           </div>
                         )}
                         <div>
-                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Date</label>
+                          <label className="mb-1 block text-2xs font-medium text-muted-foreground">Date</label>
                           <input
                             name="date"
                             type="date"
@@ -388,7 +389,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Start</label>
+                          <label className="mb-1 block text-2xs font-medium text-muted-foreground">Start</label>
                           <input
                             name="startTime"
                             type="time"
@@ -397,7 +398,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                           />
                         </div>
                         <div>
-                          <label className="mb-1 block text-[10px] font-medium text-muted-foreground">Venue</label>
+                          <label className="mb-1 block text-2xs font-medium text-muted-foreground">Venue</label>
                           <input
                             name="venue"
                             type="text"

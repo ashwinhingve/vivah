@@ -104,7 +104,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
 
         {/* Add Ceremony CTA inline */}
         <FadeUp delay={0} className="mb-8">
-          <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+          <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5">
             <h2 className="font-semibold text-primary mb-3 flex items-center gap-2">
               <span className="h-5 w-5 rounded-full bg-primary/10 inline-flex items-center justify-center text-primary text-xs font-bold">+</span>
               Add New Ceremony
@@ -160,7 +160,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                     {/* Ceremony card */}
                     <div
                       className={cn(
-                        'bg-surface border rounded-xl shadow-sm p-5 transition-all',
+                        'bg-surface border rounded-xl shadow-card p-5 transition-all',
                         past
                           ? 'border-gold/10 opacity-70'
                           : 'border-gold/20 hover:border-gold/40 hover:shadow-card-hover'
@@ -202,7 +202,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                             >
                               {c.type === 'OTHER' && (
                                 <div>
-                                  <label className="block text-[10px] font-medium text-muted-foreground mb-1">Ceremony Name</label>
+                                  <label className="block text-2xs font-medium text-muted-foreground mb-1">Ceremony Name</label>
                                   <input
                                     name="customTypeName"
                                     type="text"
@@ -213,7 +213,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 </div>
                               )}
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Date</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Date</label>
                                 <input
                                   name="date"
                                   type="date"
@@ -222,7 +222,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Start Time</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Start Time</label>
                                 <input
                                   name="startTime"
                                   type="time"
@@ -231,7 +231,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Venue</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Venue</label>
                                 <input
                                   name="venue"
                                   type="text"
@@ -240,7 +240,7 @@ export default async function CeremoniesPage({ params }: PageProps) {
                                 />
                               </div>
                               <div>
-                                <label className="block text-[10px] font-medium text-muted-foreground mb-1">Notes</label>
+                                <label className="block text-2xs font-medium text-muted-foreground mb-1">Notes</label>
                                 <input
                                   name="notes"
                                   type="text"

@@ -172,7 +172,7 @@ function VerificationBadge({
   if (verificationStatus !== 'VERIFIED') return null;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gold/40 bg-gold/10 px-3.5 py-2.5 shadow-card">
+    <div className="flex items-center gap-3 rounded-2xl border border-gold/40 bg-gold/10 px-3.5 py-2.5 shadow-card">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white shadow-sm ring-2 ring-surface">
         <BadgeCheck className="h-5 w-5" aria-hidden="true" />
       </span>

@@ -1,8 +1,10 @@
 import { Link } from '@/i18n/navigation';
-import { Briefcase, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { fetchVendorAssignments } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { Ceremony } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { VendorPicker } from '@/components/wedding/VendorPicker.client';
 import { assignVendorAction, updateAssignmentAction, removeAssignmentAction } from './actions';
 
@@ -29,12 +31,13 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
   const ceremonies = c?.ceremonies ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
-        <div className="flex items-center gap-2 mb-6">
-          <Briefcase className="h-6 w-6 text-gold" />
-          <h1 className="font-heading text-2xl text-primary">Vendors</h1>
-        </div>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
+          <PageHeader
+            title="Vendors"
+            subtitle="Shortlist, assign, and track your wedding vendors."
+          />
 
         {assignments.length === 0 ? (
           <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center mb-6">
@@ -121,7 +124,8 @@ export default async function VendorAssignmentsPage({ params }: PageProps) {
             <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Assign vendor</button>
           </form>
         </details>
-      </div>
-    </div>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

@@ -7,6 +7,7 @@ import { addPortfolioItemAction, removePortfolioItemAction } from '@/app/[locale
 import { R2Uploader } from '@/components/wedding/R2Uploader.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { EVENT_TYPE_VALUES } from '@smartshaadi/schemas';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 
 export interface VendorPortfolioItemView {
   title?: string | null;
@@ -65,7 +66,7 @@ export function PortfolioItemManager({ vendorId, initial }: { vendorId: string; 
     'h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-teal focus:outline-none disabled:opacity-50';
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
       <div className="mb-3 flex items-center gap-2">
         <ImageIcon className="h-4 w-4 text-teal" />
         <h3 className="font-heading text-base text-primary">Work samples</h3>
@@ -85,14 +86,17 @@ export function PortfolioItemManager({ vendorId, initial }: { vendorId: string; 
                   {thumbs.length > 0 && (
                     <div className="flex shrink-0 -space-x-2">
                       {thumbs.map((url, ti) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={ti}
-                          src={url}
-                          alt=""
-                          loading="lazy"
-                          className="h-10 w-10 rounded-lg border-2 border-surface object-cover"
-                        />
+                        <div key={ti} className="relative h-10 w-10 overflow-hidden rounded-lg border-2 border-surface">
+                          <ImageWithFallback
+                            src={url}
+                            alt=""
+                            fill
+                            sizes="40px"
+                            wrapperClassName="h-full w-full"
+                            name={null}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
                       ))}
                     </div>
                   )}
@@ -144,8 +148,15 @@ export function PortfolioItemManager({ vendorId, initial }: { vendorId: string; 
                   return (
                     <div key={key} className="relative h-14 w-14 overflow-hidden rounded-lg border border-border">
                       {url && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={url} alt="" className="h-full w-full object-cover" />
+                        <ImageWithFallback
+                          src={url}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          wrapperClassName="h-full w-full"
+                          name={null}
+                          className="h-full w-full object-cover"
+                        />
                       )}
                       <button
                         type="button"

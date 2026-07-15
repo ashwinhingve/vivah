@@ -33,7 +33,7 @@ export default function NewProductPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+        <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5">
           <ProductForm mode="create" />
         </div>
       </div>

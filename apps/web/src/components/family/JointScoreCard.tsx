@@ -16,7 +16,7 @@ export function JointScoreCard({ joint }: Props) {
   const hasSignals = joint.familySignalCount > 0;
 
   return (
-    <section className="rounded-xl border border-gold/20 bg-surface p-4 sm:p-6 shadow-card">
+    <section className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6 shadow-card">
       <header className="flex items-baseline justify-between mb-3">
         <h2 className="text-lg sm:text-xl font-heading text-primary">Family joint view</h2>
         <span className="text-xs text-gold-muted">

@@ -1,6 +1,14 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { AlertCircle, Package } from 'lucide-react';
 import { VendorRentalRow } from '@/components/vendor/VendorRentalRow.client';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 import type { RentalBookingSummary } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -37,6 +45,7 @@ interface PageProps {
 }
 
 export default async function VendorRentalsPage({ searchParams }: PageProps) {
+  const t = await getTranslations('vendorRole.rentals');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -59,68 +68,64 @@ export default async function VendorRentalsPage({ searchParams }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-background px-4 py-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
-            Rental Bookings
-          </h1>
-          <p className="text-muted-foreground text-sm">Activate and return customer rentals</p>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background px-4 py-6">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <FadeUp>
+            <PageHeader
+              title={t('title')}
+              subtitle={t('subtitle')}
+            />
+          </FadeUp>
+
+          <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatsCard label={t('statPending')} value={counts.pending} sub={t('statPendingSub')} icon={AlertCircle} variant="warning" />
+            <StatsCard label={t('statConfirmed')} value={counts.confirmed} sub={t('statConfirmedSub')} icon={Package} variant="teal" />
+            <StatsCard label={t('statActive')} value={counts.active} sub={t('statActiveSub')} icon={Package} variant="default" />
+            <StatsCard label={t('statReturned')} value={counts.returned} sub={t('statReturnedSub')} icon={Package} variant="success" />
+          </StaggerList>
+
+          <FadeUp>
+            <div className="flex gap-1 overflow-x-auto pb-1">
+              {STATUS_TABS.map(({ value }) => {
+                const isActive = activeFilter === value;
+                const href = value === 'ALL'
+                  ? '/vendor-dashboard/rentals'
+                  : `/vendor-dashboard/rentals?status=${value.toLowerCase()}`;
+                return (
+                  <Link
+                    key={value}
+                    href={href}
+                    className={`shrink-0 min-h-[44px] px-4 py-2 text-sm rounded-lg font-medium transition-colors flex items-center ${
+                      isActive
+                        ? 'bg-primary text-white'
+                        : 'bg-surface text-muted-foreground border border-gold/20 hover:border-primary/40'
+                    }`}
+                  >
+                    {t(`tab${value}`)}
+                  </Link>
+                );
+              })}
+            </div>
+          </FadeUp>
+
+          <FadeUp>
+            {filtered.length === 0 ? (
+              <EmptyState
+                icon={Package}
+                title={`No ${activeFilter.toLowerCase()} rentals`}
+                description={t('emptyMessage')}
+              />
+            ) : (
+              <StaggerList className="space-y-3">
+                {filtered.map((b) => (
+                  <VendorRentalRow key={b.id} booking={b} />
+                ))}
+              </StaggerList>
+            )}
+          </FadeUp>
         </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Pending"   value={counts.pending}   color="text-warning"   sub="awaiting confirm" />
-          <StatCard label="Confirmed" value={counts.confirmed} color="text-teal"    sub="ready to hand off" />
-          <StatCard label="Active"    value={counts.active}    color="text-primary"  sub="out with customer" />
-          <StatCard label="Returned"  value={counts.returned}  color="text-success" sub="completed" />
-        </div>
-
-        <div className="flex gap-1 mb-5 overflow-x-auto pb-1">
-          {STATUS_TABS.map(({ label, value }) => {
-            const isActive = activeFilter === value;
-            const href = value === 'ALL'
-              ? '/vendor-dashboard/rentals'
-              : `/vendor-dashboard/rentals?status=${value.toLowerCase()}`;
-            return (
-              <Link
-                key={value}
-                href={href}
-                className={`px-4 py-2 text-sm rounded-full whitespace-nowrap transition-colors ${
-                  isActive
-                    ? 'bg-primary text-white'
-                    : 'bg-surface text-muted-foreground border border-gold/30 hover:bg-background'
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-xl border border-gold/30 bg-surface p-10 text-center">
-            <p className="text-muted-foreground">No rental bookings match this filter.</p>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {filtered.map((b) => (
-              <li key={b.id}>
-                <VendorRentalRow booking={b} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </main>
-  );
-}
-
-function StatCard({ label, value, color, sub }: { label: string; value: number; color: string; sub: string }) {
-  return (
-    <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
-      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
-      <p className={`text-2xl font-bold font-heading ${color}`}>{value}</p>
-      <p className="text-xs text-muted-foreground">{sub}</p>
-    </div>
+      </main>
+    </PageTransition>
   );
 }

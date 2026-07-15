@@ -121,7 +121,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
           </div>
           <div className="flex flex-col items-end gap-1">
             <span className="rounded-full bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">{profile.verificationStatus}</span>
-            {kyc && <span className="text-[11px] text-muted-foreground">Risk {kyc.riskScore ?? '—'}/100 · {kyc.verificationLevel}</span>}
+            {kyc && <span className="text-2xs text-muted-foreground">Risk {kyc.riskScore ?? '—'}/100 · {kyc.verificationLevel}</span>}
           </div>
         </div>
 
@@ -130,17 +130,17 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
           {/* Left column — record */}
           <div className="space-y-4 min-w-0">
             {/* Identity signals */}
-            <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
+            <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Identity verifications</h3>
               <ul className="text-sm space-y-1.5">
                 <li className="flex items-center justify-between"><span>Aadhaar</span>
-                  <span>{kyc?.aadhaarVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.aadhaarRefId && <span className="ml-2 font-mono text-[11px] text-muted-foreground">{kyc.aadhaarRefId}</span>}</span>
+                  <span>{kyc?.aadhaarVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.aadhaarRefId && <span className="ml-2 font-mono text-2xs text-muted-foreground">{kyc.aadhaarRefId}</span>}</span>
                 </li>
                 <li className="flex items-center justify-between"><span>PAN</span>
-                  <span>{kyc?.panVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.panLast4 && <span className="ml-2 font-mono text-[11px] text-muted-foreground">****{kyc.panLast4}</span>}</span>
+                  <span>{kyc?.panVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.panLast4 && <span className="ml-2 font-mono text-2xs text-muted-foreground">****{kyc.panLast4}</span>}</span>
                 </li>
                 <li className="flex items-center justify-between"><span>Bank</span>
-                  <span>{kyc?.bankVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.bankAccountLast4 && <span className="ml-2 font-mono text-[11px] text-muted-foreground">{kyc.bankIfsc} ****{kyc.bankAccountLast4}</span>}</span>
+                  <span>{kyc?.bankVerified ? <strong className="text-success">Verified</strong> : <em className="text-muted-foreground">—</em>}{kyc?.bankAccountLast4 && <span className="ml-2 font-mono text-2xs text-muted-foreground">{kyc.bankIfsc} ****{kyc.bankAccountLast4}</span>}</span>
                 </li>
                 <li className="flex items-center justify-between"><span>Liveness</span>
                   <span>{kyc?.livenessScore !== null && kyc?.livenessScore !== undefined ? <strong className={kyc.livenessScore >= 70 ? 'text-success' : 'text-warning'}>{kyc.livenessScore}/100</strong> : <em className="text-muted-foreground">—</em>}</span>
@@ -156,12 +156,12 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
                   ) : <em className="text-muted-foreground">—</em>}</span>
                 </li>
               </ul>
-              {kyc?.expiresAt && <p className="text-[11px] text-muted-foreground pt-2 border-t border-border">Expires {fmt(kyc.expiresAt)}</p>}
+              {kyc?.expiresAt && <p className="text-2xs text-muted-foreground pt-2 border-t border-border">Expires {fmt(kyc.expiresAt)}</p>}
             </div>
 
             {/* Risk factors */}
             {kyc?.riskFactors && kyc.riskFactors.length > 0 && (
-              <div className="rounded-xl border border-border bg-surface p-5 space-y-2">
+              <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-2">
                 <h3 className="text-sm font-semibold text-foreground">Risk factors</h3>
                 <ul className="space-y-1">
                   {kyc.riskFactors.map((f) => (
@@ -191,7 +191,7 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
             )}
 
             {/* Documents */}
-            <div className="rounded-xl border border-border bg-surface p-5 space-y-2">
+            <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Documents ({documents.length})</h3>
               {documents.length === 0 ? (
                 <p className="text-xs text-muted-foreground">No supplementary documents uploaded.</p>
@@ -201,10 +201,10 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
                     <li key={d.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2">
                       <div>
                         <p className="text-sm font-medium text-foreground">{d.documentType.replace(/_/g, ' ').toLowerCase()}</p>
-                        {d.documentLast4 && <p className="text-[11px] font-mono text-muted-foreground">****{d.documentLast4}</p>}
-                        <p className="text-[11px] text-muted-foreground">{fmt(d.uploadedAt)}</p>
+                        {d.documentLast4 && <p className="text-2xs font-mono text-muted-foreground">****{d.documentLast4}</p>}
+                        <p className="text-2xs text-muted-foreground">{fmt(d.uploadedAt)}</p>
                       </div>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                      <span className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${
                         d.status === 'VERIFIED' ? 'bg-success/10 text-success' :
                         d.status === 'REJECTED' ? 'bg-destructive/10 text-destructive' :
                                                   'bg-muted/40 text-muted-foreground'

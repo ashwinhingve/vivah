@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { CartPageClient } from '@/components/store/CartPageClient.client';
 
 export default function CartPage() {
@@ -9,10 +10,11 @@ export default function CartPage() {
         <div className="flex items-center gap-3 mb-6">
           <Link
             href="/store"
-            className="text-muted-foreground hover:text-teal transition-colors text-sm"
+            className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-teal transition-colors text-sm min-h-[44px]"
             aria-label="Back to store"
           >
-            ← Store
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Store
           </Link>
           <h1 className="font-heading text-primary text-xl font-bold">Your Cart</h1>
         </div>

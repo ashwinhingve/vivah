@@ -77,7 +77,7 @@ export function TicketThread({ ticketId, messages, myUserId }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+    <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3 sm:px-6">
         <MessageSquare className="h-4 w-4 text-teal" />
         <h2 className="font-heading text-lg text-primary">Conversation</h2>

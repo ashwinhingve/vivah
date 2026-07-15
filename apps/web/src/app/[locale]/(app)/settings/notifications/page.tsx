@@ -1,4 +1,8 @@
+import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { NotificationPrefsClient } from './NotificationPrefsClient.client';
 
 interface Prefs {
@@ -30,11 +34,21 @@ async function fetchPrefs(): Promise<Prefs> {
 export const dynamic = 'force-dynamic';
 
 export default async function NotificationSettingsPage() {
+  const t = await getTranslations('settings');
   const prefs = await fetchPrefs();
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 font-heading text-2xl font-semibold text-primary">Notification preferences</h1>
-      <NotificationPrefsClient initial={prefs} />
-    </main>
+    <PageTransition>
+      <main className="mx-auto max-w-2xl px-4 py-8">
+        <FadeUp>
+          <PageHeader
+            title={t('notifications')}
+            subtitle={t('notificationsDesc')}
+          />
+        </FadeUp>
+        <FadeUp delay={0.1}>
+          <NotificationPrefsClient initial={prefs} />
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

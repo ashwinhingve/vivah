@@ -18,7 +18,7 @@ import { BlockedDatesManager } from '@/components/vendor/BlockedDatesManager.cli
 import { VendorProfileEditor } from '@/components/vendor/VendorProfileEditor.client';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { RevenueSparkline } from '@/components/dashboard/RevenueSparkline.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
@@ -296,7 +296,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                             ₹{b.totalAmount.toLocaleString('en-IN')}
                           </p>
                           {b.eventLocation && (
-                            <p className="text-[10px] text-muted-foreground truncate max-w-[100px]">
+                            <p className="text-2xs text-muted-foreground truncate max-w-[100px]">
                               {b.eventLocation}
                             </p>
                           )}
@@ -324,7 +324,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                         >
                           {/* Calendar block */}
                           <div className="flex h-12 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-gold/30 bg-primary/5 text-center">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60">
+                            <span className="text-2xs font-bold uppercase tracking-wider text-primary/60">
                               {dateObj.toLocaleDateString('en-IN', { month: 'short' })}
                             </span>
                             <span className="font-heading text-lg font-bold leading-none text-primary">
@@ -343,7 +343,7 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                             <p className="text-sm font-semibold text-teal">
                               ₹{b.totalAmount.toLocaleString('en-IN')}
                             </p>
-                            <span className="text-[10px] font-semibold text-success bg-success/10 px-1.5 py-0.5 rounded-full">
+                            <span className="text-2xs font-semibold text-success bg-success/10 px-1.5 py-0.5 rounded-full">
                               {t('confirmed')}
                             </span>
                           </div>
@@ -379,19 +379,19 @@ export default async function VendorDashboardPage({ searchParams }: PageProps) {
                       <p className="font-heading text-xl font-bold text-teal">
                         {allBookings.filter((b) => b.status === 'COMPLETED').length}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceCompleted')}</p>
+                      <p className="text-2xs uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceCompleted')}</p>
                     </div>
                     <div>
                       <p className="font-heading text-xl font-bold text-primary">
                         {allBookings.filter((b) => b.status === 'CONFIRMED').length}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceConfirmed')}</p>
+                      <p className="text-2xs uppercase tracking-wide text-muted-foreground mt-0.5">{t('performanceConfirmed')}</p>
                     </div>
                     <div>
                       <p className="font-heading text-xl font-bold text-warning">
                         {pendingCount}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{t('performancePending')}</p>
+                      <p className="text-2xs uppercase tracking-wide text-muted-foreground mt-0.5">{t('performancePending')}</p>
                     </div>
                   </div>
                 </div>

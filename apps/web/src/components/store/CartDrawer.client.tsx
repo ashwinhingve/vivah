@@ -54,7 +54,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             items.map((item) => (
               <div
                 key={item.productId}
-                className="flex gap-3 rounded-xl border border-border bg-surface p-3"
+                className="flex gap-3 rounded-2xl border border-gold/20 bg-surface p-3"
               >
                 <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-secondary">
                   {item.imageKey ? (
@@ -73,7 +73,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-foreground">{item.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{item.vendorName}</p>
+                  <p className="text-2xs text-muted-foreground">{item.vendorName}</p>
                   <p className="mt-0.5 text-sm font-semibold text-teal">
                     ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                   </p>

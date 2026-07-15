@@ -1,6 +1,12 @@
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { PlatformSettingsForm } from './PlatformSettingsForm.client';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +21,7 @@ interface PlatformSettingRow {
 }
 
 export default async function AdminPlatformSettingsPage() {
+  const t = await getTranslations('adminRole');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value;
   if (!token) {
@@ -35,18 +42,28 @@ export default async function AdminPlatformSettingsPage() {
   const lgbtqEnabled = lgbtqRow?.value === true;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="mb-8">
-        <h1 className="font-heading text-2xl font-semibold text-primary">Platform Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Global feature toggles that affect every user.
-        </p>
-      </div>
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
 
-      <PlatformSettingsForm
-        lgbtqEnabled={lgbtqEnabled}
-        lgbtqUpdatedAt={lgbtqRow?.updatedAt ?? null}
-      />
-    </div>
+        <FadeUp>
+          <PageHeader
+            title={t('settings.title')}
+            subtitle={t('settings.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('settings.breadcrumb') }]}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <PlatformSettingsForm
+            lgbtqEnabled={lgbtqEnabled}
+            lgbtqUpdatedAt={lgbtqRow?.updatedAt ?? null}
+          />
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

@@ -115,8 +115,8 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
             ) : (
               <ul className="space-y-2">
                 {voices.map((v) => (
-                  <li key={v.messageId} className="rounded-xl border border-gold/20 p-2">
-                    <p className="px-1 pb-1 text-[11px] text-muted-foreground">
+                  <li key={v.messageId} className="rounded-2xl border border-gold/20 p-2">
+                    <p className="px-1 pb-1 text-2xs text-muted-foreground">
                       {new Date(v.sentAt).toLocaleString('en-IN', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
                       })}
@@ -147,7 +147,7 @@ function TabBtn({
     >
       {icon}
       {label}
-      <span className={cn('text-[10px]', active ? 'text-white/80' : 'text-muted-foreground/70')}>
+      <span className={cn('text-2xs', active ? 'text-white/80' : 'text-muted-foreground/70')}>
         ({count})
       </span>
     </button>

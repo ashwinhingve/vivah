@@ -47,7 +47,7 @@ export function BookingQueueList({ initialBookings }: Props) {
 
   if (pending.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gold/40 bg-surface p-8 text-center">
+      <div className="rounded-2xl border border-dashed border-gold/40 bg-surface p-8 text-center">
         <p className="text-sm font-semibold text-primary">No pending bookings</p>
         <p className="text-xs text-muted-foreground mt-1">New requests will appear here</p>
       </div>
@@ -64,7 +64,7 @@ export function BookingQueueList({ initialBookings }: Props) {
       {pending.map((booking) => (
         <div
           key={booking.id}
-          className="rounded-xl border border-gold/40 bg-surface p-4 flex items-center justify-between gap-3"
+          className="rounded-2xl border border-gold/20 bg-surface p-4 flex items-center justify-between gap-3 shadow-card"
         >
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{booking.vendorName}</p>

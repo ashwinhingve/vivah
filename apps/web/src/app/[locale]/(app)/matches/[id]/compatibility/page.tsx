@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { CompatibilityDisclaimer } from '@/components/dpi/CompatibilityDisclaimer';
 import { CompatibilityGauge } from '@/components/dpi/CompatibilityGauge.client';
 import { FiiDetailPanel } from '@/components/fii/FiiDetailPanel.client';
@@ -33,13 +34,11 @@ export default async function CompatibilityPage({ params }: PageProps) {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <CompatibilityDisclaimer />
 
-        <h1 className="font-heading text-primary text-2xl mb-2">
-          {t('heading')}
-        </h1>
-
-        <p className="text-muted-foreground text-sm mb-6">
-          A thoughtful look at your match based on profile patterns.
-        </p>
+        <PageHeader
+          title={t('heading')}
+          subtitle="A thoughtful look at your match based on profile patterns."
+          className="mb-6"
+        />
 
         <Suspense fallback={<GaugeSkeleton />}>
           <CompatibilityGauge matchId={id} />

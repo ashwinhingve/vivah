@@ -44,7 +44,7 @@ export function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
               >
                 <span
                   className={cn(
-                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px]',
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-2xs',
                     active && 'border-primary bg-primary text-white',
                     done && 'border-teal bg-teal text-white',
                     !active && !done && 'border-border bg-surface text-text-muted',

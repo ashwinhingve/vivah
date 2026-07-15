@@ -397,7 +397,7 @@ export function ProfilePhotoUploader({
           } min-h-[200px] flex flex-col items-center justify-center gap-3`}
         >
           <div className="text-4xl">📷</div>
-          <p className="font-['Playfair_Display'] text-lg text-primary">
+          <p className="font-heading text-lg text-primary">
             Add Your Best Photo First
           </p>
           <p className="text-sm text-muted-foreground">

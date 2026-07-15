@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { ResolveDisputeRow } from './ResolveDisputeRow.client';
 
 interface DisputedBookingRow {
@@ -58,10 +59,13 @@ export function DisputeTableClient({ disputes }: Props) {
       )}
 
       {/* Disputes table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
         {/* Mobile scroll hint */}
         <div className="block sm:hidden px-4 py-2 text-xs text-muted-foreground bg-secondary border-b border-border">
-          Scroll right to see all columns →
+          <span className="inline-flex items-center gap-1">
+            Scroll right to see all columns
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left">

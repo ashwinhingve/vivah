@@ -6,6 +6,8 @@
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { RentalCard } from '@/components/rental/RentalCard';
 import { CategoryTabs } from '@/components/rental/CategoryTabs.client';
 import { DateRangePicker } from '@/components/rental/DateRangePicker.client';
@@ -33,12 +35,6 @@ interface SearchParams {
 interface Props {
   searchParams: Promise<SearchParams>;
 }
-
-const inrFormatter = new Intl.NumberFormat('en-IN', {
-  style:    'currency',
-  currency: 'INR',
-  maximumFractionDigits: 0,
-});
 
 export default async function RentalsPage({ searchParams }: Props) {
   const params   = await searchParams;
@@ -76,12 +72,10 @@ export default async function RentalsPage({ searchParams }: Props) {
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-primary font-heading">Rent for Your Wedding</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Browse decor, costumes, AV equipment and more
-          </p>
-        </div>
+        <PageHeader
+          title="Rent for Your Wedding"
+          subtitle="Browse decor, costumes, AV equipment and more"
+        />
 
         {/* Filters */}
         <div className="space-y-3">
@@ -139,7 +133,7 @@ export default async function RentalsPage({ searchParams }: Props) {
               const pqs = new URLSearchParams(qs.toString());
               pqs.set('page', String(p));
               return (
-                <a
+                <Link
                   key={p}
                   href={`/rentals?${pqs.toString()}`}
                   className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
@@ -150,7 +144,7 @@ export default async function RentalsPage({ searchParams }: Props) {
                   aria-current={p === currentPage ? 'page' : undefined}
                 >
                   {p}
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -159,6 +153,3 @@ export default async function RentalsPage({ searchParams }: Props) {
     </div>
   );
 }
-
-// suppress unused import warning
-void inrFormatter;

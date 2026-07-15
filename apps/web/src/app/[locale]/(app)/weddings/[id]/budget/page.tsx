@@ -65,7 +65,7 @@ export default async function BudgetPage({ params }: PageProps) {
         />
 
         {/* Sub-tab nav (preserved Mohit fix: ?from=budget links) */}
-        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-sm p-1 mb-6">
+        <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-card p-1 mb-6">
           {[
             { href: `/weddings/${id}/tasks?from=budget`,  label: 'Tasks',  active: false },
             { href: `/weddings/${id}/budget`,             label: 'Budget', active: true },
@@ -97,7 +97,7 @@ export default async function BudgetPage({ params }: PageProps) {
           <>
             {/* Donut + summary */}
             {plan.budget.categories.length > 0 && (
-              <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-5 shadow-sm">
+              <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-5 shadow-card">
                 <SectionHeader title="Spend by Category" />
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   {/* Donut — reuse pure-SVG BudgetDonut; no recharts */}
@@ -116,7 +116,7 @@ export default async function BudgetPage({ params }: PageProps) {
                       <span className="font-heading text-base font-bold text-primary leading-tight">
                         {formatINRCompact(totalSpent)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">of {formatINRCompact(totalBudget)}</span>
+                      <span className="text-2xs text-muted-foreground">of {formatINRCompact(totalBudget)}</span>
                     </div>
                   </div>
 
@@ -173,7 +173,7 @@ export default async function BudgetPage({ params }: PageProps) {
 
         {/* No plan yet */}
         {!error && !plan && (
-          <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center shadow-sm">
+          <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center shadow-card">
             <p className="text-muted-foreground font-medium">No wedding plan found.</p>
             <p className="text-muted-foreground text-sm mt-1">
               Create a wedding plan first to track your budget.

@@ -48,18 +48,19 @@ import {
   CardListSkeleton,
   Container,
   DataTable,
-  EmptyState,
   ErrorState,
   FilterSheet,
   Form,
   FormField,
   MaskedField,
-  PageHeader,
+
   ProfileDetailSkeleton,
   Section,
   StickyActionBar,
   TableSkeleton,
 } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type Payout = { id: string; vendor: string; amount: number; status: 'paid' | 'pending' };
 
@@ -81,7 +82,7 @@ export function UIKitClient() {
           eyebrow="Smart Shaadi"
           title="UI Kit Sandbox"
           subtitle="Every primitive + shared layout component, rendered for visual verification. Dev only."
-          action={<Button variant="primary">Reset</Button>}
+          actions={<Button variant="primary">Reset</Button>}
         />
 
         {/* ── Buttons ── */}

@@ -73,7 +73,7 @@ function MessageBubbleInner({
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-primary leading-tight">{t('videoCall.started')}</p>
-              {rel ? <p className="text-[11px] text-gold-muted">{t('videoCall.startedAgo', { time: rel })}</p> : null}
+              {rel ? <p className="text-2xs text-gold-muted">{t('videoCall.startedAgo', { time: rel })}</p> : null}
             </div>
             {joinUrl ? (
               <a
@@ -168,7 +168,7 @@ function MessageBubbleInner({
       <div className="relative flex max-w-[78%] flex-col">
         {message.forwardedFrom ? (
           <span className={cn(
-            'mb-1 inline-flex items-center gap-1 text-[10px] italic text-muted-foreground',
+            'mb-1 inline-flex items-center gap-1 text-2xs italic text-muted-foreground',
             isSent ? 'self-end' : 'self-start',
           )}>
             <Forward className="h-3 w-3" /> {t('forwarded')}
@@ -223,7 +223,7 @@ function MessageBubbleInner({
             </p>
             {translatedContent ? (
               <span className={cn(
-                'mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
+                'mt-1 inline-block rounded-full px-2 py-0.5 text-2xs font-medium',
                 isSent ? 'bg-white/20 text-white/85' : 'bg-gold/20 text-gold-muted',
               )}>
                 {t('translatedBadge')}
@@ -304,7 +304,7 @@ function MessageBubbleInner({
         {clusterLast ? (
           <span
             className={cn(
-              'mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground',
+              'mt-1 inline-flex items-center gap-1 text-2xs text-muted-foreground',
               isSent ? 'self-end' : 'self-start',
             )}
           >

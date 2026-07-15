@@ -39,7 +39,7 @@ export function FiiCardBadge({ matchId }: Props) {
 
   return (
     <span
-      className="inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-medium border"
+      className="inline-flex h-6 items-center rounded-full px-2.5 text-2xs font-medium border"
       style={{
         backgroundColor: `${color}26`,
         borderColor: `${color}4D`,

@@ -43,7 +43,7 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-card">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-6 shadow-card">
         <h2 className="mb-1 text-lg font-semibold text-primary">Channels</h2>
         <p className="mb-4 text-sm text-muted-foreground">Choose how you want to be notified.</p>
         <div className="divide-y divide-border">
@@ -64,7 +64,7 @@ export function NotificationPrefsClient({ initial }: { initial: Prefs }) {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-card">
+      <section className="rounded-2xl border border-gold/20 bg-surface p-6 shadow-card">
         <h2 className="mb-1 text-lg font-semibold text-primary">Mute specific events</h2>
         <p className="mb-4 text-sm text-muted-foreground">Even with channels enabled, these specific events will not notify you.</p>
         <div className="divide-y divide-border">

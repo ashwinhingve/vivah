@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateLifestyle } from '../actions';
@@ -82,8 +83,11 @@ export default function LifestylePage() {
   return (
     <div>
       <ProfileProgress steps={STEPS} />
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
-        <h1 className="text-lg font-semibold text-primary font-heading mb-6">Lifestyle & Interests</h1>
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
+        <PageHeader
+          title="Lifestyle & Interests"
+          className="mb-6"
+        />
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-6">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">

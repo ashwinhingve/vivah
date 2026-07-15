@@ -26,7 +26,7 @@ export function BillingConfirm({ planCode, planName, amount, interval, features,
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-xl border border-gold/40 bg-surface p-8 shadow-card">
+    <div className="mx-auto max-w-md rounded-2xl border border-gold/40 bg-surface p-8 shadow-card">
       {isMock ? (
         <div className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
           Test Mode — no real charge will be made

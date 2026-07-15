@@ -50,7 +50,7 @@ export async function WeddingCard({ wedding }: WeddingCardProps) {
 
   return (
     <Link href={`/weddings/${wedding.id}`} className="block group">
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-5 hover:shadow-card-hover hover:border-gold/40 hover:-translate-y-0.5 transition-all duration-200">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5 hover:shadow-card-hover hover:border-gold/40 hover:-translate-y-0.5 transition-all duration-200">
         {/* Title row */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export async function WeddingCard({ wedding }: WeddingCardProps) {
         {/* Task progress */}
         {total > 0 && (
           <div className="mb-3">
-            <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="mb-1 flex items-center justify-between text-2xs text-muted-foreground">
               <span>{t('planningProgress')}</span>
               <span className="font-semibold text-primary">{taskPct}%</span>
             </div>

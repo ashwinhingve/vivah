@@ -117,7 +117,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">{i.title}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                  <span className={`rounded-full px-2 py-0.5 text-2xs font-medium uppercase tracking-wide ${
                     i.severity === 'CRITICAL' ? 'bg-destructive text-destructive' :
                     i.severity === 'HIGH'     ? 'bg-warning/20 text-warning' :
                     i.severity === 'MEDIUM'   ? 'bg-warning/15 text-warning' :
@@ -141,7 +141,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
                   Resolve
                 </button>
               ) : (
-                <span className="shrink-0 rounded-full bg-success/15 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-success">Resolved</span>
+                <span className="shrink-0 rounded-full bg-success/15 px-2 py-1 text-2xs font-medium uppercase tracking-wide text-success">Resolved</span>
               )}
             </li>
           ))}

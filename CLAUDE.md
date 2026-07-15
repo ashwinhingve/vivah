@@ -494,7 +494,7 @@ Heading font: Playfair Display (next/font/google, --font-heading, weight 500/600
 Body font:    system-ui, -apple-system, "Segoe UI", sans-serif (--font-body) — fast on low-end Android, no extra payload
 Hindi font:   Noto Serif Devanagari (--font-hindi, loaded but unused — bilingual ready)
 
-Cards:         rounded-xl, shadow-card token, p-4 sm:p-6
+Cards:         rounded-2xl, shadow-card token, p-4 sm:p-6
 Buttons:       rounded-lg, h-11 default (44px touch target)
 Badges:        rounded-full
 Touch targets: min 44×44px

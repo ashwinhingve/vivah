@@ -1,6 +1,14 @@
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
+import { Package } from 'lucide-react';
 import { VendorOrderRow } from '@/components/store/VendorOrderRow.client';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 import type { VendorOrderItem } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -38,6 +46,7 @@ interface PageProps {
 }
 
 export default async function VendorOrdersPage({ searchParams }: PageProps) {
+  const t = await getTranslations('vendorRole.orders');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -58,9 +67,6 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
   const shippedCount = allItems.filter((i) => i.fulfilmentStatus === 'SHIPPED').length;
   const deliveredCount = allItems.filter((i) => i.fulfilmentStatus === 'DELIVERED').length;
 
-  // Realised revenue = sum of subtotals for DELIVERED items. Subtotal is a
-  // decimal string from Postgres (exactOptionalPropertyTypes) so parseFloat
-  // before summing.
   const revenue = allItems
     .filter((i) => i.fulfilmentStatus === 'DELIVERED')
     .reduce((sum, i) => sum + parseFloat(String(i.subtotal ?? '0')), 0);
@@ -69,94 +75,61 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
     : '₹0';
 
   return (
-    <main className="min-h-screen bg-background px-4 py-6">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-heading text-primary text-2xl font-bold mb-0.5">
-            Orders
-          </h1>
-          <p className="text-muted-foreground text-sm">Fulfil and track customer orders</p>
-        </div>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background px-4 py-6">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <FadeUp>
+            <PageHeader
+              title={t('title')}
+              subtitle={t('subtitle')}
+            />
+          </FadeUp>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pending</p>
-            <p className="text-2xl font-bold font-heading text-warning">{pendingCount}</p>
-            <p className="text-xs text-muted-foreground">to ship</p>
-          </div>
-          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Shipped</p>
-            <p className="text-2xl font-bold font-heading text-primary">{shippedCount}</p>
-            <p className="text-xs text-muted-foreground">in transit</p>
-          </div>
-          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Delivered</p>
-            <p className="text-2xl font-bold font-heading text-success">{deliveredCount}</p>
-            <p className="text-xs text-muted-foreground">completed</p>
-          </div>
-          <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Revenue</p>
-            <p className="text-2xl font-bold font-heading text-gold">{revenueLabel}</p>
-            <p className="text-xs text-muted-foreground">realised (delivered)</p>
-          </div>
-        </div>
+          <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatsCard label={t('statPending')} value={pendingCount} sub={t('statPendingSub')} icon={Package} variant="warning" />
+            <StatsCard label={t('statShipped')} value={shippedCount} sub={t('statShippedSub')} icon={Package} variant="default" />
+            <StatsCard label={t('statDelivered')} value={deliveredCount} sub={t('statDeliveredSub')} icon={Package} variant="success" />
+            <StatsCard label={t('statRevenue')} value={revenueLabel} sub={t('statRevenueSub')} icon={Package} variant="gold" />
+          </StaggerList>
 
-        {/* Status filter tabs */}
-        <div className="flex gap-1 mb-5 overflow-x-auto pb-1">
-          {STATUS_TABS.map(({ label, value }) => {
-            const isActive = activeFilter === value;
-            return (
-              <Link
-                key={value}
-                href={value === 'ALL' ? '/vendor-dashboard/orders' : `?status=${value.toLowerCase()}`}
-                className={`shrink-0 min-h-[44px] px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center ${
-                  isActive
-                    ? 'bg-teal text-white'
-                    : 'bg-surface border border-gold/20 text-muted-foreground hover:border-teal hover:text-teal'
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
+          <FadeUp>
+            <div className="flex gap-1 overflow-x-auto pb-1">
+              {STATUS_TABS.map(({ value }) => {
+                const isActive = activeFilter === value;
+                return (
+                  <Link
+                    key={value}
+                    href={value === 'ALL' ? '/vendor-dashboard/orders' : `?status=${value.toLowerCase()}`}
+                    className={`shrink-0 min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center ${
+                      isActive
+                        ? 'bg-teal text-white'
+                        : 'bg-surface border border-gold/20 text-muted-foreground hover:border-teal hover:text-teal'
+                    }`}
+                  >
+                    {t(`tab${value}`)}
+                  </Link>
+                );
+              })}
+            </div>
+          </FadeUp>
 
-        {/* Order list */}
-        {filteredItems.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gold/30 bg-surface py-16 flex flex-col items-center gap-3 text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-gold/40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+          <FadeUp>
+            {filteredItems.length === 0 ? (
+              <EmptyState
+                icon={Package}
+                title={activeFilter === 'ALL' ? t('emptyAll') : t('emptyFiltered', { status: activeFilter.toLowerCase() })}
+                description={activeFilter === 'ALL' ? t('emptyAllDesc') : t('emptyFilteredDesc', { status: activeFilter.toLowerCase() })}
               />
-            </svg>
-            <p className="font-heading text-primary font-semibold text-lg">
-              {activeFilter === 'ALL' ? 'No orders yet' : `No ${activeFilter.toLowerCase()} orders`}
-            </p>
-            <p className="text-muted-foreground text-sm max-w-xs">
-              {activeFilter === 'ALL'
-                ? 'Orders will appear here once customers purchase your products.'
-                : `No orders with ${activeFilter.toLowerCase()} status at the moment.`}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredItems.map((item) => (
-              <VendorOrderRow key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+            ) : (
+              <StaggerList className="space-y-3">
+                {filteredItems.map((item) => (
+                  <VendorOrderRow key={item.id} item={item} />
+                ))}
+              </StaggerList>
+            )}
+          </FadeUp>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

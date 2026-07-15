@@ -40,8 +40,8 @@ export function LevelTierCards({ current, levels }: Props) {
       <div className="space-y-2">
         {levels.map((l) => (
           <div key={l.level}
-            className={`rounded-xl border p-4 transition-colors ${
-              l.unlocked ? 'border-success/30 bg-success/5' : 'border-border bg-surface'
+            className={`rounded-2xl border p-4 transition-colors ${
+              l.unlocked ? 'border-success/30 bg-success/5' : 'border-gold/20 bg-surface'
             }`}>
             <div className="flex items-start gap-3">
               <span className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${
@@ -52,7 +52,7 @@ export function LevelTierCards({ current, levels }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <p className={`text-sm font-semibold ${l.unlocked ? 'text-success' : 'text-foreground'}`}>{LABEL[l.level]}</p>
-                  <span className={`text-[11px] font-semibold uppercase tracking-wider ${
+                  <span className={`text-2xs font-semibold uppercase tracking-wider ${
                     l.unlocked ? 'text-success' : 'text-muted-foreground'
                   }`}>
                     {l.unlocked ? 'Unlocked' : 'Locked'}
@@ -70,7 +70,7 @@ export function LevelTierCards({ current, levels }: Props) {
                 )}
                 {!l.unlocked && l.missing.length > 0 && (
                   <div className="mt-2 rounded-lg border border-warning/20 bg-warning/5 px-3 py-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-warning">To unlock</p>
+                    <p className="text-2xs font-semibold uppercase tracking-wider text-warning">To unlock</p>
                     <ul className="mt-1 space-y-0.5">
                       {l.missing.map((m) => (
                         <li key={m} className="text-xs text-foreground">• {m}</li>

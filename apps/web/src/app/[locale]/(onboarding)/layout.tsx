@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from '@/i18n/navigation';
 import { UserMenu } from '@/components/ui/UserMenu.client';
+import { LogoMark } from '@/components/marketing/Logo';
 import { AppNav } from '@/components/layout/AppNav.client';
 import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
 
@@ -11,9 +12,12 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-2">
           <Link
             href="/dashboard"
-            className="font-bold text-primary text-xl font-heading"
+            className="flex min-w-0 items-center gap-2"
           >
-            Smart Shaadi
+            <LogoMark size={28} decorative className="shrink-0" />
+            <span className="truncate font-bold text-primary text-xl font-heading">
+              Smart Shaadi
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-xs text-muted-foreground">Complete your profile</span>

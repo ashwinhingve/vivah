@@ -57,7 +57,7 @@ export function MoodBoardClient({ weddingId, initialItems, addAction, deleteActi
       </div>
 
       {/* Upload form */}
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5">
         <h3 className="font-semibold text-primary mb-3">Add inspiration</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="sm:col-span-2">

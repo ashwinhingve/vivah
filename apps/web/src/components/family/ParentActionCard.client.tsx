@@ -54,7 +54,7 @@ export function ParentActionCard({ action, names }: Props) {
   const isPending = action.status === 'PENDING';
 
   return (
-    <article className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card">
+    <article className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <span className="inline-block rounded-full bg-teal/10 text-teal text-xs px-2 py-0.5">

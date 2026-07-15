@@ -39,26 +39,26 @@ export function KycAppealResolver({ appeal }: { appeal: Appeal }) {
   const closed = appeal.status === 'UPHELD' || appeal.status === 'DENIED' || appeal.status === 'WITHDRAWN';
 
   return (
-    <div className={`rounded-xl border p-4 space-y-3 ${
-      closed ? 'border-border bg-surface' : 'border-warning/30 bg-warning/5'
+    <div className={`rounded-2xl border p-4 space-y-3 ${
+      closed ? 'border-gold/20 bg-surface' : 'border-warning/30 bg-warning/5'
     }`}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">Appeal · {appeal.status}</p>
-        <p className="text-[11px] text-muted-foreground">{new Date(appeal.createdAt).toLocaleString('en-IN')}</p>
+        <p className="text-2xs text-muted-foreground">{new Date(appeal.createdAt).toLocaleString('en-IN')}</p>
       </div>
       {appeal.rejectionContext && (
         <div className="rounded-lg border border-border bg-background p-3">
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Original rejection</p>
+          <p className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">Original rejection</p>
           <p className="text-sm text-foreground mt-1">{appeal.rejectionContext}</p>
         </div>
       )}
       <div>
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">User message</p>
+        <p className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">User message</p>
         <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{appeal.userMessage}</p>
       </div>
       {closed && appeal.resolverNote && (
         <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Resolver note</p>
+          <p className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">Resolver note</p>
           <p className="text-sm text-foreground mt-1">{appeal.resolverNote}</p>
         </div>
       )}

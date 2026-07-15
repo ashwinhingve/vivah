@@ -3,7 +3,8 @@ import { Star, MessageSquare } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor } from '@/lib/vendor-onboarding-api';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { getTranslations } from 'next-intl/server';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
@@ -25,6 +26,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export default async function VendorReviewsPage() {
+  const t = await getTranslations('vendorRole.reviews');
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
@@ -47,7 +49,7 @@ export default async function VendorReviewsPage() {
       <main id="main-content" className="mx-auto max-w-3xl px-4 py-8">
         <FadeUp>
           <PageHeader
-            title="Reviews"
+            title={t('title')}
             subtitle={
               avg
                 ? `${avg} average across ${total} review${total === 1 ? '' : 's'} — replying builds trust with future couples.`
@@ -60,8 +62,8 @@ export default async function VendorReviewsPage() {
           <FadeUp>
             <EmptyState
               icon={MessageSquare}
-              title="No reviews yet"
-              description="Reviews from couples you’ve worked with will appear here. You can reply to each one."
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
             />
           </FadeUp>
         ) : (

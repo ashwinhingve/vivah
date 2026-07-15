@@ -57,7 +57,7 @@ export function BlockedDatesManager({ initial }: BlockedDatesManagerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl border border-gold/30 bg-surface p-4">
+      <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
         <p className="text-sm font-semibold text-primary mb-2">Block a new date</p>
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
           <input
@@ -87,13 +87,13 @@ export function BlockedDatesManager({ initial }: BlockedDatesManagerProps) {
       </div>
 
       {list.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gold/30 bg-surface p-6 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed border-gold/30 bg-surface p-6 text-center text-sm text-muted-foreground">
           No blocked dates yet. Block dates when you're unavailable so customers can't book.
         </div>
       ) : (
         <ul className="space-y-2">
           {list.map((d) => (
-            <li key={d.id} className="flex items-center justify-between rounded-xl border border-gold/30 bg-surface px-4 py-2.5">
+            <li key={d.id} className="flex items-center justify-between rounded-2xl border border-gold/20 bg-surface px-4 py-2.5 shadow-card">
               <div>
                 <p className="text-sm font-medium text-foreground">
                   {new Date(d.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}

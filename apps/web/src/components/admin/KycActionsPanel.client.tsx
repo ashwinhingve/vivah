@@ -46,7 +46,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
   const inactive = status === 'VERIFIED' || status === 'REJECTED';
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Reviewer actions</h3>
 
       {error && <p className="text-xs text-destructive" role="alert">{error}</p>}
@@ -78,7 +78,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
             return (
               <button key={d} type="button"
                 onClick={() => setRequiredDocs(on ? requiredDocs.filter(x => x !== d) : [...requiredDocs, d])}
-                className={`text-[11px] font-semibold rounded-full px-2 py-1 transition-colors ${
+                className={`text-2xs font-semibold rounded-full px-2 py-1 transition-colors ${
                   on ? 'bg-primary text-white' : 'bg-muted/40 text-foreground hover:bg-muted/60'
                 }`}>
                 {d.replace(/_/g, ' ').toLowerCase()}
@@ -97,7 +97,7 @@ export function KycActionsPanel({ profileId, status }: Props) {
       </div>
 
       {inactive && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-2xs text-muted-foreground">
           Profile already in terminal state ({status}). Actions disabled.
         </p>
       )}

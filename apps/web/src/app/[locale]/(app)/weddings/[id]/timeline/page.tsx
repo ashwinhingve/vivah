@@ -1,6 +1,8 @@
 import { Clock, MapPin, Sparkles, Plus } from 'lucide-react';
 import { fetchTimeline } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import type { Ceremony } from '@smartshaadi/types';
 import { createEventAction, deleteEventAction, autoGenerateAction } from './actions';
 
@@ -32,19 +34,22 @@ export default async function TimelinePage({ params }: PageProps) {
   const dates = [...byDate.keys()].sort();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-heading text-2xl text-primary">Day-of Schedule</h1>
-          {cers.length > 0 && events.length === 0 && (
-            <form action={autoGenerateAction.bind(null, id)}>
-              <button type="submit" className="flex items-center gap-2 min-h-[40px] px-4 rounded-lg bg-primary text-white text-sm font-medium">
-                <Sparkles className="h-4 w-4" /> Auto-generate from ceremonies
-              </button>
-            </form>
-          )}
-        </div>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
+          <div className="flex items-center justify-between mb-6">
+            <PageHeader
+              title="Day-of Schedule"
+              subtitle="Build out your day's timeline and assign vendors."
+            />
+            {cers.length > 0 && events.length === 0 && (
+              <form action={autoGenerateAction.bind(null, id)}>
+                <button type="submit" className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <Sparkles className="h-4 w-4" aria-hidden="true" /> Auto-generate
+                </button>
+              </form>
+            )}
+          </div>
 
         {dates.length === 0 ? (
           <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center">
@@ -134,7 +139,8 @@ export default async function TimelinePage({ params }: PageProps) {
             <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Add to schedule</button>
           </form>
         </details>
-      </div>
-    </div>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

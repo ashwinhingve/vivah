@@ -90,7 +90,7 @@ function ProfileCardBase({
   return (
     <article
       className={cn(
-        'group flex flex-col overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-gold/40 hover:shadow-card-hover',
+        'group flex flex-col overflow-hidden rounded-2xl border border-gold/30 bg-surface shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-gold/50 hover:shadow-card-hover',
         className
       )}
     >
@@ -129,7 +129,7 @@ function ProfileCardBase({
           >
             <span className="font-heading text-lg font-bold leading-none text-primary">
               {pct}
-              <span className="align-top text-[11px] font-semibold text-gold-muted">%</span>
+              <span className="align-top text-2xs font-semibold text-gold-muted">%</span>
             </span>
             {tierLabel && (
               <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-gold-muted">
@@ -139,22 +139,22 @@ function ProfileCardBase({
           </div>
         )}
 
-        {/* Top-right: status pills, stacked — request-sent first, then trust */}
-        <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+        {/* Top-right: status pills, wrapping row — avoids collision with medallion at narrow widths */}
+        <div className="absolute right-3 top-3 flex flex-wrap items-start justify-end gap-1">
           {requestSent && (
-            <span className="flex items-center gap-1 rounded-full bg-teal px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+            <span className="flex items-center gap-1 rounded-full bg-teal px-2 py-0.5 text-2xs font-semibold text-white shadow-sm">
               <CheckCircle2 className="h-3.5 w-3.5" />
               {t('interestSent')}
             </span>
           )}
           {isVerified && (
-            <span className="flex items-center gap-1 rounded-full bg-teal/95 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur">
+            <span className="flex items-center gap-1 rounded-full bg-teal/95 px-2 py-0.5 text-2xs font-semibold text-white shadow-sm backdrop-blur">
               <BadgeCheck className="h-3.5 w-3.5" />
               {t('verified')}
             </span>
           )}
           {isNew && (
-            <span className="rounded-full bg-gold/95 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur">
+            <span className="rounded-full bg-gold/95 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur">
               {t('new')}
             </span>
           )}

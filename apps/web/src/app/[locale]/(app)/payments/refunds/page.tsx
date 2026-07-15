@@ -4,7 +4,9 @@
  */
 import { cookies } from 'next/headers';
 import type { RefundRecord, RefundStatus } from '@smartshaadi/types';
-import { Container, EmptyState, PageHeader } from '@/components/shared';
+import { Container } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 

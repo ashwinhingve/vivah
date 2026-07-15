@@ -1,7 +1,9 @@
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -58,22 +60,26 @@ export default async function ProfileCompletePage() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
         {/* Score celebration */}
-        <div className="text-center">
-          <div className="text-5xl mb-3">{isGreat ? '🎉' : '✨'}</div>
-          <h1 className="font-heading text-2xl font-semibold text-primary">
-            {isGreat ? t('greatHeadline') : t('almostHeadline')}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isGreat ? t('greatSub') : t('almostSub')}
-          </p>
-          {/* Big score circle */}
-          <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-teal flex flex-col items-center justify-center bg-surface shadow-sm">
-            <span className="font-heading text-2xl font-bold text-teal">
-              {score}%
-            </span>
-            <span className="text-xs text-muted-foreground">{t('completeWord')}</span>
+        <FadeUp>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center mb-3 p-3 rounded-full bg-gold/10">
+              <Sparkles className="h-8 w-8 text-gold-muted" aria-hidden="true" />
+            </div>
+            <h1 className="font-heading text-2xl font-semibold text-primary">
+              {isGreat ? t('greatHeadline') : t('almostHeadline')}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isGreat ? t('greatSub') : t('almostSub')}
+            </p>
+            {/* Big score circle */}
+            <div className="mt-6 mx-auto w-24 h-24 rounded-full border-4 border-teal flex flex-col items-center justify-center bg-surface shadow-sm">
+              <span className="font-heading text-2xl font-bold text-teal">
+                {score}%
+              </span>
+              <span className="text-xs text-muted-foreground">{t('completeWord')}</span>
+            </div>
           </div>
-        </div>
+        </FadeUp>
 
         {/* Completeness bar */}
         {sections && <CompletenessBar sections={sections} />}
@@ -97,7 +103,7 @@ export default async function ProfileCompletePage() {
                         <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0 group-hover:border-teal transition-colors" />
                         {t(`sections.${key}` as 'sections.personal')}
                       </span>
-                      <span className="text-muted-foreground/60 group-hover:text-primary">›</span>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary transition-colors" aria-hidden="true" />
                     </Link>
                   </li>
                 );
@@ -109,9 +115,10 @@ export default async function ProfileCompletePage() {
         {/* CTA */}
         <Link
           href="/dashboard"
-          className="block w-full bg-teal text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-teal-hover"
+          className="inline-flex w-full items-center justify-center gap-2 bg-teal text-white font-semibold rounded-lg py-3 text-sm min-h-[48px] active:scale-[0.97] transition-transform hover:bg-teal-hover"
         >
-          {t('goToDashboard')} →
+          {t('goToDashboard')}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
     </div>

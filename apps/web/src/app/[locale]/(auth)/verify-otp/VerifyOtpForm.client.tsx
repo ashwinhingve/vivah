@@ -151,7 +151,7 @@ export default function VerifyOtpForm() {
         className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 h-24 w-48 rounded-full bg-teal/15 blur-3xl"
       />
       <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-teal">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-2xs font-semibold uppercase tracking-widest text-teal">
           <ShieldCheck className="h-3 w-3" aria-hidden="true" />
           {t('badge')}
         </span>
@@ -233,7 +233,7 @@ export default function VerifyOtpForm() {
         )}
       </p>
 
-      <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-gold-muted">
+      <p className="flex items-center justify-center gap-1.5 text-center text-2xs text-gold-muted">
         <Lock className="h-3 w-3 shrink-0" aria-hidden="true" />
         {t('reassurance')}
       </p>

@@ -81,7 +81,7 @@ export function KycQueueTable({ initialRows }: Props) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gold/40 bg-surface p-8 text-center">
+      <div className="rounded-2xl border border-dashed border-gold/20 bg-surface p-8 text-center">
         <p className="text-sm font-semibold text-primary">KYC queue empty</p>
         <p className="text-xs text-muted-foreground mt-1">All profiles reviewed</p>
       </div>
@@ -113,7 +113,7 @@ export function KycQueueTable({ initialRows }: Props) {
         </div>
       )}
 
-      <div className="rounded-xl border border-gold/30 bg-surface overflow-x-auto">
+      <div className="rounded-2xl border border-gold/20 bg-surface overflow-x-auto">
         <table className="w-full text-sm min-w-[720px]">
           <thead>
             <tr className="border-b border-border bg-background">
@@ -129,13 +129,13 @@ export function KycQueueTable({ initialRows }: Props) {
           <tbody>
             {filtered.map((row) => (
               <tr key={row.profileId} className="border-b border-border last:border-0 hover:bg-background/50">
-                <td className="px-3 py-3 font-mono text-[11px] text-foreground">
+                <td className="px-3 py-3 font-mono text-2xs text-foreground">
                   <Link href={`/admin/kyc/${row.profileId}`} className="hover:underline text-primary">
                     {(row.profileId ?? '').slice(0, 8)}…
                   </Link>
                 </td>
                 <td className="px-3 py-3">
-                  <span className={`inline-flex items-center text-[11px] font-semibold rounded-full px-2 py-0.5 ${riskBadgeClass(row.riskScore)}`}>
+                  <span className={`inline-flex items-center text-2xs font-semibold rounded-full px-2 py-0.5 ${riskBadgeClass(row.riskScore)}`}>
                     {row.riskScore ?? '—'}
                   </span>
                 </td>
@@ -144,16 +144,16 @@ export function KycQueueTable({ initialRows }: Props) {
                 </td>
                 <td className="px-3 py-3 text-xs">
                   <div className="flex gap-1 flex-wrap">
-                    {row.aadhaarVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-[10px] font-semibold">AADHAAR</span>}
-                    {row.panVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-[10px] font-semibold">PAN</span>}
-                    {row.bankVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-[10px] font-semibold">BANK</span>}
+                    {row.aadhaarVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-2xs font-semibold">AADHAAR</span>}
+                    {row.panVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-2xs font-semibold">PAN</span>}
+                    {row.bankVerified && <span className="rounded-full bg-success/10 text-success px-1.5 py-0.5 text-2xs font-semibold">BANK</span>}
                     {row.livenessScore !== null && (
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                      <span className={`rounded-full px-1.5 py-0.5 text-2xs font-semibold ${
                         row.livenessScore >= 70 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
                       }`}>L:{row.livenessScore}</span>
                     )}
                     {row.faceMatchScore !== null && (
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                      <span className={`rounded-full px-1.5 py-0.5 text-2xs font-semibold ${
                         row.faceMatchScore >= 75 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
                       }`}>F:{row.faceMatchScore}</span>
                     )}
@@ -161,9 +161,9 @@ export function KycQueueTable({ initialRows }: Props) {
                 </td>
                 <td className="px-3 py-3 text-xs">
                   <div className="flex gap-1 flex-wrap">
-                    {row.duplicateFlag && <span className="rounded-full bg-warning/10 text-warning px-1.5 py-0.5 text-[10px] font-semibold">DUP</span>}
-                    {row.sanctionsHit && <span className="rounded-full bg-destructive/10 text-destructive px-1.5 py-0.5 text-[10px] font-semibold">SANCTIONS</span>}
-                    {(row.attemptCount ?? 0) >= 3 && <span className="rounded-full bg-warning/10 text-warning px-1.5 py-0.5 text-[10px] font-semibold">×{row.attemptCount}</span>}
+                    {row.duplicateFlag && <span className="rounded-full bg-warning/10 text-warning px-1.5 py-0.5 text-2xs font-semibold">DUP</span>}
+                    {row.sanctionsHit && <span className="rounded-full bg-destructive/10 text-destructive px-1.5 py-0.5 text-2xs font-semibold">SANCTIONS</span>}
+                    {(row.attemptCount ?? 0) >= 3 && <span className="rounded-full bg-warning/10 text-warning px-1.5 py-0.5 text-2xs font-semibold">×{row.attemptCount}</span>}
                   </div>
                 </td>
                 <td className="px-3 py-3 text-xs text-muted-foreground">{formatDate(row.submittedAt)}</td>

@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 
 export function CartPageClient() {
@@ -36,7 +36,7 @@ export function CartPageClient() {
         {items.map(item => (
           <div
             key={item.productId}
-            className="flex gap-4 bg-surface border border-gold/20 rounded-xl p-4"
+            className="flex gap-4 bg-surface border border-gold/20 rounded-2xl p-4"
           >
             {/* Image */}
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-background">
@@ -99,7 +99,7 @@ export function CartPageClient() {
       </div>
 
       {/* Order summary */}
-      <div className="bg-surface border border-gold/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-primary font-semibold text-base mb-4">Order Summary</h2>
 
         <div className="space-y-2 text-sm">
@@ -126,9 +126,10 @@ export function CartPageClient() {
 
         <Link
           href="/store"
-          className="block text-center mt-2 text-xs text-muted-foreground hover:text-teal transition-colors py-2"
+          className="inline-flex items-center justify-center gap-1 w-full text-center mt-2 text-xs text-muted-foreground hover:text-teal transition-colors py-2"
         >
-          ← Continue Shopping
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+          Continue Shopping
         </Link>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Check, Minus, ClipboardCheck } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorStatus } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { SubmitReview } from './SubmitReview.client';
 
@@ -67,24 +68,26 @@ export default async function ReviewStepPage() {
   const alreadySubmitted = status?.status === 'PENDING' || status?.status === 'UNDER_REVIEW' || status?.status === 'APPROVED';
 
   return (
-    <FadeUp>
-      <OnboardingStepper current="review" />
-      <OnboardingStepHeader
-        icon={ClipboardCheck}
-        title={t('title')}
-        subtitle={t('subtitle')}
-      />
+    <PageTransition>
+      <FadeUp>
+        <OnboardingStepper current="review" />
+        <OnboardingStepHeader
+          icon={ClipboardCheck}
+          title={t('title')}
+          subtitle={t('subtitle')}
+        />
 
-      <div className="mb-5 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
-        <ul className="divide-y divide-border">
-          <Row done={hasBusiness} label={hasBusiness ? t('businessDone', { name: detail?.businessName ?? '' }) : t('businessTodo')} />
-          <Row done={hasServices} label={hasServices ? t('servicesDone', { count: serviceCount }) : t('servicesTodo')} />
-          <Row done={hasAbout} label={hasAbout ? t('aboutDone') : t('aboutTodo')} />
-          <Row done={eventTypeCount > 0} label={eventTypeCount > 0 ? t('eventTypesDone', { count: eventTypeCount }) : t('eventTypesTodo')} />
-        </ul>
-      </div>
+        <div className="mb-5 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+          <ul className="divide-y divide-border">
+            <Row done={hasBusiness} label={hasBusiness ? t('businessDone', { name: detail?.businessName ?? '' }) : t('businessTodo')} />
+            <Row done={hasServices} label={hasServices ? t('servicesDone', { count: serviceCount }) : t('servicesTodo')} />
+            <Row done={hasAbout} label={hasAbout ? t('aboutDone') : t('aboutTodo')} />
+            <Row done={eventTypeCount > 0} label={eventTypeCount > 0 ? t('eventTypesDone', { count: eventTypeCount }) : t('eventTypesTodo')} />
+          </ul>
+        </div>
 
-      <SubmitReview canSubmit={canSubmit} alreadySubmitted={alreadySubmitted} />
-    </FadeUp>
+        <SubmitReview canSubmit={canSubmit} alreadySubmitted={alreadySubmitted} />
+      </FadeUp>
+    </PageTransition>
   );
 }

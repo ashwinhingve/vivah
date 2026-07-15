@@ -120,7 +120,7 @@ export function PrivacyToggles({ initial }: { initial: SafetyMode }) {
               >
                 <Icon className="h-4 w-4 text-primary mb-1.5" />
                 <p className="text-xs font-semibold text-primary">{p.label}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{p.tagline}</p>
+                <p className="text-2xs text-muted-foreground mt-0.5 leading-tight">{p.tagline}</p>
               </button>
             );
           })}

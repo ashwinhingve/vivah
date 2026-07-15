@@ -19,7 +19,7 @@ type MenuLink = {
 
 const MENU_LINKS: readonly MenuLink[] = [
   { href: '/dashboard',        key: 'viewProfile',  Icon: User },
-  { href: '/settings/privacy', key: 'settings',     Icon: Settings },
+  { href: '/settings',         key: 'settings',     Icon: Settings },
   { href: '/settings/billing', key: 'subscription', Icon: CreditCard },
   {
     href: 'mailto:support@smartshaadi.co.in?subject=Help%20with%20Smart%20Shaadi',
@@ -103,7 +103,7 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
           />
           <div
             role="menu"
-            className="absolute right-0 z-40 mt-2 w-56 rounded-xl border border-gold/20 bg-surface py-1 shadow-lg"
+            className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-gold/20 bg-surface py-1 shadow-lg"
           >
             {(displayName || contact) && (
               <div className="border-b border-gold/15 px-4 py-2">
@@ -113,7 +113,7 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
                 {contact && (
                   <p className="truncate text-xs text-muted-foreground">{contact}</p>
                 )}
-                <span className="mt-1 inline-block rounded-full bg-teal/10 px-2 py-0.5 text-[11px] font-medium text-teal">
+                <span className="mt-1 inline-block rounded-full bg-teal/10 px-2 py-0.5 text-2xs font-medium text-teal">
                   {roleLabel}
                 </span>
               </div>

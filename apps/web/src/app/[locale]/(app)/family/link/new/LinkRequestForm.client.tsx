@@ -59,7 +59,7 @@ export function LinkRequestForm() {
 
   if (done) {
     return (
-      <div className="rounded-xl border border-success/30 bg-success/5 p-6 text-center shadow-card">
+      <div className="rounded-2xl border border-success/30 bg-success/5 p-6 text-center shadow-card">
         <CheckCircle2 className="mx-auto h-10 w-10 text-success" aria-hidden="true" />
         <h2 className="mt-3 font-heading text-lg text-primary">Request sent</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export function LinkRequestForm() {
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); submit(); }}
-      className="space-y-5 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6"
+      className="space-y-5 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6"
     >
       <div>
         <label htmlFor="childUserId" className="mb-1 block text-sm font-medium text-primary">

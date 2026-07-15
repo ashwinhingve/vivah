@@ -20,6 +20,7 @@ import {
   Gift,
   Globe,
   CalendarClock,
+  CalendarDays,
   ChevronLeft,
   ChevronDown,
 } from 'lucide-react';
@@ -35,6 +36,7 @@ const GROUPS: Group[] = [
     title: 'Planning',
     items: [
       { seg: 'timeline', label: 'Timeline', Icon: CalendarRange },
+      { seg: 'calendar', label: 'Calendar', Icon: CalendarDays },
       { seg: 'ceremonies', label: 'Ceremonies', Icon: Sparkles },
       { seg: 'tasks', label: 'Tasks', Icon: ListChecks },
     ],
@@ -126,7 +128,7 @@ export function WeddingSidebar({ id, weddingName, status, statusLabel }: Props) 
             <p className="truncate font-heading text-sm font-semibold text-primary">{weddingName}</p>
             <span
               className={cn(
-                'mt-1.5 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold',
+                'mt-1.5 inline-flex rounded-full border px-2 py-0.5 text-2xs font-semibold',
                 statusChip(status),
               )}
             >
@@ -146,7 +148,7 @@ export function WeddingSidebar({ id, weddingName, status, statusLabel }: Props) 
                         type="button"
                         onClick={() => setMoreOpen((o) => !o)}
                         aria-expanded={!collapsed}
-                        className="mb-1.5 flex w-full items-center justify-between px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-primary"
+                        className="mb-1.5 flex w-full items-center justify-between px-3 text-2xs font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-primary"
                       >
                         {g.title}
                         <ChevronDown
@@ -155,7 +157,7 @@ export function WeddingSidebar({ id, weddingName, status, statusLabel }: Props) 
                         />
                       </button>
                     ) : (
-                      <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                      <p className="mb-1.5 px-3 text-2xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                         {g.title}
                       </p>
                     ))}
@@ -211,7 +213,7 @@ export function WeddingSidebar({ id, weddingName, status, statusLabel }: Props) 
           <p className="truncate font-heading text-sm font-semibold text-primary">{weddingName}</p>
           <span
             className={cn(
-              'ml-auto shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
+              'ml-auto shrink-0 rounded-full border px-2 py-0.5 text-2xs font-semibold',
               statusChip(status),
             )}
           >

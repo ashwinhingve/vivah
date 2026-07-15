@@ -35,12 +35,12 @@ function PackageCard({ pkg, popular }: { pkg: PortfolioPackage; popular?: boolea
   return (
     <div
       className={cn(
-        'relative rounded-xl border bg-surface p-4 transition-shadow',
+        'relative rounded-2xl border bg-surface p-4 transition-shadow',
         popular ? 'border-gold/60 shadow-md ring-1 ring-gold/30' : 'border-gold/40',
       )}
     >
       {popular && (
-        <span className="absolute -top-2 left-4 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+        <span className="absolute -top-2 left-4 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-0.5 text-2xs font-bold uppercase tracking-widest text-white shadow-sm">
           <Star className="h-3 w-3" aria-hidden="true" />
           Most Popular
         </span>

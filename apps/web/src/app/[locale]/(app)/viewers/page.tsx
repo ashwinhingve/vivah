@@ -1,10 +1,14 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { Eye, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EmptyState, PhotoFallback } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { PhotoFallback } from '@/components/shared';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
@@ -53,6 +57,7 @@ function timeAgo(iso: string): string {
 }
 
 export default async function ViewersPage() {
+  const t = await getTranslations('viewers');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const [result, entitlements] = await Promise.all([
@@ -64,27 +69,23 @@ export default async function ViewersPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-primary">Who viewed you</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {viewers.length > 0
-              ? `${viewers.length} recent visitor${viewers.length !== 1 ? 's' : ''}`
-              : 'No recent visitors yet'}
-          </p>
-        </div>
+      <PageTransition className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+        <PageHeader
+          title={t('heading')}
+          subtitle={viewers.length > 0 ? t('subtitleCount', { count: viewers.length }) : t('subtitleEmpty')}
+        />
 
         {isLocked && viewers.length > 0 ? (
           <UpgradeCTA
             requiredTier="STANDARD"
-            feature={`${viewers.length} viewer${viewers.length !== 1 ? 's' : ''}`}
-            message={`See who has viewed your profile. Upgrade to Standard to unlock all ${viewers.length} visitors.`}
+            feature={t('lockedFeature', { count: viewers.length })}
+            message={t('lockedMessage', { count: viewers.length })}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {viewers.slice(0, 6).map((v) => {
                 const photoUrl = resolvePhotoUrl(v.primaryPhotoKey);
                 return (
-                  <Card key={v.viewerProfileId} className="overflow-hidden">
+                  <Card key={v.viewerProfileId} className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
                     <div className="relative block aspect-[4/5]">
                       {photoUrl ? (
                         <Image src={photoUrl} alt={v.name ? `${v.name}'s profile photo` : 'Viewer profile photo'} fill sizes="33vw" className="object-cover" />
@@ -99,13 +100,11 @@ export default async function ViewersPage() {
           </UpgradeCTA>
         ) : viewers.length === 0 ? (
           <EmptyState
-            icon={Eye}
-            title="No recent visitors"
-            description="When someone opens your profile, they'll show up here. A complete profile draws more visits."
+            variant="no-network"
             action={
               <Button asChild>
                 <Link href="/feed">
-                  Explore Matches
+                  {t('exploreCta')}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
@@ -116,7 +115,7 @@ export default async function ViewersPage() {
             {viewers.map((v) => {
               const photoUrl = resolvePhotoUrl(v.primaryPhotoKey);
               return (
-                <Card key={v.viewerProfileId} className="group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
+                <Card key={v.viewerProfileId} className="group overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
                   <Link href={`/profiles/${v.viewerProfileId}`} className="relative block aspect-[4/5]">
                     {photoUrl ? (
                       <Image
@@ -137,12 +136,12 @@ export default async function ViewersPage() {
                       <p className="truncate text-xs text-white/75">{v.city ?? ''}</p>
                     </div>
                     {v.verificationStatus === 'VERIFIED' ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-[10px] font-bold text-success shadow-sm">
+                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         Verified
                       </span>
                     ) : null}
-                    <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                    <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-2xs font-semibold text-white shadow-sm">
                       {timeAgo(v.viewedAt)}
                     </span>
                   </Link>
@@ -151,7 +150,7 @@ export default async function ViewersPage() {
             })}
           </div>
         )}
-      </div>
+      </PageTransition>
     </main>
   );
 }

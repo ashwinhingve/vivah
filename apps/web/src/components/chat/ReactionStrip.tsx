@@ -41,7 +41,7 @@ export default function ReactionStrip({
           type="button"
           onClick={() => onToggle?.(emoji)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] leading-none border transition-colors',
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs leading-none border transition-colors',
             mine
               ? 'bg-teal/10 border-teal/40 text-teal'
               : 'bg-surface border-border text-muted-foreground hover:bg-surface-muted',

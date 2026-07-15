@@ -80,7 +80,7 @@ export function BudgetEditor({ weddingId, total, currency, categories }: BudgetE
       </div>
 
       {/* Overall progress */}
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
         <div className="flex justify-between text-sm mb-2">
           <span className="font-medium text-foreground">Spent vs Budget</span>
           <span className="text-muted-foreground">{pct(totalSpent, total)}%</span>
@@ -149,7 +149,7 @@ export function BudgetEditor({ weddingId, total, currency, categories }: BudgetE
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-muted-foreground">{p}%</span>
+                      <span className="text-2xs text-muted-foreground">{p}%</span>
                     </td>
                   </tr>
                 );

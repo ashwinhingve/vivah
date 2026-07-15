@@ -11,7 +11,7 @@ export function ContactSection({ phone, email, isSelf }: Props) {
   if (!hasContact && !isSelf) {
     // Locked state — contact masked
     return (
-      <div className="rounded-xl bg-background border border-border p-4 flex items-center gap-3">
+      <div className="rounded-2xl bg-background border border-gold/20 p-4 flex items-center gap-3">
         {/* Lock icon */}
         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2" aria-hidden="true">
@@ -29,7 +29,7 @@ export function ContactSection({ phone, email, isSelf }: Props) {
 
   // Unlocked state
   return (
-    <div className="rounded-xl bg-surface border border-border p-4 space-y-3">
+    <div className="rounded-2xl bg-surface border border-gold/20 p-4 space-y-3">
       <h3 className="text-sm font-semibold text-foreground">Contact Details</h3>
       {phone && (
         <div className="flex items-center gap-3">

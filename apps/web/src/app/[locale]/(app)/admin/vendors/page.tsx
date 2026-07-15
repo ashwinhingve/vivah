@@ -6,11 +6,13 @@
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
 import { ArrowLeft, Store } from 'lucide-react';
 import { PageHeader }    from '@/components/ui/PageHeader';
 import { EmptyState }    from '@/components/ui/EmptyState';
 import { StaggerList }   from '@/components/motion/StaggerList.client';
 import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +72,7 @@ export default async function AdminVendorsQueuePage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  const t = await getTranslations('adminRole');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -90,103 +93,109 @@ export default async function AdminVendorsQueuePage({
   const total = data?.total ?? 0;
 
   return (
-    <main id="main-content" className="min-h-screen bg-background">
-      <PageTransition className="mx-auto max-w-5xl px-4 py-8 space-y-6">
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
         <Link
           href="/admin"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
+          className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Admin Console
+          {t('common.adminConsole')}
         </Link>
 
-        <PageHeader
-          title="Vendor Approvals"
-          subtitle={`${total} vendor${total === 1 ? '' : 's'} in this queue. Oldest first.`}
-          breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Vendors' }]}
-        />
-
-        {/* Status tab strip */}
-        <nav
-          className="-mx-1 overflow-x-auto px-1"
-          aria-label="Vendor status filter"
-        >
-          <div className="flex min-w-max gap-1.5 rounded-xl border border-gold/20 bg-surface p-1.5">
-            {STATUS_TABS.map((t) => {
-              const active = t.value === status;
-              return (
-                <Link
-                  key={t.value}
-                  href={`/admin/vendors?status=${t.value}`}
-                  className={`relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                    active
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'text-muted-foreground hover:bg-gold/10 hover:text-foreground'
-                  }`}
-                >
-                  {t.label}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-
-        {/* Table */}
-        {rows.length === 0 ? (
-          <EmptyState
-            variant="no-vendors"
-            title={`No ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()} vendors`}
-            description={status === 'PENDING'
-              ? 'All caught up — newly submitted vendors will appear here.'
-              : 'Switch tabs above to view other states.'}
+        <FadeUp>
+          <PageHeader
+            title={t('navTiles.vendors.label')}
+            subtitle={`${total} vendor${total === 1 ? '' : 's'} in this queue. Oldest first.`}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('navTiles.vendors.label') }]}
           />
-        ) : (
-          <StaggerList className="grid grid-cols-1 gap-3">
-            {rows.map((row) => {
-              const days = daysSince(row.submittedAt);
-              return (
-                <Link
-                  key={row.id}
-                  href={`/admin/vendors/${row.id}`}
-                  className="block rounded-2xl border border-gold/20 bg-surface px-5 py-4 shadow-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card-hover"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-heading text-base font-semibold text-primary leading-tight truncate">
-                        {row.businessName}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {row.category} · {row.city}{row.state ? `, ${row.state}` : ''}
-                      </p>
-                    </div>
-                    <div className="text-right text-xs">
-                      <p className="text-muted-foreground">
-                        Submitted {row.submittedAt ? new Date(row.submittedAt).toLocaleDateString('en-IN') : '—'}
-                      </p>
-                      {days != null && (
-                        <p className={urgencyClass(days)}>
-                          {days === 0 ? 'Today' : `${days} day${days === 1 ? '' : 's'} in queue`}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {row.status === 'REJECTED' && row.rejectionReason && (
-                    <p className="mt-2 text-xs text-destructive line-clamp-2">
-                      <span className="font-semibold">Reason ({row.rejectionCategory}):</span> {row.rejectionReason}
-                    </p>
-                  )}
-                </Link>
-              );
-            })}
-          </StaggerList>
-        )}
+        </FadeUp>
 
-        {/* Mini legend */}
-        <p className="text-xs text-muted-foreground flex items-center gap-2">
-          <Store className="h-3.5 w-3.5" aria-hidden="true" />
-          Days-in-queue colour: under 3 days neutral · 3–7 amber · 7+ urgent.
-        </p>
-      </PageTransition>
-    </main>
+        <FadeUp>
+          {/* Status tab strip */}
+          <nav
+            className="-mx-1 overflow-x-auto px-1"
+            aria-label="Vendor status filter"
+          >
+            <div className="flex min-w-max gap-1.5 rounded-xl border border-gold/20 bg-surface p-1.5">
+              {STATUS_TABS.map((t) => {
+                const active = t.value === status;
+                return (
+                  <Link
+                    key={t.value}
+                    href={`/admin/vendors?status=${t.value}`}
+                    className={`relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      active
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-muted-foreground hover:bg-gold/10 hover:text-foreground'
+                    }`}
+                  >
+                    {t.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        </FadeUp>
+
+        <FadeUp>
+          {/* Table */}
+          {rows.length === 0 ? (
+            <EmptyState
+              variant="no-vendors"
+              title={`No ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()} vendors`}
+              description={status === 'PENDING'
+                ? 'All caught up — newly submitted vendors will appear here.'
+                : 'Switch tabs above to view other states.'}
+            />
+          ) : (
+            <StaggerList className="grid grid-cols-1 gap-3">
+              {rows.map((row) => {
+                const days = daysSince(row.submittedAt);
+                return (
+                  <Link
+                    key={row.id}
+                    href={`/admin/vendors/${row.id}`}
+                    className="block rounded-2xl border border-gold/20 bg-surface px-5 py-4 shadow-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card-hover"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-heading text-base font-semibold text-primary leading-tight truncate">
+                          {row.businessName}
+                        </h3>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {row.category} · {row.city}{row.state ? `, ${row.state}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right text-xs">
+                        <p className="text-muted-foreground">
+                          Submitted {row.submittedAt ? new Date(row.submittedAt).toLocaleDateString('en-IN') : '—'}
+                        </p>
+                        {days != null && (
+                          <p className={urgencyClass(days)}>
+                            {days === 0 ? 'Today' : `${days} day${days === 1 ? '' : 's'} in queue`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {row.status === 'REJECTED' && row.rejectionReason && (
+                      <p className="mt-2 text-xs text-destructive line-clamp-2">
+                        <span className="font-semibold">Reason ({row.rejectionCategory}):</span> {row.rejectionReason}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+            </StaggerList>
+          )}
+
+          {/* Mini legend */}
+          <p className="text-xs text-muted-foreground flex items-center gap-2">
+            <Store className="h-3.5 w-3.5" aria-hidden="true" />
+            Days-in-queue colour: under 3 days neutral · 3–7 amber · 7+ urgent.
+          </p>
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

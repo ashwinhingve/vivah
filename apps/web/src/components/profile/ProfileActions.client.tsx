@@ -109,7 +109,7 @@ function KebabMenu({
   return (
     <div
       ref={ref}
-      className="absolute bottom-full right-0 mb-2 w-44 rounded-xl border border-gold/20 bg-surface shadow-card overflow-hidden z-50"
+      className="absolute bottom-full right-0 mb-2 w-44 rounded-2xl border border-gold/20 bg-surface shadow-card overflow-hidden z-50"
       role="menu"
     >
       <button

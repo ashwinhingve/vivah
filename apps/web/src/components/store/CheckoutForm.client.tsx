@@ -271,7 +271,7 @@ export function CheckoutForm() {
       </form>
 
       {/* Order summary sidebar */}
-      <div className="bg-surface border border-gold/20 rounded-xl p-4 h-fit sticky top-24">
+      <div className="bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
         <h2 className="font-heading text-primary font-semibold text-base mb-3">Order Summary</h2>
 
         <div className="space-y-2.5 mb-4">
@@ -299,7 +299,7 @@ export function CheckoutForm() {
                 <button
                   type="button"
                   onClick={removePromo}
-                  className="text-[10px] text-muted-foreground hover:text-destructive ml-1"
+                  className="text-2xs text-muted-foreground hover:text-destructive ml-1"
                   aria-label="Remove promo"
                 >
                   ✕

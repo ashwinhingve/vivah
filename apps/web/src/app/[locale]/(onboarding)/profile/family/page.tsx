@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateFamily } from '../actions';
@@ -79,10 +80,11 @@ export default function FamilyPage() {
   return (
     <div>
       <ProfileProgress steps={steps} />
-      <div className="bg-surface rounded-xl shadow-sm border border-gold/20 p-6">
-        <h1 className="text-lg font-semibold text-primary mb-6 font-heading">
-          {t('heading')}
-        </h1>
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
+        <PageHeader
+          title={t('heading')}
+          className="mb-6"
+        />
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">

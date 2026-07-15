@@ -65,7 +65,7 @@ export function FamilyMembersClient({ initial }: Props) {
   }
 
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-card p-4">
+    <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-sm text-primary">Family members</h3>
         <button
@@ -126,7 +126,7 @@ export function FamilyMembersClient({ initial }: Props) {
             <li key={m.id} className="py-2.5 flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm">{m.name}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-2xs text-muted-foreground">
                   {m.relationship}
                   {m.isManaging && ' · manages profile'}
                   {m.phone && ` · ${m.phone}`}

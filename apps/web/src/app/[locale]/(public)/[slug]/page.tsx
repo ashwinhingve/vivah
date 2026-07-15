@@ -153,7 +153,7 @@ export default async function ProgrammaticSeoPage({ params }: RouteParams) {
         <h1 className="mb-4 font-heading text-3xl font-semibold text-primary md:text-4xl">{meta.h1}</h1>
         <p className="mb-8 text-lg text-muted-foreground">{subhead}</p>
 
-        <section className="mb-10 rounded-xl border border-gold/40 bg-surface p-6 shadow-card">
+        <section className="mb-10 rounded-2xl border border-gold/20 bg-surface p-6 shadow-card">
           <h2 className="mb-3 text-xl font-semibold text-primary">About this matchmaking</h2>
           <p className="text-foreground">{description}</p>
         </section>
@@ -180,7 +180,7 @@ export default async function ProgrammaticSeoPage({ params }: RouteParams) {
           </ol>
         </section>
 
-        <section className="mb-10 rounded-xl bg-gold/10 p-8 text-center">
+        <section className="mb-10 rounded-2xl bg-gold/10 p-8 text-center">
           <h2 className="mb-3 text-2xl font-bold text-primary">Start your search today</h2>
           <p className="mb-6 text-foreground">
             Join thousands of verified families on Smart Shaadi — privacy-first, AI-powered, tradition-respecting.

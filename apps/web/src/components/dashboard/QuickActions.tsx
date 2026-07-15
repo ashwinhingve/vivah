@@ -23,7 +23,7 @@ const ACTIONS: readonly { href: string; key: ActionKey; icon: LucideIcon }[] = [
 export async function QuickActions() {
   const t = await getTranslations('dashboard.quickActions');
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
       <h2 className="mb-4 font-heading text-base font-semibold text-primary">{t('title')}</h2>
       <div className="grid grid-cols-2 gap-3">
         {ACTIONS.map(({ href, key, icon: Icon }) => {

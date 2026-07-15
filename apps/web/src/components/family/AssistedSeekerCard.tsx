@@ -26,7 +26,7 @@ const PERMISSION_LABEL: Record<ParentLink['permissions'], string> = {
 /** One assisted seeker on the family hub — quick links into the co-pilot tools. */
 export function AssistedSeekerCard({ link, pendingCount, name }: Props) {
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-5">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">
@@ -38,7 +38,7 @@ export function AssistedSeekerCard({ link, pendingCount, name }: Props) {
           </p>
         </div>
         {pendingCount > 0 && (
-          <span className="shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">
+          <span className="shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-2xs font-semibold text-warning">
             {pendingCount} pending
           </span>
         )}

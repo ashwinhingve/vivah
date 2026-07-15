@@ -3,9 +3,15 @@
  * Server Component with client date filter.
  */
 import { cookies } from 'next/headers';
+import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { RevenueSummary, RevenueByCategory, DailyRevenuePoint } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AdminRevenueClient } from './AdminRevenueClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -126,6 +132,7 @@ export default async function AdminRevenuePage({
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
+  const t = await getTranslations('adminRole');
   const sp = await searchParams;
   const defaults = defaultDates();
   const fromDate = sp['from'] ?? defaults.fromDate;
@@ -155,14 +162,33 @@ export default async function AdminRevenuePage({
   ]);
 
   return (
-    <AdminRevenueClient
-      summary={summary}
-      daily={daily}
-      categories={categories}
-      topVendors={topVendors}
-      liabilities={liabilities}
-      fromDate={fromDate}
-      toDate={toDate}
-    />
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
+        </Link>
+
+        <FadeUp>
+          <PageHeader
+            title={t('revenue.title')}
+            subtitle={t('revenue.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('revenue.breadcrumb') }]}
+          />
+        </FadeUp>
+
+        <FadeUp>
+          <AdminRevenueClient
+            summary={summary}
+            daily={daily}
+            categories={categories}
+            topVendors={topVendors}
+            liabilities={liabilities}
+            fromDate={fromDate}
+            toDate={toDate}
+          />
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

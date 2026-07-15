@@ -1,5 +1,7 @@
 import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { StoreCategoryFilter } from '@/components/store/StoreCategoryFilter.client';
 import type { ProductSummary } from '@smartshaadi/types';
@@ -79,10 +81,10 @@ export default async function StorePage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-heading text-primary text-2xl font-bold mb-1">Wedding Store</h1>
-          <p className="text-muted-foreground text-sm">Gifts, trousseau, ethnic wear & more</p>
-        </div>
+        <PageHeader
+          title="Wedding Store"
+          subtitle="Gifts, trousseau, ethnic wear & more"
+        />
 
         {/* Filters */}
         <Suspense fallback={null}>
@@ -114,9 +116,10 @@ export default async function StorePage({ searchParams }: PageProps) {
             {page > 1 && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page - 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center gap-1.5 text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
-                ← Previous
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                Previous
               </Link>
             )}
             <span className="text-sm text-muted-foreground px-2">
@@ -125,9 +128,10 @@ export default async function StorePage({ searchParams }: PageProps) {
             {page < totalPages && (
               <Link
                 href={`/store?${new URLSearchParams({ ...(category && { category }), ...(search && { search }), page: String(page + 1) }).toString()}`}
-                className="px-4 py-2 min-h-[44px] flex items-center text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
+                className="px-4 py-2 min-h-[44px] flex items-center gap-1.5 text-sm font-medium border border-gold/30 rounded-lg text-muted-foreground hover:border-teal hover:text-teal transition-colors"
               >
-                Next →
+                Next
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             )}
           </div>

@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import { submitVendorRouting } from './actions';
 
@@ -180,7 +180,7 @@ export function RoutingForm() {
                   </div>
                   <VendorCard vendor={r.vendor} />
                   {r.reasons.length > 0 && (
-                    <p className="px-1 text-[11px] text-muted-foreground">
+                    <p className="px-1 text-2xs text-muted-foreground">
                       {r.reasons.map(humanizeReason).join(' · ')}
                     </p>
                   )}

@@ -11,7 +11,7 @@ import { FavoriteButton } from '@/components/vendor/FavoriteButton.client';
 import { InquiryDialog } from '@/components/vendor/InquiryDialog.client';
 import { VendorReviews } from '@/components/vendor/VendorReviews.client';
 import { AvailabilityCalendar } from '@/components/vendor/AvailabilityCalendar.client';
-import { ProfileImage } from '@/components/ui/ProfileImage.client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -99,17 +99,14 @@ export default async function VendorDetailPage({ params }: PageProps) {
 
         {/* Hero with cover */}
         <div className="relative aspect-[16/7] sm:aspect-[16/6] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-gold/15 to-teal/10 mb-4">
-          <ProfileImage
+          <ImageWithFallback
             src={cover}
-            fallback={
-              <div className="flex h-full w-full items-center justify-center text-primary/40 font-heading text-6xl">
-                {vendor.businessName.charAt(0)}
-              </div>
-            }
+            name={vendor.businessName}
             alt={vendor.businessName}
             fill
             sizes="100vw"
             className="object-cover"
+            wrapperClassName="absolute inset-0"
           />
           <div className="absolute top-3 right-3 flex items-center gap-2">
             <FavoriteButton vendorId={vendor.id} initialFavorite={vendor.isFavorite ?? false} className="bg-surface/90 backdrop-blur" />
@@ -131,17 +128,17 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 return (
                   <div className="mb-2 flex flex-wrap items-center gap-1.5">
                     {vendor.verified && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-teal">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-teal">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Verified
                       </span>
                     )}
                     {topRated && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-primary">
                         ⭐ Top Rated
                       </span>
                     )}
                     {affordable && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-[11px] font-semibold text-gold-muted">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-gold-muted">
                         💰 Affordable
                       </span>
                     )}

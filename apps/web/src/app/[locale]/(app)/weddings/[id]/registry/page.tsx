@@ -1,5 +1,7 @@
-import { Gift, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { fetchRegistry } from '@/lib/wedding-api';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { createRegistryItemAction, deleteRegistryItemAction } from './actions';
 
 interface PageProps { params: Promise<{ id: string }> }
@@ -16,13 +18,13 @@ export default async function RegistryPage({ params }: PageProps) {
   const items = r?.items ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-        <div className="flex items-center gap-2 mb-2">
-          <Gift className="h-6 w-6 text-gold" />
-          <h1 className="font-heading text-2xl text-primary">Gift Registry</h1>
-        </div>
-        <p className="text-sm text-muted-foreground mb-6">List items guests can claim — appears on your public wedding website if enabled.</p>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
+          <PageHeader
+            title="Gift Registry"
+            subtitle="List items guests can claim — appears on your public wedding website if enabled."
+          />
 
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm mb-6">
           {items.length === 0 ? (
@@ -75,7 +77,8 @@ export default async function RegistryPage({ params }: PageProps) {
             <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Add to registry</button>
           </form>
         </details>
-      </div>
-    </div>
+        </div>
+      </main>
+    </PageTransition>
   );
 }

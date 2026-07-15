@@ -90,7 +90,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
             {KPI_CONFIG(summary).map(kpi => (
               <div
                 key={kpi.label}
-                className="rounded-xl bg-surface border shadow-sm px-4 py-4 border-gold"
+                className="rounded-2xl bg-surface border shadow-card px-4 py-4 border-gold/20"
               >
                 <p className="text-xl font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground leading-tight">{kpi.label}</p>
@@ -98,14 +98,14 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
             ))}
           </div>
         ) : (
-          <div className="mb-6 rounded-xl border border-dashed py-10 text-center border-gold">
+          <div className="mb-6 rounded-2xl border border-dashed py-10 text-center border-gold/20">
             <p className="text-sm text-muted-foreground">Revenue summary unavailable for this period.</p>
           </div>
         )}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Daily revenue chart */}
-          <div className="lg:col-span-2 rounded-xl border bg-surface shadow-sm p-5 border-gold">
+          <div className="lg:col-span-2 rounded-2xl border bg-surface shadow-card p-5 border-gold/20">
             <h2 className="text-sm font-semibold mb-4 text-primary">Daily Gross Revenue</h2>
             {daily.length === 0 ? (
               <p className="text-xs text-muted-foreground py-8 text-center">No data for this period.</p>
@@ -144,7 +144,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
           </div>
 
           {/* Liabilities */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+          <div className="rounded-2xl border bg-surface shadow-card p-5 border-gold/20">
             <h2 className="text-sm font-semibold mb-4 text-primary">Liabilities</h2>
             {liabilities.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No liabilities data.</p>
@@ -163,7 +163,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
 
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
           {/* Category breakdown */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+          <div className="rounded-2xl border bg-surface shadow-card p-5 border-gold/20">
             <h2 className="text-sm font-semibold mb-4 text-primary">Revenue by Category</h2>
             {categories.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No category data.</p>
@@ -188,7 +188,7 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
           </div>
 
           {/* Top vendors */}
-          <div className="rounded-xl border bg-surface shadow-sm p-5 border-gold">
+          <div className="rounded-2xl border bg-surface shadow-card p-5 border-gold/20">
             <h2 className="text-sm font-semibold mb-4 text-primary">Top Vendors</h2>
             {topVendors.length === 0 ? (
               <p className="text-xs text-muted-foreground py-4 text-center">No vendor data.</p>
@@ -199,11 +199,11 @@ export function AdminRevenueClient({ summary, daily, categories, topVendors, lia
                     <span className="text-xs font-bold text-muted-foreground w-4 shrink-0">{i + 1}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-foreground truncate">{v.vendorName}</p>
-                      <p className="text-[10px] text-muted-foreground">{v.count} bookings</p>
+                      <p className="text-2xs text-muted-foreground">{v.count} bookings</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-xs font-semibold text-foreground">{formatINR(v.revenue)}</p>
-                      <p className="text-[10px] text-muted-foreground">paid out {formatINR(v.payouts)}</p>
+                      <p className="text-2xs text-muted-foreground">paid out {formatINR(v.payouts)}</p>
                     </div>
                   </div>
                 ))}

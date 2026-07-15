@@ -62,7 +62,7 @@ export default async function FamilyCompatPage({ params, searchParams }: PagePro
             title="Family compatibility"
             subtitle="Your family's view of a match alongside the system's score."
           />
-          <div className="mt-6 rounded-xl border border-gold/20 bg-surface shadow-card">
+          <div className="mt-6 rounded-2xl border border-gold/20 bg-surface shadow-card">
             <EmptyState
               variant="no-matches"
               title="Nothing to rate yet"
@@ -105,7 +105,7 @@ export default async function FamilyCompatPage({ params, searchParams }: PagePro
           <JointScoreCard joint={joint} />
 
           {ratings.length > 0 && (
-            <section className="rounded-xl border border-gold/20 bg-surface p-4 sm:p-6 shadow-card">
+            <section className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6 shadow-card">
               <h2 className="text-base font-heading text-primary mb-3">Family ratings</h2>
               <ul className="divide-y divide-gold/15">
                 {ratings.map((r) => (

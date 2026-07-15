@@ -5,7 +5,7 @@ export function ProfileDetailSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn('space-y-6', className)} aria-busy="true" aria-label="Loading profile">
       {/* hero */}
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
+      <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
         <Skeleton className="aspect-[16/9] w-full rounded-none" />
         <div className="space-y-3 p-5">
           <Skeleton className="h-6 w-1/3" />
@@ -23,7 +23,7 @@ export function ProfileDetailSkeleton({ className }: { className?: string }) {
         ))}
       </div>
       {/* content */}
-      <div className="space-y-3 rounded-xl border border-border bg-surface p-5 shadow-card">
+      <div className="space-y-3 rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <Skeleton className="h-4 w-24" />

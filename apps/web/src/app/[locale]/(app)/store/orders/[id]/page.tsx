@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { CancelOrderButton } from '@/components/store/CancelOrderButton.client';
 import type { OrderDetail, OrderStatus, FulfilmentStatus } from '@smartshaadi/types';
@@ -39,8 +40,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/store/orders" className="text-muted-foreground hover:text-teal transition-colors text-sm">
-            ← Orders
+          <Link href="/store/orders" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-teal transition-colors text-sm min-h-[44px]">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Orders
           </Link>
           <h1 className="font-heading text-primary text-xl font-bold">Order Details</h1>
         </div>
@@ -83,9 +85,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Qty {item.quantity} × ₹{item.unitPrice.toLocaleString('en-IN')}
                     </p>
-                    <p className={`text-[10px] font-medium mt-0.5 ${ful.cls}`}>{ful.label}</p>
+                    <p className={`text-2xs font-medium mt-0.5 ${ful.cls}`}>{ful.label}</p>
                     {item.trackingNumber && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                      <p className="text-2xs text-muted-foreground mt-0.5">
                         Tracking: <span className="font-mono font-medium">{item.trackingNumber}</span>
                       </p>
                     )}

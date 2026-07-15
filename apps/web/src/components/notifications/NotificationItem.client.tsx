@@ -37,7 +37,7 @@ export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Prop
           {!item.read && <span className="h-2 w-2 shrink-0 rounded-full bg-teal" aria-label="Unread" />}
         </span>
         {item.body && <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">{item.body}</span>}
-        <span className="mt-1 block text-[11px] font-medium uppercase tracking-wide text-gold-muted">
+        <span className="mt-1 block text-2xs font-medium uppercase tracking-wide text-gold-muted">
           {notificationMeta[category].label} · {age}
         </span>
       </span>

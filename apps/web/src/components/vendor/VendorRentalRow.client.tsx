@@ -39,7 +39,7 @@ export function VendorRentalRow({ booking }: { booking: RentalBookingSummary }) 
   const to   = new Date(booking.toDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
   return (
-    <div className="rounded-xl border border-gold/30 bg-surface p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shadow-card">
       <div>
         <p className="font-semibold text-foreground">{booking.itemName}</p>
         <p className="text-xs text-muted-foreground">
@@ -76,7 +76,7 @@ function StatusBadge({ status }: { status: RentalBookingSummary['status'] }) {
   };
   const cls = map[status] ?? 'bg-secondary text-muted-foreground';
   return (
-    <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
+    <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wider ${cls}`}>
       {status}
     </span>
   );

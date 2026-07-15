@@ -62,7 +62,7 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
       {/* RSVP badges */}
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
         <h3 className="font-medium text-sm text-foreground mb-3">RSVP Summary</h3>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(RSVP_CONFIG) as (keyof typeof RSVP_CONFIG)[]).map((status) => {
@@ -77,8 +77,8 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
                 <span className="text-lg font-bold" style={{ color: RSVP_CONFIG[status].color }}>
                   {count}
                 </span>
-                <span className="text-[10px] text-muted-foreground">{RSVP_CONFIG[status].label}</span>
-                <span className="text-[10px] font-medium" style={{ color: RSVP_CONFIG[status].color }}>
+                <span className="text-2xs text-muted-foreground">{RSVP_CONFIG[status].label}</span>
+                <span className="text-2xs font-medium" style={{ color: RSVP_CONFIG[status].color }}>
                   {pct}%
                 </span>
               </div>

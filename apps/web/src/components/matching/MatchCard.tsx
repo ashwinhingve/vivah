@@ -125,7 +125,7 @@ export function MatchCard(props: Props) {
         ) : null}
 
         {gunaPending && !hideGunaHint ? (
-          <div className="absolute inset-x-2 bottom-14 rounded-md bg-surface/90 px-2 py-1 text-center text-[10px] font-medium text-primary shadow-sm backdrop-blur-sm">
+          <div className="absolute inset-x-2 bottom-14 rounded-md bg-surface/90 px-2 py-1 text-center text-2xs font-medium text-primary shadow-sm backdrop-blur-sm">
             {t('addHoroscope')}
           </div>
         ) : null}

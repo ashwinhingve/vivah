@@ -5,6 +5,7 @@ import { ArrowRight, CalendarDays } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchMyVendor, fetchVendorBlockedDates } from '@/lib/vendor-onboarding-api';
 import { OnboardingStepper, OnboardingStepHeader } from '@/components/vendor/OnboardingStepper';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AvailabilityManager } from './AvailabilityManager.client';
 
@@ -32,24 +33,26 @@ export default async function AvailabilityStepPage() {
   }));
 
   return (
-    <FadeUp>
-      <OnboardingStepper current="availability" />
-      <OnboardingStepHeader
-        icon={CalendarDays}
-        title={t('title')}
-        subtitle={t('subtitle')}
-      />
+    <PageTransition>
+      <FadeUp>
+        <OnboardingStepper current="availability" />
+        <OnboardingStepHeader
+          icon={CalendarDays}
+          title={t('title')}
+          subtitle={t('subtitle')}
+        />
 
-      <AvailabilityManager initial={dates} />
+        <AvailabilityManager initial={dates} />
 
-      <div className="mt-6 flex justify-end">
-        <Link
-          href="/vendor/onboarding/bank"
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
-        >
-          {t('continue')} <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </FadeUp>
+        <div className="mt-6 flex justify-end">
+          <Link
+            href="/vendor/onboarding/bank"
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white hover:opacity-90"
+          >
+            {t('continue')} <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </FadeUp>
+    </PageTransition>
   );
 }

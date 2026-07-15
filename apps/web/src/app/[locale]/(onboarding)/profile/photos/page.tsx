@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfilePhotoUploader } from '@/components/profile/ProfilePhotoUploader.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -38,16 +40,16 @@ export default async function PhotosPage() {
 
           <Link
             href="/profile/preferences"
-            className="inline-flex items-center text-sm font-medium text-primary hover:text-primary-hover mb-4 min-h-[44px]"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover mb-4 min-h-[44px]"
           >
-            ← Back
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back
           </Link>
-          <h1 className="font-heading text-2xl font-semibold text-primary">
-            Add Your Photos
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your main photo is the first thing a potential match sees
-          </p>
+          <PageHeader
+            title="Add Your Photos"
+            subtitle="Your main photo is the first thing a potential match sees"
+            className="mb-0"
+          />
         </div>
 
         <ProfilePhotoUploader initialPhotos={photos} />
@@ -55,9 +57,10 @@ export default async function PhotosPage() {
         <div className="mt-6">
           <Link
             href="/profile/complete"
-            className="block w-full bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center transition-colors"
+            className="block w-full bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center gap-1 transition-colors"
           >
-            Continue →
+            Continue
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </div>

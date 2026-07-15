@@ -66,7 +66,7 @@ export function VendorProfileEditor({ vendor }: VendorProfileEditorProps) {
   }
 
   return (
-    <form onSubmit={save} className="space-y-4 rounded-xl border border-gold/30 bg-surface p-5">
+    <form onSubmit={save} className="space-y-4 rounded-2xl border border-gold/20 bg-surface p-5 shadow-card">
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1">Business name</label>
         <input

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
@@ -8,14 +8,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MoreHorizontal, X } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
-import { navForRole, filterForDemo, type NavGroup } from './nav-config';
-
-function isActive(pathname: string, href: string) {
-  return (
-    pathname === href ||
-    (href !== '/dashboard' && href !== '/' && pathname.startsWith(href))
-  );
-}
+import { navForRole, filterForDemo, activeNavHref, type NavGroup } from './nav-config';
 
 export function AppNav() {
   const t = useTranslations('nav.app');
@@ -23,19 +16,49 @@ export function AppNav() {
   const { data: session } = authClient.useSession();
   const reduce = useReducedMotion();
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const role = (session?.user as { role?: string } | undefined)?.role ?? 'INDIVIDUAL';
 
   useEffect(() => {
     setMoreOpen(false);
   }, [pathname]);
 
+  // Sheet keyboard handling: Escape closes; Tab is trapped inside the dialog.
+  // On close, focus returns to the "More" trigger.
   useEffect(() => {
     if (!moreOpen) return;
+    const trigger = moreButtonRef.current;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMoreOpen(false);
+      if (e.key === 'Escape') {
+        setMoreOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const sheet = sheetRef.current;
+      if (!sheet) return;
+      const focusables = Array.from(
+        sheet.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0] as HTMLElement;
+      const last = focusables[focusables.length - 1] as HTMLElement;
+      const current = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (current === first || !sheet.contains(current)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (current === last || !sheet.contains(current)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      trigger?.focus();
+    };
   }, [moreOpen]);
 
   const { primary: primaryRaw, moreGroups: moreGroupsRaw } = navForRole(role);
@@ -46,12 +69,18 @@ export function AppNav() {
   const showMore = moreItems.length > 0;
 
   const primary = filterForDemo(primaryRaw);
-  const moreActive = showMore && moreItems.some(i => isActive(pathname, i.href));
+  // Most specific matching href across the whole nav set wins, so nested
+  // routes (`/payments/wallet`) light one item, not two.
+  const currentHref = activeNavHref(
+    pathname,
+    [...primary, ...moreItems].map((i) => i.href),
+  );
+  const moreActive = showMore && moreItems.some((i) => i.href === currentHref);
 
   return (
     <>
       <nav
-        aria-label="Primary"
+        aria-label={t('primaryNav')}
         className="fixed inset-x-0 bottom-0 z-30 border-t border-gold/25 bg-surface/85 shadow-[0_-4px_20px_-8px_rgba(123,45,66,0.08)] backdrop-blur-xl md:hidden"
       >
         <div
@@ -60,7 +89,7 @@ export function AppNav() {
         />
         <div className="mx-auto flex max-w-lg items-stretch">
           {primary.map(({ href, labelKey, Icon }) => {
-            const active = isActive(pathname, href);
+            const active = href === currentHref;
             return (
               <Link
                 key={href}
@@ -68,6 +97,7 @@ export function AppNav() {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
                   active ? 'text-teal' : 'text-muted-foreground hover:text-primary'
                 )}
               >
@@ -93,7 +123,7 @@ export function AppNav() {
                 />
                 <span
                   className={cn(
-                    'text-[10px] leading-none',
+                    'text-2xs leading-none',
                     active ? 'font-semibold' : 'font-medium'
                   )}
                 >
@@ -105,12 +135,14 @@ export function AppNav() {
           {showMore ? (
             <button
               type="button"
+              ref={moreButtonRef}
               onClick={() => setMoreOpen(v => !v)}
               aria-expanded={moreOpen}
               aria-haspopup="menu"
               aria-label={t('moreLabel')}
               className={cn(
                 'group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
                 moreActive || moreOpen ? 'text-teal' : 'text-muted-foreground hover:text-primary'
               )}
             >
@@ -144,7 +176,7 @@ export function AppNav() {
               )}
               <span
                 className={cn(
-                  'text-[10px] leading-none',
+                  'text-2xs leading-none',
                   moreActive || moreOpen ? 'font-semibold' : 'font-medium'
                 )}
               >
@@ -172,9 +204,10 @@ export function AppNav() {
               />
               <motion.div
                 key="more-sheet"
+                ref={sheetRef}
                 role="dialog"
                 aria-modal="true"
-                aria-label="More navigation"
+                aria-label={t('moreNavigation')}
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
@@ -193,14 +226,14 @@ export function AppNav() {
                     <button
                       type="button"
                       onClick={() => setMoreOpen(false)}
-                      aria-label="Close menu"
-                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-gold/10 hover:text-primary transition-colors"
+                      aria-label={t('closeMenu')}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-gold/10 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
                       <X className="h-5 w-5" aria-hidden="true" />
                     </button>
                   </div>
                   <div className="px-5 pb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-gold-muted" aria-hidden="true">
+                    <p className="text-2xs font-semibold uppercase tracking-widest text-gold-muted" aria-hidden="true">
                       {t('more')}
                     </p>
                     <h2 className="font-heading text-lg font-semibold text-primary">
@@ -210,12 +243,12 @@ export function AppNav() {
                   <div className="max-h-[70vh] overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+16px)]">
                     {moreGroups.map((group) => (
                       <section key={group.titleKey} className="mt-2 first:mt-0">
-                        <h3 className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        <h3 className="px-3 pt-3 pb-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
                           {t(group.titleKey)}
                         </h3>
                         <ul>
                           {group.items.map(({ href, labelKey, Icon }) => {
-                            const active = isActive(pathname, href);
+                            const active = href === currentHref;
                             return (
                               <li key={href}>
                                 <Link
@@ -223,6 +256,7 @@ export function AppNav() {
                                   aria-current={active ? 'page' : undefined}
                                   className={cn(
                                     'flex min-h-[56px] items-center gap-3 rounded-xl px-3 py-3 transition-colors',
+                                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
                                     active
                                       ? 'bg-teal/10 text-teal'
                                       : 'text-foreground hover:bg-gold/10'

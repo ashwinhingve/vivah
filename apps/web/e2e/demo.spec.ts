@@ -22,6 +22,12 @@ test.describe('Smart Shaadi demo flow', () => {
   });
 
   test('2. signup OTP flow — mock OTP accepted', async ({ page }) => {
+    // Staging demo script: /signup + placeholder locators only exist on the
+    // staging demo build. Local signup coverage lives in auth.spec.ts
+    // ("new user signs up and reaches onboarding").
+    if (!process.env.STAGING_SESSION_COOKIE) {
+      test.skip(true, 'staging demo script — local coverage in auth.spec.ts');
+    }
     await page.goto('/signup');
     await page.getByPlaceholder(/phone/i).fill(PRIYA.phone);
     await page.getByRole('button', { name: /send otp|continue/i }).click();
@@ -35,6 +41,11 @@ test.describe('Smart Shaadi demo flow', () => {
   });
 
   test('3. matches feed renders with Guna scores', async ({ page, context }) => {
+    // Requires an authenticated session; local feed coverage lives in
+    // matching.spec.ts (logs in through the OTP UI).
+    if (!process.env.STAGING_SESSION_COOKIE) {
+      test.skip(true, 'requires staging session cookie — local coverage in matching.spec.ts');
+    }
     // Pre-seed session via cookie if STAGING_SESSION_COOKIE provided in env
     if (process.env.STAGING_SESSION_COOKIE) {
       await context.addCookies([{

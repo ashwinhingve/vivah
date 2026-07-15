@@ -1,5 +1,7 @@
 import { UserPlus, Users, Mail } from 'lucide-react';
 import { fetchMembers, fetchInvites } from '@/lib/wedding-api';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { inviteMemberAction, updateRoleAction, removeMemberAction } from './actions';
 import { ActivityFeed } from '@/components/wedding/ActivityFeed';
 
@@ -12,10 +14,13 @@ export default async function MembersPage({ params }: PageProps) {
   const invites = i?.invites ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-        <h1 className="font-heading text-2xl text-primary mb-2">Collaborators</h1>
-        <p className="text-sm text-muted-foreground mb-6">Invite family + planners to collaborate on this wedding.</p>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
+          <PageHeader
+            title="Collaborators"
+            subtitle="Invite family + planners to collaborate on this wedding."
+          />
 
         {/* Members list */}
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm mb-6">
@@ -91,11 +96,12 @@ export default async function MembersPage({ params }: PageProps) {
           </form>
         </div>
 
-        {/* Recent activity */}
-        <div className="mt-6">
-          <ActivityFeed weddingId={id} limit={20} />
+          {/* Recent activity */}
+          <div className="mt-6">
+            <ActivityFeed weddingId={id} limit={20} />
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </PageTransition>
   );
 }

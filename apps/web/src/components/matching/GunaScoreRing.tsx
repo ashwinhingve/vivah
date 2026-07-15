@@ -55,7 +55,7 @@ export function GunaScoreRing({ score, total = 36, size = 110, className }: Prop
         >
           {score}
         </span>
-        <span className="mt-0.5 text-[10px] text-fg-2">/ {total}</span>
+        <span className="mt-0.5 text-2xs text-fg-2">/ {total}</span>
       </div>
     </div>
   );

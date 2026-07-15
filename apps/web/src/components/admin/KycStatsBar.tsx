@@ -29,8 +29,8 @@ export function KycStatsBar({ stats }: { stats: Stats }) {
           t.tone === 'destructive' ? 'text-destructive' :
                                      'text-muted-foreground';
         return (
-          <div key={t.key} className="rounded-xl border border-gold/40 bg-surface p-3">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t.label}</p>
+          <div key={t.key} className="rounded-2xl border border-gold/20 bg-surface p-3">
+            <p className="text-2xs uppercase tracking-wider text-muted-foreground">{t.label}</p>
             <p className={`text-2xl font-bold font-heading mt-1 ${cls}`}>{stats[t.key] ?? 0}</p>
           </div>
         );

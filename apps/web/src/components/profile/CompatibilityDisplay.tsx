@@ -129,10 +129,7 @@ export function CompatibilityDisplay({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p
-            className="text-xl font-semibold text-primary"
-            style={{ fontFamily: '"Noto Serif Devanagari", "Playfair Display", serif' }}
-          >
+          <p className="font-heading text-xl font-semibold text-primary">
             गुण मिलान
           </p>
           <p className="text-sm text-muted-foreground">Ashtakoot Compatibility</p>
@@ -265,7 +262,7 @@ function StatChip({ label, value, accent }: { label: string; value: string; acce
   return (
     <div className="rounded-lg border border-border-light bg-background/40 px-3 py-2.5 text-center">
       <div className="text-base font-semibold tabular-nums" style={{ color: accent }}>{value}</div>
-      <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-0.5">{label}</div>
+      <div className="text-2xs uppercase tracking-wide text-muted-foreground mt-0.5">{label}</div>
     </div>
   );
 }
@@ -305,7 +302,7 @@ function DoshasPane({ doshas }: { doshas: DoshaSummary }) {
                style={{ borderLeftWidth: 3, borderLeftColor: accent }}>
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-foreground">{item.name}</p>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+              <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
                     style={{ background: `${accent}1F`, color: accent }}>
                 {status}
               </span>
@@ -351,7 +348,7 @@ function FactorRow({ factor, color }: { factor: GunaFactorDetail; color: string 
               className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-background/40">
         <div className="w-28 shrink-0">
           <p className="text-xs font-medium text-foreground leading-tight">{factor.name}</p>
-          <p className="text-[10px] text-muted-foreground"
+          <p className="text-2xs text-muted-foreground"
              style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}>
             {factor.nameHi}
           </p>
@@ -406,7 +403,7 @@ function InsightsPane({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-foreground">
                   <span className="mr-1">{meta.icon}</span>{meta.label}
-                  <span className="ml-2 text-[10px] text-muted-foreground"
+                  <span className="ml-2 text-2xs text-muted-foreground"
                         style={{ fontFamily: '"Noto Sans Devanagari", sans-serif' }}>
                     {meta.hi}
                   </span>
@@ -443,7 +440,7 @@ function YogaCard({ name, present, reason }: { name: string; present: boolean; r
          style={{ borderLeftWidth: 3, borderLeftColor: c }}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">{name}</p>
-        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+        <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
               style={{ background: `${c}1F`, color: c }}>
           {present ? 'Present' : 'Absent'}
         </span>
@@ -472,7 +469,7 @@ function RemediesPane({ remedies }: { remedies: Remedy[] }) {
                style={{ borderLeftWidth: 3, borderLeftColor: c }}>
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-foreground">{r.name}</p>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+              <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
                     style={{ background: `${c}1F`, color: c }}>
                 {r.dosha}
               </span>
@@ -481,7 +478,7 @@ function RemediesPane({ remedies }: { remedies: Remedy[] }) {
           </div>
         );
       })}
-      <p className="text-[10px] text-muted-foreground text-center pt-1">
+      <p className="text-2xs text-muted-foreground text-center pt-1">
         Remedies are traditional. Consult a qualified astrologer for personalised guidance.
       </p>
     </div>

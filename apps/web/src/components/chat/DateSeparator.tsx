@@ -24,7 +24,7 @@ export default function DateSeparator({ iso }: DateSeparatorProps) {
   const label = formatLabel(new Date(iso))
   return (
     <div className="flex w-full items-center justify-center py-2">
-      <span className="rounded-full bg-surface-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
+      <span className="rounded-full bg-surface-muted px-3 py-1 text-2xs font-medium text-muted-foreground">
         {label}
       </span>
     </div>

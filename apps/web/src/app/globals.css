@@ -88,8 +88,14 @@
   --font-mono:    "JetBrains Mono", ui-monospace, monospace;
 
   /* ── Radius ─────────────────────────────────────────────────────────────── */
-  --radius-card:  12px;
+  --radius-card:  16px; /* cards are rounded-2xl (16px) — matches the Card primitive */
   --radius-photo: 16px;
+
+  /* ── Type scale additions ───────────────────────────────────────────────────
+     text-2xs: micro-labels / uppercase eyebrows / meta captions. Use instead of
+     arbitrary text-[10px]/text-[11px]. */
+  --text-2xs: 0.6875rem;            /* 11px */
+  --text-2xs--line-height: 0.875rem; /* 14px */
 
   /* ── Shadows — warm, not cold ───────────────────────────────────────────── */
   --shadow-card:         0 1px 2px 0 rgba(123, 45, 66, 0.04);

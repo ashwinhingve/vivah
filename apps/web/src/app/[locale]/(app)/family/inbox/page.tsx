@@ -59,7 +59,7 @@ export default async function FamilyInboxPage() {
         <div className="mt-6">
           {pending.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-notifications"
                   title="Nothing to review"

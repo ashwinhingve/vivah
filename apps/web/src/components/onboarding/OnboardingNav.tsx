@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { useFormStatus } from 'react-dom';
 
@@ -54,9 +55,10 @@ export function OnboardingNav({
         {backHref ? (
           <Link
             href={backHref}
-            className="text-sm font-medium text-primary hover:text-primary-hover transition-colors min-h-[44px] inline-flex items-center"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover transition-colors min-h-[44px]"
           >
-            ← Back
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back
           </Link>
         ) : (
           <span />

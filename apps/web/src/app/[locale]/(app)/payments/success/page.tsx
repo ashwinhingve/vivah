@@ -1,4 +1,6 @@
 import { Link } from '@/i18n/navigation';
+import { CheckCircle } from 'lucide-react';
+
 interface SearchParams { paymentId?: string; bookingId?: string; subscriptionId?: string }
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +12,9 @@ export default async function PaymentSuccessPage({
   return (
     <main className="mx-auto max-w-xl px-4 py-12">
       <div className="rounded-xl border border-success/30 bg-success/10 p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success text-3xl text-white">✓</div>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success text-white">
+          <CheckCircle className="h-8 w-8" aria-hidden="true" />
+        </div>
         <h1 className="mb-2 font-heading text-2xl font-semibold text-success">Payment successful</h1>
         <p className="mb-6 text-success">Your transaction has been recorded. Thank you.</p>
         {params.paymentId ? (

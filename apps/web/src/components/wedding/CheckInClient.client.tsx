@@ -48,7 +48,7 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
   return (
     <div>
       {/* Counter */}
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4 mb-4 flex items-center justify-between">
         <div>
           <div className="text-3xl font-semibold text-teal">{checkedIn}<span className="text-base text-muted-foreground"> / {guests.length}</span></div>
           <p className="text-xs text-muted-foreground">Guests checked in</p>
@@ -78,13 +78,13 @@ export function CheckInClient({ weddingId, initialGuests }: Props) {
             const arrived = !!g.arrivedAt;
             const pending = pendingId === g.id;
             return (
-              <li key={g.id} className={`bg-surface border rounded-xl shadow-sm p-3 flex items-center justify-between gap-3 ${arrived ? 'border-success/30' : 'border-gold/20'}`}>
+              <li key={g.id} className={`bg-surface border rounded-2xl shadow-card p-3 flex items-center justify-between gap-3 ${arrived ? 'border-success/30' : 'border-gold/20'}`}>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm flex items-center gap-1.5">
                     {arrived && <CheckCircle2 className="h-4 w-4 text-success shrink-0" />}
                     <span className="truncate">{g.name}</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-2xs text-muted-foreground">
                     {g.relationship ?? '—'} · {g.rsvpStatus}{g.plusOnes > 0 ? ` · +${g.plusOnes}` : ''}{g.isVip ? ' · VIP' : ''}
                   </p>
                 </div>

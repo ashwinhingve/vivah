@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
+import { LogoMark } from '@/components/marketing/Logo';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -56,6 +57,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </svg>
 
       <div className="mb-8 text-center relative z-10">
+        <LogoMark size={56} decorative className="mx-auto mb-3" />
         <h1
           className="text-4xl font-bold text-primary tracking-tight font-heading"
         >

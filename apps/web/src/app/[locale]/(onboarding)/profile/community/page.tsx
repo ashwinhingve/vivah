@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateCommunity } from '../actions';
@@ -67,10 +68,11 @@ export default function CommunityPage() {
       <div className="mx-auto max-w-lg px-4 py-8">
         <ProfileProgress steps={STEPS} />
 
-        <h1 className="mt-6 text-2xl font-bold font-heading text-primary">Community & Language</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Help us match you within your community.
-        </p>
+        <PageHeader
+          title="Community & Language"
+          subtitle="Help us match you within your community."
+          className="mt-6 mb-6"
+        />
 
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
           {state?.error && (
@@ -139,7 +141,7 @@ export default function CommunityPage() {
             />
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-surface p-4">
             <input
               type="checkbox"
               id="gotraExclusionEnabled"
@@ -197,7 +199,7 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-surface p-4">
             <input
               type="checkbox"
               id="lgbtqProfile"

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import { Eyebrow } from './Ornament';
 import coupleDusk from '../../../public/landing/couple-dusk.webp';
 
@@ -66,7 +67,10 @@ export default async function CtaBanner() {
             href="/register"
             className="inline-flex items-center justify-center min-h-[52px] rounded-xl px-9 py-3.5 bg-surface text-primary font-semibold text-base transition-all duration-200 shadow-lg shadow-black/30 hover:bg-background hover:shadow-xl hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plum"
           >
-            {t('primaryCta')}
+            <span className="inline-flex items-center gap-2">
+              {t('primaryCta')}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </span>
           </Link>
           <a
             href="mailto:support@smartshaadi.co.in"

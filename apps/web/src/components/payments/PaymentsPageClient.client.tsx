@@ -116,7 +116,7 @@ export function PaymentsPageClient({ payments }: Props) {
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-16 text-center" style={{ borderColor: 'var(--color-gold)' }}>
+        <div className="rounded-2xl border border-dashed py-16 text-center" style={{ borderColor: 'var(--color-gold)' }}>
           <p className="font-medium" style={{ color: 'var(--color-primary)' }}>No payments found</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {filter === 'ALL' ? 'You have no payment records yet.' : `No ${filter.toLowerCase()} payments.`}
@@ -129,7 +129,7 @@ export function PaymentsPageClient({ payments }: Props) {
             return (
               <div
                 key={payment.id}
-                className="rounded-xl bg-surface shadow-card border p-5"
+                className="rounded-2xl bg-surface shadow-card border p-5"
                 style={{ borderColor: 'var(--color-gold)' }}
               >
                 {/* Header */}

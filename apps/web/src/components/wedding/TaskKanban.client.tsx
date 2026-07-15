@@ -212,7 +212,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       <span
                         className={cn(
-                          'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                          'inline-flex items-center gap-0.5 text-2xs font-medium px-1.5 py-0.5 rounded-full',
                           PRIORITY_COLORS[task.priority]
                         )}
                       >
@@ -220,7 +220,7 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                         {task.priority}
                       </span>
                       {task.dueDate && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-0.5 text-2xs text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
                           <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
                           {new Date(task.dueDate).toLocaleDateString('en-IN', {
                             day: 'numeric',

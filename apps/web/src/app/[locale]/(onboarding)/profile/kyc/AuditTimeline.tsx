@@ -57,16 +57,16 @@ function fmt(d: string) {
 export function AuditTimeline({ entries }: { entries: AuditEntry[] }) {
   if (entries.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-5 text-center">
+      <div className="rounded-2xl border border-gold/20 bg-surface p-5 text-center">
         <p className="text-sm text-muted-foreground">No verification events yet.</p>
       </div>
     );
   }
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Verification timeline</h3>
-        <span className="text-[11px] text-muted-foreground">{entries.length} event{entries.length === 1 ? '' : 's'}</span>
+        <span className="text-2xs text-muted-foreground">{entries.length} event{entries.length === 1 ? '' : 's'}</span>
       </div>
       <ol className="space-y-0">
         {entries.map((e, i) => {
@@ -83,17 +83,17 @@ export function AuditTimeline({ entries }: { entries: AuditEntry[] }) {
                 <p className="text-sm font-medium text-foreground">
                   {LABELS[e.eventType] ?? e.eventType.replace(/_/g, ' ').toLowerCase()}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-2xs text-muted-foreground mt-0.5">
                   {fmt(e.createdAt)}
                   {e.actorRole && <span className="ml-2 px-1.5 py-0.5 rounded bg-muted/40">{e.actorRole}</span>}
                 </p>
                 {e.toStatus && e.fromStatus && e.fromStatus !== e.toStatus && (
-                  <p className="text-[11px] text-muted-foreground mt-1">
+                  <p className="text-2xs text-muted-foreground mt-1">
                     Status: {e.fromStatus} → <strong className="text-foreground">{e.toStatus}</strong>
                   </p>
                 )}
                 {e.toLevel && e.fromLevel && e.fromLevel !== e.toLevel && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-2xs text-muted-foreground mt-0.5">
                     Level: {e.fromLevel} → <strong className="text-foreground">{e.toLevel}</strong>
                   </p>
                 )}

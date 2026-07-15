@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updatePreferences } from '../actions';
@@ -87,10 +88,11 @@ export default function PreferencesPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <ProfileProgress steps={STEPS} />
-      <h1 className="text-2xl font-bold text-primary mb-2 font-heading">
-        Partner Preferences
-      </h1>
-      <p className="text-muted-foreground text-sm mb-6">What are you looking for in a partner?</p>
+      <PageHeader
+        title="Partner Preferences"
+        subtitle="What are you looking for in a partner?"
+        className="mb-6"
+      />
 
       <form action={formAction} className="space-y-6">
         {state?.error && (

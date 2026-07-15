@@ -3,6 +3,8 @@ import { Wallet, AlertTriangle, Receipt, Plus } from 'lucide-react';
 import { fetchExpenses, fetchExpenseSummary } from '@/lib/wedding-api';
 import { fetchAuth } from '@/lib/server-fetch';
 import type { WeddingSummary } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { createExpenseAction, deleteExpenseAction, recordPaymentAction } from './actions';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -36,10 +38,13 @@ export default async function ExpensesPage({ params }: PageProps) {
   const overBudget = summary?.overBudget ?? false;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
-
-        <h1 className="font-heading text-2xl text-primary mb-6">Expenses</h1>
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background">
+        <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
+          <PageHeader
+            title="Expenses"
+            subtitle="Track all spending and payment schedules."
+          />
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -192,8 +197,9 @@ export default async function ExpensesPage({ params }: PageProps) {
           <Wallet className="h-3 w-3 inline mr-1" />
           {expenses.length} expense{expenses.length === 1 ? '' : 's'} · linked to your wedding plan budget
         </p>
-      </div>
-    </div>
+        </div>
+      </main>
+    </PageTransition>
   );
 }
 

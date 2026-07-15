@@ -112,7 +112,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
           {pinned ? <Pin className="h-3 w-3 shrink-0 text-teal" /> : null}
           {muted ? <BellOff className="h-3 w-3 shrink-0 text-muted-foreground" /> : null}
           <span className={cn(
-            'ml-auto shrink-0 text-[11px]',
+            'ml-auto shrink-0 text-2xs',
             isUnread ? 'font-semibold text-teal' : 'text-muted-foreground',
           )}>
             {formatTs(item.lastMessage?.sentAt ?? item.updatedAt, locale, t('yesterday'))}
@@ -124,13 +124,13 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
           {previewIcon === 'video' && <Video className="h-3 w-3 shrink-0 text-teal" />}
           <p className={cn(
             'truncate text-xs',
-            isUnread ? 'text-foreground' : 'text-muted-foreground',
+            isUnread ? 'font-semibold text-foreground' : 'text-muted-foreground',
           )}>
             {isMine ? <span className="text-gold-muted">{t('youPrefix')}</span> : null}
             {preview}
           </p>
           {isUnread ? (
-            <span className="ml-auto inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-teal px-1.5 text-[10px] font-semibold text-white">
+            <span className="ml-auto inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-teal px-1.5 text-2xs font-semibold text-white">
               {item.unreadCount > 99 ? '99+' : item.unreadCount}
             </span>
           ) : null}

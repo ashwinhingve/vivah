@@ -22,7 +22,7 @@ export default function LinkPreviewCard({ preview, isSentByMe }: LinkPreviewCard
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'mt-1 block max-w-[280px] overflow-hidden rounded-xl border transition-colors',
+        'mt-1 block max-w-[280px] overflow-hidden rounded-2xl border transition-colors',
         isSentByMe
           ? 'border-white/30 bg-surface/10 hover:bg-surface/15'
           : 'border-gold/20 bg-surface-muted hover:bg-surface',
@@ -42,7 +42,7 @@ export default function LinkPreviewCard({ preview, isSentByMe }: LinkPreviewCard
       ) : null}
       <div className="px-3 py-2">
         <p className={cn(
-          'flex items-center gap-1 text-[10px] uppercase tracking-wide',
+          'flex items-center gap-1 text-2xs uppercase tracking-wide',
           isSentByMe ? 'text-white/70' : 'text-muted-foreground',
         )}>
           <Link2 className="h-3 w-3" />

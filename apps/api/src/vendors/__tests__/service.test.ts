@@ -42,6 +42,7 @@ vi.mock('@smartshaadi/db', () => ({
 // ── Mock env ──────────────────────────────────────────────────────────────────
 vi.mock('../../lib/env.js', () => ({
   env: { USE_MOCK_SERVICES: true },
+  shouldUseMockMongo: true,
 }));
 
 // ── Mock VendorPortfolio (never called in mock mode) ─────────────────────────

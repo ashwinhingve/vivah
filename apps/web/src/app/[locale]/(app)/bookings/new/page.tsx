@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { ArrowLeft } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';
 import type { PortfolioDoc, PortfolioPackage } from '@/components/vendor/VendorPortfolio';
 import { BookingForm } from '@/components/bookings/BookingForm.client';
@@ -53,8 +54,9 @@ export default async function NewBookingPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 space-y-4">
-        <Link href={`/vendors/${vendor.id}`} className="text-sm text-muted-foreground hover:text-teal">
-          ← Back to {vendor.businessName}
+        <Link href={`/vendors/${vendor.id}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-teal min-h-[44px]">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to {vendor.businessName}
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-primary font-heading">Book {vendor.businessName}</h1>

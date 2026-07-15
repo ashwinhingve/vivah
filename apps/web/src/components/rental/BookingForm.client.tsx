@@ -106,7 +106,7 @@ export function BookingForm({ item }: Props) {
           onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
           className="min-h-[44px] rounded-lg border border-gold/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal/40"
         />
-        <span className="text-[10px] text-muted-foreground">Max: {item.stockQty}</span>
+        <span className="text-2xs text-muted-foreground">Max: {item.stockQty}</span>
       </label>
 
       {/* Live total preview */}

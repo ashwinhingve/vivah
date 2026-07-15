@@ -10,6 +10,7 @@ import Testimonials from '@/components/marketing/Testimonials';
 import Pricing from '@/components/marketing/Pricing';
 import CtaBanner from '@/components/marketing/CtaBanner';
 import Footer from '@/components/marketing/Footer';
+import { SectionDivider } from '@/components/ui/SectionDivider';
 
 const isDemoMode = process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
 
@@ -54,13 +55,37 @@ export default function LandingPage() {
       <main id="main-content">
         <Hero />
         <StatsBar />
-        <HowItWorks />
+
+        {/* Rhythm band 1 */}
+        <div className="bg-primary/[0.02]">
+          <HowItWorks />
+        </div>
+
+        {/* Divider after HowItWorks */}
+        <SectionDivider />
+
+        {/* Features & Trust grid (natural ivory → images → white → ivory alternation) */}
         <FeaturesGrid />
         <TrustSection />
-        <Testimonials />
+
+        {/* Divider after TrustSection */}
+        <SectionDivider />
+
+        {/* Rhythm band 2 */}
+        <div className="bg-gold/[0.03]">
+          <Testimonials />
+        </div>
+
+        {/* Divider after Testimonials */}
+        <SectionDivider />
+
         {!isDemoMode && <Pricing />}
         <CtaBanner />
       </main>
+
+      {/* Divider before Footer */}
+      <SectionDivider className="bg-plum/5 px-4" />
+
       <Footer />
     </>
   );

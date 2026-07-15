@@ -1,7 +1,9 @@
 import { fetchDayOfSnapshot } from '@/lib/wedding-api';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { DayOfDashboard } from './DayOfDashboard.client';
 
-export const metadata = { title: 'Day-of Dashboard' };
+export const metadata = { title: 'Day-of Dashboard — Smart Shaadi' };
 export const dynamic = 'force-dynamic';
 
 export default async function DayOfPage({ params }: { params: Promise<{ id: string }> }) {
@@ -10,12 +12,19 @@ export default async function DayOfPage({ params }: { params: Promise<{ id: stri
 
   if (!snapshot) {
     return (
-      <main id="main-content" className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <h1 className="font-heading text-2xl text-foreground">Day-of dashboard unavailable</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The day-of snapshot could not be loaded. Check your access to this wedding.
-        </p>
-      </main>
+      <PageTransition>
+        <main id="main-content" className="mx-auto max-w-3xl px-4 py-8">
+          <PageHeader
+            title="Day-of Dashboard"
+            subtitle="Real-time updates and ceremony coordination."
+          />
+          <div className="mt-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              The day-of snapshot could not be loaded. Check your access to this wedding.
+            </p>
+          </div>
+        </main>
+      </PageTransition>
     );
   }
 

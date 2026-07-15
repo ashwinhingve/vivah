@@ -55,7 +55,7 @@ export function PackageManager({ vendorId, initial }: { vendorId: string; initia
     'h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-teal focus:outline-none disabled:opacity-50';
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
       <div className="mb-3 flex items-center gap-2">
         <PackageIcon className="h-4 w-4 text-teal" />
         <h3 className="font-heading text-base text-primary">Packages</h3>

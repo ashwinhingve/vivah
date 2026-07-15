@@ -1,6 +1,11 @@
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
+import { getTranslations } from 'next-intl/server';
+import { ArrowLeft } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { FadeUp } from '@/components/shared/FadeUp.client';
 import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar } from '@/components/admin/KycStatsBar';
 
@@ -36,6 +41,7 @@ async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
 }
 
 export default async function AdminKycPage() {
+  const t = await getTranslations('adminRole');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const me = await fetchAuth<AuthMe>('/api/auth/me', token);
@@ -51,27 +57,32 @@ export default async function AdminKycPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-        <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Admin
+    <PageTransition>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-8">
+        <Link href="/admin" className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary min-h-[44px] transition-colors">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t('common.adminConsole')}
         </Link>
 
-        <div>
-          <h1 className="text-2xl font-bold text-primary font-heading">KYC & Identity Console</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Review pending verifications, resolve appeals, monitor fraud signals.</p>
-        </div>
+        <FadeUp>
+          <PageHeader
+            title={t('kyc.title')}
+            subtitle={t('kyc.subtitle')}
+            breadcrumbs={[{ label: t('common.breadcrumbAdmin'), href: '/admin' }, { label: t('kyc.breadcrumb') }]}
+          />
+        </FadeUp>
 
-        <KycStatsBar stats={stats ?? fallbackStats} />
+        <FadeUp>
+          <KycStatsBar stats={stats ?? fallbackStats} />
+        </FadeUp>
 
-        <div>
-          <h2 className="text-base font-semibold text-primary font-heading mb-3">Pending review queue</h2>
-          <KycQueueTable initialRows={queue?.profiles ?? []} />
-        </div>
-      </div>
-    </main>
+        <FadeUp>
+          <div>
+            <h2 className="text-base font-semibold text-primary font-heading mb-3">{t('kyc.pendingQueueLabel')}</h2>
+            <KycQueueTable initialRows={queue?.profiles ?? []} />
+          </div>
+        </FadeUp>
+      </main>
+    </PageTransition>
   );
 }

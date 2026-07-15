@@ -64,7 +64,7 @@ export default async function ParentModeDashboardPage() {
           <SectionHeader title={t('assistTitle')} />
           {approvedAsParent.length === 0 ? (
             <FadeUp>
-              <div className="rounded-xl border border-gold/20 bg-surface shadow-card">
+              <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
                 <EmptyState
                   variant="no-matches"
                   title={t('assistEmptyTitle')}
@@ -95,7 +95,7 @@ export default async function ParentModeDashboardPage() {
               {asChild.map((l) => (
                 <div
                   key={l.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-gold/20 bg-surface p-4 shadow-card"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground">
@@ -122,7 +122,7 @@ export default async function ParentModeDashboardPage() {
 
         <div className="mt-8">
           <FadeUp>
-            <div className="flex items-start gap-3 rounded-xl border border-gold/20 bg-gold/5 p-4">
+            <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-gold/5 p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold-muted" aria-hidden="true" />
               <p className="text-xs text-muted-foreground">
                 {t('consentNote')}

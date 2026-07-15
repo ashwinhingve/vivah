@@ -8,9 +8,9 @@ import {
   Container,
   DataTable,
   type DataTableColumn,
-  PageHeader,
   Section,
 } from '@/components/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { extractErrorMessage } from '@/lib/api-envelope';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -209,7 +209,7 @@ export function AdminPromosClient({ initialPromos }: Props) {
         <PageHeader
           title="Promo Codes"
           subtitle="Create and manage discount codes for customers"
-          action={
+          actions={
             <Button
               type="button"
               onClick={() => {

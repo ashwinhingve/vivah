@@ -37,7 +37,7 @@ export function PlatformSettingsForm({ lgbtqEnabled, lgbtqUpdatedAt }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+    <div className="rounded-2xl border border-gold/20 bg-surface p-6 shadow-card">
       <div className="flex items-start justify-between gap-6">
         <div className="flex-1">
           <h2 className="text-base font-semibold text-foreground">
