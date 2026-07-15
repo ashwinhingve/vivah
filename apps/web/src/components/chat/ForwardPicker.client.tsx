@@ -143,6 +143,8 @@ export default function ForwardPicker({
                           src={photoUrl}
                           alt=""
                           name={t.other?.firstName}
+                          fill
+                          sizes="40px"
                           wrapperClassName="h-10 w-10 rounded-full"
                         />
                       </div>

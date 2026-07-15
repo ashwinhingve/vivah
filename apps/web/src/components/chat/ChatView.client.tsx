@@ -46,11 +46,22 @@ interface ChatViewProps {
 
 const PAGE_SIZE = 50
 
+// Messages stored before the reactions/read-receipt fields existed come back
+// from the API (lean Mongo docs — no schema defaults) without these arrays.
+function normalizeMessage<T extends ChatMessage>(m: T): T {
+  return {
+    ...m,
+    reactions:   m.reactions   ?? [],
+    readBy:      m.readBy      ?? [],
+    deliveredTo: m.deliveredTo ?? [],
+  }
+}
+
 export default function ChatView({
   matchId, currentUserId, currentProfileId, authToken: _authToken,
   initialMessages, initialOther, initialSettings, initialHasMore, initialTotal,
 }: ChatViewProps) {
-  const [messages, setMessages] = useState<OptimisticMessage[]>(initialMessages)
+  const [messages, setMessages] = useState<OptimisticMessage[]>(() => initialMessages.map(normalizeMessage))
   const [reply, setReply] = useState<ChatMessage | null>(null)
   const [editing, setEditing] = useState<ChatMessage | null>(null)
   const [typingUser, setTypingUser] = useState<string | null>(null)
@@ -103,7 +114,8 @@ export default function ChatView({
     }
     socket.on('connect', onConnect)
 
-    socket.on('message_received', (m: ChatMessage) => {
+    socket.on('message_received', (raw: ChatMessage) => {
+      const m = normalizeMessage(raw)
       setMessages((prev) => {
         // Reconcile optimistic message by clientMsgId match (sent by self)
         if (m.senderId === currentProfileId) {
@@ -311,7 +323,7 @@ export default function ChatView({
         data: { messages: ChatMessage[]; total: number; hasMore?: boolean }
       }
       if (!j.success) return
-      const older = j.data.messages.slice().reverse()
+      const older = j.data.messages.map(normalizeMessage).reverse()
       setMessages((prev) => {
         const seen = new Set(prev.map((m) => m._id))
         const merged = older.filter((m) => !seen.has(m._id))

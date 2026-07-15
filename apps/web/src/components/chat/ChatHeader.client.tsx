@@ -165,6 +165,8 @@ export default function ChatHeader({
             src={photoUrl}
             alt={initialOther?.firstName ?? 'Participant'}
             name={initialOther?.firstName}
+            fill
+            sizes="40px"
             wrapperClassName="h-10 w-10 rounded-full"
           />
           <span

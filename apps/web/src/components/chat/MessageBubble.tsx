@@ -125,7 +125,7 @@ function MessageBubbleInner({
 
   function toggleReaction(emoji: string) {
     if (!currentProfileId || isPending) return
-    const mine = message.reactions.find((r) => r.profileId === currentProfileId && r.emoji === emoji)
+    const mine = message.reactions?.find((r) => r.profileId === currentProfileId && r.emoji === emoji)
     if (mine) onUnreact(message._id, emoji)
     else onReact(message._id, emoji)
   }
@@ -292,7 +292,7 @@ function MessageBubbleInner({
           onClose={() => setMenuOpen(false)}
         />
 
-        {message.reactions.length > 0 ? (
+        {message.reactions && message.reactions.length > 0 ? (
           <ReactionStrip
             reactions={message.reactions}
             currentProfileId={currentProfileId}

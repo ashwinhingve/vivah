@@ -152,7 +152,14 @@ router.get(
       const sorted = [...chat.messages].sort(
         (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
       )
-      const messages = sorted.slice((page - 1) * limit, page * limit)
+      // Backfill array fields missing on pre-reactions-era docs — .lean()
+      // skips schema defaults, and the web client reads .length on these.
+      const messages = sorted.slice((page - 1) * limit, page * limit).map((m) => ({
+        ...m,
+        reactions:   m.reactions   ?? [],
+        readBy:      m.readBy      ?? [],
+        deliveredTo: m.deliveredTo ?? [],
+      }))
       const otherId = chat.participants.find((p) => p !== profileId) ?? null
       const other = otherId ? await getParticipantPreview(otherId) : null
       const settings = {
