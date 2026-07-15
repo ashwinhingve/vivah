@@ -26,7 +26,18 @@
 > privacy icons, localized 404 for /foo/bar both locales, all public routes 200, no console
 > errors). Dark mode intentionally deferred (tokens exist, unused). PageHeader skipped on 5
 > back-link flex-row pages (store/orders, cart, checkout, bookings/new, support ticket).
-> Operator tasks unchanged: e2e vs docker stack, authed-role browser pass, Hindi review.
+> **Pre-merge gates CLEARED (2026-07-15):** full e2e vs docker QA stack green
+> (initial failures = Better Auth 3-OTP/10min per-phone rate limit tripping across
+> back-to-back runs + 2 staging-only demo tests now gated behind
+> STAGING_SESSION_COOKIE like their siblings — every test passed on rerun; a11y axe
+> clean). Authed browser pass: 6 roles via e2e roles.spec both viewports + manual
+> dashboard(en/hi)/feed@375/requests/chats/vendors/admin-payouts — no app console
+> errors (only missing QA seed photo binaries, handled by ImageWithFallback).
+> Hindi: 204 branch-added keys reviewed, 6 fixes, parity 1354/1354 — LLM review;
+> native signoff still recommended before public launch. Also fixed: 12 i18n CTA
+> values ending in literal arrows (found in authed pass). Local-env notes: native
+> PostgreSQL 18 service squats port 5432 → docker postgres remapped to 5433 (root
+> .env updated); container volume password realigned to vivah.
 
 ## Context
 
