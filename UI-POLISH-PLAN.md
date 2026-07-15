@@ -10,7 +10,23 @@
 > manual browser pass 375/1280 across roles, Hindi native review of new keys.
 > Pre-existing issues found (NOT from this branch): packages/db tsconfig.seed.json tsc
 > OOMs (drizzle type explosion in seed files); multi-segment unknown paths (e.g. /foo/bar)
-> 500 instead of 404 via (public)/[slug].
+> 500 instead of 404 via (public)/[slug] — **FIXED in Phase 8** (`9a3beed` [locale]/[...rest]
+> catch-all + i18n-free root not-found).
+>
+> **Phase 8 COMPLETE (2026-07-13/15, fresh audit round, 7 commits `9a3beed…8250b34`):**
+> Phase 0 broken-tree fixes (AdminPayoutsClient ReferenceError, RequestsClient dead-import
+> polish, legal-page icons, ProductCard tokens) = `344814e`; route error/loading boundaries
+> for (legal)/(public)/(dev) + SectionDivider primitive = `e500504`; main sweep (209×
+> text-2xs across 105 files, literal arrows→lucide in 17 files, 22 h1→PageHeader
+> migrations, raw img→ImageWithFallback) = `0dcd00a`; delight layer (landing section
+> rhythm + dividers, wedding-card gradient, ProfileCard pill reflow, global teal input
+> focus ring) = `5a1d22f`; lint fix = `8250b34`. Zero new i18n keys (all existing reused).
+> Review agent over batch diff: no defects. Verified: web tsc clean, next lint 0 errors,
+> prod build clean, browser pass (landing w/ dividers + testimonials, login 375 teal ring,
+> privacy icons, localized 404 for /foo/bar both locales, all public routes 200, no console
+> errors). Dark mode intentionally deferred (tokens exist, unused). PageHeader skipped on 5
+> back-link flex-row pages (store/orders, cart, checkout, bookings/new, support ticket).
+> Operator tasks unchanged: e2e vs docker stack, authed-role browser pass, Hindi review.
 
 ## Context
 
