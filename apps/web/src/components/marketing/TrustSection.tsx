@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { Eyebrow } from './Ornament';
 import coupleDusk from '../../../public/landing/couple-dusk.webp';
 import floralIvory from '../../../public/landing/floral-ivory.webp';
@@ -59,7 +59,10 @@ export default async function TrustSection() {
             href="/register"
             className="inline-flex items-center justify-center bg-surface text-primary font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
           >
-            {t('individualsCta')}
+            <span className="inline-flex items-center gap-2">
+              {t('individualsCta')}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </span>
           </Link>
         </div>
       </div>
@@ -110,7 +113,10 @@ export default async function TrustSection() {
             href="/register?mode=family"
             className="inline-flex items-center justify-center bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg px-7 py-3.5 mt-10 min-h-[48px] transition-all duration-200 shadow-lg shadow-teal/30 hover:shadow-xl hover:shadow-teal/40 hover:-translate-y-0.5"
           >
-            {t('familiesCta')}
+            <span className="inline-flex items-center gap-2">
+              {t('familiesCta')}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </span>
           </Link>
         </div>
       </div>
