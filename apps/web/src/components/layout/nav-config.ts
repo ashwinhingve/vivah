@@ -10,6 +10,7 @@ import {
   Bookmark,
   Eye,
   EyeOff,
+  Database,
   Shield,
   Heart,
   MessageCircle,
@@ -81,6 +82,7 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
     items: [
       { href: '/profile/personal',             labelKey: 'editProfile', Icon: UserCog },
       { href: '/settings/privacy',             labelKey: 'privacy',     Icon: EyeOff },
+      { href: '/settings/data-export',         labelKey: 'dataExport',  Icon: Database },
       { href: '/settings/security/two-factor', labelKey: 'security',    Icon: Shield },
     ],
   },

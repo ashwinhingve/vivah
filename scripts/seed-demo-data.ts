@@ -31,7 +31,7 @@ import {
   type DemoProfile,
 } from './seed-demo-data.config.js';
 
-const API_URL = (process.env['API_URL'] ?? 'http://localhost:3001').replace(
+const API_URL = (process.env['API_URL'] ?? 'http://localhost:4000').replace(
   /\/$/,
   '',
 );

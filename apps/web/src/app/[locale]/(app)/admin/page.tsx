@@ -310,7 +310,9 @@ export default async function AdminPage() {
     ? [
         { label: 'PostgreSQL', ok: readyData.checks.postgres === 'ok' },
         { label: 'Redis',      ok: readyData.checks.redis     === 'ok' },
-        { label: 'MongoDB',    ok: readyData.checks.mongo     === 'ok' },
+        // 'mock' is a deliberate healthy state (Mongo intentionally mocked when
+        // shouldUseMockMongo) — treat it as OK, not a false-negative "failing".
+        { label: 'MongoDB',    ok: readyData.checks.mongo === 'ok' || readyData.checks.mongo === 'mock' },
       ]
     : [
         { label: 'PostgreSQL', ok: false },
