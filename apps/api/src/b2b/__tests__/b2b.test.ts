@@ -59,7 +59,7 @@ describe('B2B Module', () => {
       ];
 
       for (const gstin of validGstins) {
-        const result = CreateB2BAccountSchema.pick({ gstin }).safeParse({ gstin });
+        const result = CreateB2BAccountSchema.pick({ gstin: true }).safeParse({ gstin });
         expect(result.success).toBe(true);
       }
     });
@@ -76,7 +76,7 @@ describe('B2B Module', () => {
       ];
 
       for (const gstin of invalidGstins) {
-        const result = CreateB2BAccountSchema.pick({ gstin }).safeParse({ gstin });
+        const result = CreateB2BAccountSchema.pick({ gstin: true }).safeParse({ gstin });
         expect(result.success).toBe(false);
       }
     });
