@@ -35,8 +35,11 @@ const NON_WEDDING_EVENTS = [
 export type NonWeddingEventType = typeof NON_WEDDING_EVENTS[number];
 
 export interface UtilizationRankingOptions {
-  /** Vendor's profile ID (from profiles.id) */
+  /** Vendor's profile ID (from profiles.id) — keys vendor_capacity. */
   profileId: ProfileId;
+
+  /** Vendor's vendors.id — keys vendor_event_types (distinct from profileId). */
+  vendorId: string;
 
   /** Optional: filter to specific event type */
   eventType?: NonWeddingEventType | undefined;
@@ -97,6 +100,7 @@ export async function queryVendorUtilizationOpportunities(
 ): Promise<RankedWindow[]> {
   const {
     profileId,
+    vendorId,
     eventType,
     startAfter,
     endBefore,
@@ -145,7 +149,7 @@ export async function queryVendorUtilizationOpportunities(
     .from(vendorEventTypes)
     .where(
       and(
-        eq(vendorEventTypes.vendorId, profileId),
+        eq(vendorEventTypes.vendorId, vendorId),
         inArray(vendorEventTypes.eventType, eventTypeFilter),
         eq(vendorEventTypes.available, true),
       ),

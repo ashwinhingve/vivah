@@ -40,11 +40,13 @@ router.get(
         return;
       }
 
-      // Verify the vendor exists
+      // Resolve the vendor by userId — vendors.id, profiles.id and userId are
+      // three distinct values (CLAUDE.md rule 12). vendor_event_types is keyed by
+      // vendors.id; vendor_capacity by profiles.id.
       const vendorRow = await db
         .select({ id: vendors.id })
         .from(vendors)
-        .where(eq(vendors.id, profileId))
+        .where(eq(vendors.userId, req.user!.id))
         .limit(1)
         .then((r) => r[0]);
 
@@ -74,6 +76,7 @@ router.get(
       // Query and rank opportunities
       const rankedWindows = await queryVendorUtilizationOpportunities({
         profileId,
+        vendorId: vendorRow.id,
         eventType: query.eventType,
         startAfter: query.startAfter,
         endBefore: query.endBefore,
