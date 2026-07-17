@@ -50,6 +50,12 @@ export const envSchema = z.object({
   // only once DigiLocker creds (DIGILOCKER_CLIENT_ID/SECRET) are configured.
   KYC_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // E-sign live override — INVERTED semantics like KYC. E-sign (contract/document
+  // signing via DigiLocker/Signzy) stays MOCKED unless ESIGN_LIVE='true'. Real e-sign
+  // happens only when ESIGN_LIVE=true AND USE_MOCK_SERVICES=false. Set ESIGN_LIVE=true
+  // once e-sign provider credentials are fully configured.
+  ESIGN_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // Pre-launch escape hatch: when 'true', the NODE_ENV=production +
   // USE_MOCK_SERVICES=true guard is bypassed. Intended for the pre-launch
   // window where external provider creds (MSG91 DLT, DigiLocker, Razorpay
@@ -294,6 +300,11 @@ if (env.USE_MOCK_SERVICES) {
  *   MOCKED even after the master toggle flips off, so DigiLocker stays stubbed
  *   until its creds land. Real KYC happens only when KYC_LIVE=true AND
  *   USE_MOCK_SERVICES=false.
+ *
+ * - shouldUseMockEsign: USE_MOCK_SERVICES=true OR ESIGN_LIVE not set — INVERTED logic.
+ *   Like KYC, e-sign stays MOCKED even after the master toggle flips off, so
+ *   DigiLocker/Signzy stays stubbed until their creds land. Real e-sign happens only
+ *   when ESIGN_LIVE=true AND USE_MOCK_SERVICES=false.
  */
 export function deriveMockFlags(
   useMockServices: boolean,
@@ -301,17 +312,20 @@ export function deriveMockFlags(
   r2Live: boolean,
   kycLive = false,
   videoLive = false,
+  esignLive = false,
 ): {
   shouldUseMockMongo: boolean;
   shouldUseMockR2: boolean;
   shouldUseMockKyc: boolean;
   shouldUseMockVideo: boolean;
+  shouldUseMockEsign: boolean;
 } {
   return {
     shouldUseMockMongo: useMockServices && !mongoLive,
     shouldUseMockR2:    useMockServices && !r2Live,
     shouldUseMockKyc:   useMockServices || !kycLive,
     shouldUseMockVideo: useMockServices && !videoLive,
+    shouldUseMockEsign: useMockServices || !esignLive,
   };
 }
 
@@ -345,3 +359,12 @@ export const shouldUseMockKyc = deriveMockFlags(
 export const shouldUseMockVideo = deriveMockFlags(
   env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE,
 ).shouldUseMockVideo;
+
+/**
+ * E-sign (contract signing) mock gate. True (mocked) unless ESIGN_LIVE=true AND
+ * USE_MOCK_SERVICES=false. Keeps e-sign stubbed through the payment-launch master
+ * flip — see deriveMockFlags. Mirror of KYC inverted semantics.
+ */
+export const shouldUseMockEsign = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
+).shouldUseMockEsign;
