@@ -301,15 +301,19 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 
 ## 🔵 PHASE 5 — Vendor Utilization Engine (Expansion Month 4)
 
-- [ ] Full Vendor Utilization Engine (wedding → off-season event routing)
-- [ ] Vendor Gap Detection (city-level category alerts)
-- [ ] Calendar Intelligence (muhurat, government, festival, school calendars)
-- [ ] Dynamic Pricing full (muhurat premium, off-season discounts)
-- [ ] Documentation & Compliance module
-- [ ] Digilocker e-sign integration
-- [ ] Contract template generator
-- [ ] B2B Self-Serve (corporate registration, event catalogue, invoiced bookings)
-- [ ] Advanced analytics & demand forecasting
+> **Sprint A shipped (2026-07-17)** — VUE + Calendar + B2B merged to main (`f46e826`).
+> **Sprint B shipped (2026-07-17)** — Dynamic Pricing + Vendor Gap Detection merged
+> to main (`f7bde4f`, local — not yet pushed/deployed).
+
+- [x] Full Vendor Utilization Engine (wedding → off-season event routing) — Sprint A
+- [x] Vendor Gap Detection (city-level category alerts) — Sprint B (`/admin/gaps`, threshold-configurable)
+- [x] Calendar Intelligence (muhurat, government, festival, school calendars) — Sprint A
+- [x] Dynamic Pricing full (muhurat premium, off-season discounts) — Sprint B (ADR-001 PricingAdvisor, `/vendor/pricing`)
+- [ ] Documentation & Compliance module — Sprint C
+- [ ] Digilocker e-sign integration — Sprint C
+- [ ] Contract template generator — Sprint C
+- [x] B2B Self-Serve (corporate registration, event catalogue, invoiced bookings) — Sprint A
+- [ ] Advanced analytics & demand forecasting — Sprint C
 - [ ] Production deployment — Phase 5 live 🚀
 
 ---
