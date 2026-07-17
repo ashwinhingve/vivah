@@ -66,6 +66,7 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
       { href: '/store',    labelKey: 'shop',     Icon: ShoppingBag },
       { href: '/rentals',  labelKey: 'rentals',  Icon: Package },
       { href: '/bookings', labelKey: 'bookings', Icon: Calendar },
+      { href: '/calendar', labelKey: 'calendar', Icon: Sparkles },
     ],
   },
   {
@@ -75,6 +76,7 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
       { href: '/payments/wallet',   labelKey: 'wallet',   Icon: Wallet },
       { href: '/payments/invoices', labelKey: 'invoices', Icon: FileText },
       { href: '/payments/refunds',  labelKey: 'refunds',  Icon: Receipt },
+      { href: '/b2b',               labelKey: 'b2b',      Icon: FileText },
     ],
   },
   {
@@ -107,6 +109,7 @@ const VENDOR_MORE_GROUPS: NavGroup[] = [
       { href: '/vendor/insights',          labelKey: 'insights',    Icon: Sparkles },
       { href: '/vendor/reviews',           labelKey: 'reviews',     Icon: MessageCircle },
       { href: '/vendor-dashboard/rentals', labelKey: 'rentals',     Icon: Package },
+      { href: '/vendor-dashboard/utilization', labelKey: 'utilization', Icon: Sparkles },
     ],
   },
   {

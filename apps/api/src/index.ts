@@ -49,6 +49,8 @@ import { reconciliationRouter } from './payments/reconciliationRouter.js';
 import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { calendarRouter } from './calendar/router.js';
+import utilizationRouter from './vendors/utilization.js';
+import { b2bRouter } from './b2b/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
 import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
@@ -304,6 +306,9 @@ app.use('/api/v1/profiles', profilesRouter);
 app.use('/api/v1/storage', storageRouter);
 app.use('/api/v1/matchmaking', matchmakingRouter);
 app.use('/api/v1/chat', chatRouter);
+// Phase 5 Sprint A (VUE): mount BEFORE /api/v1/vendors so vendorsRouter's
+// `GET /:id` cannot shadow the /utilization sub-path.
+app.use('/api/v1/vendors/utilization', utilizationRouter);
 app.use('/api/v1/vendors', vendorsRouter);
 app.use('/api/v1/bookings', bookingsRouter);
 app.use('/api/v1/payments', paymentsRouter);
@@ -334,6 +339,7 @@ app.use('/api/v1/payments', reconciliationRouter);
 app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/calendar', calendarRouter);
+app.use('/api/v1/b2b', b2bRouter); // Phase 5 Sprint A (B2B self-serve)
 app.use('/api/v1/admin', escrowAdminRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);

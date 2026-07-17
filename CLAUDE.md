@@ -524,7 +524,7 @@ Shadows: shadow-card, shadow-card-hover, shadow-gold-glow (warm-toned tokens).
 5. **Use subagents for parallel work** — tests + docs + types can all generate simultaneously
 6. **Never exceed PR-sized chunks** — 500–1000 lines max per session
 7. **Use `/new-module` slash command** for consistency across all module builds
-8. **Sonnet for 95% of tasks, Opus only for complex architecture decisions**
+8. **Sonnet for 95% of solo tasks, Opus for complex architecture decisions — and Opus for ALL agent-team teammates** (parallel worktree teammates always run on Opus, not Sonnet)
 9. **Update this file** when stack or architecture changes
 10. **Update ROADMAP.md** at the end of every session
-11. **WSL Agent Teams: never use plan approval mode** — teammates block indefinitely waiting for approval signal that never arrives. Each teammate plans in first message then implements immediately.
+11. **WSL Agent Teams: never use plan approval mode** — teammates block indefinitely waiting for approval signal that never arrives. Each teammate plans in first message then implements immediately. **Teammates always run on Opus, not Sonnet.**
