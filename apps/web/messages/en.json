@@ -1845,6 +1845,10 @@
       "vendors": {
         "label": "Vendors",
         "description": "Vendor approval queue"
+      },
+      "gaps": {
+        "label": "Supply Gaps",
+        "description": "Under-supplied vendor markets"
       }
     },
     "users": {

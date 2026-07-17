@@ -23,3 +23,4 @@ export * from './calendar.js';
 export * from './pricing.js';
 export * from './b2b.js';
 export * from './contract.js';
+export * from './gap.js';
