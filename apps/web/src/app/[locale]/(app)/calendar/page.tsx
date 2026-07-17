@@ -5,6 +5,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Calendar } from 'lucide-react';
 import { HeatmapCalendar } from './HeatmapCalendar.client';
 
+// Reads per-user cookies via headers() → must render dynamically, not statically.
+export const dynamic = 'force-dynamic';
+
 interface HeatmapDay {
   date: string;
   auspiciousBand: string;

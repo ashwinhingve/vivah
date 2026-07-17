@@ -26,12 +26,13 @@ interface B2BAccount {
 }
 
 interface B2BListPageProps {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
 }
 
-export default async function B2BListPage({ params: { locale } }: B2BListPageProps) {
+export default async function B2BListPage({ params }: B2BListPageProps) {
+  const { locale } = await params;
   // Phase 2: Fetch accounts from API
   // const { data: accounts, error } = await fetchAuth<{ accounts: B2BAccount[] }>(
   //   `/api/v1/b2b/accounts`

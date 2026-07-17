@@ -16,10 +16,10 @@ export const metadata: Metadata = {
 };
 
 interface ContractsPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     accountId: string;
-  };
+  }>;
 }
 
 interface Contract {
@@ -33,7 +33,8 @@ interface Contract {
   createdAt: string;
 }
 
-export default async function ContractsPage({ params: { locale, accountId } }: ContractsPageProps) {
+export default async function ContractsPage({ params }: ContractsPageProps) {
+  const { locale, accountId } = await params;
   // Phase 2: Fetch contracts from API
   // const { data: contracts, error } = await fetchAuth<{ contracts: Contract[] }>(
   //   `/api/v1/b2b/contracts?accountId=${accountId}`

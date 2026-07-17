@@ -16,10 +16,10 @@ export const metadata: Metadata = {
 };
 
 interface InvoicesPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     accountId: string;
-  };
+  }>;
 }
 
 interface Invoice {
@@ -31,7 +31,8 @@ interface Invoice {
   issuedAt: string | null;
 }
 
-export default async function InvoicesPage({ params: { locale, accountId } }: InvoicesPageProps) {
+export default async function InvoicesPage({ params }: InvoicesPageProps) {
+  const { locale, accountId } = await params;
   // Phase 2: Fetch invoices from API
   // const { data: invoices, error } = await fetchAuth<{ invoices: Invoice[] }>(
   //   `/api/v1/b2b/accounts/${accountId}/invoices`

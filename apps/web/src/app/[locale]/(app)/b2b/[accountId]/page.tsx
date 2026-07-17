@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 };
 
 interface B2BAccountDetailPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     accountId: string;
-  };
+  }>;
 }
 
 interface B2BAccount {
@@ -35,8 +35,9 @@ interface B2BAccount {
 }
 
 export default async function B2BAccountDetailPage({
-  params: { locale, accountId },
+  params,
 }: B2BAccountDetailPageProps) {
+  const { locale, accountId } = await params;
   // Phase 2: Fetch account from API
   // const { data: account, error } = await fetchAuth<{ account: B2BAccount }>(
   //   `/api/v1/b2b/accounts/${accountId}`

@@ -14,12 +14,13 @@ export const metadata: Metadata = {
 };
 
 interface CreateB2BPageProps {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
 }
 
-export default function CreateB2BPage({ params: { locale } }: CreateB2BPageProps) {
+export default async function CreateB2BPage({ params }: CreateB2BPageProps) {
+  const { locale } = await params;
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
@@ -28,7 +29,7 @@ export default function CreateB2BPage({ params: { locale } }: CreateB2BPageProps
       />
 
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="rounded-2xl border border-gold bg-white p-8 shadow-card">
+        <div className="rounded-2xl border border-gold bg-surface p-8 shadow-card">
           <B2BAccountForm locale={locale} />
         </div>
       </div>
