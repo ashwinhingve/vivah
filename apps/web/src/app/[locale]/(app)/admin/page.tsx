@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Users,
   CalendarCheck,
+  MapPinned,
 } from 'lucide-react';
 
 import { SectionHeader }  from '@/components/ui/SectionHeader';
@@ -209,7 +210,7 @@ function relativeAuditTime(iso: string): string {
 
 interface NavTileDef {
   href: string;
-  key:  'kyc' | 'escrow' | 'payouts' | 'promos' | 'reconciliation' | 'refunds' | 'revenue' | 'analytics' | 'vendors';
+  key:  'kyc' | 'escrow' | 'payouts' | 'promos' | 'reconciliation' | 'refunds' | 'revenue' | 'analytics' | 'vendors' | 'gaps';
   Icon: ComponentType<{ className?: string }>;
 }
 
@@ -224,6 +225,7 @@ const NAV_TILES: NavTileDef[] = [
   { href: '/admin/revenue',        key: 'revenue',        Icon: TrendingUp     },
   { href: '/admin/analytics',      key: 'analytics',      Icon: BarChart3      },
   { href: '/admin/vendors',        key: 'vendors',        Icon: Store          },
+  { href: '/admin/gaps',           key: 'gaps',           Icon: MapPinned      },
 ];
 
 // ---------------------------------------------------------------------------

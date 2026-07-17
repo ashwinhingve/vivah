@@ -38,5 +38,14 @@ export const UpdatePricingRuleSchema = z.object({
   status:              PricingRuleStatusSchema.optional(),
 });
 
+// Query for GET /api/v1/pricing/suggest — date the price is being quoted for,
+// plus the rule and an optional region (regional muhurat / blackout resolution).
+export const SuggestPriceQuerySchema = z.object({
+  ruleId: z.string().uuid(),
+  date:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),
+  region: z.string().min(1).max(100).optional(),
+});
+
 export type CreatePricingRuleInput = z.infer<typeof CreatePricingRuleSchema>;
 export type UpdatePricingRuleInput = z.infer<typeof UpdatePricingRuleSchema>;
+export type SuggestPriceQueryInput = z.infer<typeof SuggestPriceQuerySchema>;

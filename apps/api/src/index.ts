@@ -50,6 +50,8 @@ import { rentalRouter } from './rentals/router.js';
 import { storeRouter } from './store/router.js';
 import { calendarRouter } from './calendar/router.js';
 import utilizationRouter from './vendors/utilization.js';
+import { gapRouter } from './vendors/gap.js';
+import { pricingRouter } from './pricing/router.js';
 import { b2bRouter } from './b2b/router.js';
 import { escrowAdminRouter } from './admin/escrow.js';
 import { supportRouter } from './support/router.js';
@@ -340,6 +342,8 @@ app.use('/api/v1/rentals', rentalRouter);
 app.use('/api/v1/store', storeRouter);
 app.use('/api/v1/calendar', calendarRouter);
 app.use('/api/v1/b2b', b2bRouter); // Phase 5 Sprint A (B2B self-serve)
+app.use('/api/v1/pricing', pricingRouter); // Phase 5 Sprint B (Dynamic Pricing 5.4)
+app.use('/api/v1/admin', gapRouter); // Phase 5 Sprint B (Vendor Gap Detection 5.3)
 app.use('/api/v1/admin', escrowAdminRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);
