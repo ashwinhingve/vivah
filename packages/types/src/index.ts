@@ -32,3 +32,5 @@ export * from './retention.js';
 export * from './nri.js';
 // ── Phase 8 Sprint H (Unit 8.3) — PDF reporting + handover ───────────────────
 export * from './report.js';
+// ── Phase 8 Sprint I (Unit 8.1) — destination wedding planning core ──────────
+export * from './destination.js';

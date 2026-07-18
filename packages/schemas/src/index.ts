@@ -22,3 +22,5 @@ export * from './finance-referral.js';
 export * from './retention.js';
 // ── Phase 7 Sprint G (Unit 7.2) — NRI / international matching ───────────────
 export * from './nri.js';
+// ── Phase 8 Sprint I (Unit 8.1) — destination wedding planning core ──────────
+export * from './destination.js';
