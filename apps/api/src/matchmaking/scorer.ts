@@ -46,6 +46,13 @@ export interface ProfileData {
   latitude?: number | null
   longitude?: number | null
   personality?: PersonalityProfile | null
+  // ── Phase 7 Sprint G (Unit 7.2) — NRI / international ──────────────────────
+  // Carried through so the hard-filter can see them. No scoring weight reads
+  // these — adding them changes no score. `preferredCountries` is reserved for a
+  // future soft re-rank; it is deliberately NOT a hard filter.
+  countryOfResidence?: string | null
+  openToNriMatching?: boolean | null
+  ianaTimezone?: string | null
   preferences: {
     ageMin: number
     ageMax: number
@@ -62,6 +69,9 @@ export interface ProfileData {
     mustHave?: MustHaveFlags
     personalityIdeal?: PersonalityIdeal
     partnerGender?: Array<'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'>
+    // ── Phase 7 Sprint G (Unit 7.2) ──
+    openToNriMatching?: boolean
+    preferredCountries?: string[]
   }
 }
 

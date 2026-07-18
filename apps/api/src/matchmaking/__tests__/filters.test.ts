@@ -299,3 +299,474 @@ describe('income filter (bilateral preference)', () => {
     expect(applyHardFilters(userA_5to10, [same])).toHaveLength(1);
   });
 });
+
+// ── NRI / cross-border matching (Phase 7 Sprint G, Unit 7.2) ──────────────
+//
+// The flag is INJECTED via applyHardFilters' options ({ nriMatchingLive }),
+// defaulting to the NRI_MATCHING_LIVE env flag. It is deliberately not read from
+// the module-level `isNriMatchingLive` const inside the filter: that const binds
+// at import time, so a filter reading it directly cannot be exercised in both
+// states, and every test would have to assert a failure path.
+//
+// That matters more than it sounds. This suite was briefly green while the entire
+// bypass was missing from the file — because with only negative cases, "feature
+// absent" and "feature correctly inert" are indistinguishable. The flag-ON cases
+// below are the ones that actually fail if the implementation disappears.
+//
+// Regression guarantee (flag OFF, the default): cross-border pairs are rejected
+// by haversine, and the city/state fallback can't rescue them, so the feed is
+// byte-identical to pre-Sprint-G.
+
+describe('NRI cross-border matching (Phase 7 Sprint G)', () => {
+  it('treats IN and in as same country (case-insensitive) — not cross-border', () => {
+    const userIN_uppercase: ProfileWithPreferences = {
+      id: 'user-case-1',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const candidatein_lowercase: ProfileWithPreferences = {
+      id: 'cand-case-1',
+      age: 30,
+      religion: 'Hindu',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: 'in',
+      openToNriMatching: true,
+      latitude: 12.9716,
+      longitude: 77.5946,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Bangalore',
+        state: 'Karnataka',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    // Both IN and in lowercase should NOT trigger cross-border bypass
+    // Instead, normal distance check applies: Mumbai↔Bangalore ~800km > 100km → fails
+    const result = applyHardFilters(userIN_uppercase, [candidatein_lowercase]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('fails when only one side opted in to NRI matching', () => {
+    const user: ProfileWithPreferences = {
+      id: 'user-nri-2',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+      },
+    };
+
+    const candidateNotOptedIn: ProfileWithPreferences = {
+      id: 'cand-nri-2',
+      age: 30,
+      religion: 'Hindu',
+      city: 'London',
+      state: 'England',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: 'GB',
+      openToNriMatching: false,
+      latitude: 51.5074,
+      longitude: -0.1278,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'London',
+        state: 'England',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: false,
+      },
+    };
+
+    const result = applyHardFilters(user, [candidateNotOptedIn]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('fails when cross-border + both opted in but one side has mustHave.distance', () => {
+    const userWithMustHave: ProfileWithPreferences = {
+      id: 'user-nri-3',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+        mustHave: { distance: true },
+      },
+    };
+
+    const candidate: ProfileWithPreferences = {
+      id: 'cand-nri-3',
+      age: 30,
+      religion: 'Hindu',
+      city: 'London',
+      state: 'England',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: 'GB',
+      openToNriMatching: true,
+      latitude: 51.5074,
+      longitude: -0.1278,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'London',
+        state: 'England',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: true,
+      },
+    };
+
+    const result = applyHardFilters(userWithMustHave, [candidate]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('fails when same country + 500km apart even if both opted in (domestic unaffected)', () => {
+    const user: ProfileWithPreferences = {
+      id: 'user-nri-4',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const candidateFarDomestic: ProfileWithPreferences = {
+      id: 'cand-nri-4',
+      age: 30,
+      religion: 'Hindu',
+      city: 'Delhi',
+      state: 'Delhi',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 28.7041,
+      longitude: 77.1025,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Delhi',
+        state: 'Delhi',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const result = applyHardFilters(user, [candidateFarDomestic]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('passes when domestic pair within 100km (not affected by NRI logic)', () => {
+    const user: ProfileWithPreferences = {
+      id: 'user-nri-5',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const candidateNearby: ProfileWithPreferences = {
+      id: 'cand-nri-5',
+      age: 30,
+      religion: 'Hindu',
+      city: 'Thane',
+      state: 'Maharashtra',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: 'IN',
+      openToNriMatching: true,
+      latitude: 19.2183,
+      longitude: 72.9781,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Thane',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const result = applyHardFilters(user, [candidateNearby]);
+    expect(result).toHaveLength(1);
+  });
+
+  it('passes when both countryOfResidence null + within 100km (backward compat)', () => {
+    const user: ProfileWithPreferences = {
+      id: 'user-nri-6',
+      age: 32,
+      religion: 'Hindu',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: null,
+      openToNriMatching: true,
+      latitude: 19.0760,
+      longitude: 72.8777,
+      preferences: {
+        ageMin: 25,
+        ageMax: 38,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 200000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const candidate: ProfileWithPreferences = {
+      id: 'cand-nri-6',
+      age: 30,
+      religion: 'Hindu',
+      city: 'Thane',
+      state: 'Maharashtra',
+      incomeMin: 60000,
+      incomeMax: 120000,
+      countryOfResidence: null,
+      openToNriMatching: true,
+      latitude: 19.2183,
+      longitude: 72.9781,
+      preferences: {
+        ageMin: 26,
+        ageMax: 40,
+        religion: ['Hindu'],
+        openToInterfaith: false,
+        city: 'Thane',
+        state: 'Maharashtra',
+        incomeMin: 40000,
+        incomeMax: 250000,
+        openToNriMatching: true,
+        maxDistanceKm: 100,
+      },
+    };
+
+    const result = applyHardFilters(user, [candidate]);
+    expect(result).toHaveLength(1);
+  });
+});
+
+// ── The flag-ON path: the cases that fail if the bypass is missing ───────────
+//
+// Everything above asserts a rejection, so all of it stays green even with the
+// feature deleted. These do not.
+
+describe('NRI cross-border matching — flag ON (Phase 7 Sprint G)', () => {
+  /** Compatible on every non-distance axis, so distance is the only variable. */
+  function intlProfile(
+    id: string,
+    country: string,
+    coords: { lat: number; lng: number },
+    overrides: Partial<ProfileWithPreferences> = {},
+  ): ProfileWithPreferences {
+    return {
+      id,
+      age: 30,
+      religion: 'Hindu',
+      city: 'City',
+      state: 'State',
+      incomeMin: 50000,
+      incomeMax: 150000,
+      countryOfResidence: country,
+      openToNriMatching: true,
+      latitude: coords.lat,
+      longitude: coords.lng,
+      preferences: {
+        ageMin: 20,
+        ageMax: 45,
+        religion: ['Hindu'],
+        openToInterfaith: true,
+        city: 'City',
+        state: 'State',
+        incomeMin: 0,
+        incomeMax: 999999,
+        maxDistanceKm: 100,
+      },
+      ...overrides,
+    };
+  }
+
+  // Pune <-> Toronto, ~12,000km apart: ~120x the 100km default limit.
+  const pune    = () => intlProfile('u-pune', 'IN', { lat: 18.5204, lng: 73.8567 });
+  const toronto = () => intlProfile('c-toronto', 'CA', { lat: 43.6532, lng: -79.3832 });
+
+  it('surfaces a cross-border pair when both opted in and the flag is ON', () => {
+    const result = applyHardFilters(pune(), [toronto()], { nriMatchingLive: true });
+    expect(result).toHaveLength(1);
+    expect(result[0]?.id).toBe('c-toronto');
+  });
+
+  it('rejects that same pair when the flag is OFF — the regression guard', () => {
+    const result = applyHardFilters(pune(), [toronto()], { nriMatchingLive: false });
+    expect(result).toHaveLength(0);
+  });
+
+  it('rejects when only one side opted in, even with the flag ON', () => {
+    const notOptedIn = intlProfile('c-toronto', 'CA', { lat: 43.6532, lng: -79.3832 }, {
+      openToNriMatching: false,
+    });
+    const result = applyHardFilters(pune(), [notOptedIn], { nriMatchingLive: true });
+    expect(result).toHaveLength(0);
+  });
+
+  it('lets an explicit mustHave.distance beat the opt-in, flag ON', () => {
+    const strict = pune();
+    strict.preferences.mustHave = { distance: true };
+    const result = applyHardFilters(strict, [toronto()], { nriMatchingLive: true });
+    expect(result).toHaveLength(0);
+  });
+
+  it('still distance-limits a DOMESTIC pair that both opted in, flag ON', () => {
+    // Mumbai <-> Bangalore, ~840km, both 'IN'. The bypass requires the countries
+    // to DIFFER, so this must still fail — this is what keeps the feed safe.
+    const mumbai    = intlProfile('u-mum', 'IN', { lat: 19.0760, lng: 72.8777 });
+    const bangalore = intlProfile('c-blr', 'IN', { lat: 12.9716, lng: 77.5946 });
+    const result = applyHardFilters(mumbai, [bangalore], { nriMatchingLive: true });
+    expect(result).toHaveLength(0);
+  });
+
+  it('treats in/IN as the same country, so a domestic pair cannot take the bypass', () => {
+    const mumbai    = intlProfile('u-mum', 'IN', { lat: 19.0760, lng: 72.8777 });
+    const bangalore = intlProfile('c-blr', 'in', { lat: 12.9716, lng: 77.5946 });
+    const result = applyHardFilters(mumbai, [bangalore], { nriMatchingLive: true });
+    expect(result).toHaveLength(0);
+  });
+
+  it('does not bypass when a country is unknown, flag ON', () => {
+    const unknown = intlProfile('c-unknown', '', { lat: 43.6532, lng: -79.3832 });
+    const result = applyHardFilters(pune(), [unknown], { nriMatchingLive: true });
+    expect(result).toHaveLength(0);
+  });
+
+  it('honours the Mongo preference fallback when the column is unset', () => {
+    // A row written before the column existed: delete it outright rather than
+    // setting it to undefined — `exactOptionalPropertyTypes` treats an explicit
+    // `undefined` as a distinct (and rejected) value from an absent key.
+    const legacy = intlProfile('c-toronto', 'CA', { lat: 43.6532, lng: -79.3832 });
+    delete legacy.openToNriMatching;
+    legacy.preferences.openToNriMatching = true;
+    const result = applyHardFilters(pune(), [legacy], { nriMatchingLive: true });
+    expect(result).toHaveLength(1);
+  });
+
+  it('does not widen a nearby domestic pair — they still pass as before', () => {
+    const mumbai = intlProfile('u-mum', 'IN', { lat: 19.0760, lng: 72.8777 });
+    const thane  = intlProfile('c-thane', 'IN', { lat: 19.2183, lng: 72.9781 });
+    const result = applyHardFilters(mumbai, [thane], { nriMatchingLive: true });
+    expect(result).toHaveLength(1);
+  });
+});

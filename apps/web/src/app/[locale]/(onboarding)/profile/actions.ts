@@ -455,3 +455,68 @@ export async function savePersonalityAction(p: {
     return { ok: false, error: 'Network error' };
   }
 }
+
+export async function updateNri(_prev: unknown, formData: FormData): Promise<{ error: string } | void> {
+  const token = await getAuthToken();
+
+  // Build the main NRI profile fields payload
+  const payload: Record<string, unknown> = {};
+
+  const countryOfResidence = formData.get('countryOfResidence');
+  if (countryOfResidence) payload.countryOfResidence = String(countryOfResidence).toUpperCase();
+
+  const citizenship = formData.get('citizenship');
+  if (citizenship && citizenship !== '') {
+    payload.citizenship = String(citizenship).toUpperCase();
+  }
+
+  const residencyStatus = formData.get('residencyStatus');
+  if (residencyStatus && residencyStatus !== '') {
+    payload.residencyStatus = residencyStatus;
+  }
+
+  const ianaTimezone = formData.get('ianaTimezone');
+  if (ianaTimezone && ianaTimezone !== '') {
+    payload.ianaTimezone = ianaTimezone;
+  }
+
+  const displayCurrency = formData.get('displayCurrency');
+  if (displayCurrency) payload.displayCurrency = String(displayCurrency).toUpperCase();
+
+  payload.willingToRelocate = formData.get('willingToRelocate') === 'true';
+  payload.openToNriMatching = formData.get('openToNriMatching') === 'true';
+
+  // Build the NRI section (Mongo ProfileContent.nri) payload
+  const nri: Record<string, unknown> = {};
+  const visaDetails = formData.get('visaDetails');
+  if (visaDetails && visaDetails !== '') nri.visaDetails = String(visaDetails).trim();
+
+  const relocationTimeline = formData.get('relocationTimeline');
+  if (relocationTimeline && relocationTimeline !== '') nri.relocationTimeline = String(relocationTimeline).trim();
+
+  const yearsAbroad = formData.get('yearsAbroad');
+  if (yearsAbroad && yearsAbroad !== '') {
+    const n = Number(yearsAbroad);
+    if (!isNaN(n) && n >= 0 && n <= 80) nri.yearsAbroad = n;
+  }
+
+  if (Object.keys(nri).length > 0) {
+    payload.nri = nri;
+  }
+
+  // POST to the NRI endpoint
+  try {
+    const res = await apiPut('/api/v1/profiles/me/nri', payload, token);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+      return { error: json.error?.message ?? 'Could not save NRI details. Please try again.' };
+    }
+  } catch {
+    return { error: 'Network error. Please check your connection and try again.' };
+  }
+
+  revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/profile/nri');
+  return await redirect('/dashboard');
+}

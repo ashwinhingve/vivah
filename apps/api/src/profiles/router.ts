@@ -11,6 +11,7 @@ import {
 import * as photosService from './photos.service.js';
 import { PhotoUploadSchema, PhotoReorderSchema, SetPrimaryPhotoSchema } from '@smartshaadi/schemas';
 import { profileContentRouter } from './content.router.js';
+import { nriRouter } from './nri.router.js';
 import { horoscopeRouter } from './horoscope.router.js';
 import { preferencesRouter } from './preferences.router.js';
 import { communityRouter } from './community.router.js';
@@ -262,6 +263,8 @@ profilesRouter.put(
 
 // Mount content sub-router — MUST be before /:id to prevent route conflict
 profilesRouter.use('/me/content', profileContentRouter);
+// Phase 7 Sprint G (Unit 7.2) — NRI / international profile fields.
+profilesRouter.use('/me/nri', nriRouter);
 
 // Mount horoscope sub-router
 profilesRouter.use('/me/horoscope', horoscopeRouter);

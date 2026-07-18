@@ -1,12 +1,13 @@
 'use client';
 
-import { BadgeCheck, Bookmark, CheckCircle2, Heart, MapPin, X } from 'lucide-react';
+import { BadgeCheck, Bookmark, CheckCircle2, Heart, MapPin, X, Globe } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { ImageWithFallback } from './ImageWithFallback.client';
 import { ManglikChip } from '@/components/profile/ManglikChip';
 import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
 import { DistancePill } from '@/components/profile/DistancePill';
+import { getCountryName } from '@/lib/countries';
 
 /**
  * Presentational matrimonial profile card. Fully stateless — every
@@ -37,6 +38,8 @@ export interface ProfileCardProps {
   lastActiveAt?: string | Date | null;
   /** Distance in km — renders a "Xkm away" chip when under 50km. */
   distanceKm?: number | null;
+  /** ISO 3166-1 alpha-2 country code for NRI profiles. Renders a country badge when set and not 'IN'. */
+  countryOfResidence?: string | null;
   shortlisted?: boolean;
   onShortlist?: () => void;
   onConnect?: () => void;
@@ -68,6 +71,7 @@ function ProfileCardBase({
   manglik,
   lastActiveAt,
   distanceKm,
+  countryOfResidence,
   shortlisted,
   onShortlist,
   onConnect,
@@ -79,8 +83,10 @@ function ProfileCardBase({
   const meta = [age ? `${age}` : null, city, profession].filter(Boolean).join(' · ');
   const pct = compatibilityPct != null ? Math.round(compatibilityPct) : null;
   const tierLabel = pct != null ? t(`tiers.${scoreTier(pct)}`) : null;
+  const isInternational = countryOfResidence && countryOfResidence !== 'IN';
+  const countryName = isInternational ? getCountryName(countryOfResidence) : null;
   const hasMetaStrip =
-    gunaScore != null || !!manglik || !!lastActiveAt || distanceKm != null;
+    gunaScore != null || !!manglik || !!lastActiveAt || distanceKm != null || isInternational;
 
   const stop = (fn?: () => void) => (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -177,6 +183,12 @@ function ProfileCardBase({
       <div className="flex flex-col gap-3 p-3.5">
         {hasMetaStrip && (
           <div className="flex flex-wrap items-center gap-1.5">
+            {isInternational && countryName && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-xs font-semibold text-teal">
+                <Globe className="h-3 w-3" aria-hidden="true" />
+                {countryName}
+              </span>
+            )}
             {gunaScore != null && (
               <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold-muted">
                 {t('gunaScore', { score: Math.round(gunaScore) })}
