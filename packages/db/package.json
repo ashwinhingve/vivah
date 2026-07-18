@@ -14,7 +14,7 @@
     "build": "tsc && node scripts/fix-esm-imports.mjs",
     "type-check": "node --max-old-space-size=6144 ../../node_modules/typescript/bin/tsc --noEmit",
     "type-check:seed": "node --max-old-space-size=12288 ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.seed.json",
-    "test": "tsx seed/calendar.test.ts",
+    "test": "tsx seed/calendar.test.ts && tsx seed/demoTraffic.test.ts",
     "lint": "eslint schema",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
