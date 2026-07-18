@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware } from 'better-auth/api';
 import { phoneNumber, twoFactor } from 'better-auth/plugins';
+import { expo } from '@better-auth/expo';
 import { sql, eq as drizzleEq } from 'drizzle-orm';
 import { user, session, account, verification, twoFactor as twoFactorTable } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
@@ -97,6 +98,7 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    expo(),
     phoneNumber({
       sendOTP: async ({ phoneNumber: phone, code }, request) => {
         const headers = (request as unknown as { headers?: Headers })?.headers;
@@ -203,7 +205,8 @@ export const auth = betterAuth({
   // Same allowlist as Express/socket CORS (lib/cors.ts) + Vercel preview globs —
   // a preflight that CORS allows is useless if Better Auth then rejects the auth
   // POST on origin grounds. Kept tight (project + team scope), never *.vercel.app.
-  trustedOrigins: authTrustedOrigins(),
+  // Also includes React Native Expo app scheme for mobile auth redirects.
+  trustedOrigins: [...authTrustedOrigins(), 'smartshaadi://'],
 
   /**
    * Lifecycle hooks → audit log.

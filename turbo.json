@@ -15,7 +15,8 @@
     "HELICONE_API_KEY",
     "USE_MOCK_SERVICES",
     "MOCK_OTP_VALUE",
-    "NEXT_PUBLIC_API_URL"
+    "NEXT_PUBLIC_API_URL",
+    "EXPO_PUBLIC_API_URL"
   ],
   "tasks": {
     "dev": {
