@@ -66,6 +66,12 @@ export const envSchema = z.object({
   LENDING_LIVE:   z.string().default('false').transform(v => v === 'true'),
   INSURANCE_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // ── Phase 7 Sprint F — churn-recovery outreach gate (Unit 7.3) ──
+  // When FALSE (default), the daily sweep computes + STORES recovery attempts as
+  // DRY_RUN for admin review but messages NO user — safe to run pre-launch. Set
+  // 'true' (with USE_MOCK_SERVICES=false) to actually enqueue win-back nudges.
+  RETENTION_OUTREACH_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // WhatsApp Cloud API creds — only required when WHATSAPP_LIVE=true.
   WHATSAPP_API_KEY:            z.string().default(''),
   WHATSAPP_PHONE_NUMBER_ID:    z.string().default(''),
@@ -443,3 +449,12 @@ export const shouldUseMockInsurance = deriveMockFlags(
   env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
   env.WHATSAPP_LIVE, env.LENDING_LIVE, env.INSURANCE_LIVE,
 ).shouldUseMockInsurance;
+
+/**
+ * Churn-recovery outreach gate (Phase 7 Sprint F, Unit 7.3). FALSE by default —
+ * the daily sweep stores recovery attempts as DRY_RUN for admin review and
+ * messages no one. TRUE (with USE_MOCK_SERVICES=false) actually enqueues the
+ * win-back notification. A distinct gate, not part of the mock-services matrix.
+ */
+export const shouldSendRetentionOutreach =
+  env.RETENTION_OUTREACH_LIVE && !env.USE_MOCK_SERVICES;

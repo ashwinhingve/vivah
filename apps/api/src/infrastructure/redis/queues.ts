@@ -254,6 +254,19 @@ export const whatsappQueue = new Queue<WhatsAppSendJob>(
   { connection },
 );
 
+/**
+ * Churn-recovery sweep (Unit 7.3) — daily repeatable; scans at-risk users and
+ * records/sends recovery attempts. No per-run payload beyond a timestamp.
+ */
+export interface ChurnRecoverySweepJob {
+  scheduledAt: string;
+}
+
+export const churnRecoverySweepQueue = new Queue<ChurnRecoverySweepJob>(
+  'churn-recovery-sweep',
+  { connection },
+);
+
 /** Enqueue a profile embedding refresh (best-effort — never throws to callers). */
 export async function queueEmbeddingGeneration(job: EmbeddingGenerationJob): Promise<void> {
   try {
