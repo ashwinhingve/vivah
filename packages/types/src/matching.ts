@@ -194,6 +194,17 @@ export interface MatchFeedItem {
   familyJointScore?:  number | null
   familySignalCount?: number
   familyAgreementPct?: number | null
+  // ── Phase 7 Sprint G (Unit 7.2) — NRI / international ──────────────────────
+  /**
+   * ISO 3166-1 alpha-2 country of residence. Drives the country badge on match
+   * cards, which is why it rides on the feed item rather than being fetched
+   * per card. Optional: a feed cached before this field existed simply omits it
+   * and the badge does not render.
+   *
+   * Not contact information — the city has always been on this item, so a
+   * country code discloses nothing further (CLAUDE.md rule 5).
+   */
+  countryOfResidence?: string | null
 }
 
 export type MatchRequestStatus =

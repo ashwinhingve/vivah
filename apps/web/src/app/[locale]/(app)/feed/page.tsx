@@ -80,11 +80,15 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const refresh = sp.refresh === '1' || sp.refresh === 'true';
   const feedPath = refresh ? '/api/v1/matchmaking/feed?refresh=1' : '/api/v1/matchmaking/feed';
 
-  const [feedRes, meRes, prefsRes] = await Promise.all([
+  const [feedRes, meRes, prefsRes, nriRes] = await Promise.all([
     fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(feedPath, token),
     fetchAuth<MeResponse>('/api/v1/profiles/me', token),
     fetchAuth<PrefsResponse>('/api/v1/profiles/me/preferences', token),
+    // Viewer's own country — the country badge marks "lives somewhere other than
+    // you", so it has to be relative to the viewer rather than assuming India.
+    fetchAuth<{ countryOfResidence: string | null }>('/api/v1/profiles/me/nri', token),
   ]);
+  const viewerCountry = nriRes.data?.countryOfResidence ?? 'IN';
 
   const feedFailed = feedRes.error !== null;
   const items: MatchFeedItem[] = Array.isArray(feedRes.data)
@@ -206,6 +210,8 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
                       manglik={only.manglik ?? null}
                       lastActiveAt={only.lastActiveAt ?? null}
                       distanceKm={only.distanceKm ?? null}
+                      countryOfResidence={only.countryOfResidence ?? null}
+                      viewerCountry={viewerCountry}
                     />
                   </Link>
                 </div>

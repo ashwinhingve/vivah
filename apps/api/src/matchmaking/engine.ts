@@ -472,6 +472,10 @@ export async function scoreAndRank(
         premiumTier:   candidate.premiumTier ?? 'FREE',
         distanceKm,
         explainer,
+        // Phase 7 Sprint G (Unit 7.2) — powers the country badge and the
+        // nriOnly / countries facets. Those filter this cached list rather than
+        // re-querying, so the facets never fragment the Redis feed cache.
+        countryOfResidence: candidate.countryOfResidence ?? null,
       };
 
       return feedItem;

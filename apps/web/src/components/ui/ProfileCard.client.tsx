@@ -38,8 +38,17 @@ export interface ProfileCardProps {
   lastActiveAt?: string | Date | null;
   /** Distance in km — renders a "Xkm away" chip when under 50km. */
   distanceKm?: number | null;
-  /** ISO 3166-1 alpha-2 country code for NRI profiles. Renders a country badge when set and not 'IN'. */
+  /** ISO 3166-1 alpha-2 country of residence. Renders a country badge when it differs from `viewerCountry`. */
   countryOfResidence?: string | null;
+  /**
+   * The viewing user's own country (ISO alpha-2), default 'IN'.
+   *
+   * The badge marks "lives somewhere other than you", not "lives outside India".
+   * Hardcoding 'IN' inverts the badge for the very users this feature is for: a
+   * member in Toronto would see their fellow Canadians flagged as foreign while
+   * profiles in India showed none.
+   */
+  viewerCountry?: string | null;
   shortlisted?: boolean;
   onShortlist?: () => void;
   onConnect?: () => void;
@@ -72,6 +81,7 @@ function ProfileCardBase({
   lastActiveAt,
   distanceKm,
   countryOfResidence,
+  viewerCountry,
   shortlisted,
   onShortlist,
   onConnect,
@@ -83,8 +93,10 @@ function ProfileCardBase({
   const meta = [age ? `${age}` : null, city, profession].filter(Boolean).join(' · ');
   const pct = compatibilityPct != null ? Math.round(compatibilityPct) : null;
   const tierLabel = pct != null ? t(`tiers.${scoreTier(pct)}`) : null;
-  const isInternational = countryOfResidence && countryOfResidence !== 'IN';
-  const countryName = isInternational ? getCountryName(countryOfResidence) : null;
+  const homeCountry = (viewerCountry ?? 'IN').trim().toUpperCase();
+  const theirCountry = countryOfResidence?.trim().toUpperCase() ?? '';
+  const isInternational = theirCountry !== '' && theirCountry !== homeCountry;
+  const countryName = isInternational ? getCountryName(theirCountry) : null;
   const hasMetaStrip =
     gunaScore != null || !!manglik || !!lastActiveAt || distanceKm != null || isInternational;
 

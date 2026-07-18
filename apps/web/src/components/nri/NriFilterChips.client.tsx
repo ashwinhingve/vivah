@@ -13,6 +13,10 @@ interface NriFilterChipsProps {
   onCountryToggle: (code: string) => void;
   onResidencyToggle: (status: string) => void;
   onNriOnlyToggle: (value: boolean) => void;
+  /** Show the residency-status chips. Off until the feed facet supports them. */
+  showResidency?: boolean;
+  /** Show the "NRI only" checkbox. Off on views that are already NRI-only. */
+  showNriOnlyToggle?: boolean;
   className?: string;
 }
 
@@ -23,13 +27,17 @@ export function NriFilterChips({
   onCountryToggle,
   onResidencyToggle,
   onNriOnlyToggle,
+  showResidency = false,
+  showNriOnlyToggle = true,
   className,
 }: NriFilterChipsProps) {
   const t = useTranslations('nri.filters');
 
   return (
     <div className={cn('space-y-3', className)}>
-      {/* NRI Only Toggle */}
+      {/* NRI Only Toggle — hidden on views that are inherently NRI-only, where a
+          toggle the user could switch OFF would contradict the page it sits on. */}
+      {showNriOnlyToggle && (
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
           {t('options')}
@@ -46,6 +54,7 @@ export function NriFilterChips({
           </span>
         </label>
       </div>
+      )}
 
       {/* Country Filters */}
       <div>
@@ -74,7 +83,12 @@ export function NriFilterChips({
         </div>
       </div>
 
-      {/* Residency Status Filters */}
+      {/* Residency Status Filters — rendered only when the caller opts in.
+          The feed facet currently supports nriOnly + countries; residency has no
+          backing filter yet, and a chip that visibly toggles while changing
+          nothing is worse than an absent one. Flip `showResidency` on once the
+          API supports it. */}
+      {showResidency && (
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
           {t('residencyStatuses')}
@@ -100,6 +114,7 @@ export function NriFilterChips({
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

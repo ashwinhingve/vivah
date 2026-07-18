@@ -28,6 +28,8 @@ import { shortlistsRouter } from './shortlists/router.js';
 import { getWhoLikedMe } from './requests/service.js';
 import { getProfileTier, getEntitlements } from '../lib/entitlements.js';
 import { sliceFeedPage } from './pagination.js';
+import { applyFeedFacets } from './facets.js';
+import type { MatchFeedItem } from '@smartshaadi/types';
 
 export const matchmakingRouter = Router();
 
@@ -44,7 +46,8 @@ matchmakingRouter.get(
     }
 
     const userId = req.user!.id;
-    const { page, limit } = parsed.data;
+    const { page, limit, nriOnly, countries } = parsed.data;
+    const facetsActive = nriOnly === true || (countries?.length ?? 0) > 0;
     // ?refresh=1 bypasses Redis cache and recomputes from PG+Mongo. Lets a
     // user (or operator) trigger a fresh compute after editing partner
     // preferences without having to wait for the 24h TTL or shell-bust the
@@ -55,11 +58,34 @@ matchmakingRouter.get(
       req.query['refresh'] === 'yes';
 
     try {
+      // The viewer's own country is only needed to evaluate "is this profile
+      // abroad *relative to me*", so it is fetched only when a facet is active —
+      // the ordinary feed path keeps its current query count.
+      let viewerCountry: string | null = null;
+      if (facetsActive) {
+        const [me] = await db
+          .select({ country: profiles.countryOfResidence })
+          .from(profiles)
+          .where(eq(profiles.userId, userId))
+          .limit(1);
+        viewerCountry = me?.country ?? null;
+      }
+
+      // Facets narrow the ranked list BEFORE pagination. Slicing first would page
+      // over the unfiltered feed and hand back short pages with a `total` that
+      // contradicted them.
+      const paginate = (full: MatchFeedItem[]): void => {
+        const filtered = facetsActive
+          ? applyFeedFacets(full, { nriOnly, countries }, viewerCountry)
+          : full;
+        const { slice, total } = sliceFeedPage(filtered, page, limit);
+        ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
+      };
+
       if (!refresh) {
         const cached = await getCachedFeed(userId, redis);
         if (cached !== null) {
-          const { slice, total } = sliceFeedPage(cached, page, limit);
-          ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
+          paginate(cached);
           return;
         }
       } else {
@@ -67,8 +93,7 @@ matchmakingRouter.get(
       }
 
       const feed = await computeAndCacheFeed(userId, db, redis);
-      const { slice, total } = sliceFeedPage(feed, page, limit);
-      ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
+      paginate(feed);
     } catch (e) {
       console.error('[feed][router] computeAndCacheFeed threw', { userId, error: e });
       const message = e instanceof Error ? e.message : 'Failed to load feed';

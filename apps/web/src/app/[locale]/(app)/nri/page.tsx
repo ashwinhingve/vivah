@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { ProfileCard } from '@/components/ui/ProfileCard.client';
+import { NriFeedFilters } from '@/components/nri/NriFeedFilters.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -43,7 +44,7 @@ async function fetchAuth<T>(path: string, token: string): Promise<FetchResult<T>
 }
 
 interface PageProps {
-  searchParams?: Promise<{ refresh?: string }>;
+  searchParams?: Promise<{ refresh?: string; countries?: string }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -63,11 +64,24 @@ export default async function NriBrowsePage({ searchParams }: PageProps) {
   const queryParams = new URLSearchParams();
   if (refresh) queryParams.append('refresh', '1');
   queryParams.append('nriOnly', 'true');
+  // Country selection lives in the URL (see NriFeedFilters), so a filtered view
+  // survives refresh and can be shared as a link.
+  const selectedCountries = (sp.countries ?? '')
+    .split(',')
+    .map((c) => c.trim().toUpperCase())
+    .filter((c) => /^[A-Z]{2}$/.test(c));
+  if (selectedCountries.length > 0) {
+    queryParams.append('countries', selectedCountries.join(','));
+  }
   const nriPath = `/api/v1/matchmaking/feed?${queryParams.toString()}`;
 
-  const [feedRes] = await Promise.all([
+  // The viewer's own country decides which profiles read as "abroad" — the badge
+  // and the nriOnly facet are both relative to them, not to India.
+  const [feedRes, nriRes] = await Promise.all([
     fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(nriPath, token),
+    fetchAuth<{ countryOfResidence: string | null }>('/api/v1/profiles/me/nri', token),
   ]);
+  const viewerCountry = nriRes.data?.countryOfResidence ?? 'IN';
 
   const feedFailed = feedRes.error !== null;
   const items: MatchFeedItem[] = Array.isArray(feedRes.data)
@@ -108,6 +122,11 @@ export default async function NriBrowsePage({ searchParams }: PageProps) {
               </Link>
             </Button>
           </div>
+        </FadeUp>
+
+        {/* ── Country filters ──────────────────────────────────────────── */}
+        <FadeUp delay={1} className="mb-6 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+          <NriFeedFilters />
         </FadeUp>
 
         {/* ── Content area ─────────────────────────────────────────────── */}
@@ -166,6 +185,8 @@ export default async function NriBrowsePage({ searchParams }: PageProps) {
                   manglik={item.manglik ?? null}
                   lastActiveAt={item.lastActiveAt ?? null}
                   distanceKm={item.distanceKm ?? null}
+                  countryOfResidence={item.countryOfResidence ?? null}
+                  viewerCountry={viewerCountry}
                 />
               </Link>
             ))}
