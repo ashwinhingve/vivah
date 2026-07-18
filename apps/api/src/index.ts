@@ -65,6 +65,15 @@ import { escrowAdminRouter } from './admin/escrow.js';
 import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
 import { retentionRouter } from './retention/router.js'; // Phase 7 Sprint F (Churn Recovery 7.3)
+import { marketingRouter } from './marketing/router.js'; // Phase 6 Sprint J (Auto-Marketing 6.4)
+import { marketingContentRouter } from './marketing/content.router.js'; // Phase 6 Sprint J (6.4 content)
+import { citiesAdminRouter, citiesPublicRouter } from './cities/router.js'; // Phase 6 Sprint J (Multi-City 6.5)
+import {
+  registerMarketingSweepWorker,
+  scheduleMarketingSweepJob,
+} from './jobs/marketingSweepJob.js'; // Phase 6 Sprint J (6.4 sweep)
+import { registerMarketingEventWorker } from './jobs/marketingEventJob.js'; // Phase 6 Sprint J (6.4 events)
+import { registerMarketingContentGenerateWorker } from './jobs/marketingContentGenerateJob.js'; // Phase 6 Sprint J (6.4 content gen)
 import { reputationAdminRouter } from './admin/reputation.router.js';
 import { adminAnalyticsRouter } from './admin/analytics.router.js';
 import { platformSettingsRouter, platformSettingsPublicRouter } from './admin/platformSettings.router.js';
@@ -411,6 +420,12 @@ app.use('/api/v1/admin', escrowAdminRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);
 app.use('/api/v1/admin/retention', retentionRouter); // Phase 7 Sprint F (Churn Recovery 7.3)
+// Phase 6 Sprint J (6.4/6.5). Content router mounts BEFORE the campaign router:
+// marketingRouter has a GET /:id catch-all that would shadow /content/*.
+app.use('/api/v1/admin/marketing/content', marketingContentRouter);
+app.use('/api/v1/admin/marketing', marketingRouter);
+app.use('/api/v1/admin/cities', citiesAdminRouter);
+app.use('/api/v1/cities', citiesPublicRouter);
 app.use('/api/v1/admin', reputationAdminRouter);
 app.use('/api/v1/admin', adminAnalyticsRouter);
 app.use('/api/v1/admin', platformSettingsRouter);
@@ -580,6 +595,10 @@ async function bootstrap(): Promise<void> {
     workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
     workers.push(registerChurnRecoverySweepWorker()); // Phase 7 Sprint F — churn recovery sweep
     void scheduleChurnRecoverySweepJob();
+    workers.push(registerMarketingSweepWorker()); // Phase 6 Sprint J — campaign sweep + attribution
+    void scheduleMarketingSweepJob();
+    workers.push(registerMarketingEventWorker()); // Phase 6 Sprint J — event-triggered campaigns
+    workers.push(registerMarketingContentGenerateWorker()); // Phase 6 Sprint J — LLM content gen
     registerP3Workers(workers);
   }
 

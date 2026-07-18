@@ -18,8 +18,8 @@ export default function CampaignDetailError({ error, reset }: ErrorProps) {
       <div className="mx-auto max-w-md">
         <div className="space-y-4 text-center">
           <h1 className="text-2xl font-bold text-primary">{t('title')}</h1>
-          <p className="text-gray-600">{t('description')}</p>
-          <p className="text-sm text-gray-500">{error.message}</p>
+          <p className="text-muted-foreground">{t('description')}</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
 
           <div className="flex gap-3 justify-center pt-4">
             <button

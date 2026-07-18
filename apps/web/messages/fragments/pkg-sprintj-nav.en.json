@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "app": {
+      "marketing": "Marketing",
+      "cities": "Cities"
+    }
+  },
+  "adminRole": {
+    "navTiles": {
+      "marketing": {
+        "label": "Marketing",
+        "description": "Campaigns, content approval & conversions"
+      },
+      "cities": {
+        "label": "City Network",
+        "description": "Vendor density & expansion by city"
+      }
+    }
+  }
+}

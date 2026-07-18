@@ -96,8 +96,8 @@ function ContentPreview({ language, content, onEdit }: ContentPreviewProps) {
         {content?.status && (
           <span className={`inline-block rounded-full border px-2 py-1 text-xs font-semibold ${
             content.status === 'APPROVED'
-              ? 'bg-green-50 text-green-700 border-green-200'
-              : 'bg-gray-50 text-gray-700 border-gray-200'
+              ? 'bg-success/10 text-success border-success/20'
+              : 'bg-surface-muted text-muted-foreground border-border'
           }`}>
             {content.status}
           </span>
@@ -133,7 +133,7 @@ function ContentPreview({ language, content, onEdit }: ContentPreviewProps) {
           {content.status === 'DRAFT' && (
             <button
               onClick={() => approveContent(content.id)}
-              className="ml-2 inline-flex h-11 items-center rounded-lg bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700"
+              className="ml-2 inline-flex h-11 items-center rounded-lg bg-success px-4 text-sm font-semibold text-white hover:bg-success/90"
             >
               {t('contentPanel.approve')}
             </button>

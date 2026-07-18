@@ -83,7 +83,9 @@
       "moreNavigation": "More navigation",
       "documents": "Documents",
       "pricing": "Smart Pricing",
-      "retention": "Retention"
+      "retention": "Retention",
+      "marketing": "Marketing",
+      "cities": "Cities"
     }
   },
   "auth": {
@@ -1970,6 +1972,14 @@
       "retention": {
         "label": "Retention",
         "description": "Churn-recovery attempts & outcomes"
+      },
+      "marketing": {
+        "label": "Marketing",
+        "description": "Campaigns, content approval & conversions"
+      },
+      "cities": {
+        "label": "City Network",
+        "description": "Vendor density & expansion by city"
       }
     },
     "users": {
@@ -2505,5 +2515,159 @@
   "videoCall": {
     "title": "Video call",
     "closeButton": "Close video panel"
+  },
+  "adminCities": {
+    "metadata": {
+      "title": "City Network"
+    },
+    "heading": "Multi-City Vendor Network",
+    "subtitle": "Manage city registry, target vendor density, and recruitment progress across markets.",
+    "backToAdmin": "Back to Admin",
+    "overview": {
+      "totalCities": "Total Cities",
+      "activeCities": "Active Cities",
+      "totalVendors": "Total Approved Vendors",
+      "unmappedCount": "Unmapped Vendors"
+    },
+    "cityCard": {
+      "status": "Status",
+      "vendors": "Approved vendors",
+      "coverage": "Coverage",
+      "bookings": "Bookings (90d)"
+    },
+    "unmapped": {
+      "heading": "Unmapped Vendors",
+      "description": "Vendors whose city did not match the registry. Assign or create new cities.",
+      "noVendors": "All vendors are mapped to the registry."
+    },
+    "cityDetail": {
+      "heading": "City Details",
+      "backToNetwork": "Back to Network",
+      "densityTable": {
+        "heading": "Category Density",
+        "category": "Category",
+        "approved": "Approved",
+        "total": "Total",
+        "target": "Target",
+        "gap": "Gap",
+        "atTarget": "At target",
+        "needMore": "Needs {{count}} more"
+      },
+      "stats": {
+        "bookings": "Bookings (90 days)",
+        "revenue": "Revenue (90 days)",
+        "coverage": "Coverage %"
+      },
+      "editForm": {
+        "heading": "Edit City",
+        "status": "Status",
+        "statusActive": "Active (Launched)",
+        "statusExpansion": "Expansion (Recruiting)",
+        "statusPlanned": "Planned (No recruiting)",
+        "targetVendors": "Target vendors per category",
+        "displayOrder": "Display order",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "City updated successfully",
+        "error": "Failed to update city"
+      }
+    },
+    "empty": {
+      "heading": "No cities found",
+      "description": "Create your first city to begin managing the vendor network."
+    },
+    "error": {
+      "heading": "Error loading cities",
+      "description": "Unable to fetch city network data. Please try again."
+    }
+  },
+  "marketingSegments": {
+    "segments": {
+      "new_incomplete_48h": "New, Incomplete (48h)",
+      "inactive_14d": "Inactive (14d)",
+      "high_intent_7d": "High Intent (7d)",
+      "vendors_new_7d": "New Vendors (7d)",
+      "vendors_idle_30d": "Idle Vendors (30d)"
+    }
+  },
+  "adminMarketing": {
+    "metadata": {
+      "campaignDetail": "Campaign Details"
+    },
+    "backToAdmin": "Back to Admin",
+    "heading": "Marketing Campaigns",
+    "subtitle": "Create, review, and manage email and SMS campaigns",
+    "stats": {
+      "activeCampaigns": "Active Campaigns",
+      "draftCampaigns": "Draft Campaigns",
+      "sentLast30d": "Sent (30d)",
+      "conversionRate": "Conversion Rate"
+    },
+    "empty": {
+      "title": "No campaigns yet",
+      "description": "Create your first marketing campaign to start reaching users"
+    },
+    "actions": {
+      "createCampaign": "Create Campaign",
+      "new": "New Campaign",
+      "generate": "Generate Copy",
+      "approve": "Approve Campaign",
+      "edit": "Edit",
+      "view": "View",
+      "activate": "Activate",
+      "pause": "Pause",
+      "resume": "Resume",
+      "complete": "Complete"
+    },
+    "table": {
+      "title": "Campaigns",
+      "columns": {
+        "name": "Campaign Name",
+        "trigger": "Trigger Type",
+        "segment": "Target Segment",
+        "status": "Status",
+        "created": "Created",
+        "triggers": {
+          "event": "Event",
+          "scheduled": "Scheduled",
+          "segment_sweep": "Segment Sweep"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "approved": "Approved",
+          "active": "Active",
+          "paused": "Paused",
+          "completed": "Completed"
+        }
+      }
+    },
+    "backToMarketing": "Back to Campaigns",
+    "noDescription": "No description provided",
+    "campaignStatus": "Campaign Status",
+    "contentPanel": {
+      "title": "Content (Copy)",
+      "generateCopy": "Generate Copy",
+      "generating": "Generating...",
+      "subject": "Subject Line",
+      "bodyShort": "Short Body (SMS/Push)",
+      "bodyLong": "Long Body (Email)",
+      "cta": "Call-to-Action",
+      "noContent": "No content yet. Generate or add manually.",
+      "edit": "Edit",
+      "approve": "Approve",
+      "editForm": "Edit Content",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "sendsTable": {
+      "title": "Delivery History",
+      "showing": "Showing {{count}} sends",
+      "status": "Status",
+      "channel": "Channel",
+      "sent": "Sent At",
+      "converted": "Converted At",
+      "reason": "Suppression Reason"
+    }
   }
 }

@@ -9,11 +9,11 @@ interface CampaignSendsTableProps {
 }
 
 const STATUS_CLASSES: Record<string, string> = {
-  QUEUED: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  QUEUED: 'bg-warning/10 text-warning border-warning/20',
   SENT: 'bg-teal-50 text-teal-700 border-teal-200',
-  CONVERTED: 'bg-green-50 text-green-700 border-green-200',
-  SUPPRESSED: 'bg-gray-50 text-gray-700 border-gray-200',
-  FAILED: 'bg-red-50 text-red-700 border-red-200',
+  CONVERTED: 'bg-success/10 text-success border-success/20',
+  SUPPRESSED: 'bg-surface-muted text-muted-foreground border-border',
+  FAILED: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
 function fmtDate(iso: string | null): string {
@@ -50,7 +50,7 @@ export function CampaignSendsTable({ sends }: CampaignSendsTableProps) {
           </thead>
           <tbody className="divide-y divide-gold/10">
             {sends.map((send) => {
-              const statusClass = STATUS_CLASSES[send.status] || 'bg-gray-50 text-gray-700 border-gray-200';
+              const statusClass = STATUS_CLASSES[send.status] || 'bg-surface-muted text-muted-foreground border-border';
               return (
                 <tr key={send.id} className="hover:bg-background/50 transition-colors">
                   <td className="py-2.5 pr-3">

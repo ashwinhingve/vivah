@@ -15,10 +15,10 @@ interface CampaignTableProps {
 }
 
 const TONE_CLASSES: Record<'success' | 'info' | 'warning' | 'default', string> = {
-  success: 'bg-green-50 text-green-700 border-green-200',
+  success: 'bg-success/10 text-success border-success/20',
   info: 'bg-teal-50 text-teal-700 border-teal-200',
-  warning: 'bg-amber-50 text-amber-700 border-amber-200',
-  default: 'bg-gray-50 text-gray-700 border-gray-200',
+  warning: 'bg-warning/10 text-warning border-warning/20',
+  default: 'bg-surface-muted text-muted-foreground border-border',
 };
 
 export function CampaignTable({ campaigns, statusToneMap }: CampaignTableProps) {
@@ -55,10 +55,10 @@ export function CampaignTable({ campaigns, statusToneMap }: CampaignTableProps) 
                     {campaign.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
+                <td className="px-4 py-3 text-sm text-muted-foreground">
                   {t(`columns.triggers.${campaign.triggerType.toLowerCase()}`)}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
+                <td className="px-4 py-3 text-sm text-muted-foreground">
                   {tSegment(`segments.${campaign.segmentKey}`)}
                 </td>
                 <td className="px-4 py-3">
@@ -66,7 +66,7 @@ export function CampaignTable({ campaigns, statusToneMap }: CampaignTableProps) 
                     {t(`columns.statuses.${campaign.status.toLowerCase()}`)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-500">
+                <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                   {fmtDate(campaign.createdAt)}
                 </td>
               </tr>

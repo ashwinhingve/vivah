@@ -27,6 +27,8 @@ import {
   UserPlus,
   Inbox,
   TrendingUp,
+  Megaphone,
+  MapPin,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -147,6 +149,8 @@ const ADMIN_MORE_GROUPS: NavGroup[] = [
       { href: '/admin/audit',     labelKey: 'auditLog',        Icon: ClipboardList },
       { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
       { href: '/admin/retention', labelKey: 'retention',       Icon: Heart },
+      { href: '/admin/marketing', labelKey: 'marketing',       Icon: Megaphone },
+      { href: '/admin/cities',    labelKey: 'cities',          Icon: MapPin },
     ],
   },
   {
