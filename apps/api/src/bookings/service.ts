@@ -23,6 +23,7 @@ import {
   notificationsQueue,
   DEFAULT_JOB_OPTS,
 } from '../infrastructure/redis/queues.js';
+import { emitMarketingEvent } from '../marketing/eventHooks.js';
 
 // ── Error codes ───────────────────────────────────────────────────────────────
 
@@ -234,6 +235,7 @@ export async function createBooking(
     });
   }
 
+  emitMarketingEvent('booking_created', customerId);
   return toBookingSummary(inserted);
 }
 

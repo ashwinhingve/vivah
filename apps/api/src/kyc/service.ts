@@ -22,6 +22,7 @@ import { checkKycRateLimit } from './rateLimit.js';
 import { assessRisk, computeLevel, describeLevels } from './risk.js';
 import { recordDuplicateSignals, checkForDuplicates } from './duplicateCheck.js';
 import { user as userTable } from '@smartshaadi/db';
+import { emitMarketingEvent } from '../marketing/eventHooks.js';
 
 const DEFAULT_KYC_VALIDITY_DAYS = 365;
 
@@ -775,6 +776,7 @@ export async function approveKyc(profileId: string, adminUserId: string, note?: 
   });
 
   await invalidateFeedCache();
+  emitMarketingEvent('kyc_approved', profile!.userId);
 }
 
 export async function rejectKyc(profileId: string, adminUserId: string, note?: string) {

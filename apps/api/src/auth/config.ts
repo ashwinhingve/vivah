@@ -11,6 +11,7 @@ import { sessionCookieAttributes } from './cookieAttributes.js';
 import { authTrustedOrigins } from '../lib/cors.js';
 import { recordAuthEvent, isNewDevice, AuthEventType } from './events.js';
 import { recordOtpSent, recordOtpFailure, recordOtpSuccess, isPhoneLocked } from './otpLockout.js';
+import { emitMarketingEvent } from '../marketing/eventHooks.js';
 
 /**
  * Pulls the best-available IP for an authenticated request. Better Auth
@@ -234,6 +235,7 @@ export const auth = betterAuth({
             userAgent: ua,
             metadata: { phone: (newUser as { phoneNumber?: string }).phoneNumber ?? null },
           });
+          emitMarketingEvent('user_registered', newUser.id);
         },
       },
       delete: {
