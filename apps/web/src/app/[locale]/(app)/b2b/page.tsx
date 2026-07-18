@@ -24,21 +24,16 @@ interface B2BAccount {
   createdAt: string;
 }
 
-interface B2BListPageProps {
-  params: Promise<{
-    locale: string;
-  }>;
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'b2b.list.metadata' });
   return { title: t('title') };
 }
 
-export default async function B2BListPage({ params }: B2BListPageProps) {
-  const { locale } = await params;
+export default async function B2BListPage() {
   const t = await getTranslations('b2b.list');
+  const tCard = await getTranslations('b2b.card');
+  const tStatus = await getTranslations('b2b.status');
 
   // Phase 2: Fetch accounts from API
   // const { data: accounts, error } = await fetchAuth<{ accounts: B2BAccount[] }>(
@@ -82,7 +77,7 @@ export default async function B2BListPage({ params }: B2BListPageProps) {
           {accounts.length > 0 && (
             <StaggerList className="grid gap-4">
               {accounts.map((account) => (
-                <AccountCard key={account.id} account={account} locale={locale} />
+                <AccountCard key={account.id} account={account} t={tCard} tStatus={tStatus} />
               ))}
             </StaggerList>
           )}
@@ -94,10 +89,11 @@ export default async function B2BListPage({ params }: B2BListPageProps) {
 
 interface AccountCardProps {
   account: B2BAccount;
-  locale: string;
+  t: (key: string) => string;
+  tStatus: (key: string) => string;
 }
 
-function AccountCard({ account, locale }: AccountCardProps) {
+function AccountCard({ account, t, tStatus }: AccountCardProps) {
   const statusMap: Record<string, string> = {
     PENDING: 'pending',
     VERIFIED: 'verified',
@@ -114,16 +110,16 @@ function AccountCard({ account, locale }: AccountCardProps) {
             <p className="mt-1 text-sm text-gold-muted">GSTIN: {account.gstin}</p>
           </div>
           <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
-            {statusMap[account.status]}
+            {tStatus(statusMap[account.status] ?? account.status)}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
           <p className="text-xs text-gold-muted">
-            Created {new Date(account.createdAt).toLocaleDateString()}
+            {t('createdLabel')} {new Date(account.createdAt).toLocaleDateString()}
           </p>
           <Button variant="ghost" size="sm" className="gap-1">
-            View Details
+            {t('viewDetails')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>

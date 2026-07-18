@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function InvoicesPage({ params }: InvoicesPageProps) {
-  const { locale, accountId } = await params;
+  const { accountId } = await params;
   const t = await getTranslations('b2b.invoices');
   const tStatus = await getTranslations('b2b.status');
 
@@ -117,8 +117,8 @@ export default async function InvoicesPage({ params }: InvoicesPageProps) {
 
 interface InvoiceCardProps {
   invoice: Invoice;
-  tStatus: any;
-  t: any;
+  tStatus: (key: string) => string;
+  t: (key: string) => string;
 }
 
 function InvoiceCard({ invoice, tStatus, t }: InvoiceCardProps) {
@@ -136,7 +136,7 @@ function InvoiceCard({ invoice, tStatus, t }: InvoiceCardProps) {
           <p className="mt-1 text-sm text-gold-muted">Rs. {invoice.totalAmount.toFixed(2)}</p>
         </div>
         <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
-          {statusMap[invoice.status]}
+          {tStatus(statusMap[invoice.status] ?? invoice.status)}
         </span>
       </div>
 

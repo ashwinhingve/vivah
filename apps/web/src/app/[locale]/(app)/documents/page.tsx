@@ -36,11 +36,6 @@ async function fetchContracts(): Promise<Contract[]> {
 
 export const dynamic = 'force-dynamic';
 
-interface DocumentsPageProps {
-  params: Promise<{
-    locale: string;
-  }>;
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -48,8 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('title') };
 }
 
-export default async function DocumentsPage({ params }: DocumentsPageProps) {
-  const { locale } = await params;
+export default async function DocumentsPage() {
   const t = await getTranslations('documents.list');
 
   const contracts = await fetchContracts();

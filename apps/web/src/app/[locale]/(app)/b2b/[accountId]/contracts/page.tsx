@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function ContractsPage({ params }: ContractsPageProps) {
-  const { locale, accountId } = await params;
+  const { accountId } = await params;
   const t = await getTranslations('b2b.contracts');
   const tStatus = await getTranslations('b2b.status');
 
@@ -114,8 +114,8 @@ export default async function ContractsPage({ params }: ContractsPageProps) {
 interface ContractCardProps {
   contract: Contract;
   accountId: string;
-  t: any;
-  tStatus: any;
+  t: (key: string) => string;
+  tStatus: (key: string) => string;
 }
 
 function ContractCard({ contract, accountId, t, tStatus }: ContractCardProps) {
@@ -135,7 +135,7 @@ function ContractCard({ contract, accountId, t, tStatus }: ContractCardProps) {
             <p className="mt-1 text-xs text-gold-muted">{t('templateLabel')}: {contract.templateId}</p>
           </div>
           <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
-            {statusMap[contract.status]}
+            {tStatus(statusMap[contract.status] ?? contract.status)}
           </span>
         </div>
 

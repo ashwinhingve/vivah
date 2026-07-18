@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function B2BAccountDetailPage({
   params,
 }: B2BAccountDetailPageProps) {
-  const { locale, accountId } = await params;
+  const { accountId } = await params;
   const t = await getTranslations('b2b.detail');
   const tStatus = await getTranslations('b2b.status');
 
@@ -112,7 +112,7 @@ export default async function B2BAccountDetailPage({
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-heading font-semibold text-primary">{t('accountInfoHeading')}</h2>
               <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
-                {statusMap[acct.status]}
+                {tStatus(statusMap[acct.status] ?? acct.status)}
               </span>
             </div>
 
