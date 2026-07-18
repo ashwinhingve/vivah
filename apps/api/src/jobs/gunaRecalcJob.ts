@@ -61,6 +61,9 @@ async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
 }
 
 export function startGunaRecalcWorker(): { close(): Promise<void> } {
+  // Match compute (Guna Milan scoring) — low concurrency (3) because it calls
+  // the AI service synchronously and is compute-heavy per pair. Higher concurrency
+  // would starve other queues and overwhelm the AI service.
   const w = new Worker<MatchComputeJob>(
     'match-compute',
     async (job) => {
@@ -83,7 +86,7 @@ export function startGunaRecalcWorker(): { close(): Promise<void> } {
 
       await redis.setex(key, GUNA_TTL_SECONDS, String(result.total_score));
     },
-    { connection },
+    { connection, concurrency: 3 },
   );
   return { close: () => w.close() };
 }

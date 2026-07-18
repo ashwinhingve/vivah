@@ -9,6 +9,7 @@
 import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
 import { ForecastLineChart } from '@/components/analytics/ForecastLineChart.client';
+import { ReportDownloadButton } from '@/components/reports/ReportDownloadButton';
 
 interface AuthMe {
   userId: string;
@@ -87,9 +88,16 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
 
   return (
     <div className="space-y-8 p-4 sm:p-6">
-      <div>
-        <h1 className="font-heading text-3xl font-bold text-text-primary">Platform Analytics</h1>
-        <p className="mt-2 text-text-muted">6-month demand and revenue forecasts.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-text-primary">Platform Analytics</h1>
+          <p className="mt-2 text-text-muted">6-month demand and revenue forecasts.</p>
+        </div>
+        <ReportDownloadButton
+          path="/admin/platform-report"
+          label="Download PDF"
+          hint="Demand, revenue and 6-month forecast."
+        />
       </div>
 
       {/* KPI Cards */}

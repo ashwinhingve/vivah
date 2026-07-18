@@ -10,6 +10,7 @@
  */
 
 import { env } from './env.js';
+import { razorpayBreaker } from './circuit-breaker.js';
 import { createHmac, timingSafeEqual } from 'crypto';
 
 const USE_MOCK = env.USE_MOCK_SERVICES;
@@ -120,16 +121,18 @@ export async function createOrder(
   if (USE_MOCK) {
     return { id: `mock_order_${Date.now()}`, amount, currency, status: 'created' };
   }
-  return withRetry(async () => {
-    const r = await (await getSdk()).orders.create({
-      amount,
-      currency,
-      receipt,
-      notes:        notes ?? {},
-      payment_capture: true,
-    });
-    return r as unknown as RazorpayOrder;
-  });
+  return razorpayBreaker.call(async () =>
+    withRetry(async () => {
+      const r = await (await getSdk()).orders.create({
+        amount,
+        currency,
+        receipt,
+        notes:        notes ?? {},
+        payment_capture: true,
+      });
+      return r as unknown as RazorpayOrder;
+    }),
+  );
 }
 
 // ── Signatures ────────────────────────────────────────────────────────────────
@@ -176,14 +179,16 @@ export async function createRefund(
   if (USE_MOCK) {
     return { id: `mock_refund_${Date.now()}`, amount, status: 'processed' };
   }
-  return withRetry(async () => {
-    const r = await (await getSdk()).payments.refund(paymentId, {
-      amount,
-      speed: 'normal',
-      notes: notes ?? {},
-    });
-    return r as unknown as RazorpayRefund;
-  });
+  return razorpayBreaker.call(async () =>
+    withRetry(async () => {
+      const r = await (await getSdk()).payments.refund(paymentId, {
+        amount,
+        speed: 'normal',
+        notes: notes ?? {},
+      });
+      return r as unknown as RazorpayRefund;
+    }),
+  );
 }
 
 // ── Vendor payouts (Razorpay Route transfers) ────────────────────────────────
@@ -194,15 +199,17 @@ export async function transferToVendor(
   notes?: Record<string, string>,
 ): Promise<RazorpayTransfer> {
   if (USE_MOCK) return { id: `mock_transfer_${Date.now()}`, amount, status: 'processed' };
-  return withRetry(async () => {
-    const r = await (await getSdk()).transfers.create({
-      account:  vendorAccountId,
-      amount,
-      currency: 'INR',
-      notes:    notes ?? {},
-    });
-    return r as unknown as RazorpayTransfer;
-  });
+  return razorpayBreaker.call(async () =>
+    withRetry(async () => {
+      const r = await (await getSdk()).transfers.create({
+        account:  vendorAccountId,
+        amount,
+        currency: 'INR',
+        notes:    notes ?? {},
+      });
+      return r as unknown as RazorpayTransfer;
+    }),
+  );
 }
 
 // ── Payment Links ─────────────────────────────────────────────────────────────
@@ -228,26 +235,28 @@ export async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<Ra
       expires_at: args.expiresAt ? Math.floor(args.expiresAt.getTime() / 1000) : 0,
     };
   }
-  return withRetry(async () => {
-    const customer = args.customerName || args.customerEmail || args.customerPhone
-      ? {
-          name:    args.customerName  ?? '',
-          email:   args.customerEmail ?? '',
-          contact: args.customerPhone ?? '',
-        }
-      : undefined;
-    const r = await (await getSdk()).paymentLink.create({
-      amount:        args.amount,
-      currency:      'INR',
-      description:   args.description,
-      customer,
-      expire_by:     args.expiresAt ? Math.floor(args.expiresAt.getTime() / 1000) : undefined,
-      reference_id:  args.reference,
-      notify:        { sms: !!args.customerPhone, email: !!args.customerEmail },
-      reminder_enable: true,
-    } as never);
-    return r as unknown as RazorpayPaymentLink;
-  });
+  return razorpayBreaker.call(async () =>
+    withRetry(async () => {
+      const customer = args.customerName || args.customerEmail || args.customerPhone
+        ? {
+            name:    args.customerName  ?? '',
+            email:   args.customerEmail ?? '',
+            contact: args.customerPhone ?? '',
+          }
+        : undefined;
+      const r = await (await getSdk()).paymentLink.create({
+        amount:        args.amount,
+        currency:      'INR',
+        description:   args.description,
+        customer,
+        expire_by:     args.expiresAt ? Math.floor(args.expiresAt.getTime() / 1000) : undefined,
+        reference_id:  args.reference,
+        notify:        { sms: !!args.customerPhone, email: !!args.customerEmail },
+        reminder_enable: true,
+      } as never);
+      return r as unknown as RazorpayPaymentLink;
+    }),
+  );
 }
 
 // ── UPI QR ────────────────────────────────────────────────────────────────────

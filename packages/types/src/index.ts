@@ -30,3 +30,5 @@ export * from './virtual-date.js';
 export * from './retention.js';
 // ── Phase 7 Sprint G (Unit 7.2) — NRI / international matching ───────────────
 export * from './nri.js';
+// ── Phase 8 Sprint H (Unit 8.3) — PDF reporting + handover ───────────────────
+export * from './report.js';

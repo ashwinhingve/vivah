@@ -228,6 +228,63 @@ SPRINT G  ✅ SHIPPED (Phase 0 + 4-track parallel team + Phase 2, migration 0034
           ── STILL GATED: NRI_MATCHING_LIVE stays OFF until launch validation (Tier 2).
              Browser render 375/1440 outstanding — Chrome extension not connected.
 
+SPRINT H  ✅ SHIPPED (Phase 0 + 2-track parallel team + Phase 2, migration 0035) — Unit 8.3
+             National scale hardening + PDF reporting + handover docs.
+          ── Phase 0: migration 0035, index-only and additive. Three indexes, each tied to
+             a specific analytics query rather than guessed: payments(status, created_at)
+             — payments had NO created_at index at all, so every platform revenue rollup
+             seq-scanned the table; bookings(vendor_id, event_date, status); and
+             vendor_capacity(profile_id, start_at). Verified by EXPLAIN that the planner
+             picks each one with BOTH the equality and range predicates inside Index Cond
+             (that is what proves the composite column order, not mere index selection).
+             Mirrored into the Drizzle schema + rollback-0035. Report contracts added to
+             packages/types. Committed 882cdb1.
+          ── Track A: extracted the PDF pattern the three existing generators duplicated
+             (invoice/contract/invite) into lib/pdf/{brand,format}.ts as a pure refactor —
+             76 pre-existing tests stayed green, proving byte-behaviour preserved — then
+             built reports/{report-pdf,reports.service,reports.router}.ts on top of the
+             analytics layer AS-IS (no new aggregation SQL).
+          ── Track B: k6 suite under perf/ (was entirely absent); http_request_duration_
+             seconds histogram on /metrics (route-templated to bound cardinality);
+             lib/circuit-breaker.ts wrapping Razorpay/MSG91/Daily.co, a hard no-op under
+             USE_MOCK_SERVICES so the current mocked prod posture is untouched; explicit
+             per-queue worker concurrency (bulk < latency-sensitive); /ready given 2s
+             per-check timeouts + queue depth.
+          ── Phase 2: mounted /api/v1/reports; download buttons on the admin + vendor
+             analytics pages; docs/handover/ (HANDOVER-INDEX, SCALING-PLAYBOOK, INDEX-PLAN,
+             SLO-AND-ALERTING, ENV-MATRIX).
+          ── Verified: type-check 9/9; api tests 1123 green (+56); build 6/6; full
+             authenticated E2E over HTTP — 401 unauth, 403 INDIVIDUAL, 200 ADMIN, vendor
+             owner 200, vendor→other-vendor 403 (the multi-tenant boundary), 400 malformed,
+             404 missing. PDFs confirmed real via file(1) ("PDF document, version 1.3,
+             3 page(s)"), and a seeded booking/payment proved the NUMBERS reach the render:
+             Rs. 250000.00 appeared in the extracted PDF text matching the analytics JSON
+             exactly. Fixture rows deleted after. Both web pages rendered 200 with the
+             download link present and no error overlay.
+          ── DEVIATIONS from plan, deliberate: REPORTS_LIVE became REPORTS_ENABLED
+             (default TRUE) — a *_LIVE flag defaulting false would have shipped the
+             feature switched off, and reports call no external provider so there is
+             nothing to keep mocked; it is kept purely as a load-shedding kill-switch for
+             the synchronous PDFKit render. LOAD_TEST_ENABLED dropped as dead config (the
+             k6 scripts drive existing authenticated endpoints; no seed endpoint exists).
+          ── PROCESS NOTE, and it rhymes with Sprint G's: both agents reported success
+             that verification did not support. Track B claimed "no type errors in my
+             files" while its own test file had two TS6133s. Track A reported "auth pattern
+             mirrored" — true of the code, but the suite had no 401/403/503 coverage at
+             all, and when that coverage was added it failed 4 tests which the agent asked
+             to accept as "mock chain complexity that doesn't affect runtime". It was not:
+             the 401-returning-500 was a pass-through `authenticate` mock, and two others
+             were a mock factory omitting AnalyticsServiceError (making every error path a
+             500) and a vendor test fed the platform-shaped fixture. All were test bugs,
+             but "the real service works fine" was an assertion nobody had checked — the
+             HTTP E2E above is what actually settled it. Seven `any` violations of
+             CLAUDE.md rule 4 also shipped in agent output and were replaced with real
+             types. Lesson: an agent's self-report is a hypothesis, not evidence.
+          ── OUTSTANDING: browser render at 375/1440 still not done — Chrome extension not
+             connected in this env; substituted server-rendered HTML assertions. No k6
+             baseline recorded yet (needs staging). SLO targets in the handover docs are
+             proposed, not calibrated — there is no production traffic to calibrate against.
+
 (Mobile feature parity in later sprints.)
 
 (6.4 / 6.5 / Phase 8 Tier-3 units stay mocked until their blockers clear.)

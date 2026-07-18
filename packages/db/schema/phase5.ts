@@ -52,6 +52,10 @@ export const vendorCapacity = pgTable('vendor_capacity', {
 }, (t) => ({
   profileStatusIdx: index('vendor_capacity_profile_status_idx').on(t.profileId, t.status, t.createdAt),
   windowIdx:        index('vendor_capacity_window_idx').on(t.startAt, t.endAt),
+  // Monthly utilization rollup (analytics getUtilizationSeries): profile_id equality
+  // + start_at range. Neither index above fits — profileStatusIdx diverges after the
+  // leading column, windowIdx has no profile_id prefix.
+  profileStartIdx:  index('vendor_capacity_profile_start_idx').on(t.profileId, t.startAt),
 }));
 
 // ── DYNAMIC PRICING v1 — vendor-set base + multiplier bounds ──────────────────
