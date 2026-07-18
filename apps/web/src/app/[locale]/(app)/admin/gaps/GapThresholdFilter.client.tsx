@@ -1,14 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 
 const OPTIONS = [2, 3, 5, 10];
 
 export function GapThresholdFilter({ threshold }: { threshold: number }) {
+  const t = useTranslations('adminGaps');
   const router = useRouter();
   return (
     <label className="flex items-center gap-2 text-sm text-text">
-      <span className="text-gold-muted">Min vendors / market</span>
+      <span className="text-gold-muted">{t('filter.label')}</span>
       <select
         value={threshold}
         onChange={(e) => router.push(`/admin/gaps?threshold=${e.target.value}`)}

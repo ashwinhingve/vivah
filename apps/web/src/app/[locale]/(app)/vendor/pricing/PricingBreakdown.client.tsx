@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Sparkles, CalendarDays, TrendingUp, ShieldCheck } from 'lucide-react';
 import type { WireMoney, WirePricingRule, WirePricingSuggestion } from './types';
@@ -47,6 +48,7 @@ interface Props {
 }
 
 export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Props) {
+  const t = useTranslations('vendorPricing');
   const router = useRouter();
 
   function update(next: { ruleId?: string; date?: string }) {
@@ -66,7 +68,7 @@ export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Pr
       <div className="grid gap-4 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:grid-cols-2 sm:p-6">
         <label className="block">
           <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-gold-muted">
-            Service
+            {t('serviceLabel')}
           </span>
           <select
             value={selectedRuleId}
@@ -82,7 +84,7 @@ export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Pr
         </label>
         <label className="block">
           <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-gold-muted">
-            Event date
+            {t('eventDateLabel')}
           </span>
           <input
             type="date"
@@ -95,34 +97,37 @@ export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Pr
 
       {suggestion == null ? (
         <div className="rounded-2xl border border-gold/20 bg-surface p-6 text-sm text-text-muted shadow-card">
-          No suggestion available for this date. Try another date or check the rule is active.
+          {t('noSuggestion')}
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
           {/* Suggested price */}
           <div className="border-b border-gold/15 bg-gradient-to-br from-surface to-teal/5 p-6">
             <p className="text-xs font-medium uppercase tracking-wide text-gold-muted">
-              Suggested price
+              {t('suggestedPrice')}
             </p>
             <p className="mt-1 font-heading text-4xl font-semibold text-primary">
               {inr(suggestion.suggested)}
             </p>
             <p className="mt-1 text-sm text-text-muted">
-              Base {inr(suggestion.base)} · multiplier ×{suggestion.clampedMultiplier.toFixed(3)}
+              {t('baseAndMultiplier', { base: inr(suggestion.base), multiplier: suggestion.clampedMultiplier.toFixed(3) })}
             </p>
           </div>
 
           {/* Applied factors */}
           <div className="divide-y divide-gold/10 px-6">
-            <FactorRow icon={Sparkles} label="Muhurat (auspicious date)" multiplier={suggestion.appliedFactors.MUHURAT} />
-            <FactorRow icon={CalendarDays} label="Off-season" multiplier={suggestion.appliedFactors.OFFSEASON} />
-            <FactorRow icon={TrendingUp} label="Demand" multiplier={suggestion.appliedFactors.DEMAND} />
+            <FactorRow icon={Sparkles} label={t('appliedFactors.muhurat')} multiplier={suggestion.appliedFactors.MUHURAT} />
+            <FactorRow icon={CalendarDays} label={t('appliedFactors.offseason')} multiplier={suggestion.appliedFactors.OFFSEASON} />
+            <FactorRow icon={TrendingUp} label={t('appliedFactors.demand')} multiplier={suggestion.appliedFactors.DEMAND} />
           </div>
 
           {/* Clamp visibility */}
           {clampHit && (
             <div className="mx-6 mb-4 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-warning">
-              Raw ×{suggestion.rawMultiplier.toFixed(3)} {clampToCeiling ? 'capped at your ceiling' : 'lifted to your floor'} — kept within your bounds.
+              {t('clampWarning', {
+                rawMultiplier: suggestion.rawMultiplier.toFixed(3),
+                action: clampToCeiling ? t('clampActionCeiling') : t('clampActionFloor')
+              })}
             </div>
           )}
 
@@ -134,7 +139,7 @@ export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Pr
             </p>
             <p className="flex items-center gap-1.5 pt-2 text-xs text-teal">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-              This is a suggestion — you can always set your own final price.
+              {t('suggestionNote')}
             </p>
           </div>
         </div>
