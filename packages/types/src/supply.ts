@@ -63,7 +63,13 @@ export interface PremiumPackage {
    * several cities and browse filters on this, not on the vendor's own city.
    */
   destinationCity: string;
-  countryCode:     string;
+  /**
+   * Canonical link into the admin-managed `cities` registry (migration 0039).
+   * Null when the operator has not registered that destination yet — the free
+   * text above still renders, so an unregistered city never blocks a listing.
+   */
+  cityId:      string | null;
+  countryCode: string;
   /** Decimal string in rupees. */
   priceFrom: string;
   currency:  string;
@@ -112,11 +118,26 @@ export interface PremiumPackageListResult {
 }
 
 /**
+ * One city offered as a browse filter chip.
+ *
+ * `id` is null for a destination not yet in the admin `cities` registry — the
+ * chip still works (it filters on the free-text name), it simply is not backed
+ * by a registry row an operator can rename or reorder.
+ */
+export interface PremiumPackageCityFacet {
+  id:    string | null;
+  name:  string;
+  state: string | null;
+  /** Live count, so the UI can show "Udaipur (6)" and never offer an empty chip. */
+  packageCount: number;
+}
+
+/**
  * Distinct filter values for the browse chips, computed from live rows so the
  * UI never offers a city or tier that would return nothing.
  */
 export interface PremiumPackageFacets {
-  cities: string[];
+  cities: PremiumPackageCityFacet[];
   tiers:  PremiumPackageTier[];
 }
 
@@ -162,6 +183,8 @@ export interface ServicePartner {
   slug:       string;
   /** Nullable — legal assistance and gifting registries are delivered remotely. */
   city:        string | null;
+  /** Canonical link into the admin-managed `cities` registry (migration 0039). */
+  cityId:      string | null;
   state:       string | null;
   countryCode: string;
   description:  string | null;

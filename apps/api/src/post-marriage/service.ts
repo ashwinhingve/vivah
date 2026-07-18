@@ -19,6 +19,7 @@ import {
   postMarriageCategories,
   postMarriageServices,
   servicePartners,
+  cities,
 } from '@smartshaadi/db';
 import type {
   PostMarriageCategory,
@@ -70,6 +71,7 @@ function toPartner(row: PartnerRow): ServicePartner {
     name:       row.name,
     slug:       row.slug,
     city:        row.city,
+    cityId:      row.cityId,
     state:       row.state,
     countryCode: row.countryCode,
     description:  row.description,
@@ -381,6 +383,9 @@ export async function createPartner(
         name:       input.name,
         slug:       input.slug,
         city:        input.city ?? null,
+        // Same registry resolution as 8.1 packages, so a partner and a package
+        // in the same city link to the same row.
+        cityId:      input.city ? await resolveCityId(input.city) : null,
         state:       input.state ?? null,
         countryCode: input.countryCode,
         description:  input.description ?? null,
@@ -413,7 +418,11 @@ export async function updatePartner(
   if (input.categoryId   !== undefined) patch.categoryId = input.categoryId;
   if (input.name         !== undefined) patch.name = input.name;
   if (input.slug         !== undefined) patch.slug = input.slug;
-  if (input.city         !== undefined) patch.city = input.city;
+  if (input.city         !== undefined) {
+    patch.city = input.city;
+    // Re-resolve on rename, or the row keeps pointing at its previous city.
+    patch.cityId = input.city ? await resolveCityId(input.city) : null;
+  }
   if (input.state        !== undefined) patch.state = input.state;
   if (input.countryCode  !== undefined) patch.countryCode = input.countryCode;
   if (input.description  !== undefined) patch.description = input.description;
@@ -537,6 +546,22 @@ export async function deactivateService(id: string): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Look up a city in the admin-managed registry by name. Case-insensitive and
+ * trimmed, matching migration 0039's backfill rule exactly — two matching rules
+ * for one link is how the representations drift apart. Null is a legal result:
+ * remote-delivered partners have no city, and an unregistered one still renders
+ * from free text.
+ */
+async function resolveCityId(cityName: string): Promise<string | null> {
+  const [row] = await db
+    .select({ id: cities.id })
+    .from(cities)
+    .where(sql`lower(trim(${cities.name})) = lower(trim(${cityName}))`)
+    .limit(1);
+  return row?.id ?? null;
+}
 
 async function assertCategoryExists(categoryId: string): Promise<void> {
   const [cat] = await db

@@ -71,7 +71,7 @@ import {
   index, uniqueIndex, pgEnum,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { weddings, ceremonies, guests, vendors, user } from './index';
+import { weddings, ceremonies, guests, vendors, user, cities } from './index';
 
 // ── Destination legs ─────────────────────────────────────────────────────────
 
@@ -167,7 +167,13 @@ export const premiumPackages = pgTable('premium_packages', {
 
   // Denormalised from the vendor deliberately: a vendor may sell packages in
   // several cities, and browse filters on the PACKAGE's city, not the vendor's.
+  //
+  // Free text remains the DISPLAY + SEO source of truth; cityId (migration 0039)
+  // is the canonical join into the admin-managed registry, used for facets and
+  // dedup. Same split Sprint J made on vendors.city / vendors.city_id. Nullable
+  // because a package may name a destination the operator has not registered.
   destinationCity: varchar('destination_city', { length: 100 }).notNull(),
+  cityId:          uuid('city_id').references(() => cities.id, { onDelete: 'set null' }),
   countryCode:     varchar('country_code', { length: 2 }).notNull().default('IN'),
 
   // RUPEES — see the Money note in the file header.
@@ -271,8 +277,10 @@ export const servicePartners = pgTable('service_partners', {
   slug:       varchar('slug', { length: 140 }).notNull(),
 
   // Nullable: several categories (legal assistance, gifting registry) are
-  // delivered remotely and are not tied to a city at all.
+  // delivered remotely and are not tied to a city at all. cityId (migration
+  // 0039) links to the admin-managed registry where a city does apply.
   city:        varchar('city', { length: 100 }),
+  cityId:      uuid('city_id').references(() => cities.id, { onDelete: 'set null' }),
   state:       varchar('state', { length: 100 }),
   countryCode: varchar('country_code', { length: 2 }).notNull().default('IN'),
 

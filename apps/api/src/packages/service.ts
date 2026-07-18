@@ -27,6 +27,7 @@ import {
   premiumPackageInclusions,
   premiumPackageAvailability,
   vendors,
+  cities,
 } from '@smartshaadi/db';
 import type {
   PremiumPackage,
@@ -65,6 +66,7 @@ function toPackage(row: PackageRow): PremiumPackage {
     title:    row.title,
     tier:     row.tier,
     destinationCity: row.destinationCity,
+    cityId:          row.cityId,
     countryCode:     row.countryCode,
     // priceFrom arrives from pg as a STRING and stays one. numeric(12,2) exceeds
     // float64's exact range; parsing here would silently round large amounts.
@@ -230,15 +232,43 @@ export async function listPackages(
 }
 
 /**
- * Distinct cities and tiers that currently have active inventory, so the browse
- * chips can never offer a filter that returns an empty page.
+ * Cities and tiers that currently have active inventory, so the browse chips can
+ * never offer a filter that returns an empty page.
+ *
+ * Grouped by the free-text `destination_city` rather than by `city_id`, because
+ * a destination the operator has not registered yet must still be browsable —
+ * grouping by the FK would silently drop every unlinked package from the filter
+ * bar while leaving it in the results.
+ *
+ * The registry supplies ORDER and state name where a link exists: cities the
+ * operator has ranked in /admin/cities lead the list in their chosen order, and
+ * unregistered destinations follow alphabetically. That makes the chip order an
+ * admin setting rather than something hardcoded here.
  */
 export async function getFacets(): Promise<PremiumPackageFacets> {
   const cityRows = await db
-    .selectDistinct({ city: premiumPackages.destinationCity })
+    .select({
+      id:    cities.id,
+      name:  premiumPackages.destinationCity,
+      state: cities.state,
+      displayOrder: cities.displayOrder,
+      packageCount: sql<number>`count(*)::int`,
+    })
     .from(premiumPackages)
+    .leftJoin(cities, eq(premiumPackages.cityId, cities.id))
     .where(eq(premiumPackages.isActive, true))
-    .orderBy(asc(premiumPackages.destinationCity));
+    .groupBy(
+      premiumPackages.destinationCity,
+      cities.id,
+      cities.state,
+      cities.displayOrder,
+    )
+    // NULLS LAST puts unregistered destinations after the operator-ranked ones
+    // instead of ahead of them, which is pg's default for ASC.
+    .orderBy(
+      sql`${cities.displayOrder} ASC NULLS LAST`,
+      asc(premiumPackages.destinationCity),
+    );
 
   const tierRows = await db
     .selectDistinct({ tier: premiumPackages.tier })
@@ -248,8 +278,13 @@ export async function getFacets(): Promise<PremiumPackageFacets> {
   const TIER_ORDER: PremiumPackageTier[] = ['ESSENTIAL', 'SIGNATURE', 'LUXE'];
 
   return {
-    cities: cityRows.map((r) => r.city),
-    tiers:  TIER_ORDER.filter((t) => tierRows.some((r) => r.tier === t)),
+    cities: cityRows.map((r) => ({
+      id:    r.id,
+      name:  r.name,
+      state: r.state,
+      packageCount: r.packageCount,
+    })),
+    tiers: TIER_ORDER.filter((t) => tierRows.some((r) => r.tier === t)),
   };
 }
 
@@ -327,6 +362,10 @@ export async function createPackage(
         title:           input.title,
         tier:            input.tier,
         destinationCity: input.destinationCity,
+        // Resolve the registry link from the name the admin typed, so a package
+        // created through the API is linked exactly as 0039's backfill would
+        // have linked it — no second, divergent linking rule.
+        cityId:          await resolveCityId(input.destinationCity),
         countryCode:     input.countryCode,
         priceFrom:       input.priceFrom,
         currency:        input.currency,
@@ -402,7 +441,12 @@ export async function updatePackage(
     if (input.slug            !== undefined) patch.slug = input.slug;
     if (input.title           !== undefined) patch.title = input.title;
     if (input.tier            !== undefined) patch.tier = input.tier;
-    if (input.destinationCity !== undefined) patch.destinationCity = input.destinationCity;
+    if (input.destinationCity !== undefined) {
+      patch.destinationCity = input.destinationCity;
+      // Re-resolve whenever the name changes, or a rename would leave the row
+      // pointing at the city it used to be in.
+      patch.cityId = await resolveCityId(input.destinationCity);
+    }
     if (input.countryCode     !== undefined) patch.countryCode = input.countryCode;
     if (input.priceFrom       !== undefined) patch.priceFrom = input.priceFrom;
     if (input.currency        !== undefined) patch.currency = input.currency;
@@ -511,6 +555,24 @@ export async function listAllPackagesForAdmin(
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Look up a city in the admin-managed registry by name.
+ *
+ * Case-insensitive and trimmed, matching migration 0039's backfill exactly —
+ * two different matching rules for the same link is how the two representations
+ * would drift apart. Returns null for an unregistered destination, which is a
+ * legal state: the free-text name still renders and the operator can register
+ * the city later, at which point re-running 0039's backfill links it.
+ */
+async function resolveCityId(cityName: string): Promise<string | null> {
+  const [row] = await db
+    .select({ id: cities.id })
+    .from(cities)
+    .where(sql`lower(trim(${cities.name})) = lower(trim(${cityName}))`)
+    .limit(1);
+  return row?.id ?? null;
+}
 
 /** Narrow an unknown thrown value to a pg driver error with a given SQLSTATE. */
 function isPgError(e: unknown, code: string): boolean {

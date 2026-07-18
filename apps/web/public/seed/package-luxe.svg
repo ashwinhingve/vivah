@@ -1,0 +1,41 @@
+<!--
+  Placeholder hero for LUXE-tier seed packages.
+  Authored in-house from the Smart Shaadi design tokens — see
+  package-essential.svg for why this is not a stock photograph.
+
+  REPLACE WITH LICENSED PHOTOGRAPHY BEFORE PUBLIC LAUNCH.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img"
+     aria-label="Placeholder venue image">
+  <defs>
+    <linearGradient id="luxe" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#2E2E38"/>
+      <stop offset="45%"  stop-color="#7B2D42"/>
+      <stop offset="100%" stop-color="#C5A47E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0%"   stop-color="#C5A47E" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#C5A47E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#luxe)"/>
+  <rect width="1200" height="675" fill="url(#glow)"/>
+
+  <!-- Palace silhouette with domes + water reflection. Not a real building. -->
+  <g fill="#2E2E38" fill-opacity="0.45">
+    <path d="M180 540 L180 360 L280 360 L280 300 L340 300 L340 360 L440 360 L440 540 Z"/>
+    <path d="M760 540 L760 360 L860 360 L860 300 L920 300 L920 360 L1020 360 L1020 540 Z"/>
+    <path d="M470 540 L470 300 L600 200 L730 300 L730 540 Z"/>
+    <circle cx="600" cy="205" r="34"/>
+    <circle cx="310" cy="300" r="22"/>
+    <circle cx="890" cy="300" r="22"/>
+  </g>
+  <g fill="#FEFAF6" fill-opacity="0.12">
+    <rect x="180" y="548" width="840" height="70"/>
+  </g>
+  <g fill="#C5A47E" fill-opacity="0.5">
+    <circle cx="600" cy="150" r="6"/>
+    <circle cx="240" cy="180" r="3"/><circle cx="980" cy="170" r="3"/>
+  </g>
+</svg>

@@ -15,6 +15,10 @@ import { config } from 'dotenv';
 import { resolve, dirname } from 'path';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import mongoose, { Schema, model, models } from 'mongoose';
+// Phase 8 supply seeds (Units 8.1 + 8.2). Each owns its own pool; seed/index.ts
+// exits the process, so they are not closed individually here.
+import { seedPremiumPackages } from './premium-packages.js';
+import { seedPostMarriage } from './post-marriage.js';
 import {
   user, profiles, profilePhotos, vendors, vendorServices, vendorEventTypes,
   matchScores, matchRequests, weddings, ceremonies, weddingTasks,
@@ -250,6 +254,13 @@ async function wipeDemo() {
     rental_bookings, rental_items,
     vendor_event_types, vendor_services, vendor_reviews, vendor_favorites, vendor_inquiries, vendor_blocked_dates,
     vendors,
+    -- Phase 8 Unit 8.2. service_enquiries.customer_id references the user table
+    -- with the default RESTRICT, so the seed-user DELETE below would FAIL once
+    -- anyone had raised a demo enquiry, making the seed un-rerunnable.
+    -- Truncating it here keeps that delete unblocked.
+    -- (8.1 package enquiries need no entry: they live in vendor_inquiries above,
+    -- and premium_packages is reached by CASCADE from vendors.)
+    service_enquiries,
     profile_photos, profile_sections, safety_mode_unlocks,
     kyc_audit_log, kyc_documents, kyc_appeals, kyc_verifications,
     profiles
@@ -853,6 +864,13 @@ export async function seedFullDemo(): Promise<void> {
   await seedGuests();
   await seedNotifications();
   await seedMongo();
+  // Phase 8 supply. Runs AFTER wipeDemo + seedVendors on purpose: wipeDemo
+  // truncates `vendors CASCADE`, which reaches premium_packages through its FK,
+  // and deletes every `seed-%` user — including the venue owner accounts these
+  // seeds create.
+  console.info('🏛  seeding Phase 8 supply (8.1 packages + 8.2 services)...');
+  await seedPremiumPackages();
+  await seedPostMarriage();
   console.info('✅ Demo seed complete.');
   await pool.end();
 }
