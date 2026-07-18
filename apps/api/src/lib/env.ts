@@ -56,6 +56,25 @@ export const envSchema = z.object({
   // once e-sign provider credentials are fully configured.
   ESIGN_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // ── Phase 6 (Tier 2/3) live overrides — INVERTED semantics like KYC/ESIGN ──
+  // WhatsApp Business (6.1), lending placement (6.2), insurance placement (6.3)
+  // stay MOCKED unless their *_LIVE flag is 'true' AND USE_MOCK_SERVICES=false.
+  // Lending/insurance are Tier 3 (blocked on partner + regulator agreements);
+  // WhatsApp is Tier 2 (blocked on Meta Business + BSP approval). The live swap
+  // is a credentials change, not a redesign. Guarded creds below via superRefine.
+  WHATSAPP_LIVE:  z.string().default('false').transform(v => v === 'true'),
+  LENDING_LIVE:   z.string().default('false').transform(v => v === 'true'),
+  INSURANCE_LIVE: z.string().default('false').transform(v => v === 'true'),
+
+  // WhatsApp Cloud API creds — only required when WHATSAPP_LIVE=true.
+  WHATSAPP_API_KEY:            z.string().default(''),
+  WHATSAPP_PHONE_NUMBER_ID:    z.string().default(''),
+  WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().default(''),
+  // Lending aggregator/LSP creds — only required when LENDING_LIVE=true.
+  LENDING_API_KEY: z.string().default(''),
+  // Insurance aggregator creds — only required when INSURANCE_LIVE=true.
+  INSURANCE_API_KEY: z.string().default(''),
+
   // Pre-launch escape hatch: when 'true', the NODE_ENV=production +
   // USE_MOCK_SERVICES=true guard is bypassed. Intended for the pre-launch
   // window where external provider creds (MSG91 DLT, DigiLocker, Razorpay
@@ -256,6 +275,23 @@ export const envSchema = z.object({
       message: 'DAILY_CO_API_KEY must be set to a real key when VIDEO_LIVE=true',
     });
   }
+}).superRefine((data, ctx) => {
+  // Phase 6 live overrides (WhatsApp / lending / insurance). Same rationale as
+  // R2_LIVE/VIDEO_LIVE: flipping a *_LIVE flag makes REAL external calls, so its
+  // credentials must be present at boot, not discovered missing at request time.
+  if (data.WHATSAPP_LIVE) {
+    for (const key of ['WHATSAPP_API_KEY', 'WHATSAPP_PHONE_NUMBER_ID', 'WHATSAPP_BUSINESS_ACCOUNT_ID'] as const) {
+      if (!data[key]) {
+        ctx.addIssue({ code: 'custom', path: [key], message: `${key} must be set when WHATSAPP_LIVE=true` });
+      }
+    }
+  }
+  if (data.LENDING_LIVE && !data.LENDING_API_KEY) {
+    ctx.addIssue({ code: 'custom', path: ['LENDING_API_KEY'], message: 'LENDING_API_KEY must be set when LENDING_LIVE=true' });
+  }
+  if (data.INSURANCE_LIVE && !data.INSURANCE_API_KEY) {
+    ctx.addIssue({ code: 'custom', path: ['INSURANCE_API_KEY'], message: 'INSURANCE_API_KEY must be set when INSURANCE_LIVE=true' });
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -313,12 +349,18 @@ export function deriveMockFlags(
   kycLive = false,
   videoLive = false,
   esignLive = false,
+  whatsAppLive = false,
+  lendingLive = false,
+  insuranceLive = false,
 ): {
   shouldUseMockMongo: boolean;
   shouldUseMockR2: boolean;
   shouldUseMockKyc: boolean;
   shouldUseMockVideo: boolean;
   shouldUseMockEsign: boolean;
+  shouldUseMockWhatsApp: boolean;
+  shouldUseMockLending: boolean;
+  shouldUseMockInsurance: boolean;
 } {
   return {
     shouldUseMockMongo: useMockServices && !mongoLive,
@@ -326,6 +368,10 @@ export function deriveMockFlags(
     shouldUseMockKyc:   useMockServices || !kycLive,
     shouldUseMockVideo: useMockServices && !videoLive,
     shouldUseMockEsign: useMockServices || !esignLive,
+    // Phase 6 — INVERTED semantics (mocked until explicitly live), like KYC/ESIGN.
+    shouldUseMockWhatsApp:  useMockServices || !whatsAppLive,
+    shouldUseMockLending:   useMockServices || !lendingLive,
+    shouldUseMockInsurance: useMockServices || !insuranceLive,
   };
 }
 
@@ -368,3 +414,32 @@ export const shouldUseMockVideo = deriveMockFlags(
 export const shouldUseMockEsign = deriveMockFlags(
   env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
 ).shouldUseMockEsign;
+
+/**
+ * WhatsApp Business mock gate. True (mocked) unless WHATSAPP_LIVE=true AND
+ * USE_MOCK_SERVICES=false. Keeps Meta/BSP sends stubbed until credentials land.
+ */
+export const shouldUseMockWhatsApp = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
+  env.WHATSAPP_LIVE,
+).shouldUseMockWhatsApp;
+
+/**
+ * Lending placement mock gate. True (mocked) unless LENDING_LIVE=true AND
+ * USE_MOCK_SERVICES=false. Tier 3 — no real lender call ever ships until a
+ * partner + RBI-DLG compliance agreement lands. Mock returns fake offers only.
+ */
+export const shouldUseMockLending = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
+  env.WHATSAPP_LIVE, env.LENDING_LIVE,
+).shouldUseMockLending;
+
+/**
+ * Insurance placement mock gate. True (mocked) unless INSURANCE_LIVE=true AND
+ * USE_MOCK_SERVICES=false. Tier 3 — no real insurer call until an IRDAI-compliant
+ * aggregator agreement lands. Mock returns fake quotes only.
+ */
+export const shouldUseMockInsurance = deriveMockFlags(
+  env.USE_MOCK_SERVICES, env.MONGO_LIVE, env.R2_LIVE, env.KYC_LIVE, env.VIDEO_LIVE, env.ESIGN_LIVE,
+  env.WHATSAPP_LIVE, env.LENDING_LIVE, env.INSURANCE_LIVE,
+).shouldUseMockInsurance;

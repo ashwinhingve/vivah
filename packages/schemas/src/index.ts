@@ -17,3 +17,5 @@ export * from './pricing.js';
 export * from './b2b.js';
 export * from './contract.js';
 export * from './gap.js';
+// ── Phase 6 contracts (Tier 2/3 financial + WhatsApp shells) ─────────────────
+export * from './finance-referral.js';

@@ -1574,6 +1574,12 @@ export {
   contractStatusEnum, esignProviderEnum, contracts,
 } from './phase5';
 
+// ── Phase 6 (Tier 2/3) — service-referral commission model + WhatsApp log ────
+export {
+  serviceReferralKindEnum, serviceReferralStatusEnum, serviceReferrals,
+  whatsappMessageStatusEnum, whatsappMessages,
+} from './phase6';
+
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
 // consent_ledger is append-only: every consent record is a new row. When a
