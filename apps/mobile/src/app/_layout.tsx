@@ -1,18 +1,23 @@
 import '../global.css';
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 /**
- * Root layout — Phase-0 frozen shell. Teammate A replaces this with the real
- * navigation tree ((auth) group + (app) tab group + the auth gate). Keep the
- * `../global.css` import first so NativeWind styles load app-wide.
+ * Root layout — Phase-1 implementation.
+ * Wraps the entire app tree in GestureHandlerRootView and SafeAreaProvider,
+ * then renders the Stack for group-based file routing.
+ * Groups: (auth) — phone/verify flow; (app) — tab-based home/profile.
  */
 export default function RootLayout() {
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="dark" />
-    </>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="dark" />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

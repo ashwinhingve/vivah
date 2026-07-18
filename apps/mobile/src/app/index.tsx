@@ -1,20 +1,46 @@
-import { Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSession } from '../hooks/useSession';
 
 /**
- * Phase-0 placeholder home. Teammate B replaces this with the auth gate that
- * redirects to the phone-OTP flow when unauthenticated, or the (app) home when
- * a Better Auth cookie session exists. The `className` props below exist only to
- * prove NativeWind + the design tokens resolve in the frozen base.
+ * Root auth gate — Phase-1.
+ *
+ * Checks the Better Auth session and redirects:
+ * - Loading → centered spinner
+ * - Session exists → /(app)/home
+ * - No session → /(auth)/phone
  */
-export default function Index() {
-  return (
-    <View className="flex-1 items-center justify-center bg-background px-6">
-      <Text className="text-primary text-2xl font-semibold text-center">
-        Smart Shaadi
-      </Text>
-      <Text className="text-gold-muted mt-2 text-center">
-        Mobile scaffold — pre-launch, not live
-      </Text>
-    </View>
-  );
+export default function RootGate() {
+  const router = useRouter();
+  const session = useSession();
+
+  useEffect(() => {
+    const data = session.data;
+
+    // Session is still loading
+    if (session.isPending) {
+      return;
+    }
+
+    // Session exists — redirect to authenticated home
+    if (data?.user) {
+      router.replace('/(app)/home');
+    } else {
+      // No session — redirect to phone login
+      router.replace('/(auth)/phone');
+    }
+  }, [session.data, session.isPending, router]);
+
+  // Show loading state while checking session
+  if (session.isPending) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color="#7B2D42" />
+      </View>
+    );
+  }
+
+  // Render nothing while redirect happens
+  return null;
 }
