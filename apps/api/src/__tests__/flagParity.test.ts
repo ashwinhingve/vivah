@@ -32,17 +32,43 @@ describe('deriveMockFlags truth table', () => {
   });
 
   // kycLive omitted → defaults false → shouldUseMockKyc = useMock || !false = true in every row.
+  // Phase 6 gates (whatsapp/lending/insurance) default MOCKED whenever their *_LIVE
+  // arg is omitted — inverted semantics like KYC/e-sign.
+  const P6_MOCKED = { shouldUseMockWhatsApp: true, shouldUseMockLending: true, shouldUseMockInsurance: true };
   it('production (all false) → both stores live, KYC mocked', () => {
-    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: false, shouldUseMockEsign: true });
+    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: false, shouldUseMockEsign: true, ...P6_MOCKED });
   });
   it('mock master only → both stores mock', () => {
-    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
+    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true, ...P6_MOCKED });
   });
   it('mock + MONGO_LIVE → mongo live, r2 mock (incremental cutover)', () => {
-    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
+    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true, ...P6_MOCKED });
   });
   it('mock + R2_LIVE → r2 live, mongo mock', () => {
-    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
+    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true, ...P6_MOCKED });
+  });
+});
+
+// ── A4. Phase 6 gates (WhatsApp / lending / insurance — INVERTED, like KYC) ──
+// Tier 2/3 financial + WhatsApp shells stay MOCKED even after the master toggle
+// flips off; they go real only when their *_LIVE flag is true AND master off.
+describe('shouldUseMock{WhatsApp,Lending,Insurance} (Phase 6 inverted overrides)', () => {
+  it('master off + all *_LIVE unset → all three stay MOCKED', () => {
+    const r = deriveMockFlags(false, false, false, false, false, false);
+    expect(r.shouldUseMockWhatsApp).toBe(true);
+    expect(r.shouldUseMockLending).toBe(true);
+    expect(r.shouldUseMockInsurance).toBe(true);
+  });
+  it('master off + each *_LIVE=true → that service goes REAL independently', () => {
+    expect(deriveMockFlags(false, false, false, false, false, false, true).shouldUseMockWhatsApp).toBe(false);
+    expect(deriveMockFlags(false, false, false, false, false, false, false, true).shouldUseMockLending).toBe(false);
+    expect(deriveMockFlags(false, false, false, false, false, false, false, false, true).shouldUseMockInsurance).toBe(false);
+  });
+  it('master on → all three MOCKED regardless of *_LIVE', () => {
+    const r = deriveMockFlags(true, false, false, false, false, false, true, true, true);
+    expect(r.shouldUseMockWhatsApp).toBe(true);
+    expect(r.shouldUseMockLending).toBe(true);
+    expect(r.shouldUseMockInsurance).toBe(true);
   });
 });
 
