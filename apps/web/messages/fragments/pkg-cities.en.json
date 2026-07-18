@@ -1,0 +1,67 @@
+{
+  "adminCities": {
+    "metadata": {
+      "title": "City Network"
+    },
+    "heading": "Multi-City Vendor Network",
+    "subtitle": "Manage city registry, target vendor density, and recruitment progress across markets.",
+    "backToAdmin": "Back to Admin",
+    "overview": {
+      "totalCities": "Total Cities",
+      "activeCities": "Active Cities",
+      "totalVendors": "Total Approved Vendors",
+      "unmappedCount": "Unmapped Vendors"
+    },
+    "cityCard": {
+      "status": "Status",
+      "vendors": "Approved vendors",
+      "coverage": "Coverage",
+      "bookings": "Bookings (90d)"
+    },
+    "unmapped": {
+      "heading": "Unmapped Vendors",
+      "description": "Vendors whose city did not match the registry. Assign or create new cities.",
+      "noVendors": "All vendors are mapped to the registry."
+    },
+    "cityDetail": {
+      "heading": "City Details",
+      "backToNetwork": "Back to Network",
+      "densityTable": {
+        "heading": "Category Density",
+        "category": "Category",
+        "approved": "Approved",
+        "total": "Total",
+        "target": "Target",
+        "gap": "Gap",
+        "atTarget": "At target",
+        "needMore": "Needs {{count}} more"
+      },
+      "stats": {
+        "bookings": "Bookings (90 days)",
+        "revenue": "Revenue (90 days)",
+        "coverage": "Coverage %"
+      },
+      "editForm": {
+        "heading": "Edit City",
+        "status": "Status",
+        "statusActive": "Active (Launched)",
+        "statusExpansion": "Expansion (Recruiting)",
+        "statusPlanned": "Planned (No recruiting)",
+        "targetVendors": "Target vendors per category",
+        "displayOrder": "Display order",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "City updated successfully",
+        "error": "Failed to update city"
+      }
+    },
+    "empty": {
+      "heading": "No cities found",
+      "description": "Create your first city to begin managing the vendor network."
+    },
+    "error": {
+      "heading": "Error loading cities",
+      "description": "Unable to fetch city network data. Please try again."
+    }
+  }
+}
