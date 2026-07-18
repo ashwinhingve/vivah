@@ -358,7 +358,7 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 - [ ] EAS Build CI/CD
 - [ ] Apple App Store submission
 - [ ] Google Play Store submission
-- [ ] NRI & international matching (country filters, time zone scheduling)
+- [x] NRI & international matching (country filters, time zone scheduling) — Sprint G (7.2, migration 0034) · behind `NRI_MATCHING_LIVE` (OFF until launch validation)
 - [x] Virtual Date System (durable scheduling, T-24h/T-15m reminders, curated icebreakers, post-date feedback) — Sprint F (7.3) · AI activities / WebGL deferred
 - [x] Advanced Churn Recovery (Stay Quotient daily sweep → win-back attempts, `RETENTION_OUTREACH_LIVE` DRY_RUN default) — Sprint F (7.3)
 - [ ] Production deployment — Phase 7 live 🚀
@@ -367,12 +367,26 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 
 ## 🟡 PHASE 8 — National Platform (Expansion Month 6)
 
-- [ ] Destination Wedding Module (premium packages, multi-city coordination)
+- [x] Destination Wedding Module — **planning core (Sprint I, Unit 8.1, migration
+      0036).** Multi-city "legs" (`wedding_destinations`) with country/timezone/
+      date window, ceremonies attachable per leg, and per-leg guest travel
+      (`guest_travel_legs`). API at `/api/v1/weddings/:weddingId/destinations`,
+      UI at `/weddings/[id]/destinations` (list · detail · new · edit), sidebar
+      entry in Planning, en+hi.
+      **Premium packages / destination supply deliberately NOT built** — Tier 3,
+      blocked on venue + vendor partnerships (see PHASE-5-8-ROADMAP.md §4).
+      Full DoD met: type-check --force green; api 1174 tests (+43), mutation-
+      checked; migration applied twice (idempotent) with all four DB invariants
+      exercised on real rows; authenticated HTTP E2E 21/21 + data-path E2E 10/10;
+      browser-verified as a real QA login at 375px and 1440px in en and hi.
 - [ ] Post-marriage services (honeymoon, anniversary, referral pathways)
-- [ ] National auto-scaling infrastructure
+- [x] National auto-scaling infrastructure — Sprint H (8.3, migration 0035): scale indexes,
+      k6 suite, `/metrics` histogram, circuit breakers, queue concurrency, `/ready` timeouts
+      (k6 baseline + SLO calibration pending staging/traffic)
 - [ ] Government integration readiness
-- [ ] PDF reporting (vendors, couples, admin)
-- [ ] Project handover documentation
+- [x] PDF reporting (vendors, couples, admin) — Sprint H (`/api/v1/reports`, `lib/pdf/`)
+- [x] Project handover documentation — Sprint H (`docs/handover/` — HANDOVER-INDEX,
+      SCALING-PLAYBOOK, INDEX-PLAN, SLO-AND-ALERTING, ENV-MATRIX)
 - [ ] Production deployment — Phase 8 complete 🎉
 - [x] UI Polish Sprint 2 (2026-07-18, branch `ui-polish-2/2026-07`) — all Phase 5–8 feature pages
       brought to design-system standard (PageHeader/EmptyState/motion/tokens/boundaries + full
