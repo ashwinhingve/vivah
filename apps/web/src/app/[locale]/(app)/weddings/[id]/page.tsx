@@ -296,7 +296,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
               return (
                 <div
                   key={c.id}
-                  className="min-w-[200px] max-w-[220px] shrink-0 rounded-xl border border-gold/20 bg-surface p-4 shadow-card"
+                  className="min-w-[200px] max-w-[220px] shrink-0 rounded-2xl border border-gold/20 bg-surface p-4 shadow-card"
                 >
                   <span
                     className={`mb-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClass}`}

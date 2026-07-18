@@ -11,7 +11,7 @@ export default async function PaymentSuccessPage({
   const params = await searchParams;
   return (
     <main className="mx-auto max-w-xl px-4 py-12">
-      <div className="rounded-xl border border-success/30 bg-success/10 p-8 text-center shadow-sm">
+      <div className="rounded-2xl border border-success/30 bg-success/10 p-8 text-center shadow-card">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success text-white">
           <CheckCircle className="h-8 w-8" aria-hidden="true" />
         </div>

@@ -55,7 +55,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         </div>
 
         {overBudget && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-4 mb-6 flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
             <div>
               <p className="font-semibold text-destructive">Over budget</p>
@@ -65,7 +65,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         )}
 
         {/* By category */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+        <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5 mb-6">
           <h2 className="font-semibold text-primary mb-3">By category</h2>
           <div className="space-y-2">
             {(summary?.byCategory ?? []).length === 0 && (
@@ -97,7 +97,7 @@ export default async function ExpensesPage({ params }: PageProps) {
 
         {/* Upcoming due */}
         {(summary?.upcomingDue ?? []).length > 0 && (
-          <div className="bg-surface border border-warning/30 rounded-xl shadow-sm p-5 mb-6">
+          <div className="bg-surface border border-warning/30 rounded-2xl shadow-card p-5 mb-6">
             <h2 className="font-semibold text-warning mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" /> Upcoming payments
             </h2>
@@ -116,7 +116,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         )}
 
         {/* Expenses table */}
-        <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div className="bg-surface border border-gold/20 rounded-2xl shadow-card overflow-hidden mb-6">
           <div className="flex items-center justify-between px-5 py-3 border-b border-gold/10">
             <h2 className="font-semibold text-primary">All expenses ({expenses.length})</h2>
           </div>
@@ -160,7 +160,7 @@ export default async function ExpensesPage({ params }: PageProps) {
                       {e.status !== 'PAID' && e.status !== 'CANCELLED' && (
                         <details className="relative">
                           <summary className="text-xs font-medium text-teal hover:underline cursor-pointer list-none">Pay</summary>
-                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-lg">
+                          <form action={recordPaymentAction.bind(null, id, e.id)} className="absolute right-0 mt-1 z-10 w-56 rounded-lg border border-gold/30 bg-surface p-3 space-y-2 shadow-card-hover">
                             <input name="amount" type="number" min="1" step="1" placeholder={`Up to ${e.amount - e.paid}`} className="w-full rounded border border-gold/30 px-2 py-1 text-xs" required />
                             <button type="submit" className="w-full rounded-lg bg-teal text-white text-xs min-h-[44px] py-1.5">Record</button>
                           </form>
@@ -178,7 +178,7 @@ export default async function ExpensesPage({ params }: PageProps) {
         </div>
 
         {/* Add expense */}
-        <details className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5 mb-6">
+        <details className="bg-surface border border-gold/20 rounded-2xl shadow-card p-5 mb-6">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-primary list-none">
             <Plus className="h-4 w-4" /> Add expense
           </summary>
@@ -206,7 +206,7 @@ export default async function ExpensesPage({ params }: PageProps) {
 function SummaryCard({ label, value, success, warning }: { label: string; value: string; success?: boolean; warning?: boolean }) {
   const color = success ? 'text-teal' : warning ? 'text-warning' : 'text-primary';
   return (
-    <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 text-center">
+    <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4 text-center">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className={`font-semibold text-base ${color}`}>{value}</p>
     </div>
