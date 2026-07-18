@@ -176,8 +176,24 @@ SPRINT D  ✅ SHIPPED (solo sequential, mocked/flagged) — migration 0032
              (6.2), IRDAI aggregator (6.3). Register BSP / gather partner terms (Colonel session).
 
 ── Phase 7 begins only after launch validation ──
-SPRINT E  ── 7.1 Mobile scaffold (internal team-split, weeks of real work)
-             + 7.2 NRI ⇉ / 7.3 Virtual Date ⇉ in later sprints.
+SPRINT E  ✅ SHIPPED — 7.1 Mobile scaffold (Expo SDK 57, phone-OTP cookie auth, ~5 screens).
+
+SPRINT F  ✅ SHIPPED (solo sequential, migration 0033) — Unit 7.3 Virtual Date System + Churn Recovery.
+          ── Phase 0: virtual_dates + retention_campaigns schema + shared types. Committed.
+          ── Track A (Virtual Date System): durable layer over the ephemeral Daily.co/Redis
+             meeting flow — status lifecycle, T-24h/T-15m reminders (the reminder that never
+             fired before), curated icebreakers (no LLM), per-side post-date feedback → COMPLETED.
+          ── Track B (Churn Recovery): retention_campaigns + daily sweep (convert → expire →
+             score at-risk → open attempt per high/critical user). Gated by RETENTION_OUTREACH_LIVE:
+             OFF (default) stores DRY_RUN attempts, messages no one (safe pre-launch). Admin
+             /admin/retention view (KPIs + attempts).
+          ── Phase 2: mounted /api/v1/admin/retention + /video/{dates,icebreakers}; sweep worker
+             registered (live mode). Verified: type-check --force 9/9; api 993 green (+19); full
+             authenticated date lifecycle E2E (schedule→confirm→feedback×2→COMPLETED). Browser
+             render (375/1440) pending — Chrome extension not connected in this env.
+          ── STILL DEFERRED: 7.2 NRI ⇉, mobile feature parity, AI date-activities/WebGL.
+
+(7.2 NRI / mobile feature parity in later sprints.)
 
 (6.4 / 6.5 / Phase 8 Tier-3 units stay mocked until their blockers clear.)
 ```
