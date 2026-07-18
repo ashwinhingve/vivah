@@ -81,6 +81,16 @@ export const envSchema = z.object({
   // sides have opted in. Unit 7.2 is Tier 2 — go-live gated, not partner-blocked.
   NRI_MATCHING_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // ── Phase 8 Sprint H — PDF report kill-switch (Unit 8.3) ──
+  // Deliberately NOT named *_LIVE and defaults to TRUE, inverting the mock-matrix
+  // convention above, because the semantics are the opposite: reports call no
+  // external provider and carry no go-live risk, so there is nothing to keep
+  // mocked. This exists purely as a load-shedding lever — report rendering is
+  // synchronous, CPU-heavy PDFKit work on the API process, so ops needs a way to
+  // shed it under pressure without shipping a deploy. Set 'false' to make the
+  // report endpoints return 503 while leaving the rest of the API untouched.
+  REPORTS_ENABLED: z.string().default('true').transform(v => v !== 'false'),
+
   // WhatsApp Cloud API creds — only required when WHATSAPP_LIVE=true.
   WHATSAPP_API_KEY:            z.string().default(''),
   WHATSAPP_PHONE_NUMBER_ID:    z.string().default(''),
@@ -479,3 +489,13 @@ export const shouldSendRetentionOutreach =
  * feature untestable in the very mock mode the whole dev environment runs in.
  */
 export const isNriMatchingLive = env.NRI_MATCHING_LIVE;
+
+/**
+ * PDF report kill-switch (Phase 8 Sprint H, Unit 8.3). TRUE by default — reports
+ * are an authenticated, role-gated read over data the analytics layer already
+ * computes, so there is no provider to mock and no launch blocker to gate on.
+ *
+ * Flip to FALSE only to shed the synchronous PDFKit render load in an incident;
+ * the report endpoints then return 503 and nothing else is affected.
+ */
+export const areReportsEnabled = env.REPORTS_ENABLED;

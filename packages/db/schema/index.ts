@@ -943,6 +943,11 @@ export const bookings = pgTable('bookings', {
   statusIdx:    index('booking_status_idx').on(t.status),
   weddingIdx:   index('booking_wedding_idx').on(t.weddingId),
   ceremonyIdx:  index('booking_ceremony_idx').on(t.ceremonyId),
+  // Per-vendor revenue rollup (analytics getVendorRevenueSeries): vendor_id equality
+  // + event_date range + status IN (...). booking_vendor_idx alone left the range and
+  // status as a heap recheck.
+  vendorDateStatusIdx: index('bookings_vendor_date_status_idx')
+    .on(t.vendorId, t.eventDate, t.status),
   // Defence-in-depth against booking double-book race: at most one active
   // (PENDING / CONFIRMED) booking per vendor per date. Application-layer
   // conflict check still runs first for clean errors; this catches the
@@ -983,6 +988,9 @@ export const payments = pgTable('payments', {
 }, (t) => ({
   bookingIdx: index('payment_booking_idx').on(t.bookingId),
   statusIdx:  index('payment_status_idx').on(t.status),
+  // Monthly revenue rollup (analytics getRevenueSeries): status IN (...) + created_at
+  // range. Without this the rollup seq-scans — there was no created_at index at all.
+  statusCreatedIdx: index('payments_status_created_idx').on(t.status, t.createdAt),
 }));
 
 export const escrowAccounts = pgTable('escrow_accounts', {
