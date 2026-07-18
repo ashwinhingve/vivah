@@ -1,0 +1,62 @@
+{
+  "servicesLending": {
+    "metadata": {
+      "title": "Wedding Financing"
+    },
+    "heading": "Wedding financing",
+    "subtitle": "Compare loan offers from RBI-regulated lenders for your wedding plans.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Wedding financing is shown for preview only and is not available until our RBI-compliant lending partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi is a Loan Service Provider (LSP), not the lender.",
+      "description": "We only surface offers from RBI-regulated lenders. Loans are provided by the lender named on each offer.",
+      "detail": "Funds are disbursed directly to your bank account and repayments go directly to the lender. Smart Shaadi never handles your money."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our lending partner is live you'll be referred with a Key Fact Statement before any agreement.",
+    "noOffers": "No offers to show right now.",
+    "selectOffer": "Select {name}",
+    "tenure": "Tenure",
+    "apr": "APR",
+    "monthly": "Monthly",
+    "viewKfs": "View Key Fact Statement (KFS)",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected lender. I understand Smart Shaadi is an LSP, earns a referral fee from the lender, and never collects interest or handles my money.",
+    "continue": "Continue",
+    "saving": "Saving…"
+  },
+  "servicesInsurance": {
+    "metadata": {
+      "title": "Insurance for Your Big Day"
+    },
+    "heading": "Insurance for your big day",
+    "subtitle": "Compare cover from IRDAI-registered insurers — health, life, travel, and wedding-event protection.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Insurance is shown for preview only and is not available until our IRDAI-compliant partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi refers you to IRDAI-registered insurers.",
+      "description": "Cover is provided by the insurer named on each quote — Smart Shaadi is not the insurer and earns a referral fee, never your premium.",
+      "detail": "We lead with standard health cover; life, travel, and wedding-event protection are also available."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our insurance partner is live you'll be referred to the insurer with full policy disclosures.",
+    "noQuotes": "No quotes to show right now.",
+    "selectQuote": "Select {name}",
+    "cover": "Cover",
+    "premium": "Premium",
+    "insurerGrievance": "Insurer grievance & redressal",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected insurer. I understand Smart Shaadi is a referrer, earns a referral fee, and does not collect my premium.",
+    "continue": "Continue",
+    "saving": "Saving…",
+    "skuLabels": {
+      "HEALTH": "Health",
+      "LIFE": "Life",
+      "TRAVEL": "Travel",
+      "WEDDING": "Wedding event"
+    },
+    "recommendedBadge": "Recommended"
+  }
+}
