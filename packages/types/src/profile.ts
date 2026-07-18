@@ -1,5 +1,7 @@
 // packages/types/src/profile.ts
 
+import type { NriSection } from './nri.js';
+
 export type Rashi =
   | 'MESH' | 'VRISHABHA' | 'MITHUN' | 'KARK' | 'SINGH' | 'KANYA'
   | 'TULA' | 'VRISHCHIK' | 'DHANU' | 'MAKAR' | 'KUMBH' | 'MEEN'
@@ -313,6 +315,19 @@ export interface PartnerPreferencesSection {
   maxDistanceKm?: number;
   mustHave?: MustHaveFlags;
   personalityIdeal?: PersonalityIdeal;
+  // ── Phase 7 Sprint G (Unit 7.2) — NRI / international ──────────────────────
+  /**
+   * Bilateral opt-in for cross-border matching. The distance hard-filter is only
+   * bypassed when BOTH sides set this AND the two profiles are in different
+   * countries — so setting it never changes a domestic feed.
+   * Mirrored onto profiles.open_to_nri_matching in Postgres for filter speed.
+   */
+  openToNriMatching?: boolean;
+  /**
+   * ISO 3166-1 alpha-2 codes the user would consider. SOFT signal — it re-ranks
+   * rather than blocks, so a narrow list can never empty someone's feed.
+   */
+  preferredCountries?: string[];
 }
 
 export interface ProfileSectionCompletion {
@@ -354,6 +369,8 @@ export interface ProfileDetailResponse extends ProfileMetaResponse {
   lifestyle?: LifestyleSection;
   horoscope?: HoroscopeSection;
   partnerPreferences?: PartnerPreferencesSection;
+  /** Phase 7 Sprint G — descriptive NRI detail stored in Mongo (never queried). */
+  nri?: NriSection;
   aboutMe?: string;
   sectionCompletion?: ProfileSectionCompletion;
 }
@@ -369,6 +386,8 @@ export interface ProfileContentResponse {
   lifestyle?: LifestyleSection;
   horoscope?: HoroscopeSection;
   partnerPreferences?: PartnerPreferencesSection;
+  /** Phase 7 Sprint G — descriptive NRI detail stored in Mongo (never queried). */
+  nri?: NriSection;
   safetyMode?: SafetyModeSection;
   aboutMe?: string;
   partnerDescription?: string;

@@ -28,3 +28,5 @@ export * from './gap.js';
 export * from './finance-referral.js';
 export * from './virtual-date.js';
 export * from './retention.js';
+// ── Phase 7 Sprint G (Unit 7.2) — NRI / international matching ───────────────
+export * from './nri.js';

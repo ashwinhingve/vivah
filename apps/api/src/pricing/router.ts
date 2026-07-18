@@ -91,7 +91,9 @@ pricingRouter.get('/rules', authenticate, async (req: Request, res: Response) =>
   }
   try {
     const rules = await listPricingRules(profileId);
-    ok(res, { rules: rules.map(serializePricingRule), count: rules.length });
+    // Wrapped, not point-free: serializePricingRule takes a second parameter, so
+    // `.map(serializePricingRule)` would pass the array index into it.
+    ok(res, { rules: rules.map((r) => serializePricingRule(r)), count: rules.length });
   } catch (e) {
     handlePricingError(res, e);
   }

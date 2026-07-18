@@ -14,6 +14,9 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 import { user } from './auth';
+// Leaf module (imports only drizzle) — safe to read in this file's body, unlike
+// anything from './phase5', which sits on the other side of an ES module cycle.
+import { moneyCurrencyEnum } from './sharedEnums';
 
 // ── ENUMS ────────────────────────────────────────────────────────────────────
 
@@ -465,6 +468,21 @@ export const nakshatraEnum = pgEnum('nakshatra', [
 
 export const manglikStatusEnum = pgEnum('manglik_status', ['YES','NO','PARTIAL']);
 
+// ── Phase 7 Sprint G (Unit 7.2) — NRI / international matching ───────────────
+//
+// Immigration status of the profile in its country of residence. Deliberately
+// coarse: this is a matching signal, never a KYC/legal record, and we store no
+// visa numbers or documents (CLAUDE.md — no raw KYC data). Free-text detail
+// (visa specifics, relocation timeline) lives in Mongo ProfileContent.nri.
+export const residencyStatusEnum = pgEnum('residency_status', [
+  'CITIZEN',        // citizen of the country they live in
+  'PERM_RESIDENT',  // green card / PR / OCI-equivalent
+  'WORK_VISA',      // H-1B, Tier 2, work permit
+  'STUDENT_VISA',
+  'DEPENDENT_VISA', // spouse/family-dependent status
+  'OTHER',
+]);
+
 // ── TABLES ───────────────────────────────────────────────────────────────────
 
 // ── Auth — managed by Better Auth (see schema/auth.ts) ───────────────────────
@@ -498,10 +516,32 @@ export const profiles = pgTable('profiles', {
   // Forward infra for embedding-based matching; HNSW cosine index added by hand in 0029.
   aiEmbedding:              vector('ai_embedding', { dimensions: 768 }),
   embeddingUpdatedAt:       timestamp('embedding_updated_at'),
+
+  // ── NRI / international (Phase 7 Sprint G, Unit 7.2) ───────────────────────
+  //
+  // These live in Postgres — not Mongo — because the matchmaking hard-filter
+  // chain and the NRI search facets read them on every feed build. Descriptive
+  // free text (visa details, relocation timeline) stays in Mongo ProfileContent.
+  //
+  // Every default reproduces today's behaviour exactly (domestic Indian profile,
+  // not opted in), so backfilling existing rows changes no match result.
+  countryOfResidence: varchar('country_of_residence', { length: 2 }).default('IN').notNull(), // ISO 3166-1 alpha-2
+  citizenship:        varchar('citizenship', { length: 2 }),          // may differ from residence; null = unstated
+  residencyStatus:    residencyStatusEnum('residency_status'),        // null until the user fills it
+  willingToRelocate:  boolean('willing_to_relocate').default(false).notNull(),
+  // Bilateral opt-in. BOTH sides must be true before the distance hard-filter is
+  // bypassed for a cross-border pair — see passesDistanceFilter in
+  // apps/api/src/matchmaking/filters.ts. Opting in never widens a domestic feed.
+  openToNriMatching:  boolean('open_to_nri_matching').default(false).notNull(),
+  ianaTimezone:       varchar('iana_timezone', { length: 64 }),        // e.g. 'America/Toronto'; null → inferred from country
+  displayCurrency:    moneyCurrencyEnum('display_currency').default('INR').notNull(), // presentation only, never converts value
 }, (t) => ({
   userIdx: index('profiles_user_idx').on(t.userId),
   statusIdx: index('profiles_status_idx').on(t.verificationStatus),
   latLngIdx: index('profiles_lat_lng_idx').on(t.latitude, t.longitude),
+  // Compound: the NRI search facet filters opt-in first, then narrows by country.
+  nriFilterIdx: index('profiles_nri_filter_idx').on(t.openToNriMatching, t.countryOfResidence),
+  timezoneIdx: index('profiles_timezone_idx').on(t.ianaTimezone),
 }));
 
 export const profilePhotos = pgTable('profile_photos', {
@@ -1565,8 +1605,8 @@ export {
 } from './weddingInvites';
 
 // ── Phase 5 (Tier 0) — VUE · Calendar · Pricing · B2B · Contracts ────────────
+export { moneyCurrencyEnum } from './sharedEnums';
 export {
-  moneyCurrencyEnum,
   capacityStatusEnum, vendorCapacity,
   pricingRuleStatusEnum, pricingRules,
   calendarEventKindEnum, auspiciousBandEnum, calendarEvents,

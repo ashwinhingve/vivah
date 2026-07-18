@@ -70,6 +70,10 @@ interface ProfileRow {
   premiumTier?: 'FREE' | 'STANDARD' | 'PREMIUM'
   latitude?:    number | string | null
   longitude?:   number | string | null
+  // Phase 7 Sprint G (Unit 7.2) — NRI columns off `profiles`.
+  countryOfResidence?: string | null
+  openToNriMatching?:  boolean | null
+  ianaTimezone?:       string | null
   personality?: PersonalityProfile | null
   personal?:    {
     fullName?:     string | null
@@ -113,6 +117,9 @@ interface ProfileRow {
     personalityIdeal?: PersonalityIdeal | null
     maritalStatus?:   MaritalStatus[] | null
     partnerGender?:   Array<'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'> | null
+    // Phase 7 Sprint G (Unit 7.2) — Mongo-side NRI preferences.
+    openToNriMatching?: boolean | null
+    preferredCountries?: string[] | null
   } | null
   horoscope?: {
     manglik?: 'YES' | 'NO' | 'PARTIAL' | null
@@ -301,6 +308,12 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
     premiumTier:  row.premiumTier ?? 'FREE',
     latitude:     Number.isFinite(lat as number) ? lat : null,
     longitude:    Number.isFinite(lng as number) ? lng : null,
+    // Phase 7 Sprint G (Unit 7.2). country_of_residence is NOT NULL in the DB,
+    // but a partial test fixture may omit it — `?? null` keeps that safe, and a
+    // null country simply never qualifies as cross-border.
+    countryOfResidence: row.countryOfResidence ?? null,
+    openToNriMatching:  row.openToNriMatching ?? null,
+    ianaTimezone:       row.ianaTimezone ?? null,
     personality:  row.personality ?? null,
     preferences: {
       ageMin:          prefAgeMin,
@@ -318,6 +331,14 @@ export function rowToProfileData(row: ProfileRow): ProfileData {
       mustHave:        row.partnerPreferences?.mustHave ?? {},
       personalityIdeal: row.partnerPreferences?.personalityIdeal ?? {},
       ...(row.partnerPreferences?.partnerGender ? { partnerGender: row.partnerPreferences.partnerGender } : {}),
+      // Phase 7 Sprint G (Unit 7.2) — Mongo-side fallback for the opt-in, plus
+      // the soft country list the scorer may later re-rank on.
+      ...(row.partnerPreferences?.openToNriMatching != null
+        ? { openToNriMatching: row.partnerPreferences.openToNriMatching }
+        : {}),
+      ...(row.partnerPreferences?.preferredCountries
+        ? { preferredCountries: row.partnerPreferences.preferredCountries }
+        : {}),
     },
   };
 }
@@ -345,6 +366,10 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
     maritalStatus:            p.maritalStatus ?? null,
     preferredMaritalStatuses: p.preferredMaritalStatuses ?? null,
     divorceeSupport:          p.divorceeSupport ?? false,
+    // Phase 7 Sprint G (Unit 7.2) — carry the NRI signals into the filter layer.
+    countryOfResidence: p.countryOfResidence ?? null,
+    openToNriMatching:  p.openToNriMatching ?? null,
+    ianaTimezone:       p.ianaTimezone ?? null,
     preferences: {
       ageMin:          p.preferences.ageMin,
       ageMax:          p.preferences.ageMax,
@@ -361,6 +386,12 @@ function toFilterProfile(p: ProfileData): ProfileWithPreferences {
       ...(p.preferences.manglik          ? { manglik: p.preferences.manglik } : {}),
       ...(p.preferences.openToInterCaste !== undefined ? { openToInterCaste: p.preferences.openToInterCaste } : {}),
       ...(p.preferences.partnerGender ? { partnerGender: p.preferences.partnerGender } : {}),
+      ...(p.preferences.openToNriMatching !== undefined
+        ? { openToNriMatching: p.preferences.openToNriMatching }
+        : {}),
+      ...(p.preferences.preferredCountries
+        ? { preferredCountries: p.preferences.preferredCountries }
+        : {}),
     },
   };
 }

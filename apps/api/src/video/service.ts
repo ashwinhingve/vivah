@@ -3,6 +3,8 @@
  *
  * Rule 12: always resolve userId → profileId before touching matchRequests
  * (which references profiles.id, not users.id).
+ *
+ * Phase 7 Sprint G (Unit 7.2): timezone-aware scheduling for NRI pairs.
  */
 
 import { db }              from '../lib/db.js';
@@ -15,6 +17,7 @@ import { queueNotification, queueDelayedNotification } from '../infrastructure/r
 import { profiles, matchRequests, virtualDates } from '@smartshaadi/db';
 import { eq, or, and, desc } from 'drizzle-orm';
 import { isValidIcebreakerKey } from './icebreakers.js';
+import { resolveTimezone, formatInZone, overlapHours } from '../lib/timezone.js';
 import {
   type VideoRoom, type MeetingSchedule, type ProfileId,
   type VirtualDate,
@@ -27,7 +30,9 @@ import type {
 } from '@smartshaadi/schemas';
 
 // Reminders fire this long before a confirmed date's scheduled start.
-const REMINDER_OFFSETS_MS = [24 * 60 * 60 * 1000, 15 * 60 * 1000] as const;
+/** T-15m — the "starting now" alert. Never suppressed; see scheduleDateReminders. */
+const IMMINENT_REMINDER_OFFSET_MS = 15 * 60 * 1000;
+const REMINDER_OFFSETS_MS = [24 * 60 * 60 * 1000, IMMINENT_REMINDER_OFFSET_MS] as const;
 
 // ── Typed service error ───────────────────────────────────────────────────────
 
@@ -109,6 +114,42 @@ async function assertParticipant(
   return match;
 }
 
+/**
+ * Resolve both match participants' profiles (with timezone data).
+ * Returns [proposer profile, receiver profile], or throws 404 if match invalid.
+ */
+async function resolveMatchParticipantProfiles(
+  matchId: string,
+): Promise<Array<{ id: string; ianaTimezone: string | null; countryOfResidence: string }>> {
+  const matchRows = await db
+    .select({ senderId: matchRequests.senderId, receiverId: matchRequests.receiverId })
+    .from(matchRequests)
+    .where(eq(matchRequests.id, matchId))
+    .limit(1);
+
+  const match = matchRows[0];
+  if (!match) throw makeError('NOT_FOUND', 'Match not found', 404);
+
+  const profileRows = await db
+    .select({
+      id: profiles.id,
+      ianaTimezone: profiles.ianaTimezone,
+      countryOfResidence: profiles.countryOfResidence,
+    })
+    .from(profiles)
+    .where(or(eq(profiles.id, match.senderId), eq(profiles.id, match.receiverId)));
+
+  const profileMap = new Map(profileRows.map(p => [p.id, p]));
+  const proposer = profileMap.get(match.senderId);
+  const receiver = profileMap.get(match.receiverId);
+
+  if (!proposer || !receiver) {
+    throw makeError('NOT_FOUND', 'Could not resolve all participants', 404);
+  }
+
+  return [proposer, receiver];
+}
+
 /** Append a SYSTEM message to the MongoDB Chat for a match.
  *
  * Rule 11 compliance: in mock mode the Chat model is not connected.
@@ -177,7 +218,96 @@ function toVirtualDate(row: VirtualDateRow): VirtualDate {
   };
 }
 
-/** Schedule MEETING_REMINDER notifications (T-24h, T-15m) for both participants. */
+/**
+ * Enhanced MeetingSchedule with timezone metadata and scheduling hints.
+ * This wraps the base MeetingSchedule with additional NRI-aware fields.
+ */
+export interface MeetingScheduleWithTimezone {
+  // Base fields (from MeetingSchedule)
+  id:          string;
+  matchId:     string;
+  proposedBy:  string;
+  scheduledAt: string;
+  durationMin: number;
+  roomUrl:     string | null;
+  status:      'PROPOSED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  notes:       string | null;
+
+  // Timezone enhancements (Phase 7 Sprint G, Unit 7.2)
+  proposerTz?:        string;      // Proposer's IANA timezone
+  inviteeTz?:         string;      // Invitee's IANA timezone
+  proposerLocal?:     string;      // Proposer's local rendering (e.g., "3/15/2026, 20:30:00")
+  inviteeLocal?:      string;      // Invitee's local rendering
+  overlapWindow?:     {            // Civil-hours overlap for this pair
+    startUtc: string;              // ISO-8601 UTC
+    endUtc:   string;              // ISO-8601 UTC
+    label:    string;              // Human-readable (e.g. "13:00–16:30 UTC")
+  } | null;
+}
+
+/**
+ * Enrich a MeetingSchedule with timezone and overlap metadata.
+ * Best-effort: if profile lookup or timezone resolution fails, returns base meeting without enrichment.
+ */
+async function enrichMeetingWithTimezone(
+  meeting: MeetingSchedule,
+  matchId: string,
+): Promise<MeetingScheduleWithTimezone> {
+  const enriched: MeetingScheduleWithTimezone = { ...meeting };
+
+  try {
+    const profiles = await resolveMatchParticipantProfiles(matchId);
+    if (profiles.length < 2) return enriched;
+
+    const proposerProfile = profiles[0];
+    const inviteeProfile = profiles[1];
+
+    if (!proposerProfile || !inviteeProfile) {
+      return enriched;
+    }
+
+    const proposerTz = resolveTimezone({
+      ianaTimezone: proposerProfile.ianaTimezone,
+      countryOfResidence: proposerProfile.countryOfResidence,
+    });
+    const inviteeTz = resolveTimezone({
+      ianaTimezone: inviteeProfile.ianaTimezone,
+      countryOfResidence: inviteeProfile.countryOfResidence,
+    });
+
+    enriched.proposerTz = proposerTz;
+    enriched.inviteeTz = inviteeTz;
+
+    // Render the scheduled time in each participant's timezone
+    const scheduledDate = new Date(meeting.scheduledAt);
+    const proposerLocal = formatInZone(scheduledDate, proposerTz);
+    const inviteeLocal = formatInZone(scheduledDate, inviteeTz);
+    if (proposerLocal) enriched.proposerLocal = proposerLocal;
+    if (inviteeLocal) enriched.inviteeLocal = inviteeLocal;
+
+    // Compute civil-hours overlap window as a scheduling hint
+    const overlap = overlapHours(proposerTz, inviteeTz);
+    if (overlap) {
+      enriched.overlapWindow = {
+        startUtc: overlap.startUtc.toISOString(),
+        endUtc:   overlap.endUtc.toISOString(),
+        label:    overlap.label,
+      };
+    }
+  } catch {
+    // Non-fatal enrichment failure — return base meeting
+  }
+
+  return enriched;
+}
+
+/**
+ * Schedule timezone-aware MEETING_REMINDER notifications (T-24h, T-15m) for both participants.
+ *
+ * Each participant gets reminders at times that are reasonable in their local timezone
+ * (08:00–22:00). If a reminder would fire outside civil hours, it's skipped (non-fatal
+ * enhancement — the meeting itself proceeds).
+ */
 async function scheduleDateReminders(
   matchId: string,
   meetingId: string,
@@ -186,16 +316,90 @@ async function scheduleDateReminders(
 ): Promise<void> {
   const startMs = new Date(scheduledAt).getTime();
   const nowMs   = Date.now();
+
+  let profiles: Array<{ id: string; ianaTimezone: string | null; countryOfResidence: string }> = [];
+  try {
+    profiles = await resolveMatchParticipantProfiles(matchId);
+  } catch {
+    // Fall back to simple (non-timezone-aware) scheduling if profile lookup fails.
+    // The match may have been deleted; reminders are best-effort anyway.
+    for (const userId of userIds) {
+      if (!userId) continue;
+      for (const offset of REMINDER_OFFSETS_MS) {
+        const delay = startMs - offset - nowMs;
+        await queueDelayedNotification(
+          { userId, type: 'MEETING_REMINDER', payload: { matchId, meetingId, scheduledAt } },
+          delay,
+          `vd-remind-${offset}-${meetingId}-${userId}`,
+        ).catch(() => {
+          // Non-fatal
+        });
+      }
+    }
+    return;
+  }
+
+  // Map profileId → timezone for each user
+  const userIdToTimezone = new Map<string | null, string>();
+  for (const profile of profiles) {
+    const tz = resolveTimezone({
+      ianaTimezone: profile.ianaTimezone,
+      countryOfResidence: profile.countryOfResidence,
+    });
+    // Best-effort: resolve profileId → userId for this user
+    const userIdForProfile = await resolveUserIdFromProfileId(profile.id).catch(() => null);
+    if (userIdForProfile) {
+      userIdToTimezone.set(userIdForProfile, tz);
+    }
+  }
+
+  // For each user, schedule reminders only if they fire during civil hours (08:00–22:00 local)
   for (const userId of userIds) {
     if (!userId) continue;
+    const userTz = userIdToTimezone.get(userId);
+    const tz: string = userTz ?? 'Asia/Kolkata'; // Fallback if lookup fails
+
     for (const offset of REMINDER_OFFSETS_MS) {
+      const reminderUtcDate = new Date(startMs - offset);
+      const reminderLocalStr = formatInZone(reminderUtcDate, tz);
+
+      // Parse local time to check if it's in civil hours (08:00–22:00)
+      let isInCivilHours = true;
+      if (reminderLocalStr) {
+        // reminderLocalStr format: "MM/DD/YYYY, HH:mm:ss" (from formatInZone default)
+        const parts = reminderLocalStr.split(', ');
+        if (parts[1]) {
+          const timeParts = parts[1].split(':');
+          const hourStr = timeParts[0];
+          if (hourStr) {
+            const hour = parseInt(hourStr, 10);
+            isInCivilHours = hour >= 8 && hour < 22;
+          }
+        }
+      }
+
+      // Civil-hours suppression applies ONLY to the far-out T-24h courtesy nudge.
+      //
+      // The T-15m reminder must ALWAYS fire. It is the "your date starts now"
+      // alert, and the user chose that slot deliberately — suppressing it because
+      // 06:45 local looks unsociable means they simply miss their date. That
+      // would also regress the single thing Sprint F set out to fix (the reminder
+      // that never fired), and it would bite hardest on exactly the cross-border
+      // pairs this unit exists to serve: a narrow India<->North America overlap
+      // pushes dates into early-morning and late-night slots by necessity.
+      const isImminentReminder = offset === IMMINENT_REMINDER_OFFSET_MS;
+      if (!isInCivilHours && !isImminentReminder) {
+        continue;
+      }
+
       const delay = startMs - offset - nowMs;
-      // queueDelayedNotification drops non-positive delays (window already passed).
       await queueDelayedNotification(
         { userId, type: 'MEETING_REMINDER', payload: { matchId, meetingId, scheduledAt } },
         delay,
         `vd-remind-${offset}-${meetingId}-${userId}`,
-      );
+      ).catch(() => {
+        // Non-fatal — reminders are an enhancement
+      });
     }
   }
 }
@@ -315,7 +519,7 @@ function calculateMeetingTTL(scheduledAt: string): number {
 export async function scheduleMeeting(
   userId: string,
   input: ScheduleMeetingInput,
-): Promise<MeetingSchedule> {
+): Promise<MeetingScheduleWithTimezone> {
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, input.matchId);
 
@@ -379,7 +583,8 @@ export async function scheduleMeeting(
     });
   }
 
-  return meeting;
+  // Enrich with timezone metadata (Phase 7 Sprint G, Unit 7.2)
+  return enrichMeetingWithTimezone(meeting, input.matchId);
 }
 
 // ── respondMeeting ────────────────────────────────────────────────────────────
@@ -389,7 +594,7 @@ export async function respondMeeting(
   matchId: string,
   meetingId: string,
   input: RespondMeetingInput,
-): Promise<MeetingSchedule> {
+): Promise<MeetingScheduleWithTimezone> {
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, matchId);
 
@@ -448,13 +653,14 @@ export async function respondMeeting(
         payload: { matchId, meetingId, scheduledAt: meeting.scheduledAt },
       }).catch(() => { /* non-fatal */ });
     }
-    // Schedule T-24h / T-15m reminders for BOTH participants. `userId` is the
-    // responder (invitee); proposerUserId resolved above.
+    // Schedule timezone-aware T-24h / T-15m reminders for BOTH participants.
+    // `userId` is the responder (invitee); proposerUserId resolved above.
     await scheduleDateReminders(matchId, meetingId, meeting.scheduledAt, [userId, proposerUserId])
       .catch(() => { /* non-fatal — reminders are an enhancement */ });
   }
 
-  return updated;
+  // Enrich with timezone metadata (Phase 7 Sprint G, Unit 7.2)
+  return enrichMeetingWithTimezone(updated, matchId);
 }
 
 // ── submitDateFeedback ────────────────────────────────────────────────────────
@@ -529,7 +735,7 @@ export async function listVirtualDates(
 export async function getMeetings(
   userId: string,
   matchId: string,
-): Promise<MeetingSchedule[]> {
+): Promise<MeetingScheduleWithTimezone[]> {
   const profileId = await resolveProfileId(userId);
   await assertParticipant(profileId, matchId);
 
@@ -559,5 +765,13 @@ export async function getMeetings(
 
   // Sort ascending by scheduledAt
   meetings.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
-  return meetings;
+
+  // Enrich each meeting with timezone metadata (Phase 7 Sprint G, Unit 7.2)
+  const enriched: MeetingScheduleWithTimezone[] = [];
+  for (const meeting of meetings) {
+    const withTz = await enrichMeetingWithTimezone(meeting, matchId);
+    enriched.push(withTz);
+  }
+
+  return enriched;
 }

@@ -5,6 +5,7 @@
 
 import type { MustHaveFlags } from '@smartshaadi/types';
 import { haversineKm } from '../lib/geocode.js';
+import { isNriMatchingLive } from '../lib/env.js';
 import { passesMaritalStatusFilter, type MaritalStatusValue } from './filters/maritalStatusFilter.js';
 
 export type GenderValue = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER'
@@ -29,6 +30,12 @@ export interface ProfileWithPreferences {
   maritalStatus?: MaritalStatusValue | null
   preferredMaritalStatuses?: MaritalStatusValue[] | null
   divorceeSupport?: boolean
+  // ── Phase 7 Sprint G (Unit 7.2) — NRI / international ──────────────────────
+  // Optional so every existing fixture and caller keeps compiling untouched;
+  // absent is read as "domestic, not opted in", i.e. today's behaviour.
+  countryOfResidence?: string | null
+  openToNriMatching?: boolean | null
+  ianaTimezone?: string | null
   preferences: {
     ageMin: number
     ageMax: number
@@ -45,6 +52,10 @@ export interface ProfileWithPreferences {
     education?: string[]
     diet?: string[]
     partnerGender?: GenderValue[]
+    // ── Phase 7 Sprint G (Unit 7.2) ──
+    openToNriMatching?: boolean
+    /** SOFT signal — re-ranks rather than blocks, so it can't empty a feed. */
+    preferredCountries?: string[]
   }
 }
 
@@ -56,15 +67,24 @@ export interface ProfileWithPreferences {
  *   - false (default platform state): only MALE <-> FEMALE pairs are allowed,
  *     and NON_BINARY/OTHER users are excluded from the gender filter step.
  *   - true: each side's preferredGender list is honored bilaterally.
+ *
+ * `nriMatchingLive` (Phase 7 Sprint G, Unit 7.2) controls the cross-border
+ * escape hatch in passesDistanceFilter. It defaults to the NRI_MATCHING_LIVE env
+ * flag but is INJECTED rather than read inside the filter, for the same reason
+ * `lgbtqEnabled` is: `isNriMatchingLive` is a module-level const resolved at
+ * import time, so a filter that read it directly could not be exercised in both
+ * states by a test. A feature whose "on" path can't be tested is a feature whose
+ * absence a green suite cannot detect.
  */
 export function applyHardFilters(
   userProfile: ProfileWithPreferences,
   candidates: ProfileWithPreferences[],
-  options: { lgbtqEnabled?: boolean } = {},
+  options: { lgbtqEnabled?: boolean; nriMatchingLive?: boolean } = {},
 ): ProfileWithPreferences[] {
   const lgbtqEnabled = options.lgbtqEnabled === true;
+  const nriMatchingLive = options.nriMatchingLive ?? isNriMatchingLive;
   return candidates.filter((candidate) =>
-    passesAllFilters(userProfile, candidate, lgbtqEnabled),
+    passesAllFilters(userProfile, candidate, lgbtqEnabled, nriMatchingLive),
   );
 }
 
@@ -72,12 +92,13 @@ function passesAllFilters(
   user: ProfileWithPreferences,
   candidate: ProfileWithPreferences,
   lgbtqEnabled: boolean,
+  nriMatchingLive: boolean,
 ): boolean {
   return (
     passesGenderFilter(user, candidate, lgbtqEnabled) &&
     passesAgeFilter(user, candidate) &&
     passesReligionFilter(user, candidate) &&
-    passesDistanceFilter(user, candidate) &&
+    passesDistanceFilter(user, candidate, nriMatchingLive) &&
     passesIncomeFilter(user, candidate) &&
     passesEducationFilter(user, candidate) &&
     passesDietFilter(user, candidate) &&
@@ -161,17 +182,74 @@ function passesReligionFilter(
   return user.religion === candidate.religion;
 }
 
+// ── NRI helpers (Phase 7 Sprint G, Unit 7.2) ─────────────────────────────────
+
+/**
+ * True only when both sides state a country AND those countries differ.
+ *
+ * Compared case-insensitively: the API uppercases via CountryCodeSchema, but a
+ * row written before that schema existed (or by a seed/fixture) could hold 'in'.
+ * Treating 'in' and 'IN' as different countries would hand a DOMESTIC pair the
+ * cross-border bypass and silently drop the distance limit for them — the exact
+ * regression this unit must not cause.
+ */
+function isCrossBorder(
+  user: ProfileWithPreferences,
+  candidate: ProfileWithPreferences,
+): boolean {
+  const u = user.countryOfResidence?.trim().toUpperCase() ?? '';
+  const c = candidate.countryOfResidence?.trim().toUpperCase() ?? '';
+  if (!u || !c) return false;   // unknown country → never assume international
+  return u !== c;
+}
+
+/**
+ * The profile column is authoritative (it is what the SQL facets filter on);
+ * the Mongo-backed preference is only a fallback for rows written before the
+ * column existed. Anything other than an explicit `true` means not opted in.
+ */
+function hasOptedIntoNri(p: ProfileWithPreferences): boolean {
+  if (p.openToNriMatching === true)  return true;
+  if (p.openToNriMatching === false) return false;
+  return p.preferences.openToNriMatching === true;
+}
+
 // ── Distance (haversine when coords present, city/state fallback otherwise) ──
 
 function passesDistanceFilter(
   user: ProfileWithPreferences,
   candidate: ProfileWithPreferences,
+  nriMatchingLive: boolean = isNriMatchingLive,
 ): boolean {
   const userMust      = user.preferences.mustHave?.distance      === true;
   const candidateMust = candidate.preferences.mustHave?.distance === true;
   const userMax       = user.preferences.maxDistanceKm      ?? 100;
   const candidateMax  = candidate.preferences.maxDistanceKm ?? 100;
   const limit = Math.min(userMax, candidateMax);
+
+  // ── NRI cross-border escape hatch (Phase 7 Sprint G, Unit 7.2) ─────────────
+  //
+  // Without this, the haversine check below hard-blocks EVERY international
+  // pair: a Pune<->Toronto match is ~12,000km apart against a 100km default, so
+  // cross-border profiles could never surface no matter what either user wanted.
+  //
+  // Four conditions, ALL required:
+  //   1. the feature is switched on,
+  //   2. neither side made distance an explicit hard requirement,
+  //   3. the two profiles are genuinely in DIFFERENT countries,
+  //   4. BOTH sides opted in — this is never one-sided.
+  //
+  // (3) is what makes the whole sprint safe to merge: because the countries must
+  // differ, two domestic profiles who both opt in still get the normal distance
+  // check. No domestic pair's behaviour can change, flag on or off.
+  if (nriMatchingLive && !userMust && !candidateMust &&
+      isCrossBorder(user, candidate) &&
+      hasOptedIntoNri(user) && hasOptedIntoNri(candidate)) {
+    // NOTE: `preferences.preferredCountries` is deliberately NOT consulted here.
+    // It is a SOFT signal for the scorer to re-rank on — enforcing it as a hard
+    // filter would let a user who listed one or two countries empty their own feed.
+    return true;
+  }
 
   const haveCoords =
     typeof user.latitude === 'number' && typeof user.longitude === 'number' &&

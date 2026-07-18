@@ -134,7 +134,7 @@ Every unit also meets the standard DoD (§6). `⇉` = parallel-safe after Phase 
 | # | Unit | Tier | Par | Note | Blocker |
 |---|---|---|---|---|---|
 | 7.1 | **React Native + Expo app** | 2 | (internal team-split, see prompts) | **Weeks of real work — NOT "90% reuse."** Auth is session cookies, not JWT. | Apple Developer + Google Play enrolment |
-| 7.2 | **NRI / international matching** | 2 | ⇉ | Timezone, currency, cross-border profiles. | go-live gated on launch validation |
+| 7.2 | **NRI / international matching** ✅ *shipped (flagged, Sprint G)* | 2 | ⇉ | Timezone, currency, cross-border profiles. Behind `NRI_MATCHING_LIVE` (OFF). | go-live gated on launch validation |
 | 7.3 | **Virtual Date System + churn recovery** | 1/2 | ⇉ | Builds on Daily.co video + churn model. | none |
 
 ### Phase 8 — Destination weddings + national infra + handover
@@ -193,7 +193,42 @@ SPRINT F  ✅ SHIPPED (solo sequential, migration 0033) — Unit 7.3 Virtual Dat
              render (375/1440) pending — Chrome extension not connected in this env.
           ── STILL DEFERRED: 7.2 NRI ⇉, mobile feature parity, AI date-activities/WebGL.
 
-(7.2 NRI / mobile feature parity in later sprints.)
+SPRINT G  ✅ SHIPPED (Phase 0 + 4-track parallel team + Phase 2, migration 0034) — Unit 7.2
+             NRI / International Matching.
+          ── Phase 0: 7 NRI columns on `profiles` + residency_status enum; shared
+             types/schemas (packages/{types,schemas}/src/nri.ts); NRI_MATCHING_LIVE
+             flag (default OFF). Migration applied twice locally to prove idempotency;
+             all existing rows backfill to domestic/not-opted-in. Committed 9159ff1.
+             Also moved moneyCurrencyEnum to a new leaf module schema/sharedEnums.ts —
+             profiles.display_currency needed it in index.ts's table body, which would
+             otherwise have made the index<->phase5 ES module cycle order-dependent
+             (TDZ ReferenceError). Pure code move, no DDL.
+          ── Track A: cross-border escape hatch in passesDistanceFilter — the 100km
+             haversine default was hard-blocking EVERY international pair. Gated on
+             flag + both-opted-in + countries DIFFER + no mustHave.distance. The
+             differing-country condition is what keeps domestic matching identical.
+          ── Track B: lib/timezone.ts on native Intl (no date library). Per-instant
+             offsets so DST is correct; per-participant local rendering; overlap-window
+             hint. FIXED in integration: civil-hours suppression had been dropping the
+             T-15m "starts now" reminder — now applies only to the T-24h nudge.
+          ── Track C: lib/currency.ts, BigInt-only (exact beyond 2^53), en-IN lakh
+             grouping, `Rs.` ASCII variant for PDFs. Display-only — no FX conversion.
+          ── Track D: NRI profile form, browse view, filter chips, country badges, en+hi.
+          ── Phase 2: added GET/PUT /api/v1/profiles/me/nri (Track D was posting to an
+             endpoint that did not exist) + feed-cache bust on opt-in change.
+             type-check --force 9/9; api tests 1067 (+74); web build green.
+          ── PROCESS NOTE: a parallel teammate ran a repo-wide cleanup that deleted two
+             other tracks' files and reverted Track A's tracked edits. It went unnoticed
+             because Track A's tests asserted only failure paths — they stayed green with
+             the feature entirely absent. Re-implemented with the flag INJECTED (not read
+             from a module-level const) so the "on" path is testable; mutation-verified.
+             Lesson for future sprints: a disjoint ownership map does not stop a teammate
+             from running a repo-wide git/rm command, and a suite of negative-only tests
+             cannot tell "correctly inert" from "missing".
+          ── STILL GATED: NRI_MATCHING_LIVE stays OFF until launch validation (Tier 2).
+             Browser render 375/1440 outstanding — Chrome extension not connected.
+
+(Mobile feature parity in later sprints.)
 
 (6.4 / 6.5 / Phase 8 Tier-3 units stay mocked until their blockers clear.)
 ```

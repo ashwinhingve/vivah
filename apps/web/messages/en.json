@@ -587,6 +587,52 @@
       "siblingOccupationPh": "Occupation",
       "married": "Married",
       "remove": "Remove"
+    },
+    "nri": {
+      "metadata": {
+        "title": "International Profile — Smart Shaadi"
+      },
+      "heading": "International Profile",
+      "description": "Set your international presence. Opting in to NRI matching only takes effect when the other person has also opted in — it does not change your domestic matches.",
+      "countryOfResidence": "Country of Residence",
+      "citizenship": "Citizenship",
+      "citizenshipHint": "Where you hold citizenship (optional if same as residence)",
+      "residencyStatus": "Residency Status",
+      "timezone": "Timezone",
+      "timezoneHint": "Automatically detected if not specified",
+      "displayCurrency": "Display Currency",
+      "displayCurrencyHint": "How prices appear on your profile",
+      "willingToRelocate": "Willing to relocate to India",
+      "openToNriMatching": "Open to matching with international profiles",
+      "openToNriMatchingExplainer": "Both you and the other person must opt in before cross-border matches appear. This does not affect domestic matching. This is a matching signal only — it does not change how your profile appears.",
+      "visaDetails": "Visa or Work Status",
+      "visaDetailsHint": "e.g., H-1B, renewal filed (no numbers or documents)",
+      "relocationTimeline": "Relocation Timeline",
+      "relocationTimelineHint": "e.g., Open to moving within 2 years",
+      "yearsAbroad": "Years Living Abroad"
+    }
+  },
+  "nri": {
+    "metadata": {
+      "title": "International Matches — Smart Shaadi"
+    },
+    "heading": "International Matches",
+    "description": "NRI profiles who've opted in to cross-border matching.",
+    "subtitleEmpty": "Start seeing international matches by completing your profile to 40%.",
+    "subtitleCount": "{total} international matches",
+    "subtitleDefault": "Browse profiles living abroad.",
+    "emptyTitle": "No international matches yet",
+    "emptyBody": "There are no active NRI matches in your preferences at the moment. Try refreshing, or adjust your search to find the perfect match.",
+    "errorTitle": "Couldn't load international matches",
+    "errorBody": "Something went wrong",
+    "refreshFeed": "Refresh",
+    "forceRefresh": "Force refresh",
+    "backToFeed": "Back to main feed",
+    "filters": {
+      "options": "Options",
+      "nriOnly": "NRI profiles only",
+      "countries": "Countries",
+      "residencyStatuses": "Residency Status"
     }
   },
   "profileGuide": {

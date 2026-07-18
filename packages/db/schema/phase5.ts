@@ -24,10 +24,14 @@ import {
 import { profiles } from './index';
 
 // ── SHARED ENUMS ─────────────────────────────────────────────────────────────
+//
+// `money_currency` now lives in the leaf module `./sharedEnums` so that
+// schema/index.ts can use it in the `profiles` table body without creating a
+// body-level read across the index↔phase5 ES module cycle (Sprint G). Re-exported
+// here so existing `from './phase5'` imports keep working.
 
-export const moneyCurrencyEnum = pgEnum('money_currency', [
-  'INR', 'USD', 'GBP', 'EUR', 'AED', 'CAD', 'AUD', 'SGD',
-]);
+export { moneyCurrencyEnum } from './sharedEnums';
+import { moneyCurrencyEnum } from './sharedEnums';
 
 // ── VENDOR UTILIZATION ENGINE — capacity windows ─────────────────────────────
 

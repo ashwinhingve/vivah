@@ -22,6 +22,7 @@ import type {
   LifestyleSection,
   HoroscopeSection,
   PartnerPreferencesSection,
+  NriSection,
   SiblingEntry,
   AdditionalDegreeEntry,
 } from '@smartshaadi/types';
@@ -37,7 +38,8 @@ type ContentSection =
   | 'location'
   | 'lifestyle'
   | 'horoscope'
-  | 'partnerPreferences';
+  | 'partnerPreferences'
+  | 'nri';   // Phase 7 Sprint G (Unit 7.2) — descriptive NRI detail
 
 /**
  * Upsert a named section on the ProfileContent document.
@@ -150,6 +152,18 @@ export async function updatePartnerPreferences(
   data: PartnerPreferencesSection,
 ): Promise<ProfileContentResponse> {
   return upsertSection(userId, 'partnerPreferences', data);
+}
+
+/**
+ * Descriptive NRI detail (Phase 7 Sprint G, Unit 7.2). The queryable NRI fields
+ * live in Postgres and are written by nri.service.ts — this section holds only
+ * free text nothing filters on, and never a visa number or document.
+ */
+export async function updateNriSection(
+  userId: string,
+  data: NriSection,
+): Promise<ProfileContentResponse> {
+  return upsertSection(userId, 'nri', data);
 }
 
 export async function updateAboutMe(
