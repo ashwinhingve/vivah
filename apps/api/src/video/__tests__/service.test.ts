@@ -12,6 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const {
   mockSelect,
   mockInsert,
+  mockUpdate,
   mockRedisGet,
   mockRedisSet,
   mockRedisDel,
@@ -20,9 +21,11 @@ const {
   mockCreateRoom,
   mockDeleteRoom,
   mockChatFindOneAndUpdate,
+  mockQueueDelayed,
 } = vi.hoisted(() => ({
   mockSelect:              vi.fn(),
   mockInsert:              vi.fn(),
+  mockUpdate:              vi.fn(),
   mockRedisGet:            vi.fn(),
   mockRedisSet:            vi.fn(),
   mockRedisDel:            vi.fn(),
@@ -31,24 +34,28 @@ const {
   mockCreateRoom:          vi.fn(),
   mockDeleteRoom:          vi.fn(),
   mockChatFindOneAndUpdate: vi.fn(),
+  mockQueueDelayed:        vi.fn(),
 }));
 
 vi.mock('../../lib/db.js', () => ({
   db: {
     select: mockSelect,
     insert: mockInsert,
+    update: mockUpdate,
   },
 }));
 
 vi.mock('@smartshaadi/db', () => ({
   profiles:      {},
   matchRequests: {},
+  virtualDates:  { id: {}, matchId: {}, status: {}, scheduledAt: {} },
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:  vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and: vi.fn((...args: unknown[]) => ({ type: 'and', args })),
-  or:  vi.fn((...args: unknown[]) => ({ type: 'or', args })),
+  eq:   vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:  vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  or:   vi.fn((...args: unknown[]) => ({ type: 'or', args })),
+  desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
 }));
 
 vi.mock('../../lib/env.js', () => ({
@@ -85,6 +92,7 @@ vi.mock('../../chat/socket/index.js', () => ({
 
 vi.mock('../../infrastructure/redis/queues.js', () => ({
   queueNotification: vi.fn().mockResolvedValue(undefined),
+  queueDelayedNotification: mockQueueDelayed,
 }));
 
 // ── DB chain helpers ──────────────────────────────────────────────────────────
@@ -104,6 +112,35 @@ function makeSelectNoLimit(rows: Row[]) {
     from:  vi.fn().mockReturnThis(),
     where: vi.fn().mockResolvedValue(rows),
   };
+}
+
+/** select().from().where().orderBy() → rows (used by listVirtualDates). */
+function makeSelectOrderBy(rows: Row[]) {
+  return {
+    from:    vi.fn().mockReturnThis(),
+    where:   vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockResolvedValue(rows),
+  };
+}
+
+/** insert().values() → resolves (durable virtual_dates shadow row). */
+function makeInsertChain() {
+  return { values: vi.fn().mockResolvedValue(undefined) };
+}
+
+/**
+ * update().set().where()[.returning()]. The chain is awaitable (no-returning
+ * path in respondMeeting) AND exposes returning() (feedback path). `returning`
+ * resolves to the supplied rows.
+ */
+function makeUpdateChain(returningRows: Row[] = []) {
+  const chain = {
+    set:       vi.fn().mockReturnThis(),
+    where:     vi.fn().mockReturnThis(),
+    returning: vi.fn().mockResolvedValue(returningRows),
+    then:      (resolve: (v: unknown) => void) => resolve(undefined),
+  };
+  return chain;
 }
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -136,6 +173,8 @@ import {
   respondMeeting,
   getMeetings,
   getActiveRoom,
+  submitDateFeedback,
+  listVirtualDates,
 } from '../service.js';
 import { invalidateProfileIdCache } from '../../lib/profile.js';
 
@@ -147,6 +186,12 @@ import { invalidateProfileIdCache } from '../../lib/profile.js';
 beforeEach(() => {
   invalidateProfileIdCache(USER_ID);
   invalidateProfileIdCache(OTHER_USER);
+  // Default durable-layer chains. Set here (before each describe's clearAllMocks,
+  // which clears calls but keeps implementations) so the best-effort virtual_dates
+  // writes and reminder enqueues never throw in tests that don't assert them.
+  mockInsert.mockReturnValue(makeInsertChain());
+  mockUpdate.mockReturnValue(makeUpdateChain());
+  mockQueueDelayed.mockResolvedValue(undefined);
 });
 
 // ── createVideoRoom ───────────────────────────────────────────────────────────
@@ -547,5 +592,177 @@ describe('getMeetings', () => {
     // MGET fires exactly once with all 110 keys
     expect(mockRedisMget).toHaveBeenCalledTimes(1);
     expect((mockRedisMget.mock.calls[0] ?? []).length).toBe(110);
+  });
+});
+
+// ── Virtual Date System — durable layer (Unit 7.3) ────────────────────────────
+
+const NOW = Date.now();
+
+function fullDateRow(overrides: Row = {}): Row {
+  return {
+    id:               MEETING_ID,
+    matchId:          MATCH_ID,
+    proposedBy:       PROFILE_ID,
+    scheduledAt:      new Date(NOW + 2 * 86400000),
+    durationMin:      30,
+    status:           'CONFIRMED',
+    roomName:         null,
+    icebreakerSetKey: null,
+    notes:            null,
+    proposerRating:   null,
+    inviteeRating:    null,
+    proposerContinue: null,
+    inviteeContinue:  null,
+    completedAt:      null,
+    createdAt:        new Date(NOW),
+    updatedAt:        new Date(NOW),
+    ...overrides,
+  };
+}
+
+describe('scheduleMeeting — durable virtual_dates row', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('inserts a durable PROPOSED row keyed by the meeting id', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    mockRedisSet.mockResolvedValue('OK');
+    const insertChain = makeInsertChain();
+    mockInsert.mockReturnValue(insertChain);
+
+    const scheduledAt = new Date(NOW + 86400000).toISOString();
+    const result = await scheduleMeeting(USER_ID, { matchId: MATCH_ID, scheduledAt, durationMin: 30 });
+
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    const values = insertChain.values.mock.calls[0]![0] as Record<string, unknown>;
+    expect(values.id).toBe(result.id);
+    expect(values.status).toBe('PROPOSED');
+    expect(values.proposedBy).toBe(PROFILE_ID);
+  });
+
+  it('rejects an unknown icebreaker set with 422', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+
+    const scheduledAt = new Date(NOW + 86400000).toISOString();
+    await expect(
+      scheduleMeeting(USER_ID, { matchId: MATCH_ID, scheduledAt, durationMin: 30, icebreakerSetKey: 'nope' }),
+    ).rejects.toMatchObject({ status: 422 });
+  });
+});
+
+describe('respondMeeting — reminders on confirm', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  const storedMeeting = {
+    id: MEETING_ID, matchId: MATCH_ID, proposedBy: PROFILE_ID,
+    scheduledAt: new Date(NOW + 2 * 86400000).toISOString(),
+    durationMin: 30, roomUrl: null, status: 'PROPOSED' as const, notes: null,
+  };
+
+  it('schedules T-24h and T-15m reminders for both participants on CONFIRM', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([otherProfRow]))                 // invitee profileId
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]))                   // assertParticipant
+      .mockReturnValueOnce(makeSelectChain([{ userId: USER_ID }]));         // proposer userId lookup
+    mockRedisGet.mockResolvedValue(JSON.stringify(storedMeeting));
+    mockRedisSet.mockResolvedValue('OK');
+
+    await respondMeeting(OTHER_USER, MATCH_ID, MEETING_ID, { status: 'CONFIRMED' });
+
+    // 2 participants × 2 offsets = 4 delayed MEETING_REMINDER enqueues.
+    expect(mockQueueDelayed).toHaveBeenCalledTimes(4);
+    for (const call of mockQueueDelayed.mock.calls) {
+      expect((call[0] as { type: string }).type).toBe('MEETING_REMINDER');
+    }
+  });
+});
+
+describe('submitDateFeedback', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('completes the date when both participants have rated', async () => {
+    // Proposer (USER_ID → PROFILE_ID) submits; invitee already rated.
+    const row = fullDateRow({ status: 'CONFIRMED', inviteeRating: 4, inviteeContinue: true });
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))     // resolveProfileId
+      .mockReturnValueOnce(makeSelectChain([row]))            // load date row
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));    // assertParticipant
+    const updateChain = makeUpdateChain([
+      fullDateRow({ status: 'COMPLETED', proposerRating: 5, proposerContinue: true,
+        inviteeRating: 4, inviteeContinue: true, completedAt: new Date(NOW) }),
+    ]);
+    mockUpdate.mockReturnValue(updateChain);
+
+    const result = await submitDateFeedback(USER_ID, MEETING_ID, { rating: 5, continue: true });
+
+    expect(result.status).toBe('COMPLETED');
+    const setArg = updateChain.set.mock.calls[0]![0] as Record<string, unknown>;
+    expect(setArg.status).toBe('COMPLETED');
+    expect(setArg.proposerRating).toBe(5);
+  });
+
+  it('records one side without completing when the other has not rated', async () => {
+    const row = fullDateRow({ status: 'CONFIRMED', inviteeRating: null });
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectChain([row]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+    const updateChain = makeUpdateChain([fullDateRow({ status: 'CONFIRMED', proposerRating: 5 })]);
+    mockUpdate.mockReturnValue(updateChain);
+
+    await submitDateFeedback(USER_ID, MEETING_ID, { rating: 5, continue: true });
+
+    const setArg = updateChain.set.mock.calls[0]![0] as Record<string, unknown>;
+    expect(setArg.status).toBeUndefined();  // not completing
+    expect(setArg.proposerRating).toBe(5);
+  });
+
+  it('rejects feedback from a non-participant with FORBIDDEN', async () => {
+    const row = fullDateRow({ status: 'CONFIRMED' });
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectChain([row]))
+      .mockReturnValueOnce(makeSelectNoLimit([]));   // no accepted match → forbidden
+
+    await expect(
+      submitDateFeedback(USER_ID, MEETING_ID, { rating: 5, continue: true }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  it('rejects feedback on a PROPOSED (not-yet-confirmed) date', async () => {
+    const row = fullDateRow({ status: 'PROPOSED' });
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectChain([row]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]));
+
+    await expect(
+      submitDateFeedback(USER_ID, MEETING_ID, { rating: 5, continue: true }),
+    ).rejects.toMatchObject({ code: 'INVALID_STATE' });
+  });
+});
+
+describe('listVirtualDates', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('returns durable dates for a match, newest first, as ISO strings', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))     // resolveProfileId
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]))     // assertParticipant
+      .mockReturnValueOnce(makeSelectOrderBy([
+        fullDateRow({ id: 'd1', status: 'COMPLETED' }),
+        fullDateRow({ id: 'd2', status: 'CONFIRMED' }),
+      ]));
+
+    const dates = await listVirtualDates(USER_ID, MATCH_ID);
+
+    expect(dates).toHaveLength(2);
+    expect(dates[0]!.id).toBe('d1');
+    expect(typeof dates[0]!.scheduledAt).toBe('string');
+    expect(dates[0]!.status).toBe('COMPLETED');
   });
 });

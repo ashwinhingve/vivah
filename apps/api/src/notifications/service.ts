@@ -184,6 +184,10 @@ function describe(type: string, payload: Record<string, unknown>): { title: stri
     case 'MEETING_CONFIRMED': return { title: 'Video call confirmed', body: s('scheduledAt') ? `Confirmed for ${s('scheduledAt')}.` : 'Your video call is confirmed.' };
     case 'MEETING_REMINDER':  return { title: 'Video call reminder',  body: s('scheduledAt') ? `Starting ${s('scheduledAt')}.` : 'Your video call is starting soon.' };
 
+    case 'CHURN_WINBACK_OFFER':  return { title: 'A little something to welcome you back', body: 'We saved your matches — pick up where you left off.' };
+    case 'CHURN_RECOVERY_NUDGE': return { title: 'Your matches are waiting',              body: 'New profiles match your preferences. Take a look.' };
+    case 'REENGAGE_NUDGE':       return { title: 'You have pending interests',             body: 'Someone is waiting to hear back from you.' };
+
     case 'NEW_BOOKING_REQUEST': return { title: 'New booking request', body: 'You have a new booking request to review.' };
     case 'BOOKING_CONFIRMED':   return { title: 'Booking confirmed',   body: 'Your booking has been confirmed.' };
     case 'BOOKING_CANCELLED':   return { title: 'Booking cancelled',   body: 'A booking was cancelled.' };

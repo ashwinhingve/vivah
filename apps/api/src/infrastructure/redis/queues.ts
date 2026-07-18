@@ -52,6 +52,31 @@ export async function queueNotification(job: NotificationJob): Promise<void> {
   await notificationsQueue.add(job.type, job);
 }
 
+/**
+ * Enqueue a notification to fire after `delayMs` (BullMQ delayed job). Used for
+ * scheduled reminders (e.g. a virtual-date reminder 15 min before start).
+ * Best-effort — never throws to callers; a missed reminder must not fail the
+ * request that scheduled it. A non-positive delay is dropped (already past).
+ * An optional deterministic `jobId` de-dupes repeated schedules onto one job.
+ */
+export async function queueDelayedNotification(
+  job: NotificationJob,
+  delayMs: number,
+  jobId?: string,
+): Promise<void> {
+  if (delayMs <= 0) return;
+  try {
+    await notificationsQueue.add(job.type, job, {
+      delay: delayMs,
+      removeOnComplete: true,
+      ...(jobId ? { jobId } : {}),
+    });
+  } catch {
+    // Redis unreachable (dev/test without infra) — a reminder is a non-critical
+    // enhancement; skip silently rather than fail the scheduling request.
+  }
+}
+
 /** Payload for a delayed escrow release job. */
 export interface EscrowReleaseJob {
   escrowId:  string | null;
