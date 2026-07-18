@@ -374,6 +374,14 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 - [ ] PDF reporting (vendors, couples, admin)
 - [ ] Project handover documentation
 - [ ] Production deployment — Phase 8 complete 🎉
+- [x] UI Polish Sprint 2 (2026-07-18, branch `ui-polish-2/2026-07`) — all Phase 5–8 feature pages
+      brought to design-system standard (PageHeader/EmptyState/motion/tokens/boundaries + full
+      en-hi i18n, 295 new keys via fragment-merge protocol); Phase 1–4 residuals fixed (16 token
+      drifts, 30 missing loading/error boundaries); nav entries for Documents / Smart Pricing /
+      Retention. 7 shared-tree teammates (no worktrees — broken on this box), orchestrator-verified.
+      Gates: type-check ✓ build ✓ authenticated en+hi page-render smoke ✓ (lint blocked by a
+      pre-existing missing `@typescript-eslint/eslint-plugin` at root — also broken on main).
+      Awaiting operator review + merge to main.
 
 ---
 
