@@ -23,7 +23,6 @@ export const COUNTRIES: readonly Country[] = [
   { code: 'KW', name: 'Kuwait' },
   { code: 'BH', name: 'Bahrain' },
   { code: 'OM', name: 'Oman' },
-  { code: 'AE', name: 'United Arab Emirates' },
   { code: 'DE', name: 'Germany' },
   { code: 'FR', name: 'France' },
   { code: 'IT', name: 'Italy' },

@@ -1,10 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COUNTRIES } from '@/lib/countries';
 import { RESIDENCY_STATUS_LABELS } from '@smartshaadi/types';
+
+/**
+ * Countries shown before the user expands the list — the corridors that actually
+ * carry Indian-diaspora volume (Gulf, Anglosphere, Singapore/Malaysia).
+ * Not a ranking of importance; just what keeps the default view usable at 360px.
+ */
+const PRIMARY_CORRIDORS: readonly string[] = [
+  'US', 'CA', 'GB', 'AE', 'AU', 'SG', 'NZ', 'QA', 'SA', 'MY',
+];
 
 interface NriFilterChipsProps {
   selectedCountries: string[];
@@ -32,6 +42,19 @@ export function NriFilterChips({
   className,
 }: NriFilterChipsProps) {
   const t = useTranslations('nri.filters');
+  const [expanded, setExpanded] = useState(false);
+
+  // Rendering all ~40 countries as a flat chip wall filled the entire 375px
+  // viewport and pushed the actual results below the fold — the browser check
+  // caught what type-check, tests and `next build` all passed. Lead with the
+  // corridors that carry real Indian-diaspora volume; the rest stay one tap away.
+  // Anything already selected is always shown, so collapsing can never hide an
+  // active filter and leave the user unable to clear it.
+  const visibleCountries = expanded
+    ? COUNTRIES
+    : COUNTRIES.filter(
+        (c) => PRIMARY_CORRIDORS.includes(c.code) || selectedCountries.includes(c.code),
+      );
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -62,7 +85,7 @@ export function NriFilterChips({
           {t('countries')}
         </h3>
         <div className="flex flex-wrap gap-1.5">
-          {COUNTRIES.map((country) => (
+          {visibleCountries.map((country) => (
             <button
               key={country.code}
               type="button"
@@ -81,6 +104,18 @@ export function NriFilterChips({
             </button>
           ))}
         </div>
+        {COUNTRIES.length > visibleCountries.length || expanded ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-2 inline-flex min-h-[44px] items-center text-xs font-semibold text-teal underline-offset-2 hover:underline"
+            aria-expanded={expanded}
+          >
+            {expanded
+              ? t('showFewerCountries')
+              : t('showAllCountries', { count: COUNTRIES.length - visibleCountries.length })}
+          </button>
+        ) : null}
       </div>
 
       {/* Residency Status Filters — rendered only when the caller opts in.

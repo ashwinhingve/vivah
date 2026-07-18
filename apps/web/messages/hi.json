@@ -618,7 +618,7 @@
     },
     "heading": "अंतरराष्ट्रीय मैच",
     "description": "NRI प्रोफ़ाइलें जिन्होंने सीमा पार मिलान में शामिल होने का विकल्प चुना है।",
-    "subtitleEmpty": "अपनी प्रोफ़ाइल को 40% तक पूरा करके अंतरराष्ट्रीय रिश्ते देखना शुरू करें।",
+    "subtitleEmpty": "अभी कोई अंतरराष्ट्रीय मैच नहीं है।",
     "subtitleCount": "{total} अंतरराष्ट्रीय मैच",
     "subtitleDefault": "विदेश में रहने वाली प्रोफ़ाइलें खोजें।",
     "emptyTitle": "अभी कोई अंतरराष्ट्रीय मैच नहीं",
@@ -632,7 +632,9 @@
       "options": "विकल्प",
       "nriOnly": "केवल NRI प्रोफ़ाइलें",
       "countries": "देश",
-      "residencyStatuses": "निवास स्थिति"
+      "residencyStatuses": "निवास स्थिति",
+      "showAllCountries": "{count} और देश दिखाएँ",
+      "showFewerCountries": "कम देश दिखाएँ"
     }
   },
   "profileGuide": {

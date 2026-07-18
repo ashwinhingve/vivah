@@ -618,7 +618,7 @@
     },
     "heading": "International Matches",
     "description": "NRI profiles who've opted in to cross-border matching.",
-    "subtitleEmpty": "Start seeing international matches by completing your profile to 40%.",
+    "subtitleEmpty": "No international matches to show yet.",
     "subtitleCount": "{total} international matches",
     "subtitleDefault": "Browse profiles living abroad.",
     "emptyTitle": "No international matches yet",
@@ -632,7 +632,9 @@
       "options": "Options",
       "nriOnly": "NRI profiles only",
       "countries": "Countries",
-      "residencyStatuses": "Residency Status"
+      "residencyStatuses": "Residency Status",
+      "showAllCountries": "Show {count} more countries",
+      "showFewerCountries": "Show fewer countries"
     }
   },
   "profileGuide": {
