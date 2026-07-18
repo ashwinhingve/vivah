@@ -1,5 +1,9 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
 import { DocumentsClient } from './DocumentsClient.client';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 const ESIGN_LIVE = process.env['NEXT_PUBLIC_ESIGN_LIVE'] === 'true';
@@ -32,26 +36,32 @@ async function fetchContracts(): Promise<Contract[]> {
 
 export const dynamic = 'force-dynamic';
 
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'documents.list.metadata' });
+  return { title: t('title') };
+}
+
 export default async function DocumentsPage() {
+  const t = await getTranslations('documents.list');
+
   const contracts = await fetchContracts();
   const isMockEsign = !ESIGN_LIVE;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl font-bold text-primary mb-2">
-            Documents & Contracts
-          </h1>
-          <p className="text-muted">
-            Manage your legal agreements and contracts in one place.
-          </p>
-        </div>
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-8 pb-24">
+          <PageHeader
+            title={t('heading')}
+            subtitle={t('subtitle')}
+          />
 
-        {/* Content */}
-        <DocumentsClient initialContracts={contracts} isMockEsign={isMockEsign} />
+          {/* Content */}
+          <DocumentsClient initialContracts={contracts} isMockEsign={isMockEsign} />
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

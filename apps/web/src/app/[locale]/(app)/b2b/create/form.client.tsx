@@ -8,9 +8,11 @@
  */
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useRouter } from '@/i18n/navigation';
 
 interface B2BAccountFormProps {
   locale: string;
@@ -19,6 +21,8 @@ interface B2BAccountFormProps {
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 export function B2BAccountFormClient(_props: B2BAccountFormProps) {
+  const t = useTranslations('b2b.create');
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -48,13 +52,13 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
 
     // Validate GSTIN format
     if (!validateGstin(formData.gstin)) {
-      setError('Invalid GSTIN format. Expected: 15 characters (e.g., 27AABFT5055K1Z0)');
+      setError(t('gstinErrorFormat'));
       return;
     }
 
     // Validate required fields
     if (!formData.legalName.trim()) {
-      setError('Legal name is required');
+      setError(t('legalNameRequired'));
       return;
     }
 
@@ -72,13 +76,13 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
       //   return;
       // }
       //
-      // router.push(`/${locale}/b2b/${response.ok.account.id}`);
+      // router.push(`/b2b/${response.ok.account.id}`);
 
       // Phase 5 Sprint A: Mock success
       console.log('Form data (would send to API):', formData);
-      setError('API endpoint not yet mounted. This feature launches in Phase 2.');
+      setError(t('apiNotMounted'));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create account');
+      setError(e instanceof Error ? e.message : t('apiNotMounted'));
     } finally {
       setIsLoading(false);
     }
@@ -94,32 +98,34 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
 
       <div>
         <Label htmlFor="legalName" className="text-sm font-semibold text-primary">
-          Legal Business Name *
+          {t('legalNameLabel')}
+          <span className="text-destructive"> {t('requiredLabel')}</span>
         </Label>
         <Input
           id="legalName"
           name="legalName"
           type="text"
-          placeholder="ABC Events Ltd"
+          placeholder={t('legalNamePlaceholder')}
           value={formData.legalName}
           onChange={handleChange}
           required
           className="mt-2"
         />
         <p className="mt-1 text-xs text-gold-muted">
-          Full registered name of your business
+          {t('legalNameHint')}
         </p>
       </div>
 
       <div>
         <Label htmlFor="gstin" className="text-sm font-semibold text-primary">
-          GSTIN (15 digits) *
+          {t('gstinLabel')}
+          <span className="text-destructive"> {t('requiredLabel')}</span>
         </Label>
         <Input
           id="gstin"
           name="gstin"
           type="text"
-          placeholder="27AABFT5055K1Z0"
+          placeholder={t('gstinPlaceholder')}
           value={formData.gstin}
           onChange={handleChange}
           required
@@ -127,37 +133,37 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
           className="mt-2 font-mono"
         />
         <p className="mt-1 text-xs text-gold-muted">
-          Goods and Services Tax Identification Number (GSTIN)
+          {t('gstinHint')}
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="hsnSac" className="text-sm font-semibold text-primary">
-            HSN/SAC Code
+            {t('hsnSacLabel')}
           </Label>
           <Input
             id="hsnSac"
             name="hsnSac"
             type="text"
-            placeholder="999596"
+            placeholder={t('hsnSacPlaceholder')}
             value={formData.hsnSac}
             onChange={handleChange}
             maxLength={20}
             className="mt-2"
           />
-          <p className="mt-1 text-xs text-gold-muted">Optional default for invoices</p>
+          <p className="mt-1 text-xs text-gold-muted">{t('hsnSacHint')}</p>
         </div>
 
         <div>
           <Label htmlFor="contactEmail" className="text-sm font-semibold text-primary">
-            Contact Email
+            {t('contactEmailLabel')}
           </Label>
           <Input
             id="contactEmail"
             name="contactEmail"
             type="email"
-            placeholder="contact@abc.com"
+            placeholder={t('contactEmailPlaceholder')}
             value={formData.contactEmail}
             onChange={handleChange}
             className="mt-2"
@@ -167,13 +173,13 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
 
       <div>
         <Label htmlFor="contactPhone" className="text-sm font-semibold text-primary">
-          Contact Phone
+          {t('contactPhoneLabel')}
         </Label>
         <Input
           id="contactPhone"
           name="contactPhone"
           type="tel"
-          placeholder="+919876543210"
+          placeholder={t('contactPhonePlaceholder')}
           value={formData.contactPhone}
           onChange={handleChange}
           maxLength={20}
@@ -183,38 +189,36 @@ export function B2BAccountFormClient(_props: B2BAccountFormProps) {
 
       <div>
         <Label htmlFor="billingAddress" className="text-sm font-semibold text-primary">
-          Billing Address
+          {t('billingAddressLabel')}
         </Label>
         <textarea
           id="billingAddress"
           name="billingAddress"
-          placeholder="123 Main Street, City, State, Postal Code"
+          placeholder={t('billingAddressPlaceholder')}
           value={formData.billingAddress}
           onChange={handleChange}
           rows={4}
-          className="mt-2 block w-full rounded-lg border border-gold bg-white px-3 py-2 text-sm text-ink placeholder:text-gold-muted"
+          className="mt-2 block w-full rounded-lg border border-input bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:border-teal focus-visible:ring-2 focus-visible:ring-teal/30"
         />
-        <p className="mt-1 text-xs text-gold-muted">Full billing address for invoices</p>
+        <p className="mt-1 text-xs text-gold-muted">{t('billingAddressHint')}</p>
       </div>
 
       <div className="flex gap-4">
-        <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? 'Creating...' : 'Create Account'}
+        <Button type="submit" disabled={isLoading} className="flex-1" loading={isLoading}>
+          {t('submitButton')}
         </Button>
         <Button
           type="button"
           variant="outline"
-          onClick={() => {
-            // router.back() or navigate to list
-          }}
+          onClick={() => router.back()}
           className="flex-1"
         >
-          Cancel
+          {t('cancelButton')}
         </Button>
       </div>
 
       <p className="text-xs text-gold-muted">
-        * Required fields. Your business will be verified within 24 hours.
+        {t('requiredNote')}
       </p>
     </form>
   );

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { X, Video } from 'lucide-react'
 import { VideoCall } from './VideoCall.client'
 
@@ -18,6 +19,7 @@ const STORAGE_KEY = 'chat:videocall-open'
  * nothing when closed.
  */
 export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPanelProps) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -44,12 +46,12 @@ export default function VideoCallPanel({ matchId, currentUserId }: VideoCallPane
       <div className="flex items-center justify-between px-4 py-2.5">
         <span className="inline-flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
           <Video className="h-4 w-4 text-teal" aria-hidden="true" />
-          Video call
+          {t('videoCall.title')}
         </span>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          aria-label="Close video panel"
+          aria-label={t('videoCall.closeButton')}
           className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background"
         >
           <X className="h-4 w-4" />

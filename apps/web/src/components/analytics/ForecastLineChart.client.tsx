@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 /**
  * Forecast line chart — historical solid + projected dashed.
  *
@@ -36,12 +38,14 @@ export function ForecastLineChart({
 }: {
   data: ForecastChartData | null;
 }): React.ReactNode {
+  const t = useTranslations('adminAnalyticsForecast');
+
   if (!data || data.history.length === 0) {
     return (
       <ChartShell>
         <div className="flex h-56 flex-col items-center justify-center gap-1 text-center text-sm text-text-muted">
-          <span>No forecast data available.</span>
-          <span className="text-xs">Historical data will appear once records are available.</span>
+          <span>{t('noDataAvailable')}</span>
+          <span className="text-xs">{t('noDataHint')}</span>
         </div>
       </ChartShell>
     );
@@ -108,14 +112,14 @@ export function ForecastLineChart({
       <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm" style={{ background: 'var(--color-primary)' }} />
-          Historical
+          {t('chartLabelHistorical')}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
             className="h-2.5 w-2.5 rounded-sm"
             style={{ background: 'var(--color-primary)', opacity: 0.5 }}
           />
-          Forecast
+          {t('chartLabelForecast')}
         </span>
         <span className="ml-auto font-semibold text-text-primary">
           {formatValue(data.history[data.history.length - 1]?.value ?? 0)}
@@ -218,7 +222,7 @@ export function ForecastLineChart({
             fill="var(--color-muted-foreground)"
             fillOpacity={0.7}
           >
-            +6mo forecast
+            {t('chartForecastMonths')}
           </text>
         )}
       </svg>

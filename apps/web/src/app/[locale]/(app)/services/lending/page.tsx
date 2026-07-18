@@ -1,5 +1,9 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
 import type { LoanOffer } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { LendingClient } from './LendingClient.client';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -27,26 +31,31 @@ async function fetchOffers(): Promise<OffersResponse> {
   }
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'servicesLending.metadata' });
+  return { title: t('title') };
+}
+
 export const dynamic = 'force-dynamic';
 
 export default async function LendingPage() {
+  const t = await getTranslations('servicesLending');
   const { offers, mock } = await fetchOffers();
   // Not-live whenever the server is mocking OR the web build hasn't flipped live.
   const isPreview = mock || !LENDING_LIVE;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <h1 className="font-heading text-3xl font-bold text-primary mb-2">
-            Wedding financing
-          </h1>
-          <p className="text-muted">
-            Compare loan offers from RBI-regulated lenders for your wedding plans.
-          </p>
-        </div>
-        <LendingClient initialOffers={offers} isPreview={isPreview} />
-      </div>
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
+        <PageTransition>
+          <PageHeader
+            title={t('heading')}
+            subtitle={t('subtitle')}
+          />
+          <LendingClient initialOffers={offers} isPreview={isPreview} />
+        </PageTransition>
+      </main>
     </div>
   );
 }

@@ -94,7 +94,7 @@ export function WeddingHeaderActions({
             />
             <div
               role="menu"
-              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-gold/30 bg-surface shadow-lg py-1"
+              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-gold/30 bg-surface shadow-card-hover py-1"
             >
               <form action={cancelAction}>
                 <button
@@ -124,7 +124,7 @@ export function WeddingHeaderActions({
       {/* Delete confirmation */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-sm rounded-xl bg-surface border border-gold/20 p-6 shadow-xl">
+          <div className="w-full max-w-sm rounded-2xl bg-surface border border-gold/20 p-6 shadow-card">
             <h2 className="font-heading text-lg text-primary mb-1">Delete this plan?</h2>
             <p className="text-sm text-muted-foreground mb-5">
               This permanently removes the wedding plan from your list. This cannot be undone.
@@ -153,14 +153,14 @@ export function WeddingHeaderActions({
       {/* Edit sheet */}
       {editOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg rounded-xl bg-surface border border-gold/20 p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl bg-surface border border-gold/20 p-6 shadow-card max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-lg text-primary">Edit Wedding Details</h2>
               <button
                 type="button"
                 onClick={() => setEditOpen(false)}
                 aria-label="Close"
-                className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-colors"
+                className="h-10 w-10 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-primary hover:bg-background transition-colors"
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>

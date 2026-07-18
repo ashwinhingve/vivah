@@ -9,9 +9,12 @@
 import { type ReactNode } from 'react';
 import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StaggerList } from '@/components/shared/StaggerList.client';
 import { Calendar, TrendingUp, Zap } from 'lucide-react';
 import type { VendorCapacityWindow } from '@smartshaadi/types';
 
@@ -92,9 +95,11 @@ function ScoreBadge({ score }: { score: number }): ReactNode {
 function CapacityWindowCard({
   opp,
   index,
+  t,
 }: {
   opp: UtilizationOpportunity;
   index: number;
+  t: (key: string) => string;
 }): ReactNode {
   const { window, eventTypeMatch, remainingCapacity, utilizationScore } = opp;
   const startDate = formatDate(window.startAt);
@@ -104,7 +109,7 @@ function CapacityWindowCard({
   return (
     <div
       key={window.id}
-      className="rounded-2xl border border-gold/20 bg-white p-4 shadow-card transition-all hover:shadow-card-hover sm:p-6"
+      className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card transition-all hover:shadow-card-hover sm:p-6"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1">
@@ -121,7 +126,7 @@ function CapacityWindowCard({
             <div className="flex items-start gap-2">
               <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
               <div>
-                <p className="text-text-muted">Date</p>
+                <p className="text-text-muted">{t('date')}</p>
                 <p className="font-semibold text-text-primary">{startDate}</p>
               </div>
             </div>
@@ -129,7 +134,7 @@ function CapacityWindowCard({
             <div className="flex items-start gap-2">
               <Zap className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
               <div>
-                <p className="text-text-muted">Capacity</p>
+                <p className="text-text-muted">{t('capacity')}</p>
                 <p className="font-semibold text-text-primary">
                   {remainingCapacity} of {window.maxBookings}
                 </p>
@@ -139,7 +144,7 @@ function CapacityWindowCard({
             <div className="flex items-start gap-2">
               <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
               <div>
-                <p className="text-text-muted">Time</p>
+                <p className="text-text-muted">{t('time')}</p>
                 <p className="font-semibold text-text-primary">
                   {startTime} – {endTime}
                 </p>
@@ -153,7 +158,7 @@ function CapacityWindowCard({
         </div>
 
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-          <p className="text-xs uppercase tracking-wide text-text-muted">Fit Score</p>
+          <p className="text-xs uppercase tracking-wide text-text-muted">{t('fitScore')}</p>
           <ScoreBadge score={utilizationScore} />
         </div>
       </div>
@@ -161,7 +166,15 @@ function CapacityWindowCard({
   );
 }
 
+export function generateMetadata() {
+  return {
+    title: 'Off-Season Opportunities — Smart Shaadi',
+    description: 'View eligible events matched to your available capacity windows during off-peak periods',
+  };
+}
+
 export default async function UtilizationPage() {
+  const t = await getTranslations('vendorUtilization');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -187,68 +200,69 @@ export default async function UtilizationPage() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <PageHeader
-        eyebrow="Vendor Hub"
-        title="Off-Season Opportunities"
-        subtitle="Eligible events matched to your available capacity windows during off-peak periods."
-      />
-
-      {/* Summary cards */}
-      {opportunities.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-ivory to-white p-4 shadow-card sm:p-6">
-            <p className="text-sm text-text-muted">Total Opportunities</p>
-            <p className="mt-1 font-heading text-3xl font-semibold text-primary">
-              {opportunities.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-ivory to-white p-4 shadow-card sm:p-6">
-            <p className="text-sm text-text-muted">Event Categories</p>
-            <p className="mt-1 font-heading text-3xl font-semibold text-primary">
-              {countByType.size}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Opportunities list or empty state */}
-      <div>
-        <SectionHeader
-          title={opportunities.length > 0 ? 'Ranked Windows' : 'No Opportunities'}
-          subtitle={
-            opportunities.length > 0
-              ? 'Listed by date, with highest capacity fit first.'
-              : "We'll notify you when new off-season events match your availability."
-          }
+    <PageTransition>
+      <div className="space-y-6">
+        {/* Header */}
+        <PageHeader
+          eyebrow={t('eyebrow')}
+          title={t('heading')}
+          subtitle={t('subtitle')}
         />
 
-        {opportunities.length > 0 ? (
-          <div className="mt-4 space-y-4">
-            {opportunities.map((opp, idx) => (
-              <CapacityWindowCard key={opp.window.id} opp={opp} index={idx} />
-            ))}
+        {/* Summary cards */}
+        {opportunities.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+              <p className="text-sm text-text-muted">{t('totalOpportunities')}</p>
+              <p className="mt-1 font-heading text-3xl font-semibold text-primary">
+                {opportunities.length}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
+              <p className="text-sm text-text-muted">{t('eventCategories')}</p>
+              <p className="mt-1 font-heading text-3xl font-semibold text-primary">
+                {countByType.size}
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="mt-4">
-            <EmptyState
-              variant="no-leads"
-              title="No eligible opportunities yet"
-              description="As you add more capacity windows marked as off-season, matching events will appear here."
-            />
+        )}
+
+        {/* Opportunities list or empty state */}
+        <div>
+          <SectionHeader
+            title={opportunities.length > 0 ? t('rankedWindowsTitle') : 'No Opportunities'}
+            subtitle={
+              opportunities.length > 0
+                ? t('rankedWindowsSubtitle')
+                : "We'll notify you when new off-season events match your availability."
+            }
+          />
+
+          {opportunities.length > 0 ? (
+            <StaggerList className="mt-4 space-y-4">
+              {opportunities.map((opp, idx) => (
+                <CapacityWindowCard key={opp.window.id} opp={opp} index={idx} t={t} />
+              ))}
+            </StaggerList>
+          ) : (
+            <div className="mt-4">
+              <EmptyState
+                variant="no-leads"
+                title={t('noOpportunitiesTitle')}
+                description={t('noOpportunitiesDescription')}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Debug note (dev only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
+            <strong>Dev note:</strong> {t('devNote')}
           </div>
         )}
       </div>
-
-      {/* Debug note (dev only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
-          <strong>Dev note:</strong> The /api/v1/vendors/utilization route is unmounted during Phase 5.
-          It will return live data when the route is mounted in Phase 2. Window data is queried from vendor_capacity; event type matching from vendor_event_types.
-        </div>
-      )}
-    </div>
+    </PageTransition>
   );
 }

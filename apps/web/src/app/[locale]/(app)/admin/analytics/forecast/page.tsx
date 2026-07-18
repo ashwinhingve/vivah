@@ -6,8 +6,13 @@
  * moving-average + seasonal-index forecasting (no LLM). Handles empty / error states.
  */
 
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { ForecastLineChart } from '@/components/analytics/ForecastLineChart.client';
 import { ReportDownloadButton } from '@/components/reports/ReportDownloadButton';
 
@@ -30,7 +35,14 @@ interface AdminForecastData {
   };
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminAnalyticsForecast.metadata' });
+  return { title: t('title') };
+}
+
 export default async function AdminAnalyticsForecastPage(): Promise<React.ReactNode> {
+  const t = await getTranslations('adminAnalyticsForecast');
   const me = await fetchAuth<AuthMe>('/api/auth/me');
   if (me && me.role !== 'ADMIN' && me.role !== 'SUPPORT') {
     return await redirect('/dashboard');
@@ -40,15 +52,18 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
 
   if (!forecast) {
     return (
-      <div className="space-y-6 p-4 sm:p-6">
-        <h1 className="font-heading text-3xl font-bold text-text-primary">Platform Analytics Forecast</h1>
+      <PageTransition className="space-y-6 p-4 sm:p-6">
+        <PageHeader
+          eyebrow={t('eyebrow')}
+          title={t('heading')}
+          subtitle={t('subtitle')}
+        />
         <div className="rounded-2xl border border-gold/20 bg-surface p-6 text-center">
           <p className="text-text-muted">
-            Unable to load forecast data. Admin or Support role required, and at least one
-            month of platform history.
+            {t('errorLoading')}
           </p>
         </div>
-      </div>
+      </PageTransition>
     );
   }
 
@@ -70,7 +85,7 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
   const demandChart =
     demand.history.length > 0
       ? {
-          label: 'Monthly Demand',
+          label: t('bookingDemandForecast'),
           history: demand.history.map((h) => ({ month: h.month, value: h.count })),
           forecast: demand.forecast,
         }
@@ -79,7 +94,7 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
   const revenueChart =
     revenue.history.length > 0
       ? {
-          label: 'Monthly Revenue',
+          label: t('revenueForecast'),
           history: revenue.history.map((h) => ({ month: h.month, value: h.revenue })),
           forecast: revenue.forecast,
           unit: 'rupees',
@@ -87,41 +102,52 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
       : null;
 
   return (
-    <div className="space-y-8 p-4 sm:p-6">
+    <PageTransition className="space-y-8 p-4 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="font-heading text-3xl font-bold text-text-primary">Platform Analytics</h1>
-          <p className="mt-2 text-text-muted">6-month demand and revenue forecasts.</p>
-        </div>
+        <PageHeader
+          eyebrow={t('eyebrow')}
+          title={t('heading')}
+          subtitle={t('subtitle')}
+        />
         <ReportDownloadButton
           path="/admin/platform-report"
-          label="Download PDF"
-          hint="Demand, revenue and 6-month forecast."
+          label={t('downloadPdf')}
+          hint={t('downloadHint')}
         />
       </div>
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6">
-          <p className="text-sm text-text-muted">Current Month Demand</p>
+          <p className="text-sm text-text-muted">{t('currentMonthDemand')}</p>
           <p className="mt-2 text-2xl font-bold text-text-primary">
-            {demand.level.toLocaleString('en-IN')} bookings
+            {demand.level.toLocaleString('en-IN')} {t('bookings', { count: demand.level })}
           </p>
           {demandGrowth !== null && (
-            <p className={`mt-1 text-xs ${demandGrowth >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {demandGrowth >= 0 ? '↑' : '↓'} {Math.abs(demandGrowth).toFixed(1)}% MoM
+            <p className={`mt-1 text-xs inline-flex items-center gap-1 ${demandGrowth >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {demandGrowth >= 0 ? (
+                <TrendingUp className="h-3 w-3" aria-hidden="true" />
+              ) : (
+                <TrendingDown className="h-3 w-3" aria-hidden="true" />
+              )}
+              {t('momGrowth', { value: Math.abs(demandGrowth) / 100 })}
             </p>
           )}
         </div>
 
         <div className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6">
-          <p className="text-sm text-text-muted">Current Month Revenue</p>
+          <p className="text-sm text-text-muted">{t('currentMonthRevenue')}</p>
           <p className="mt-2 text-2xl font-bold text-text-primary">
-            Rs. {revenue.level.toLocaleString('en-IN')}
+            ₹{revenue.level.toLocaleString('en-IN')}
           </p>
           {revenueGrowth !== null && (
-            <p className={`mt-1 text-xs ${revenueGrowth >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {revenueGrowth >= 0 ? '↑' : '↓'} {Math.abs(revenueGrowth).toFixed(1)}% MoM
+            <p className={`mt-1 text-xs inline-flex items-center gap-1 ${revenueGrowth >= 0 ? 'text-success' : 'text-destructive'}`}>
+              {revenueGrowth >= 0 ? (
+                <TrendingUp className="h-3 w-3" aria-hidden="true" />
+              ) : (
+                <TrendingDown className="h-3 w-3" aria-hidden="true" />
+              )}
+              {t('momGrowth', { value: Math.abs(revenueGrowth) / 100 })}
             </p>
           )}
         </div>
@@ -129,49 +155,46 @@ export default async function AdminAnalyticsForecastPage(): Promise<React.ReactN
 
       {/* Demand Forecast */}
       <div className="space-y-2">
-        <h2 className="font-heading text-xl font-semibold text-text-primary">Booking Demand Forecast</h2>
+        <h2 className="font-heading text-xl font-semibold text-text-primary">{t('bookingDemandForecast')}</h2>
         <p className="text-sm text-text-muted">
-          Projected booking volume over the next 6 months with seasonal adjustment.
+          {t('demandSubtitle')}
         </p>
         <ForecastLineChart data={demandChart} />
       </div>
 
       {/* Revenue Forecast */}
       <div className="space-y-2">
-        <h2 className="font-heading text-xl font-semibold text-text-primary">Revenue Forecast</h2>
+        <h2 className="font-heading text-xl font-semibold text-text-primary">{t('revenueForecast')}</h2>
         <p className="text-sm text-text-muted">
-          Projected captured revenue with seasonal patterns accounted for.
+          {t('revenueSubtitle')}
         </p>
         <ForecastLineChart data={revenueChart} />
       </div>
 
       {/* Insights */}
       <div className="space-y-4 rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6">
-        <h3 className="font-heading font-semibold text-text-primary">Forecast Insights</h3>
+        <h3 className="font-heading font-semibold text-text-primary">{t('forecastInsights')}</h3>
         <div className="space-y-3 text-sm">
           <div>
-            <p className="font-medium text-text-primary">Seasonality</p>
+            <p className="font-medium text-text-primary">{t('seasonalityLabel')}</p>
             <p className="text-text-muted">
-              Demand and revenue patterns detect 12-month seasonality cycles. Peaks typically
-              align with wedding seasons (Dec–Jan, May–Jun).
+              {t('seasonalityDescription')}
             </p>
           </div>
           <div>
-            <p className="font-medium text-text-primary">Trend</p>
+            <p className="font-medium text-text-primary">{t('trendLabel')}</p>
             <p className="text-text-muted">
-              A moving average of recent months sets the baseline level; the 6-month projection
-              applies seasonal indices to that level.
+              {t('trendDescription')}
             </p>
           </div>
           <div>
-            <p className="font-medium text-text-primary">Update Frequency</p>
+            <p className="font-medium text-text-primary">{t('updateFrequencyLabel')}</p>
             <p className="text-text-muted">
-              Forecasts refresh as new booking and payment data arrives. Monthly review
-              recommended for strategic planning.
+              {t('updateFrequencyDescription')}
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

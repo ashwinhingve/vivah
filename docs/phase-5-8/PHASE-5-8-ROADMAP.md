@@ -9,6 +9,40 @@
 
 ---
 
+## 0.0 STATUS SNAPSHOT — 2026-07-18
+
+**Every Tier-1 (buildable-now) unit in Phase 5–8 is shipped.** Sprints A–I are
+merged to local `main`; the `ui-polish-2/2026-07` branch (design-system polish
+over all Phase 5–8 pages) is pushed and awaiting review + merge. What remains is
+either (a) gated on an external approval/partner (Tier 2/3 — mocked shells are
+built and waiting for credentials), (b) gated on real launch traffic, or
+(c) mobile feature parity + store submission.
+
+| Shipped | Unit(s) | Sprint |
+|---|---|---|
+| ✅ | 5.1 VUE · 5.2 Calendar · 5.5 B2B | A (2026-07-17, migration 0028) |
+| ✅ | 5.4 Dynamic Pricing · 5.3 Gap Detection | B (2026-07-17) |
+| ✅ | 5.7 Analytics/Forecasting · 5.6 Docs/e-sign (mocked `ESIGN_LIVE`) | C |
+| ✅ | 6.1 WhatsApp · 6.2 Lending · 6.3 Insurance (all mocked/flagged) | D (migration 0032) |
+| ✅ | 7.1 Mobile scaffold (Expo SDK 57, OTP cookie auth) | E |
+| ✅ | 7.3 Virtual Dates + Churn Recovery | F (migration 0033) |
+| ✅ | 7.2 NRI matching (`NRI_MATCHING_LIVE` OFF) | G (migration 0034) |
+| ✅ | 8.3 Scale hardening + PDF reports + handover docs | H (migration 0035) |
+| ✅ | 8.1 Destination Wedding **planning core** (Tier-3 supply half NOT built) | I (migration 0036) |
+| ✅ | UI Polish Sprint 2 — Phase 5–8 pages to design-system standard, full en+hi | `ui-polish-2/2026-07` |
+
+**Not built (correctly, per the tier rules):** 6.4 Auto-marketing (needs real
+traffic) · 6.5 Multi-city network (needs real vendor density) · 8.1 premium
+packages/supply (needs venue partnerships) · 8.2 Post-marriage services (needs
+partners) · mobile feature parity / store submission (needs Apple+Google
+enrolment).
+
+**Operational gaps:** local `main` is ~54 commits ahead of `origin/main`
+(Sprint I not deployed); `ui-polish-2` unmerged; Phase 5 demo checkpoint with
+Colonel not yet held; k6 baseline + SLO calibration need staging/traffic.
+
+---
+
 ## 0. The one principle that governs all of Phase 5–8
 
 **Build only what you can validate now. Everything else is a flagged, mocked
@@ -40,6 +74,11 @@ Your repo may be ahead of my snapshot. Either way the rule is fixed: **the
 Phase-0 agent of every sprint verifies the real schema + migration high-water
 mark first, and lays down all needed migrations before any parallel work begins.**
 No unit assumes 0028 / those tables / the seed exist.
+
+> **RESOLVED (2026-07-17, Sprint A Phase 0):** migration 0028 created the Phase-5
+> tables (`contracts`/`b2b_accounts`/`pricing_rules` + calendar seed) for real.
+> High-water mark is now **0036** (Sprint I). The rule above still applies to
+> every future sprint.
 
 ---
 
@@ -111,13 +150,13 @@ Every unit also meets the standard DoD (§6). `⇉` = parallel-safe after Phase 
 
 | # | Unit | Tier | Par | Unit-specific "done" | External blocker |
 |---|---|---|---|---|---|
-| 5.1 | **Vendor Utilization Engine** | 1 | ⇉ | Deterministic ranking of idle vendor capacity by date/season; off-season non-wedding routing (CORPORATE/FESTIVAL/COMMUNITY/GOVERNMENT/SCHOOL) in vendor dashboard + search. Validated vs ~9 seed vendors. | none |
-| 5.2 | **Calendar Intelligence UI** | 1 | ⇉ | Heat-map / "best dates" over a **real seeded calendar**. If no seed table exists, Phase 0 builds + seeds it. | 4 convention rulings (devshayani, January, Vishu, Onam) — build a documented default, flag for Colonel |
-| 5.3 | **Vendor Gap Detection** | 1 | → after 5.1 | City × category under-supply alerts (admin signal at seed scale). | none |
-| 5.4 | **Dynamic Pricing (full)** | 1 | → after 5.2 | `clamp(base × muhurat × offseason × demand)` on the pricing core (**verify core exists first**) + real calendar signals. | Colonel's subscription/pricing decisions (Section C) |
-| 5.5 | **B2B self-serve (contracts+invoicing)** | 1 | ⇉ (Phase 0 owns its migration) | Self-serve contract + invoice gen. **Verify `contracts`/`b2b_accounts`/`pricing_rules`; if absent, Phase 0 creates them.** PDF uses `Rs.` not `₹`. | none |
-| 5.6 | **Docs/compliance generator + e-sign** | 1/3 | ⇉ | Contract generator + e-sign, **DigiLocker mocked**. | DigiLocker (deferrable 60–90 d post-launch) |
-| 5.7 | **Advanced analytics / forecasting** | 1 | ⇉ | Forecasting/reporting on existing data; pure SVG charts (no new packages). | none |
+| 5.1 | **Vendor Utilization Engine** ✅ *shipped (Sprint A)* | 1 | ⇉ | Deterministic ranking of idle vendor capacity by date/season; off-season non-wedding routing (CORPORATE/FESTIVAL/COMMUNITY/GOVERNMENT/SCHOOL) in vendor dashboard + search. Validated vs ~9 seed vendors. | none |
+| 5.2 | **Calendar Intelligence UI** ✅ *shipped (Sprint A — 56 muhurats 2026 seeded)* | 1 | ⇉ | Heat-map / "best dates" over a **real seeded calendar**. If no seed table exists, Phase 0 builds + seeds it. | 4 convention rulings (devshayani, January, Vishu, Onam) — build a documented default, flag for Colonel |
+| 5.3 | **Vendor Gap Detection** ✅ *shipped (Sprint B — `/admin/gaps`)* | 1 | → after 5.1 | City × category under-supply alerts (admin signal at seed scale). | none |
+| 5.4 | **Dynamic Pricing (full)** ✅ *shipped (Sprint B — ADR-001, `/vendor/pricing`)* | 1 | → after 5.2 | `clamp(base × muhurat × offseason × demand)` on the pricing core (**verify core exists first**) + real calendar signals. | Colonel's subscription/pricing decisions (Section C) |
+| 5.5 | **B2B self-serve (contracts+invoicing)** ✅ *shipped (Sprint A)* | 1 | ⇉ (Phase 0 owns its migration) | Self-serve contract + invoice gen. **Verify `contracts`/`b2b_accounts`/`pricing_rules`; if absent, Phase 0 creates them.** PDF uses `Rs.` not `₹`. | none |
+| 5.6 | **Docs/compliance generator + e-sign** ✅ *shipped (Sprint C — DigiLocker mocked behind `ESIGN_LIVE`)* | 1/3 | ⇉ | Contract generator + e-sign, **DigiLocker mocked**. | DigiLocker (deferrable 60–90 d post-launch) |
+| 5.7 | **Advanced analytics / forecasting** ✅ *shipped (Sprint C — `/api/v1/analytics`, pure SVG)* | 1 | ⇉ | Forecasting/reporting on existing data; pure SVG charts (no new packages). | none |
 
 ### Phase 6 — Financial services + marketing + multi-city + WhatsApp
 
@@ -133,17 +172,17 @@ Every unit also meets the standard DoD (§6). `⇉` = parallel-safe after Phase 
 
 | # | Unit | Tier | Par | Note | Blocker |
 |---|---|---|---|---|---|
-| 7.1 | **React Native + Expo app** | 2 | (internal team-split, see prompts) | **Weeks of real work — NOT "90% reuse."** Auth is session cookies, not JWT. | Apple Developer + Google Play enrolment |
+| 7.1 | **React Native + Expo app** — *scaffold shipped (Sprint E); feature parity remaining* | 2 | (internal team-split, see prompts) | **Weeks of real work — NOT "90% reuse."** Auth is session cookies, not JWT. | Apple Developer + Google Play enrolment |
 | 7.2 | **NRI / international matching** ✅ *shipped (flagged, Sprint G)* | 2 | ⇉ | Timezone, currency, cross-border profiles. Behind `NRI_MATCHING_LIVE` (OFF). | go-live gated on launch validation |
-| 7.3 | **Virtual Date System + churn recovery** | 1/2 | ⇉ | Builds on Daily.co video + churn model. | none |
+| 7.3 | **Virtual Date System + churn recovery** ✅ *shipped (Sprint F, `RETENTION_OUTREACH_LIVE` DRY_RUN default)* | 1/2 | ⇉ | Builds on Daily.co video + churn model. | none |
 
 ### Phase 8 — Destination weddings + national infra + handover
 
 | # | Unit | Tier | Par | Note | Blocker |
 |---|---|---|---|---|---|
-| 8.1 | **Destination Wedding Module** | 1/3 | ⇉ (planning UX) | Build planning/UX; live supply is business development. | Venue/vendor partnerships |
+| 8.1 | **Destination Wedding Module** — *planning core ✅ shipped (Sprint I, migration 0036); premium packages/supply NOT built (Tier 3)* | 1/3 | ⇉ (planning UX) | Build planning/UX; live supply is business development. | Venue/vendor partnerships |
 | 8.2 | **Post-marriage services** | 3 | — | Placement/UX only until partners exist. | Partner agreements |
-| 8.3 | **National auto-scaling infra + PDF reporting + handover** | 1 | ⇉ | Scale hardening, reporting, full handover docs. | none |
+| 8.3 | **National auto-scaling infra + PDF reporting + handover** ✅ *shipped (Sprint H — k6 baseline + SLO calibration still need staging/traffic)* | 1 | ⇉ | Scale hardening, reporting, full handover docs. | none |
 
 ---
 
@@ -153,17 +192,18 @@ Each sprint = **Phase 0 (single) → Phase 1 (team) → Phase 2 (single)**. Merg
 sprint before the next.
 
 ```
-SPRINT A  ── Phase 0: verify schema; create calendar seed (if absent),
-             b2b/contracts/pricing_rules (if absent), shared types. Commit.
-          ── Phase 1 team (disjoint):  A:5.1 Utilization | B:5.2 Calendar | C:5.5 B2B
-          ── Phase 2: mount routes, integrate, smoke, browser 375/1440, merge.
+SPRINT A  ✅ SHIPPED (2026-07-17, merged f46e826) — migration 0028 laid the
+             Phase-5 tables + 56-muhurat 2026 calendar seed for real.
+          ── 5.1 Utilization (VUE off-season routing) | 5.2 Calendar | 5.5 B2B.
 
-SPRINT B  ── after A merged (both depend on A's schema):
-          ── Phase 1 team (disjoint):  A:5.4 Pricing | B:5.3 Gap Detection
-          ── (single-agent integration + merge)
+SPRINT B  ✅ SHIPPED (2026-07-17, merged f7bde4f)
+          ── 5.4 Dynamic Pricing (ADR-001 PricingAdvisor, /vendor/pricing)
+             | 5.3 Gap Detection (/admin/gaps, threshold-configurable).
 
-SPRINT C  ── Phase 1 team (disjoint):  A:5.7 Analytics | B:5.6 Docs/e-sign(mock)
-          ── ── Phase 5 demo checkpoint with Colonel ──
+SPRINT C  ✅ SHIPPED (merged 1d82a54)
+          ── 5.7 Analytics/Forecasting (/api/v1/analytics, pure SVG)
+             | 5.6 Docs/e-sign (/api/v1/documents, DigiLocker mocked, ESIGN_LIVE).
+          ── ⚠️ Phase 5 demo checkpoint with Colonel — STILL PENDING.
 
 SPRINT D  ✅ SHIPPED (solo sequential, mocked/flagged) — migration 0032
           ── Phase 0: shared service_referrals→commission model + whatsapp_messages;
@@ -285,6 +325,25 @@ SPRINT H  ✅ SHIPPED (Phase 0 + 2-track parallel team + Phase 2, migration 0035
              baseline recorded yet (needs staging). SLO targets in the handover docs are
              proposed, not calibrated — there is no production traffic to calibrate against.
 
+SPRINT I  ✅ SHIPPED (solo, migration 0036) — Unit 8.1 Destination Wedding
+             **planning core**: multi-city legs (wedding_destinations) with
+             country/timezone/date window, ceremonies attachable per leg, per-leg
+             guest travel (guest_travel_legs). API /api/v1/weddings/:id/destinations,
+             UI /weddings/[id]/destinations (list·detail·new·edit), en+hi.
+          ── Full DoD met: type-check --force; api 1174 (+43) mutation-checked;
+             migration idempotent (applied twice) + 4 DB invariants on real rows;
+             authenticated HTTP E2E 21/21 + 10/10; browser 375/1440 en+hi.
+          ── Tier-3 half (premium packages / real destination supply) deliberately
+             NOT built — blocked on venue/vendor partnerships.
+          ── ⚠️ NOT YET PUSHED: Sprint I sits on local main (~54 commits ahead of
+             origin/main). Push after ui-polish-2 merge review.
+
+UI POLISH SPRINT 2  ✅ SHIPPED (2026-07-18, branch ui-polish-2/2026-07, pushed)
+          ── All Phase 5–8 pages to design-system standard + 295 en/hi i18n keys
+             + Phase 1–4 residuals. Awaiting operator review + merge into main
+             (expect a ROADMAP.md conflict in the Phase-8 section vs Sprint I's
+             entry — resolve by keeping both entries).
+
 (Mobile feature parity in later sprints.)
 
 (6.4 / 6.5 / Phase 8 Tier-3 units stay mocked until their blockers clear.)
@@ -292,6 +351,67 @@ SPRINT H  ✅ SHIPPED (Phase 0 + 2-track parallel team + Phase 2, migration 0035
 
 Sequential fallback: if you're not running a team on a given day, do the units in
 dependency order — 5.1 → 5.2 → 5.5 → 5.4 → 5.3 → 5.7 → 5.6 — one at a time.
+
+---
+
+## 5b. What remains — sequence from 2026-07-18
+
+### Dev side, zero external dependency (do in this order)
+
+1. **Ship what's sitting local.** Review + merge `ui-polish-2/2026-07` into main
+   (ROADMAP.md Phase-8 hunk will conflict — keep both entries), forced
+   type-check post-merge, push main (~54 commits, includes Sprint I) →
+   Vercel/Railway auto-deploy. Apply migration 0036 to prod per the migration
+   protocol. Nothing built after Sprint H is deployed until this happens.
+2. **Prepare the Colonel demo + decision pack** (see 5c). The demo checkpoint
+   promised after Sprint C never happened and now blocks most client decisions.
+3. **Mobile feature parity (7.1 continuation)** — the only large pure-code work
+   left. Sequence: profile/feed → match requests + chat → vendor browse →
+   payments-view. Store *submission* needs Apple/Google accounts, but every
+   feature + EAS internal builds can be finished without them.
+4. **Staging k6 baseline + SLO calibration** (Sprint H leftover) — needs a
+   staging environment, not a partner.
+5. **8.2 Post-marriage placement shell** (optional, low priority) — same
+   mocked-shell pattern as 6.2/6.3 if idle capacity exists.
+
+### Gated — build is DONE, waiting only on external parties
+
+| Waiting on | Unlocks (live swap = credentials only) |
+|---|---|
+| Razorpay merchant account (needs company registration) | Real payments/subscriptions |
+| MSG91 DLT registration (weeks of regulatory lead time) | Real OTP/SMS |
+| Legal review of T&C/Privacy/Refund | Public launch |
+| Meta Business + WhatsApp BSP | 6.1 WhatsApp live |
+| NBFC/aggregator agreement (FinBox vs Setu) | 6.2 Lending live |
+| IRDAI aggregator (Zopper vs Turtlemint) | 6.3 Insurance live |
+| DigiLocker production API | 5.6 e-sign live (deferrable 60–90d post-launch) |
+| Apple Developer + Google Play enrolment | Store submission |
+| Launch traffic | 6.4 auto-marketing, NRI flag-on, retention outreach, SLO calibration |
+| Venue/vendor partnerships | 8.1 supply half, 6.5 multi-city, 8.2 partners |
+
+### 5c. Colonel decision pack (what to put in front of the client)
+
+Frame every item as a pre-made recommendation to approve, not an open question:
+
+1. **Company registration → Razorpay + MSG91 DLT + legal review** — the three
+   launch blockers; everything else is downstream. DLT is the longest lead time:
+   start it first.
+2. **Calendar convention (item B2 in LAUNCH-CHECKLIST)** — recommend keeping the
+   documented default (56 muhurats 2026; Devshayani + post-Sankranti January
+   dates excluded); he signs off or names dates to restore.
+3. **Subscription pricing** — present the seeded 4-plan matrix (Standard/Premium
+   × M/Y) with proposed prices; he approves numbers.
+4. **WhatsApp** — recommend registering Meta Business + a BSP now (7–14d
+   approval, cheap, no downside).
+5. **Lending partner** — recommend FinBox (fastest to first referral loan);
+   Setu-by-Pine-Labs if AA/BBPS rails are wanted. Referral-only LSP model, no
+   money through Smart Shaadi (RBI Directions 2025).
+6. **Insurance partner + SKU** — recommend leading with a standard HEALTH SKU
+   via Zopper (broad rails) or Turtlemint (white-label/advisor); wedding-event
+   cover as step 2.
+7. **Apple + Google developer accounts** — register when mobile parity nears
+   (D-U-N-S/company verification takes days–weeks).
+8. **DigiLocker production access** — after launch; deferrable.
 
 ---
 

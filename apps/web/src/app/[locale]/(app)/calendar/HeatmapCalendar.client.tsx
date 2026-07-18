@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,8 @@ interface HeatmapCalendarProps {
 }
 
 export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarProps) {
+  const t = useTranslations('muhuratCalendar');
+  const locale = useLocale();
   const [currentMonth, setCurrentMonth] = useState(initialMonth);
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
 
@@ -121,7 +124,7 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
             size="sm"
             onClick={handlePrevMonth}
             className="h-10 w-10 p-0"
-            aria-label="Previous month"
+            aria-label={t('previousMonth')}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -130,7 +133,7 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
             size="sm"
             onClick={handleNextMonth}
             className="h-10 w-10 p-0"
-            aria-label="Next month"
+            aria-label={t('nextMonth')}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -141,28 +144,33 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
       <div className="mb-6 flex flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-gold border border-gold" />
-          <span className="text-sm text-foreground">Peak Auspicious</span>
+          <span className="text-sm text-foreground">{t('peakAuspicious')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-gold/60 border border-gold/60" />
-          <span className="text-sm text-foreground">Moderate</span>
+          <span className="text-sm text-foreground">{t('moderate')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-background border border-gold/20" />
-          <span className="text-sm text-foreground">No Event</span>
+          <span className="text-sm text-foreground">{t('noEvent')}</span>
         </div>
       </div>
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div
-            key={day}
-            className="text-center text-xs font-semibold text-gold-muted py-2"
-          >
-            {day}
-          </div>
-        ))}
+        {Array.from({ length: 7 }).map((_, i) => {
+          // Get locale-aware weekday abbreviation
+          const date = new Date(2024, 0, i + 7); // Use week starting from Sunday
+          const weekdayShort = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+          return (
+            <div
+              key={i}
+              className="text-center text-xs font-semibold text-gold-muted py-2"
+            >
+              {weekdayShort}
+            </div>
+          );
+        })}
       </div>
 
       {/* Calendar grid */}
@@ -241,11 +249,13 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
       {hoveredDate && dayMap.has(hoveredDate) && (
         <div className="mt-6 border-t border-gold/20 pt-4">
           <h3 className="text-sm font-semibold text-primary mb-3">
-            Events on {new Date(hoveredDate).toLocaleDateString('en-IN', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {t('eventsOnDate', {
+              date: new Date(hoveredDate).toLocaleDateString(locale, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              }),
             })}
           </h3>
           <div className="space-y-2">

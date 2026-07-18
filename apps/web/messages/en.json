@@ -80,7 +80,10 @@
       "pipeline": "Pipeline",
       "primaryNav": "Primary navigation",
       "closeMenu": "Close menu",
-      "moreNavigation": "More navigation"
+      "moreNavigation": "More navigation",
+      "documents": "Documents",
+      "pricing": "Smart Pricing",
+      "retention": "Retention"
     }
   },
   "auth": {
@@ -2108,5 +2111,399 @@
     "lockedFeature": "{count} viewer{count, plural, one {} other {s}}",
     "lockedMessage": "See who has viewed your profile. Upgrade to Standard to unlock all {count} visitor{count, plural, one {} other {s}}.",
     "exploreCta": "Explore Matches"
+  },
+  "vendorUtilization": {
+    "metadata": {
+      "title": "Off-Season Opportunities — Smart Shaadi"
+    },
+    "eyebrow": "Vendor Hub",
+    "heading": "Off-Season Opportunities",
+    "subtitle": "Eligible events matched to your available capacity windows during off-peak periods.",
+    "noOpportunitiesTitle": "No eligible opportunities yet",
+    "noOpportunitiesDescription": "As you add more capacity windows marked as off-season, matching events will appear here.",
+    "totalOpportunities": "Total Opportunities",
+    "eventCategories": "Event Categories",
+    "rankedWindowsTitle": "Ranked Windows",
+    "rankedWindowsSubtitle": "Listed by date, with highest capacity fit first.",
+    "date": "Date",
+    "capacity": "Capacity",
+    "time": "Time",
+    "fitScore": "Fit Score",
+    "devNote": "Dev note: The /api/v1/vendors/utilization route is unmounted during Phase 5. It will return live data when the route is mounted in Phase 2. Window data is queried from vendor_capacity; event type matching from vendor_event_types."
+  },
+  "muhuratCalendar": {
+    "metadata": {
+      "title": "Calendar Intelligence — Smart Shaadi"
+    },
+    "heading": "Calendar Intelligence",
+    "subtitle": "Auspicious dates, festivals, and important events for your wedding",
+    "noEventsTitle": "No events found",
+    "noEventsDescription": "There are no calendar events available for the selected month",
+    "peakAuspicious": "Peak Auspicious",
+    "moderate": "Moderate",
+    "noEvent": "No Event",
+    "eventsOnDate": "Events on {date}",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
+  "vendorPricing": {
+    "metadata": {
+      "title": "Dynamic Pricing · Vendor"
+    },
+    "eyebrow": "Vendor",
+    "heading": "Dynamic Pricing",
+    "subtitle": "A date-aware suggested price — always yours to override.",
+    "serviceLabel": "Service",
+    "eventDateLabel": "Event date",
+    "noRules": {
+      "title": "No pricing rules yet",
+      "description": "Add a pricing rule with a base price and your floor / ceiling bounds to see auspicious-date and demand-aware suggestions."
+    },
+    "noSuggestion": "No suggestion available for this date. Try another date or check the rule is active.",
+    "suggestedPrice": "Suggested price",
+    "baseAndMultiplier": "Base {base} · multiplier ×{multiplier}",
+    "appliedFactors": {
+      "muhurat": "Muhurat (auspicious date)",
+      "offseason": "Off-season",
+      "demand": "Demand"
+    },
+    "clampWarning": "Raw ×{rawMultiplier} {action} — kept within your bounds.",
+    "clampActionCeiling": "capped at your ceiling",
+    "clampActionFloor": "lifted to your floor",
+    "suggestionNote": "This is a suggestion — you can always set your own final price."
+  },
+  "adminGaps": {
+    "metadata": {
+      "title": "Vendor Gaps · Admin"
+    },
+    "backToAdmin": "Back to admin",
+    "eyebrow": "Admin",
+    "heading": "Vendor Supply Gaps",
+    "subtitle": "Under-supplied (city × category) markets to prioritise for vendor recruiting.",
+    "loadError": {
+      "title": "Couldn't load supply gaps",
+      "description": "The gap report is unavailable right now. Try again shortly."
+    },
+    "stats": {
+      "underSuppliedMarkets": "Under-supplied markets",
+      "activeCities": "Active cities",
+      "cellsEvaluated": "Cells evaluated"
+    },
+    "noGaps": {
+      "title": "No gaps at this threshold",
+      "description": "Every active market has at least {threshold} vendors per category. Lower the threshold to probe deeper."
+    },
+    "table": {
+      "city": "City",
+      "category": "Category",
+      "supply": "Supply",
+      "shortfall": "Shortfall"
+    },
+    "filter": {
+      "label": "Min vendors / market",
+      "validation": "Must be a number between 1 and 100."
+    }
+  },
+  "b2b": {
+    "list": {
+      "metadata": {
+        "title": "B2B Accounts — Smart Shaadi"
+      },
+      "heading": "B2B Accounts",
+      "subtitle": "Manage institutional buyer accounts, contracts, and invoices",
+      "emptyTitle": "No B2B Accounts Yet",
+      "emptyDescription": "Create your first business account to access invoicing and contract management.",
+      "createButton": "Create B2B Account",
+      "createNew": "Create New Account",
+      "loadError": "Failed to load accounts"
+    },
+    "card": {
+      "createdLabel": "Created",
+      "viewDetails": "View Details"
+    },
+    "create": {
+      "metadata": {
+        "title": "Create B2B Account — Smart Shaadi"
+      },
+      "heading": "Create B2B Account",
+      "subtitle": "Register your institutional buyer account for invoicing and contracts",
+      "legalNameLabel": "Legal Business Name",
+      "legalNamePlaceholder": "ABC Events Ltd",
+      "legalNameHint": "Full registered name of your business",
+      "gstinLabel": "GSTIN (15 digits)",
+      "gstinPlaceholder": "27AABFT5055K1Z0",
+      "gstinHint": "Goods and Services Tax Identification Number (GSTIN)",
+      "gstinErrorFormat": "Invalid GSTIN format. Expected: 15 characters (e.g., 27AABFT5055K1Z0)",
+      "hsnSacLabel": "HSN/SAC Code",
+      "hsnSacPlaceholder": "999596",
+      "hsnSacHint": "Optional default for invoices",
+      "contactEmailLabel": "Contact Email",
+      "contactEmailPlaceholder": "contact@abc.com",
+      "contactPhoneLabel": "Contact Phone",
+      "contactPhonePlaceholder": "+919876543210",
+      "billingAddressLabel": "Billing Address",
+      "billingAddressPlaceholder": "123 Main Street, City, State, Postal Code",
+      "billingAddressHint": "Full billing address for invoices",
+      "submitButton": "Create Account",
+      "cancelButton": "Cancel",
+      "requiredNote": "* Required fields. Your business will be verified within 24 hours.",
+      "requiredLabel": "*",
+      "legalNameRequired": "Legal name is required",
+      "apiNotMounted": "API endpoint not yet mounted. This feature launches in Phase 2."
+    },
+    "detail": {
+      "metadata": {
+        "title": "B2B Account — Smart Shaadi"
+      },
+      "subtitle": "Manage your account, contracts, and invoices",
+      "accountInfoHeading": "Account Information",
+      "legalNameLabel": "Legal Name",
+      "gstinLabel": "GSTIN",
+      "hsnSacLabel": "HSN/SAC Code",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "billingAddressLabel": "Billing Address",
+      "editButton": "Edit Account",
+      "contractsHeading": "Contracts",
+      "contractsDescription": "Create, view, and manage contract documents",
+      "invoicesHeading": "Invoices",
+      "invoicesDescription": "Generate and download GST invoices",
+      "backButton": "Back to Accounts",
+      "notFound": "Account Not Found",
+      "notFoundDescription": "The B2B account you're looking for doesn't exist."
+    },
+    "invoices": {
+      "metadata": {
+        "title": "Invoices — Smart Shaadi"
+      },
+      "heading": "Invoices",
+      "subtitle": "Generate and download GST-compliant invoices",
+      "infoText": "Invoices are generated with GST calculation (CGST+SGST for intra-state, IGST for inter-state) and rendered as PDF with \"Rs.\" prefix.",
+      "emptyTitle": "No Invoices Yet",
+      "emptyDescription": "Generate your first invoice for this B2B account.",
+      "generateButton": "Generate Invoice",
+      "generateNew": "Generate New Invoice",
+      "loadError": "Failed to load invoices",
+      "backButton": "Back to Account",
+      "invoiceNo": "Invoice",
+      "amount": "Rs. {amount}",
+      "created": "Created",
+      "issued": "Issued",
+      "downloadPdf": "Download PDF",
+      "viewDetails": "View Details",
+      "draft": "Draft",
+      "cancelled": "Cancelled"
+    },
+    "contracts": {
+      "metadata": {
+        "title": "Contracts — Smart Shaadi"
+      },
+      "heading": "Contracts",
+      "subtitle": "Create, manage, and sign contract documents",
+      "emptyTitle": "No Contracts Yet",
+      "emptyDescription": "Create your first contract document for this B2B account.",
+      "createButton": "Create Contract",
+      "createNew": "Create New Contract",
+      "loadError": "Failed to load contracts",
+      "backButton": "Back to Account",
+      "templateLabel": "Template",
+      "createdLabel": "Created",
+      "signedLabel": "Signed"
+    },
+    "status": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "rejected": "Rejected",
+      "suspended": "Suspended",
+      "draft": "Draft",
+      "sent": "Pending Signature",
+      "signed": "Signed",
+      "void": "Void",
+      "issued": "Issued",
+      "cancelled": "Cancelled"
+    }
+  },
+  "documents": {
+    "list": {
+      "metadata": {
+        "title": "Documents & Contracts — Smart Shaadi"
+      },
+      "heading": "Documents & Contracts",
+      "subtitle": "Manage your legal agreements and contracts in one place."
+    },
+    "client": {
+      "emptyTitle": "No Documents Yet",
+      "emptyDescription": "Start by creating your first contract or document.",
+      "mockModeWarning": "E-signature is currently in mock mode and not live.",
+      "errorPrefix": "Error:",
+      "sendForSignature": "Send for Signature",
+      "sending": "Sending...",
+      "mockCompleteSignature": "Mock Complete Signature",
+      "completing": "Completing...",
+      "downloadPdf": "Download PDF",
+      "downloading": "Downloading...",
+      "createdLabel": "Created:",
+      "title": "Title",
+      "status": "Status",
+      "draft": "Draft",
+      "sent": "Sent",
+      "signed": "Signed",
+      "void": "Void",
+      "failedToSend": "Failed to send for signature",
+      "failedToComplete": "Failed to complete signature",
+      "failedToDownload": "Failed to download PDF"
+    }
+  },
+  "adminAnalyticsForecast": {
+    "metadata": {
+      "title": "Analytics Forecast — Smart Shaadi"
+    },
+    "eyebrow": "Analytics",
+    "heading": "Platform Analytics",
+    "subtitle": "6-month demand and revenue forecasts.",
+    "downloadPdf": "Download PDF",
+    "downloadHint": "Demand, revenue and 6-month forecast.",
+    "currentMonthDemand": "Current Month Demand",
+    "bookings": "{count, plural, one {# booking} other {# bookings}}",
+    "currentMonthRevenue": "Current Month Revenue",
+    "momGrowth": "{value, number, ::percent} MoM",
+    "bookingDemandForecast": "Booking Demand Forecast",
+    "demandSubtitle": "Projected booking volume over the next 6 months with seasonal adjustment.",
+    "revenueForecast": "Revenue Forecast",
+    "revenueSubtitle": "Projected captured revenue with seasonal patterns accounted for.",
+    "forecastInsights": "Forecast Insights",
+    "seasonalityLabel": "Seasonality",
+    "seasonalityDescription": "Demand and revenue patterns detect 12-month seasonality cycles. Peaks typically align with wedding seasons (Dec–Jan, May–Jun).",
+    "trendLabel": "Trend",
+    "trendDescription": "A moving average of recent months sets the baseline level; the 6-month projection applies seasonal indices to that level.",
+    "updateFrequencyLabel": "Update Frequency",
+    "updateFrequencyDescription": "Forecasts refresh as new booking and payment data arrives. Monthly review recommended for strategic planning.",
+    "errorLoading": "Unable to load forecast data. Admin or Support role required, and at least one month of platform history.",
+    "chartLabelHistorical": "Historical",
+    "chartLabelForecast": "Forecast",
+    "chartForecastMonths": "+6mo forecast",
+    "noDataAvailable": "No forecast data available.",
+    "noDataHint": "Historical data will appear once records are available."
+  },
+  "adminRetention": {
+    "metadata": {
+      "title": "Churn Recovery — Smart Shaadi"
+    },
+    "backToAdmin": "Back to admin",
+    "heading": "Churn Recovery",
+    "subtitle": "At-risk users the daily sweep flagged, and what happened after outreach.",
+    "totalAttempts": "Total attempts",
+    "dryRun": "Dry-run (not sent)",
+    "dryRunHint": "stored for review only",
+    "sent": "Sent",
+    "conversionRate": "Conversion rate",
+    "conversionHint": "{count, plural, one {# recovered} other {# recovered}}",
+    "recoveryAttempts": "Recovery attempts",
+    "showingCount": "{count} shown",
+    "noAttempts": "No recovery attempts yet. The daily sweep records them here as it runs.",
+    "tableHeaderUser": "User",
+    "tableHeaderRisk": "Risk",
+    "tableHeaderAction": "Action",
+    "tableHeaderStatus": "Status",
+    "tableHeaderCreated": "Created",
+    "tableHeaderConverted": "Converted",
+    "noDate": "—"
+  },
+  "servicesLending": {
+    "metadata": {
+      "title": "Wedding Financing"
+    },
+    "heading": "Wedding financing",
+    "subtitle": "Compare loan offers from RBI-regulated lenders for your wedding plans.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Wedding financing is shown for preview only and is not available until our RBI-compliant lending partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi is a Loan Service Provider (LSP), not the lender.",
+      "description": "We only surface offers from RBI-regulated lenders. Loans are provided by the lender named on each offer.",
+      "detail": "Funds are disbursed directly to your bank account and repayments go directly to the lender. Smart Shaadi never handles your money."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our lending partner is live you'll be referred with a Key Fact Statement before any agreement.",
+    "noOffers": "No offers to show right now.",
+    "selectOffer": "Select {name}",
+    "tenure": "Tenure",
+    "apr": "APR",
+    "monthly": "Monthly",
+    "viewKfs": "View Key Fact Statement (KFS)",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected lender. I understand Smart Shaadi is an LSP, earns a referral fee from the lender, and never collects interest or handles my money.",
+    "continue": "Continue",
+    "saving": "Saving…"
+  },
+  "servicesInsurance": {
+    "metadata": {
+      "title": "Insurance for Your Big Day"
+    },
+    "heading": "Insurance for your big day",
+    "subtitle": "Compare cover from IRDAI-registered insurers — health, life, travel, and wedding-event protection.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Insurance is shown for preview only and is not available until our IRDAI-compliant partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi refers you to IRDAI-registered insurers.",
+      "description": "Cover is provided by the insurer named on each quote — Smart Shaadi is not the insurer and earns a referral fee, never your premium.",
+      "detail": "We lead with standard health cover; life, travel, and wedding-event protection are also available."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our insurance partner is live you'll be referred to the insurer with full policy disclosures.",
+    "noQuotes": "No quotes to show right now.",
+    "selectQuote": "Select {name}",
+    "cover": "Cover",
+    "premium": "Premium",
+    "insurerGrievance": "Insurer grievance & redressal",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected insurer. I understand Smart Shaadi is a referrer, earns a referral fee, and does not collect my premium.",
+    "continue": "Continue",
+    "saving": "Saving…",
+    "skuLabels": {
+      "HEALTH": "Health",
+      "LIFE": "Life",
+      "TRAVEL": "Travel",
+      "WEDDING": "Wedding event"
+    },
+    "recommendedBadge": "Recommended"
+  },
+  "virtualDates": {
+    "title": "Virtual dates",
+    "schedule": {
+      "when": "When",
+      "duration": "Duration",
+      "durationMinutes": "{count, plural, one {# min} other {# min}}",
+      "icebreakers": "Icebreakers",
+      "noneOption": "None",
+      "proposeDateButton": "Propose date"
+    },
+    "status": {
+      "PROPOSED": "Awaiting response",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "Missed"
+    },
+    "feedback": {
+      "howDidItGo": "How did it go?",
+      "starRating": "{count, plural, one {# star} other {# stars}}",
+      "continueCheckbox": "I'd like to keep talking",
+      "submitButton": "Submit feedback",
+      "thanksWaiting": "Thanks — waiting for your match's feedback.",
+      "completed": "Both rated · mutual interest to continue",
+      "completedFeedbackOnly": "Both rated · feedback recorded"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+    "empty": "No virtual dates yet. Propose one above.",
+    "loading": "Loading…"
+  },
+  "videoCall": {
+    "title": "Video call",
+    "closeButton": "Close video panel"
   }
 }

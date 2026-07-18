@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { Calendar } from 'lucide-react';
 import { HeatmapCalendar } from './HeatmapCalendar.client';
 
@@ -50,12 +52,14 @@ async function fetchHeatmap(month: string): Promise<HeatmapDay[] | null> {
 
 export function generateMetadata(): Metadata {
   return {
-    title: 'Calendar Intelligence',
+    title: 'Calendar Intelligence — Smart Shaadi',
     description: 'View auspicious dates, festivals, and important events for your wedding planning',
   };
 }
 
 export default async function CalendarPage() {
+  const t = await getTranslations('muhuratCalendar');
+
   // Get current month in YYYY-MM format
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -63,23 +67,25 @@ export default async function CalendarPage() {
   const days = await fetchHeatmap(month);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      <PageHeader
-        title="Calendar Intelligence"
-        subtitle="Auspicious dates, festivals, and important events for your wedding"
-      />
-
-      {!days || days.length === 0 ? (
-        <EmptyState
-          icon={Calendar}
-          title="No events found"
-          description="There are no calendar events available for the selected month"
+    <PageTransition>
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        <PageHeader
+          title={t('heading')}
+          subtitle={t('subtitle')}
         />
-      ) : (
-        <div className="mt-8">
-          <HeatmapCalendar days={days} month={month} />
-        </div>
-      )}
-    </main>
+
+        {!days || days.length === 0 ? (
+          <EmptyState
+            icon={Calendar}
+            title={t('noEventsTitle')}
+            description={t('noEventsDescription')}
+          />
+        ) : (
+          <div className="mt-8">
+            <HeatmapCalendar days={days} month={month} />
+          </div>
+        )}
+      </main>
+    </PageTransition>
   );
 }

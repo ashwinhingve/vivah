@@ -1,5 +1,9 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
 import type { InsuranceQuote, InsuranceSku } from '@smartshaadi/types';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 import { InsuranceClient } from './InsuranceClient.client';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -27,26 +31,30 @@ async function fetchQuotes(): Promise<QuotesResponse> {
   }
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'servicesInsurance.metadata' });
+  return { title: t('title') };
+}
+
 export const dynamic = 'force-dynamic';
 
 export default async function InsurancePage() {
+  const t = await getTranslations('servicesInsurance');
   const { quotes, mock } = await fetchQuotes();
   const isPreview = mock || !INSURANCE_LIVE;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <h1 className="font-heading text-3xl font-bold text-primary mb-2">
-            Insurance for your big day
-          </h1>
-          <p className="text-muted">
-            Compare cover from IRDAI-registered insurers — health, life, travel, and
-            wedding-event protection.
-          </p>
-        </div>
-        <InsuranceClient initialQuotes={quotes} isPreview={isPreview} />
-      </div>
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-8">
+        <PageTransition>
+          <PageHeader
+            title={t('heading')}
+            subtitle={t('subtitle')}
+          />
+          <InsuranceClient initialQuotes={quotes} isPreview={isPreview} />
+        </PageTransition>
+      </main>
     </div>
   );
 }

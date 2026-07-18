@@ -5,15 +5,14 @@
  * Phase 5 Sprint A: e-sign provider call is stubbed.
  */
 
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-
-export const metadata: Metadata = {
-  title: 'Contracts',
-};
+import { Link } from '@/i18n/navigation';
+import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StaggerList } from '@/components/motion/StaggerList.client';
 
 interface ContractsPageProps {
   params: Promise<{
@@ -33,115 +32,116 @@ interface Contract {
   createdAt: string;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'b2b.contracts.metadata' });
+  return { title: t('title') };
+}
+
 export default async function ContractsPage({ params }: ContractsPageProps) {
-  const { locale, accountId } = await params;
+  const { accountId } = await params;
+  const t = await getTranslations('b2b.contracts');
+  const tStatus = await getTranslations('b2b.status');
+
   // Phase 2: Fetch contracts from API
   // const { data: contracts, error } = await fetchAuth<{ contracts: Contract[] }>(
   //   `/api/v1/b2b/contracts?accountId=${accountId}`
   // );
 
   const contracts: Contract[] = [];
-  const isLoading = false;
   const error = null;
 
+  const createCta = (
+    <Link href={`/b2b/${accountId}/contracts/create`}>
+      <Button>{t('createButton')}</Button>
+    </Link>
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader
-        title="Contracts"
-        subtitle="Create, manage, and sign contract documents"
-      />
-
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        {error && (
-          <div className="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
-            <p className="text-sm text-destructive">Failed to load contracts: {error}</p>
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-        )}
-
-        {!isLoading && contracts.length === 0 && (
-          <EmptyState
-            variant="no-bookings"
-            title="No Contracts Yet"
-            description="Create your first contract document for this B2B account."
-            action={
-              <Link href={`/${locale}/b2b/${accountId}/contracts/create`}>
-                <Button>Create Contract</Button>
-              </Link>
-            }
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-8 pb-24">
+          <PageHeader
+            title={t('heading')}
+            subtitle={t('subtitle')}
+            actions={contracts.length > 0 ? createCta : undefined}
           />
-        )}
 
-        {!isLoading && contracts.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex justify-end">
-              <Link href={`/${locale}/b2b/${accountId}/contracts/create`}>
-                <Button>Create New Contract</Button>
+          {error && (
+            <div className="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
+              <p className="text-sm text-destructive">{t('loadError')}</p>
+            </div>
+          )}
+
+          {contracts.length === 0 && (
+            <EmptyState
+              variant="no-bookings"
+              title={t('emptyTitle')}
+              description={t('emptyDescription')}
+              action={createCta}
+            />
+          )}
+
+          {contracts.length > 0 && (
+            <div className="space-y-6">
+              <StaggerList className="grid gap-4">
+                {contracts.map((contract) => (
+                  <ContractCard key={contract.id} contract={contract} accountId={accountId} t={t} tStatus={tStatus} />
+                ))}
+              </StaggerList>
+
+              <div className="flex gap-4">
+                <Link href={`/b2b/${accountId}`}>
+                  <Button variant="outline">{t('backButton')}</Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {contracts.length === 0 && (
+            <div className="mt-8 flex gap-4">
+              <Link href={`/b2b/${accountId}`}>
+                <Button variant="outline">{t('backButton')}</Button>
               </Link>
             </div>
-
-            <div className="grid gap-4">
-              {contracts.map((contract) => (
-                <ContractCard key={contract.id} contract={contract} locale={locale} accountId={accountId} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 flex gap-4">
-          <Link href={`/${locale}/b2b/${accountId}`}>
-            <Button variant="outline">Back to Account</Button>
-          </Link>
+          )}
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
 
 interface ContractCardProps {
   contract: Contract;
-  locale: string;
   accountId: string;
+  t: (key: string) => string;
+  tStatus: (key: string) => string;
 }
 
-function ContractCard({ contract, locale, accountId }: ContractCardProps) {
-  const statusColors: Record<string, string> = {
-    DRAFT: 'bg-blue-100 text-blue-800',
-    SENT: 'bg-amber-100 text-amber-800',
-    SIGNED: 'bg-emerald-100 text-emerald-800',
-    VOID: 'bg-red-100 text-red-800',
-  };
-
-  const statusText: Record<string, string> = {
-    DRAFT: 'Draft',
-    SENT: 'Pending Signature',
-    SIGNED: 'Signed',
-    VOID: 'Void',
+function ContractCard({ contract, accountId, t, tStatus }: ContractCardProps) {
+  const statusMap: Record<string, string> = {
+    DRAFT: 'draft',
+    SENT: 'sent',
+    SIGNED: 'signed',
+    VOID: 'void',
   };
 
   return (
-    <Link href={`/${locale}/b2b/${accountId}/contracts/${contract.id}`}>
-      <div className="cursor-pointer rounded-2xl border border-gold bg-white p-6 shadow-card transition-all hover:shadow-card-hover">
+    <Link href={`/b2b/${accountId}/contracts/${contract.id}`}>
+      <div className="cursor-pointer rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h3 className="text-lg font-heading font-semibold text-primary">{contract.title}</h3>
-            <p className="mt-1 text-xs text-gold-muted">Template: {contract.templateId}</p>
+            <p className="mt-1 text-xs text-gold-muted">{t('templateLabel')}: {contract.templateId}</p>
           </div>
-          <span
-            className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusColors[contract.status]}`}
-          >
-            {statusText[contract.status]}
+          <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
+            {tStatus(statusMap[contract.status] ?? contract.status)}
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-gold-muted">
-          <span>Created {new Date(contract.createdAt).toLocaleDateString()}</span>
-          {contract.signedAt && <span>Signed {new Date(contract.signedAt).toLocaleDateString()}</span>}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gold-muted">
+          <span>{t('createdLabel')} {new Date(contract.createdAt).toLocaleDateString()}</span>
+          {contract.signedAt && <span>{t('signedLabel')} {new Date(contract.signedAt).toLocaleDateString()}</span>}
         </div>
       </div>
     </Link>

@@ -43,7 +43,7 @@ export async function createContract(
   let sections;
   try {
     sections = renderTemplate(input.templateId, input.data);
-  } catch (e) {
+  } catch {
     throw new DocumentsError('INVALID_TEMPLATE', `Unknown template: ${input.templateId}`);
   }
 

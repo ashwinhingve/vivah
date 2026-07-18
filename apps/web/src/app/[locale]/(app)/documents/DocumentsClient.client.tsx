@@ -1,6 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { StaggerList } from '@/components/motion/StaggerList.client';
 import {
   sendForSignatureAction,
   completeSignatureAction,
@@ -25,19 +30,20 @@ interface DocumentsClientProps {
 function getStatusBadgeColor(status: string): string {
   switch (status) {
     case 'DRAFT':
-      return 'bg-amber-50 text-amber-700 border-amber-200';
+      return 'bg-gold/10 text-gold-muted';
     case 'SENT':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
+      return 'bg-teal/10 text-teal';
     case 'SIGNED':
-      return 'bg-green-50 text-green-700 border-green-200';
+      return 'bg-success/10 text-success';
     case 'VOID':
-      return 'bg-red-50 text-red-700 border-red-200';
+      return 'bg-destructive/10 text-destructive';
     default:
-      return 'bg-gray-50 text-gray-700 border-gray-200';
+      return 'bg-gold/10 text-gold-muted';
   }
 }
 
 export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClientProps) {
+  const t = useTranslations('documents.client');
   const [contracts, setContracts] = useState<Contract[]>(initialContracts);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,10 +66,10 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
         // Open signing URL
         window.open(result.signingUrl, '_blank');
       } else {
-        setError(result.error ?? 'Failed to send for signature');
+        setError(result.error ?? t('failedToSend'));
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(e instanceof Error ? e.message : t('failedToSend'));
     } finally {
       setLoading(null);
     }
@@ -84,10 +90,10 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
           ),
         );
       } else {
-        setError(result.error ?? 'Failed to complete signature');
+        setError(result.error ?? t('failedToComplete'));
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(e instanceof Error ? e.message : t('failedToComplete'));
     } finally {
       setLoading(null);
     }
@@ -100,7 +106,7 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
     try {
       await downloadPdfAction(contractId);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to download PDF');
+      setError(e instanceof Error ? e.message : t('failedToDownload'));
     } finally {
       setLoading(null);
     }
@@ -108,15 +114,11 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
 
   if (contracts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <h3 className="font-heading text-xl font-semibold text-primary mb-2">
-            No Documents Yet
-          </h3>
-          <p className="text-muted mb-4">
-            Start by creating your first contract or document.
-          </p>
-        </div>
+      <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
+        <EmptyState
+          title={t('emptyTitle')}
+          description={t('emptyDescription')}
+        />
       </div>
     );
   }
@@ -124,72 +126,81 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
   return (
     <div className="space-y-4">
       {isMockEsign && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
-          ⚠️ E-signature is currently in mock mode and not live.
+        <div className="flex gap-3 rounded-lg border border-warning bg-warning/10 p-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
+          <p className="text-sm text-warning">{t('mockModeWarning')}</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-          Error: {error}
+        <div className="flex gap-3 rounded-lg border border-destructive bg-destructive/10 p-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" aria-hidden="true" />
+          <p className="text-sm text-destructive">
+            <span className="font-semibold">{t('errorPrefix')}</span> {error}
+          </p>
         </div>
       )}
 
-      <div className="space-y-3">
+      <StaggerList className="space-y-3">
         {contracts.map(contract => (
           <div
             key={contract.id}
-            className="bg-white border border-gold/20 rounded-2xl p-4 sm:p-6 shadow-card"
+            className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6 shadow-card"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div className="flex-1 min-w-0">
                 <h3 className="font-heading text-lg font-semibold text-primary truncate">
                   {contract.title}
                 </h3>
                 <p className="text-sm text-muted mt-1">
-                  Created: {new Date(contract.createdAt).toLocaleDateString()}
+                  {t('createdLabel')} {new Date(contract.createdAt).toLocaleDateString()}
                 </p>
               </div>
 
-              <div className={`inline-flex px-3 py-1 rounded-full border text-sm font-medium whitespace-nowrap ${getStatusBadgeColor(contract.status)}`}>
+              <div className={`inline-flex px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusBadgeColor(contract.status)}`}>
                 {contract.status}
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               {contract.status === 'DRAFT' && (
-                <button
+                <Button
                   onClick={() => handleSendForSignature(contract.id)}
                   disabled={loading === contract.id}
-                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition text-sm font-medium"
+                  loading={loading === contract.id}
+                  className="flex-1"
                 >
-                  {loading === contract.id ? 'Sending...' : 'Send for Signature'}
-                </button>
+                  {t('sendForSignature')}
+                </Button>
               )}
 
               {contract.status === 'SENT' && isMockEsign && (
-                <button
+                <Button
                   onClick={() => handleCompleteSignature(contract.id)}
                   disabled={loading === contract.id}
-                  className="flex-1 px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal/90 disabled:opacity-50 transition text-sm font-medium"
+                  loading={loading === contract.id}
+                  variant="secondary"
+                  className="flex-1"
                 >
-                  {loading === contract.id ? 'Completing...' : 'Mock Complete Signature'}
-                </button>
+                  {t('mockCompleteSignature')}
+                </Button>
               )}
 
               {contract.status === 'SIGNED' && (
-                <button
+                <Button
                   onClick={() => handleDownloadPdf(contract.id)}
                   disabled={loading === contract.id}
-                  className="flex-1 px-4 py-2 bg-gold text-primary rounded-lg hover:bg-gold/90 disabled:opacity-50 transition text-sm font-medium"
+                  loading={loading === contract.id}
+                  variant="gold"
+                  className="flex-1"
                 >
-                  {loading === contract.id ? 'Downloading...' : 'Download PDF'}
-                </button>
+                  {t('downloadPdf')}
+                </Button>
               )}
             </div>
           </div>
         ))}
-      </div>
+      </StaggerList>
     </div>
   );
 }

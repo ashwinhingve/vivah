@@ -358,7 +358,7 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 - [ ] EAS Build CI/CD
 - [ ] Apple App Store submission
 - [ ] Google Play Store submission
-- [ ] NRI & international matching (country filters, time zone scheduling)
+- [x] NRI & international matching (country filters, time zone scheduling) — Sprint G (7.2, migration 0034) · behind `NRI_MATCHING_LIVE` (OFF until launch validation)
 - [x] Virtual Date System (durable scheduling, T-24h/T-15m reminders, curated icebreakers, post-date feedback) — Sprint F (7.3) · AI activities / WebGL deferred
 - [x] Advanced Churn Recovery (Stay Quotient daily sweep → win-back attempts, `RETENTION_OUTREACH_LIVE` DRY_RUN default) — Sprint F (7.3)
 - [ ] Production deployment — Phase 7 live 🚀
@@ -380,11 +380,22 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
       exercised on real rows; authenticated HTTP E2E 21/21 + data-path E2E 10/10;
       browser-verified as a real QA login at 375px and 1440px in en and hi.
 - [ ] Post-marriage services (honeymoon, anniversary, referral pathways)
-- [ ] National auto-scaling infrastructure
+- [x] National auto-scaling infrastructure — Sprint H (8.3, migration 0035): scale indexes,
+      k6 suite, `/metrics` histogram, circuit breakers, queue concurrency, `/ready` timeouts
+      (k6 baseline + SLO calibration pending staging/traffic)
 - [ ] Government integration readiness
-- [ ] PDF reporting (vendors, couples, admin)
-- [ ] Project handover documentation
+- [x] PDF reporting (vendors, couples, admin) — Sprint H (`/api/v1/reports`, `lib/pdf/`)
+- [x] Project handover documentation — Sprint H (`docs/handover/` — HANDOVER-INDEX,
+      SCALING-PLAYBOOK, INDEX-PLAN, SLO-AND-ALERTING, ENV-MATRIX)
 - [ ] Production deployment — Phase 8 complete 🎉
+- [x] UI Polish Sprint 2 (2026-07-18, branch `ui-polish-2/2026-07`) — all Phase 5–8 feature pages
+      brought to design-system standard (PageHeader/EmptyState/motion/tokens/boundaries + full
+      en-hi i18n, 295 new keys via fragment-merge protocol); Phase 1–4 residuals fixed (16 token
+      drifts, 30 missing loading/error boundaries); nav entries for Documents / Smart Pricing /
+      Retention. 7 shared-tree teammates (no worktrees — broken on this box), orchestrator-verified.
+      Gates: type-check ✓ build ✓ authenticated en+hi page-render smoke ✓ (lint blocked by a
+      pre-existing missing `@typescript-eslint/eslint-plugin` at root — also broken on main).
+      Awaiting operator review + merge to main.
 
 ---
 

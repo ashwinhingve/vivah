@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { CalendarHeart, Sparkles, Check, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { CalendarHeart, Sparkles, Check, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { VirtualDate, VirtualDateStatus, IcebreakerSet } from '@smartshaadi/types';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -13,13 +15,16 @@ interface Props {
   currentProfileId: string | null;
 }
 
-const STATUS_LABEL: Record<VirtualDateStatus, string> = {
-  PROPOSED: 'Awaiting response',
-  CONFIRMED: 'Confirmed',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  NO_SHOW: 'Missed',
-};
+function getStatusLabel(status: VirtualDateStatus, t: (key: string) => string): string {
+  const labels: Record<VirtualDateStatus, string> = {
+    PROPOSED: t('virtualDates.status.PROPOSED'),
+    CONFIRMED: t('virtualDates.status.CONFIRMED'),
+    COMPLETED: t('virtualDates.status.COMPLETED'),
+    CANCELLED: t('virtualDates.status.CANCELLED'),
+    NO_SHOW: t('virtualDates.status.NO_SHOW'),
+  };
+  return labels[status];
+}
 
 const STATUS_TONE: Record<VirtualDateStatus, string> = {
   PROPOSED: 'bg-gold/15 text-gold-muted',
@@ -51,6 +56,7 @@ function fmt(iso: string): string {
 }
 
 export default function VirtualDates({ matchId, currentProfileId }: Props) {
+  const t = useTranslations();
   const [dates, setDates] = React.useState<VirtualDate[]>([]);
   const [sets, setSets] = React.useState<IcebreakerSet[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -121,13 +127,13 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
     <section className="border-b border-gold/20 bg-surface px-4 py-4 sm:px-6">
       <div className="mb-3 flex items-center gap-2">
         <CalendarHeart className="h-5 w-5 text-primary" />
-        <h2 className="font-heading text-base font-semibold text-primary">Virtual dates</h2>
+        <h2 className="font-heading text-base font-semibold text-primary">{t('virtualDates.title')}</h2>
       </div>
 
       {/* Schedule form */}
       <form onSubmit={schedule} className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-4 sm:items-end">
         <label className="flex flex-col text-xs text-muted-foreground">
-          When
+          {t('virtualDates.schedule.when')}
           <input
             type="datetime-local"
             value={when}
@@ -138,7 +144,7 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
           />
         </label>
         <label className="flex flex-col text-xs text-muted-foreground">
-          Duration
+          {t('virtualDates.schedule.duration')}
           <select
             value={durationMin}
             onChange={(e) => setDurationMin(Number(e.target.value))}
@@ -151,20 +157,20 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
           </select>
         </label>
         <label className="flex flex-col text-xs text-muted-foreground">
-          Icebreakers
+          {t('virtualDates.schedule.icebreakers')}
           <select
             value={setKey}
             onChange={(e) => setSetKey(e.target.value)}
             className="mt-1 h-11 rounded-lg border border-gold/40 bg-background px-3 text-sm text-foreground"
           >
-            <option value="">None</option>
+            <option value="">{t('virtualDates.schedule.noneOption')}</option>
             {sets.map((s) => (
               <option key={s.key} value={s.key}>{s.label}</option>
             ))}
           </select>
         </label>
         <Button type="submit" variant="default" size="lg" loading={busy} className="w-full">
-          Propose date
+          {t('virtualDates.schedule.proposeDateButton')}
         </Button>
       </form>
 
@@ -176,10 +182,14 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
 
       {/* Date list */}
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <div className="space-y-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+          ))}
+        </div>
       ) : dates.length === 0 ? (
         <p className="rounded-lg bg-surface-muted px-4 py-6 text-center text-sm text-muted-foreground">
-          No virtual dates yet. Propose one above.
+          {t('virtualDates.empty')}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -189,11 +199,11 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
             const iAmInvitee = currentProfileId !== null && !isProposer;
             const promptSet = sets.find((s) => s.key === d.icebreakerSetKey);
             return (
-              <li key={d.id} className="rounded-xl border border-gold/20 bg-background p-3">
+              <li key={d.id} className="rounded-2xl border border-gold/20 bg-background p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-semibold text-foreground">{fmt(d.scheduledAt)}</span>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_TONE[d.status]}`}>
-                    {STATUS_LABEL[d.status]}
+                    {getStatusLabel(d.status, t)}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">{d.durationMin} min</p>
@@ -213,26 +223,33 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
                 {d.status === 'PROPOSED' && iAmInvitee ? (
                   <div className="mt-3 flex gap-2">
                     <Button size="sm" variant="default" loading={busy} onClick={() => respond(d.id, 'CONFIRMED')}>
-                      <Check className="mr-1 h-4 w-4" /> Accept
+                      <Check className="mr-1 h-4 w-4" /> {t('virtualDates.actions.accept')}
                     </Button>
                     <Button size="sm" variant="outline" loading={busy} onClick={() => respond(d.id, 'CANCELLED')}>
-                      <X className="mr-1 h-4 w-4" /> Decline
+                      <X className="mr-1 h-4 w-4" /> {t('virtualDates.actions.decline')}
                     </Button>
                   </div>
                 ) : null}
 
                 {/* Post-date feedback on a confirmed date */}
                 {d.status === 'CONFIRMED' && myRating === null ? (
-                  <FeedbackForm busy={busy} onSubmit={(r, c) => sendFeedback(d.id, r, c)} />
+                  <FeedbackForm busy={busy} onSubmit={(r, c) => sendFeedback(d.id, r, c)} t={t} />
                 ) : null}
 
                 {d.status === 'CONFIRMED' && myRating !== null ? (
-                  <p className="mt-2 text-xs text-teal">Thanks — waiting for your match's feedback.</p>
+                  <p className="mt-2 text-xs text-teal">{t('virtualDates.feedback.thanksWaiting')}</p>
                 ) : null}
 
                 {d.status === 'COMPLETED' ? (
-                  <p className="mt-2 text-xs text-success">
-                    Both rated · {d.proposerContinue && d.inviteeContinue ? 'mutual interest to continue 💛' : 'feedback recorded'}
+                  <p className="mt-2 flex items-center gap-1 text-xs text-success">
+                    {d.proposerContinue && d.inviteeContinue ? (
+                      <>
+                        {t('virtualDates.feedback.completed')}
+                        <Heart className="h-3 w-3 text-primary" aria-hidden="true" />
+                      </>
+                    ) : (
+                      t('virtualDates.feedback.completedFeedbackOnly')
+                    )}
                   </p>
                 ) : null}
               </li>
@@ -244,18 +261,26 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
   );
 }
 
-function FeedbackForm({ busy, onSubmit }: { busy: boolean; onSubmit: (rating: number, cont: boolean) => void }) {
+function FeedbackForm({
+  busy,
+  onSubmit,
+  t,
+}: {
+  busy: boolean;
+  onSubmit: (rating: number, cont: boolean) => void;
+  t: (key: string, values?: Record<string, string | number>) => string;
+}) {
   const [rating, setRating] = React.useState(0);
   const [cont, setCont] = React.useState(true);
   return (
     <div className="mt-3 rounded-lg bg-surface-muted p-2">
-      <p className="mb-1 text-xs font-semibold text-foreground">How did it go?</p>
+      <p className="mb-1 text-xs font-semibold text-foreground">{t('virtualDates.feedback.howDidItGo')}</p>
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
-            aria-label={`${n} star`}
+            aria-label={t('virtualDates.feedback.starRating', { count: n })}
             onClick={() => setRating(n)}
             className={`h-8 w-8 rounded-full text-sm font-semibold ${
               n <= rating ? 'bg-gold/30 text-gold-muted' : 'bg-background text-muted-foreground'
@@ -267,7 +292,7 @@ function FeedbackForm({ busy, onSubmit }: { busy: boolean; onSubmit: (rating: nu
       </div>
       <label className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
         <input type="checkbox" checked={cont} onChange={(e) => setCont(e.target.checked)} />
-        I'd like to keep talking
+        {t('virtualDates.feedback.continueCheckbox')}
       </label>
       <Button
         size="sm"
@@ -277,7 +302,7 @@ function FeedbackForm({ busy, onSubmit }: { busy: boolean; onSubmit: (rating: nu
         className="mt-2"
         onClick={() => onSubmit(rating, cont)}
       >
-        Submit feedback
+        {t('virtualDates.feedback.submitButton')}
       </Button>
     </div>
   );

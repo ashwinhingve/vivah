@@ -11,6 +11,8 @@
  * Cross-origin cookie behaviour is per ADR-002 (SameSite=None; Secure in prod).
  */
 
+import { Download } from 'lucide-react';
+
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface ReportDownloadButtonProps {
@@ -35,20 +37,7 @@ export function ReportDownloadButton({
         download
         className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <svg
-          aria-hidden="true"
-          className="h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"
-          />
-        </svg>
+        <Download className="h-4 w-4" aria-hidden="true" />
         {label}
       </a>
       {hint ? <p className="text-xs text-text-muted">{hint}</p> : null}
