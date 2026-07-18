@@ -11,13 +11,9 @@
  */
 
 import PDFDocument from 'pdfkit';
+import { BURGUNDY, GOLD, INK, MUTED, PAD } from '../lib/pdf/brand.js';
+import { renderBuffer } from '../lib/pdf/format.js';
 import type { ContractSection } from './templates.js';
-
-// Brand colours from Smart Shaadi design tokens
-const BURGUNDY = '#7B2D42';
-const GOLD = '#C5A47E';
-const INK = '#2E2E38';
-const MUTED = '#6B6B76';
 
 // Amounts are pre-formatted as "Rs. X.XX" inside the rendered template sections
 // (never the ₹ glyph — Helvetica bug), so this layout function only positions text.
@@ -31,16 +27,9 @@ export interface ContractPdfData {
 }
 
 export function generateContractPdf(data: ContractPdfData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A4', margin: 40 });
-    const chunks: Buffer[] = [];
+  const doc = new PDFDocument({ size: 'A4', margin: PAD });
 
-    doc.on('data', (c: Buffer) => chunks.push(c));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-
-    const W = doc.page.width;
-    const PAD = 40;
+  return renderBuffer(doc, (doc, { W }) => {
     const innerW = W - PAD * 2;
     let y = doc.y;
 
@@ -165,7 +154,5 @@ export function generateContractPdf(data: ContractPdfData): Promise<Buffer> {
       width: innerW,
       align: 'center',
     });
-
-    doc.end();
   });
 }

@@ -1,4 +1,5 @@
 import { env } from '../../lib/env.js';
+import { msg91Breaker } from '../../lib/circuit-breaker.js';
 import type { SmsPayload, DeliveryResult } from './types.js';
 
 const MSG91_BASE = 'https://api.msg91.com/api/v5';
@@ -13,24 +14,29 @@ export async function sendSms(p: SmsPayload): Promise<DeliveryResult> {
   }
 
   try {
-    const phone = p.phone.replace(/^\+/, '');
-    const res = await fetch(`${MSG91_BASE}/flow/`, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authkey:        env.MSG91_API_KEY,
-      },
-      body: JSON.stringify({
-        template_id: p.template ?? env.MSG91_TEMPLATE_ID,
-        recipients:  [{ mobiles: phone, message: p.message }],
-      }),
+    return await msg91Breaker.call(async () => {
+      const phone = p.phone.replace(/^\+/, '');
+      const res = await fetch(`${MSG91_BASE}/flow/`, {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authkey:        env.MSG91_API_KEY,
+        },
+        body: JSON.stringify({
+          template_id: p.template ?? env.MSG91_TEMPLATE_ID,
+          recipients:  [{ mobiles: phone, message: p.message }],
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`MSG91 HTTP ${res.status}`);
+      }
+      const data = await res.json() as { request_id?: string };
+      return { ok: true, provider: 'msg91', id: data.request_id ?? '' };
     });
-    if (!res.ok) {
-      return { ok: false, provider: 'msg91', error: `HTTP ${res.status}` };
-    }
-    const data = await res.json() as { request_id?: string };
-    return { ok: true, provider: 'msg91', id: data.request_id ?? '' };
   } catch (err) {
+    if ((err as { name?: string }).name === 'CircuitBreakerOpenError') {
+      return { ok: false, provider: 'msg91', error: (err as Error).message };
+    }
     return { ok: false, provider: 'msg91', error: (err as Error).message };
   }
 }

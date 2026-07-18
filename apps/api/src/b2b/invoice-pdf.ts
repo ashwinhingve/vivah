@@ -11,12 +11,8 @@
  */
 
 import PDFDocument from 'pdfkit';
-
-// Brand colours from Smart Shaadi design tokens
-const BURGUNDY = '#7B2D42';
-const GOLD = '#C5A47E';
-const INK = '#2E2E38';
-const MUTED = '#6B6B76';
+import { BURGUNDY, GOLD, INK, MUTED, PAD } from '../lib/pdf/brand.js';
+import { formatRupees, formatDate, renderBuffer } from '../lib/pdf/format.js';
 
 export interface InvoiceLineItem {
   description: string;
@@ -77,36 +73,10 @@ function calculateTax(
   };
 }
 
-/**
- * Format rupee amount as "Rs. X.XX"
- */
-function formatRupees(amount: number): string {
-  return `Rs. ${amount.toFixed(2)}`;
-}
-
-/**
- * Format date from ISO string to readable format
- */
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-}
-
 export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A4', margin: 40 });
-    const chunks: Buffer[] = [];
+  const doc = new PDFDocument({ size: 'A4', margin: PAD });
 
-    doc.on('data', (c: Buffer) => chunks.push(c));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-
-    const W = doc.page.width;
-    const PAD = 40;
+  return renderBuffer(doc, (doc, { W }) => {
     const innerW = W - PAD * 2;
     let y = doc.y;
 
@@ -322,7 +292,7 @@ export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     }
 
     // ── Footer ───────────────────────────────────────────────────────────────
-    y = doc.page.height - 40;
+    y = doc.page.height - PAD;
     doc.lineWidth(0.5).strokeColor(MUTED);
     doc.moveTo(PAD, y).lineTo(W - PAD, y).stroke();
 
@@ -334,7 +304,5 @@ export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
         width: innerW,
         align: 'center',
       });
-
-    doc.end();
   });
 }

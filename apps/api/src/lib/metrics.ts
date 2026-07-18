@@ -17,6 +17,7 @@ import {
   invitationBlastQueue,
 } from '../infrastructure/redis/queues.js';
 import { env } from './env.js';
+import { getAllBreakerStates } from './circuit-breaker.js';
 
 // ── Counters ─────────────────────────────────────────────────────────────────
 const counters = new Map<string, number>();
@@ -36,6 +37,47 @@ function serialize(name: string, labels: Record<string, string>): string {
 
 function escapeLabel(v: string): string {
   return v.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+}
+
+// ── Histograms ───────────────────────────────────────────────────────────────
+// HTTP request duration histogram: tracks P50/P95/P99 latency by route+method+status.
+// Buckets (in seconds): 0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10
+// Cardinality bounded by using route template (not raw URL with IDs).
+interface HistogramBucket {
+  le: number; // upper bound (seconds)
+  count: number; // cumulative count <= le
+}
+
+interface Histogram {
+  buckets: HistogramBucket[];
+  sum: number;
+  count: number;
+}
+
+const histograms = new Map<string, Histogram>();
+
+const HISTOGRAM_BUCKETS = [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
+
+function recordHistogram(name: string, labels: Record<string, string>, valueSeconds: number): void {
+  const key = serialize(name, labels);
+  let histogram = histograms.get(key);
+  if (!histogram) {
+    histogram = {
+      buckets: HISTOGRAM_BUCKETS.map((le) => ({ le, count: 0 })),
+      sum: 0,
+      count: 0,
+    };
+    histograms.set(key, histogram);
+  }
+
+  // Increment bucket counts
+  for (const bucket of histogram.buckets) {
+    if (valueSeconds <= bucket.le) {
+      bucket.count += 1;
+    }
+  }
+  histogram.sum += valueSeconds;
+  histogram.count += 1;
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
@@ -63,11 +105,22 @@ export const metrics = {
   },
 };
 
-/** Express middleware — auto-records http_requests_total for every route. */
+/** Express middleware — auto-records http_requests_total and http_request_duration_seconds. */
 export function metricsMiddleware(req: Request, res: Response, next: () => void): void {
+  const startTime = process.hrtime.bigint();
+
   res.on('finish', () => {
     const route = req.route?.path ?? req.path ?? 'unknown';
     metrics.httpRequest(req.method, route, res.statusCode);
+
+    // Record histogram: duration in seconds
+    const elapsedNs = process.hrtime.bigint() - startTime;
+    const elapsedSeconds = Number(elapsedNs) / 1_000_000_000;
+    recordHistogram('http_request_duration_seconds', {
+      route,
+      method: req.method,
+      status: String(res.statusCode),
+    }, elapsedSeconds);
   });
   next();
 }
@@ -93,6 +146,48 @@ export async function metricsHandler(_req: Request, res: Response): Promise<void
     const baseName = key.split('{')[0];
     lines.push(`# TYPE ${baseName} counter`);
     lines.push(`${key} ${value}`);
+  }
+
+  // Histograms — emit _bucket (with le label), _sum, _count
+  // Group by base name to avoid duplicate TYPE headers
+  const histogramsByName = new Map<string, Array<[string, Histogram]>>();
+  for (const [key, histogram] of histograms) {
+    const [baseName] = key.split('{');
+    if (!baseName) continue; // Skip malformed keys
+    if (!histogramsByName.has(baseName)) {
+      histogramsByName.set(baseName, []);
+    }
+    histogramsByName.get(baseName)!.push([key, histogram]);
+  }
+
+  for (const [baseName, entries] of histogramsByName) {
+    lines.push(`# HELP ${baseName} HTTP request duration in seconds`);
+    lines.push(`# TYPE ${baseName} histogram`);
+
+    for (const [baseKey, histogram] of entries) {
+      const labels = baseKey.includes('{')
+        ? baseKey.substring(baseName.length + 1, baseKey.length - 1)
+        : '';
+      // Emit buckets first
+      for (const bucket of histogram.buckets) {
+        const bucketLabel = labels ? `${labels},le="${bucket.le}"` : `le="${bucket.le}"`;
+        lines.push(`${baseName}_bucket{${bucketLabel}} ${bucket.count}`);
+      }
+      // +Inf bucket is always count (all samples)
+      const infLabel = labels ? `${labels},le="+Inf"` : 'le="+Inf"';
+      lines.push(`${baseName}_bucket{${infLabel}} ${histogram.count}`);
+      // Emit sum and count
+      lines.push(`${baseName}_sum${labels ? `{${labels}}` : ''} ${histogram.sum}`);
+      lines.push(`${baseName}_count${labels ? `{${labels}}` : ''} ${histogram.count}`);
+    }
+  }
+
+  // Circuit breaker states (0=closed, 1=half-open, 2=open)
+  lines.push('# HELP circuit_breaker_state External service circuit breaker state (0=closed, 1=half-open, 2=open)');
+  lines.push('# TYPE circuit_breaker_state gauge');
+  const breakerStates = getAllBreakerStates();
+  for (const [service, state] of Object.entries(breakerStates)) {
+    lines.push(`circuit_breaker_state{service="${service}"} ${state}`);
   }
 
   // Bull queue depths (skip in mock mode — would error)

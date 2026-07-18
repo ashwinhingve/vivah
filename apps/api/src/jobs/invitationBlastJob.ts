@@ -18,6 +18,8 @@ import { logger } from '../lib/logger.js';
 const QUEUE_NAME = 'invitation-blast';
 
 export function registerInvitationBlastWorker(): Worker<InvitationBlastJob> {
+  // Invitation blast — moderate-high concurrency (15) since it's primarily
+  // logging/scheduling; actual SMS/email dispatch goes through notifications queue.
   const worker = new Worker<InvitationBlastJob>(
     QUEUE_NAME,
     async (job) => {
@@ -34,7 +36,7 @@ export function registerInvitationBlastWorker(): Worker<InvitationBlastJob> {
         '[invitationBlastJob] tick — no scheduled blasts pending',
       );
     },
-    { connection },
+    { connection, concurrency: 15 },
   );
 
   worker.on('failed', (job, err) => {

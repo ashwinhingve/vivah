@@ -54,6 +54,7 @@ import { gapRouter } from './vendors/gap.js';
 import { pricingRouter } from './pricing/router.js';
 import { b2bRouter } from './b2b/router.js';
 import { analyticsRouter as forecastingRouter } from './analytics/analytics.router.js'; // Phase 5 Sprint C (5.7)
+import { reportsRouter } from './reports/reports.router.js'; // Phase 8 Sprint H (8.3)
 import { documentsRouter } from './documents/documents.router.js'; // Phase 5 Sprint C (5.6)
 import { whatsappRouter } from './whatsapp/router.js';   // Phase 6 Sprint D (WhatsApp 6.1)
 import { lendingRouter } from './lending/router.js';     // Phase 6 Sprint D (Lending 6.2, mock)
@@ -259,9 +260,14 @@ app.get('/ready', async (_req: Request, res: Response) => {
   // Postgres + Redis are local infra — required even in mock mode (mock only
   // skips external SaaS like Razorpay/MSG91). If they are down the API cannot
   // serve traffic, so /ready must reflect that.
+  // Per-check timeouts (2s) prevent hung dependencies from blocking the probe.
   try {
     const { db } = await import('./lib/db.js');
-    await (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
+    const dbPromise = (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
+    const timeoutPromise = new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 2000)
+    );
+    await Promise.race([dbPromise, timeoutPromise]);
     checks['postgres'] = 'ok';
   } catch (err) {
     checks['postgres'] = err instanceof Error ? err.message : 'unreachable';
@@ -270,7 +276,11 @@ app.get('/ready', async (_req: Request, res: Response) => {
 
   try {
     const { redis } = await import('./lib/redis.js');
-    await redis.ping();
+    const pingPromise = redis.ping();
+    const timeoutPromise = new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 2000)
+    );
+    await Promise.race([pingPromise, timeoutPromise]);
     checks['redis'] = 'ok';
   } catch (err) {
     checks['redis'] = err instanceof Error ? err.message : 'unreachable';
@@ -298,6 +308,39 @@ app.get('/ready', async (_req: Request, res: Response) => {
     } catch (err) {
       checks['mongo'] = err instanceof Error ? err.message : 'unreachable';
       allOk = false;
+    }
+  }
+
+  // Bull queue depths — include in readiness check so load balancers see
+  // when the queue backlog is critical. Skip in mock mode (Redis not configured).
+  if (!env.USE_MOCK_SERVICES) {
+    try {
+      const {
+        matchComputeQueue,
+        notificationsQueue,
+        escrowReleaseQueue,
+        invitationBlastQueue,
+      } = await import('./infrastructure/redis/queues.js');
+      const queues: Array<[string, { getJobCounts: () => Promise<Record<string, number>> }]> = [
+        ['match-compute', matchComputeQueue],
+        ['notifications', notificationsQueue],
+        ['escrow-release', escrowReleaseQueue],
+        ['invitation-blast', invitationBlastQueue],
+      ];
+
+      const queueStats: Record<string, number> = {};
+      for (const [name, queue] of queues) {
+        try {
+          const counts = await queue.getJobCounts();
+          const total = Object.values(counts).reduce((a, b) => a + b, 0);
+          queueStats[name] = total;
+        } catch {
+          queueStats[name] = -1; // unreachable
+        }
+      }
+      checks['queue_depths'] = JSON.stringify(queueStats);
+    } catch {
+      // Queue import or check failed — not a readiness failure, just skip
     }
   }
 
@@ -369,6 +412,7 @@ app.use('/api/v1/admin', adminAnalyticsRouter);
 app.use('/api/v1/admin', platformSettingsRouter);
 app.use('/api/v1/admin', adminUsersRouter);
 app.use('/api/v1/admin', adminAuditRouter);
+app.use('/api/v1/reports', reportsRouter); // Phase 8 Sprint H (PDF Reporting 8.3)
 app.use('/api/v1', platformSettingsPublicRouter);
 
 // Internal service-to-service routes — NO session middleware, authenticated via
