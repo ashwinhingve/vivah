@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import ChatView from '@/components/chat/ChatView.client'
 import VideoCallPanel from './VideoCallPanel.client'
+import VirtualDates from './VirtualDates.client'
 import type { ChatMessage, ConversationParticipantPreview } from '@smartshaadi/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_SOCKET_URL'] ?? 'http://localhost:4000'
@@ -102,6 +103,8 @@ export default async function ChatPage({ params }: ChatPageProps) {
       ) : null}
 
       <VideoCallPanel matchId={matchId} currentUserId={userId} />
+
+      <VirtualDates matchId={matchId} currentProfileId={profileId} />
 
       <ChatView
         matchId={matchId}

@@ -1849,6 +1849,10 @@
       "gaps": {
         "label": "Supply Gaps",
         "description": "Under-supplied vendor markets"
+      },
+      "retention": {
+        "label": "Retention",
+        "description": "Churn-recovery attempts & outcomes"
       }
     },
     "users": {

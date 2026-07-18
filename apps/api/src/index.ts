@@ -62,6 +62,7 @@ import { startWhatsAppWorker } from './jobs/whatsappWorker.js'; // Phase 6 Sprin
 import { escrowAdminRouter } from './admin/escrow.js';
 import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
+import { retentionRouter } from './retention/router.js'; // Phase 7 Sprint F (Churn Recovery 7.3)
 import { reputationAdminRouter } from './admin/reputation.router.js';
 import { adminAnalyticsRouter } from './admin/analytics.router.js';
 import { platformSettingsRouter, platformSettingsPublicRouter } from './admin/platformSettings.router.js';
@@ -95,6 +96,10 @@ import {
   registerMatchRequestExpiryWorker,
   scheduleMatchRequestExpiryJob,
 } from './jobs/matchRequestExpiryJob.js';
+import {
+  registerChurnRecoverySweepWorker,
+  scheduleChurnRecoverySweepJob,
+} from './jobs/churnRecoverySweepJob.js'; // Phase 7 Sprint F (Unit 7.3)
 import {
   registerWeddingReminderWorker,
   scheduleWeddingReminderJob,
@@ -358,6 +363,7 @@ app.use('/api/v1/insurance', insuranceRouter);   // Phase 6 Sprint D (Insurance 
 app.use('/api/v1/admin', escrowAdminRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);
+app.use('/api/v1/admin/retention', retentionRouter); // Phase 7 Sprint F (Churn Recovery 7.3)
 app.use('/api/v1/admin', reputationAdminRouter);
 app.use('/api/v1/admin', adminAnalyticsRouter);
 app.use('/api/v1/admin', platformSettingsRouter);
@@ -524,6 +530,8 @@ async function bootstrap(): Promise<void> {
     void scheduleBehaviorAggregateJob();
     workers.push(registerEmbeddingWorker());
     workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
+    workers.push(registerChurnRecoverySweepWorker()); // Phase 7 Sprint F — churn recovery sweep
+    void scheduleChurnRecoverySweepJob();
     registerP3Workers(workers);
   }
 
