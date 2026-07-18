@@ -108,10 +108,15 @@ async function loadLeg(weddingId: string, destinationId: string) {
  * 6 of each — and it is still one round trip, not a query per leg.
  */
 export async function listDestinations(weddingId: string): Promise<DestinationSummary[]> {
+  // The two count columns MUST carry DIFFERENT aliases. Naming both `n` makes the
+  // outer coalesce() emit an unqualified `n` that matches both derived tables, and
+  // Postgres rejects the whole statement with `column reference "n" is ambiguous`
+  // — a 500 on every list and reorder call. Found by the authenticated E2E; a unit
+  // test that mocks the database cannot see it, because the SQL is never planned.
   const ceremonyCounts = db
     .select({
       destinationId: ceremonies.destinationId,
-      n: sql<number>`count(*)::int`.as('n'),
+      ceremonyN: sql<number>`count(*)::int`.as('ceremony_n'),
     })
     .from(ceremonies)
     .where(eq(ceremonies.weddingId, weddingId))
@@ -121,7 +126,7 @@ export async function listDestinations(weddingId: string): Promise<DestinationSu
   const travelCounts = db
     .select({
       destinationId: guestTravelLegs.destinationId,
-      n: sql<number>`count(*)::int`.as('n'),
+      travellerN: sql<number>`count(*)::int`.as('traveller_n'),
     })
     .from(guestTravelLegs)
     .groupBy(guestTravelLegs.destinationId)
@@ -130,8 +135,8 @@ export async function listDestinations(weddingId: string): Promise<DestinationSu
   const rows = await db
     .select({
       d: weddingDestinations,
-      ceremonyCount:  sql<number>`coalesce(${ceremonyCounts.n}, 0)::int`,
-      travellerCount: sql<number>`coalesce(${travelCounts.n}, 0)::int`,
+      ceremonyCount:  sql<number>`coalesce(${ceremonyCounts.ceremonyN}, 0)::int`,
+      travellerCount: sql<number>`coalesce(${travelCounts.travellerN}, 0)::int`,
     })
     .from(weddingDestinations)
     .leftJoin(ceremonyCounts, eq(ceremonyCounts.destinationId, weddingDestinations.id))
