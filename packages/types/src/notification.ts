@@ -64,6 +64,9 @@ export type NotificationType =
   | 'PROFILE_REPORTED_MODERATION'
   // retention / churn recovery (Phase 7 Sprint F)
   | 'CHURN_WINBACK_OFFER' | 'CHURN_RECOVERY_NUDGE' | 'REENGAGE_NUDGE'
+  // auto-marketing (Phase 6 Sprint J, Unit 6.4) — copy comes from the
+  // campaign_content row, carried in the payload, not from a static template
+  | 'MARKETING_CAMPAIGN'
   // catch-alls
   | 'SYSTEM' | 'GENERIC';
 
