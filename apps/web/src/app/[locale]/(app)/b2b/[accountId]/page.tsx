@@ -4,15 +4,14 @@
  * Shows account information and navigation to contracts/invoices.
  */
 
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-
-export const metadata: Metadata = {
-  title: 'B2B Account',
-};
+import { Link } from '@/i18n/navigation';
+import { ArrowRight } from 'lucide-react';
+import { PageTransition } from '@/components/motion/PageTransition.client';
 
 interface B2BAccountDetailPageProps {
   params: Promise<{
@@ -34,10 +33,19 @@ interface B2BAccount {
   updatedAt: string;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'b2b.detail.metadata' });
+  return { title: t('title') };
+}
+
 export default async function B2BAccountDetailPage({
   params,
 }: B2BAccountDetailPageProps) {
   const { locale, accountId } = await params;
+  const t = await getTranslations('b2b.detail');
+  const tStatus = await getTranslations('b2b.status');
+
   // Phase 2: Fetch account from API
   // const { data: account, error } = await fetchAuth<{ account: B2BAccount }>(
   //   `/api/v1/b2b/accounts/${accountId}`
@@ -48,131 +56,139 @@ export default async function B2BAccountDetailPage({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        <PageHeader title="Account Not Found" />
-        <div className="container mx-auto max-w-4xl px-4 py-8">
-          <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-            <p className="text-sm text-destructive">Failed to load account: {error}</p>
+      <PageTransition>
+        <div className="min-h-screen bg-background">
+          <div className="mx-auto max-w-4xl px-4 py-8 pb-24">
+            <PageHeader title={t('notFound')} />
+            <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </PageTransition>
     );
   }
 
   if (!account) {
     return (
-      <div className="min-h-screen bg-background">
-        <PageHeader title="Account" />
-        <div className="container mx-auto max-w-4xl px-4 py-8">
-          <EmptyState
-            title="Account Not Found"
-            description="The B2B account you're looking for doesn't exist."
-            action={
-              <Link href={`/${locale}/b2b`}>
-                <Button>Back to Accounts</Button>
-              </Link>
-            }
-          />
+      <PageTransition>
+        <div className="min-h-screen bg-background">
+          <div className="mx-auto max-w-4xl px-4 py-8 pb-24">
+            <PageHeader title={t('notFound')} />
+            <EmptyState
+              title={t('notFound')}
+              description={t('notFoundDescription')}
+              action={
+                <Link href="/b2b">
+                  <Button>{t('backButton')}</Button>
+                </Link>
+              }
+            />
+          </div>
         </div>
-      </div>
+      </PageTransition>
     );
   }
 
   const acct = account as B2BAccount;
-  const statusColors: Record<string, string> = {
-    PENDING: 'bg-amber-100 text-amber-800',
-    VERIFIED: 'bg-emerald-100 text-emerald-800',
-    REJECTED: 'bg-red-100 text-red-800',
-    SUSPENDED: 'bg-gray-100 text-gray-800',
+  const statusMap: Record<string, string> = {
+    PENDING: 'pending',
+    VERIFIED: 'verified',
+    REJECTED: 'rejected',
+    SUSPENDED: 'suspended',
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader
-        title={acct.legalName}
-        subtitle="Manage your account, contracts, and invoices"
-      />
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-8 pb-24">
+          <PageHeader
+            title={acct.legalName}
+            subtitle={t('subtitle')}
+          />
 
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        {/* Account Information Card */}
-        <div className="mb-8 rounded-2xl border border-gold bg-white p-8 shadow-card">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-heading font-semibold text-primary">Account Information</h2>
-            <span
-              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${statusColors[acct.status]}`}
-            >
-              {acct.status}
-            </span>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div>
-              <p className="text-xs text-gold-muted">Legal Name</p>
-              <p className="mt-1 text-sm font-semibold text-ink">{acct.legalName}</p>
+          {/* Account Information Card */}
+          <div className="mb-8 rounded-2xl border border-gold/20 bg-surface p-8 shadow-card">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-heading font-semibold text-primary">{t('accountInfoHeading')}</h2>
+              <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
+                {statusMap[acct.status]}
+              </span>
             </div>
 
-            <div>
-              <p className="text-xs text-gold-muted">GSTIN</p>
-              <p className="mt-1 font-mono text-sm font-semibold text-ink">{acct.gstin}</p>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <p className="text-xs text-gold-muted">{t('legalNameLabel')}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{acct.legalName}</p>
+              </div>
+
+              <div>
+                <p className="text-xs text-gold-muted">{t('gstinLabel')}</p>
+                <p className="mt-1 font-mono text-sm font-semibold text-foreground">{acct.gstin}</p>
+              </div>
+
+              {acct.hsnSac && (
+                <div>
+                  <p className="text-xs text-gold-muted">{t('hsnSacLabel')}</p>
+                  <p className="mt-1 font-mono text-sm text-foreground">{acct.hsnSac}</p>
+                </div>
+              )}
+
+              {acct.contactEmail && (
+                <div>
+                  <p className="text-xs text-gold-muted">{t('emailLabel')}</p>
+                  <p className="mt-1 text-sm text-foreground">{acct.contactEmail}</p>
+                </div>
+              )}
+
+              {acct.contactPhone && (
+                <div>
+                  <p className="text-xs text-gold-muted">{t('phoneLabel')}</p>
+                  <p className="mt-1 text-sm text-foreground">{acct.contactPhone}</p>
+                </div>
+              )}
+
+              {acct.billingAddress && (
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-gold-muted">{t('billingAddressLabel')}</p>
+                  <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{acct.billingAddress}</p>
+                </div>
+              )}
             </div>
 
-            {acct.hsnSac && (
-              <div>
-                <p className="text-xs text-gold-muted">HSN/SAC Code</p>
-                <p className="mt-1 font-mono text-sm text-ink">{acct.hsnSac}</p>
-              </div>
-            )}
-
-            {acct.contactEmail && (
-              <div>
-                <p className="text-xs text-gold-muted">Email</p>
-                <p className="mt-1 text-sm text-ink">{acct.contactEmail}</p>
-              </div>
-            )}
-
-            {acct.contactPhone && (
-              <div>
-                <p className="text-xs text-gold-muted">Phone</p>
-                <p className="mt-1 text-sm text-ink">{acct.contactPhone}</p>
-              </div>
-            )}
-
-            {acct.billingAddress && (
-              <div className="sm:col-span-2">
-                <p className="text-xs text-gold-muted">Billing Address</p>
-                <p className="mt-1 text-sm text-ink whitespace-pre-wrap">{acct.billingAddress}</p>
-              </div>
-            )}
+            <div className="mt-6 flex gap-4 border-t border-gold/20 pt-6">
+              <Link href={`/b2b/${accountId}/edit`}>
+                <Button variant="outline">{t('editButton')}</Button>
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-6 flex gap-4 border-t border-gold pt-6">
-            <Link href={`/${locale}/b2b/${accountId}/edit`}>
-              <Button variant="outline">Edit Account</Button>
+          {/* Navigation to Sub-pages */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Link href={`/b2b/${accountId}/contracts`}>
+              <div className="cursor-pointer rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
+                <h3 className="text-lg font-heading font-semibold text-primary">{t('contractsHeading')}</h3>
+                <p className="mt-2 text-sm text-gold-muted">
+                  {t('contractsDescription')}
+                </p>
+                <div className="mt-4 flex items-center gap-1 text-teal">
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </div>
+            </Link>
+
+            <Link href={`/b2b/${accountId}/invoices`}>
+              <div className="cursor-pointer rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
+                <h3 className="text-lg font-heading font-semibold text-primary">{t('invoicesHeading')}</h3>
+                <p className="mt-2 text-sm text-gold-muted">{t('invoicesDescription')}</p>
+                <div className="mt-4 flex items-center gap-1 text-teal">
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </div>
             </Link>
           </div>
         </div>
-
-        {/* Navigation to Sub-pages */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link href={`/${locale}/b2b/${accountId}/contracts`}>
-            <div className="cursor-pointer rounded-2xl border border-gold bg-white p-6 shadow-card transition-all hover:shadow-card-hover">
-              <h3 className="text-lg font-heading font-semibold text-primary">Contracts</h3>
-              <p className="mt-2 text-sm text-gold-muted">
-                Create, view, and manage contract documents
-              </p>
-              <div className="mt-4 text-teal">→</div>
-            </div>
-          </Link>
-
-          <Link href={`/${locale}/b2b/${accountId}/invoices`}>
-            <div className="cursor-pointer rounded-2xl border border-gold bg-white p-6 shadow-card transition-all hover:shadow-card-hover">
-              <h3 className="text-lg font-heading font-semibold text-primary">Invoices</h3>
-              <p className="mt-2 text-sm text-gold-muted">Generate and download GST invoices</p>
-              <div className="mt-4 text-teal">→</div>
-            </div>
-          </Link>
-        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
