@@ -26,6 +26,7 @@ import {
   Route,
   UserPlus,
   Inbox,
+  TrendingUp,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -75,8 +76,9 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
       { href: '/payments',          labelKey: 'payments', Icon: ShoppingCart },
       { href: '/payments/wallet',   labelKey: 'wallet',   Icon: Wallet },
       { href: '/payments/invoices', labelKey: 'invoices', Icon: FileText },
-      { href: '/payments/refunds',  labelKey: 'refunds',  Icon: Receipt },
-      { href: '/b2b',               labelKey: 'b2b',      Icon: FileText },
+      { href: '/payments/refunds',  labelKey: 'refunds',   Icon: Receipt },
+      { href: '/b2b',               labelKey: 'b2b',       Icon: FileText },
+      { href: '/documents',         labelKey: 'documents', Icon: FileText },
     ],
   },
   {
@@ -110,6 +112,7 @@ const VENDOR_MORE_GROUPS: NavGroup[] = [
       { href: '/vendor/reviews',           labelKey: 'reviews',     Icon: MessageCircle },
       { href: '/vendor-dashboard/rentals', labelKey: 'rentals',     Icon: Package },
       { href: '/vendor-dashboard/utilization', labelKey: 'utilization', Icon: Sparkles },
+      { href: '/vendor/pricing',           labelKey: 'pricing',     Icon: TrendingUp },
     ],
   },
   {
@@ -143,6 +146,7 @@ const ADMIN_MORE_GROUPS: NavGroup[] = [
       { href: '/admin/users',     labelKey: 'userManagement',  Icon: UserCog },
       { href: '/admin/audit',     labelKey: 'auditLog',        Icon: ClipboardList },
       { href: '/admin/analytics', labelKey: 'analytics',       Icon: Sparkles },
+      { href: '/admin/retention', labelKey: 'retention',       Icon: Heart },
     ],
   },
   {
