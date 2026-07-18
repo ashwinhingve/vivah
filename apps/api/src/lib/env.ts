@@ -72,6 +72,15 @@ export const envSchema = z.object({
   // 'true' (with USE_MOCK_SERVICES=false) to actually enqueue win-back nudges.
   RETENTION_OUTREACH_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // ── Phase 7 Sprint G — NRI / international matching gate (Unit 7.2) ──
+  // When FALSE (default), the cross-border escape hatch in passesDistanceFilter
+  // is never taken, so the match feed behaves EXACTLY as it did before Sprint G:
+  // the 100km haversine limit applies to every pair with coordinates. The NRI
+  // profile fields still store fine; they just don't influence matching yet.
+  // Set 'true' after launch validation to surface cross-border pairs where BOTH
+  // sides have opted in. Unit 7.2 is Tier 2 — go-live gated, not partner-blocked.
+  NRI_MATCHING_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // WhatsApp Cloud API creds — only required when WHATSAPP_LIVE=true.
   WHATSAPP_API_KEY:            z.string().default(''),
   WHATSAPP_PHONE_NUMBER_ID:    z.string().default(''),
@@ -458,3 +467,15 @@ export const shouldUseMockInsurance = deriveMockFlags(
  */
 export const shouldSendRetentionOutreach =
   env.RETENTION_OUTREACH_LIVE && !env.USE_MOCK_SERVICES;
+
+/**
+ * Cross-border matching gate (Phase 7 Sprint G, Unit 7.2). FALSE by default —
+ * passesDistanceFilter never takes the NRI escape hatch, so the feed is
+ * byte-identical to pre-Sprint-G.
+ *
+ * Deliberately NOT gated on USE_MOCK_SERVICES: unlike outreach or payments, this
+ * calls no external provider — it only decides whether an already-stored,
+ * user-set preference is honoured. Tying it to the mock matrix would make the
+ * feature untestable in the very mock mode the whole dev environment runs in.
+ */
+export const isNriMatchingLive = env.NRI_MATCHING_LIVE;

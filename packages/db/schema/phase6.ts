@@ -27,7 +27,7 @@ import {
   timestamp, bigint, jsonb, index,
 } from 'drizzle-orm/pg-core';
 import { profiles } from './index';
-import { moneyCurrencyEnum } from './phase5';
+import { moneyCurrencyEnum } from './sharedEnums';
 
 // ── SHARED SERVICE-REFERRAL MODEL (lending + insurance) ──────────────────────
 //

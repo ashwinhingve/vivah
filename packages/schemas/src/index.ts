@@ -20,3 +20,5 @@ export * from './gap.js';
 // ── Phase 6 contracts (Tier 2/3 financial + WhatsApp shells) ─────────────────
 export * from './finance-referral.js';
 export * from './retention.js';
+// ── Phase 7 Sprint G (Unit 7.2) — NRI / international matching ───────────────
+export * from './nri.js';

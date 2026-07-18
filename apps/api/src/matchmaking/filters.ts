@@ -29,6 +29,12 @@ export interface ProfileWithPreferences {
   maritalStatus?: MaritalStatusValue | null
   preferredMaritalStatuses?: MaritalStatusValue[] | null
   divorceeSupport?: boolean
+  // ── Phase 7 Sprint G (Unit 7.2) — NRI / international ──────────────────────
+  // Optional so every existing fixture and caller keeps compiling untouched;
+  // absent is read as "domestic, not opted in", i.e. today's behaviour.
+  countryOfResidence?: string | null
+  openToNriMatching?: boolean | null
+  ianaTimezone?: string | null
   preferences: {
     ageMin: number
     ageMax: number
@@ -45,6 +51,10 @@ export interface ProfileWithPreferences {
     education?: string[]
     diet?: string[]
     partnerGender?: GenderValue[]
+    // ── Phase 7 Sprint G (Unit 7.2) ──
+    openToNriMatching?: boolean
+    /** SOFT signal — re-ranks rather than blocks, so it can't empty a feed. */
+    preferredCountries?: string[]
   }
 }
 
