@@ -24,3 +24,10 @@ export * from './retention.js';
 export * from './nri.js';
 // ── Phase 8 Sprint I (Unit 8.1) — destination wedding planning core ──────────
 export * from './destination.js';
+
+// ── Phase 8 (Units 8.1 supply + 8.2) — premium packages + post-marriage ──────
+export * from './supply.js';
+
+// ── Phase 6 Sprint J (Units 6.4 + 6.5) — auto-marketing + city registry ──────
+export * from './marketing.js';
+export * from './cities.js';

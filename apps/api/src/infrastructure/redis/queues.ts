@@ -267,6 +267,55 @@ export const churnRecoverySweepQueue = new Queue<ChurnRecoverySweepJob>(
   { connection },
 );
 
+/**
+ * Marketing sweep (Unit 6.4) — daily repeatable, churn-recovery-sweep pattern:
+ * runs due SCHEDULED / SEGMENT_SWEEP campaigns, then the conversion-attribution
+ * pass over SENT rows still inside their window.
+ */
+export interface MarketingSweepJob {
+  scheduledAt: string;
+}
+
+export const marketingSweepQueue = new Queue<MarketingSweepJob>(
+  'marketing-sweep',
+  { connection },
+);
+
+/**
+ * Marketing product-event dispatch (Unit 6.4) — enqueued by
+ * marketing/eventHooks.ts choke point when a hooked product event fires
+ * (registration / KYC approval / booking). NEVER synchronous in a request
+ * handler (Rule 8). Deterministic jobId `mkt-${eventType}-${userId}` de-dupes
+ * rapid duplicate emissions of the same event; per-campaign idempotency is the
+ * campaign_sends partial unique index.
+ */
+export interface MarketingEventJob {
+  eventType:  'user_registered' | 'kyc_approved' | 'booking_created';
+  userId:     string;
+  occurredAt: string;
+  meta?:      Record<string, unknown>;
+}
+
+export const marketingEventQueue = new Queue<MarketingEventJob>(
+  'marketing-event',
+  { connection },
+);
+
+/**
+ * Campaign copy generation (Unit 6.4) — calls ai-service /marketing/generate
+ * off the request path. jobId `mkt-content-${campaignId}` collapses rapid
+ * regenerate clicks into one in-flight job.
+ */
+export interface MarketingContentGenerateJob {
+  campaignId: string;
+  brief?:     string;
+}
+
+export const marketingContentGenerateQueue = new Queue<MarketingContentGenerateJob>(
+  'marketing-content-generate',
+  { connection },
+);
+
 /** Enqueue a profile embedding refresh (best-effort — never throws to callers). */
 export async function queueEmbeddingGeneration(job: EmbeddingGenerationJob): Promise<void> {
   try {

@@ -91,6 +91,17 @@ export const envSchema = z.object({
   // report endpoints return 503 while leaving the rest of the API untouched.
   REPORTS_ENABLED: z.string().default('true').transform(v => v !== 'false'),
 
+  // ── Phase 6 Sprint J — Auto-Marketing Engine kill-switch (Unit 6.4) ──
+  // TRUE by default, REPORTS_ENABLED-style: the engine has no external provider
+  // of its own — delivery rides the existing notification pipeline, which is
+  // already gated per-channel (USE_MOCK_SERVICES for SES/FCM, WHATSAPP_LIVE,
+  // …). The real send guardrails are the campaign lifecycle (nothing sends
+  // until ACTIVE + approved content) and per-user marketing consent
+  // (notification_preferences.marketing, default false). Set 'false' to halt
+  // all campaign dispatch/sweeps in an incident without a deploy; sends are
+  // then recorded as SUPPRESSED(KILL_SWITCH), never silently dropped.
+  MARKETING_AUTOMATION_ENABLED: z.string().default('true').transform(v => v !== 'false'),
+
   // WhatsApp Cloud API creds — only required when WHATSAPP_LIVE=true.
   WHATSAPP_API_KEY:            z.string().default(''),
   WHATSAPP_PHONE_NUMBER_ID:    z.string().default(''),
@@ -499,3 +510,14 @@ export const isNriMatchingLive = env.NRI_MATCHING_LIVE;
  * the report endpoints then return 503 and nothing else is affected.
  */
 export const areReportsEnabled = env.REPORTS_ENABLED;
+
+/**
+ * Auto-marketing kill-switch (Phase 6 Sprint J, Unit 6.4). TRUE by default —
+ * the engine only feeds the existing notification pipeline, whose channels are
+ * individually mock/flag-gated already, and per-user marketing consent plus the
+ * campaign approval lifecycle are the real guardrails. Deliberately NOT tied to
+ * USE_MOCK_SERVICES for the same reason as isNriMatchingLive: coupling it to
+ * the mock matrix would make the engine untestable in the mock mode the whole
+ * dev environment runs in. FALSE = dispatch/sweeps record SUPPRESSED rows.
+ */
+export const isMarketingAutomationEnabled = env.MARKETING_AUTOMATION_ENABLED;

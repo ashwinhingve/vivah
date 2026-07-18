@@ -857,10 +857,18 @@ export const vendors = pgTable('vendors', {
   // service layer — a placeholder cannot be booked or paid for. Promoting seed
   // inventory to a real partner is just flipping this to false.
   isPlaceholder:  boolean('is_placeholder').notNull().default(false),
+  // ─── City registry link (Phase 6 Unit 6.5, migration 0038) ─────────────
+  // Nullable FK into cities (declared WITHOUT .references() — cities lives in
+  // phase6.ts which imports this module, so a JS-side reference would close an
+  // ES-module cycle; the FK is enforced in 0038). `city` free-text above stays
+  // the source of truth for public filters/SEO; this column is what the
+  // density/ops dashboards join on. NULL = unmapped, surfaced in admin.
+  cityId:         uuid('city_id'),
   createdAt:      timestamp('created_at').defaultNow().notNull(),
   updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   cityIdx:       index('vendor_city_idx').on(t.city),
+  cityIdIdx:     index('vendors_city_id_idx').on(t.cityId),
   categoryIdx:   index('vendor_category_idx').on(t.category),
   ratingIdx:     index('vendor_rating_idx').on(t.rating),
   popularityIdx: index('vendor_popularity_idx').on(t.totalReviews),
@@ -1654,6 +1662,14 @@ export {
 export {
   serviceReferralKindEnum, serviceReferralStatusEnum, serviceReferrals,
   whatsappMessageStatusEnum, whatsappMessages,
+} from './phase6';
+
+// ── Phase 6 Sprint J (Units 6.4 + 6.5) — auto-marketing + city registry ──────
+export {
+  cityStatusEnum, cities,
+  marketingTriggerTypeEnum, marketingCampaignStatusEnum, campaignSendStatusEnum,
+  campaignContentStatusEnum, marketingConversionGoalEnum,
+  marketingCampaigns, campaignContent, campaignSends,
 } from './phase6';
 
 // ── Phase 7 Sprint F (Unit 7.3) — virtual dates + churn recovery ─────────────
