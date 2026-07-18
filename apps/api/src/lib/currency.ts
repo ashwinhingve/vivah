@@ -34,9 +34,35 @@ const CURRENCY_LOCALE_MAP: Record<SupportedCurrency, string> = {
   GBP: 'en-GB',
   EUR: 'de-DE', // Uses . as thousands separator, , as decimal (matches EUR style)
   AED: 'ar-AE',
-  CAD: 'en-CA',
-  AUD: 'en-AU',
-  SGD: 'en-SG',
+  // CAD/AUD/SGD are formatted with en-US ON PURPOSE, not their native locale.
+  //
+  // In en-CA / en-AU / en-SG, ICU renders all three as a bare "$1,234,567.89" —
+  // identical to USD. That is correct in isolation (a Canadian writing prices for
+  // Canadians writes "$"), but this unit exists precisely to show one user prices
+  // from several countries at once, where four currencies rendering the same
+  // glyph is a genuine misread. en-US disambiguates them as CA$ / A$ / SGD.
+  // Nothing is lost: all four locales use identical 3-digit grouping.
+  CAD: 'en-US',
+  AUD: 'en-US',
+  SGD: 'en-US',
+};
+
+/**
+ * ASCII fallbacks for PDF rendering, keyed by CURRENCY — never by symbol.
+ *
+ * A blind `formatted.replace('$', 'US$')` would rewrite a Canadian "$" into
+ * "US$", mislabelling the currency on an invoice rather than merely making it
+ * ambiguous. Keying on the currency keeps the substitution truthful.
+ */
+const ASCII_CURRENCY_PREFIX: Record<SupportedCurrency, string> = {
+  INR: 'Rs.',   // Helvetica has no rupee glyph — the reason this path exists
+  USD: 'US$',
+  GBP: 'GBP',
+  EUR: 'EUR',
+  AED: 'AED',
+  CAD: 'CA$',
+  AUD: 'A$',
+  SGD: 'SGD',
 };
 
 /**
@@ -192,13 +218,27 @@ export function formatMoney(
     formatted = `-${formatted}`;
   }
 
-  // If ascii mode, replace currency symbol with ASCII equivalent.
+  // ASCII mode for PDFs: rebuild the string from a plain DECIMAL format and
+  // prefix the ASCII code ourselves, rather than substituting the symbol out of
+  // the currency-formatted string.
+  //
+  // Two reasons symbol substitution cannot work here:
+  //   1. '$' alone cannot distinguish USD from CAD, so a blind swap would print
+  //      Canadian dollars as "US$" on an invoice — mislabelled, not just ugly.
+  //   2. The symbol is not always a prefix. de-DE trails it ("1.234.567 €") and
+  //      ar-AE trails it AND wraps the string in RTL marks (U+200F), which a PDF
+  //      renders as garbage. Stripping a prefix would leave both untouched.
+  // Formatting with style:'decimal' sidesteps all of it — no symbol is emitted,
+  // while the locale's own grouping (including en-IN lakh/crore) is preserved.
   if (opts?.ascii) {
-    formatted = formatted.replace('₹', 'Rs.');
-    formatted = formatted.replace('$', 'US$');
-    formatted = formatted.replace('€', 'EUR');
-    formatted = formatted.replace('£', 'GBP');
-    formatted = formatted.replace('د.إ', 'AED');
+    const groupedMajor = new Intl.NumberFormat(locale, {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(absMajor);
+    const sign = isNegative ? '-' : '';
+    formatted =
+      `${sign}${ASCII_CURRENCY_PREFIX[currency]}${groupedMajor}${actualDecimalSep}${minorStr}`;
   }
 
   return formatted;

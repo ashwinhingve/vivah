@@ -17,6 +17,8 @@ import { cancelOrder } from '../store/order.service.js';
 const QUEUE_NAME = 'order-expiry';
 
 export function registerOrderExpiryWorker(): Worker<OrderExpiryJob> {
+  // Order expiry — moderate concurrency (10). Cancellations are DB updates +
+  // stock restoration, not calls to external APIs, so can handle higher throughput.
   const worker = new Worker<OrderExpiryJob>(
     QUEUE_NAME,
     async (job) => {
@@ -46,7 +48,7 @@ export function registerOrderExpiryWorker(): Worker<OrderExpiryJob> {
         throw e;
       }
     },
-    { connection },
+    { connection, concurrency: 10 },
   );
 
   worker.on('failed', (job, err) => {

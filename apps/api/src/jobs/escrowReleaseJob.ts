@@ -39,6 +39,8 @@ export interface EscrowReleaseJobData {
  * @returns The BullMQ Worker instance (call worker.close() on graceful shutdown).
  */
 export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
+  // Escrow release is critical (payment to vendor) — limit to 5 concurrent
+  // to avoid overwhelming Razorpay API and ensure priority over less critical queues.
   const worker = new Worker<EscrowReleaseJobData>(
     QUEUE_NAME,
     async (job) => {
@@ -120,7 +122,7 @@ export function registerEscrowReleaseWorker(): Worker<EscrowReleaseJobData> {
         `[escrowReleaseJob] released ₹${amount} for booking ${bookingId} → vendor ${vendorId}`,
       );
     },
-    { connection },
+    { connection, concurrency: 5 },
   );
 
   worker.on('failed', (job, err) => {

@@ -54,7 +54,12 @@ export interface ProfileWithPreferences {
     partnerGender?: GenderValue[]
     // ── Phase 7 Sprint G (Unit 7.2) ──
     openToNriMatching?: boolean
-    /** SOFT signal — re-ranks rather than blocks, so it can't empty a feed. */
+    /**
+     * RESERVED — carried through the engine but not yet consumed by anything.
+     * Intended as a soft re-rank signal for the scorer, never a hard filter: as
+     * a filter, a user who listed one or two countries could empty their own
+     * feed. Not exposed in the UI yet, so nothing user-visible depends on it.
+     */
     preferredCountries?: string[]
   }
 }

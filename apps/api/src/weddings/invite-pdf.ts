@@ -6,6 +6,8 @@
  * Brand palette mirrors the Smart Shaadi design tokens.
  */
 import PDFDocument from 'pdfkit';
+import { BURGUNDY, GOLD, TEAL, IVORY, INK } from '../lib/pdf/brand.js';
+import { renderBuffer } from '../lib/pdf/format.js';
 
 export interface InviteCeremony {
   type: string;
@@ -29,19 +31,24 @@ export interface InvitePdfData {
   ceremonies: InviteCeremony[];
 }
 
-// Smart Shaadi brand colours (globals.css @theme tokens).
-const BURGUNDY = '#7B2D42';
-const GOLD = '#C5A47E';
-const TEAL = '#0E7C7B';
-const IVORY = '#FEFAF6';
-const INK = '#2E2E38';
-
 function formatDate(iso: string | null): string {
   if (!iso) return '';
   const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
   if (!y || !m || !d) return iso;
-  const months = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
   return `${d} ${months[m - 1]} ${y}`;
 }
 
@@ -54,16 +61,10 @@ function titleCase(s: string): string {
 }
 
 export function generateInvitePdf(data: InvitePdfData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A5', margin: 0 });
-    const chunks: Buffer[] = [];
-    doc.on('data', (c: Buffer) => chunks.push(c));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
+  const doc = new PDFDocument({ size: 'A5', margin: 0 });
+  const PAD = 46;
 
-    const W = doc.page.width;
-    const H = doc.page.height;
-    const PAD = 46;
+  return renderBuffer(doc, (doc, { W, H }) => {
     const innerW = W - PAD * 2;
 
     // Background wash + gold frame.
@@ -148,7 +149,5 @@ export function generateInvitePdf(data: InvitePdfData): Promise<Buffer> {
         y += 8;
       }
     }
-
-    doc.end();
   });
 }
