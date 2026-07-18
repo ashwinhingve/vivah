@@ -1,0 +1,36 @@
+{
+  "vendorUtilization": {
+    "metadata": {
+      "title": "Off-Season Opportunities — Smart Shaadi"
+    },
+    "eyebrow": "Vendor Hub",
+    "heading": "Off-Season Opportunities",
+    "subtitle": "Eligible events matched to your available capacity windows during off-peak periods.",
+    "noOpportunitiesTitle": "No eligible opportunities yet",
+    "noOpportunitiesDescription": "As you add more capacity windows marked as off-season, matching events will appear here.",
+    "totalOpportunities": "Total Opportunities",
+    "eventCategories": "Event Categories",
+    "rankedWindowsTitle": "Ranked Windows",
+    "rankedWindowsSubtitle": "Listed by date, with highest capacity fit first.",
+    "date": "Date",
+    "capacity": "Capacity",
+    "time": "Time",
+    "fitScore": "Fit Score",
+    "devNote": "Dev note: The /api/v1/vendors/utilization route is unmounted during Phase 5. It will return live data when the route is mounted in Phase 2. Window data is queried from vendor_capacity; event type matching from vendor_event_types."
+  },
+  "muhuratCalendar": {
+    "metadata": {
+      "title": "Calendar Intelligence — Smart Shaadi"
+    },
+    "heading": "Calendar Intelligence",
+    "subtitle": "Auspicious dates, festivals, and important events for your wedding",
+    "noEventsTitle": "No events found",
+    "noEventsDescription": "There are no calendar events available for the selected month",
+    "peakAuspicious": "Peak Auspicious",
+    "moderate": "Moderate",
+    "noEvent": "No Event",
+    "eventsOnDate": "Events on {date}",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  }
+}

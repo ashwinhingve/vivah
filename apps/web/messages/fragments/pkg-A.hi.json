@@ -1,0 +1,36 @@
+{
+  "vendorUtilization": {
+    "metadata": {
+      "title": "ऑफ-सीजन सुविधाएं — स्मार्ट शादी"
+    },
+    "eyebrow": "विक्रेता हब",
+    "heading": "ऑफ-सीजन सुविधाएं",
+    "subtitle": "ऑफ-पीक अवधि के दौरान आपकी उपलब्ध क्षमता खिड़कियों से मेल खाने वाली पात्र घटनाएं।",
+    "noOpportunitiesTitle": "अभी तक कोई पात्र सुविधाएं नहीं",
+    "noOpportunitiesDescription": "जैसे-जैसे आप ऑफ-सीजन के रूप में चिह्नित अधिक क्षमता खिड़कियां जोड़ते हैं, मिलान करने वाली घटनाएं यहां दिखाई देंगी।",
+    "totalOpportunities": "कुल सुविधाएं",
+    "eventCategories": "घटना श्रेणियां",
+    "rankedWindowsTitle": "रैंक की गई खिड़कियां",
+    "rankedWindowsSubtitle": "तारीख के अनुसार सूचीबद्ध, उच्चतम क्षमता फिट पहले।",
+    "date": "तारीख",
+    "capacity": "क्षमता",
+    "time": "समय",
+    "fitScore": "फिट स्कोर",
+    "devNote": "डेव नोट: /api/v1/vendors/utilization मार्ग Phase 5 के दौरान माउंट नहीं किया जाता है। जब मार्ग Phase 2 में माउंट किया जाता है तो यह लाइव डेटा लौटाएगा। खिड़की डेटा vendor_capacity से क्वेरी किया जाता है; घटना प्रकार मिलान vendor_event_types से।"
+  },
+  "muhuratCalendar": {
+    "metadata": {
+      "title": "कैलेंडर बुद्धिमत्ता — स्मार्ट शादी"
+    },
+    "heading": "कैलेंडर बुद्धिमत्ता",
+    "subtitle": "आपकी शादी की योजना के लिए शुभ तारीखें, त्योहार और महत्वपूर्ण घटनाएं",
+    "noEventsTitle": "कोई घटना नहीं मिली",
+    "noEventsDescription": "चयनित महीने के लिए कोई कैलेंडर घटनाएं उपलब्ध नहीं हैं",
+    "peakAuspicious": "पीक शुभ",
+    "moderate": "मध्यम",
+    "noEvent": "कोई घटना नहीं",
+    "eventsOnDate": "{date} को घटनाएं",
+    "previousMonth": "पिछला महीना",
+    "nextMonth": "अगला महीना"
+  }
+}
