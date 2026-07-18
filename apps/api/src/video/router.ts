@@ -7,7 +7,10 @@
 import { Router, type Request, type Response } from 'express';
 import { authenticate }       from '../auth/middleware.js';
 import { ok, err }            from '../lib/response.js';
-import { CreateVideoRoomSchema, ScheduleMeetingSchema, RespondMeetingSchema } from '@smartshaadi/schemas';
+import {
+  CreateVideoRoomSchema, ScheduleMeetingSchema, RespondMeetingSchema,
+  VirtualDateFeedbackSchema,
+} from '@smartshaadi/schemas';
 import {
   createVideoRoom,
   endVideoRoom,
@@ -15,7 +18,10 @@ import {
   scheduleMeeting,
   respondMeeting,
   getMeetings,
+  submitDateFeedback,
+  listVirtualDates,
 } from './service.js';
+import { listIcebreakerSets } from './icebreakers.js';
 
 const router = Router();
 
@@ -150,6 +156,56 @@ router.get(
       ok(res, meetings);
     } catch (e) {
       handleError(res, e, 'Failed to fetch meetings');
+    }
+  },
+);
+
+// ── GET /icebreakers ──────────────────────────────────────────────────────────
+// Curated conversation prompts to seed a virtual date (static; no LLM).
+
+router.get(
+  '/icebreakers',
+  authenticate,
+  (_req: Request, res: Response): void => {
+    ok(res, listIcebreakerSets());
+  },
+);
+
+// ── GET /dates/:matchId ───────────────────────────────────────────────────────
+// Durable virtual-date history for a match (persisted; survives the Redis TTL).
+
+router.get(
+  '/dates/:matchId',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { matchId } = req.params as { matchId: string };
+    try {
+      const dates = await listVirtualDates(req.user!.id, matchId);
+      ok(res, dates);
+    } catch (e) {
+      handleError(res, e, 'Failed to fetch virtual dates');
+    }
+  },
+);
+
+// ── POST /dates/:dateId/feedback ──────────────────────────────────────────────
+// One participant's post-date rating + continue signal. Both sides → COMPLETED.
+
+router.post(
+  '/dates/:dateId/feedback',
+  authenticate,
+  async (req: Request, res: Response): Promise<void> => {
+    const { dateId } = req.params as { dateId: string };
+    const parsed = VirtualDateFeedbackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid input', 422);
+      return;
+    }
+    try {
+      const date = await submitDateFeedback(req.user!.id, dateId, parsed.data);
+      ok(res, date);
+    } catch (e) {
+      handleError(res, e, 'Failed to submit feedback');
     }
   },
 );

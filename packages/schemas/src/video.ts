@@ -19,6 +19,8 @@ export const ScheduleMeetingSchema = z.object({
   ),
   durationMin: z.number().int().min(15).max(120).default(60),
   notes:       z.string().max(500).optional(),
+  // Phase 7 Sprint F — optional curated icebreaker set to seed the date.
+  icebreakerSetKey: z.string().max(60).optional(),
 });
 
 export const RespondMeetingSchema = z.object({
@@ -26,6 +28,13 @@ export const RespondMeetingSchema = z.object({
   notes:  z.string().max(500).optional(),
 });
 
-export type CreateVideoRoomInput = z.infer<typeof CreateVideoRoomSchema>;
-export type ScheduleMeetingInput = z.infer<typeof ScheduleMeetingSchema>;
-export type RespondMeetingInput  = z.infer<typeof RespondMeetingSchema>;
+// Phase 7 Sprint F — one participant's post-date feedback.
+export const VirtualDateFeedbackSchema = z.object({
+  rating:   z.number().int().min(1).max(5),
+  continue: z.boolean(),
+});
+
+export type CreateVideoRoomInput     = z.infer<typeof CreateVideoRoomSchema>;
+export type ScheduleMeetingInput     = z.infer<typeof ScheduleMeetingSchema>;
+export type RespondMeetingInput      = z.infer<typeof RespondMeetingSchema>;
+export type VirtualDateFeedbackInput = z.infer<typeof VirtualDateFeedbackSchema>;

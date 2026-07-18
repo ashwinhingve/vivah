@@ -329,11 +329,11 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 - [x] Vendor Gap Detection (city-level category alerts) — Sprint B (`/admin/gaps`, threshold-configurable)
 - [x] Calendar Intelligence (muhurat, government, festival, school calendars) — Sprint A
 - [x] Dynamic Pricing full (muhurat premium, off-season discounts) — Sprint B (ADR-001 PricingAdvisor, `/vendor/pricing`)
-- [ ] Documentation & Compliance module — Sprint C
-- [ ] Digilocker e-sign integration — Sprint C
-- [ ] Contract template generator — Sprint C
+- [x] Documentation & Compliance module — Sprint C (`/api/v1/documents`)
+- [x] Digilocker e-sign integration — Sprint C (mocked behind `ESIGN_LIVE`; live swap = creds only)
+- [x] Contract template generator — Sprint C (`documents/templates.ts` + contract PDF)
 - [x] B2B Self-Serve (corporate registration, event catalogue, invoiced bookings) — Sprint A
-- [ ] Advanced analytics & demand forecasting — Sprint C
+- [x] Advanced analytics & demand forecasting — Sprint C (`/api/v1/analytics`, pure-SVG)
 - [ ] Production deployment — Phase 5 live 🚀
 
 ---
@@ -352,15 +352,15 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 
 ## 🟣 PHASE 7 — Mobile & International (Expansion Month 6)
 
-- [ ] React Native + Expo mobile app scaffold
+- [x] React Native + Expo mobile app scaffold — Sprint E (Expo SDK 57, phone-OTP cookie auth)
 - [ ] iOS and Android feature parity
 - [ ] Biometric login
 - [ ] EAS Build CI/CD
 - [ ] Apple App Store submission
 - [ ] Google Play Store submission
 - [ ] NRI & international matching (country filters, time zone scheduling)
-- [ ] Virtual Date System (video + AI activities + WebGL environments)
-- [ ] Advanced Churn Recovery (ML-based re-engagement)
+- [x] Virtual Date System (durable scheduling, T-24h/T-15m reminders, curated icebreakers, post-date feedback) — Sprint F (7.3) · AI activities / WebGL deferred
+- [x] Advanced Churn Recovery (Stay Quotient daily sweep → win-back attempts, `RETENTION_OUTREACH_LIVE` DRY_RUN default) — Sprint F (7.3)
 - [ ] Production deployment — Phase 7 live 🚀
 
 ---
