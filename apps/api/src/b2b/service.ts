@@ -10,6 +10,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { b2bAccounts, contracts } from '@smartshaadi/db';
 import type { B2BAccount, Contract, ProfileId } from '@smartshaadi/types';
+import { asProfileId } from '@smartshaadi/types';
 import type { CreateB2BAccountInput, UpdateB2BAccountInput, CreateContractInput, SendContractInput } from '@smartshaadi/schemas';
 
 export class B2BError extends Error {
@@ -224,10 +225,10 @@ export async function sendContract(
 /**
  * Helper: convert DB row to B2BAccount type
  */
-function rowToB2BAccount(row: any): B2BAccount {
+function rowToB2BAccount(row: typeof b2bAccounts.$inferSelect): B2BAccount {
   return {
     id: row.id,
-    profileId: row.profileId,
+    profileId: asProfileId(row.profileId),
     legalName: row.legalName,
     gstin: row.gstin,
     hsnSac: row.hsnSac,
@@ -243,10 +244,10 @@ function rowToB2BAccount(row: any): B2BAccount {
 /**
  * Helper: convert DB row to Contract type
  */
-function rowToContract(row: any): Contract {
+function rowToContract(row: typeof contracts.$inferSelect): Contract {
   return {
     id: row.id,
-    profileId: row.profileId,
+    profileId: asProfileId(row.profileId),
     templateId: row.templateId,
     title: row.title,
     status: row.status,

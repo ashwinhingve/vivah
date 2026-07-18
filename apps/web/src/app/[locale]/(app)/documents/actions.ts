@@ -122,7 +122,7 @@ export async function downloadPdfAction(contractId: string): Promise<void> {
     a.download = `contract-${contractId}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
-  } catch (e) {
+  } catch {
     // silently fail
   }
 }
