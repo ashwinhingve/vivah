@@ -19,3 +19,4 @@ export * from './contract.js';
 export * from './gap.js';
 // ── Phase 6 contracts (Tier 2/3 financial + WhatsApp shells) ─────────────────
 export * from './finance-referral.js';
+export * from './retention.js';

@@ -62,6 +62,8 @@ export type NotificationType =
   | 'CEREMONY_T_30D' | 'CEREMONY_T_7D' | 'CEREMONY_T_1D' | 'CEREMONY_T_1H'
   // profile / moderation
   | 'PROFILE_REPORTED_MODERATION'
+  // retention / churn recovery (Phase 7 Sprint F)
+  | 'CHURN_WINBACK_OFFER' | 'CHURN_RECOVERY_NUDGE' | 'REENGAGE_NUDGE'
   // catch-alls
   | 'SYSTEM' | 'GENERIC';
 
@@ -212,6 +214,12 @@ export function deepLinkFor(jobType: string, payload: Record<string, unknown>): 
   const explicit = str(payload, 'ctaUrl') ?? str(payload, 'matchUrl')
     ?? str(payload, 'receiptUrl') ?? str(payload, 'joinUrl');
   if (explicit) return explicit;
+
+  // Retention nudges point the user back at their matches/requests.
+  if (jobType === 'CHURN_WINBACK_OFFER' || jobType === 'CHURN_RECOVERY_NUDGE'
+      || jobType === 'REENGAGE_NUDGE') {
+    return '/matches';
+  }
 
   const bookingId = str(payload, 'bookingId');
   const weddingId = str(payload, 'weddingId');

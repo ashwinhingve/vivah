@@ -1580,6 +1580,12 @@ export {
   whatsappMessageStatusEnum, whatsappMessages,
 } from './phase6';
 
+// ── Phase 7 Sprint F (Unit 7.3) — virtual dates + churn recovery ─────────────
+export {
+  virtualDateStatusEnum, virtualDates,
+  retentionRiskBandEnum, retentionActionTypeEnum, retentionStatusEnum, retentionCampaigns,
+} from './phase7';
+
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
 // consent_ledger is append-only: every consent record is a new row. When a
