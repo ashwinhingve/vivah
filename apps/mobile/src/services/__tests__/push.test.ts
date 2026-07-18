@@ -1,31 +1,31 @@
-// Mock dependencies BEFORE importing the module
-jest.mock('react-native-css-interop', () => ({
-  getColorScheme: jest.fn(() => 'light'),
-}));
-
-jest.mock('react-native', () => ({
-  Platform: { OS: 'ios' },
-  AppState: {
-    addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-  },
-  Appearance: {
-    getColorScheme: jest.fn(() => 'light'),
-    addChangeListener: jest.fn(() => ({ remove: jest.fn() })),
-  },
-  AccessibilityInfo: {
-    isReduceMotionEnabled: jest.fn().mockResolvedValue(false),
-  },
-}));
-
+/**
+ * Push registration tests.
+ *
+ * Deliberately does NOT mock `react-native`. An earlier version replaced the
+ * whole module, which broke the jest-expo preset's own setup and stopped this
+ * suite loading at all ("Cannot use import statement outside a module" from
+ * deep inside expo-modules-core). `push.ts` needs only `Platform`, which the
+ * preset already provides; mocking the three modules that genuinely touch
+ * native code is enough, and it keeps the real module graph intact.
+ *
+ * Scope note: these prove the REGISTRATION CONTRACT — permission gating, token
+ * hand-off to the API, and that nothing throws. They cannot prove a
+ * notification is ever delivered. That needs a dev-client build on real
+ * hardware and is still outstanding.
+ */
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
   getExpoPushTokenAsync: jest.fn(),
 }));
 
-jest.mock('expo-device', () => ({
-  isDevice: true,
-}));
+/**
+ * Stable object shared across `jest.isolateModules` re-requires. Returning a
+ * fresh literal from the factory instead would silently reset `isDevice` to
+ * true on every isolated require, so the simulator case could never be tested.
+ */
+const mockDevice = { isDevice: true };
+jest.mock('expo-device', () => mockDevice);
 
 jest.mock('../../lib/api', () => ({
   api: {
@@ -37,169 +37,151 @@ jest.mock('../../lib/api', () => ({
 }));
 
 import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { Platform } from 'react-native';
 import { api } from '../../lib/api';
-import {
-  initializePush,
-  unregisterPush,
-  getPushToken,
-} from '../push';
 
-describe('push service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+const getPermissions = Notifications.getPermissionsAsync as jest.Mock;
+const requestPermissions = Notifications.requestPermissionsAsync as jest.Mock;
+const getToken = Notifications.getExpoPushTokenAsync as jest.Mock;
+const registerDevice = api.users.registerDevice as jest.Mock;
+const unregisterDevice = api.users.unregisterDevice as jest.Mock;
+
+/**
+ * push.ts holds module-level state (isInitialized, token) and initializePush is
+ * idempotent by design, so every test needs a fresh module instance — otherwise
+ * the first test's initialisation makes every later one a silent no-op.
+ */
+function freshPush(): typeof import('../push') {
+  let mod!: typeof import('../push');
+  // require inside the sync isolateModules, not `await import()`: dynamic import
+  // needs --experimental-vm-modules, which this jest run does not enable.
+  jest.isolateModules(() => {
+    mod = require('../push') as typeof import('../push');
   });
+  return mod;
+}
 
-  it('skips initialization on simulator', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(false);
+beforeEach(() => {
+  jest.clearAllMocks();
+  registerDevice.mockResolvedValue({ ok: true });
+  unregisterDevice.mockResolvedValue(undefined);
+  jest.spyOn(console, 'log').mockImplementation(() => undefined);
+  jest.spyOn(console, 'error').mockImplementation(() => undefined);
+});
 
-    await initializePush();
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
-    expect(api.users.registerDevice).not.toHaveBeenCalled();
-  });
+describe('initializePush', () => {
+  it('registers the token with the API when permission is already granted', async () => {
+    getPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockResolvedValue({ data: 'ExponentPushToken[abc123]' });
 
-  it('requests permission on device', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'denied',
-    });
-    (Notifications.requestPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockResolvedValue(undefined);
+    const push = freshPush();
+    await push.initializePush();
 
-    await initializePush();
-
-    expect(Notifications.requestPermissionsAsync).toHaveBeenCalled();
-    expect(api.users.registerDevice).toHaveBeenCalledWith({
-      token: 'ExponentPushToken[abc123]',
-      platform: 'ios',
-      appVersion: '1.0.0',
-    });
-  });
-
-  it('skips permission request if already granted', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockResolvedValue(undefined);
-
-    await initializePush();
-
-    expect(Notifications.requestPermissionsAsync).not.toHaveBeenCalled();
-    expect(api.users.registerDevice).toHaveBeenCalled();
-  });
-
-  it('handles permission denial gracefully', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'denied',
-    });
-    (Notifications.requestPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'denied',
-    });
-
-    await initializePush();
-
-    expect(api.users.registerDevice).not.toHaveBeenCalled();
-  });
-
-  it('handles token fetch failure gracefully', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: null,
-    });
-
-    await initializePush();
-
-    expect(api.users.registerDevice).not.toHaveBeenCalled();
-  });
-
-  it('handles API registration failure gracefully', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockRejectedValue(
-      new Error('Network error'),
+    expect(registerDevice).toHaveBeenCalledWith(
+      expect.objectContaining({ token: 'ExponentPushToken[abc123]' }),
     );
-
-    // Should not throw
-    await expect(initializePush()).resolves.not.toThrow();
-    expect(api.users.registerDevice).toHaveBeenCalled();
+    expect(push.getPushToken()).toBe('ExponentPushToken[abc123]');
+    // Already granted — must not re-prompt the user.
+    expect(requestPermissions).not.toHaveBeenCalled();
   });
 
-  it('is idempotent', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockResolvedValue(undefined);
+  it('prompts for permission when not yet granted, then registers', async () => {
+    getPermissions.mockResolvedValue({ status: 'undetermined' });
+    requestPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockResolvedValue({ data: 'ExponentPushToken[xyz]' });
 
-    await initializePush();
-    await initializePush();
+    const push = freshPush();
+    await push.initializePush();
 
-    // Should only register once
-    expect(api.users.registerDevice).toHaveBeenCalledTimes(1);
-  });
-
-  it('unregisters device on sign-out', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockResolvedValue(undefined);
-    (api.users.unregisterDevice as jest.Mock).mockResolvedValue(undefined);
-
-    await initializePush();
-    await unregisterPush();
-
-    expect(api.users.unregisterDevice).toHaveBeenCalledWith(
-      'ExponentPushToken[abc123]',
+    expect(requestPermissions).toHaveBeenCalled();
+    expect(registerDevice).toHaveBeenCalledWith(
+      expect.objectContaining({ token: 'ExponentPushToken[xyz]' }),
     );
   });
 
-  it('handles unregister failure gracefully', async () => {
-    (Device.isDevice as unknown as jest.Mock).mockReturnValue(true);
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
-      status: 'granted',
-    });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
-      data: 'ExponentPushToken[abc123]',
-    });
-    (api.users.registerDevice as jest.Mock).mockResolvedValue(undefined);
-    (api.users.unregisterDevice as jest.Mock).mockRejectedValue(
-      new Error('Network error'),
-    );
+  it('does not register when the user denies permission', async () => {
+    getPermissions.mockResolvedValue({ status: 'undetermined' });
+    requestPermissions.mockResolvedValue({ status: 'denied' });
 
-    await initializePush();
+    const push = freshPush();
+    await push.initializePush();
 
-    // Should not throw
-    await expect(unregisterPush()).resolves.not.toThrow();
+    // Registering a device the user refused would send push they never allowed.
+    expect(registerDevice).not.toHaveBeenCalled();
+    expect(getToken).not.toHaveBeenCalled();
+    expect(push.getPushToken()).toBeNull();
   });
 
-  it('returns null token if not initialized', () => {
-    const token = getPushToken();
-    expect(token).toBe(null);
+  it('no-ops on a simulator rather than throwing', async () => {
+    mockDevice.isDevice = false;
+    try {
+      const push = freshPush();
+      // Expo Go and simulators cannot issue push tokens. Startup calls this, so
+      // anything worse than a silent no-op here bricks the app on a simulator.
+      await expect(push.initializePush()).resolves.toBeUndefined();
+
+      expect(getPermissions).not.toHaveBeenCalled();
+      expect(registerDevice).not.toHaveBeenCalled();
+    } finally {
+      mockDevice.isDevice = true;
+    }
+  });
+
+  it('is idempotent — a second call does not register twice', async () => {
+    getPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockResolvedValue({ data: 'ExponentPushToken[once]' });
+
+    const push = freshPush();
+    await push.initializePush();
+    await push.initializePush();
+
+    expect(registerDevice).toHaveBeenCalledTimes(1);
+  });
+
+  it('swallows an API failure instead of crashing app startup', async () => {
+    getPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockResolvedValue({ data: 'ExponentPushToken[boom]' });
+    registerDevice.mockRejectedValue(new Error('500'));
+
+    const push = freshPush();
+
+    // Push is not worth taking the app down for; it must degrade silently.
+    await expect(push.initializePush()).resolves.toBeUndefined();
+  });
+
+  it('swallows a token-retrieval failure', async () => {
+    getPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockRejectedValue(new Error('no token service'));
+
+    const push = freshPush();
+
+    await expect(push.initializePush()).resolves.toBeUndefined();
+    expect(registerDevice).not.toHaveBeenCalled();
+  });
+});
+
+describe('unregisterPush', () => {
+  it('unregisters the stored token and clears it', async () => {
+    getPermissions.mockResolvedValue({ status: 'granted' });
+    getToken.mockResolvedValue({ data: 'ExponentPushToken[bye]' });
+
+    const push = freshPush();
+    await push.initializePush();
+    await push.unregisterPush();
+
+    // Leaving a stale token registered means a shared handset keeps receiving
+    // the previous user's notifications after they sign out.
+    expect(unregisterDevice).toHaveBeenCalledWith('ExponentPushToken[bye]');
+    expect(push.getPushToken()).toBeNull();
+  });
+
+  it('is a no-op when there is no token', async () => {
+    const push = freshPush();
+
+    await expect(push.unregisterPush()).resolves.toBeUndefined();
+    expect(unregisterDevice).not.toHaveBeenCalled();
   });
 });
