@@ -1,0 +1,94 @@
+{
+  "adminMarketing": {
+    "metadata": {
+      "title": "मार्केटिंग अभियान"
+    },
+    "backToAdmin": "एडमिन पर वापस जाएं",
+    "heading": "मार्केटिंग अभियान",
+    "subtitle": "ईमेल और एसएमएस अभियान बनाएं, समीक्षा करें और प्रबंधित करें",
+    "stats": {
+      "activeCampaigns": "सक्रिय अभियान",
+      "draftCampaigns": "ड्राफ्ट अभियान",
+      "sentLast30d": "भेजे गए (30 दिन)",
+      "conversionRate": "रूपांतरण दर"
+    },
+    "empty": {
+      "title": "अभी तक कोई अभियान नहीं",
+      "description": "उपयोगकर्ताओं तक पहुंचना शुरू करने के लिए अपना पहला मार्केटिंग अभियान बनाएं"
+    },
+    "actions": {
+      "createCampaign": "अभियान बनाएं",
+      "new": "नया अभियान",
+      "generate": "कॉपी जेनरेट करें",
+      "approve": "अभियान को मंजूरी दें",
+      "edit": "संपादित करें",
+      "view": "देखें",
+      "activate": "सक्रिय करें",
+      "pause": "रोकें",
+      "resume": "फिर से शुरू करें",
+      "complete": "पूर्ण करें"
+    },
+    "table": {
+      "title": "अभियान",
+      "columns": {
+        "name": "अभियान का नाम",
+        "trigger": "ट्रिगर प्रकार",
+        "segment": "लक्ष्य खंड",
+        "status": "स्थिति",
+        "created": "बनाया गया",
+        "triggers": {
+          "event": "इवेंट",
+          "scheduled": "शेड्यूल किया गया",
+          "segment_sweep": "खंड स्वीप"
+        },
+        "statuses": {
+          "draft": "ड्राफ्ट",
+          "approved": "मंजूर",
+          "active": "सक्रिय",
+          "paused": "रोका गया",
+          "completed": "पूर्ण"
+        }
+      }
+    },
+    "backToMarketing": "अभियानों पर वापस जाएं",
+    "noDescription": "कोई विवरण प्रदान नहीं किया गया",
+    "campaignStatus": "अभियान की स्थिति",
+    "metadata": {
+      "campaignDetail": "अभियान विवरण"
+    },
+    "contentPanel": {
+      "title": "सामग्री (कॉपी)",
+      "generateCopy": "कॉपी जेनरेट करें",
+      "generating": "जेनरेट कर रहे हैं...",
+      "subject": "विषय पंक्ति",
+      "bodyShort": "छोटा शरीर (एसएमएस/पुश)",
+      "bodyLong": "लंबा शरीर (ईमेल)",
+      "cta": "कार्य के लिए कॉल",
+      "noContent": "अभी तक कोई सामग्री नहीं। जेनरेट करें या मैन्युअल रूप से जोड़ें।",
+      "edit": "संपादित करें",
+      "approve": "मंजूरी दें",
+      "editForm": "सामग्री संपादित करें",
+      "save": "सहेजें",
+      "saving": "सहेज रहे हैं...",
+      "cancel": "रद्द करें"
+    },
+    "sendsTable": {
+      "title": "डिलीवरी इतिहास",
+      "showing": "{{count}} भेजे गए दिख रहे हैं",
+      "status": "स्थिति",
+      "channel": "चैनल",
+      "sent": "भेजा गया",
+      "converted": "कनवर्ट हुआ",
+      "reason": "दमन कारण"
+    }
+  },
+  "marketingSegments": {
+    "segments": {
+      "new_incomplete_48h": "नया, अधूरा (48 घंटे)",
+      "inactive_14d": "निष्क्रिय (14 दिन)",
+      "high_intent_7d": "उच्च इरादा (7 दिन)",
+      "vendors_new_7d": "नए विक्रेता (7 दिन)",
+      "vendors_idle_30d": "निष्क्रिय विक्रेता (30 दिन)"
+    }
+  }
+}

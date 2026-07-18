@@ -69,6 +69,7 @@ from src.routers.faq import router as faq_router
 from src.routers.fii import router as fii_router
 from src.routers.horoscope import router as horoscope_router
 from src.routers.marriage_readiness import router as marriage_readiness_router
+from src.routers.marketing import router as marketing_router
 from src.routers.pricing import router as pricing_router
 from src.routers.profile_optimizer import router as profile_optimizer_router
 from src.routers.reputation import router as reputation_router
@@ -140,6 +141,7 @@ app.include_router(profile_optimizer_router)
 app.include_router(marriage_readiness_router)
 app.include_router(calendar_router)
 app.include_router(pricing_router)
+app.include_router(marketing_router)
 register_p3_routers(app)
 
 

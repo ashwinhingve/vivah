@@ -1,0 +1,94 @@
+{
+  "adminMarketing": {
+    "metadata": {
+      "title": "Marketing Campaigns"
+    },
+    "backToAdmin": "Back to Admin",
+    "heading": "Marketing Campaigns",
+    "subtitle": "Create, review, and manage email and SMS campaigns",
+    "stats": {
+      "activeCampaigns": "Active Campaigns",
+      "draftCampaigns": "Draft Campaigns",
+      "sentLast30d": "Sent (30d)",
+      "conversionRate": "Conversion Rate"
+    },
+    "empty": {
+      "title": "No campaigns yet",
+      "description": "Create your first marketing campaign to start reaching users"
+    },
+    "actions": {
+      "createCampaign": "Create Campaign",
+      "new": "New Campaign",
+      "generate": "Generate Copy",
+      "approve": "Approve Campaign",
+      "edit": "Edit",
+      "view": "View",
+      "activate": "Activate",
+      "pause": "Pause",
+      "resume": "Resume",
+      "complete": "Complete"
+    },
+    "table": {
+      "title": "Campaigns",
+      "columns": {
+        "name": "Campaign Name",
+        "trigger": "Trigger Type",
+        "segment": "Target Segment",
+        "status": "Status",
+        "created": "Created",
+        "triggers": {
+          "event": "Event",
+          "scheduled": "Scheduled",
+          "segment_sweep": "Segment Sweep"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "approved": "Approved",
+          "active": "Active",
+          "paused": "Paused",
+          "completed": "Completed"
+        }
+      }
+    },
+    "backToMarketing": "Back to Campaigns",
+    "noDescription": "No description provided",
+    "campaignStatus": "Campaign Status",
+    "metadata": {
+      "campaignDetail": "Campaign Details"
+    },
+    "contentPanel": {
+      "title": "Content (Copy)",
+      "generateCopy": "Generate Copy",
+      "generating": "Generating...",
+      "subject": "Subject Line",
+      "bodyShort": "Short Body (SMS/Push)",
+      "bodyLong": "Long Body (Email)",
+      "cta": "Call-to-Action",
+      "noContent": "No content yet. Generate or add manually.",
+      "edit": "Edit",
+      "approve": "Approve",
+      "editForm": "Edit Content",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "sendsTable": {
+      "title": "Delivery History",
+      "showing": "Showing {{count}} sends",
+      "status": "Status",
+      "channel": "Channel",
+      "sent": "Sent At",
+      "converted": "Converted At",
+      "reason": "Suppression Reason"
+    }
+  },
+  "marketingSegments": {
+    "segments": {
+      "new_incomplete_48h": "New, Incomplete (48h)",
+      "inactive_14d": "Inactive (14d)",
+      "high_intent_7d": "High Intent (7d)",
+      "vendors_new_7d": "New Vendors (7d)",
+      "vendors_idle_30d": "Idle Vendors (30d)"
+    }
+  }
+}
