@@ -30,6 +30,7 @@ import { invitesPublicRouter } from './weddings/invite.router.js';
 import { coordinatorRouter, weddingCoordinatorRouter } from './weddings/coordinator.router.js';
 import { weddingIncidentsRouter } from './weddings/incidents.router.js';
 import { weddingDayOfRouter } from './weddings/dayOf.router.js';
+import { destinationsRouter } from './destinations/router.js';
 import { guestRouter } from './guests/router.js';
 import { videoRouter } from './video/router.js';
 import { disputeRouter } from './payments/disputeRouter.js';
@@ -373,6 +374,9 @@ app.use('/api/v1/weddings', weddingExtrasRouter);
 app.use('/api/v1/weddings', weddingCoordinatorRouter);
 app.use('/api/v1/weddings', weddingIncidentsRouter);
 app.use('/api/v1/weddings', weddingDayOfRouter);
+// Destination legs (Phase 8 Unit 8.1). Nested under a wedding, so the router is
+// mounted on the :weddingId path and reads it via mergeParams.
+app.use('/api/v1/weddings/:weddingId/destinations', destinationsRouter);
 app.use('/api/v1/coordinator', coordinatorRouter);
 app.use('/api/v1', publicRsvpRouter);
 app.use('/api/v1/invites', invitesPublicRouter);
