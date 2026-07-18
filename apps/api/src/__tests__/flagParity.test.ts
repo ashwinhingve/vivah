@@ -26,18 +26,42 @@ describe('deriveMockFlags truth table', () => {
     expect(shouldUseMockR2).toBe(u && !r);
   });
 
+  it('includes shouldUseMockEsign in return value', () => {
+    const result = deriveMockFlags(false, false, false, false, false, false);
+    expect(result).toHaveProperty('shouldUseMockEsign');
+  });
+
   // kycLive omitted → defaults false → shouldUseMockKyc = useMock || !false = true in every row.
   it('production (all false) → both stores live, KYC mocked', () => {
-    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: false });
+    expect(deriveMockFlags(false, false, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: false, shouldUseMockEsign: true });
   });
   it('mock master only → both stores mock', () => {
-    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true });
+    expect(deriveMockFlags(true, false, false)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
   });
   it('mock + MONGO_LIVE → mongo live, r2 mock (incremental cutover)', () => {
-    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true });
+    expect(deriveMockFlags(true, true, false)).toEqual({ shouldUseMockMongo: false, shouldUseMockR2: true, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
   });
   it('mock + R2_LIVE → r2 live, mongo mock', () => {
-    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: true });
+    expect(deriveMockFlags(true, false, true)).toEqual({ shouldUseMockMongo: true, shouldUseMockR2: false, shouldUseMockKyc: true, shouldUseMockVideo: true, shouldUseMockEsign: true });
+  });
+});
+
+// ── A2b. E-sign gate (INVERTED ESIGN_LIVE semantics, like KYC) ────────────────
+// Unlike MONGO_LIVE/R2_LIVE (escape to live EARLY), ESIGN_LIVE keeps E-SIGN MOCKED even
+// after the master toggle flips off. Real e-sign only when ESIGN_LIVE=true AND master off.
+describe('shouldUseMockEsign (ESIGN_LIVE inverted override)', () => {
+  it('master off + ESIGN_LIVE unset → e-sign stays MOCKED', () => {
+    expect(deriveMockFlags(false, false, false, false, false, false).shouldUseMockEsign).toBe(true);
+  });
+  it('master off + ESIGN_LIVE=true → e-sign goes REAL (provider credentials configured)', () => {
+    expect(deriveMockFlags(false, false, false, false, false, true).shouldUseMockEsign).toBe(false);
+  });
+  it('master on → e-sign MOCKED regardless of ESIGN_LIVE', () => {
+    expect(deriveMockFlags(true, false, false, false, false, false).shouldUseMockEsign).toBe(true);
+    expect(deriveMockFlags(true, false, false, false, false, true).shouldUseMockEsign).toBe(true);
+  });
+  it('esignLive param defaults to false (mocked) when omitted', () => {
+    expect(deriveMockFlags(false, false, false).shouldUseMockEsign).toBe(true);
   });
 });
 
