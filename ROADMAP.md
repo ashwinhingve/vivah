@@ -16,6 +16,26 @@ Mocks:    USE_MOCK_SERVICES=true
 Last updated: 2026-04-21
 ```
 
+### Phase 7 Sprint E — Mobile scaffold (2026-07-18) — `sprint/e-mobile-scaffold` → merged `main`
+
+Stood up `apps/mobile` (React Native + Expo SDK 57 / RN 0.86 / Expo Router / NativeWind)
+as a **scaffold only** — no feature parity. 2-teammate parallel build (Opus, bypass rule)
+on a frozen Phase-0 base, then single-agent integration.
+- **pnpm↔Metro integration** — `.npmrc` public-hoist of `@smartshaadi/*` + the nativewind
+  runtime (`react-native-css-interop`); metro watchFolders/nodeModulesPaths. Proven by
+  `expo export` bundling 1529+ modules (5.1MB Hermes).
+- **Auth** — phone-OTP over the Better Auth **cookie** session on native via `@better-auth/expo`
+  (`expoClient` persists the cookie in expo-secure-store; server `expo()` plugin + `smartshaadi://`
+  trusted origin in `apps/api/src/auth/config.ts`). Auth gate + phone/verify screens + Home
+  reads `useSession()` (proves the cookie round-trips to `/api/auth/get-session`).
+- **Design system** — NativeWind tokens (ivory/burgundy/teal/gold); reusable Screen/Button/Field.
+- **CI** — `eas.json` (dev/preview/prod) + GitHub Actions EAS workflow (needs `EXPO_TOKEN`).
+- **Verified** — `pnpm type-check --force` 9/9, mobile jest 6/6, expo-doctor 20/20, Metro
+  android bundle export.
+- **⬜ Deferred (needs Apple/Google/Expo enrolment)** — live EAS cloud build; on-device OTP
+  against a real QA account (`USE_MOCK_SERVICES=true` / `MOCK_OTP_VALUE`). **Not pushed** —
+  29 commits sit unpushed on `main`; awaiting a push/deploy decision.
+
 ### Premium uplift + gap-fill (2026-07-08, in progress) — `feat/all-roles-production`
 
 Audit of all 5 roles found dead links + generic UIs. Landed (api+web type-check +
