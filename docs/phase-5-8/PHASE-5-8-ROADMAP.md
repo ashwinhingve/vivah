@@ -123,9 +123,9 @@ Every unit also meets the standard DoD (§6). `⇉` = parallel-safe after Phase 
 
 | # | Unit | Tier | Par | Note | Blocker |
 |---|---|---|---|---|---|
-| 6.1 | **WhatsApp Business** | 2 | ⇉ | Meta/BSP integration behind flag + mock; Bull queue, never sync. | Meta Business + BSP approval (7–14 d) |
-| 6.2 | **Lending placement shell** | 3 | ⇉ (shared referral model in Phase 0) | Placement UX + consent/KFS copy + referral→disbursal→commission model, **mock only**. Read the fin-services ref + its **2026 addendum** (RBI Directions 2025 replaced the 2022 guidelines). | NBFC/aggregator agreement + RBI DLG compliance |
-| 6.3 | **Insurance placement shell** | 3 | ⇉ (shared referral model in Phase 0) | Placement UX + disclosure/opt-in + referral→policy→commission, **mock only**. Lead with a standard SKU (health/life/travel); wedding cover is niche. | IRDAI insurer/aggregator agreement |
+| 6.1 | **WhatsApp Business** ✅ *shipped (mock/flagged, Sprint D)* | 2 | ⇉ | Meta/BSP integration behind `WHATSAPP_LIVE` + mock; Bull `whatsapp-send` queue, never sync. Live swap = creds only. | Meta Business + BSP approval (7–14 d) |
+| 6.2 | **Lending placement shell** ✅ *shipped (mock only, Sprint D)* | 3 | ⇉ (shared referral model in Phase 0) | Placement UX + consent/KFS copy + referral→disbursal→commission model, **mock only** behind `LENDING_LIVE`. Built to RBI Directions 2025 (LSP-not-lender, neutral multi-offer, KFS slot, no pre-ticked consent, borrower-direct/RE-direct money). | NBFC/aggregator agreement + RBI DLG compliance |
+| 6.3 | **Insurance placement shell** ✅ *shipped (mock only, Sprint D)* | 3 | ⇉ (shared referral model in Phase 0) | Placement UX + IRDAI disclosure/opt-in + referral→policy→commission, **mock only** behind `INSURANCE_LIVE`. Leads with **HEALTH** SKU (Colonel product decision; wedding cover niche). | IRDAI insurer/aggregator agreement |
 | 6.4 | **Auto-marketing engine** | 3 | — | Do **not** build blind — needs real conversion data. | Real launch traffic |
 | 6.5 | **Multi-city vendor network** | 3 | — | City-scoped admin + density. | Real vendor density >1 city |
 
@@ -165,9 +165,15 @@ SPRINT B  ── after A merged (both depend on A's schema):
 SPRINT C  ── Phase 1 team (disjoint):  A:5.7 Analytics | B:5.6 Docs/e-sign(mock)
           ── ── Phase 5 demo checkpoint with Colonel ──
 
-SPRINT D  ── Phase 0: shared referral→commission model (single agent). Commit.
-          ── Phase 1 team (disjoint):  A:6.1 WhatsApp(flag) | B:6.2 Lending shell(mock) | C:6.3 Insurance shell(mock)
-          ── register BSP / gather partner terms in parallel (Colonel session)
+SPRINT D  ✅ SHIPPED (solo sequential, mocked/flagged) — migration 0032
+          ── Phase 0: shared service_referrals→commission model + whatsapp_messages;
+             WHATSAPP_LIVE/LENDING_LIVE/INSURANCE_LIVE flags (inverted mock semantics). Commit.
+          ── Phase 1 (disjoint):  6.1 WhatsApp(flag) | 6.2 Lending shell(mock) | 6.3 Insurance shell(mock)
+          ── Phase 2: mounted /api/v1/{whatsapp,lending,insurance} + whatsapp-send worker;
+             type-check --force 8/8; api tests 975 (was 954); end-to-end verified (mock offers/
+             quotes, consent→referral rows, WhatsApp QUEUED→MOCKED). Merged --no-ff.
+          ── STILL BLOCKED for go-live: Meta Business + BSP (6.1), NBFC/aggregator + RBI-DLG
+             (6.2), IRDAI aggregator (6.3). Register BSP / gather partner terms (Colonel session).
 
 ── Phase 7 begins only after launch validation ──
 SPRINT E  ── 7.1 Mobile scaffold (internal team-split, weeks of real work)

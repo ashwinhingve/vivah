@@ -55,6 +55,10 @@ import { pricingRouter } from './pricing/router.js';
 import { b2bRouter } from './b2b/router.js';
 import { analyticsRouter as forecastingRouter } from './analytics/analytics.router.js'; // Phase 5 Sprint C (5.7)
 import { documentsRouter } from './documents/documents.router.js'; // Phase 5 Sprint C (5.6)
+import { whatsappRouter } from './whatsapp/router.js';   // Phase 6 Sprint D (WhatsApp 6.1)
+import { lendingRouter } from './lending/router.js';     // Phase 6 Sprint D (Lending 6.2, mock)
+import { insuranceRouter } from './insurance/router.js'; // Phase 6 Sprint D (Insurance 6.3, mock)
+import { startWhatsAppWorker } from './jobs/whatsappWorker.js'; // Phase 6 Sprint D (WhatsApp queue worker)
 import { escrowAdminRouter } from './admin/escrow.js';
 import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
@@ -348,6 +352,9 @@ app.use('/api/v1/pricing', pricingRouter); // Phase 5 Sprint B (Dynamic Pricing 
 app.use('/api/v1/admin', gapRouter); // Phase 5 Sprint B (Vendor Gap Detection 5.3)
 app.use('/api/v1/analytics', forecastingRouter); // Phase 5 Sprint C (Analytics/Forecasting 5.7)
 app.use('/api/v1/documents', documentsRouter); // Phase 5 Sprint C (Docs/e-sign 5.6)
+app.use('/api/v1/whatsapp', whatsappRouter);     // Phase 6 Sprint D (WhatsApp 6.1, flagged)
+app.use('/api/v1/lending', lendingRouter);       // Phase 6 Sprint D (Lending 6.2, mock)
+app.use('/api/v1/insurance', insuranceRouter);   // Phase 6 Sprint D (Insurance 6.3, mock)
 app.use('/api/v1/admin', escrowAdminRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/v1/admin', stayQuotientAdminRouter);
@@ -516,6 +523,7 @@ async function bootstrap(): Promise<void> {
     workers.push(registerBehaviorAggregateWorker());
     void scheduleBehaviorAggregateJob();
     workers.push(registerEmbeddingWorker());
+    workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
     registerP3Workers(workers);
   }
 
@@ -525,6 +533,9 @@ async function bootstrap(): Promise<void> {
   // block above already started it. Providers still mock-guard individually.
   if (env.USE_MOCK_SERVICES && env.NOTIFICATIONS_WORKER_ENABLED) {
     workers.push(startNotificationsWorker());
+    // WhatsApp worker alongside notifications — lets mock template sends drain to
+    // MOCKED locally without flipping USE_MOCK_SERVICES=false. Idempotent.
+    workers.push(startWhatsAppWorker());
   }
 
   // Graceful shutdown — Railway sends SIGTERM before killing containers.

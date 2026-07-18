@@ -215,6 +215,20 @@ export const embeddingGenerationQueue = new Queue<EmbeddingGenerationJob>(
   { connection },
 );
 
+/**
+ * WhatsApp Business template send (Unit 6.1, Tier 2). Enqueued from the booking
+ * flow / admin trigger — NEVER sent synchronously in a request handler (Rule 8).
+ * Deterministic jobId `wa-${messageId}` de-dupes retries onto one row.
+ */
+export interface WhatsAppSendJob {
+  messageId: string;
+}
+
+export const whatsappQueue = new Queue<WhatsAppSendJob>(
+  'whatsapp-send',
+  { connection },
+);
+
 /** Enqueue a profile embedding refresh (best-effort — never throws to callers). */
 export async function queueEmbeddingGeneration(job: EmbeddingGenerationJob): Promise<void> {
   try {
