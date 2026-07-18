@@ -367,16 +367,18 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 
 ## 🟡 PHASE 8 — National Platform (Expansion Month 6)
 
-- [~] Destination Wedding Module — **planning core built (Sprint I, Unit 8.1,
-      migration 0036), not yet merged.** Multi-city "legs" (`wedding_destinations`)
-      with country/timezone/date window, ceremonies attachable per leg, and
-      per-leg guest travel (`guest_travel_legs`). API at
-      `/api/v1/weddings/:weddingId/destinations` + UI at
-      `/weddings/[id]/destinations`.
+- [x] Destination Wedding Module — **planning core (Sprint I, Unit 8.1, migration
+      0036).** Multi-city "legs" (`wedding_destinations`) with country/timezone/
+      date window, ceremonies attachable per leg, and per-leg guest travel
+      (`guest_travel_legs`). API at `/api/v1/weddings/:weddingId/destinations`,
+      UI at `/weddings/[id]/destinations` (list · detail · new · edit), sidebar
+      entry in Planning, en+hi.
       **Premium packages / destination supply deliberately NOT built** — Tier 3,
       blocked on venue + vendor partnerships (see PHASE-5-8-ROADMAP.md §4).
-      Outstanding before merge: authenticated HTTP E2E and browser render at
-      375/1440 — both blocked on Docker being down on the dev box, not on code.
+      Full DoD met: type-check --force green; api 1174 tests (+43), mutation-
+      checked; migration applied twice (idempotent) with all four DB invariants
+      exercised on real rows; authenticated HTTP E2E 21/21 + data-path E2E 10/10;
+      browser-verified as a real QA login at 375px and 1440px in en and hi.
 - [ ] Post-marriage services (honeymoon, anniversary, referral pathways)
 - [ ] National auto-scaling infrastructure
 - [ ] Government integration readiness
