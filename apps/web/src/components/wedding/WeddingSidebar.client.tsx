@@ -23,6 +23,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronDown,
+  MapPin,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const GROUPS: Group[] = [
     items: [
       { seg: 'timeline', label: 'Timeline', Icon: CalendarRange },
       { seg: 'calendar', label: 'Calendar', Icon: CalendarDays },
+      { seg: 'destinations', label: 'Destinations', Icon: MapPin },
       { seg: 'ceremonies', label: 'Ceremonies', Icon: Sparkles },
       { seg: 'tasks', label: 'Tasks', Icon: ListChecks },
     ],

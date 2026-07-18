@@ -1332,6 +1332,16 @@ export const ceremonies = pgTable('ceremonies', {
   date:         date('date'),
   venue:        varchar('venue', { length: 255 }),
   venueAddress: text('venue_address'),
+  // Destination leg this ceremony happens at (Phase 8 Unit 8.1), nullable —
+  // single-city weddings never set it and existing rows stay NULL.
+  //
+  // Declared WITHOUT .references(() => weddingDestinations.id) on purpose: that
+  // table lives in './phase8', which imports this file, so a JS-side reference
+  // back would close an ES module cycle and reintroduce the order-dependent TDZ
+  // ReferenceError Sprint G hit (fixed there by extracting './sharedEnums').
+  // The real FK — with ON DELETE SET NULL, so removing a leg DETACHES its
+  // ceremonies rather than deleting them — is created in migration 0036.
+  destinationId: uuid('destination_id'),
   startTime:    varchar('start_time', { length: 10 }),
   endTime:      varchar('end_time', { length: 10 }),
   dressCode:    varchar('dress_code', { length: 100 }),
@@ -1633,6 +1643,12 @@ export {
   virtualDateStatusEnum, virtualDates,
   retentionRiskBandEnum, retentionActionTypeEnum, retentionStatusEnum, retentionCampaigns,
 } from './phase7';
+
+// ── Phase 8 Sprint I (Unit 8.1) — destination wedding planning core ──────────
+export {
+  weddingDestinations, weddingDestinationsRelations,
+  guestTravelLegs, guestTravelLegsRelations,
+} from './phase8';
 
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
 //
