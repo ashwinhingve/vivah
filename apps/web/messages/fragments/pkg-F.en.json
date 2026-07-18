@@ -1,0 +1,39 @@
+{
+  "virtualDates": {
+    "title": "Virtual dates",
+    "schedule": {
+      "when": "When",
+      "duration": "Duration",
+      "durationMinutes": "{count, plural, one {# min} other {# min}}",
+      "icebreakers": "Icebreakers",
+      "noneOption": "None",
+      "proposeDateButton": "Propose date"
+    },
+    "status": {
+      "PROPOSED": "Awaiting response",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "Missed"
+    },
+    "feedback": {
+      "howDidItGo": "How did it go?",
+      "starRating": "{count, plural, one {# star} other {# stars}}",
+      "continueCheckbox": "I'd like to keep talking",
+      "submitButton": "Submit feedback",
+      "thanksWaiting": "Thanks — waiting for your match's feedback.",
+      "completed": "Both rated · mutual interest to continue",
+      "completedFeedbackOnly": "Both rated · feedback recorded"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+    "empty": "No virtual dates yet. Propose one above.",
+    "loading": "Loading…"
+  },
+  "videoCall": {
+    "title": "Video call",
+    "closeButton": "Close video panel"
+  }
+}
