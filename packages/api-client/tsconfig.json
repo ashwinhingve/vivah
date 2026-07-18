@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    // This package talks HTTP, so it needs the web platform globals (fetch,
+    // Response, AbortController, URLSearchParams, setTimeout). The base config
+    // is ES2022-only because every other package here is pure Node or pure
+    // types. DOM is the right lib rather than @types/node: the consumers are
+    // React Native (Hermes) and the browser, neither of which is Node.
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/**/__tests__"]
+}

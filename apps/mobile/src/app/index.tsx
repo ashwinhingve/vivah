@@ -8,7 +8,7 @@ import { useSession } from '../hooks/useSession';
  *
  * Checks the Better Auth session and redirects:
  * - Loading → centered spinner
- * - Session exists → /(app)/home
+ * - Session exists → the Matches tab (the app's landing surface)
  * - No session → /(auth)/phone
  */
 export default function RootGate() {
@@ -23,9 +23,9 @@ export default function RootGate() {
       return;
     }
 
-    // Session exists — redirect to authenticated home
+    // Session exists — land on the Matches tab
     if (data?.user) {
-      router.replace('/(app)/home');
+      router.replace('/(app)/(matches)');
     } else {
       // No session — redirect to phone login
       router.replace('/(auth)/phone');
