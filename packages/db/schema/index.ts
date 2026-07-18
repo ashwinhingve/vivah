@@ -850,6 +850,13 @@ export const vendors = pgTable('vendors', {
   reviewedByUserId:       text('reviewed_by_user_id').references(() => user.id),
   rejectionReason:        text('rejection_reason'),
   rejectionCategory:      rejectionCategoryEnum('rejection_category'),
+  // ─── Placeholder supply (Phase 8 Unit 8.1, migration 0037) ─────────────
+  // TRUE = seeded fictional inventory standing in until a real venue partner
+  // is onboarded. Internal provenance ONLY: it must not hide the row, change
+  // its ranking, or alter how it renders. It gates exactly one thing, in the
+  // service layer — a placeholder cannot be booked or paid for. Promoting seed
+  // inventory to a real partner is just flipping this to false.
+  isPlaceholder:  boolean('is_placeholder').notNull().default(false),
   createdAt:      timestamp('created_at').defaultNow().notNull(),
   updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
@@ -1054,12 +1061,23 @@ export const vendorInquiries = pgTable('vendor_inquiries', {
   vendorReply:  text('vendor_reply'),
   repliedAt:    timestamp('replied_at'),
   status:       inquiryStatusEnum('status').default('NEW').notNull(),
+  // Premium package this enquiry is about (Phase 8 Unit 8.1), nullable — a plain
+  // vendor enquiry sets nothing and every existing row stays NULL.
+  //
+  // Declared WITHOUT .references(() => premiumPackages.id) for the same reason
+  // as ceremonies.destination_id above: `premium_packages` lives in './phase8',
+  // which imports THIS file, so a JS-side reference back would close an ES
+  // module cycle and reintroduce the order-dependent TDZ ReferenceError Sprint G
+  // hit. The real FK — ON DELETE SET NULL, so retiring a package keeps the
+  // enquiry and the lead it represents — is created in migration 0037.
+  packageId:    uuid('package_id'),
   createdAt:    timestamp('created_at').defaultNow().notNull(),
   updatedAt:    timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   vendorIdx:    index('inquiry_vendor_idx').on(t.vendorId),
   customerIdx:  index('inquiry_customer_idx').on(t.customerId),
   statusIdx:    index('inquiry_status_idx').on(t.status),
+  packageIdx:   index('inquiry_package_idx').on(t.packageId),
 }));
 
 // ── Vendor Blocked Dates ──────────────────────────────────────────────────────
@@ -1648,6 +1666,21 @@ export {
 export {
   weddingDestinations, weddingDestinationsRelations,
   guestTravelLegs, guestTravelLegsRelations,
+} from './phase8';
+
+// ── Phase 8 (Units 8.1 + 8.2) — premium package supply + post-marriage ───────
+export {
+  // 8.1 premium packages
+  premiumPackageTierEnum, premiumPackageInclusionKindEnum,
+  premiumPackages, premiumPackagesRelations,
+  premiumPackageInclusions, premiumPackageInclusionsRelations,
+  premiumPackageAvailability, premiumPackageAvailabilityRelations,
+  // 8.2 post-marriage services
+  servicePriceUnitEnum, serviceEnquiryStatusEnum,
+  postMarriageCategories, postMarriageCategoriesRelations,
+  servicePartners, servicePartnersRelations,
+  postMarriageServices, postMarriageServicesRelations,
+  serviceEnquiries, serviceEnquiriesRelations,
 } from './phase8';
 
 // ── GDPR — consent ledger + data export requests ─────────────────────────────
