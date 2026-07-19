@@ -1,20 +1,27 @@
-import { useEffect } from 'react';
-import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, RefreshControl, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSession } from '../../hooks/useSession';
 import { authClient } from '../../lib/auth-client';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Screen } from '@/components/Screen';
+import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
+import { LoadingView } from '@/components/LoadingView';
+import { InfoNote } from '@/components/InfoNote';
 
 /**
- * Authenticated home screen — Phase-1.
+ * Authenticated home screen.
  *
- * Displays the signed-in user's details (phone, name) from the Better Auth session.
- * Includes a sign-out button that clears the session and redirects to phone login.
- *
- * This proves the cookie round-tripped from /api/auth/get-session to the mobile app.
+ * Displays the signed-in user's details (phone, name) from the Better Auth
+ * session, with pull-to-refresh. Sign-out is confirmed before clearing the
+ * session and redirecting to phone login.
  */
 export default function HomeScreen() {
   const router = useRouter();
   const session = useSession();
+  const { colors } = useThemeColors();
+  const [refreshing, setRefreshing] = useState(false);
 
   // If session cleared (signed out), redirect to login
   useEffect(() => {
@@ -23,43 +30,67 @@ export default function HomeScreen() {
     }
   }, [session.data?.user, session.isPending, router]);
 
-  const handleSignOut = async () => {
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await session.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.refetch]);
+
+  const handleSignOut = useCallback(async () => {
     try {
       await authClient.signOut();
       router.replace('/(auth)/phone');
     } catch (error) {
       console.error('Sign out failed:', error);
     }
-  };
+  }, [router]);
+
+  const confirmSignOut = useCallback(() => {
+    Alert.alert('Sign out?', 'You will need to verify your phone number to sign back in.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: () => void handleSignOut() },
+    ]);
+  }, [handleSignOut]);
 
   // Show loading while fetching session
   if (session.isPending) {
-    return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color="#7B2D42" />
-      </View>
-    );
+    return <LoadingView />;
   }
 
   const user = session.data?.user;
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-6 py-8">
+    <Screen
+      scroll
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => void handleRefresh()}
+          tintColor={colors.primary}
+          colors={[colors.primary]}
+        />
+      }
+    >
       {/* Header */}
       <View className="mb-8">
-        {/* TODO: Playfair Display heading via expo-font (Phase 7) */}
-        <Text className="text-primary text-3xl font-bold mb-2">Welcome to Smart Shaadi</Text>
+        <Text className="text-primary font-heading-bold text-3xl mb-2">
+          Welcome to Smart Shaadi
+        </Text>
         <Text className="text-gold-muted text-base">Mobile app scaffold — Phase 7.1</Text>
       </View>
 
       {/* User Info Card */}
-      <View className="bg-surface rounded-2xl p-6 mb-8 border border-gold/40">
+      <Card className="mb-8">
         <Text className="text-primary font-semibold text-sm mb-4">Your Account</Text>
 
         {/* Phone */}
         <View className="mb-4">
           <Text className="text-gold-muted text-xs mb-1">Phone</Text>
-          <Text className="text-primary text-base font-mono">
+          <Text className="text-ink text-base font-mono">
             {user?.phoneNumber || user?.email || 'Not set'}
           </Text>
         </View>
@@ -67,38 +98,36 @@ export default function HomeScreen() {
         {/* Name */}
         <View className="mb-4">
           <Text className="text-gold-muted text-xs mb-1">Name</Text>
-          <Text className="text-primary text-base">{user?.name || 'Not set'}</Text>
+          <Text className="text-ink text-base">{user?.name || 'Not set'}</Text>
         </View>
 
         {/* User ID */}
         <View>
           <Text className="text-gold-muted text-xs mb-1">User ID</Text>
-          <Text className="text-primary text-xs font-mono">{user?.id || 'N/A'}</Text>
+          <Text className="text-ink text-xs font-mono">{user?.id || 'N/A'}</Text>
         </View>
-      </View>
+      </Card>
 
       {/* Session Status */}
-      <View className="bg-surface border border-success/40 rounded-lg p-4 mb-8">
-        <Text className="text-success font-semibold text-sm">Session Active</Text>
-        <Text className="text-gold-muted text-xs mt-1">
-          Your session cookie is persisted via expo-secure-store and re-injected with every request.
-        </Text>
-      </View>
+      <InfoNote variant="success" title="Session Active" className="mb-8">
+        Your session cookie is persisted via expo-secure-store and re-injected with every request.
+      </InfoNote>
 
       {/* Sign Out Button */}
-      <Pressable
-        onPress={handleSignOut}
-        className="bg-destructive py-3 px-6 rounded-lg items-center justify-center mb-6 min-h-11"
-      >
-        <Text className="text-white font-semibold">Sign Out</Text>
-      </Pressable>
+      <View className="mb-6">
+        <Button
+          title="Sign Out"
+          variant="destructive"
+          onPress={confirmSignOut}
+          accessibilityHint="Asks for confirmation before signing you out"
+        />
+      </View>
 
       {/* Info Footer */}
-      <View className="bg-surface border border-gold/40 rounded-lg p-4">
-        <Text className="text-gold-muted text-xs leading-5">
-          <Text className="font-semibold">Next steps:</Text> This is the scaffold home screen. In Phase 7.2+, add profile editing, match discovery, and messaging here.
-        </Text>
-      </View>
-    </ScrollView>
+      <InfoNote variant="info" title="Next steps">
+        This is the scaffold home screen. In Phase 7.2+, add profile editing, match discovery,
+        and messaging here.
+      </InfoNote>
+    </Screen>
   );
 }

@@ -17,6 +17,7 @@
     "@better-auth/expo": "1.6.2",
     "@expo-google-fonts/playfair-display": "^0.4.2",
     "@expo/ui": "~57.0.7",
+    "@expo/vector-icons": "^15.0.2",
     "@smartshaadi/schemas": "workspace:*",
     "@smartshaadi/types": "workspace:*",
     "better-auth": "1.6.2",

@@ -8,10 +8,11 @@ import { useThemeColors } from '@/hooks/useThemeColors';
  */
 interface ErrorBannerProps {
   message: string;
+  className?: string;
   testID?: string;
 }
 
-export function ErrorBanner({ message, testID }: ErrorBannerProps) {
+export function ErrorBanner({ message, className = '', testID }: ErrorBannerProps) {
   const { colors } = useThemeColors();
 
   return (
@@ -19,7 +20,7 @@ export function ErrorBanner({ message, testID }: ErrorBannerProps) {
       testID={testID}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
-      className="bg-surface border border-destructive/40 rounded-lg p-4 flex-row items-center"
+      className={`bg-surface border border-destructive/40 rounded-lg p-4 flex-row items-center ${className}`}
     >
       <Ionicons name="alert-circle" size={20} color={colors.destructive} />
       <Text className="text-destructive text-sm ml-2 flex-1">{message}</Text>
