@@ -205,12 +205,41 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-19 (current)
+### 2026-07-19 (current) — contract gap-closure sprint
 
-- **Milestone:** Phase 8 complete. All 143 feature units across Phases 1–8 either shipped, gated-but-live, or genuinely blocked.
-- **Ops:** ROADMAP.md rewritten to reflect reality (CORRECTED 2026-07-19 with verified paths only). SECURITY-REVIEW.md updated with verified-closed findings. CI gates enhanced (pnpm audit + gitleaks). SLO-AND-ALERTING.md populated with k6 measured data (local loopback floor, not SLO targets).
-- **Team:** 5-agent parallel sprint on documentation/CI gates (no product code edits).
-- **Metrics:** k6 baseline established (vendors p95=21ms, feed p95=16ms, analytics p95=38ms, all loopback). Auth intentionally unmeasurable from single IP (rate-limit working as designed).
+Audited `vivahOS_final_v2.pdf` against the codebase and closed the buildable gaps.
+5 parallel teammates + orchestrator verification. Commits `521e66f`…`464888c`.
+
+- **Shipped:** PWA (manifest + allowlist service worker + offline shell, Phase 7);
+  mobile biometric re-entry gate (Phase 7); divorcee & widow support completed —
+  opt-in write path, onboarding journey, privacy fix (Phase 3); NBFC loan referral
+  embedded in the budget tracker, shortfall-gated (Phase 6).
+- **Ops:** ROADMAP.md rewritten and then corrected — the first pass cited 66 paths
+  of which 26 did not exist. SECURITY-REVIEW.md's 4 "open" findings verified
+  already-closed, with citations. CI gained `pnpm audit` + `gitleaks` (advisory,
+  `fetch-depth: 0` so history is actually scanned). SLO rows populated where
+  measurable, labelled local-loopback floors.
+- **Bugs found by verification, not by tests:**
+  - Service-worker auth guard checked `set-cookie`, a forbidden response-header
+    the browser never exposes — the denylist never fired, so authenticated pages
+    and API payloads would have been cached (session bleed on shared devices).
+    Replaced with an allowlist.
+  - Marital status was returned to non-matched viewers — a live breach of the
+    Phase 3 privacy clause and CLAUDE.md rule 5.
+  - The divorcee onboarding journey was never mounted, and its dismiss button hit
+    a 404, so it would have reappeared on every visit forever.
+  - Two duplicate write endpoints existed for one flag; consolidated.
+- **Process note:** 4 of 5 teammates reported work as complete whose verification
+  did not hold — a test embedding a copy of the logic it guards, a gate no test
+  exercised, fabricated doc citations, a theoretical mutation check. Only the
+  mutation-check requirement and in-browser driving surfaced these. Type-check and
+  the test suite passed throughout.
+- **Metrics:** k6 baseline (vendors p95=21ms, feed p95=16ms, analytics p95=38ms —
+  all loopback floors). Auth unmeasurable from a single IP (rate-limit working as
+  designed). api 1255/1255, mobile 165/165, type-check 11/11, build 7/7.
+- **Decisions:** muhurat conventions stay conservative (all 8 disputed dates held
+  out) pending the Colonel's ruling; free-tier daily-view quota + tier-feature
+  reconciliation identified as the top outstanding revenue work.
 
 ### 2026-07-18
 
