@@ -12,6 +12,16 @@ export type PremiumTier = 'FREE' | 'STANDARD' | 'PREMIUM';
 export interface Entitlements {
   /** Daily cap on outgoing match requests. Infinity = no cap. */
   dailyInterestLimit: number;
+  /** Daily cap on viewing distinct profiles. Infinity = no cap. FREE = 5, STANDARD+ = unlimited. */
+  dailyMatchViewLimit: number;
+  /** Access to the AI Conversation Coach (message analysis + suggestions). STANDARD+ only. */
+  canUseConversationCoach: boolean;
+  /** Higher visibility in the match feed; profiles prioritized. STANDARD+ only. */
+  hasPriorityVisibility: boolean;
+  /** Verified badge on profile. PREMIUM only. */
+  hasVerifiedBadge: boolean;
+  /** Dedicated matchmaking recommendations (curated list). PREMIUM only. */
+  hasDedicatedRecommendations: boolean;
   /** See identities of users who viewed your profile. FREE sees blurred. */
   canViewViewers: boolean;
   /** See full identities on the /likes page. FREE sees blurred. */

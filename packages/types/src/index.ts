@@ -12,6 +12,7 @@ export * from './rental.js';
 export * from './store.js';
 export * from './entitlements.js';
 export * from './payments.js';
+export * from './plans.js';
 export * from './socket.js';
 export * from './notification.js';
 export * from './ai.js';

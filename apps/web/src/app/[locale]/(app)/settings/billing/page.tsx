@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BillingConfirm } from './BillingConfirm.client';
+import { PLANS_CONSTANT } from '@smartshaadi/types';
 
 interface Plan {
   id:       string;
@@ -25,47 +26,25 @@ const INTERVAL_LABELS: Record<Plan['interval'], string> = {
   YEARLY:    'year',
 };
 
-// Mirror of packages/db/seed/full-demo.ts PLAN_ROWS. Used as a fallback
-// when the API returns no plans (e.g. seed not yet run in a deployed env)
-// so the page is never blank during demos.
-const FALLBACK_PLANS: Plan[] = [
-  {
-    id:       'fallback-standard-m',
-    code:     'STANDARD_M',
-    name:     'Standard Monthly',
-    tier:     'STANDARD',
-    interval: 'MONTHLY',
-    amount:   999,
-    features: ['Unlimited matches', 'Basic filters', 'Chat'],
-  },
-  {
-    id:       'fallback-standard-y',
-    code:     'STANDARD_Y',
-    name:     'Standard Yearly',
-    tier:     'STANDARD',
-    interval: 'YEARLY',
-    amount:   8999,
-    features: ['Unlimited matches', 'Basic filters', 'Chat', '2 months free'],
-  },
-  {
-    id:       'fallback-premium-m',
-    code:     'PREMIUM_M',
-    name:     'Premium Monthly',
-    tier:     'PREMIUM',
-    interval: 'MONTHLY',
-    amount:   2499,
-    features: ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access'],
-  },
-  {
-    id:       'fallback-premium-y',
-    code:     'PREMIUM_Y',
-    name:     'Premium Yearly',
-    tier:     'PREMIUM',
-    interval: 'YEARLY',
-    amount:   22999,
-    features: ['All Standard features', 'AI matchmaking', 'Priority support', 'Family access', '2 months free'],
-  },
-];
+// Derived from the shared PLANS_CONSTANT rather than restated, so a price can
+// never be changed in one place and quietly disagree here. A hand-copied
+// "mirror" is what let the page advertise one amount while Razorpay charged
+// another — the failure mode is a refund and a chargeback, not a bug report.
+// Used only when the API returns no plans (e.g. seed not yet run in a deployed
+// env) so the page is never blank during a demo.
+//
+// `amount` is a decimal string in the constant (it maps to numeric(12,2)); this
+// page renders a number.
+const FALLBACK_PLANS: Plan[] = PLANS_CONSTANT.filter((p) => p.active).map((p) => ({
+  id:       p.id,
+  code:     p.code,
+  name:     p.name,
+  tier:     p.tier,
+  interval: p.interval,
+  amount:   Number(p.amount),
+  features: p.features,
+}));
+
 
 async function fetchPlans(): Promise<Plan[]> {
   const apiBase = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
