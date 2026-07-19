@@ -43,10 +43,13 @@ registerUuidParams(bookingsRouter, 'id');
 function handleError(res: Response, error: unknown): void {
   if (error instanceof BookingError) {
     const statusMap: Record<string, number> = {
-      NOT_FOUND:        404,
-      FORBIDDEN:        403,
-      BOOKING_CONFLICT: 409,
-      INVALID_STATE:    422,
+      NOT_FOUND:         404,
+      FORBIDDEN:         403,
+      BOOKING_CONFLICT:  409,
+      // Preview inventory refusing to take money — same 409 semantics as a
+      // conflict: the request is well-formed, the resource just cannot serve it.
+      PLACEHOLDER_SUPPLY: 409,
+      INVALID_STATE:     422,
     };
     const status = statusMap[error.code] ?? 400;
     err(res, error.code, error.message, status);

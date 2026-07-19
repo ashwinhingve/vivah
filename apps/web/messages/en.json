@@ -1781,6 +1781,26 @@
     "leads": {
       "title": "Customer leads",
       "subtitle": "Inquiries sent directly to your vendor profile. You are charged per qualified lead."
+    },
+    "components": {
+      "availabilityCalendar": {
+        "weekdays": [
+          "Sun",
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat"
+        ],
+        "loading": "Loading availability…",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month",
+        "selected": "Selected",
+        "booked": "Booked",
+        "blocked": "Unavailable",
+        "alreadyBooked": "This date is already booked"
+      }
     }
   },
   "familyRole": {
@@ -3014,5 +3034,24 @@
     "premiumBenefit": "Standard members see unlimited matches",
     "error": "Could not load more profiles",
     "refreshTip": "Check back tomorrow for fresh matches"
+  },
+  "vendors": {
+    "card": {
+      "previewListing": "Preview listing"
+    },
+    "detail": {
+      "placeholderNotice": "This is preview inventory — we're confirming this vendor as a partner. Send an enquiry to check availability and we'll follow up with details.",
+      "placeholderTitle": "Preview listing"
+    }
+  },
+  "likes": {
+    "heading": "Likes",
+    "subtitleCount": "{count, plural, =0 {No one yet} one {# person likes you} other {# people like you}}",
+    "subtitleEmpty": "People who like your profile will show up here",
+    "emptyTitle": "No likes yet",
+    "emptyDescription": "Keep your profile complete and active — likes tend to follow.",
+    "exploreCta": "Explore matches",
+    "lockedFeature": "Premium feature",
+    "lockedMessage": "Upgrade to see everyone who has liked your profile."
   }
 }

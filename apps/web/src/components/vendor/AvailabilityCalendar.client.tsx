@@ -34,6 +34,9 @@ function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+/** Last resort if the `weekdays` message is missing or malformed — see below. */
+const FALLBACK_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 export function AvailabilityCalendar({
   vendorId, selectedDate, onSelect, className = '',
 }: AvailabilityCalendarProps) {
@@ -44,7 +47,23 @@ export function AvailabilityCalendar({
   const [loading, setLoading] = useState(false);
 
   const month = formatYearMonth(cursor);
-  const weekdays = t.raw('weekdays') as string[];
+
+  /**
+   * `t.raw()` returns whatever is in the message file — including `undefined`
+   * when the key is absent. The previous `as string[]` cast hid that from
+   * TypeScript, and a missing key took the whole page down with
+   * "weekdays.map is not a function": this component renders on the vendor
+   * detail page and inside BookingForm, so both crashed at request time while
+   * type-check and build stayed green.
+   *
+   * The keys now exist (messages/fragments/fix-missing-namespaces.*.json), but
+   * a translation gap must degrade, never crash — so validate rather than cast.
+   */
+  const rawWeekdays: unknown = t.raw('weekdays');
+  const weekdays: string[] =
+    Array.isArray(rawWeekdays) && rawWeekdays.every((d): d is string => typeof d === 'string')
+      ? rawWeekdays
+      : FALLBACK_WEEKDAYS;
 
   useEffect(() => {
     setLoading(true);

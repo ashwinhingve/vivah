@@ -52,7 +52,12 @@ export async function PackageCard({ pkg }: { pkg: PremiumPackageWithVendor }) {
           {pkg.destinationCity}
           <span className="mx-1 text-gold/50">·</span>
           <span className="truncate">{pkg.vendorName}</span>
-          {pkg.vendorVerified && (
+          {/* Never assert "verified" for seeded inventory. The seed sets
+              verified = true on its venue rows so they render realistically,
+              which means a fictional venue would otherwise carry a verified
+              tick — an affirmatively false claim, not merely an undisclosed
+              one. The "Preview listing" badge above says what it actually is. */}
+          {pkg.vendorVerified && !pkg.isPlaceholder && (
             <BadgeCheck className="h-4 w-4 shrink-0 text-success" aria-label={t('verified')} />
           )}
         </p>

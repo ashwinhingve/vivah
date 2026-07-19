@@ -182,6 +182,15 @@
       "retry": "Try again"
     }
   },
+  "vendors": {
+    "card": {
+      "previewListing": "Preview listing"
+    },
+    "detail": {
+      "placeholderNotice": "This is preview inventory — we're confirming this vendor as a partner. Send an enquiry to check availability and we'll follow up with details.",
+      "placeholderTitle": "Preview listing"
+    }
+  },
   "nav": {
     "packages": "Premium Packages",
     "postMarriage": "After the Wedding"

@@ -1,9 +1,10 @@
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import {
   Star, StarHalf, CheckCircle2, MapPin, Phone, Mail,
-  Globe, Instagram, Calendar, Clock, Heart,
+  Globe, Instagram, Calendar, Clock, Heart, FlaskConical,
 } from 'lucide-react';
 import type { VendorProfile, VendorReview } from '@smartshaadi/types';
 import { VendorPortfolio, type PortfolioDoc } from '@/components/vendor/VendorPortfolio';
@@ -76,6 +77,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export default async function VendorDetailPage({ params }: PageProps) {
   const { id } = await params;
+  const t = await getTranslations('vendors.detail');
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
 
@@ -123,15 +125,19 @@ export default async function VendorDetailPage({ params }: PageProps) {
               {(() => {
                 const topRated = vendor.rating >= 4.5 && vendor.totalReviews >= 5;
                 const affordable = vendor.priceMin != null && vendor.priceMin < 50_000;
-                const hasAny = vendor.verified || topRated || affordable;
+                const hasAny = vendor.isPlaceholder || vendor.verified || topRated || affordable;
                 if (!hasAny) return null;
                 return (
                   <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                    {vendor.verified && (
+                    {vendor.isPlaceholder ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/20 px-2.5 py-1 text-2xs font-semibold text-warning">
+                        <FlaskConical className="h-3 w-3" aria-hidden="true" /> {t('placeholderTitle')}
+                      </span>
+                    ) : vendor.verified ? (
                       <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-teal">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Verified
                       </span>
-                    )}
+                    ) : null}
                     {topRated && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/20 px-2.5 py-1 text-2xs font-semibold text-primary">
                         ⭐ Top Rated
@@ -147,6 +153,12 @@ export default async function VendorDetailPage({ params }: PageProps) {
               })()}
               {vendor.tagline && (
                 <p className="text-sm text-muted-foreground italic mb-2">{vendor.tagline}</p>
+              )}
+              {vendor.isPlaceholder && (
+                <div className="mb-3 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm text-warning">
+                  <p className="font-semibold text-warning">{t('placeholderTitle')}</p>
+                  <p className="mt-1">{t('placeholderNotice')}</p>
+                </div>
               )}
               <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" /> {vendor.city}, {vendor.state}

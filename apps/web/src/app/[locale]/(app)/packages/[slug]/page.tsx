@@ -130,7 +130,11 @@ export default async function PackageDetailPage({ params }: PageProps) {
                   <dt className="sr-only">{t('duration')}</dt>
                   <dd className="text-primary">{t('nights', { count: pkg.durationNights })}</dd>
                 </div>
-                {pkg.vendorVerified && (
+                {/* Suppressed for seeded inventory — see PackageCard. The seed
+                    marks its venue rows verified so they render realistically,
+                    so without this a fictional venue would display a verified
+                    claim next to the preview notice contradicting it. */}
+                {pkg.vendorVerified && !pkg.isPlaceholder && (
                   <div className="flex items-center gap-2">
                     <BadgeCheck className="h-5 w-5 text-success" aria-hidden="true" />
                     <dt className="sr-only">{t('verifiedLabel')}</dt>

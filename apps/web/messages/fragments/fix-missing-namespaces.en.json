@@ -1,0 +1,26 @@
+{
+  "vendorRole": {
+    "components": {
+      "availabilityCalendar": {
+        "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "loading": "Loading availability…",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month",
+        "selected": "Selected",
+        "booked": "Booked",
+        "blocked": "Unavailable",
+        "alreadyBooked": "This date is already booked"
+      }
+    }
+  },
+  "likes": {
+    "heading": "Likes",
+    "subtitleCount": "{count, plural, =0 {No one yet} one {# person likes you} other {# people like you}}",
+    "subtitleEmpty": "People who like your profile will show up here",
+    "emptyTitle": "No likes yet",
+    "emptyDescription": "Keep your profile complete and active — likes tend to follow.",
+    "exploreCta": "Explore matches",
+    "lockedFeature": "Premium feature",
+    "lockedMessage": "Upgrade to see everyone who has liked your profile."
+  }
+}

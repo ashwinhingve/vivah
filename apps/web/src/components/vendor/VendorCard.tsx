@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight, Clock } from 'lucide-react';
+import { Star, StarHalf, CheckCircle2, MapPin, ArrowRight, Clock, FlaskConical } from 'lucide-react';
 import type { VendorProfile } from '@smartshaadi/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,12 +67,17 @@ export function VendorCard({ vendor }: VendorCardProps) {
             className="h-9 w-9 min-h-0 min-w-0 bg-surface/90 backdrop-blur"
           />
         </div>
-        {vendor.verified && (
+        {vendor.isPlaceholder ? (
+          <Badge variant="warning" className="absolute top-2 left-2 backdrop-blur bg-surface/90">
+            <FlaskConical className="h-3 w-3" aria-hidden="true" />
+            Preview listing
+          </Badge>
+        ) : vendor.verified ? (
           <Badge variant="tealSoft" className="absolute top-2 left-2 backdrop-blur bg-surface/90">
             <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
             Verified
           </Badge>
-        )}
+        ) : null}
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

@@ -65,6 +65,7 @@ function makeMockVendor(overrides: Record<string, unknown> = {}) {
     rating:          '4.50',
     totalReviews:    10,
     isActive:        true,
+    isPlaceholder:   false,
     createdAt:       new Date(),
     updatedAt:       new Date(),
     ...overrides,
@@ -189,6 +190,46 @@ describe('vendors/service — listVendors', () => {
 
     expect(result.vendors).toHaveLength(0);
     expect(result.meta.total).toBe(0);
+  });
+
+  it('surfaces isPlaceholder: false on real vendors', async () => {
+    const vendor = makeMockVendor({ id: 'vendor-1', isPlaceholder: false });
+    const svc    = makeMockService({ vendorId: 'vendor-1' });
+
+    const countChain  = buildSelectChain([{ count: 1 }]);
+    const vendorChain = buildSelectChain([vendor]);
+    const svcChain    = buildSelectChain([svc]);
+
+    mockDb.select
+      .mockReturnValueOnce(countChain)
+      .mockReturnValueOnce(vendorChain)
+      .mockReturnValueOnce(svcChain);
+
+    const { listVendors } = await import('../service.js');
+
+    const result = await listVendors({ page: 1, limit: 10, sort: 'popular' });
+
+    expect(result.vendors[0]?.isPlaceholder).toBe(false);
+  });
+
+  it('surfaces isPlaceholder: true on placeholder vendors', async () => {
+    const vendor = makeMockVendor({ id: 'vendor-1', isPlaceholder: true });
+    const svc    = makeMockService({ vendorId: 'vendor-1' });
+
+    const countChain  = buildSelectChain([{ count: 1 }]);
+    const vendorChain = buildSelectChain([vendor]);
+    const svcChain    = buildSelectChain([svc]);
+
+    mockDb.select
+      .mockReturnValueOnce(countChain)
+      .mockReturnValueOnce(vendorChain)
+      .mockReturnValueOnce(svcChain);
+
+    const { listVendors } = await import('../service.js');
+
+    const result = await listVendors({ page: 1, limit: 10, sort: 'popular' });
+
+    expect(result.vendors[0]?.isPlaceholder).toBe(true);
   });
 });
 

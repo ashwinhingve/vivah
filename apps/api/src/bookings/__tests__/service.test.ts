@@ -124,6 +124,14 @@ const baseVendor = {
   businessName: 'Raj Photography',
 };
 
+/**
+ * createBooking's first query is the placeholder-supply guard, which selects
+ * only `isPlaceholder`. Sequenced mocks must account for it before the conflict
+ * check, or every booking looks like an unknown vendor.
+ */
+const REAL_SUPPLY        = { isPlaceholder: false };
+const PLACEHOLDER_SUPPLY = { isPlaceholder: true };
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('bookings/service', () => {
@@ -157,6 +165,7 @@ describe('bookings/service', () => {
 
     it('creates booking and returns summary when no conflict', async () => {
       const calls: SelectResult[] = [
+        [REAL_SUPPLY],  // placeholder guard → real vendor, may be booked
         [],             // conflict check → no conflict
         [],             // blocked-date check → not blocked
         [baseVendor],   // notify vendor — get vendor userId
@@ -193,7 +202,9 @@ describe('bookings/service', () => {
       // unique index `booking_active_unique_idx` trips on insert because a
       // concurrent transaction wrote first. The driver throws { code: '23505' }
       // and the service must translate it.
-      mockSelect.mockImplementation(() => makeQueryChain([])); // no app-level conflict
+      // First call is the placeholder guard (real vendor), then no app-level conflict.
+      let seq = 0;
+      mockSelect.mockImplementation(() => makeQueryChain(seq++ === 0 ? [REAL_SUPPLY] : []));
 
       const uniqueViolation = Object.assign(new Error('duplicate key value violates unique constraint "booking_active_unique_idx"'), { code: '23505' });
       mockInsert.mockImplementation(() => ({
@@ -215,8 +226,46 @@ describe('bookings/service', () => {
       });
     });
 
-    it('rethrows non-23505 errors without translation', async () => {
+    it('refuses to book placeholder supply', async () => {
+      // A seeded venue is fictional inventory. Without this guard a user could
+      // hold a real, conflict-locked booking against a venue that does not
+      // exist, and the notification would go to an @seed.invalid account.
+      mockSelect.mockImplementation(() => makeQueryChain([PLACEHOLDER_SUPPLY]));
+
+      const { createBooking } = await import('../service.js');
+
+      await expect(
+        createBooking(CUSTOMER_ID, {
+          vendorId:    VENDOR_ID,
+          eventDate:   EVENT_DATE,
+          totalAmount: 50000,
+        }),
+      ).rejects.toMatchObject({
+        code:    'PLACEHOLDER_SUPPLY',
+        message: expect.stringContaining('preview listing'),
+      });
+
+      // Nothing may be written for placeholder supply.
+      expect(mockInsert).not.toHaveBeenCalled();
+    });
+
+    it('throws NOT_FOUND when the vendor does not exist', async () => {
       mockSelect.mockImplementation(() => makeQueryChain([]));
+
+      const { createBooking } = await import('../service.js');
+
+      await expect(
+        createBooking(CUSTOMER_ID, {
+          vendorId:    'no-such-vendor',
+          eventDate:   EVENT_DATE,
+          totalAmount: 50000,
+        }),
+      ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    });
+
+    it('rethrows non-23505 errors without translation', async () => {
+      let seqOther = 0;
+      mockSelect.mockImplementation(() => makeQueryChain(seqOther++ === 0 ? [REAL_SUPPLY] : []));
 
       const otherError = Object.assign(new Error('connection terminated'), { code: '57P01' });
       mockInsert.mockImplementation(() => ({

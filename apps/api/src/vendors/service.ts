@@ -100,6 +100,7 @@ function mapVendorRow(
     favoriteCount:    vendor.favoriteCount,
     isFavorite,
     bankVerificationStatus: vendor.bankVerificationStatus,
+    isPlaceholder:    vendor.isPlaceholder,
   };
 }
 

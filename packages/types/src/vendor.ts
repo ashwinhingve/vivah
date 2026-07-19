@@ -73,6 +73,23 @@ export interface VendorProfile {
   favoriteCount?: number
   isFavorite?:  boolean
   bankVerificationStatus?: string
+  /**
+   * Seeded fictional inventory rather than a real onboarded partner.
+   *
+   * It must not hide the row or change its ranking — placeholder inventory
+   * competes for attention exactly like real inventory, and enquiries stay
+   * fully open so the lead is captured.
+   *
+   * It gates two things:
+   *   1. Money, in the service layer: `assertBookable()` refuses a placeholder,
+   *      because no fictional vendor can deliver a service.
+   *   2. Disclosure, in the UI: a "preview listing" badge on the card and a
+   *      notice on the detail page.
+   *
+   * Do not remove the labelling without a written client decision:
+   * see docs/launch/PLACEHOLDER-SUPPLY-SIGNOFF.md.
+   */
+  isPlaceholder?: boolean
 }
 
 export interface VendorReview {

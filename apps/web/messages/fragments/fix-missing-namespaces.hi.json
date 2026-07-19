@@ -1,0 +1,26 @@
+{
+  "vendorRole": {
+    "components": {
+      "availabilityCalendar": {
+        "weekdays": ["रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि"],
+        "loading": "उपलब्धता लोड हो रही है…",
+        "previousMonth": "पिछला महीना",
+        "nextMonth": "अगला महीना",
+        "selected": "चयनित",
+        "booked": "बुक हो चुका",
+        "blocked": "अनुपलब्ध",
+        "alreadyBooked": "यह तारीख पहले से बुक है"
+      }
+    }
+  },
+  "likes": {
+    "heading": "पसंद",
+    "subtitleCount": "{count, plural, =0 {अभी कोई नहीं} one {# व्यक्ति ने आपको पसंद किया} other {# लोगों ने आपको पसंद किया}}",
+    "subtitleEmpty": "जिन्हें आपकी प्रोफ़ाइल पसंद आएगी, वे यहाँ दिखेंगे",
+    "emptyTitle": "अभी कोई पसंद नहीं",
+    "emptyDescription": "अपनी प्रोफ़ाइल पूरी और सक्रिय रखें — पसंद अपने आप आने लगती हैं।",
+    "exploreCta": "मैच देखें",
+    "lockedFeature": "प्रीमियम सुविधा",
+    "lockedMessage": "आपकी प्रोफ़ाइल पसंद करने वाले सभी लोगों को देखने के लिए अपग्रेड करें।"
+  }
+}

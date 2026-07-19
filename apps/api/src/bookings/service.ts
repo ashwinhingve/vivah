@@ -133,6 +133,33 @@ export async function createBooking(
   customerId: string,
   input: CreateBookingInput,
 ): Promise<BookingSummary> {
+  // Placeholder supply cannot take a booking.
+  //
+  // Seeded venues are fictional inventory standing in until a real partner
+  // signs (see docs/launch/PLACEHOLDER-SUPPLY-SIGNOFF.md). They render as
+  // ordinary vendors on purpose, which means the "Book Now" CTA reaches this
+  // function — and without this check a user could hold a real, conflict-locked
+  // booking against a venue that does not exist, with the notification going to
+  // an @seed.invalid account nobody reads.
+  //
+  // Packages have the equivalent guard in packages/service.ts (assertBookable).
+  // This is enforced here in the service, not in the UI, so a direct API call
+  // is refused too.
+  const [supply] = await db
+    .select({ isPlaceholder: vendors.isPlaceholder })
+    .from(vendors)
+    .where(eq(vendors.id, input.vendorId))
+    .limit(1);
+
+  if (!supply) throw new BookingError('NOT_FOUND', 'Vendor not found.');
+  if (supply.isPlaceholder) {
+    throw new BookingError(
+      'PLACEHOLDER_SUPPLY',
+      'This is a preview listing and cannot be booked yet. '
+      + 'Send an enquiry and our team will confirm availability with the venue.',
+    );
+  }
+
   // Conflict + blocked-date check + insert all run inside the same
   // transaction. The application-level conflict check gives a clean error
   // for the common case; the `booking_active_unique_idx` partial index
