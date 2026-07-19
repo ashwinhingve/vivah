@@ -28,7 +28,7 @@ test.describe('Smart Shaadi demo flow', () => {
     if (!process.env.STAGING_SESSION_COOKIE) {
       test.skip(true, 'staging demo script — local coverage in auth.spec.ts');
     }
-    await page.goto('/signup');
+    await page.goto('/en/signup');
     await page.getByPlaceholder(/phone/i).fill(PRIYA.phone);
     await page.getByRole('button', { name: /send otp|continue/i }).click();
 
@@ -55,7 +55,7 @@ test.describe('Smart Shaadi demo flow', () => {
       }]);
     }
 
-    await page.goto('/matches');
+    await page.goto('/en/matches');
 
     // Match cards visible
     await expect(page.getByTestId('match-card').first()).toBeVisible({ timeout: 10_000 });
@@ -69,7 +69,7 @@ test.describe('Smart Shaadi demo flow', () => {
       test.skip(true, 'requires logged-in session');
     }
 
-    await page.goto('/vendors');
+    await page.goto('/en/vendors');
     await expect(page.getByTestId('vendor-card').first()).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('vendor-card').first().click();
 
@@ -88,7 +88,7 @@ test.describe('Smart Shaadi demo flow', () => {
     }
 
     // Navigate to a seeded in-progress booking
-    await page.goto('/bookings');
+    await page.goto('/en/bookings');
     await page.getByTestId('booking-card').filter({ hasText: /in progress|active/i }).first().click();
 
     await page.getByRole('button', { name: /raise dispute/i }).click();

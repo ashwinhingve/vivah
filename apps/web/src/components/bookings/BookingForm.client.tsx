@@ -263,7 +263,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
           <button
             type="button"
             onClick={addAddon}
-            className="inline-flex items-center gap-1 rounded-lg border border-gold/40 bg-surface text-primary text-sm font-medium px-3 py-1.5 hover:bg-gold/10"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-gold/40 bg-surface text-primary text-sm font-medium px-3 py-1.5 hover:bg-gold/10"
           >
             <Plus className="h-3.5 w-3.5" /> Add item
           </button>
@@ -274,34 +274,39 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
           <ul className="space-y-2">
             {addons.map((a) => (
               <li key={a.id} className="grid grid-cols-12 items-center gap-2">
+                {/* Name takes the full first row on narrow phones so the qty/price
+                    inputs keep a usable width at 360px. */}
                 <input
                   type="text"
                   placeholder="Item name"
+                  aria-label="Add-on item name"
                   value={a.name}
                   onChange={(e) => updateAddon(a.id, { name: e.target.value })}
-                  className="col-span-6 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                  className="col-span-12 sm:col-span-6 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                 />
                 <input
                   type="number"
                   min={1}
                   placeholder="Qty"
+                  aria-label="Add-on quantity"
                   value={a.quantity}
                   onChange={(e) => updateAddon(a.id, { quantity: parseInt(e.target.value, 10) || 1 })}
-                  className="col-span-2 rounded-lg border border-border bg-surface px-2 py-2 text-sm"
+                  className="col-span-3 sm:col-span-2 rounded-lg border border-border bg-surface px-2 py-2 text-sm"
                 />
                 <input
                   type="number"
                   min={0}
                   placeholder="₹"
+                  aria-label="Add-on unit price in rupees"
                   value={a.unitPrice}
                   onChange={(e) => updateAddon(a.id, { unitPrice: parseFloat(e.target.value) || 0 })}
-                  className="col-span-3 rounded-lg border border-border bg-surface px-2 py-2 text-sm"
+                  className="col-span-6 sm:col-span-3 rounded-lg border border-border bg-surface px-2 py-2 text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => removeAddon(a.id)}
                   aria-label="Remove add-on"
-                  className="col-span-1 inline-flex items-center justify-center text-muted-foreground hover:text-destructive"
+                  className="col-span-3 sm:col-span-1 inline-flex min-h-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/5 hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -332,7 +337,7 @@ export function BookingForm({ vendor, packages }: BookingFormProps) {
         <p className="text-xs text-muted-foreground mt-1">
           50% will be held in escrow and released 48 hours after the event.
         </p>
-        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive mt-2">{error}</p>}
         <button
           type="submit"
           disabled={pending || total <= 0 || !eventDate}
