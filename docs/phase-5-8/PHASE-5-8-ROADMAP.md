@@ -416,6 +416,33 @@ dependency order — 5.1 → 5.2 → 5.5 → 5.4 → 5.3 → 5.7 → 5.6 — one
 
 ---
 
+## 5a-bis. Session update — 2026-07-19
+
+Items 1, 3, 4 and the automatable half of 5 from §5b were worked in one session.
+State changed as follows; §5b below is left intact as the original sequence.
+
+| §5b item | Now |
+|---|---|
+| 1. Ship what's local | `ui-polish-2` was **already merged and pushed** — the "~54 commits ahead" note was stale. `feat/mobile-ui-polish` (10 commits) and `sprint-i-mobile-parity` merged into main. **Push is still pending** (blocked on operator approval). No DB migrations in either merge, so nothing is gated on migration 0036. |
+| 3. Mobile feature parity | **Complete.** Parity Phase 0+1 (feed, requests, shortlists, chat, profile, onboarding, notifications, settings) merged; vendor browse + payments view built on top. Mobile suite 77 → 108 tests. Store submission still needs Apple/Google enrolment. |
+| 4. k6 baseline + SLO calibration | **First real baseline recorded** (`perf/BASELINE.md`). All three pre-existing scripts had never once executed — two could not even start (invalid Counter thresholds), one hit a route that does not exist while accepting 404 as success, one posted to two endpoints that do not exist. They carried invented baselines in their headers. Fixed, plus a new `perf/vendors.js`. Numbers are **local loopback**, so they calibrate nothing; staging is still required. |
+| 5. Replace placeholder supply | Content/business half **unchanged** — still needs licensed photography, real contacts, quoted pricing. Automatable half **done**: `scripts/placeholder-exposure.sh` + LAUNCH-CHECKLIST **B7**. Verified the `assertBookable` commercial guard actually holds. |
+
+Two findings worth carrying forward:
+
+1. **`auth.js` cannot be load-tested from one host.** Better Auth caps OTP
+   sends at 3 per 10-minute window keyed by **source IP**, not by phone —
+   20 VUs on 20 unused numbers from one machine still produced 20/20 429s.
+   Any auth latency figure from a single generator is the limiter's rejection
+   latency. Needs distributed load or a perf env with the limiter relaxed.
+2. **The "never executed" pattern has now appeared three sprints running**
+   (G, H, and here in the perf suite). The common shape is an artifact that
+   type-checks, reads plausibly, and carries a recorded result — with no run
+   behind it. A fabricated number is worse than a blank: a blank invites
+   measurement, a number invites comparison.
+
+---
+
 ## 5b. What remains — sequence from 2026-07-18
 
 ### Dev side, zero external dependency (do in this order)
