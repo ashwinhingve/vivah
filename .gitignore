@@ -23,6 +23,9 @@ coverage/
 
 # ── Dev mock store (USE_MOCK_SERVICES=true persistence) ───────────────────────
 apps/api/.data/
+# Runtime scratch at the repo root — scripts/nri-flag-verify.ts writes its
+# flag-OFF feed baseline here to diff against the flag-ON run.
+.data/
 
 # ── Environment ───────────────────────────────────────────────────────────────
 .env

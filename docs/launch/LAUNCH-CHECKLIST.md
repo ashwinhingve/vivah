@@ -95,6 +95,19 @@ The script's one hard failure is contact reachability: fictional supply must
 never carry an address a member of the public could act on. That currently
 passes (placeholder rows carry no contact details at all).
 
+**Decision recorded 2026-07-19: ship as-is, guard ON.** For client-demo and
+soft-launch purposes the placeholder supply stays exactly as seeded and
+`assertBookable` keeps refusing it with `PLACEHOLDER_SUPPLY`. No row is to be
+promoted with `is_placeholder = false` until a real partner is actually signed —
+promoting one for demo convenience would make a venue nobody has a contract with
+genuinely bookable and payable in production. The demo shows browse → enquiry →
+admin triage, which is the real flow; the honest framing to the client is
+"preview inventory pending partnerships."
+
+This item stays **open**, because the decision is reversible and the content half
+(licensed photography, real contacts, quoted pricing) is unchanged. Re-verified
+2026-07-19: 80 rows, contact safety OK.
+
 ---
 
 ## Section C — KYC stays MOCKED at launch (explicit non-goal)

@@ -544,6 +544,77 @@ Not "done" on type-check alone. All of:
 
 ---
 
+## 6b. Session 2026-07-19 (later) — NRI flag-on validation, Unit 7.2
+
+Scope was: verify the recorded launch-traffic claims by running them, then finish
+the one launch-traffic item that does not need real traffic (NRI flag-on).
+
+**Verification pass — everything recorded checked out.** `scripts/placeholder-exposure.sh`
+reports exactly the recorded 24 / 28 / 16 / 12 = 80 placeholder rows with contact
+safety OK; `placeholder-guard` 8/8; `flagParity` 36/36; `filters` 33/33;
+type-check 11/11. The `filters` suite was mutation-checked (bypass condition
+forced false → 2 tests went red, restored → green), so its NRI coverage is real
+and not the Sprint-G "green while the feature is absent" pattern repeating.
+
+**Unit 7.2 did not work.** `NRI_MATCHING_LIVE=true` produced no cross-border
+matches in the real feed. Two causes, both now fixed:
+
+1. **No cross-border data existed.** Every seeded profile took the column
+   defaults `country_of_residence='IN'` / `open_to_nri_matching=false`, so
+   `isCrossBorder()` and `hasOptedIntoNri()` both returned false and the bypass
+   at `filters.ts:250` was unreachable. Turning the flag on was a no-op nobody
+   could observe. `full-demo.ts` now seeds a 4-strong NRI cohort (US/GB/AE/CA)
+   plus a same-country opted-in control, chosen so each row proves one arm of
+   the condition. `seed-cand-12` was already "Aryan Khanna, New York, NRI
+   Banker" carrying `country_of_residence='IN'` and `active:false` — the demo
+   gestured at NRI with no data behind it.
+
+2. **A real product bug: `enrichRowWithDoc` dropped the NRI columns.**
+   (`matchmaking/engine.ts`.) The function does not mutate its input — it builds
+   a fresh object from `{id, userId, isActive}` and copies an explicit whitelist.
+   Sprint G added `countryOfResidence` / `openToNriMatching` / `ianaTimezone` to
+   `ProfileRow` and read them in `rowToProfileData`, but never added them to that
+   whitelist. So for **every profile with a Mongo content doc — i.e. every real
+   user** — they arrived at the filter as `undefined`. The feature could not have
+   worked in production for anyone, at any flag setting.
+
+   `filters.test.ts` could not catch it: it builds `ProfileWithPreferences`
+   objects directly and never traverses the mapper. The bug lived in the seam
+   between two well-tested units. Regression test added to `engine.test.ts`
+   (`enrichRowWithDoc preserves Postgres-only columns`), itself mutation-checked.
+
+**Evidence.** `scripts/nri-flag-verify.ts` drives the real `computeAndCacheFeed`
+(same function the API route calls, Redis included) once per flag state as two
+separate processes — env.ts binds the flag at import, so an in-process toggle
+would prove nothing. Observed: flag OFF → 5 profiles, no cross-border; flag ON →
+8, the three opted-in cross-border candidates added. The opted-out AE candidate
+stays absent both ways (opt-in is never one-sided) and the same-country opted-in
+candidate stays absent both ways (Bengaluru vs Delhi still fails the ordinary
+distance check). **Domestic feed byte-identical across the flip** — the safety
+claim at `filters.ts:247-249` is now measured, not asserted in a comment.
+
+Full API suite 1241/1241, type-check 11/11.
+
+**`NRI_MATCHING_LIVE` stays `false`** in `.env.example` and Railway. Validated ≠
+rolled out; the flip is the Colonel's call.
+
+**Lesson (new, distinct from the Sprint-G one).** Sprint G's lesson was "inject
+the flag so the ON path is testable." That was applied, and the unit tests are
+genuinely good — they still could not catch this, because the defect was in the
+DB-row → filter-object mapper that unit tests bypass by construction. A feature
+flag is not validated until it has been flipped against real rows in the real
+code path. Add that to the definition of done for every remaining flagged unit
+(`WHATSAPP_LIVE`, `LENDING_LIVE`, `INSURANCE_LIVE`, `ESIGN_LIVE`,
+`RETENTION_OUTREACH_LIVE`) — all shipped ON-path-unexercised, exactly as 7.2 did.
+
+**Caution for whoever re-seeds.** `pnpm --filter @smartshaadi/db db:seed`
+(full-demo) opens with a bulk `TRUNCATE ... CASCADE` (`full-demo.ts:284`). It
+wipes the `db:seed:demo` traffic set and QA-account profiles. Re-run
+`db:seed:demo` and `db:seed:test-accounts` after it, or the marketing/city
+dashboards go empty and it looks like a regression.
+
+---
+
 ## 7. What NOT to do (Phase 5–8 repeat offenders)
 
 - ❌ Don't run a native checkout **and** `/mnt/d` in parallel — clean cut to `~/vivahOS`.
@@ -554,6 +625,10 @@ Not "done" on type-check alone. All of:
 - ❌ Don't tell Colonel Phase 5–8 ships in a one-month window — Tier 2/3 gate on
   approvals nobody on our side can accelerate.
 - ❌ Don't call a unit done on cached type-check.
+- ❌ Don't call a **flagged** unit done until the flag has been flipped ON against
+  real rows in the real code path. Unit 7.2 passed type-check, 33 filter tests
+  and a mutation check while being incapable of working in production — the
+  defect was in the row→filter mapper that unit tests bypass. See §6b.
 
 ---
 

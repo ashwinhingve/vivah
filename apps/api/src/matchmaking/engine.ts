@@ -257,6 +257,24 @@ export function enrichRowWithDoc(row: ProfileRow, doc: ContentDoc | null): Profi
   if (personality !== undefined && personality !== null) enriched.personality = personality;
   if (row.latitude  !== undefined) enriched.latitude  = row.latitude;
   if (row.longitude !== undefined) enriched.longitude = row.longitude;
+  // Phase 7 Sprint G (Unit 7.2) — NRI columns.
+  //
+  // These MUST be carried over. This function does not mutate `row`; it builds a
+  // fresh object from {id, userId, isActive} and copies an explicit whitelist,
+  // so any Postgres column omitted here is silently dropped for every profile
+  // that has a Mongo content doc — which is every real user. Sprint G added the
+  // columns to ProfileRow and read them in rowToProfileData but never added them
+  // to this whitelist, so countryOfResidence/openToNriMatching arrived at the
+  // filter as undefined → null, isCrossBorder() and hasOptedIntoNri() both
+  // returned false, and the NRI_MATCHING_LIVE bypass could never fire in the
+  // real feed no matter how the data was configured.
+  //
+  // The unit tests missed it because they construct ProfileWithPreferences
+  // directly and never traverse this mapper. scripts/nri-flag-verify.ts covers
+  // the gap by driving computeAndCacheFeed against real rows.
+  if (row.countryOfResidence !== undefined) enriched.countryOfResidence = row.countryOfResidence;
+  if (row.openToNriMatching  !== undefined) enriched.openToNriMatching  = row.openToNriMatching;
+  if (row.ianaTimezone       !== undefined) enriched.ianaTimezone       = row.ianaTimezone;
   return enriched;
 }
 

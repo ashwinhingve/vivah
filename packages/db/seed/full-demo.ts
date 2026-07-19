@@ -49,7 +49,7 @@ const ADMIN_USER_ID  = 'seed-admin-001';
 const PRIYA_PROFILE_ID = profileId(1);
 const ARJUN_PROFILE_ID = profileId(2);
 
-// 12 male candidates for Priya's feed
+// 16 male candidates for Priya's feed (12 domestic + a 4-strong NRI cohort)
 type Candidate = {
   userId:     string;
   name:       string;
@@ -64,6 +64,24 @@ type Candidate = {
   totalScore: number;       // 0-100
   manglik:    boolean;
   active:     boolean;
+  // ── NRI / cross-border (Unit 7.2) ────────────────────────────────────────
+  //
+  // These exist so the NRI_MATCHING_LIVE branch in matchmaking/filters.ts is
+  // REACHABLE against seeded data. Before this cohort every seeded profile took
+  // the column default `country_of_residence = 'IN'` with `open_to_nri_matching
+  // = false`, so isCrossBorder() and hasOptedIntoNri() both returned false and
+  // the bypass at filters.ts:250 could never be entered — turning the flag on
+  // was a no-op you could not observe.
+  //
+  // The four rows below are chosen to exercise every arm of that condition:
+  // see NRI_MATRIX in the verification script for which candidate proves what.
+  country?:    string;      // ISO 3166-1 alpha-2; omitted → 'IN' (column default)
+  citizenship?: string;
+  residency?:  'CITIZEN' | 'PERM_RESIDENT' | 'WORK_VISA' | 'STUDENT_VISA' | 'DEPENDENT_VISA' | 'OTHER';
+  relocate?:   boolean;
+  nriOptIn?:   boolean;     // omitted → false (column default)
+  tz?:         string;      // IANA zone; validated at runtime against Node ICU
+  currency?:   'INR' | 'USD' | 'GBP' | 'EUR' | 'AED' | 'CAD' | 'AUD' | 'SGD';
 };
 
 const CANDIDATES: Candidate[] = [
@@ -78,7 +96,26 @@ const CANDIDATES: Candidate[] = [
   { userId: 'seed-cand-09', name: 'Krishnan Iyer',    phone: '+918888880109', city: 'Bangalore', state: 'Karnataka',     community: 'Tamil Brahmin',  occupation: 'Tech Lead',          income: '35-55 LPA', age: 29, gunaScore: 18, totalScore: 64, manglik: false, active: false },
   { userId: 'seed-cand-10', name: 'Aditya Despande',  phone: '+918888880110', city: 'Pune',      state: 'Maharashtra',   community: 'Marathi Brahmin',occupation: 'Architect',          income: '15-25 LPA', age: 27, gunaScore: 16, totalScore: 60, manglik: true,  active: false },
   { userId: 'seed-cand-11', name: 'Arnav Banerjee',   phone: '+918888880111', city: 'Hyderabad', state: 'Telangana',     community: 'Bengali',        occupation: 'Data Scientist',     income: '25-40 LPA', age: 28, gunaScore: 14, totalScore: 55, manglik: false, active: false },
-  { userId: 'seed-cand-12', name: 'Aryan Khanna',     phone: '+918888880112', city: 'New York',  state: 'NY',            community: 'Punjabi Hindu',  occupation: 'NRI Banker',         income: '70-90 LPA', age: 34, gunaScore: 13, totalScore: 52, manglik: false, active: false },
+  // Was city 'New York' with the default country_of_residence='IN' and active:false —
+  // a New York resident recorded as living in India, invisible to the feed. Now a
+  // real US row, which is what makes the cross-border path demonstrable at all.
+  { userId: 'seed-cand-12', name: 'Aryan Khanna',     phone: '+918888880112', city: 'New York',  state: 'NY',            community: 'Punjabi Hindu',  occupation: 'NRI Banker',         income: '70-90 LPA', age: 34, gunaScore: 13, totalScore: 52, manglik: false, active: true,
+    country: 'US', citizenship: 'IN', residency: 'WORK_VISA',    relocate: true,  nriOptIn: true,  tz: 'America/New_York',  currency: 'USD' },
+
+  // ── NRI cohort (Unit 7.2) — each row proves one arm of the bypass ──────────
+  { userId: 'seed-cand-13', name: 'Dhruv Sethi',      phone: '+918888880113', city: 'London',    state: 'England',       community: 'Punjabi Hindu',  occupation: 'Risk Analyst',       income: '50-70 LPA', age: 31, gunaScore: 29, totalScore: 84, manglik: false, active: true,
+    country: 'GB', citizenship: 'GB', residency: 'CITIZEN',      relocate: false, nriOptIn: true,  tz: 'Europe/London',     currency: 'GBP' },
+  // Opted OUT: cross-border but one-sided. Must NOT surface, flag on or off.
+  { userId: 'seed-cand-14', name: 'Imran Qureshi',    phone: '+918888880114', city: 'Dubai',     state: 'Dubai',         community: 'Punjabi Hindu',  occupation: 'Logistics Director', income: '45-65 LPA', age: 33, gunaScore: 25, totalScore: 77, manglik: false, active: true,
+    country: 'AE', citizenship: 'IN', residency: 'WORK_VISA',    relocate: false, nriOptIn: false, tz: 'Asia/Dubai',        currency: 'AED' },
+  { userId: 'seed-cand-15', name: 'Manav Chadha',     phone: '+918888880115', city: 'Toronto',   state: 'Ontario',       community: 'Sikh',           occupation: 'Data Engineer',      income: '40-60 LPA', age: 30, gunaScore: 27, totalScore: 80, manglik: false, active: true,
+    country: 'CA', citizenship: 'CA', residency: 'PERM_RESIDENT', relocate: true, nriOptIn: true,  tz: 'America/Toronto',   currency: 'CAD' },
+  // Domestic control: opted in, but SAME country as Priya. The bypass must not
+  // fire — he still has to pass the ordinary distance check (Bengaluru vs Delhi,
+  // so he must not surface). This is the safety property at filters.ts:247-249
+  // expressed as data instead of a comment.
+  { userId: 'seed-cand-16', name: 'Harsh Vardhan',    phone: '+918888880116', city: 'Bangalore', state: 'Karnataka',     community: 'Punjabi Hindu',  occupation: 'Startup Founder',    income: '60-80 LPA', age: 32, gunaScore: 31, totalScore: 87, manglik: false, active: true,
+    country: 'IN', citizenship: 'IN', residency: 'CITIZEN',      relocate: false, nriOptIn: true,  tz: 'Asia/Kolkata',      currency: 'INR' },
 ];
 
 // 6 vendors
@@ -291,12 +328,31 @@ async function seedUsers() {
     }).onConflictDoNothing();
   }
 
-  // Profiles — Priya, Arjun, Sunita, 12 candidates
-  const profileRows = [
-    { id: PRIYA_PROFILE_ID,        userId: PRIYA_USER_ID,  completeness: 92, isActive: true,  city: 'New Delhi', state: 'Delhi' },
+  // Profiles — Priya, Arjun, Sunita, 16 candidates.
+  //
+  // Priya opts into NRI matching because the bypass is bilateral: with her opted
+  // out, no cross-border candidate can surface however the candidates are set up,
+  // and the flag-on demo shows an empty feed.
+  type ProfileRow = {
+    id: string; userId: string; completeness: number; isActive: boolean;
+    city: string; state: string;
+    country?: string; citizenship?: string; residency?: Candidate['residency'];
+    relocate?: boolean; nriOptIn?: boolean; tz?: string; currency?: Candidate['currency'];
+  };
+  const profileRows: ProfileRow[] = [
+    { id: PRIYA_PROFILE_ID,        userId: PRIYA_USER_ID,  completeness: 92, isActive: true,  city: 'New Delhi', state: 'Delhi',
+      country: 'IN', citizenship: 'IN', residency: 'CITIZEN', relocate: true, nriOptIn: true, tz: 'Asia/Kolkata', currency: 'INR' },
     { id: ARJUN_PROFILE_ID,        userId: ARJUN_USER_ID,  completeness: 96, isActive: true,  city: 'New Delhi', state: 'Delhi' },
     { id: profileId(3),            userId: SUNITA_USER_ID, completeness: 60, isActive: true,  city: 'New Delhi', state: 'Delhi' },
-    ...CANDIDATES.map((c, i) => ({ id: profileId(10 + i),  userId: c.userId, completeness: 80 + (i % 15), isActive: c.active, city: c.city, state: c.state })),
+    ...CANDIDATES.map((c, i) => ({ id: profileId(10 + i),  userId: c.userId, completeness: 80 + (i % 15), isActive: c.active, city: c.city, state: c.state,
+      ...(c.country     !== undefined ? { country: c.country }         : {}),
+      ...(c.citizenship !== undefined ? { citizenship: c.citizenship } : {}),
+      ...(c.residency   !== undefined ? { residency: c.residency }     : {}),
+      ...(c.relocate    !== undefined ? { relocate: c.relocate }       : {}),
+      ...(c.nriOptIn    !== undefined ? { nriOptIn: c.nriOptIn }       : {}),
+      ...(c.tz          !== undefined ? { tz: c.tz }                   : {}),
+      ...(c.currency    !== undefined ? { currency: c.currency }       : {}),
+    })),
   ];
 
   for (const p of profileRows) {
@@ -304,9 +360,40 @@ async function seedUsers() {
       id: p.id, userId: p.userId,
       verificationStatus: 'VERIFIED', premiumTier: 'FREE',
       profileCompleteness: p.completeness, isActive: p.isActive,
+      // NRI columns. countryOfResidence / willingToRelocate / openToNriMatching /
+      // displayCurrency are NOT NULL with defaults, so they are always written;
+      // citizenship / residencyStatus / ianaTimezone are nullable and stay null
+      // for the domestic rows that never stated them.
+      countryOfResidence: p.country  ?? 'IN',
+      willingToRelocate:  p.relocate ?? false,
+      openToNriMatching:  p.nriOptIn ?? false,
+      displayCurrency:    p.currency ?? 'INR',
+      ...(p.citizenship !== undefined ? { citizenship: p.citizenship }    : {}),
+      ...(p.residency   !== undefined ? { residencyStatus: p.residency }  : {}),
+      ...(p.tz          !== undefined ? { ianaTimezone: p.tz }            : {}),
       lastActiveAt: new Date(),
       createdAt: new Date(), updatedAt: new Date(),
-    }).onConflictDoNothing();
+    })
+      // NOT onConflictDoNothing. Priya and cand-12 already exist in every
+      // previously-seeded database, so do-nothing would leave their NRI columns
+      // at the old defaults, print a success line, and produce a demo where the
+      // flag still does nothing — the failure mode is a green run that changed
+      // nothing. Only the NRI columns are re-asserted; isActive and
+      // profileCompleteness are left alone so a re-seed cannot clobber state a
+      // demo run has legitimately moved on from.
+      .onConflictDoUpdate({
+        target: profiles.id,
+        set: {
+          countryOfResidence: p.country  ?? 'IN',
+          willingToRelocate:  p.relocate ?? false,
+          openToNriMatching:  p.nriOptIn ?? false,
+          displayCurrency:    p.currency ?? 'INR',
+          citizenship:        p.citizenship ?? null,
+          residencyStatus:    p.residency   ?? null,
+          ianaTimezone:       p.tz          ?? null,
+          updatedAt:          new Date(),
+        },
+      });
   }
 
   // Profile photos — 4 for Priya, 5 for Arjun. Keys live under the `photos/`
@@ -668,9 +755,13 @@ const PRIYA_PROFILE_CONTENT = {
     ageRange: { min: 26, max: 34 }, heightRange: { min: 170, max: 195 },
     education: ['B.Tech','M.Tech','MBA','Masters','Bachelors'], religion: ['Hindu','Sikh'],
     manglik: 'ANY', diet: ['VEG','EGGETARIAN','NON_VEG'],
-    incomeMin: 1500000, locations: ['Delhi','New Delhi','Mumbai','Bengaluru','Pune','Hyderabad','New York'],
+    incomeMin: 1500000, locations: ['Delhi','New Delhi','Mumbai','Bengaluru','Pune','Hyderabad','New York','London','Toronto'],
     openToInterCaste: true, openToInterfaith: true,
     maritalStatus: ['NEVER_MARRIED'],
+    // Priya is the demo protagonist and the bypass is bilateral — with her
+    // opted out, no cross-border candidate can surface no matter how the
+    // candidates are configured, and a flag-on demo shows nothing.
+    openToNriMatching: true,
   },
   safetyMode: { contactHidden: true, unlockedWith: [] },
   aboutMe: 'PM at Microsoft, daughter of a retired Army officer. Love trekking, classical tabla, and quiet evenings with a book. Looking for a partner who values family, conversations, and adventure equally.',
@@ -718,6 +809,12 @@ const ARJUN_PROFILE_CONTENT = {
   aboutMe: 'IB at Goldman, IIM-A grad. Love cricket, investing, and good food. Family-first, Delhi born and raised. Looking for someone thoughtful and ambitious who also values calm time with parents.',
 };
 
+// Display names for the ISO codes this seed uses. Presentation only — the
+// authoritative value is the alpha-2 code on profiles.country_of_residence.
+const COUNTRY_NAMES: Record<string, string> = {
+  IN: 'India', US: 'USA', GB: 'United Kingdom', AE: 'United Arab Emirates', CA: 'Canada',
+};
+
 // DOBs computed so candidates land at the ages declared in CANDIDATES (year 2026 demo time).
 const CANDIDATE_CONTENTS = CANDIDATES.map(c => {
   const birthYear = 2026 - c.age;
@@ -745,7 +842,11 @@ const CANDIDATE_CONTENTS = CANDIDATES.map(c => {
     profession: { occupation: c.occupation, incomeRange: c.income, workLocation: c.city, employerType: 'PRIVATE',
       annualIncome: incomeMid },
     family: { familyType: 'NUCLEAR', familyValues: 'TRADITIONAL_MODERATE', familyStatus: 'UPPER_MIDDLE' },
-    location: { city: c.city, state: c.state, country: c.city === 'New York' ? 'USA' : 'India' },
+    // Derived from the ISO code rather than a city name test — the old
+    // `c.city === 'New York' ? 'USA' : 'India'` silently mislabelled every new
+    // overseas row as India, which is exactly the kind of drift the NRI cohort
+    // is meant to make visible.
+    location: { city: c.city, state: c.state, country: COUNTRY_NAMES[c.country ?? 'IN'] ?? 'India' },
     lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'OCCASIONALLY',
       hobbies: ['Travel','Reading','Cricket'], languagesSpoken: [c.community.split(' ')[0],'Hindi','English'] },
     horoscope: { manglik: c.manglik, rashi: 'Various', nakshatra: 'Various', dob },
@@ -756,6 +857,11 @@ const CANDIDATE_CONTENTS = CANDIDATES.map(c => {
       incomeMin: 0, locations: ['Delhi','New Delhi','Mumbai','Bengaluru','Pune','Hyderabad'],
       openToInterCaste: true, openToInterfaith: true,
       maritalStatus: ['NEVER_MARRIED'],
+      // Mongo-side mirror of profiles.open_to_nri_matching. The column is
+      // authoritative (engine.ts reads it first); this is the legacy fallback
+      // for rows written before the column existed, kept coherent so the two
+      // sources can never disagree in the demo data.
+      openToNriMatching: c.nriOptIn ?? false,
     },
     safetyMode: { contactHidden: true, unlockedWith: [] },
     aboutMe: `${c.occupation} based in ${c.city}. ${c.community} family. Looking for a thoughtful, family-oriented partner.`,

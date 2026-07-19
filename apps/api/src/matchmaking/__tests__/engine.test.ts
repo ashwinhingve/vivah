@@ -91,7 +91,7 @@ vi.mock('../../infrastructure/mongo/models/ProfileContent.js', () => ({
 }));
 
 import type Redis from 'ioredis';
-import { getCachedFeed, computeAndCacheFeed } from '../engine.js';
+import { getCachedFeed, computeAndCacheFeed, enrichRowWithDoc } from '../engine.js';
 import { applyHardFilters } from '../filters.js';
 import { scoreCandidate } from '../scorer.js';
 import { matchComputeQueue } from '../../infrastructure/redis/queues.js';
@@ -357,5 +357,62 @@ describe('computeAndCacheFeed', () => {
     expect(findOneMock.mock.calls.length).toBeLessThanOrEqual(1);
 
     mockStoreGet.mockReset();
+  });
+});
+
+// ── enrichRowWithDoc column preservation (regression, Unit 7.2) ──────────────
+//
+// enrichRowWithDoc does NOT mutate the row it is given: it builds a fresh object
+// from {id, userId, isActive} and copies an explicit whitelist of fields. Any
+// Postgres column missing from that whitelist is silently dropped for every
+// profile that has a Mongo content doc — i.e. every real user.
+//
+// That is exactly what happened to the Sprint G NRI columns. They were added to
+// ProfileRow and read in rowToProfileData, but never copied here, so
+// countryOfResidence/openToNriMatching reached the filter as undefined. Both
+// isCrossBorder() and hasOptedIntoNri() then returned false and the
+// NRI_MATCHING_LIVE bypass could not fire in the real feed for anyone.
+//
+// The filters.test.ts suite could not catch this: it builds ProfileWithPreferences
+// objects directly and never traverses this mapper. The bug lived in the seam
+// between two well-tested units.
+
+describe('enrichRowWithDoc preserves Postgres-only columns (Unit 7.2 regression)', () => {
+  const row = {
+    id: 'p1', userId: 'u1', isActive: true,
+    latitude: 19.076, longitude: 72.8777,
+    countryOfResidence: 'US',
+    openToNriMatching: true,
+    ianaTimezone: 'America/New_York',
+    personal: { fullName: 'From PG' },
+  };
+
+  it('carries the NRI columns through when a Mongo doc is present', () => {
+    // A doc that overrides `personal` — the branch that rebuilds the object and
+    // therefore the branch where a missing whitelist entry loses data.
+    const out = enrichRowWithDoc(row, { personal: { fullName: 'From Mongo' } } as never);
+
+    expect(out.countryOfResidence).toBe('US');
+    expect(out.openToNriMatching).toBe(true);
+    expect(out.ianaTimezone).toBe('America/New_York');
+    // Sanity: the doc really did take effect, so we are on the rebuild branch
+    // and not accidentally asserting against the early `if (!doc) return row`.
+    expect(out.personal?.fullName).toBe('From Mongo');
+    // Guard the neighbouring columns that share this failure mode.
+    expect(out.latitude).toBe(19.076);
+    expect(out.longitude).toBe(72.8777);
+  });
+
+  it('leaves the columns untouched when there is no doc', () => {
+    const out = enrichRowWithDoc(row, null);
+    expect(out.countryOfResidence).toBe('US');
+    expect(out.openToNriMatching).toBe(true);
+  });
+
+  it('does not invent values for a row that never had them', () => {
+    const bare = { id: 'p2', userId: 'u2', isActive: true };
+    const out = enrichRowWithDoc(bare, { personal: { fullName: 'x' } } as never);
+    expect(out.countryOfResidence).toBeUndefined();
+    expect(out.openToNriMatching).toBeUndefined();
   });
 });
