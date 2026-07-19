@@ -199,6 +199,13 @@ export const envSchema = z.object({
   // is capturing exceptions in a deployed env, then flip back to false.
   // When false, /api/v1/sentry-test and /__forced_error return 404.
   SENTRY_TEST_ENABLED: z.string().default('false').transform(v => v === 'true'),
+
+  // ── Phase 4 Sprint T — Free-tier match-view quota gate (Unit T3.1) ──
+  // When FALSE (default), the daily match-view limit does not apply, so users
+  // can open unlimited distinct profiles. Set 'true' after launch validation to
+  // enforce FREE tier = 5 views/day, STANDARD+ = unlimited. The limit is per
+  // distinct profile opened, deduped within 24h (re-opening a profile ≠ new view).
+  VIEW_QUOTA_ENABLED: z.string().default('false').transform(v => v === 'true'),
 }).superRefine((data, ctx) => {
   // Real-mode guard — placeholders would silently call external services with
   // fake tokens and 401 in production. Force explicit configuration.
@@ -521,3 +528,11 @@ export const areReportsEnabled = env.REPORTS_ENABLED;
  * dev environment runs in. FALSE = dispatch/sweeps record SUPPRESSED rows.
  */
 export const isMarketingAutomationEnabled = env.MARKETING_AUTOMATION_ENABLED;
+
+/**
+ * Match-view quota enforcement gate (Phase 4 Sprint T, Unit T3.1). FALSE by default —
+ * the daily limit on distinct profile views (FREE 5/day, STANDARD+ unlimited) is not enforced.
+ * Set 'true' after launch validation to gate the feature. Limits are per distinct profile
+ * opened, deduped within 24h (re-opening same profile doesn't burn another view).
+ */
+export const isViewQuotaEnabled = env.VIEW_QUOTA_ENABLED;

@@ -3,7 +3,7 @@
  * apps/api/src/lib/quotas.ts
  *
  * IST-anchored daily INCR with EXPIREAT at next IST midnight.
- * Used to enforce premium-tier interest limits server-side.
+ * Generalized to support multiple quota kinds (interests, match views, etc.).
  */
 
 import { redis } from './redis.js';
@@ -30,19 +30,25 @@ export interface QuotaResult {
   remaining: number;
 }
 
+export type QuotaKind = 'interests' | 'views';
+
 /**
- * Atomically check + consume one unit of the interest quota.
- * PREMIUM tier (Infinity limit) skips Redis entirely.
+ * Generic: atomically check + consume one unit of a daily quota.
+ * Infinite limits (PREMIUM tier on both interests and views) skip Redis entirely.
+ * @param kind — quota type (e.g., 'interests', 'views')
+ * @param profileId — the profile consuming the quota
+ * @param limit — the daily limit; Infinity means unlimited
+ * @returns QuotaResult with allowed, used, limit, remaining
  */
-export async function checkAndConsumeInterestQuota(
+export async function checkAndConsumeQuota(
+  kind: QuotaKind,
   profileId: ProfileId,
-  tier: PremiumTier,
+  limit: number,
 ): Promise<QuotaResult> {
-  const limit = getEntitlements(tier).dailyInterestLimit;
   if (!Number.isFinite(limit)) {
     return { allowed: true, used: 0, limit, remaining: limit };
   }
-  const key = `quota:interests:${profileId}:${istDateKey()}`;
+  const key = `quota:${kind}:${profileId}:${istDateKey()}`;
   const used = await redis.incr(key);
   if (used === 1) {
     await redis.expireat(key, nextIstMidnightUnix());
@@ -55,11 +61,35 @@ export async function checkAndConsumeInterestQuota(
   return { allowed: true, used, limit, remaining: limit - used };
 }
 
-export async function peekInterestQuota(profileId: string, tier: PremiumTier): Promise<QuotaResult> {
-  const limit = getEntitlements(tier).dailyInterestLimit;
+/**
+ * Read-only peek at quota usage without consuming.
+ */
+export async function peekQuota(kind: QuotaKind, profileId: string, limit: number): Promise<QuotaResult> {
   if (!Number.isFinite(limit)) return { allowed: true, used: 0, limit, remaining: limit };
-  const key = `quota:interests:${profileId}:${istDateKey()}`;
+  const key = `quota:${kind}:${profileId}:${istDateKey()}`;
   const raw = await redis.get(key);
   const used = raw ? parseInt(raw, 10) : 0;
   return { allowed: used < limit, used, limit, remaining: Math.max(0, limit - used) };
+}
+
+/**
+ * Atomically check + consume one unit of the interest quota.
+ * PREMIUM tier (Infinity limit) skips Redis entirely.
+ * @deprecated Use checkAndConsumeQuota('interests', ...) directly instead.
+ */
+export async function checkAndConsumeInterestQuota(
+  profileId: ProfileId,
+  tier: PremiumTier,
+): Promise<QuotaResult> {
+  const limit = getEntitlements(tier).dailyInterestLimit;
+  return checkAndConsumeQuota('interests', profileId, limit);
+}
+
+/**
+ * Read-only peek at interest quota usage without consuming.
+ * @deprecated Use peekQuota('interests', ...) directly instead.
+ */
+export async function peekInterestQuota(profileId: string, tier: PremiumTier): Promise<QuotaResult> {
+  const limit = getEntitlements(tier).dailyInterestLimit;
+  return peekQuota('interests', profileId, limit);
 }

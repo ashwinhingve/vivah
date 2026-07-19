@@ -13,6 +13,11 @@ import { asProfileId, type Entitlements, type PremiumTier, type ProfileId } from
 const TABLE: Record<PremiumTier, Entitlements> = {
   FREE: {
     dailyInterestLimit: 5,
+    dailyMatchViewLimit: 5,
+    canUseConversationCoach: false,
+    hasPriorityVisibility: false,
+    hasVerifiedBadge: false,
+    hasDedicatedRecommendations: false,
     canViewViewers: false,
     canViewWhoLikedMe: false,
     canBoost: false,
@@ -22,6 +27,11 @@ const TABLE: Record<PremiumTier, Entitlements> = {
   },
   STANDARD: {
     dailyInterestLimit: 25,
+    dailyMatchViewLimit: Number.POSITIVE_INFINITY,
+    canUseConversationCoach: true,
+    hasPriorityVisibility: true,
+    hasVerifiedBadge: false,
+    hasDedicatedRecommendations: false,
     canViewViewers: true,
     canViewWhoLikedMe: false,
     canBoost: false,
@@ -31,6 +41,11 @@ const TABLE: Record<PremiumTier, Entitlements> = {
   },
   PREMIUM: {
     dailyInterestLimit: Number.POSITIVE_INFINITY,
+    dailyMatchViewLimit: Number.POSITIVE_INFINITY,
+    canUseConversationCoach: true,
+    hasPriorityVisibility: true,
+    hasVerifiedBadge: true,
+    hasDedicatedRecommendations: true,
     canViewViewers: true,
     canViewWhoLikedMe: true,
     canBoost: true,

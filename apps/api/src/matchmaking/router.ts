@@ -29,6 +29,8 @@ import { getWhoLikedMe } from './requests/service.js';
 import { getProfileTier, getEntitlements } from '../lib/entitlements.js';
 import { sliceFeedPage } from './pagination.js';
 import { applyFeedFacets } from './facets.js';
+import { peekQuota } from '../lib/quotas.js';
+import { isViewQuotaEnabled } from '../lib/env.js';
 import type { MatchFeedItem } from '@smartshaadi/types';
 
 export const matchmakingRouter = Router();
@@ -74,18 +76,30 @@ matchmakingRouter.get(
       // Facets narrow the ranked list BEFORE pagination. Slicing first would page
       // over the unfiltered feed and hand back short pages with a `total` that
       // contradicted them.
-      const paginate = (full: MatchFeedItem[]): void => {
+      const paginate = async (full: MatchFeedItem[]): Promise<void> => {
         const filtered = facetsActive
           ? applyFeedFacets(full, { nriOnly, countries }, viewerCountry)
           : full;
         const { slice, total } = sliceFeedPage(filtered, page, limit);
-        ok(res, { items: slice, total, page, limit }, 200, { page, limit, total });
+
+        // Include quota info in response if enabled
+        let quota: { remaining: number; limit: number } | null = null;
+        if (isViewQuotaEnabled) {
+          const tierResolved = await getProfileTier(userId);
+          if (tierResolved) {
+            const ent = getEntitlements(tierResolved.tier);
+            const quotaInfo = await peekQuota('views', tierResolved.profileId.toString(), ent.dailyMatchViewLimit);
+            quota = { remaining: quotaInfo.remaining, limit: quotaInfo.limit };
+          }
+        }
+
+        ok(res, { items: slice, total, page, limit, quota }, 200, { page, limit, total });
       };
 
       if (!refresh) {
         const cached = await getCachedFeed(userId, redis);
         if (cached !== null) {
-          paginate(cached);
+          await paginate(cached);
           return;
         }
       } else {
@@ -93,7 +107,7 @@ matchmakingRouter.get(
       }
 
       const feed = await computeAndCacheFeed(userId, db, redis);
-      paginate(feed);
+      await paginate(feed);
     } catch (e) {
       console.error('[feed][router] computeAndCacheFeed threw', { userId, error: e });
       const message = e instanceof Error ? e.message : 'Failed to load feed';

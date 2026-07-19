@@ -26,6 +26,7 @@ interface MeResponse {
   profileCompleteness: number;
   sectionCompletion?: ProfileSectionCompletion;
   personal?: PersonalSection;
+  premiumTier?: 'FREE' | 'STANDARD' | 'PREMIUM';
 }
 
 interface PrefsResponse {
@@ -84,7 +85,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const feedPath = refresh ? '/api/v1/matchmaking/feed?refresh=1' : '/api/v1/matchmaking/feed';
 
   const [feedRes, meRes, prefsRes, nriRes] = await Promise.all([
-    fetchAuth<{ items: MatchFeedItem[]; total: number } | MatchFeedItem[]>(feedPath, token),
+    fetchAuth<{ items: MatchFeedItem[]; total: number; quota?: { remaining: number; limit: number } } | MatchFeedItem[]>(feedPath, token),
     fetchAuth<MeResponse>('/api/v1/profiles/me', token),
     fetchAuth<PrefsResponse>('/api/v1/profiles/me/preferences', token),
     // Viewer's own country — the country badge marks "lives somewhere other than
@@ -100,6 +101,9 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const total = Array.isArray(feedRes.data)
     ? feedRes.data.length
     : ((feedRes.data as { items: MatchFeedItem[]; total: number } | null)?.total ?? items.length);
+  const quota = !Array.isArray(feedRes.data) && feedRes.data?.quota
+    ? feedRes.data.quota
+    : null;
   const completeness = meRes.data?.profileCompleteness ?? 0;
   const profileReady = completeness >= 40;
   const maritalPrefs = prefsRes.data?.maritalStatus ?? [];
@@ -287,6 +291,8 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
             total={total}
             maritalPrefs={maritalPrefs}
             availableCities={availableCities}
+            quota={quota}
+            tier={meRes.data?.premiumTier ?? 'FREE'}
           />
         )}
       </PageTransition>

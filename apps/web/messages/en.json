@@ -2997,5 +2997,15 @@
     "viewKfs": "View Key Fact Statement (KFS)",
     "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected lender. I understand Smart Shaadi is an LSP, earns a referral fee from the lender, and never collects interest or handles my money.",
     "continue": "Continue"
+  },
+  "quota": {
+    "title": "Daily match limit",
+    "remainingViews": "You have {remaining} match {remaining, plural, one {view} other {views}} remaining today",
+    "exhausted": "You've seen all your daily matches",
+    "exhaustedFree": "You've seen your 5 daily matches. Upgrade to see unlimited profiles.",
+    "upgradeCTA": "Upgrade to Standard",
+    "premiumBenefit": "Standard members see unlimited matches",
+    "error": "Could not load more profiles",
+    "refreshTip": "Check back tomorrow for fresh matches"
   }
 }

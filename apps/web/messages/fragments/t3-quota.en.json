@@ -1,0 +1,12 @@
+{
+  "quota": {
+    "title": "Daily match limit",
+    "remainingViews": "You have {remaining} match {remaining, plural, one {view} other {views}} remaining today",
+    "exhausted": "You've seen all your daily matches",
+    "exhaustedFree": "You've seen your 5 daily matches. Upgrade to see unlimited profiles.",
+    "upgradeCTA": "Upgrade to Standard",
+    "premiumBenefit": "Standard members see unlimited matches",
+    "error": "Could not load more profiles",
+    "refreshTip": "Check back tomorrow for fresh matches"
+  }
+}

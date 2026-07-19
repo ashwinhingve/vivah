@@ -26,9 +26,12 @@ import { getPresignedUploadUrl } from '../storage/service.js';
 import { requireTier } from '../auth/requireTier.js';
 import { computeStrengthTips } from './strengthTips.js';
 import { profilePhotos, profileSections } from '@smartshaadi/db';
-import { shouldUseMockMongo } from '../lib/env.js';
+import { shouldUseMockMongo, isViewQuotaEnabled } from '../lib/env.js';
 import { mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
+import { getProfileTier, getEntitlements } from '../lib/entitlements.js';
+import { checkAndConsumeQuota } from '../lib/quotas.js';
+import { decideProfileViewAllowed } from './quota.decision.js';
 
 export const profilesRouter = Router();
 
@@ -429,6 +432,37 @@ profilesRouter.get('/:id', authenticate, async (req: Request, res: Response): Pr
   }
 
   try {
+    // Enforce match-view quota if enabled
+    if (isViewQuotaEnabled) {
+      const tierResolved = await getProfileTier(req.user!.id);
+      if (!tierResolved) {
+        err(res, 'PROFILE_NOT_FOUND', 'Your profile was not found', 404);
+        return;
+      }
+      const ent = getEntitlements(tierResolved.tier);
+      const quota = await checkAndConsumeQuota('views', tierResolved.profileId, ent.dailyMatchViewLimit);
+
+      // Use pure decision logic to determine if view is allowed
+      const decision = decideProfileViewAllowed({
+        quotaEnabled: isViewQuotaEnabled,
+        tier: tierResolved.tier,
+        viewsUsed: quota.used,
+        viewsLimit: ent.dailyMatchViewLimit,
+      });
+
+      if (!decision.allowed) {
+        res.status(429).json({
+          success: false,
+          data: null,
+          error: {
+            ...decision.error,
+          },
+          meta: { timestamp: new Date().toISOString() },
+        });
+        return;
+      }
+    }
+
     const profile = await getProfileById(asProfileId(id), req.user!.id);
     if (!profile) {
       err(res, 'PROFILE_NOT_FOUND', 'Profile not found or not active', 404);

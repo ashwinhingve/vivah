@@ -14,6 +14,8 @@ import type { MatchFeedItem } from '@smartshaadi/types';
 import { MatchFeed } from '@/components/match/MatchFeed.client';
 import { DesktopFilterSidebar } from './DesktopFilterSidebar.client';
 import { DEFAULT_FILTERS, type FeedFilters } from '@/components/match/MatchFilters.client';
+import { QuotaIndicator } from '@/components/match/QuotaIndicator.client';
+import { clientEnv } from '@/lib/env';
 
 type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
 
@@ -22,9 +24,11 @@ interface FeedPageClientProps {
   total: number;
   maritalPrefs: MaritalStatusValue[];
   availableCities: string[];
+  quota?: { remaining: number; limit: number } | null;
+  tier?: 'FREE' | 'STANDARD' | 'PREMIUM';
 }
 
-export function FeedPageClient({ initialItems, total, maritalPrefs, availableCities }: FeedPageClientProps) {
+export function FeedPageClient({ initialItems, total, maritalPrefs, availableCities, quota, tier = 'FREE' }: FeedPageClientProps) {
   const [filters, setFilters] = useState<FeedFilters>(DEFAULT_FILTERS);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
@@ -40,6 +44,16 @@ export function FeedPageClient({ initialItems, total, maritalPrefs, availableCit
 
       {/* Main feed column */}
       <div className="min-w-0 flex-1 space-y-5">
+        {/* Quota indicator — only show if enabled and quota data available */}
+        {clientEnv.VIEW_QUOTA_ENABLED && quota && (
+          <QuotaIndicator
+            remaining={quota.remaining}
+            limit={quota.limit}
+            tier={tier}
+            isExhausted={quota.remaining <= 0}
+          />
+        )}
+
         <MatchFeed
           initialItems={initialItems}
           total={total}

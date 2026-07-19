@@ -11,6 +11,7 @@ const ServerSchema = z.object({
   NEXT_PUBLIC_POSTHOG_KEY:  z.string().default(''),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default('https://app.posthog.com'),
   NEXT_PUBLIC_SENTRY_DSN:   z.string().default(''),
+  NEXT_PUBLIC_VIEW_QUOTA_ENABLED: z.string().default('false').transform(v => v === 'true'),
 });
 
 const parsed = ServerSchema.safeParse({
@@ -20,6 +21,7 @@ const parsed = ServerSchema.safeParse({
   NEXT_PUBLIC_POSTHOG_KEY:  process.env['NEXT_PUBLIC_POSTHOG_KEY'],
   NEXT_PUBLIC_POSTHOG_HOST: process.env['NEXT_PUBLIC_POSTHOG_HOST'],
   NEXT_PUBLIC_SENTRY_DSN:   process.env['NEXT_PUBLIC_SENTRY_DSN'],
+  NEXT_PUBLIC_VIEW_QUOTA_ENABLED: process.env['NEXT_PUBLIC_VIEW_QUOTA_ENABLED'],
 });
 
 if (!parsed.success) {
@@ -36,10 +38,11 @@ export const serverEnv = {
 
 // Client-safe env (all NEXT_PUBLIC_*)
 export const clientEnv = {
-  apiUrl:      e.NEXT_PUBLIC_API_URL,
-  socketUrl:   e.NEXT_PUBLIC_SOCKET_URL,
-  appName:     e.NEXT_PUBLIC_APP_NAME,
-  posthogKey:  e.NEXT_PUBLIC_POSTHOG_KEY,
-  posthogHost: e.NEXT_PUBLIC_POSTHOG_HOST,
-  sentryDsn:   e.NEXT_PUBLIC_SENTRY_DSN,
+  apiUrl:             e.NEXT_PUBLIC_API_URL,
+  socketUrl:          e.NEXT_PUBLIC_SOCKET_URL,
+  appName:            e.NEXT_PUBLIC_APP_NAME,
+  posthogKey:         e.NEXT_PUBLIC_POSTHOG_KEY,
+  posthogHost:        e.NEXT_PUBLIC_POSTHOG_HOST,
+  sentryDsn:          e.NEXT_PUBLIC_SENTRY_DSN,
+  VIEW_QUOTA_ENABLED: e.NEXT_PUBLIC_VIEW_QUOTA_ENABLED,
 };
