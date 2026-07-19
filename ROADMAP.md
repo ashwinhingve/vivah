@@ -366,6 +366,15 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 ## 🟣 PHASE 7 — Mobile & International (Expansion Month 6)
 
 - [x] React Native + Expo mobile app scaffold — Sprint E (Expo SDK 57, phone-OTP cookie auth)
+- [x] Mobile UI/UX audit & polish (2026-07-19, branch `feat/mobile-ui-polish`) — design system
+      with automatic light+dark theming (CSS-var tokens + `useThemeColors`), Playfair Display
+      headings, reusable primitives (Button/Input/Screen/Card/OTPInput/LoadingView/ErrorBanner/
+      InfoNote), a11y on every interactive element (was zero), haptics + reanimated press/shake
+      animations, segmented OTP auto-submit + 30s resend, sign-out confirm, pull-to-refresh,
+      keyboard avoidance; 15 hardcoded hex removed; jest migrated to jest-expo+RNTL (17 tests).
+      Gates: type-check ✓ lint ✓ tests 17/17 ✓ Android bundle export ✓ headless-browser verify
+      of web build (light+dark render, validation + error states, Playfair loaded) ✓.
+      On-device haptics/dark-mode check pending. Awaiting operator review + merge to main.
 - [ ] iOS and Android feature parity
 - [ ] Biometric login
 - [ ] EAS Build CI/CD
