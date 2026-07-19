@@ -1,0 +1,43 @@
+{
+  "adminPackages": {
+    "metadata": { "title": "Premium Packages — Admin | Smart Shaadi" },
+    "heading": "Premium Packages",
+    "subtitle": "{total} packages · {placeholder} awaiting a real partner",
+    "breadcrumb": { "admin": "Admin" },
+    "col": {
+      "package": "Package",
+      "city": "Destination",
+      "tier": "Tier",
+      "price": "From",
+      "supply": "Supply",
+      "visibility": "Visibility"
+    },
+    "tier": {
+      "ESSENTIAL": "Essential",
+      "SIGNATURE": "Signature",
+      "LUXE": "Luxe"
+    },
+    "supply": {
+      "placeholder": "Placeholder",
+      "real": "Real partner"
+    },
+    "visibility": {
+      "live": "Live",
+      "hidden": "Hidden"
+    },
+    "promoteHint": "Mark as a real onboarded partner — this unlocks booking and payment",
+    "demoteHint": "Mark back as placeholder — this blocks booking and payment",
+    "confirmPromote": "Promote \"{title}\" to a real partner?\n\nThis unlocks booking and payment for this package. Only do this once the venue is genuinely onboarded and the contact details and imagery have been replaced.",
+    "seedBanner": {
+      "title": "Placeholder inventory is live",
+      "body": "{count, plural, one {# package is} other {# packages are}} seeded placeholder supply. They browse and render exactly like real listings, and they capture enquiries — but they cannot be booked or paid for. Promote one once its venue is genuinely onboarded."
+    },
+    "forbidden": {
+      "title": "Admin access required",
+      "body": "This page is limited to administrators."
+    },
+    "empty": "No packages yet.",
+    "footnote": "Placeholder packages are fully browsable and capture enquiries. Only the booking and payment path is blocked.",
+    "genericError": "That change could not be saved. Please try again."
+  }
+}
