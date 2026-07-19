@@ -5,12 +5,18 @@
  * range, and no price at all (a QUOTE service). The last is not an error state —
  * "price on request" is a legitimate commercial answer for a service like a
  * gifting registry whose cost depends on its size.
+ *
+ * `isPlaceholder` controls whether a "Preview listing" badge renders: both the
+ * service and its partner can be placeholders. The badge is always visible in
+ * the card layout and does not hide, filter, or re-rank any row — it is labelling
+ * only, so the user can make an informed enquiry decision.
  */
 import { getTranslations } from 'next-intl/server';
 import { MapPin, Globe, Star } from 'lucide-react';
 import type { PostMarriageServiceWithPartner } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
 import { formatINRCompact } from '@/lib/format';
+import { Badge } from '@/components/ui/badge';
 
 export async function ServiceCard({ service }: { service: PostMarriageServiceWithPartner }) {
   const t = await getTranslations('postMarriage.card');
@@ -46,9 +52,14 @@ export async function ServiceCard({ service }: { service: PostMarriageServiceWit
           className="h-12 w-12 shrink-0 rounded-lg border border-gold/20 object-cover"
           loading="lazy"
         />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs uppercase tracking-wide text-teal">{service.categoryName}</p>
           <h3 className="font-heading text-lg leading-tight text-primary">{service.title}</h3>
+          {service.isPlaceholder && (
+            <div className="mt-2">
+              <Badge variant="warning">{t('placeholder')}</Badge>
+            </div>
+          )}
         </div>
       </div>
 

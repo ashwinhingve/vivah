@@ -7,6 +7,11 @@
  * a UI-only rule is not a rule at all, since the API is reachable directly.
  * The server remains the enforcement point either way — this call only chooses
  * which button to draw.
+ *
+ * When `isPlaceholder` is true, displays an inline notice above the enquiry form
+ * explaining that this is preview inventory and that the enquiry path lets the
+ * team confirm availability and send a quote. The row is not hidden or otherwise
+ * restricted — only clearly labelled so users understand the status.
  */
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -201,7 +206,14 @@ export default async function PackageDetailPage({ params }: PageProps) {
                 <p className="font-heading text-3xl text-primary">{formatINR(pkg.priceFrom)}</p>
                 <p className="mt-1 text-sm text-muted">{t('priceNote')}</p>
 
-                <div className="mt-6">
+                {pkg.isPlaceholder && (
+                  <div className="mt-6 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm text-warning">
+                    <p className="font-semibold text-warning">{t('placeholderTitle')}</p>
+                    <p className="mt-1">{t('placeholderNotice')}</p>
+                  </div>
+                )}
+
+                <div className={pkg.isPlaceholder ? 'mt-4' : 'mt-6'}>
                   <EnquiryForm packageId={pkg.id} bookable={bookable} />
                 </div>
 

@@ -82,10 +82,24 @@ export interface PremiumPackage {
   /**
    * Seeded fictional inventory rather than a real onboarded partner.
    *
-   * INTERNAL PROVENANCE ONLY. It must not hide the row, change its ranking, or
-   * alter how it renders. It gates exactly one thing, in the service layer: a
-   * placeholder cannot be booked or paid for, because no fictional venue can
-   * deliver a wedding. Enquiries stay fully open so the lead is captured.
+   * It must not hide the row or change its ranking — placeholder inventory
+   * competes for attention exactly like real inventory, and enquiries stay
+   * fully open so the lead is captured.
+   *
+   * It gates two things:
+   *   1. Money, in the service layer: `assertBookable()` refuses a placeholder,
+   *      because no fictional venue can deliver a wedding.
+   *   2. Disclosure, in the UI: a "preview listing" badge on the card and a
+   *      notice on the detail page.
+   *
+   * (2) reverses this field's original spec, which said it must never alter
+   * rendering. That spec was written to stop placeholder rows being buried,
+   * which still holds. But it also left a live site presenting unsigned
+   * inventory as indistinguishable from signed partners — a user could not
+   * tell, and the venues carry a "verified" badge. Ranking-neutrality and
+   * non-disclosure are separate concerns; we keep the first and drop the
+   * second. Do not remove the labelling without a written client decision:
+   * see docs/launch/PLACEHOLDER-SUPPLY-SIGNOFF.md.
    */
   isPlaceholder: boolean;
   isActive:      boolean;

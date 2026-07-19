@@ -4,6 +4,10 @@
  * No booking-check here, unlike the 8.1 detail page: every service in this unit
  * converts through an enquiry, so there is no money path for `is_placeholder`
  * to gate and no CTA decision to ask the server about.
+ *
+ * `isPlaceholder` gates an inline notice that explains this is a preview listing
+ * from the team, not a confirmed partner — and that the enquiry path is the
+ * conversion mechanism for capturing leads and confirming availability.
  */
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -76,6 +80,12 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               { label: svc.title },
             ]}
           />
+
+          {(svc.isPlaceholder || svc.partner.isPlaceholder) && (
+            <div className="mt-6 rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-gold-muted">
+              {t('placeholderNotice')}
+            </div>
+          )}
 
           <div className="mt-8 grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">

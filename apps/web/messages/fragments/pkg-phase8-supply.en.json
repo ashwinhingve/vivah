@@ -30,7 +30,8 @@
       "duration": "Duration",
       "guestRange": "{min}–{max} guests",
       "nights": "{count, plural, one {# night} other {# nights}}",
-      "startingFrom": "Starting from"
+      "startingFrom": "Starting from",
+      "previewListing": "Preview listing"
     },
     "filters": {
       "label": "Filters",
@@ -70,7 +71,9 @@
       "unavailable": "Unavailable dates",
       "startingFrom": "Starting from",
       "priceNote": "Indicative price. Final quote depends on dates, guest count and menu.",
-      "viewVenue": "View {vendor}"
+      "viewVenue": "View {vendor}",
+      "placeholderNotice": "This is preview inventory — we're confirming this venue as a partner. Send an enquiry to check availability and we'll follow up with a quote.",
+      "placeholderTitle": "Preview listing"
     },
     "enquiry": {
       "messageLabel": "Your message",
@@ -122,7 +125,8 @@
         "PER_PERSON": "per person",
         "QUOTE": "on request"
       },
-      "remote": "Delivered remotely"
+      "remote": "Delivered remotely",
+      "placeholder": "Preview listing"
     },
     "filters": {
       "label": "Filters",
@@ -152,7 +156,8 @@
         "title": "We couldn't load this service",
         "body": "Something went wrong. This is usually temporary.",
         "retry": "Try again"
-      }
+      },
+      "placeholderNotice": "This is a preview listing from our team. Send an enquiry to help us confirm availability with this partner."
     },
     "enquiry": {
       "messageLabel": "Your message",

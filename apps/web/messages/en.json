@@ -88,7 +88,9 @@
       "cities": "Cities",
       "packages": "Premium Packages",
       "postMarriage": "After the Wedding"
-    }
+    },
+    "packages": "Premium Packages",
+    "postMarriage": "After the Wedding"
   },
   "auth": {
     "login": {
@@ -2745,7 +2747,8 @@
         "LUXE": "Luxe",
         "SIGNATURE": "Signature"
       },
-      "verified": "Verified venue"
+      "verified": "Verified venue",
+      "previewListing": "Preview listing"
     },
     "detail": {
       "about": "About this package",
@@ -2765,7 +2768,9 @@
       "unavailable": "Unavailable dates",
       "verified": "Verified",
       "verifiedLabel": "Verification status",
-      "viewVenue": "View {vendor}"
+      "viewVenue": "View {vendor}",
+      "placeholderNotice": "This is preview inventory — we're confirming this venue as a partner. Send an enquiry to check availability and we'll follow up with a quote.",
+      "placeholderTitle": "Preview listing"
     },
     "enquiry": {
       "bookNow": "Book this package",
@@ -2829,6 +2834,7 @@
     "card": {
       "from": "From",
       "onRequest": "Price on request",
+      "placeholder": "Preview listing",
       "priceUnit": {
         "FIXED": "",
         "PER_HOUR": "per hour",
@@ -2850,6 +2856,7 @@
         "title": "We couldn't load this service"
       },
       "moreFrom": "More from {partner}",
+      "placeholderNotice": "This is a preview listing from our team. Send an enquiry to help us confirm availability with this partner.",
       "price": "Price",
       "priceNote": "Indicative price. The partner will confirm on enquiry.",
       "remote": "Delivered remotely across India",

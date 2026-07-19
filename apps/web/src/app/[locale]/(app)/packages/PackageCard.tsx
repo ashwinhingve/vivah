@@ -1,14 +1,16 @@
 /**
  * Package result card — Phase 8, Unit 8.1. Server component; no interactivity.
  *
- * Renders the same for placeholder and real inventory. `isPlaceholder` is not
- * read here on purpose: a "preview listing" badge would be exactly the
- * user-facing restriction the flag is specified NOT to impose.
+ * When `isPlaceholder` is true, renders a "Preview listing" badge to make it
+ * clear that this is fictional inventory under vendor partnership review. The
+ * row is not hidden, ranked differently, or otherwise restricted in the browse
+ * results — only labelled as preview so users understand the status.
  */
 import { getTranslations } from 'next-intl/server';
 import { MapPin, Users, Moon, BadgeCheck } from 'lucide-react';
 import type { PremiumPackageWithVendor } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
+import { Badge } from '@/components/ui/badge';
 // formatINRCompact renders lakh/crore grouping ("₹8.5 L"), which is how these
 // amounts are actually spoken in India and keeps a 7-figure price from
 // overflowing the card. It accepts the decimal string verbatim.
@@ -38,6 +40,11 @@ export async function PackageCard({ pkg }: { pkg: PremiumPackageWithVendor }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4 sm:p-6">
+        {pkg.isPlaceholder && (
+          <Badge variant="warning" className="mb-2 w-fit">
+            {t('previewListing')}
+          </Badge>
+        )}
         <h3 className="font-heading text-lg text-primary">{pkg.title}</h3>
 
         <p className="mt-1 flex items-center gap-1.5 text-sm text-gold-muted">
