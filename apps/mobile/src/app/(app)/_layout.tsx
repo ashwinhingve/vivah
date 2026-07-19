@@ -58,6 +58,16 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="(vendors)"
+        options={{
+          title: 'Vendors',
+          tabBarLabel: 'Vendors',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'storefront' : 'storefront-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="(profile)"
         options={{
           title: 'Profile',
@@ -85,6 +95,7 @@ export default function AppLayout() {
       {/* Reachable by navigation, but not its own tab. */}
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="payments" options={{ href: null }} />
     </Tabs>
   );
 }

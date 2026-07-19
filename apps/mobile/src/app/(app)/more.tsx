@@ -37,6 +37,13 @@ export default function MoreScreen() {
       onPress: () => router.push('/(app)/(profile)/onboarding/preferences'),
     },
     {
+      id: 'payments',
+      label: 'Payments & Billing',
+      description: 'Your plan, activity and invoices',
+      icon: '💳',
+      onPress: () => router.push('/(app)/payments'),
+    },
+    {
       id: 'settings',
       label: 'Settings',
       description: 'Account and subscription settings',

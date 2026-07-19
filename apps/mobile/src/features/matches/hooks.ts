@@ -4,6 +4,7 @@ import type {
   CompatibilityScore,
   MatchFeedItem,
   MatchRequest,
+  MatchRequestPriority,
   MatchRequestsResponse,
 } from '@smartshaadi/types';
 import { api } from '../../lib/api';
@@ -60,11 +61,18 @@ export function useSendMatchRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { toProfileId: string; message?: string; priority?: string }) =>
+    // `priority` is the real union, not `string`. It was typed as string and
+    // cast with `as any` at the call site, which meant a typo like 'SUPERLIKE'
+    // type-checked here and came back a 400 from the server at runtime.
+    mutationFn: (input: {
+      toProfileId: string;
+      message?: string;
+      priority?: MatchRequestPriority;
+    }) =>
       api.matchmaking.sendRequest({
         toProfileId: input.toProfileId,
         message: input.message,
-        priority: input.priority as any,
+        priority: input.priority,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matchFeed'] });

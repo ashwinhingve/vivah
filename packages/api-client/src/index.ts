@@ -7,9 +7,11 @@
  * and its credential as constructor arguments and imports nothing
  * platform-specific — but migrating web is deliberately NOT part of Sprint I.
  *
- * Scope: the matchmaking core. Weddings, vendors, bookings, store, b2b and admin
- * are intentionally absent; they are web-only surfaces for now, and stubbing
- * them here would imply a mobile commitment that does not exist.
+ * Scope: the matchmaking core, plus vendor discovery and read-only billing.
+ * Weddings, bookings, store, b2b and admin are intentionally absent; they are
+ * web-only surfaces for now, and stubbing them here would imply a mobile
+ * commitment that does not exist. Vendor BOOKING is absent for the same reason
+ * even though vendor browsing is present — see the note on VendorEndpoints.
  */
 export { ApiClient, createApiClient } from './client.js';
 export type {
@@ -36,11 +38,26 @@ export type { ConversationFilter } from './endpoints/chat.js';
 export { UserEndpoints } from './endpoints/users.js';
 export type { DevicePlatform } from './endpoints/users.js';
 
+export { VendorEndpoints } from './endpoints/vendors.js';
+export type {
+  VendorListPage,
+  VendorListParams,
+  VendorSort,
+} from './endpoints/vendors.js';
+
+export { PaymentEndpoints } from './endpoints/payments.js';
+export type {
+  ActiveSubscription,
+  SubscriptionPlan,
+} from './endpoints/payments.js';
+
 import { ApiClient, type ApiClientConfig } from './client.js';
 import { ChatEndpoints } from './endpoints/chat.js';
 import { MatchmakingEndpoints } from './endpoints/matchmaking.js';
+import { PaymentEndpoints } from './endpoints/payments.js';
 import { ProfileEndpoints } from './endpoints/profiles.js';
 import { UserEndpoints } from './endpoints/users.js';
+import { VendorEndpoints } from './endpoints/vendors.js';
 
 /**
  * One object carrying every endpoint group, so screens import a single `api`
@@ -57,6 +74,8 @@ export interface SmartShaadiApi {
   matchmaking: MatchmakingEndpoints;
   chat: ChatEndpoints;
   users: UserEndpoints;
+  vendors: VendorEndpoints;
+  payments: PaymentEndpoints;
 }
 
 export function createSmartShaadiApi(config: ApiClientConfig): SmartShaadiApi {
@@ -67,5 +86,7 @@ export function createSmartShaadiApi(config: ApiClientConfig): SmartShaadiApi {
     matchmaking: new MatchmakingEndpoints(raw),
     chat: new ChatEndpoints(raw),
     users: new UserEndpoints(raw),
+    vendors: new VendorEndpoints(raw),
+    payments: new PaymentEndpoints(raw),
   };
 }
