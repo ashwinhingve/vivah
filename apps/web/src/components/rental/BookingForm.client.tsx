@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import type { RentalItem } from '@smartshaadi/types';
+import { Button } from '@/components/ui/button';
 
 const inrFormatter = new Intl.NumberFormat('en-IN', {
   style:    'currency',
@@ -129,13 +130,15 @@ export function BookingForm({ item }: Props) {
         </p>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={loading || total === 0}
-        className="w-full min-h-[44px] rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        variant="primary"
+        className="w-full"
+        loading={loading}
+        disabled={total === 0}
       >
-        {loading ? 'Booking…' : 'Confirm Booking Request'}
-      </button>
+        Confirm Booking Request
+      </Button>
     </form>
   );
 }

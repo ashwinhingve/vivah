@@ -363,7 +363,7 @@ export default async function AdminPage() {
         {/* ── System health ── */}
         <section>
           <SectionHeader title={t('systemHealth.title')} subtitle={t('systemHealth.subtitle')} />
-          <AdminSectionBoundary section="System Health" key={refreshedAt}>
+          <AdminSectionBoundary section="System Health" key={`health-${refreshedAt}`}>
             <AdminHealthAndRisk
               serviceChecks={serviceChecks}
               aiModels={aiModels}
@@ -376,7 +376,7 @@ export default async function AdminPage() {
         {/* ── Headline metrics ── */}
         <section>
           <SectionHeader title={t('platformMetrics.title')} />
-          <AdminSectionBoundary section="Platform Metrics" key={refreshedAt}>
+          <AdminSectionBoundary section="Platform Metrics" key={`metrics-${refreshedAt}`}>
           <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatsCard label={t('platformMetrics.totalUsers')}         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
             <StatsCard label={t('platformMetrics.activeVendors')}      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
@@ -400,7 +400,7 @@ export default async function AdminPage() {
           <div className="grid gap-5 lg:grid-cols-3">
 
             {/* KYC queue */}
-            <AdminSectionBoundary section="KYC Review" key={refreshedAt}>
+            <AdminSectionBoundary section="KYC Review" key={`kyc-${refreshedAt}`}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
@@ -438,7 +438,7 @@ export default async function AdminPage() {
             </AdminSectionBoundary>
 
             {/* Disputes queue */}
-            <AdminSectionBoundary section="Open Disputes" key={refreshedAt}>
+            <AdminSectionBoundary section="Open Disputes" key={`disputes-${refreshedAt}`}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
@@ -459,7 +459,7 @@ export default async function AdminPage() {
             </AdminSectionBoundary>
 
             {/* Vendor approval queue (P1-8 — wired) */}
-            <AdminSectionBoundary section="Vendor Approvals" key={refreshedAt}>
+            <AdminSectionBoundary section="Vendor Approvals" key={`vendors-${refreshedAt}`}>
             <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="flex items-center justify-between border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center gap-2">
@@ -515,7 +515,7 @@ export default async function AdminPage() {
         {/* ── Analytics ── */}
         <section>
           <SectionHeader title={t('analytics.title')} subtitle={t('analytics.subtitle')} />
-          <AdminSectionBoundary section="Analytics" key={refreshedAt}>
+          <AdminSectionBoundary section="Analytics" key={`analytics-${refreshedAt}`}>
           <Link
             href="/admin/analytics"
             className="group flex items-center justify-between gap-4 rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -544,7 +544,7 @@ export default async function AdminPage() {
         {/* ── Recent Activity ── */}
         <section>
           <SectionHeader title={t('recentActivity.title')} viewAllHref="/admin/audit" viewAllLabel={t('common.viewAll')} />
-          <AdminSectionBoundary section="Recent Activity" key={refreshedAt}>
+          <AdminSectionBoundary section="Recent Activity" key={`activity-${refreshedAt}`}>
             <div className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
               {recentActivity.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">

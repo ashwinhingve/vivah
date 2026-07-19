@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSession } from '../hooks/useSession';
+import { LoadingView } from '@/components/LoadingView';
 
 /**
- * Root auth gate — Phase-1.
+ * Root auth gate.
  *
  * Checks the Better Auth session and redirects:
  * - Loading → centered spinner
@@ -34,11 +34,7 @@ export default function RootGate() {
 
   // Show loading state while checking session
   if (session.isPending) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#7B2D42" />
-      </View>
-    );
+    return <LoadingView />;
   }
 
   // Render nothing while redirect happens

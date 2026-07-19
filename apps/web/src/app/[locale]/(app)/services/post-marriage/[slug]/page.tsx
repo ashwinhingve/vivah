@@ -93,6 +93,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                   <img
                     src={svc.partner.logoUrl ?? '/seed/partner-logo.svg'}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     className="h-16 w-16 shrink-0 rounded-lg border border-gold/20 object-cover"
                   />
                   <div className="min-w-0">

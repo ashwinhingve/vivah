@@ -54,6 +54,9 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Media and files"
         className="mt-auto flex h-[88vh] flex-col rounded-t-2xl bg-surface shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -63,7 +66,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-background"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-background"
           >
             <X className="h-5 w-5" />
           </button>
@@ -89,7 +92,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
                       key={p.messageId}
                       type="button"
                       onClick={() => { onClose(); onPhotoTap(p.photoKey) }}
-                      className="relative block aspect-square overflow-hidden rounded-md bg-surface-muted transition-transform active:scale-95"
+                      className="relative block aspect-square overflow-hidden rounded-xl bg-surface-muted transition-transform active:scale-95"
                       aria-label="Open photo"
                     >
                       <Image src={url} alt="" aria-hidden="true" fill sizes="33vw" className="object-cover" />
@@ -100,7 +103,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative block aspect-square overflow-hidden rounded-md bg-surface-muted"
+                      className="relative block aspect-square overflow-hidden rounded-xl bg-surface-muted"
                       aria-label="Open shared photo in new tab"
                     >
                       <Image src={url} alt="" aria-hidden="true" fill sizes="33vw" className="object-cover" />
@@ -141,7 +144,7 @@ function TabBtn({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+        'flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
         active ? 'bg-teal text-white' : 'text-muted-foreground hover:bg-surface-muted',
       )}
     >

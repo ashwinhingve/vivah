@@ -10,7 +10,7 @@ import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { navForRole, filterForDemo, activeNavHref, type NavGroup } from './nav-config';
 
-export function AppNav() {
+export function AppNav({ initialRole }: { initialRole?: string }) {
   const t = useTranslations('nav.app');
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
@@ -18,7 +18,10 @@ export function AppNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const role = (session?.user as { role?: string } | undefined)?.role ?? 'INDIVIDUAL';
+  // Server-seeded role first: the client session store is empty during
+  // hydration, and falling back to INDIVIDUAL made SSR + first client render
+  // disagree for every other role (hydration mismatch).
+  const role = (session?.user as { role?: string } | undefined)?.role ?? initialRole ?? 'INDIVIDUAL';
 
   useEffect(() => {
     setMoreOpen(false);

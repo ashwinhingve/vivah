@@ -11,8 +11,9 @@
  * Note: this spec uses /[locale]/ prefixes since the App Router went bilingual.
  * If you add a new route to scan, prefix it with /en (or /hi).
  */
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { QA, login, seedWelcomeSeen } from './helpers/auth';
 
 const PUBLIC_ROUTES: { name: string; path: string }[] = [
   { name: 'home',     path: '/en' },
@@ -54,6 +55,48 @@ test.describe('a11y — public surface', () => {
       expect(blocking, `axe-core found ${blocking.length} critical/serious violations on ${route.path}`).toEqual([]);
     });
   }
+});
+
+/**
+ * Wave 4: authenticated surfaces. One login (qa-ind-01), then axe against the
+ * highest-traffic signed-in routes. Soft-asserts per route so a violation on
+ * one page still reports the others.
+ */
+const AUTH_ROUTES: { name: string; path: string }[] = [
+  { name: 'dashboard', path: '/en/dashboard' },
+  { name: 'feed',      path: '/en/feed' },
+  { name: 'requests',  path: '/en/requests' },
+];
+
+async function scanRoute(page: Page, path: string) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(path, { timeout: 40_000 });
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(2500);
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  return results.violations.filter((v) => v.impact === 'critical' || v.impact === 'serious');
+}
+
+test.describe('a11y — authenticated surface', () => {
+  test('dashboard, feed, and requests have no critical or serious violations', async ({ page, context }) => {
+    test.setTimeout(240_000); // 3 routes + login under WSL cold compile
+    await seedWelcomeSeen(context);
+    await login(page, QA.individualMatchable);
+
+    for (const route of AUTH_ROUTES) {
+      const blocking = await scanRoute(page, route.path);
+      if (blocking.length > 0) {
+        const summary = blocking
+          .map((v) => `  • ${v.id} (${v.impact}): ${v.help} — ${v.nodes.length} node(s)`)
+          .join('\n');
+        // eslint-disable-next-line no-console
+        console.log(`\nA11y violations on ${route.path}:\n${summary}\n`);
+      }
+      expect.soft(blocking, `axe-core found ${blocking.length} critical/serious violations on ${route.path}`).toEqual([]);
+    }
+  });
 });
 
 test.describe('a11y — landmarks present', () => {

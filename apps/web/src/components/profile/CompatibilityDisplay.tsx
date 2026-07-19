@@ -135,7 +135,7 @@ export function CompatibilityDisplay({
           <p className="text-sm text-muted-foreground">Ashtakoot Compatibility</p>
           <span
             className="inline-block mt-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            style={{ background: `${color}18`, color }}
+            style={{ background: `color-mix(in srgb, ${color} 9%, transparent)`, color }}
           >
             {result?.interpretation ?? label}
           </span>
@@ -303,7 +303,7 @@ function DoshasPane({ doshas }: { doshas: DoshaSummary }) {
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-foreground">{item.name}</p>
               <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
-                    style={{ background: `${accent}1F`, color: accent }}>
+                    style={{ background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}>
                 {status}
               </span>
             </div>
@@ -441,7 +441,7 @@ function YogaCard({ name, present, reason }: { name: string; present: boolean; r
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">{name}</p>
         <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
-              style={{ background: `${c}1F`, color: c }}>
+              style={{ background: `color-mix(in srgb, ${c} 12%, transparent)`, color: c }}>
           {present ? 'Present' : 'Absent'}
         </span>
       </div>
@@ -470,7 +470,7 @@ function RemediesPane({ remedies }: { remedies: Remedy[] }) {
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-foreground">{r.name}</p>
               <span className="rounded-full px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide"
-                    style={{ background: `${c}1F`, color: c }}>
+                    style={{ background: `color-mix(in srgb, ${c} 12%, transparent)`, color: c }}>
                 {r.dosha}
               </span>
             </div>

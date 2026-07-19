@@ -25,17 +25,21 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   // Seed the realtime notification provider + navbar avatar from the server so
   // the bell badge/panel and profile photo render on first paint (one parallel
-  // round trip; the bell then stays live over the socket).
-  const [initialRaw, avatar] = await Promise.all([
+  // round trip; the bell then stays live over the socket). The role seeds the
+  // nav components so the server and first client render agree on the per-role
+  // nav set (the client session store is empty at hydration time).
+  const [initialRaw, avatar, authMe] = await Promise.all([
     fetchAuth<{ items: NotificationRow[]; unreadCount: number }>(
       '/api/v1/users/me/notifications?limit=50',
     ),
     fetchAuth<{ name: string | null; photoKey: string | null }>(
       '/api/v1/users/me/avatar',
     ),
+    fetchAuth<{ userId: string; role: string; status: string }>('/api/auth/me'),
   ]);
   const initial = initialRaw ?? { items: [], unreadCount: 0 };
   const avatarUrl = resolvePhotoUrl(avatar?.photoKey);
+  const initialRole = authMe?.role ?? 'INDIVIDUAL';
 
   return (
     <NotificationsProvider initial={initial}>
@@ -51,7 +55,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               Smart Shaadi
             </span>
           </Link>
-          <TopNav />
+          <TopNav initialRole={initialRole} />
           <div className="flex items-center gap-1.5 sm:gap-3">
             {process.env.NODE_ENV === 'development' && (
               <div className="hidden md:flex items-center gap-2">
@@ -67,7 +71,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <div id="main-content">{children}</div>
-      <AppNav />
+      <AppNav initialRole={initialRole} />
       <AssistantToggle />
     </div>
     </NotificationsProvider>

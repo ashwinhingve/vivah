@@ -1,20 +1,24 @@
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { withAlpha } from '@/theme/tokens';
 
 /**
- * App group layout — Phase-1.
- * A Tabs navigator for the authenticated user: home (Teammate B) and profile (Teammate A).
- * Tab bar uses teal (active) / muted (inactive) colors with surface background.
+ * App group layout — Tabs navigator for the authenticated user.
+ * Teal (active) / muted (inactive) icons + labels on a themed surface.
  */
 export default function AppLayout() {
+  const { colors } = useThemeColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0E7C7B', // teal
-        tabBarInactiveTintColor: '#6B6B76', // muted
+        tabBarActiveTintColor: colors.teal,
+        tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF', // surface
-          borderTopColor: '#C5A47E33', // gold with transparency
+          backgroundColor: colors.surface,
+          borderTopColor: withAlpha(colors.gold, '33'),
           borderTopWidth: 1,
         },
       }}
@@ -24,7 +28,13 @@ export default function AppLayout() {
         options={{
           title: 'Home',
           tabBarLabel: 'Home',
-          // Icon omitted — using text label only
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -32,7 +42,13 @@ export default function AppLayout() {
         options={{
           title: 'Profile',
           tabBarLabel: 'Profile',
-          // Icon omitted — using text label only
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>

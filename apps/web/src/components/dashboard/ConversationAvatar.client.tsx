@@ -28,6 +28,8 @@ export function ConversationAvatar({
     <img
       src={src}
       alt={name || 'Profile photo'}
+      loading="lazy"
+      decoding="async"
       className="h-10 w-10 rounded-full object-cover"
       onError={() => setFailed(true)}
     />

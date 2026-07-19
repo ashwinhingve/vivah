@@ -1,19 +1,18 @@
 /**
- * Jest configuration for React Native / Expo mobile app.
- * Minimal setup for unit tests of validation schemas (offline, no browser APIs).
+ * Jest configuration for the Expo mobile app.
+ * jest-expo preset + React Native Testing Library for component tests,
+ * plus plain unit tests for validation schemas.
  */
 module.exports = {
-  testEnvironment: 'node',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  transform: {
-    '^.+\\.js$': 'babel-jest',
-  },
-  transformIgnorePatterns: [
-    'node_modules/(?!(@smartshaadi|zod)/)',
-  ],
+  preset: 'jest-expo',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: ['**/__tests__/**/*.test.js'],
-  testPathIgnorePatterns: ['/node_modules/'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testMatch: ['**/__tests__/**/*.test.{ts,tsx,js}'],
+  // pnpm resolves packages through node_modules/.pnpm/<name+scope@version>/,
+  // so the allowlist matches the pnpm-encoded names (scope "/" becomes "+").
+  transformIgnorePatterns: [
+    'node_modules/\\.pnpm/(?!(react-native|@react-native\\+|@react-native-community\\+|expo|@expo\\+|@expo-google-fonts\\+|@testing-library\\+|react-navigation|@react-navigation\\+|nativewind|@smartshaadi\\+|zod|better-auth|@better-auth\\+))',
+  ],
 };

@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
-import { Users, ShieldCheck, Bell, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Users, ShieldCheck, Bell } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { markWelcomeSeen } from './actions';
+import { WelcomeCta } from './WelcomeCta.client';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,18 +87,15 @@ export default async function WelcomePage() {
           ))}
         </ul>
 
-        <form action={markWelcomeSeen} className="mt-10 flex flex-col items-center gap-3">
-          <Button type="submit" size="lg">
-            Take me to my matches
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Button>
+        <div className="mt-10 flex flex-col items-center gap-3">
+          <WelcomeCta />
           <p className="text-xs text-muted-foreground">
             {t('supportFooter')}
           </p>
           <p className="text-xs text-muted-foreground">
             Smart Shaadi launched May 2026 · Building India&rsquo;s most thoughtful matrimony
           </p>
-        </form>
+        </div>
       </div>
     </main>
   );

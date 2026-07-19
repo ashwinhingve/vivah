@@ -196,6 +196,8 @@ function HoroscopeSection_({
           <img
             src={kundliUrl}
             alt="Vedic kundli chart"
+            loading="lazy"
+            decoding="async"
             className="w-full max-w-sm rounded-lg border border-border bg-background"
           />
         </div>

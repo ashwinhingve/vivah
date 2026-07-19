@@ -72,7 +72,10 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
               <div
                 key={status}
                 className="flex flex-col items-center px-3 py-2 rounded-lg border min-w-[68px]"
-                style={{ borderColor: `${RSVP_CONFIG[status].color}30`, backgroundColor: `${RSVP_CONFIG[status].color}08` }}
+                style={{
+                  borderColor: `color-mix(in srgb, ${RSVP_CONFIG[status].color} 19%, transparent)`,
+                  backgroundColor: `color-mix(in srgb, ${RSVP_CONFIG[status].color} 3%, transparent)`,
+                }}
               >
                 <span className="text-lg font-bold" style={{ color: RSVP_CONFIG[status].color }}>
                   {count}
@@ -89,7 +92,7 @@ export function RsvpStats({ guests }: RsvpStatsProps) {
       </div>
 
       {/* Meal preference donut */}
-      <div className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4">
+      <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-4">
         <h3 className="font-medium text-sm text-foreground mb-3">
           Meal Preferences
           <span className="ml-1.5 text-xs text-muted-foreground font-normal">(attending only)</span>

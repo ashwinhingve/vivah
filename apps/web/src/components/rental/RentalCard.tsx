@@ -5,6 +5,7 @@
 
 import { Link } from '@/i18n/navigation';
 import type { RentalItem } from '@smartshaadi/types';
+import { Button } from '@/components/ui/button';
 
 const CATEGORY_LABELS: Record<string, string> = {
   DECOR:        'Decor',
@@ -38,6 +39,8 @@ export function RentalCard({ item }: Props) {
           <img
             src={`/api/media/${item.imageKeys[0]}`}
             alt={item.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -79,12 +82,9 @@ export function RentalCard({ item }: Props) {
       </div>
 
       {/* CTA */}
-      <Link
-        href={`/rentals/${item.id}`}
-        className="mt-auto flex items-center justify-center min-h-[44px] rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal-hover transition-colors"
-      >
-        View &amp; Book
-      </Link>
+      <Button asChild className="mt-auto w-full">
+        <Link href={`/rentals/${item.id}`}>View &amp; Book</Link>
+      </Button>
     </div>
   );
 }
