@@ -37,7 +37,6 @@ export default function HomeScreen() {
     } finally {
       setRefreshing(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.refetch]);
 
   const handleSignOut = useCallback(async () => {
