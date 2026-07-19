@@ -68,6 +68,32 @@ account" gates — they are "prove it works right now" gates.
 | B4 | **All health checks pass incl. ai-service** | Ashwin | `pwsh scripts/health-check.ps1 -Env prod` → exit 0; all 4 targets (api `/health`, api `/ready`, web `/`, ai-service `/health`) probed and 200. |
 | B5 | **Real-mode env guards satisfied** — every required cred present | Ashwin | API boots with `USE_MOCK_SERVICES=false` and **no** `env.ts` superRefine exit. Required: `DAILY_CO_API_KEY`, `RAZORPAY_KEY_ID`/`_SECRET`, `RAZORPAY_WEBHOOK_SECRET(S)`, `MSG91_API_KEY`, all four `CLOUDFLARE_R2_*`, `METRICS_TOKEN`. |
 | B6 | **CI green** incl. webhook replay + flag parity | Ashwin | `*/webhook.replay.test.ts` and `flagParity.test.ts` green on the launch commit. |
+| B7 | **Placeholder supply decision made** — fictional seed inventory is either replaced or knowingly accepted | Colonel + Ashwin | `scripts/placeholder-exposure.sh` against prod. Reports per-table exposure and hard-fails if any placeholder row carries a reachable contact address. `--gate` exits 1 while any placeholder row remains. See below. |
+
+### B7 — what the placeholder gate is actually asking
+
+Sprints 8.1s/8.2 seeded four supply tables with **fictional** inventory
+(currently **80 rows**: 24 premium packages, 28 post-marriage services, 16
+service partners, 12 vendors) so those features work end-to-end before any
+partner signs. `is_placeholder` is internal provenance only — it never hides a
+row or changes its ranking, and gates exactly one thing: placeholder supply
+cannot be booked or paid for (`assertBookable`, `apps/api/src/packages/service.ts`).
+Enquiries stay open, which is the point of seeding it.
+
+So this is **not** a code gate — the code contract is built and tested. It is a
+business decision that has to be made consciously rather than by default:
+
+- **Ship as-is** — the public sees plausible venues with in-house SVG art,
+  no contact details, and pricing that is market-plausible but not quoted by any
+  venue. Enquiries route to an admin. Defensible for a soft launch; it means real
+  users send real enquiries about venues we cannot yet deliver.
+- **Replace first** — licensed photography, real partner contacts, re-based
+  pricing. Onboarding a real partner is `UPDATE ... SET is_placeholder = false`
+  from `/admin/packages`; no schema change, no re-keying.
+
+The script's one hard failure is contact reachability: fictional supply must
+never carry an address a member of the public could act on. That currently
+passes (placeholder rows carry no contact details at all).
 
 ---
 
