@@ -63,11 +63,28 @@ calendarRouter.get('/events', authenticate, async (req: Request, res: Response) 
     if (from) filters.push(gte(calendarEvents.eventDate, from));
     if (to) filters.push(lte(calendarEvents.eventDate, to));
     if (kind) filters.push(eq(calendarEvents.kind, kind));
-    // National-inclusive: a regional user sees their region's rows AND national
-    // (region null) rows — never one at the expense of the other.
-    if (region) {
-      const regionFilter = or(isNull(calendarEvents.region), eq(calendarEvents.region, region));
-      if (regionFilter) filters.push(regionFilter);
+
+    // Region filtering: fail-safe for disputed regional MUHURATS only.
+    // - MUHURAT + region=X when caller region unknown: EXCLUDE (fail-safe for Kharmas dates)
+    // - FESTIVAL/SCHOOL + region=X when caller region unknown: INCLUDE (national-inclusive)
+    // - When caller specifies region: show that region + national rows (national-inclusive)
+    if (kind && kind === 'MUHURAT') {
+      // Disputed muhurat filtering: fail-safe when caller region unknown
+      if (region) {
+        // Specified region: show that region + national muhurats
+        const regionFilter = or(isNull(calendarEvents.region), eq(calendarEvents.region, region));
+        if (regionFilter) filters.push(regionFilter);
+      } else {
+        // No region specified: show ONLY national muhurats (fail-safe)
+        filters.push(isNull(calendarEvents.region));
+      }
+    } else {
+      // Non-muhurat (FESTIVAL, SCHOOL, GOVT): national-inclusive always
+      if (region) {
+        const regionFilter = or(isNull(calendarEvents.region), eq(calendarEvents.region, region));
+        if (regionFilter) filters.push(regionFilter);
+      }
+      // else: no region filter, show all national + regional events
     }
     // community lives in the jsonb metadata blob; same national-inclusive rule
     // (rows with no community tag stay visible).
@@ -178,9 +195,14 @@ calendarRouter.get('/heatmap', authenticate, async (req: Request, res: Response)
       lte(calendarEvents.eventDate, endDateStr),
     ];
 
+    // Same fail-safe region filtering as /events endpoint.
+    // For heatmap: disputed muhurats excluded when caller region unknown (fail-safe).
     if (region) {
       const regionFilter = or(isNull(calendarEvents.region), eq(calendarEvents.region, region));
       if (regionFilter) filters.push(regionFilter);
+    } else {
+      // No region specified: exclude regional-tagged events (fail-safe for Kharmas)
+      filters.push(isNull(calendarEvents.region));
     }
 
     if (community) {

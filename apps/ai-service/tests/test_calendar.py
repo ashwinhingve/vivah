@@ -30,10 +30,11 @@ class TestDeterminism:
         assert len(dates) == len(set(dates))
 
     def test_known_counts(self) -> None:
-        # 2026 trimmed from 60 -> 56: four disputed July dates (01/06/11/12) held
-        # out pending a panchang-authority ruling on the Devshayani convention.
-        # See docs/calendar-muhurat-conventions.md.
-        assert len(cal.muhurats_for_year(2026)) == 56
+        # 2026: 52 base + 4 January (promoted, region-tagged "South India").
+        # muhurats_for_year returns ALL muhurats with region tags; filtering happens
+        # in events_in_range. Four disputed July dates (01/06/11/12) held out pending
+        # panchang-authority ruling on the Devshayani convention.
+        assert len(cal.muhurats_for_year(2026)) == 60  # 52 base + 4 Jan (all promoted)
         assert len(cal.muhurats_for_year(2027)) == 96
 
     def test_disputed_july_not_seeded(self) -> None:
@@ -78,10 +79,25 @@ class TestChaturmasExclusion:
 
 
 class TestKharmas:
-    def test_jan_2026_near_zero(self) -> None:
-        # Jan 2026 is Kharmas/Dhanurmas — expect zero vivah muhurats.
-        jan = [m for m in cal.muhurats_for_year(2026) if m.date.startswith("2026-01")]
-        assert len(jan) == 0
+    def test_jan_2026_fail_safe_region_filtering(self) -> None:
+        # January muhurats are region-tagged "South India" but filtered fail-safe in events_in_range:
+        # when caller's region is unknown, they are excluded (prevents Kharmas reaching North Indians).
+
+        # Case 1: No region specified (unknown) in events_in_range → January muhurats EXCLUDED
+        jan_no_region = cal.events_in_range("2026-01-01", "2026-01-31", "MUHURAT")
+        jan_dates_no_region = [m for m in jan_no_region if m.event_date.startswith("2026-01")]
+        assert len(jan_dates_no_region) == 0, "January muhurats must be excluded when region unknown"
+
+        # Case 2: South India specified → January muhurats INCLUDED
+        jan_south = cal.events_in_range("2026-01-01", "2026-01-31", "MUHURAT", region="South India")
+        jan_dates_south = [m for m in jan_south if m.event_date.startswith("2026-01")]
+        assert len(jan_dates_south) == 4, "South India should see all 4 January muhurats"
+        assert all(m.region == "South India" for m in jan_dates_south)
+
+        # Case 3: North India specified → January muhurats EXCLUDED
+        jan_north = cal.events_in_range("2026-01-01", "2026-01-31", "MUHURAT", region="North India")
+        jan_dates_north = [m for m in jan_north if m.event_date.startswith("2026-01")]
+        assert len(jan_dates_north) == 0, "North India should not see January muhurats"
 
     def test_jan_2027_resumes(self) -> None:
         # By 2027 the sun exits Sagittarius mid-Jan, so muhurats resume.
@@ -113,12 +129,13 @@ class TestOverlays:
 
 class TestEndpoints:
     def test_muhurats_endpoint(self) -> None:
+        # /muhurats endpoint returns all muhurats (no region filtering at this layer)
         r = client.get("/ai/calendar/muhurats", params={"year": 2026})
         assert r.status_code == 200
         body = r.json()
-        assert body["count"] == 56
+        assert body["count"] == 60  # 52 base + 4 Jan promoted
         assert body["chaturmas"]["devshayani"] == "2026-07-25"
-        assert len(body["muhurats"]) == 56
+        assert len(body["muhurats"]) == 60
 
     def test_events_endpoint_kind_filter(self) -> None:
         r = client.get(
@@ -235,35 +252,55 @@ class TestConventions:
     _JULY = {"2026-07-01", "2026-07-06", "2026-07-11", "2026-07-12"}
     _JAN = {"2026-01-14", "2026-01-23", "2026-01-25", "2026-01-28"}
 
-    def test_defaults_promote_nothing(self) -> None:
-        # Dataset defaults reproduce today's live set exactly.
-        assert len(cal.muhurats_for_year(2026)) == 56
+    def test_defaults_promote_january_hold_july(self) -> None:
+        # Dataset defaults now ADMIT January South Indian dates (promoted, region-tagged).
+        # Filtering (fail-safe) happens in events_in_range, not muhurats_for_year.
+        assert len(cal.muhurats_for_year(2026)) == 60  # 52 base + 4 Jan (all promoted)
         assert len(cal.muhurats_for_year(2027)) == 96
         july = {m.date for m in cal.muhurats_for_year(2026) if m.date.startswith("2026-07")}
-        assert july == {"2026-07-07"}  # only the corroborated date
+        assert july == {"2026-07-07"}  # only the corroborated date (July 4 still held)
 
     def test_devshayani_flip_adds_four_july(self) -> None:
+        # With convention override to promote July, we get Jan (4) + July (4) in muhurats_for_year
         flipped = cal.muhurats_for_year(2026, conventions={"devshayani": "drik-25jul"})
         dates = {m.date for m in flipped}
-        assert len(flipped) == 60  # 56 + 4
+        assert len(flipped) == 64  # 52 base + 4 Jan (default promoted) + 4 July (flipped)
         assert self._JULY <= dates
-        # flipping back (default) removes them again — no leakage via lru_cache
-        assert len(cal.muhurats_for_year(2026)) == 56
+        # flipping back (default) removes July but keeps Jan — no leakage via lru_cache
+        assert len(cal.muhurats_for_year(2026)) == 60
 
-    def test_january_flip_adds_four_dates(self) -> None:
-        flipped = cal.muhurats_for_year(2026, conventions={"january_post_sankranti": "include"})
-        dates = {m.date for m in flipped}
-        assert len(flipped) == 60  # 56 + 4
+    def test_january_admits_south_indian_post_sankranti(self) -> None:
+        # January muhurats are admitted by default (promoted, region-tagged "South India").
+        # Sourced from ProKerala (South Indian tradition post-Makar-Sankranti), rejected
+        # by Drik/mPanchang (Kharmas / North Indian tradition). Verify all 4 dates are
+        # present with sourced panchang values and region-tagged.
+        # This test checks muhurats_for_year, which returns all promoted muhurats.
+        # Filtering by region happens in events_in_range (see test_jan_2026_fail_safe_region_filtering).
+        promoted = cal.muhurats_for_year(2026)
+        dates = {m.date for m in promoted}
+        assert len(promoted) == 60  # 52 base + 4 Jan
         assert self._JAN <= dates
-        # promoted Jan dates have no sourced tithi/nakshatra yet (Optional, tolerated)
-        jan = [m for m in flipped if m.date in self._JAN]
-        assert all(m.tithi is None and m.nakshatra is None for m in jan)
+        jan = [m for m in promoted if m.date in self._JAN]
+        assert len(jan) == 4
+        # Verify sourced panchang values and South India region tagging
+        panchang_map = {
+            "2026-01-14": ("Ekadashi", "Anuradha"),
+            "2026-01-23": ("Navami", "Uttara Bhadrapada"),
+            "2026-01-25": ("Ekadashi", "Revati"),
+            "2026-01-28": ("Dashami", "Rohini"),
+        }
+        for m in jan:
+            expected_tithi, expected_nakshatra = panchang_map[m.date]
+            assert m.tithi == expected_tithi, f"{m.date} tithi mismatch"
+            assert m.nakshatra == expected_nakshatra, f"{m.date} nakshatra mismatch"
+            assert m.region == "South India", f"{m.date} region should be South India"
 
     def test_both_flips_are_independent(self) -> None:
+        # Both conventions flipped: January already promoted by default, so only July is new
         both = cal.muhurats_for_year(
             2026, conventions={"devshayani": "drik-25jul", "january_post_sankranti": "include"}
         )
-        assert len(both) == 64  # 56 + 4 + 4
+        assert len(both) == 64  # 52 base + 4 Jan (default) + 4 July (flipped)
 
     def test_vishu_flip_picks_chosen_date(self) -> None:
         default = {e.name for e in cal.events_in_range(None, None, "FESTIVAL", region="Kerala")}

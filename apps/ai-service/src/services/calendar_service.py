@@ -132,7 +132,8 @@ def muhurats_for_year(
     rows.sort(key=lambda m: str(m["date"]))
     return [
         MuhuratEvent(
-            date=str(m["date"]), band=m["band"], tithi=m.get("tithi"), nakshatra=m.get("nakshatra")
+            date=str(m["date"]), band=m["band"], tithi=m.get("tithi"), nakshatra=m.get("nakshatra"),
+            region=m.get("region")
         )
         for m in rows
     ]
@@ -209,6 +210,7 @@ def _all_events(conventions: Optional[Dict[str, str]] = None) -> List[CalendarEv
                 kind="MUHURAT",
                 name="Vivah Muhurat",
                 event_date=str(m["date"]),
+                region=m.get("region"),
                 source=src,
                 auspicious_band=str(m["band"]),
                 metadata={
@@ -248,10 +250,18 @@ def events_in_range(
     conventions: Optional[Dict[str, str]] = None,
 ) -> List[CalendarEvent]:
     """
-    Filter overlay rows by inclusive ISO date range, optional kind, and
-    national-inclusive region/community. region='Tamil Nadu' returns national
-    rows (region None) PLUS Tamil Nadu rows; community filters the same way
-    against metadata.community — so a regional user never loses national events.
+    Filter overlay rows by inclusive ISO date range, optional kind, and region.
+
+    Region filtering logic (fail-safe for disputed regional muhurats):
+    - region=None (unknown): exclude regional-tagged events, show only national (region=null)
+      This prevents e.g. Kharmas dates reaching North Indian families.
+    - region='South India': include South India + national rows.
+    - region='North India': exclude South India (different region), include national rows.
+
+    Non-disputed regional events (Pongal, Lohri) always follow the same rule. This is
+    a conservative default: a South Indian family asking for Pongal will wait for profile
+    storage; a North Indian family misbooked on a Kharmas date cannot be recovered.
+
     `conventions` overrides dataset defaults for disputed-date promotion.
     """
     out: List[CalendarEvent] = []
@@ -262,9 +272,24 @@ def events_in_range(
             continue
         if kind is not None and e.kind != kind:
             continue
-        # National-inclusive: drop only rows that carry a DIFFERENT region.
-        if region is not None and e.region is not None and e.region != region:
-            continue
+
+        # Region filtering: fail-safe for disputed regional MUHURATS only.
+        # Festivals and school windows: national-inclusive (show all when region unknown).
+        # Muhurats: exclude regional-disputed when caller's region is unknown (fail-safe).
+        if e.kind == "MUHURAT" and e.region is not None:  # Disputed regional muhurat
+            if region is None:
+                # Caller region unknown: exclude disputed muhurat (fail-safe)
+                continue
+            elif region != e.region:
+                # Caller region differs: exclude
+                continue
+        else:
+            # Non-muhurat or national event: apply national-inclusive rule
+            # (include if region is None, or matches the specified region, or no region was specified)
+            if region is not None and e.region is not None and e.region != region:
+                # Specified region doesn't match event region: exclude
+                continue
+
         if community is not None:
             event_community = (e.metadata or {}).get("community")
             if event_community is not None and event_community != community:

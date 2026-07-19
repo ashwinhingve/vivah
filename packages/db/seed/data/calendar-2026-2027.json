@@ -1332,7 +1332,7 @@
   "conventions": {
     "_doc": "Panchang-convention switches. To enact an authority ruling, flip ONE value below and re-seed — the resolver promotes the matching `disputed` bucket into live rows. Defaults are the conservative current state (nothing promoted). See docs/calendar-muhurat-conventions.md.",
     "devshayani": "amanta-6jul",
-    "january_post_sankranti": "omit",
+    "january_post_sankranti": "include",
     "vishu_day": "unset",
     "onam_reckoning": "unset"
   },
@@ -1381,30 +1381,34 @@
         {
           "date": "2026-01-14",
           "band": "MEDIUM",
-          "tithi": null,
-          "nakshatra": null,
-          "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Promotion needs tithi/nakshatra sourced before seeding."
+          "tithi": "Ekadashi",
+          "nakshatra": "Anuradha",
+          "region": "South India",
+          "note": "ProKerala (South Indian tradition post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas / North Indian tradition). Sourced from ProKerala tithi/muhurat calendars."
         },
         {
           "date": "2026-01-23",
           "band": "MEDIUM",
-          "tithi": null,
-          "nakshatra": null,
-          "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Promotion needs tithi/nakshatra sourced before seeding."
+          "tithi": "Navami",
+          "nakshatra": "Uttara Bhadrapada",
+          "region": "South India",
+          "note": "ProKerala (South Indian tradition post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas / North Indian tradition). Sourced from ProKerala tithi/muhurat calendars."
         },
         {
           "date": "2026-01-25",
           "band": "MEDIUM",
-          "tithi": null,
-          "nakshatra": null,
-          "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Promotion needs tithi/nakshatra sourced before seeding."
+          "tithi": "Ekadashi",
+          "nakshatra": "Revati",
+          "region": "South India",
+          "note": "ProKerala (South Indian tradition post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas / North Indian tradition). Sourced from ProKerala tithi/muhurat calendars."
         },
         {
           "date": "2026-01-28",
           "band": "MEDIUM",
-          "tithi": null,
-          "nakshatra": null,
-          "note": "Listed by ProKerala (post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas). Promotion needs tithi/nakshatra sourced before seeding."
+          "tithi": "Dashami",
+          "nakshatra": "Rohini",
+          "region": "South India",
+          "note": "ProKerala (South Indian tradition post-Makar-Sankranti); omitted by Drik/mPanchang (Kharmas / North Indian tradition). Sourced from ProKerala tithi/muhurat calendars."
         }
       ]
     },

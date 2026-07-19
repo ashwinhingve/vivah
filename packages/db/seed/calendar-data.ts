@@ -29,6 +29,8 @@ interface Muhurat {
   band: AuspiciousBand;
   tithi: string | null;
   nakshatra: string | null;
+  region?: string | null;
+  note?: string | null;
 }
 
 /** SCHOOL-calendar blackout window (date -> endDate). `sources` documents provenance. */
@@ -117,7 +119,7 @@ export function applyConventions(
         kind: 'MUHURAT',
         name: 'Vivah Muhurat',
         eventDate: m.date,
-        region: null,
+        region: m.region ?? null,
         source,
         auspiciousBand: m.band,
         metadata: { tithi: m.tithi, nakshatra: m.nakshatra },

@@ -29,39 +29,52 @@ const test = (name: string, fn: () => void): void => {
   console.log(`  ✓ ${name}`);
 };
 
-// ── Defaults reproduce today's live set exactly + the 4 new SCHOOL windows ─────
-test('defaults: row counts by kind', () => {
+// ── Defaults now include South Indian January muhurats ──────────────────────────
+test('defaults: row counts by kind (January South Indian admitted)', () => {
   const rows = buildRows(data);
-  assert.equal(countKind(rows, 'MUHURAT'), 152);
+  assert.equal(countKind(rows, 'MUHURAT'), 156); // 152 + 4 Jan
   assert.equal(countKind(rows, 'FESTIVAL'), 56); // 32 national + 24 regional
   assert.equal(countKind(rows, 'GOVT'), 6);
   assert.equal(countKind(rows, 'SCHOOL'), 4);
-  assert.equal(rows.length, 218);
+  assert.equal(rows.length, 222); // 218 + 4 Jan
 });
 
-test('defaults: nothing promoted from disputed', () => {
-  assert.equal(applyConventions(data).length, 0);
+test('defaults: January muhurats promoted from disputed', () => {
+  const promoted = applyConventions(data);
+  assert.equal(promoted.length, 4); // 4 Jan muhurats
+  assert.ok(promoted.every((r) => r.kind === 'MUHURAT'));
+  const dates = new Set(promoted.map((r) => r.eventDate));
+  for (const d of ['2026-01-14', '2026-01-23', '2026-01-25', '2026-01-28']) {
+    assert.ok(dates.has(d), `missing ${d}`);
+  }
+  // Verify region tagging
+  assert.ok(promoted.every((r) => r.region === 'South India'), 'all Jan muhurats should be tagged South India');
 });
 
 // ── Convention flips promote exactly the gated dates ──────────────────────────
-test('devshayani=drik-25jul promotes the 4 July muhurats', () => {
+test('devshayani=drik-25jul adds 4 July muhurats (January also promoted by default)', () => {
+  // January is promoted by default convention; this flip adds July on top
   const promoted = applyConventions(data, conv({ devshayani: 'drik-25jul' }));
-  assert.equal(promoted.length, 4);
+  assert.equal(promoted.length, 8); // 4 Jan (default) + 4 July (flip)
   assert.ok(promoted.every((r) => r.kind === 'MUHURAT'));
   const dates = new Set(promoted.map((r) => r.eventDate));
   for (const d of ['2026-07-01', '2026-07-06', '2026-07-11', '2026-07-12']) {
     assert.ok(dates.has(d), `missing ${d}`);
   }
-  // buildRows reflects the flip: 152 -> 156 muhurats, total 218 -> 222.
+  for (const d of ['2026-01-14', '2026-01-23', '2026-01-25', '2026-01-28']) {
+    assert.ok(dates.has(d), `missing Jan date ${d}`);
+  }
+  // buildRows: 152 base + 4 Jan (default) + 4 July (flip) = 160 muhurats total
   const rows = buildRows(data, conv({ devshayani: 'drik-25jul' }));
-  assert.equal(countKind(rows, 'MUHURAT'), 156);
-  assert.equal(rows.length, 222);
+  assert.equal(countKind(rows, 'MUHURAT'), 160); // 152 base + 4 Jan (default) + 4 July (flip)
+  assert.equal(rows.length, 226); // 160 muhurats + 56 festival + 6 govt + 4 school
 });
 
-test('january_post_sankranti=include promotes the 4 Jan muhurats', () => {
-  const promoted = applyConventions(data, conv({ january_post_sankranti: 'include' }));
-  assert.equal(promoted.length, 4);
-  assert.ok(promoted.every((r) => r.kind === 'MUHURAT'));
+test('january_post_sankranti=omit excludes the 4 Jan muhurats', () => {
+  // January is promoted by default; omitting it should result in no promoted rows
+  // (July would still be held out by the amanta-6jul default)
+  const promoted = applyConventions(data, conv({ january_post_sankranti: 'omit' }));
+  assert.equal(promoted.length, 0, 'January flip to omit should suppress promotion');
 });
 
 test('vishu_day=apr-15 promotes Vishu on the chosen date', () => {

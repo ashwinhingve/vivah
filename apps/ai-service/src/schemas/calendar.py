@@ -38,6 +38,7 @@ class MuhuratEvent(BaseModel):
     # may not yet have sourced tithi/nakshatra. Live dataset rows always carry them.
     tithi: Optional[str] = None
     nakshatra: Optional[str] = None
+    region: Optional[str] = None  # None = national; e.g. "South India"
 
 
 class ChaturmasWindow(BaseModel):
