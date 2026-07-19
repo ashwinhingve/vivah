@@ -31,11 +31,33 @@ built and waiting for credentials), (b) gated on real launch traffic, or
 | ✅ | 8.1 Destination Wedding **planning core** (Tier-3 supply half NOT built) | I (migration 0036) |
 | ✅ | UI Polish Sprint 2 — Phase 5–8 pages to design-system standard, full en+hi | `ui-polish-2/2026-07` |
 
-**Not built (correctly, per the tier rules):** 6.4 Auto-marketing (needs real
-traffic) · 6.5 Multi-city network (needs real vendor density) · 8.1 premium
-packages/supply (needs venue partnerships) · 8.2 Post-marriage services (needs
-partners) · mobile feature parity / store submission (needs Apple+Google
+**Not built:** mobile feature parity / store submission (needs Apple+Google
 enrolment).
+
+**Tier-3 units now BUILT, by deliberate deviation from §0 (2026-07-19):**
+6.4 Auto-marketing · 6.5 Multi-city network (Sprint J) · 8.1 premium
+packages/supply · 8.2 Post-marriage services (Phase 8 supply sprint).
+
+> The original rule was "build only what you can validate now; everything else
+> is a flagged, mocked shell." For these four the rule was changed on purpose:
+> they are built in full and seeded with **fictional placeholder supply** so
+> they work end-to-end in production before any partner signs.
+>
+> The blocker did not disappear — it moved. Venue and partner agreements now
+> gate whether the inventory is **real**, not whether the feature **exists**.
+> That is tracked by `is_placeholder` on `vendors`, `premium_packages`,
+> `service_partners` and `post_marriage_services`. It is an internal provenance
+> marker: it must never hide a row, change its ranking, or alter how it renders.
+> It gates exactly one thing, in the service layer — placeholder supply cannot
+> be booked or paid for, because no fictional venue can deliver a wedding.
+> Enquiries stay fully open, which is the entire point of seeding it.
+> Onboarding a real partner is `UPDATE ... SET is_placeholder = false` from
+> `/admin/packages` — no schema change, no re-keying, no broken references.
+>
+> **Before public launch** the placeholder rows still need: licensed
+> photography (the seeded images are in-house SVG placeholders), real contact
+> details (seeds use RFC-2606 `.invalid` addresses that can never resolve), and
+> re-based pricing (the numbers are market-plausible, not quoted by any venue).
 
 **Operational gaps:** local `main` is ~54 commits ahead of `origin/main`
 (Sprint I not deployed); `ui-polish-2` unmerged; Phase 5 demo checkpoint with
@@ -181,7 +203,8 @@ Every unit also meets the standard DoD (§6). `⇉` = parallel-safe after Phase 
 | # | Unit | Tier | Par | Note | Blocker |
 |---|---|---|---|---|---|
 | 8.1 | **Destination Wedding Module** — *planning core ✅ shipped (Sprint I, migration 0036); premium packages/supply NOT built (Tier 3)* | 1/3 | ⇉ (planning UX) | Build planning/UX; live supply is business development. | Venue/vendor partnerships |
-| 8.2 | **Post-marriage services** | 3 | — | Placement/UX only until partners exist. | Partner agreements |
+| 8.1s | **Premium packages / destination supply** ✅ *shipped (migrations 0037 + 0039)* | 3→1 | ⇉ | **Tier rule deliberately deviated from.** Built in full — `premium_packages` (+ inclusions, availability), browse/filter/detail, enquiry, admin CRUD — and seeded with FICTIONAL placeholder supply (12 venues, 24 packages) so it works in production before any partnership. `is_placeholder` is internal provenance ONLY: it never hides or down-ranks a row; it gates exactly one thing, in the service layer — placeholder supply cannot be booked or paid for. Enquiries stay open. | Venue partnerships still gate whether the inventory is REAL, not whether the feature exists |
+| 8.2 | **Post-marriage services** ✅ *shipped (migrations 0037 + 0039)* | 3→1 | ⇉ | Same deviation and same placeholder contract. 8 admin-editable categories, 16 partners, 28 services, browse/detail/enquiry + admin triage queue. Enquiries are answered by an ADMIN, because a placeholder partner has no user account. | Partner agreements gate real supply only |
 | 8.3 | **National auto-scaling infra + PDF reporting + handover** ✅ *shipped (Sprint H — k6 baseline + SLO calibration still need staging/traffic)* | 1 | ⇉ | Scale hardening, reporting, full handover docs. | none |
 
 ---
@@ -410,8 +433,14 @@ dependency order — 5.1 → 5.2 → 5.5 → 5.4 → 5.3 → 5.7 → 5.6 — one
    feature + EAS internal builds can be finished without them.
 4. **Staging k6 baseline + SLO calibration** (Sprint H leftover) — needs a
    staging environment, not a partner.
-5. **8.2 Post-marriage placement shell** (optional, low priority) — same
-   mocked-shell pattern as 6.2/6.3 if idle capacity exists.
+5. ~~**8.2 Post-marriage placement shell**~~ ✅ **DONE 2026-07-19**, and built
+   as a full feature rather than a mocked shell — see the deviation note in
+   §0.0. 8.1's supply half shipped in the same sprint.
+6. **Replace placeholder supply content before public launch** — licensed
+   photography, real partner contact details, re-based pricing. The code is
+   done; this is a content and business-development task, tracked per row by
+   `is_placeholder`. Query the current exposure with:
+   `SELECT count(*) FROM premium_packages WHERE is_placeholder;`
 
 ### Gated — build is DONE, waiting only on external parties
 
@@ -457,8 +486,17 @@ Frame every item as a pre-made recommendation to approve, not an open question:
 ## 6. Standard Definition of Done (every unit)
 
 Not "done" on type-check alone. All of:
-1. `pnpm type-check -- --force` (never cached / "FULL TURBO" — it can hide a
-   reverted merge).
+1. `pnpm exec turbo type-check --force` (never cached / "FULL TURBO" — it can
+   hide a reverted merge). Confirm the output says `cache bypass, force
+   executing` and `Cached: 0 cached`.
+
+   > **CORRECTED 2026-07-19.** This item previously read
+   > `pnpm type-check -- --force`, which **does not work**: the root script is
+   > `turbo type-check`, so `--force` is forwarded past Turbo down to `tsc`,
+   > which rejects it with `error TS5093: Compiler option '--force' may only be
+   > used with '--build'`. Every sprint that reported running the documented
+   > command either saw that failure or silently ran a cached check. Use the
+   > `pnpm exec turbo` form above.
 2. API tests green (WSL) and the **test count changed as expected** (authoritative
    signal, not a cached pass). AI-service tests green if Python touched.
 3. If UI touched: **browser-verified as a real QA login at 375px AND 1440px** —
