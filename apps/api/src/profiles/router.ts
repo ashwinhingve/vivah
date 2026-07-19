@@ -252,12 +252,30 @@ profilesRouter.put(
       return;
     }
 
-    await db
-      .update(profileSections)
-      .set({ divorceeOnboardingDone: true, updatedAt: new Date() })
-      .where(eq(profileSections.profileId, row.id));
+    // Body is optional and defaults to true (the common case is "I'm done").
+    // An explicit `false` is accepted so the journey can be restored, e.g. by
+    // support for a user who dismissed it by accident.
+    const { done } = req.body ?? {};
+    if (done !== undefined && typeof done !== 'boolean') {
+      err(res, 'VALIDATION_ERROR', 'done must be a boolean', 400);
+      return;
+    }
+    const value = done ?? true;
 
-    ok(res, { divorceeOnboardingDone: true });
+    const updated = await db
+      .update(profileSections)
+      .set({ divorceeOnboardingDone: value, updatedAt: new Date() })
+      .where(eq(profileSections.profileId, row.id))
+      .returning();
+
+    // Without this check the call reports success even when it matched no row,
+    // and the journey silently reappears on the next load.
+    if (!updated.length) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile sections not found', 404);
+      return;
+    }
+
+    ok(res, { divorceeOnboardingDone: value });
   }),
 );
 

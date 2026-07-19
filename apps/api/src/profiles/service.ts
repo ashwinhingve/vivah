@@ -1,8 +1,8 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { shouldUseMockMongo } from '../lib/env.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
-import { profiles, profilePhotos, profileSections, communityZones, user } from '@smartshaadi/db';
+import { profiles, profilePhotos, profileSections, communityZones, user, matchRequests } from '@smartshaadi/db';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import type { Model } from 'mongoose';
 import { getPhotoUrls } from '../storage/service.js';
@@ -126,6 +126,34 @@ function buildProfileResponse(
 
 // ── Service functions ─────────────────────────────────────────────────────────
 
+/** Check if there is a bilateral ACCEPTED match between two profiles (in either direction). */
+async function hasAcceptedMatch(
+  viewerProfileId: string,
+  targetProfileId: string,
+): Promise<boolean> {
+  const [matchRow] = await db
+    .select({ id: matchRequests.id })
+    .from(matchRequests)
+    .where(
+      and(
+        eq(matchRequests.status, 'ACCEPTED'),
+        or(
+          and(
+            eq(matchRequests.senderId, viewerProfileId),
+            eq(matchRequests.receiverId, targetProfileId),
+          ),
+          and(
+            eq(matchRequests.senderId, targetProfileId),
+            eq(matchRequests.receiverId, viewerProfileId),
+          ),
+        ),
+      ),
+    )
+    .limit(1);
+
+  return !!matchRow;
+}
+
 /** Fetch the authenticated user's own profile. Creates a profile row if none exists. */
 export async function getMyProfile(userId: string): Promise<ProfileResponse | null> {
   const [userRow] = await db.select().from(user).where(eq(user.id, userId));
@@ -208,6 +236,10 @@ export async function getMyProfile(userId: string): Promise<ProfileResponse | nu
         photos:      sectionsRow.photos,
         preferences: sectionsRow.preferences,
         personality: sectionsRow.personality,
+        // Own-profile only. The divorcee/widow onboarding gate reads this to
+        // decide whether to show the journey again; without it the flag is
+        // written but never readable, so the journey never dismisses.
+        divorceeOnboardingDone: sectionsRow.divorceeOnboardingDone ?? false,
         score:       completeness,
       },
     }),
@@ -293,6 +325,31 @@ export async function deleteProfilePhoto(
   return (rowCount ?? 0) > 0;
 }
 
+/**
+ * Privacy filter: remove marital status from non-self, non-accepted-match viewers.
+ * DIVORCED and WIDOWED status is sensitive personal info — only revealed with bilateral consent.
+ * NEVER_MARRIED is public (all marital status filters accept it by default).
+ *
+ * @param personal - The personal section from profile content
+ * @param viewer - { isSelf: true if viewing own profile, hasAcceptedMatch: true if accepted match exists }
+ * @returns Filtered personal section (maritalStatus stripped if privacy rule applies)
+ */
+export function filterMaritalStatus(
+  personal: PersonalSection | undefined,
+  viewer: { isSelf: boolean; hasAcceptedMatch: boolean },
+): PersonalSection | undefined {
+  if (personal == null) return undefined;
+  if (viewer.isSelf) return personal; // Own profile: show everything
+
+  // Non-self viewers: strip DIVORCED/WIDOWED unless accepted match exists
+  if (!viewer.hasAcceptedMatch && personal.maritalStatus !== 'NEVER_MARRIED') {
+    const { maritalStatus, ...rest } = personal;
+    return rest as PersonalSection;
+  }
+
+  return personal; // Either accepted match OR NEVER_MARRIED status → show as-is
+}
+
 /** Fetch another user's profile by profile UUID. Enriched with MongoDB content + presigned photo URLs. */
 export async function getProfileById(
   profileId: ProfileId,
@@ -340,6 +397,33 @@ export async function getProfileById(
   const phoneNumber: string | null = isSelf ? (userRow.phoneNumber ?? null) : null;
   const email: string | null = isSelf ? (userRow.email ?? null) : null;
 
+  // Privacy: apply marital status filter (DIVORCED/WIDOWED hidden unless accepted match)
+  let personalToReturn: PersonalSection | undefined;
+  if (contentDoc?.personal != null) {
+    const personal = contentDoc.personal as PersonalSection;
+
+    // Determine if viewer has an accepted match (needed for privacy check)
+    let hasAcceptedMatchWithViewer = false;
+    if (!isSelf) {
+      // Check if we need to get the viewer's profile ID for match checking
+      const [viewerProfile] = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(eq(profiles.userId, requestingUserId))
+        .limit(1);
+
+      if (viewerProfile) {
+        hasAcceptedMatchWithViewer = await hasAcceptedMatch(viewerProfile.id, profile.id);
+      }
+    }
+
+    // Apply privacy filter via pure function
+    personalToReturn = filterMaritalStatus(personal, {
+      isSelf,
+      hasAcceptedMatch: hasAcceptedMatchWithViewer,
+    });
+  }
+
   // Fetch profileSections row to populate sectionCompletion
   const [sectionsRow] = await db
     .select()
@@ -353,7 +437,7 @@ export async function getProfileById(
     phoneNumber,
     email,
     photos: photosWithUrls,
-    ...(contentDoc?.personal    != null && { personal:           contentDoc.personal    as PersonalSection }),
+    ...(personalToReturn != null && { personal: personalToReturn }),
     ...(contentDoc?.education   != null && { education:          contentDoc.education   as EducationSection }),
     ...(contentDoc?.profession  != null && { profession:         contentDoc.profession  as ProfessionSection }),
     ...(contentDoc?.family      != null && { family:             contentDoc.family      as FamilySection }),

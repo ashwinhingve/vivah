@@ -13,6 +13,8 @@ import { FeedPageClient } from './FeedPageClient.client';
 import { ProfileCard } from '@/components/ui/ProfileCard.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { ProfileCompletionGuide } from '@/components/profile/ProfileCompletionGuide';
+import { DivorceeOnboarding } from '@/components/profile/DivorceeOnboarding';
+import type { PersonalSection } from '@smartshaadi/types';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -23,6 +25,7 @@ type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED'
 interface MeResponse {
   profileCompleteness: number;
   sectionCompletion?: ProfileSectionCompletion;
+  personal?: PersonalSection;
 }
 
 interface PrefsResponse {
@@ -101,6 +104,12 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
   const profileReady = completeness >= 40;
   const maritalPrefs = prefsRes.data?.maritalStatus ?? [];
 
+  // Check if divorcee/widow onboarding should be shown
+  const userMaritalStatus = meRes.data?.personal?.maritalStatus;
+  const isDivorcedOrWidowed = userMaritalStatus === 'DIVORCED' || userMaritalStatus === 'WIDOWED';
+  const divorceeOnboardingDone = meRes.data?.sectionCompletion?.divorceeOnboardingDone ?? false;
+  const showDivorceeOnboarding = isDivorcedOrWidowed && !divorceeOnboardingDone;
+
   // Pre-compute available cities from first-page items to seed city filter
   const availableCities = [...new Set(items.map((i) => i.city).filter(Boolean))].sort();
 
@@ -160,10 +169,19 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           />
         ) : !profileReady ? (
           <FadeUp delay={60}>
-            <ProfileCompletionGuide
-              score={completeness}
-              {...(meRes.data?.sectionCompletion ? { sections: meRes.data.sectionCompletion } : {})}
-            />
+            <div className="space-y-6">
+              <ProfileCompletionGuide
+                score={completeness}
+                {...(meRes.data?.sectionCompletion ? { sections: meRes.data.sectionCompletion } : {})}
+              />
+              {showDivorceeOnboarding && userMaritalStatus && (
+                <DivorceeOnboarding maritalStatus={userMaritalStatus} />
+              )}
+            </div>
+          </FadeUp>
+        ) : showDivorceeOnboarding && userMaritalStatus ? (
+          <FadeUp delay={60}>
+            <DivorceeOnboarding maritalStatus={userMaritalStatus} />
           </FadeUp>
         ) : items.length === 1 ? (
           (() => {

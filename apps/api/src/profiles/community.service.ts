@@ -31,6 +31,7 @@ function mapToResponse(row: typeof communityZones.$inferSelect): CommunityZoneDa
     ...(row.motherTongue != null && { motherTongue: row.motherTongue }),
     ...(row.preferredLang != null && { preferredLang: row.preferredLang }),
     lgbtqProfile: row.lgbtqProfile ?? false,
+    divorceeSupportEnabled: row.divorceeSupport_enabled ?? false,
   };
 }
 
@@ -63,6 +64,7 @@ export async function updateCommunityZone(
   if (data.motherTongue != null) setValue.motherTongue = data.motherTongue;
   if (data.preferredLang != null) setValue.preferredLang = data.preferredLang;
   if (data.lgbtqProfile != null) setValue.lgbtqProfile  = data.lgbtqProfile;
+  if (data.divorceeSupportEnabled != null) setValue.divorceeSupport_enabled = data.divorceeSupportEnabled;
 
   const rows = await db
     .insert(communityZones)

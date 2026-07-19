@@ -257,6 +257,7 @@ export const UpdateCommunityZoneSchema = z.object({
   motherTongue: z.string().max(50).optional(),
   preferredLang: z.enum(INDIAN_LANGUAGES).optional(),
   lgbtqProfile: z.boolean().optional(),
+  divorceeSupportEnabled: z.boolean().optional(),
 });
 
 // ── Inferred input types ──────────────────────────────────────────────────────

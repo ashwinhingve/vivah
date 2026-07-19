@@ -357,6 +357,7 @@ export interface CommunityZoneData {
   motherTongue?: string;
   preferredLang?: string;
   lgbtqProfile?: boolean;
+  divorceeSupportEnabled?: boolean;
 }
 
 /** Enriched profile returned by GET /api/v1/profiles/:id — includes MongoDB content sections */

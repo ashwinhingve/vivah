@@ -41,3 +41,9 @@ communityRouter.put(
     ok(res, data);
   },
 );
+
+// The divorcee-onboarding flag lives on `profile_sections`, not on the community
+// zone, so its endpoint belongs with the other section routes:
+//   PUT /api/v1/profiles/me/sections/divorcee-onboarding   (see router.ts)
+// An earlier draft declared a second copy here, which mounted at
+// /me/community/divorcee-onboarding and left two write paths for one flag.
