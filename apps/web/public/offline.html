@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="You are offline — Smart Shaadi is temporarily unavailable.">
+  <title>Offline — Smart Shaadi</title>
+  <style>
+    /* Design tokens inlined (legal exception for offline.html static CSS) */
+    :root {
+      --color-primary: #7B2D42;
+      --color-background: #FEFAF6;
+      --color-foreground: #2E2E38;
+      --color-gold: #C5A47E;
+      --color-teal: #0E7C7B;
+      --color-text-muted: #6B6B76;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .mark {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 2rem;
+      background-color: var(--color-primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mark svg {
+      width: 50px;
+      height: 50px;
+    }
+
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .subheading {
+      font-size: 1.125rem;
+      color: var(--color-text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .content {
+      background-color: #FFFFFF;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .tips {
+      text-align: left;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #E8E0D8;
+    }
+
+    .tips strong {
+      color: var(--color-primary);
+    }
+
+    .tips ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .tips li {
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .tips li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--color-teal);
+      font-weight: bold;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      flex: 1;
+      min-width: 150px;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .button-primary {
+      background-color: var(--color-primary);
+      color: #FEFAF6;
+    }
+
+    .button-primary:hover {
+      background-color: #5C2032;
+      transform: translateY(-2px);
+    }
+
+    .button-secondary {
+      background-color: #F8F5F0;
+      color: var(--color-foreground);
+      border: 1px solid #E8E0D8;
+    }
+
+    .button-secondary:hover {
+      background-color: #F0EBE4;
+    }
+
+    .footer {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .content {
+        padding: 1.5rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .button {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="mark">
+      <!-- Simplified brand mark (SVG) — mirrors favicon geometry -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Smart Shaadi">
+        <rect width="32" height="32" rx="7" fill="#C5A47E" opacity="0.2"/>
+        <path d="M6.5 14 Q16 4.5 25.5 14" fill="none" stroke="#C5A47E" stroke-width="2.8" stroke-linecap="round"/>
+        <rect x="4.95" y="13.4" width="3.2" height="9" rx="1.6" fill="#C5A47E"/>
+        <rect x="23.85" y="13.4" width="3.2" height="9" rx="1.6" fill="#C5A47E"/>
+        <rect x="4.5" y="21.4" width="23" height="3" rx="1.5" fill="#C5A47E"/>
+        <path d="M16 9.4 C 19.6 12.8, 18.7 16.4, 16 18.4 C 13.3 16.4, 12.4 12.8, 16 9.4 Z" fill="#F4D9C2"/>
+        <path d="M16 12.4 C 17.9 14.2, 17.4 16.2, 16 17.6 C 14.6 16.2, 14.1 14.2, 16 12.4 Z" fill="#0E7C7B"/>
+      </svg>
+    </div>
+
+    <h1>You're Offline</h1>
+    <p class="subheading">Check your internet connection and try again.</p>
+
+    <div class="content">
+      <p>
+        Smart Shaadi requires an internet connection to access matches, profiles, and chat.
+        Your offline page is cached and ready to load when you're back online.
+      </p>
+
+      <div class="tips">
+        <strong>Try these quick fixes:</strong>
+        <ul>
+          <li>Turn off airplane mode</li>
+          <li>Move closer to your WiFi router</li>
+          <li>Refresh the page (pull down to refresh on mobile)</li>
+          <li>Restart your device</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="button button-primary" onclick="location.reload()">
+        Retry
+      </button>
+      <button class="button button-secondary" onclick="history.back()">
+        Go Back
+      </button>
+    </div>
+
+    <p class="footer">
+      Smart Shaadi — India's Smart Marriage Ecosystem
+    </p>
+  </div>
+</body>
+</html>

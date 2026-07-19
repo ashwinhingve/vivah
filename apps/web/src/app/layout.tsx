@@ -4,6 +4,7 @@ import { Playfair_Display, Noto_Serif_Devanagari } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { PostHogProvider } from '@/components/providers/PostHogProvider.client';
 import { DemoPill } from '@/components/shared/DemoPill';
+import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar.client';
 // Validates NEXT_PUBLIC_* on first server render — bad deploy fails fast.
 import '@/lib/env';
 import './globals.css';
@@ -60,6 +61,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${notoDevanagari.variable}`}>
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+      </head>
       <body className="bg-background text-foreground antialiased overflow-x-clip font-body">
         <a
           href="#main-content"
@@ -69,6 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </a>
         <PostHogProvider>
           <ToastProvider>
+            <ServiceWorkerRegistrar />
             {children}
             <DemoPill />
           </ToastProvider>
