@@ -19,6 +19,7 @@ module.exports = {
         success: 'rgb(var(--color-success) / <alpha-value>)',
         warning: 'rgb(var(--color-warning) / <alpha-value>)',
         destructive: 'rgb(var(--color-destructive) / <alpha-value>)',
+        'on-primary': 'rgb(var(--color-on-primary) / <alpha-value>)',
       },
       fontFamily: {
         heading: ['PlayfairDisplay_600SemiBold'],

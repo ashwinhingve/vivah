@@ -19,6 +19,7 @@ export const palette = {
     success: '#059669', // Green — verified, paid, completed
     warning: '#D97706', // Amber — pending KYC, deposit due
     destructive: '#DC2626', // Red — errors, refunds, blocks
+    onPrimary: '#FFFFFF', // Text/spinner on primary-filled surfaces
   },
   dark: {
     background: '#1A1418', // Warm near-black
@@ -32,6 +33,7 @@ export const palette = {
     success: '#10B981',
     warning: '#F59E0B',
     destructive: '#EF4444',
+    onPrimary: '#1A1418', // Dark primary is a light rose — dark text keeps contrast
   },
 } as const;
 
