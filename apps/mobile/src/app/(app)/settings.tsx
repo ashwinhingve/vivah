@@ -1,16 +1,27 @@
 import { useRouter } from 'expo-router';
 import { Text, View, ScrollView, Switch } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
 import { LoadingState, EmptyState } from '../../components/States';
 import { api } from '../../lib/api';
 import { useSession } from '../../hooks/useSession';
 import { tokens } from '../../theme/tokens';
+import {
+  canUseBiometric,
+  isBiometricEnabled,
+  enableBiometric,
+  disableBiometric,
+} from '../../lib/biometric';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { data: session } = useSession();
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricCheckDone, setBiometricCheckDone] = useState(false);
+  const [biometricReason, setBiometricReason] = useState<'no_hardware' | 'not_enrolled' | undefined>();
 
   // Fetch profile to show subscription/settings info
   const {
@@ -21,6 +32,36 @@ export default function SettingsScreen() {
     queryFn: () => api.profiles.getMe(),
     enabled: !!session,
   });
+
+  // On mount, check biometric state
+  useEffect(() => {
+    const checkBiometric = async () => {
+      const enabled = await isBiometricEnabled();
+      setBiometricEnabled(enabled);
+
+      const check = await canUseBiometric();
+      setBiometricAvailable(check.canUse);
+      setBiometricReason(check.reason);
+      setBiometricCheckDone(true);
+    };
+
+    checkBiometric();
+  }, []);
+
+  const handleBiometricToggle = async (value: boolean) => {
+    if (!biometricAvailable) return;
+
+    try {
+      if (value) {
+        await enableBiometric();
+      } else {
+        await disableBiometric();
+      }
+      setBiometricEnabled(value);
+    } catch (error) {
+      console.error('[settings] biometric toggle error:', error);
+    }
+  };
 
   if (!session) {
     return (
@@ -119,6 +160,42 @@ export default function SettingsScreen() {
             }}
           />
         )}
+      </View>
+
+      {/* Security */}
+      <View className="mb-8">
+        <Text className="font-semibold text-ink text-lg mb-4">Security</Text>
+
+        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1 pr-4">
+              <Text className="font-semibold text-ink mb-1">Biometric Unlock</Text>
+              {!biometricCheckDone ? (
+                <Text className="text-xs text-muted">Checking device...</Text>
+              ) : !biometricAvailable ? (
+                <Text className="text-xs text-warning">
+                  {biometricReason === 'no_hardware'
+                    ? 'No biometric hardware on this device'
+                    : 'No biometrics enrolled on this device'}
+                </Text>
+              ) : (
+                <Text className="text-xs text-muted">
+                  Unlock your account with fingerprint or face
+                </Text>
+              )}
+            </View>
+            <Switch
+              value={biometricEnabled && biometricAvailable}
+              onValueChange={handleBiometricToggle}
+              disabled={!biometricAvailable || !biometricCheckDone}
+              trackColor={{ false: '#d9d9d9', true: tokens.teal }}
+              thumbColor={
+                biometricEnabled && biometricAvailable ? tokens.primary : '#f4f3f4'
+              }
+              testID="biometric-toggle"
+            />
+          </View>
+        </View>
       </View>
 
       {/* Privacy & Safety */}
