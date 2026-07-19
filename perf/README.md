@@ -67,6 +67,19 @@ k6 run perf/feed.js --vus 50 --duration 300s
 
 **Metrics**: Hits `/api/v1/matchmaking/feed` with pagination, measures latency by offset.
 
+### vendors.js
+**Purpose**: Load-test the public vendor listing — the heaviest unauthenticated
+read, and the only script here that runs against a genuinely populated table
+locally (168 approved vendors from the demo seed).
+
+**Thresholds**:
+- List / filtered: P95 < 800ms
+- Deep pagination: P95 < 1200ms (looser on purpose — it is an OFFSET scan, and
+  measuring it separately is how we will see when that stops being viable)
+- Success rate: ≥99%
+
+**Auth**: none. Run it directly.
+
 ### analytics.js
 **Purpose**: Verify analytics & reporting endpoints under sustained load.
 
@@ -79,15 +92,19 @@ k6 run perf/feed.js --vus 50 --duration 300s
 
 ## Baseline Recording
 
-After each test, record the P95 latency in the suite header:
+Measured baselines live in **`perf/BASELINE.md`**, with the run metadata
+(date, k6 version, environment, dataset size) attached to the numbers.
 
-```javascript
-// auth.js — P95 baseline (recorded <date>):
-// - login: 1.8s
-// - verify-otp: 1.2s
-```
+**Do not record baselines in script headers.** That is how this suite ended up
+carrying three sets of invented numbers: headers said "cold P95=280ms" and
+"sendPhone: P95=450ms" while k6 was not installed on the machine and all three
+scripts were too broken to execute. A number with no run behind it is worse
+than a blank — a blank invites measurement, a fabricated number invites
+comparison.
 
-Update this README whenever baselines change significantly.
+A baseline entry is only valid if it states where it was measured. A loopback
+number and a staging number are different kinds of fact and must never be put
+in the same column without saying which is which.
 
 ## Running Full Suite
 

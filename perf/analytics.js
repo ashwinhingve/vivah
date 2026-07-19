@@ -63,7 +63,7 @@ export const options = {
     analytics_stats_latency: ['p(95)<1500'],    // P95 < 1.5s
     analytics_query_latency: ['p(95)<2000'],    // P95 < 2s
     analytics_success_rate: ['rate>=0.95'],     // 95% success (lower threshold for compute)
-    analytics_timeouts: ['value<10'],           // Fewer than 10 timeouts total
+    analytics_timeouts: ['count<10'],           // Fewer than 10 timeouts total
   },
 };
 
@@ -98,18 +98,24 @@ export default function () {
 
   sleep(1);
 
-  // 2. Deeper analytics — cohort retention or revenue breakdown
-  // These are compute-heavy and may time out under peak load
-  // Attempt a common query: retention cohort or revenue by region
+  // 2. Deeper analytics — the revenue rollup, which aggregates over payments
+  // and is the compute-heavy read on the admin dashboard.
+  //
+  // This previously pointed at `/api/v1/admin/analytics?metric=retention`,
+  // which DOES NOT EXIST — it 404s. The check below accepted "200 or 404", so
+  // half of every run measured the latency of Express's not-found handler and
+  // reported it as an analytics baseline. The route is now the real one
+  // (mounted at '/api/v1/payments/admin/analytics' in apps/api/src/index.ts)
+  // and 404 is no longer an accepted outcome.
   const analyticsRes = http.get(
-    `${API_URL}/api/v1/admin/analytics?metric=retention&cohort=2026-07`,
+    `${API_URL}/api/v1/payments/admin/analytics/summary`,
     httpParams,
   );
 
   analyticsLatency.add(analyticsRes.timings.duration);
 
   const analyticsOk = check(analyticsRes, {
-    'analytics: status 200 or 404': (r) => r.status === 200 || r.status === 404,
+    'analytics: status 200': (r) => r.status === 200,
     'analytics: not 401': (r) => r.status !== 401,
     'analytics: completes before 30s': (r) => r.timings.duration < 30000,
   });

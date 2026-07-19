@@ -4,17 +4,22 @@
  * Measures latency of the match feed endpoint under sustained load.
  * Simulates real user browsing: fetch feed, iterate through pagination.
  *
- * Endpoint: GET /api/v1/matchmaking/feed?offset=0&limit=10
+ * Endpoint: GET /api/v1/matchmaking/feed?page=1&limit=10
  *
  * Thresholds:
  *  - Feed response (cold): P95 < 1s
- *  - Feed response (warm, offset): P95 < 500ms
+ *  - Feed response (warm, page 2): P95 < 500ms
  *  - Success rate: ≥99%
  *  - Circuit breaker: 0 open states (for outbound calls)
  *
- * Baseline (recorded 2026-07-18, local dev):
- *  - Cold (offset=0): P95=280ms
- *  - Warm (offset=10): P95=120ms
+ * See perf/BASELINE.md for measured numbers. Do not record baselines in this
+ * header: the previous ones ("cold P95=280ms") were written without k6 ever
+ * having been installed, and a fabricated baseline is worse than none — it
+ * gets compared against.
+ *
+ * AUTH: the feed is authenticated. Pass a session cookie:
+ *   AUTH_TOKEN="$(cat /tmp/k6cookie.txt)" k6 run perf/feed.js
+ * Without it every request 401s and the run measures the auth middleware.
  */
 
 import http from 'k6/http';
@@ -60,13 +65,16 @@ export const options = {
     feed_latency: ['p(95)<1000'],         // P95 < 1s for cold loads
     feed_offset_latency: ['p(95)<500'],   // P95 < 500ms for cached/offset
     feed_success_rate: ['rate>=0.99'],    // 99% success
-    circuit_breaker_open: ['value==0'],   // No open breakers
+    // `count`, not `value`: k6 rejects `value` on a Counter and REFUSES TO
+    // START the run. That invalid threshold is why this script had never once
+    // executed despite carrying a recorded baseline in its header.
+    circuit_breaker_open: ['count==0'],   // No open breakers
   },
 };
 
 export default function () {
   // 1. Cold load — offset=0 (first page of feed)
-  const feedRes = http.get(`${API_URL}/api/v1/matchmaking/feed?offset=0&limit=10`, httpParams);
+  const feedRes = http.get(`${API_URL}/api/v1/matchmaking/feed?page=1&limit=10`, httpParams);
 
   feedLatency.add(feedRes.timings.duration);
 
@@ -75,7 +83,7 @@ export default function () {
     'feed: has data': (r) => {
       try {
         const body = JSON.parse(r.body);
-        return body.data && Array.isArray(body.data);
+        return body.data && Array.isArray(body.data.items);
       } catch {
         return false;
       }
@@ -100,7 +108,7 @@ export default function () {
   sleep(1);
 
   // 2. Pagination — offset=10 (second page, tests cursor-based or offset-based)
-  const offsetRes = http.get(`${API_URL}/api/v1/matchmaking/feed?offset=10&limit=10`, httpParams);
+  const offsetRes = http.get(`${API_URL}/api/v1/matchmaking/feed?page=2&limit=10`, httpParams);
 
   feedOffsetLatency.add(offsetRes.timings.duration);
 
@@ -109,7 +117,7 @@ export default function () {
     'feed offset: has data': (r) => {
       try {
         const body = JSON.parse(r.body);
-        return body.data && Array.isArray(body.data);
+        return body.data && Array.isArray(body.data.items);
       } catch {
         return false;
       }
