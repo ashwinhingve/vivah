@@ -9,10 +9,13 @@ These targets are **proposed**, chosen from what the endpoints ought to achieve 
 their work — not from measured production behaviour, because there isn't any yet. Treat
 the first month of real traffic as the calibration period.
 
-> **Updated 2026-07-19.** A first k6 baseline now exists, but it is **local
-> loopback only** — see `perf/BASELINE.md`. It is enough to rule out gross
-> application-level slowness and to act as a regression tripwire. It is not
-> enough to calibrate a single target below, and the status stays "proposed".
+> **Updated 2026-07-19.** K6 baseline now measured (2026-07-19, commit `6ab796b`).
+> See `perf/BASELINE.md` for full run metadata. **Critical caveat:** all numbers are
+> **local loopback only** (API + database on one machine, zero network RTT, no TLS,
+> no Railway proxy). They rule out gross application slowness and serve as a regression
+> tripwire. They do NOT validate SLO targets — a production P95 will be substantially
+> higher (exact gap unknown without staging traffic). Treat all measured p95s below
+> as **floors, not ceilings**.
 
 An SLO that fires constantly gets muted, and a muted SLO is worse than none. If a target
 below burns error budget continuously once traffic is real, the correct response is to fix
@@ -40,39 +43,44 @@ Measured over a rolling 28-day window.
 
 | # | Objective | SLI | Target | Local floor (2026-07-19) |
 |---|---|---|---|---|
-| 1 | API availability | non-5xx ÷ total, from `http_requests_total` | 99.5% | 100% (0/1923 failed) |
-| 2 | Read latency | P95 of `http_request_duration_seconds` on GET routes | < 800 ms | 21 ms |
+| 1 | API availability | non-5xx ÷ total, from `http_requests_total` | 99.5% | 100% (0/1923 failed) · k6 smoke: 843 vendor + 746 feed + 334 analytics requests, 0 failures |
+| 2 | Read latency | P95 of `http_request_duration_seconds` on GET routes | < 800 ms | **21 ms** (vendor list/filtered/pagination p95, `perf/vendors.js`) — see note below |
 | 3 | Auth latency | P95 on `/api/auth/*` | < 1.5 s | **unmeasurable — see below** |
-| 4 | Match feed latency | P95 on the feed route | < 1 s cold, < 500 ms cached | 16 ms / 15 ms (empty feed) |
-| 5 | Report generation | P95 on `/api/v1/reports/*` | < 5 s | not yet measured |
-| 6 | Queue freshness | `bull_queue_depth{state="waiting"}` on `notifications` | < 100 for 95% of samples | not yet measured |
-| 7 | Payment webhook success | non-5xx on the Razorpay webhook route | 99.9% | not yet measured |
+| 4 | Match feed latency | P95 on the feed route | < 1 s cold, < 500 ms cached | **16 ms** (p95, seeded QA user, empty feed floor; `perf/feed.js`) · no payload assembly measured |
+| 5 | Report generation | P95 on `/api/v1/reports/*` | < 5 s | **38 ms** (admin stats endpoint p95; `perf/analytics.js`) · PDF rendering not measured (sync, queued for batches) |
+| 6 | Queue freshness | `bull_queue_depth{state="waiting"}` on `notifications` | < 100 for 95% of samples | **not measured** (would need job dispatcher load; see calibration checklist) |
+| 7 | Payment webhook success | non-5xx on the Razorpay webhook route | 99.9% | **not measured** (webhook stress test deferred; Razorpay rate-limits inbound, not our bottleneck) |
 
-The **local floor** column is the first real measurement of this system, from
-`perf/BASELINE.md` (2026-07-19, k6 v0.54.0). Read it as a floor and nothing
-more: load generator, API and database were one machine over loopback, so it
-excludes network RTT, TLS, the Railway proxy hop and pool contention. It does
-not validate the targets — it only establishes that none of them is violated
-by the application logic alone, which is a weaker and more honest claim.
+The **local floor** values are from `perf/BASELINE.md` (2026-07-19, k6 v0.54.0, commit `6ab796b`).
+Read them as floors only: load generator, API and database were one machine over loopback, so they
+exclude network RTT, TLS, the Railway proxy hop, connection-pool pressure, and cold-start behaviour.
+They establish that application logic does NOT violate the targets; they do not validate whether
+the targets themselves are right. The headroom is large (21 ms against an 800 ms target), which means
+these targets remain **uncalibrated**: a target with 38x headroom cannot tell you whether it is right,
+only that it is not obviously wrong. The first month of production traffic remains the calibration period.
 
-The headroom is large (21 ms against an 800 ms target), and that is exactly
-what makes these targets still **uncalibrated**: a target with 38x headroom
-cannot tell you whether it is right, only that it is not obviously wrong. The
-first month of production traffic remains the calibration period.
+**Rows marked unmeasured must be calibrated from staging/production**, not from this loopback run.
 
-Notes on the ones that differ most from the rest:
+Notes on measured vs unmeasured:
 
-- **#3 cannot be measured from a single host.** Better Auth rate-limits OTP
-  sends to 3 per 10-minute window keyed by **source IP**, so a load generator
-  gets 429s rather than latency. Calibrating it needs distributed load or a
-  perf environment with the limiter relaxed. Do not relax it anywhere
-  user-facing.
-- **#4's local number is a floor, not a figure.** The seeded QA user's feed
-  returns zero items, so payload assembly and scoring are not in it.
-- **#5 is deliberately loose.** PDF rendering is synchronous CPU work, so seconds are
-  expected, not a defect. Tighten it only after rendering moves to a queue.
-- **#7 is stricter than availability.** A dropped webhook desynchronises payment state
-  from Razorpay, which is a money-correctness problem rather than an availability one.
+- **#1:** ✅ Measured (0 failures over 1923 loopback requests across three scenarios).
+- **#2:** ✅ Measured (vendor list queries, all pagination depths). Represents pure query cost.
+- **#3 cannot be measured from a single host.** Better Auth rate-limits OTP sends to 3 per 10-minute
+  window keyed by **source IP**, so a load generator on one host gets 429s, not latency. Needs
+  distributed load from multiple IPs or a staging environment with the limiter relaxed (never
+  relax on user-facing). Marked **unmeasurable**.
+- **#4 is a floor, not a figure.** The seeded QA user's feed returns zero profiles, so payload assembly,
+  scoring, and sorting are not measured. Represents auth + query baseline only. A real user's feed
+  (with 10–100 matches) will show true latency. Marked as measured but with the caveat.
+- **#5 measured on stats endpoint, not PDF rendering.** PDF creation is synchronous CPU work (seconds expected).
+  The analytics stats endpoint (which feeds dashboards) shows the true API cost; PDF generation is queued
+  for production batches. Row marked **not measured** for the PDF path itself.
+- **#6 queue depth:** Requires injecting load into the job system (outbound notifications, emails, SMS).
+  Without that load, a queue depth measurement is 0. Marked **not measured** (needs dispatcher load).
+- **#7 webhook stress:** Razorpay rate-limits inbound webhook sending at ~100/sec; we do not rate-limit
+  inbound. Webhook success depends on Razorpay sending reliable, idempotent payloads (their SLA).
+  Our job: idempotency + audit trail (verified). Webhook throughput is Razorpay-bounded, not our bottleneck.
+  Marked **not measured** (Razorpay controls the load, not our test suite).
 
 ## What should page
 

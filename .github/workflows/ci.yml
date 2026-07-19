@@ -17,6 +17,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the gitleaks step below can scan past commits, not
+          # just the tip. A shallow clone would let a credential committed last
+          # month sit undetected forever — which is the case that actually
+          # matters here (see the DATABASE_URL rotation warnings in CLAUDE.md).
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -33,6 +39,14 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Secret scanning (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
 
   # ── Unit Tests ───────────────────────────────────────────────────────────────
   test:
