@@ -36,9 +36,27 @@ export default function VendorDetailScreen() {
     if (vendorId) toggleFavorite.mutate(vendorId);
   }, [toggleFavorite, vendorId]);
 
+  // Rendered in every state. This is a PUSHED route with no tab bar behind it,
+  // so an error branch that returns a bare <ErrorState> strands the user with
+  // no way back other than the OS gesture.
+  const backLink = (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Back to vendors"
+      onPress={() => router.back()}
+      className="mb-4"
+      style={{ minHeight: 44, justifyContent: 'center' }}
+    >
+      <Text className="text-sm" style={{ color: colors.teal }}>
+        ← Vendors
+      </Text>
+    </Pressable>
+  );
+
   if (isLoading) {
     return (
       <Screen>
+        {backLink}
         <LoadingState label="Loading vendor…" />
       </Screen>
     );
@@ -47,6 +65,7 @@ export default function VendorDetailScreen() {
   if (isError || !vendor) {
     return (
       <Screen>
+        {backLink}
         <ErrorState error={error} onRetry={() => void refetch()} />
       </Screen>
     );
@@ -57,17 +76,7 @@ export default function VendorDetailScreen() {
 
   return (
     <Screen scroll>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Back to vendors"
-        onPress={() => router.back()}
-        className="mb-4"
-        style={{ minHeight: 44, justifyContent: 'center' }}
-      >
-        <Text className="text-sm" style={{ color: colors.teal }}>
-          ← Vendors
-        </Text>
-      </Pressable>
+      {backLink}
 
       <View className="flex-row items-start justify-between">
         <Text className="font-heading text-2xl text-primary flex-1 pr-3">

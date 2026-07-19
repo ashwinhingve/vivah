@@ -42,9 +42,27 @@ export default function PaymentsScreen() {
   // money simply is not there.
   const error = subscription.error ?? statement.error ?? invoices.error;
 
+  // The back control is rendered in EVERY state, not just the happy one.
+  // Returning a bare <ErrorState> from these branches drops it, which on a
+  // pushed route leaves the user on a dead end with nothing to press.
+  const backLink = (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Back"
+      onPress={() => router.back()}
+      className="mb-4"
+      style={{ minHeight: 44, justifyContent: 'center' }}
+    >
+      <Text className="text-sm" style={{ color: colors.teal }}>
+        ← Back
+      </Text>
+    </Pressable>
+  );
+
   if (isLoading) {
     return (
       <Screen>
+        {backLink}
         <LoadingState label="Loading your billing…" />
       </Screen>
     );
@@ -53,6 +71,7 @@ export default function PaymentsScreen() {
   if (error) {
     return (
       <Screen>
+        {backLink}
         <ErrorState
           error={error}
           onRetry={() => {
@@ -71,17 +90,7 @@ export default function PaymentsScreen() {
 
   return (
     <Screen scroll>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Back"
-        onPress={() => router.back()}
-        className="mb-4"
-        style={{ minHeight: 44, justifyContent: 'center' }}
-      >
-        <Text className="text-sm" style={{ color: colors.teal }}>
-          ← Back
-        </Text>
-      </Pressable>
+      {backLink}
 
       <Text className="font-heading text-2xl text-primary mb-6">
         Payments &amp; Billing

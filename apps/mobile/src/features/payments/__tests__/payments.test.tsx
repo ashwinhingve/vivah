@@ -156,6 +156,18 @@ describe('PaymentsScreen', () => {
     expect(await screen.findByText('Something went wrong')).toBeTruthy();
   });
 
+  // Caught in browser verification, not by the tests above: the error branch
+  // returned a bare <ErrorState> and dropped the back control, leaving the user
+  // on a screen with nothing to press. Cheap to reintroduce, so pin it.
+  it('keeps a way back when the screen is in its error state', async () => {
+    getStatement.mockRejectedValue(new Error('boom'));
+
+    await renderWithQuery(<PaymentsScreen />);
+    await screen.findByText('Something went wrong');
+
+    expect(screen.getByLabelText('Back')).toBeTruthy();
+  });
+
   it('offers no way to change the plan from mobile', async () => {
     await renderWithQuery(<PaymentsScreen />);
     await screen.findByText('Free plan');
