@@ -3,6 +3,7 @@ import '../global.css';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,11 +14,13 @@ import {
 } from '@expo-google-fonts/playfair-display';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
+import { queryClient } from '../lib/queryClient';
+
 /**
- * Root layout — wraps the app tree in GestureHandlerRootView and
- * SafeAreaProvider, loads the Playfair Display heading fonts behind the
- * splash screen, and themes the status bar to the OS color scheme.
- * Groups: (auth) — phone/verify flow; (app) — tab-based home/profile.
+ * Root layout — wraps the app tree in GestureHandlerRootView, SafeAreaProvider
+ * and the React Query provider, loads the Playfair Display heading fonts behind
+ * the splash screen, and themes the status bar to the OS color scheme.
+ * Groups: (auth) — phone/verify flow; (app) — the authenticated tab shell.
  */
 void SplashScreen.preventAutoHideAsync();
 
@@ -44,10 +47,12 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={rootStyle}>
-      <SafeAreaProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-        <StatusBar style={isDark ? 'light' : 'dark'} />
-      </SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+          <StatusBar style={isDark ? 'light' : 'dark'} />
+        </SafeAreaProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

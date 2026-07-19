@@ -1,9 +1,9 @@
 /**
- * Jest setup — runs before each test file.
- * React 19 + RNTL v14 need the act environment flag; native-only modules
- * (reanimated worklets, haptics) are mocked for the jsdom-free node env.
+ * Jest setup — module mocks, registered after the test environment exists.
+ * The IS_REACT_ACT_ENVIRONMENT flag is set earlier, in jest.setup.js.
+ * Native-only modules (reanimated worklets, haptics) are mocked here for the
+ * jsdom-free node env.
  */
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 // Reanimated's shipped mock still imports the real worklets native module,
 // which has no jest counterpart — stub the small API surface we use instead.

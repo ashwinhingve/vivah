@@ -65,8 +65,8 @@ export default function VerifyScreen() {
           code: result.data,
         });
 
-        // Success — session is now active, redirect to authenticated home
-        router.replace('/(app)/home');
+        // Success — session is now active, land on the Matches tab
+        router.replace('/(app)/(matches)');
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Invalid OTP or verification failed.';
         setError(message);
