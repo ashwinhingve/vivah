@@ -62,6 +62,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <img
                       src={`/api/r2/${encodeURIComponent(item.imageKey)}`}
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   ) : (

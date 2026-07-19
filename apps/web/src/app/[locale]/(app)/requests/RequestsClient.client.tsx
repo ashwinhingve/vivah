@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import {
@@ -305,14 +305,17 @@ interface RequestCardProps {
   r: EnrichedMatchRequest;
   side: 'received' | 'sent';
   busy: boolean;
-  onAccept: () => void;
-  onDecline: () => void;
-  onWithdraw: () => void;
-  onBlock: () => void;
-  onReport: () => void;
+  onAccept: (r: EnrichedMatchRequest) => void;
+  onDecline: (r: EnrichedMatchRequest) => void;
+  onWithdraw: (r: EnrichedMatchRequest) => void;
+  onBlock: (r: EnrichedMatchRequest) => void;
+  onReport: (r: EnrichedMatchRequest) => void;
 }
 
-function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, onReport }: RequestCardProps) {
+// Memoized: a single card going busy (or an action-error flash) must not re-render
+// the other ~100 cards in the list. Handlers receive the request so the parent can
+// pass stable callbacks.
+const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, onReport }: RequestCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isSuper = r.priority === 'SUPER_LIKE';
   const expires = side === 'received' && r.status === 'PENDING' ? expiresIn(r.expiresAt) : null;
@@ -381,14 +384,14 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
               <div className="absolute right-0 top-9 z-20 w-44 rounded-lg border border-border bg-surface shadow-lg overflow-hidden">
                 <button
                   type="button"
-                  onClick={() => { setMenuOpen(false); onReport(); }}
+                  onClick={() => { setMenuOpen(false); onReport(r); }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2"
                 >
                   <Flag className="h-3.5 w-3.5" /> Report profile
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setMenuOpen(false); onBlock(); }}
+                  onClick={() => { setMenuOpen(false); onBlock(r); }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-muted text-destructive flex items-center gap-2"
                 >
                   <ShieldX className="h-3.5 w-3.5" /> Block
@@ -428,7 +431,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={onAccept}
+            onClick={() => onAccept(r)}
             disabled={busy}
             className="flex-1 bg-success text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-success transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
           >
@@ -436,7 +439,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
           </button>
           <button
             type="button"
-            onClick={onDecline}
+            onClick={() => onDecline(r)}
             disabled={busy}
             className="flex-1 border border-border text-muted-foreground text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
           >
@@ -448,7 +451,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
       {side === 'sent' && r.status === 'PENDING' && (
         <button
           type="button"
-          onClick={onWithdraw}
+          onClick={() => onWithdraw(r)}
           disabled={busy}
           className="w-full border border-border text-muted-foreground text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
         >
@@ -469,7 +472,7 @@ function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, 
       )}
     </div>
   );
-}
+});
 
 interface RevealContactState {
   loading: boolean;
@@ -550,16 +553,16 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
   const [declineModal, setDeclineModal] = useState<EnrichedMatchRequest | null>(null);
   const [reportModal,  setReportModal]  = useState<EnrichedMatchRequest | null>(null);
 
-  const setBusy = (id: string, on: boolean) => setBusyIds((s) => {
+  const setBusy = useCallback((id: string, on: boolean) => setBusyIds((s) => {
     const n = new Set(s);
     if (on) n.add(id); else n.delete(id);
     return n;
-  });
+  }), []);
 
-  const flashError = (id: string, msg: string) => {
+  const flashError = useCallback((id: string, msg: string) => {
     setActionError((e) => ({ ...e, [id]: msg }));
     setTimeout(() => setActionError((e) => { const n = { ...e }; delete n[id]; return n; }), 4000);
-  };
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -598,7 +601,7 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleAccept(r: EnrichedMatchRequest, welcomeMessage: string | null) {
+  const handleAccept = useCallback(async (r: EnrichedMatchRequest, welcomeMessage: string | null) => {
     setBusy(r.id, true);
     const prev = received;
     setReceived((rs) => rs.map((x) => x.id === r.id ? { ...x, status: 'ACCEPTED' as const, acceptanceMessage: welcomeMessage } : x));
@@ -612,9 +615,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       setReceived(prev);
       flashError(r.id, 'Could not accept — please try again');
     } finally { setBusy(r.id, false); }
-  }
+  }, [received]);
 
-  async function handleDecline(r: EnrichedMatchRequest, reason: string | null) {
+  const handleDecline = useCallback(async (r: EnrichedMatchRequest, reason: string | null) => {
     setBusy(r.id, true);
     const prev = received;
     setReceived((rs) => rs.map((x) => x.id === r.id ? { ...x, status: 'DECLINED' as const, declineReason: reason } : x));
@@ -628,9 +631,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       setReceived(prev);
       flashError(r.id, 'Could not decline — please try again');
     } finally { setBusy(r.id, false); }
-  }
+  }, [received]);
 
-  async function handleWithdraw(r: EnrichedMatchRequest) {
+  const handleWithdraw = useCallback(async (r: EnrichedMatchRequest) => {
     if (!confirm('Withdraw this interest? The other person will not be notified unless they had already seen it.')) return;
     setBusy(r.id, true);
     const prev = sent;
@@ -642,9 +645,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       setSent(prev);
       flashError(r.id, 'Could not withdraw — please try again');
     } finally { setBusy(r.id, false); }
-  }
+  }, [sent]);
 
-  async function handleBlock(r: EnrichedMatchRequest) {
+  const handleBlock = useCallback(async (r: EnrichedMatchRequest) => {
     if (!confirm(`Block ${r.name ?? 'this profile'}? They will no longer be able to contact you and any open match will be cancelled.`)) return;
     setBusy(r.id, true);
     try {
@@ -658,9 +661,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
     } catch {
       flashError(r.id, 'Could not block — please try again');
     } finally { setBusy(r.id, false); }
-  }
+  }, [load]);
 
-  async function handleReport(r: EnrichedMatchRequest, category: string, details: string | null) {
+  const handleReport = useCallback(async (r: EnrichedMatchRequest, category: string, details: string | null) => {
     setBusy(r.id, true);
     try {
       const res = await apiFetch(`/api/v1/matchmaking/report/${r.profileId}`, {
@@ -671,12 +674,21 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
     } catch {
       flashError(r.id, 'Could not submit report — please try again');
     } finally { setBusy(r.id, false); }
-  }
+  }, []);
 
-  const pendingReceived = received.filter((r) => r.status === 'PENDING');
-  const pastReceived    = received.filter((r) => r.status !== 'PENDING');
-  const pendingSent     = sent.filter((r) => r.status === 'PENDING');
-  const pastSent        = sent.filter((r) => r.status !== 'PENDING');
+  // Stable card callbacks so the memoized RequestCard skips re-renders when
+  // unrelated parent state (busyIds, actionError flashes) changes.
+  const openAccept   = useCallback((r: EnrichedMatchRequest) => setAcceptModal(r), []);
+  const openDecline  = useCallback((r: EnrichedMatchRequest) => setDeclineModal(r), []);
+  const openReport   = useCallback((r: EnrichedMatchRequest) => setReportModal(r), []);
+  const doWithdraw   = useCallback((r: EnrichedMatchRequest) => void handleWithdraw(r), [handleWithdraw]);
+  const doBlock      = useCallback((r: EnrichedMatchRequest) => void handleBlock(r), [handleBlock]);
+  const noop         = useCallback((_r: EnrichedMatchRequest) => {}, []);
+
+  const pendingReceived = useMemo(() => received.filter((r) => r.status === 'PENDING'), [received]);
+  const pastReceived    = useMemo(() => received.filter((r) => r.status !== 'PENDING'), [received]);
+  const pendingSent     = useMemo(() => sent.filter((r) => r.status === 'PENDING'), [sent]);
+  const pastSent        = useMemo(() => sent.filter((r) => r.status !== 'PENDING'), [sent]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -744,11 +756,11 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
                     r={r}
                     side="received"
                     busy={busyIds.has(r.id)}
-                    onAccept={() => setAcceptModal(r)}
-                    onDecline={() => setDeclineModal(r)}
-                    onWithdraw={() => {}}
-                    onBlock={() => void handleBlock(r)}
-                    onReport={() => setReportModal(r)}
+                    onAccept={openAccept}
+                    onDecline={openDecline}
+                    onWithdraw={noop}
+                    onBlock={doBlock}
+                    onReport={openReport}
                   />
                   {actionError[r.id] && (
                     <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>
@@ -806,11 +818,11 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
                     r={r}
                     side="sent"
                     busy={busyIds.has(r.id)}
-                    onAccept={() => {}}
-                    onDecline={() => {}}
-                    onWithdraw={() => void handleWithdraw(r)}
-                    onBlock={() => void handleBlock(r)}
-                    onReport={() => setReportModal(r)}
+                    onAccept={noop}
+                    onDecline={noop}
+                    onWithdraw={doWithdraw}
+                    onBlock={doBlock}
+                    onReport={openReport}
                   />
                   {actionError[r.id] && (
                     <p className="text-xs text-destructive mt-1 px-1">{actionError[r.id]}</p>

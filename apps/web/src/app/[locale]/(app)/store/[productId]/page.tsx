@@ -107,6 +107,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     <img
                       src={`/api/r2/${encodeURIComponent(key)}`}
                       alt={`${product.name} ${i + 2}`}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>

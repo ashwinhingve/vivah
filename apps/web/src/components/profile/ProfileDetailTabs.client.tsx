@@ -563,13 +563,16 @@ export function ProfileDetailTabs({
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex overflow-x-auto scrollbar-hide border-b border-gold/20">
+      <div role="tablist" aria-label="Profile sections" className="flex overflow-x-auto scrollbar-hide border-b border-gold/20">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (
             <button
               key={tab.id}
               type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`profile-tabpanel-${tab.id}`}
               onClick={() => switchTab(tab.id)}
               className={cn(
                 'min-w-fit flex-1 whitespace-nowrap border-b-[3px] px-4 py-3 text-sm font-semibold transition-colors duration-150',
@@ -584,7 +587,7 @@ export function ProfileDetailTabs({
         })}
       </div>
 
-      <div key={animKey} className="p-5 sm:p-6" style={{ animation: 'fadeIn 150ms ease-out' }}>
+      <div key={animKey} role="tabpanel" id={`profile-tabpanel-${activeTab}`} className="p-5 sm:p-6" style={{ animation: 'fadeIn 150ms ease-out' }}>
         {activeTab === 'about'      && <AboutTab aboutMe={aboutMe} personal={personal} />}
         {activeTab === 'family'     && family && <FamilyTab family={family} />}
         {activeTab === 'career'     && <CareerTab education={education} profession={profession} />}
