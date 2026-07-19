@@ -2955,5 +2955,47 @@
     "empty": "No packages yet.",
     "footnote": "Placeholder packages are fully browsable and capture enquiries. Only the booking and payment path is blocked.",
     "genericError": "That change could not be saved. Please try again."
+  },
+  "divorceeOnboarding": {
+    "headerTitleDivorce": "A Fresh Start",
+    "headerTitleWidow": "Welcome Back",
+    "headerSubtitleDivorce": "Ready to meet someone who gets you.",
+    "headerSubtitleWidow": "Your journey continues with confidence.",
+    "step1DivorceeTitle": "You're Ready",
+    "step1DivorceeMessage": "You're ready to find genuine connection. That's all that matters here.",
+    "step1WidowTitle": "Your Story Matters",
+    "step1WidowMessage": "You're opening your heart again — that takes courage. Smart Shaadi celebrates that.",
+    "step2Title": "Privacy First",
+    "step2Message": "Your marital history is private. Matches see it only if you both are interested — never by default.",
+    "step3Title": "You Belong Here",
+    "step3Message": "Join members who understand and respect your journey. Real conversations start here.",
+    "trustNote": "Your privacy is sacred. You control who sees what.",
+    "buttonReady": "I'm Ready to Explore",
+    "marking": "Marking...",
+    "completionSuccess": "Welcome! Explore at your own pace.",
+    "completionError": "Something went wrong. Please try again."
+  },
+  "budgetLending": {
+    "heading": "Budget shortfall? Explore loan options",
+    "description": "You've allocated ₹{shortfall} more than your budget. Compare offers from RBI-regulated lenders to cover the gap.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Wedding financing is shown for preview only and is not available until our RBI-compliant lending partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi is a Loan Service Provider (LSP), not the lender.",
+      "description": "We only surface offers from RBI-regulated lenders. Loans are provided by the lender named on each offer.",
+      "detail": "Funds are disbursed directly to your bank account and repayments go directly to the lender. Smart Shaadi never handles your money."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our lending partner is live you'll be referred with a Key Fact Statement before any agreement.",
+    "noOffers": "No offers to show right now.",
+    "selectOffer": "Select {name}",
+    "tenure": "Tenure",
+    "apr": "APR",
+    "monthly": "Monthly",
+    "viewKfs": "View Key Fact Statement (KFS)",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected lender. I understand Smart Shaadi is an LSP, earns a referral fee from the lender, and never collects interest or handles my money.",
+    "continue": "Continue"
   }
 }

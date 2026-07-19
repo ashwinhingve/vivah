@@ -1,0 +1,25 @@
+{
+  "budgetLending": {
+    "heading": "Budget shortfall? Explore loan options",
+    "description": "You've allocated ₹{shortfall} more than your budget. Compare offers from RBI-regulated lenders to cover the gap.",
+    "previewBanner": {
+      "title": "Not live yet — preview.",
+      "description": "Wedding financing is shown for preview only and is not available until our RBI-compliant lending partner is live. No application is submitted and no data leaves Smart Shaadi."
+    },
+    "disclosure": {
+      "title": "Smart Shaadi is a Loan Service Provider (LSP), not the lender.",
+      "description": "We only surface offers from RBI-regulated lenders. Loans are provided by the lender named on each offer.",
+      "detail": "Funds are disbursed directly to your bank account and repayments go directly to the lender. Smart Shaadi never handles your money."
+    },
+    "successTitle": "Preference recorded",
+    "successDescription": "We've noted your consent. When our lending partner is live you'll be referred with a Key Fact Statement before any agreement.",
+    "noOffers": "No offers to show right now.",
+    "selectOffer": "Select {name}",
+    "tenure": "Tenure",
+    "apr": "APR",
+    "monthly": "Monthly",
+    "viewKfs": "View Key Fact Statement (KFS)",
+    "consentText": "I consent to Smart Shaadi sharing the details needed to refer me to the selected lender. I understand Smart Shaadi is an LSP, earns a referral fee from the lender, and never collects interest or handles my money.",
+    "continue": "Continue"
+  }
+}

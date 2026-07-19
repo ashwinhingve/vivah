@@ -1,12 +1,14 @@
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { BudgetEditor } from '@/components/wedding/BudgetEditor.client';
 import { BudgetDonut, type BudgetSlice } from '@/components/wedding/BudgetDonut';
+import { BudgetLendingCard } from '@/components/wedding/BudgetLendingCard.client';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { fetchAuth } from '@/lib/server-fetch';
 import { formatINR, formatINRCompact } from '@/lib/format';
-import type { WeddingPlan, WeddingSummary } from '@smartshaadi/types';
+import type { WeddingPlan, WeddingSummary, LoanOffer } from '@smartshaadi/types';
 
 // Token CSS-var colors for donut slices (no raw hex)
 const SLICE_COLORS = [
@@ -17,6 +19,31 @@ const SLICE_COLORS = [
   'var(--color-warning)',
   'var(--color-gold-muted)',
 ] as const;
+
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const LENDING_LIVE = process.env['NEXT_PUBLIC_LENDING_LIVE'] === 'true';
+
+interface OffersResponse {
+  isLsp: boolean;
+  offers: LoanOffer[];
+  mock: boolean;
+}
+
+async function fetchOffers(): Promise<OffersResponse> {
+  try {
+    const store = await cookies();
+    const token = store.get('better-auth.session_token')?.value ?? '';
+    const res = await fetch(`${API_BASE}/api/v1/lending/offers?context=PLANNING`, {
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return { isLsp: true, offers: [], mock: true };
+    const json = (await res.json()) as { data?: OffersResponse };
+    return json.data ?? { isLsp: true, offers: [], mock: true };
+  } catch {
+    return { isLsp: true, offers: [], mock: true };
+  }
+}
 
 async function fetchPlan(weddingId: string): Promise<{
   plan: WeddingPlan | null;
@@ -49,6 +76,14 @@ export default async function BudgetPage({ params }: PageProps) {
   const totalSpent = plan?.budget?.categories?.reduce((s, c) => s + (c.spent ?? 0), 0) ?? 0;
   const totalBudget = plan?.budget?.total ?? 0;
   const spentPct = totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0;
+
+  // Shortfall signal: when actual spend exceeds total budget
+  const hasShortfall = totalBudget > 0 && totalSpent > totalBudget;
+  const shortfallAmount = hasShortfall ? totalSpent - totalBudget : 0;
+
+  // Fetch lending offers only if shortfall exists and lending flag is considered
+  const { offers, mock } = hasShortfall ? await fetchOffers() : { offers: [], mock: true };
+  const isPreview = mock || !LENDING_LIVE;
 
   return (
     <div className="min-h-screen bg-background">
@@ -168,6 +203,18 @@ export default async function BudgetPage({ params }: PageProps) {
               currency={plan.budget.currency}
               categories={plan.budget.categories}
             />
+
+            {/* Lending card — shown only when there's a shortfall */}
+            {hasShortfall && (
+              <div className="mt-8">
+                <BudgetLendingCard
+                  weddingId={id}
+                  shortfallAmount={shortfallAmount}
+                  initialOffers={offers}
+                  isPreview={isPreview}
+                />
+              </div>
+            )}
           </>
         )}
 
