@@ -1,0 +1,10 @@
+{
+  "billing": {
+    "subtitle": "Choose a plan, or manage the one you're on.",
+    "confirmHeading": "Confirm your plan",
+    "confirmSubtitle": "Review what's included before you pay."
+  },
+  "common": {
+    "views": "views"
+  }
+}

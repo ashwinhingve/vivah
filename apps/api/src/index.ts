@@ -237,8 +237,44 @@ app.use(express.json({ limit: '50kb' }));
 app.use(metricsMiddleware);
 app.use(behaviorCaptureMiddleware);
 
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ success: true, data: { status: 'ok' }, error: null, meta: { timestamp: new Date().toISOString() } });
+app.get('/health', async (_req: Request, res: Response) => {
+  const checks: Record<string, 'ok' | string> = {};
+  let allOk = true;
+
+  // Postgres health check — required dependency
+  try {
+    const { db } = await import('./lib/db.js');
+    const dbPromise = (db.$client as unknown as { query: (q: string) => Promise<unknown> }).query('SELECT 1');
+    const timeoutPromise = new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 1000)
+    );
+    await Promise.race([dbPromise, timeoutPromise]);
+    checks['postgres'] = 'ok';
+  } catch (err) {
+    checks['postgres'] = err instanceof Error ? err.message : 'unreachable';
+    allOk = false;
+  }
+
+  // Redis health check — required dependency
+  try {
+    const { redis } = await import('./lib/redis.js');
+    const pingPromise = redis.ping();
+    const timeoutPromise = new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 1000)
+    );
+    await Promise.race([pingPromise, timeoutPromise]);
+    checks['redis'] = 'ok';
+  } catch (err) {
+    checks['redis'] = err instanceof Error ? err.message : 'unreachable';
+    allOk = false;
+  }
+
+  res.status(allOk ? 200 : 503).json({
+    success: allOk,
+    data: { status: allOk ? 'ok' : 'degraded', checks },
+    error: null,
+    meta: { timestamp: new Date().toISOString() },
+  });
 });
 
 // /metrics — Prometheus exposition. Internal observability surface; gated by

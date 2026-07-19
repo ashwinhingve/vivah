@@ -847,7 +847,10 @@
     "metadata": {
       "title": "Billing & Subscription — Smart Shaadi"
     },
-    "heading": "Billing & Subscription"
+    "heading": "Billing & Subscription",
+    "subtitle": "Choose a plan, or manage the one you're on.",
+    "confirmHeading": "Confirm your plan",
+    "confirmSubtitle": "Review what's included before you pay."
   },
   "weddings": {
     "list": {
@@ -1201,7 +1204,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "views": "views"
   },
   "help": {
     "title": "Help & Support",

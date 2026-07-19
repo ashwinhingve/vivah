@@ -42,7 +42,17 @@ storageRouter.post(
     const { fileName, mimeType, folder } = parsed.data;
 
     try {
-      const { uploadUrl, r2Key } = await getPresignedUploadUrl(folder, fileName, mimeType);
+      // Namespace under the authenticated caller. Without this segment the key
+      // was `${folder}/${unique}-${name}` with no owner component at all, so
+      // every user's uploads shared one flat prefix — R2 has no per-object ACL,
+      // and the other callers of this helper (audio-intros/${profileId},
+      // chat/${matchId}) are all owner-scoped by their folder. This generic
+      // endpoint was the one that was not.
+      const { uploadUrl, r2Key } = await getPresignedUploadUrl(
+        `${folder}/${req.user!.id}`,
+        fileName,
+        mimeType,
+      );
       ok(res, { uploadUrl, r2Key });
     } catch {
       err(res, 'INTERNAL', 'Failed to generate upload URL', 500);

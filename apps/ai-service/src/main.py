@@ -41,6 +41,7 @@ SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from src.lib.sentry_redactor import redact_sentry_event
 
     try:
         traces_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
@@ -54,6 +55,7 @@ if SENTRY_DSN:
         integrations=[FastApiIntegration()],
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("NODE_ENV", "development")),
         release=os.getenv("GIT_COMMIT_SHA") or None,
+        before_send=redact_sentry_event,
     )
     log.info("sentry_initialized", traces_sample_rate=traces_rate)
 else:

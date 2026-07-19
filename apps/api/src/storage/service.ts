@@ -2,6 +2,7 @@
 
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { randomUUID } from 'node:crypto';
 import { env, shouldUseMockR2 } from '../lib/env.js';
 
 const r2 = new S3Client({
@@ -41,14 +42,33 @@ export async function getPhotoUrls(r2Keys: string[], expiresIn = 900): Promise<s
  * Generate a presigned PUT URL for uploading a file directly to R2.
  * Returns both the upload URL and the R2 key that will hold the object.
  */
+/**
+ * Callers MUST pass a `folder` that already isolates the owner — either a
+ * per-entity prefix (`audio-intros/${profileId}`, `chat/${matchId}`) or, for the
+ * generic /upload-url endpoint, `${folder}/${userId}`. The key derived here is
+ * otherwise unguessable but not owner-scoped, and R2 has no per-object ACL to
+ * fall back on.
+ */
 export async function getPresignedUploadUrl(
   folder: string,
   fileName: string,
   mimeType: string,
   expiresIn = 300,
 ): Promise<{ uploadUrl: string; r2Key: string }> {
-  const sanitized = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const r2Key = `${folder}/${Date.now()}-${sanitized}`;
+  // Strip anything outside the safe set, then neutralise dot-runs: the previous
+  // character class permitted "..", so a crafted filename could still climb a
+  // path segment in any consumer that resolves the key as a filesystem path.
+  const sanitized = fileName
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/\.{2,}/g, '.')
+    .replace(/^\.+/, '')
+    .slice(0, 120) || 'file';
+
+  // randomUUID, not Date.now(): the timestamp was only millisecond-granular, so
+  // two uploads of the same filename in the same millisecond collided — the
+  // second silently overwrote the first. It was also guessable, which mattered
+  // more before the owner segment above existed.
+  const r2Key = `${folder}/${randomUUID()}-${sanitized}`;
 
   if (shouldUseMockR2) {
     return {

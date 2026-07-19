@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import { redactSentryEvent } from './src/lib/sentry-redactor';
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 if (dsn) {
@@ -9,5 +10,8 @@ if (dsn) {
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
     sendDefaultPii:           false,
+    beforeSend(event) {
+      return redactSentryEvent(event as unknown as Record<string, unknown>) as unknown as typeof event;
+    },
   });
 }

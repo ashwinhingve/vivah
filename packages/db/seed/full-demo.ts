@@ -226,12 +226,45 @@ const VENDORS: Vendor[] = [
 // Shared constant from @smartshaadi/db/constants/plans.ts
 const PLAN_ROWS = PLANS_CONSTANT;
 
+/**
+ * Exported so plans can be synced on their own, without the demo data.
+ * Plans are reference data, not demo data — production needs them current, and
+ * running the full demo seed against production would create fake users.
+ */
+export async function seedPlansOnly(): Promise<void> {
+  await seedPlans();
+}
+
 async function seedPlans() {
   console.info('💎 seeding plans...');
   for (const row of PLAN_ROWS) {
-    await db.insert(plans).values(row).onConflictDoNothing();
+    // CONVERGE, don't skip. This was `onConflictDoNothing()`, which meant a
+    // price change in packages/types/src/plans.ts reached new environments but
+    // never existing ones: the row was already there, so the insert was
+    // discarded silently. Production sat on the pre-repricing numbers for days
+    // that way — PREMIUM_Y was live at 22999.00 against a source of truth of
+    // 7999.00, and neither quarterly plan existed at all.
+    //
+    // `code` is the natural key (unique). Everything derived from the constant
+    // is refreshed; nothing environment-specific is: razorpay_plan_id is
+    // deliberately NOT in the update set, because it is provisioned per
+    // environment in Razorpay and re-seeding must not clear it.
+    await db
+      .insert(plans)
+      .values(row)
+      .onConflictDoUpdate({
+        target: plans.code,
+        set: {
+          name:     row.name,
+          tier:     row.tier,
+          interval: row.interval,
+          amount:   row.amount,
+          features: row.features,
+          active:   row.active,
+        },
+      });
   }
-  console.info(`  ✅ Plans: ${PLAN_ROWS.length}`);
+  console.info(`  ✅ Plans: ${PLAN_ROWS.length} (upserted to match source of truth)`);
 }
 
 async function wipeDemo() {

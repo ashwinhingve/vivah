@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/node';
 import type { Express } from 'express';
 import { env } from './env.js';
 import { logger } from './logger.js';
+import { redactSentryEvent } from './sentry-redactor.js';
 
 let initialized = false;
 
@@ -23,6 +24,9 @@ export function initSentry(): void {
     environment:      env.SENTRY_ENVIRONMENT,
     tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
     sendDefaultPii:   false,
+    beforeSend(event) {
+      return redactSentryEvent(event as unknown as Record<string, unknown>) as unknown as typeof event;
+    },
   };
   const release = process.env['GIT_COMMIT_SHA'];
   if (release) opts.release = release;
