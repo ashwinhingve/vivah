@@ -29,6 +29,8 @@ import {
   TrendingUp,
   Megaphone,
   MapPin,
+  Gem,
+  HeartHandshake,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { UserRole } from '@smartshaadi/types';
@@ -61,6 +63,10 @@ const INDIVIDUAL_MORE_GROUPS: NavGroup[] = [
     titleKey: 'groupDiscover',
     items: [
       { href: '/vendors', labelKey: 'vendors', Icon: Search },
+      // Phase 8 Unit 8.1 — destination package supply.
+      { href: '/packages', labelKey: 'packages', Icon: Gem },
+      // Phase 8 Unit 8.2 — post-marriage services.
+      { href: '/services/post-marriage', labelKey: 'postMarriage', Icon: HeartHandshake },
     ],
   },
   {

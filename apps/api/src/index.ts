@@ -66,6 +66,8 @@ import { supportRouter } from './support/router.js';
 import { stayQuotientAdminRouter } from './admin/stayQuotient.router.js';
 import { retentionRouter } from './retention/router.js'; // Phase 7 Sprint F (Churn Recovery 7.3)
 import { marketingRouter } from './marketing/router.js'; // Phase 6 Sprint J (Auto-Marketing 6.4)
+import { packagesRouter } from './packages/router.js';        // Phase 8 (8.1 supply)
+import { postMarriageRouter } from './post-marriage/router.js'; // Phase 8 (8.2 services)
 import { marketingContentRouter } from './marketing/content.router.js'; // Phase 6 Sprint J (6.4 content)
 import { citiesAdminRouter, citiesPublicRouter } from './cities/router.js'; // Phase 6 Sprint J (Multi-City 6.5)
 import {
@@ -432,6 +434,12 @@ app.use('/api/v1/admin', platformSettingsRouter);
 app.use('/api/v1/admin', adminUsersRouter);
 app.use('/api/v1/admin', adminAuditRouter);
 app.use('/api/v1/reports', reportsRouter); // Phase 8 Sprint H (PDF Reporting 8.3)
+// Phase 8 (8.1 premium package supply / 8.2 post-marriage services). Both
+// routers own their whole prefix and declare their literal segments before
+// their /:slug routes internally, so neither shadows the other or anything
+// mounted above.
+app.use('/api/v1/packages', packagesRouter);
+app.use('/api/v1/post-marriage', postMarriageRouter);
 app.use('/api/v1', platformSettingsPublicRouter);
 
 // Internal service-to-service routes — NO session middleware, authenticated via

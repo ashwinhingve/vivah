@@ -86,7 +86,9 @@
       "retention": "Retention",
       "marketing": "Marketing",
       "cities": "Cities"
-    }
+    },
+    "packages": "Premium Packages",
+    "postMarriage": "After the Wedding"
   },
   "auth": {
     "login": {
@@ -2592,7 +2594,9 @@
   },
   "adminMarketing": {
     "metadata": {
-      "campaignDetail": "Campaign Details"
+      "campaignDetail": "Campaign Details",
+      "newCampaign": "New Campaign",
+      "title": "Marketing Campaigns"
     },
     "backToAdmin": "Back to Admin",
     "heading": "Marketing Campaigns",
@@ -2668,6 +2672,243 @@
       "sent": "Sent At",
       "converted": "Converted At",
       "reason": "Suppression Reason"
+    },
+    "form": {
+      "attributionWindow": "Attribution window (days)",
+      "cancel": "Cancel",
+      "channelNames": {
+        "email": "Email",
+        "inapp": "In-app",
+        "push": "Push",
+        "sms": "SMS",
+        "whatsapp": "WhatsApp"
+      },
+      "channels": "Channels",
+      "channelsHint": "Each channel still respects the user's notification preferences and channel go-live flags",
+      "conversionGoal": "Conversion goal",
+      "create": "Create Campaign",
+      "creating": "Creating…",
+      "description": "Description (optional)",
+      "errors": {
+        "createFailed": "Could not create the campaign — please try again",
+        "nameTooShort": "Name must be at least 3 characters",
+        "noChannel": "Pick at least one channel"
+      },
+      "eventHook": "Fires on",
+      "frequencyCap": "Max messages per user / week",
+      "goals": {
+        "ANY": "Any activity",
+        "BOOKING_CREATED": "Booking created",
+        "PROFILE_COMPLETED": "Profile completed",
+        "SUBSCRIPTION_STARTED": "Subscription started"
+      },
+      "heading": "New Campaign",
+      "hooks": {
+        "booking_created": "Booking created",
+        "kyc_approved": "KYC approved",
+        "user_registered": "User registered"
+      },
+      "name": "Campaign name",
+      "namePlaceholder": "e.g. Welcome Series",
+      "segment": "Audience segment",
+      "segments": {
+        "high_intent_7d": "High intent (last 7 days)",
+        "inactive_14d": "Inactive 14+ days",
+        "new_incomplete_48h": "New users, incomplete profile (48h)",
+        "vendors_idle_30d": "Idle vendors (30d, no bookings)",
+        "vendors_new_7d": "Newly approved vendors (7d)"
+      },
+      "subtitle": "Define the audience, trigger and channels — content comes next",
+      "templateKey": "Content template",
+      "templates": {
+        "seasonal_muhurat": "Seasonal muhurat",
+        "welcome_series": "Welcome series",
+        "winback_inactive": "Win-back (inactive)"
+      },
+      "triggerType": "Trigger",
+      "triggers": {
+        "EVENT": "Product event",
+        "SCHEDULED": "Scheduled",
+        "SEGMENT_SWEEP": "Daily segment sweep"
+      }
+    }
+  },
+  "packages": {
+    "card": {
+      "capacity": "Guest capacity",
+      "duration": "Duration",
+      "guestRange": "{min}–{max} guests",
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "startingFrom": "Starting from",
+      "tier": {
+        "ESSENTIAL": "Essential",
+        "LUXE": "Luxe",
+        "SIGNATURE": "Signature"
+      },
+      "verified": "Verified venue"
+    },
+    "detail": {
+      "about": "About this package",
+      "breadcrumb": {
+        "packages": "Packages"
+      },
+      "capacity": "Guest capacity",
+      "city": "Destination",
+      "duration": "Duration",
+      "guestRange": "{min}–{max} guests",
+      "included": "What's included",
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "notIncluded": "Not included",
+      "priceNote": "Indicative price. Final quote depends on dates, guest count and menu.",
+      "startingFrom": "Starting from",
+      "subtitle": "{city} · {vendor}",
+      "unavailable": "Unavailable dates",
+      "verified": "Verified",
+      "verifiedLabel": "Verification status",
+      "viewVenue": "View {vendor}"
+    },
+    "enquiry": {
+      "bookNow": "Book this package",
+      "dateLabel": "Event date",
+      "genericError": "We couldn't send that enquiry. Please try again.",
+      "guestsLabel": "Guests",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell the venue about your dates, guest count and what matters most to you.",
+      "sending": "Sending…",
+      "sentBody": "The venue team will respond with availability and a detailed quote.",
+      "sentTitle": "Enquiry sent",
+      "submit": "Request a quote",
+      "tooShort": "Please write at least 10 characters so the venue can respond usefully."
+    },
+    "error": {
+      "body": "Something went wrong fetching the collection. This is usually temporary.",
+      "retry": "Try again",
+      "title": "We couldn't load packages"
+    },
+    "filters": {
+      "capacity": "Guest count",
+      "capacityPlaceholder": "e.g. 250",
+      "city": "Destination",
+      "clearAll": "Clear all",
+      "label": "Filters",
+      "sort": "Sort by",
+      "sortOptions": {
+        "CAPACITY_DESC": "Largest capacity",
+        "DEFAULT": "Recommended",
+        "PRICE_ASC": "Price: low to high",
+        "PRICE_DESC": "Price: high to low"
+      },
+      "tier": "Tier",
+      "tierName": {
+        "ESSENTIAL": "Essential",
+        "LUXE": "Luxe",
+        "SIGNATURE": "Signature"
+      }
+    },
+    "list": {
+      "empty": {
+        "body": "Try widening the guest count or clearing a filter to see more of the collection.",
+        "clear": "Clear all filters",
+        "title": "No packages match those filters"
+      },
+      "heading": "Premium Packages",
+      "metadata": {
+        "description": "Browse curated destination wedding packages across India — palaces, beaches, plantations and hill estates, with transparent pricing and full inclusions.",
+        "title": "Premium Wedding Packages | Smart Shaadi"
+      },
+      "pagination": {
+        "label": "Package pages",
+        "next": "Next",
+        "prev": "Previous",
+        "status": "Page {page} of {totalPages}"
+      },
+      "subtitle": "{count, plural, =0 {No packages yet} one {# curated package} other {# curated packages}} across India's destination venues"
+    }
+  },
+  "postMarriage": {
+    "card": {
+      "from": "From",
+      "onRequest": "Price on request",
+      "priceUnit": {
+        "FIXED": "",
+        "PER_HOUR": "per hour",
+        "PER_MONTH": "per month",
+        "PER_PERSON": "per person",
+        "QUOTE": "on request"
+      },
+      "remote": "Delivered remotely"
+    },
+    "detail": {
+      "about": "About this service",
+      "aboutPartner": "About {partner}",
+      "breadcrumb": {
+        "services": "After the Wedding"
+      },
+      "error": {
+        "body": "Something went wrong. This is usually temporary.",
+        "retry": "Try again",
+        "title": "We couldn't load this service"
+      },
+      "moreFrom": "More from {partner}",
+      "price": "Price",
+      "priceNote": "Indicative price. The partner will confirm on enquiry.",
+      "remote": "Delivered remotely across India",
+      "subtitle": "{partner} · {category}"
+    },
+    "enquiry": {
+      "cityLabel": "Your city",
+      "contactLabel": "Preferred contact",
+      "contactOptions": {
+        "EMAIL": "Email",
+        "PHONE": "Phone",
+        "WHATSAPP": "WhatsApp"
+      },
+      "genericError": "We couldn't send that enquiry. Please try again.",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell the partner what you're looking for and when you need it.",
+      "sending": "Sending…",
+      "sentBody": "Our team will connect you with the partner and follow up shortly.",
+      "sentTitle": "Enquiry sent",
+      "submit": "Send enquiry",
+      "tooShort": "Please write at least 10 characters so the partner can respond usefully."
+    },
+    "error": {
+      "body": "Something went wrong fetching the list. This is usually temporary.",
+      "retry": "Try again",
+      "title": "We couldn't load services"
+    },
+    "filters": {
+      "allCities": "Anywhere",
+      "category": "Category",
+      "city": "City",
+      "clearAll": "Clear all",
+      "label": "Filters",
+      "sort": "Sort by",
+      "sortOptions": {
+        "DEFAULT": "Recommended",
+        "PRICE_ASC": "Price: low to high",
+        "PRICE_DESC": "Price: high to low"
+      }
+    },
+    "list": {
+      "allCategories": "All services",
+      "empty": {
+        "body": "Try another category or clear the filters to see everything on offer.",
+        "clear": "Clear all filters",
+        "title": "No services match those filters"
+      },
+      "heading": "After the Wedding",
+      "metadata": {
+        "description": "Honeymoon planning, home setup, legal name change, gifting registries, counselling and financial planning — the services couples need after the wedding.",
+        "title": "After the Wedding | Smart Shaadi"
+      },
+      "pagination": {
+        "label": "Service pages",
+        "next": "Next",
+        "prev": "Previous",
+        "status": "Page {page} of {totalPages}"
+      },
+      "subtitle": "{count, plural, =0 {No services yet} one {# service} other {# services}} to help you settle into married life"
     }
   }
 }

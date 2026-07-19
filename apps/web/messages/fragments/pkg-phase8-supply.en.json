@@ -1,0 +1,184 @@
+{
+  "packages": {
+    "list": {
+      "metadata": {
+        "title": "Premium Wedding Packages | Smart Shaadi",
+        "description": "Browse curated destination wedding packages across India — palaces, beaches, plantations and hill estates, with transparent pricing and full inclusions."
+      },
+      "heading": "Premium Packages",
+      "subtitle": "{count, plural, =0 {No packages yet} one {# curated package} other {# curated packages}} across India's destination venues",
+      "empty": {
+        "title": "No packages match those filters",
+        "body": "Try widening the guest count or clearing a filter to see more of the collection.",
+        "clear": "Clear all filters"
+      },
+      "pagination": {
+        "label": "Package pages",
+        "prev": "Previous",
+        "next": "Next",
+        "status": "Page {page} of {totalPages}"
+      }
+    },
+    "card": {
+      "tier": {
+        "ESSENTIAL": "Essential",
+        "SIGNATURE": "Signature",
+        "LUXE": "Luxe"
+      },
+      "verified": "Verified venue",
+      "capacity": "Guest capacity",
+      "duration": "Duration",
+      "guestRange": "{min}–{max} guests",
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "startingFrom": "Starting from"
+    },
+    "filters": {
+      "label": "Filters",
+      "clearAll": "Clear all",
+      "city": "Destination",
+      "tier": "Tier",
+      "tierName": {
+        "ESSENTIAL": "Essential",
+        "SIGNATURE": "Signature",
+        "LUXE": "Luxe"
+      },
+      "capacity": "Guest count",
+      "capacityPlaceholder": "e.g. 250",
+      "sort": "Sort by",
+      "sortOptions": {
+        "DEFAULT": "Recommended",
+        "PRICE_ASC": "Price: low to high",
+        "PRICE_DESC": "Price: high to low",
+        "CAPACITY_DESC": "Largest capacity"
+      }
+    },
+    "detail": {
+      "subtitle": "{city} · {vendor}",
+      "breadcrumb": {
+        "packages": "Packages"
+      },
+      "city": "Destination",
+      "capacity": "Guest capacity",
+      "duration": "Duration",
+      "guestRange": "{min}–{max} guests",
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "verified": "Verified",
+      "verifiedLabel": "Verification status",
+      "about": "About this package",
+      "included": "What's included",
+      "notIncluded": "Not included",
+      "unavailable": "Unavailable dates",
+      "startingFrom": "Starting from",
+      "priceNote": "Indicative price. Final quote depends on dates, guest count and menu.",
+      "viewVenue": "View {vendor}"
+    },
+    "enquiry": {
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell the venue about your dates, guest count and what matters most to you.",
+      "tooShort": "Please write at least 10 characters so the venue can respond usefully.",
+      "dateLabel": "Event date",
+      "guestsLabel": "Guests",
+      "submit": "Request a quote",
+      "sending": "Sending…",
+      "bookNow": "Book this package",
+      "sentTitle": "Enquiry sent",
+      "sentBody": "The venue team will respond with availability and a detailed quote.",
+      "genericError": "We couldn't send that enquiry. Please try again."
+    },
+    "error": {
+      "title": "We couldn't load packages",
+      "body": "Something went wrong fetching the collection. This is usually temporary.",
+      "retry": "Try again"
+    }
+  },
+  "postMarriage": {
+    "list": {
+      "metadata": {
+        "title": "After the Wedding | Smart Shaadi",
+        "description": "Honeymoon planning, home setup, legal name change, gifting registries, counselling and financial planning — the services couples need after the wedding."
+      },
+      "heading": "After the Wedding",
+      "subtitle": "{count, plural, =0 {No services yet} one {# service} other {# services}} to help you settle into married life",
+      "allCategories": "All services",
+      "empty": {
+        "title": "No services match those filters",
+        "body": "Try another category or clear the filters to see everything on offer.",
+        "clear": "Clear all filters"
+      },
+      "pagination": {
+        "label": "Service pages",
+        "prev": "Previous",
+        "next": "Next",
+        "status": "Page {page} of {totalPages}"
+      }
+    },
+    "card": {
+      "from": "From",
+      "onRequest": "Price on request",
+      "priceUnit": {
+        "FIXED": "",
+        "PER_HOUR": "per hour",
+        "PER_MONTH": "per month",
+        "PER_PERSON": "per person",
+        "QUOTE": "on request"
+      },
+      "remote": "Delivered remotely"
+    },
+    "filters": {
+      "label": "Filters",
+      "clearAll": "Clear all",
+      "category": "Category",
+      "city": "City",
+      "allCities": "Anywhere",
+      "sort": "Sort by",
+      "sortOptions": {
+        "DEFAULT": "Recommended",
+        "PRICE_ASC": "Price: low to high",
+        "PRICE_DESC": "Price: high to low"
+      }
+    },
+    "detail": {
+      "subtitle": "{partner} · {category}",
+      "breadcrumb": {
+        "services": "After the Wedding"
+      },
+      "about": "About this service",
+      "aboutPartner": "About {partner}",
+      "moreFrom": "More from {partner}",
+      "price": "Price",
+      "priceNote": "Indicative price. The partner will confirm on enquiry.",
+      "remote": "Delivered remotely across India",
+      "error": {
+        "title": "We couldn't load this service",
+        "body": "Something went wrong. This is usually temporary.",
+        "retry": "Try again"
+      }
+    },
+    "enquiry": {
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell the partner what you're looking for and when you need it.",
+      "tooShort": "Please write at least 10 characters so the partner can respond usefully.",
+      "contactLabel": "Preferred contact",
+      "contactOptions": {
+        "EMAIL": "Email",
+        "PHONE": "Phone",
+        "WHATSAPP": "WhatsApp"
+      },
+      "cityLabel": "Your city",
+      "submit": "Send enquiry",
+      "sending": "Sending…",
+      "sentTitle": "Enquiry sent",
+      "sentBody": "Our team will connect you with the partner and follow up shortly.",
+      "genericError": "We couldn't send that enquiry. Please try again."
+    },
+    "error": {
+      "title": "We couldn't load services",
+      "body": "Something went wrong fetching the list. This is usually temporary.",
+      "retry": "Try again"
+    }
+  },
+  "nav": {
+    "packages": "Premium Packages",
+    "postMarriage": "After the Wedding"
+  }
+}
