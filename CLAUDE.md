@@ -226,6 +226,43 @@ visible (chat, logs, screenshots). Update: Railway env vars + Vercel env vars + 
 
 ---
 
+## CI: reproducing failures that only happen on GitHub Actions
+
+**A green local run proves less than it looks.** Two traps, both hit on 2026-07-19:
+
+1. **Turbo cache lies.** `pnpm type-check` can report `FULL TURBO — 11 successful` in 139 ms
+   purely from cache while CI (always a cold cache) fails. Always re-run with
+   `pnpm exec turbo type-check --force` before believing a green result. Never
+   `pnpm type-check -- --force` — that breaks with TS5093.
+
+2. **Gitignored-but-required files.** These exist on your machine and never in CI, and
+   `git status` stays clean because ignored files aren't reported. The one that bit us:
+   `apps/web/next-env.d.ts` is gitignored (Next's own recommendation) but is what pulls in
+   `next/image-types/global`, which declares `*.webp` imports. Next regenerates it on
+   `next dev` / `next build`, but CI runs `type-check` *before* any build — so every static
+   image import failed with TS2307 in CI and passed locally. Fixed by a tracked
+   `apps/web/types/next-image-modules.d.ts` carrying the same reference directives.
+
+**To reproduce CI exactly, clone the tracked tree into a scratch dir** — this is the only
+reliable way to catch class 2:
+
+```bash
+rm -rf /tmp/cirepro && git clone -q --depth 1 file://$HOME/vivahOS /tmp/cirepro
+cd /tmp/cirepro && pnpm install --frozen-lockfile && pnpm type-check && pnpm lint
+```
+
+**A red Quality Gate skips almost everything.** Type-check failing means Unit Tests, AI
+Service Tests, AI Evals, Build, E2E and Create Release all report **Skipped**, not failed.
+"1 failing, 2 successful, 7 skipped" is not a mostly-passing pipeline — it's a pipeline that
+barely ran. Vercel deploys anyway; it does not gate on GitHub Actions.
+
+**Shell gotcha for agents:** through the `Bash tool → wsl.exe → bash -lc` boundary,
+`$(...)` command substitution and `$var` loop variables are silently stripped to empty.
+A prod-DB probe written that way quietly fell back to `localhost:5433` and looked like a
+connection error. Use `... | xargs -I@ cmd @` pipelines and literal filenames instead.
+
+---
+
 ## Tech Stack (Full)
 
 ```

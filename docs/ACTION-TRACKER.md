@@ -6,8 +6,8 @@
 > **Current phase:** Code-ready (Phases 1–8 shipped); blocked on external registrations + Colonel's decisions
 >
 > **Two facts at the top:**
-> - **~28 commits sit unpushed on `main`.** Only you can push (credentials). Nothing is live.
-> - **Nothing is live.** Every contract success criterion is a *measured live outcome* (lower one-sided rejection rates, vendor renewals, SEO ranking within 90 days). None can begin accruing until launch. Engineering is ~90% complete; contractual delivery on the success criteria is near zero. That distinction is the single most important thing in this document.
+> - **`main` is pushed and in sync with `origin/main`.** Infrastructure is deployed: Vercel serves the web app, and Railway runs api (`api.smartshaadi.co.in`), ai-service, Postgres and Redis — all Online. Production Postgres is current through migration 0039.
+> - **No paying users are live.** Every contract success criterion is a *measured live outcome* (lower one-sided rejection rates, vendor renewals, SEO ranking within 90 days). None can begin accruing until real users transact, which is gated on the Table 2 registrations (Razorpay, MSG91 DLT, legal). Engineering is ~90% complete; contractual delivery on the success criteria is near zero. That distinction is the single most important thing in this document.
 
 ---
 
@@ -17,7 +17,9 @@
 
 | Item | Why it matters | Blocked by | Done when | Status |
 |------|-------|-----------|-----------|--------|
-| Apply migration 0031_support_tickets to prod | Support ticket workflow is fully coded but inaccessible on prod until schema lands. Locally verified; not on Railway. | None (engineering-owned) | Migration applied via Railway SQL console + verified (SELECT to_regclass('public.support_tickets') returns non-null) | 🟡 READY TO APPLY (Ashwin) |
+| ~~Apply migration 0031_support_tickets to prod~~ | Was listed as pending; a live check on 2026-07-19 found `support_tickets` / `ticket_events` / `ticket_messages` already present on Railway Postgres. | — | Verified applied | ✅ DONE (was already applied) |
+| ~~Apply migrations 0033, 0036–0039 to prod~~ | Prod was behind the repo by five migrations — virtual dates/retention (0033), destination weddings (0036), Phase-8 supply & post-marriage services (0037), marketing + cities registry (0038), supply→city link (0039). These are the schemas behind features already merged to `main`, so the code was live against a schema that could not serve it. | None (engineering-owned) | Applied 2026-07-19 via psql in dependency order; 116 → 131 tables, zero dropped; `vendors` snapshotted before/after (9 rows, unchanged); 10 cities seeded; idempotency re-verified by re-running 0038 (NOTICE-only, counts stable). | ✅ DONE (2026-07-19) |
+| Reconcile 4 vendors whose free-text city misses the registry | `vendors.city_id` backfill in 0038 matches on exact name, so 5 of 9 vendors linked. Unlinked: **Cinematic Vows Films (Bengaluru — registry says "Bangalore", same city, spelling mismatch)**, Glamour Bridal Makeup (Chandigarh), Dhol Beats Live (Amritsar), Vedic Rituals Pandit Ji (Varanasi). The last three are genuinely outside the 10-city registry. | None (engineering-owned) | Bengaluru→Bangalore aliased or vendor row corrected; a decision recorded on whether Chandigarh/Amritsar/Varanasi join the city registry. | 🟡 OPEN (Ashwin, low risk) |
 | Free-tier daily-view quota + tier-feature reconciliation | Top outstanding revenue work identified in ROADMAP (line 242). Users on free tier can view unlimited profiles today; premium tiers have no differentiation in visibility or AI features. This is the blocker for real monetization. Repricing also ships this sprint: ₹499/₹999 monthly, ₹3,999/₹7,999 yearly, plus quarterly tier. | None (engineering-owned, actively building) | Feature gates built + tested (pnpm test:tier-gates green); view quota enforced in /api/v1/matches endpoint; Premium/Standard plans gate chat, video, match-request features in UI; quota errors return 429 + retry-after header. Quota ships behind `VIEW_QUOTA_ENABLED=false` (default OFF, flip ON Week 1 post-launch after calibration). | 🟡 LANDING THIS SPRINT (teammate T2 actively building) |
 | Staging SLO calibration (measure real traffic) | k6 baseline exists but is loopback-only (vendors p95=21ms, feed p95=16ms — floor, not ceiling). Real traffic measurement post-launch will reveal actual latency, cache hit rates, queue depth. Needed for alerting thresholds. | Launch happens (requires Table 2 external approvals) | Real traffic observed for 24h+ post-launch; p95 latencies recorded in `docs/handover/SLO-AND-ALERTING.md`; alerts wired to BetterStack; no user-facing 5xx errors in first week. | 🟡 BLOCKED (post-launch, Week 1) |
 | Mobile store submission (iOS App Store + Google Play) | Web platform is live and valuable; mobile multiplies addressable market. Both stores require developer enrollment, build signing, and review (~2–6 weeks per store). Apps are built (commit `35a6c76`): Phase 7 feature parity, design polish merged, type-check + jest all green. | Colonel's enrollment (Table 2 items) | App Store build + binaries submitted; Play Store submission in queue; both in review. Estimated 3–6 weeks after enrollment approvals. | 🔴 BLOCKED (Colonel's side, Table 2) |
@@ -80,7 +82,7 @@
 
 2. **Razorpay live account (highest ROI).** Col.: sign merchant agreement this week. Ashwin: wire credentials + smoke-test webhook. This unblocks real revenue. Lead time: ~1 week. Ship this FIRST of Table 2.
 
-3. **Apply migration 0031_support_tickets to prod.** Ashwin: write it up as a Railway SQL console operation (additive, idempotent). Support ticket UI will work end-to-end only after this lands. Low risk, high velocity.
+3. ~~**Apply migration 0031_support_tickets to prod.**~~ Done — 0031 was already applied, and the five that *were* missing (0033, 0036–0039) landed on 2026-07-19. **Superseded by: restore Railway auto-deploy.** Until the Railway GitHub App regains access to `ashwinhingve/vivah`, every api and ai-service release is a manual click, which is the main day-to-day drag on velocity.
 
 4. **MSG91 DLT + legal sign-off (parallel).** Col.: start both this week. Lead times are 2–4 weeks for MSG91 (government), ~1–2 weeks for legal. No dependencies. If either slips, launch slips.
 
@@ -102,8 +104,10 @@
 
 **GO / NO-GO: 🔴 NO-GO (as of 2026-07-19)**
 
-- **Code:** 🟢 All 8 phases complete and locally verified. **No staging or production deployment yet.** Code has never run outside local machines.
-- **Engineering blockers:** 🟢 None (0031 ready to apply; free-tier quota landing this sprint behind `VIEW_QUOTA_ENABLED=false`).
+- **Code:** 🟢 All 8 phases complete. `main` is pushed; Vercel has deployed the web app and Railway runs api + ai-service + Postgres + Redis, all Online. Prod Postgres is current through 0039.
+- **CI:** 🟢 Quality Gate was red on `main` (type-check, then lint) until 2026-07-19 — see the note below; both fixed. Note that a red Quality Gate **skips** Unit Tests, AI Service Tests, Build, E2E and Create Release, so a single red X meant almost nothing in the pipeline had actually run.
+- **Railway auto-deploy:** 🔴 Both services show `GitHub Repo not found` — Railway's GitHub App has lost access to `ashwinhingve/vivah`, so pushes do not trigger builds and deploys must be done by hand. Fix at github.com/settings/installations → Railway → grant repo access; the ai-service must also be **Ejected** from its template upstream before it can take a normal source-repo connection.
+- **Engineering blockers:** 🟢 None (free-tier quota landing this sprint behind `VIEW_QUOTA_ENABLED=false`).
 - **External blockers:** 🔴 3 critical path items (Table 2 A1–A3). Razorpay: ~1 week. MSG91 DLT: ~2–4 weeks (TRAI regulatory, long pole). Legal: ~1–2 weeks.
 - **Colonel's decisions:** 🟡 4 pending (Table 4). Q4 (community visibility: free or members-only?) is the swing variable.
 
