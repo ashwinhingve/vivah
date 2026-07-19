@@ -85,10 +85,10 @@
       "pricing": "Smart Pricing",
       "retention": "Retention",
       "marketing": "Marketing",
-      "cities": "Cities"
-    },
-    "packages": "Premium Packages",
-    "postMarriage": "After the Wedding"
+      "cities": "Cities",
+      "packages": "Premium Packages",
+      "postMarriage": "After the Wedding"
+    }
   },
   "auth": {
     "login": {

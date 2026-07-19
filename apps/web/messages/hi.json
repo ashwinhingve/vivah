@@ -85,10 +85,10 @@
       "pricing": "स्मार्ट प्राइसिंग",
       "retention": "रिटेंशन",
       "marketing": "मार्केटिंग",
-      "cities": "शहर"
-    },
-    "packages": "प्रीमियम पैकेज",
-    "postMarriage": "विवाह के बाद"
+      "cities": "शहर",
+      "packages": "प्रीमियम पैकेज",
+      "postMarriage": "विवाह के बाद"
+    }
   },
   "auth": {
     "login": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
@@ -42,6 +42,21 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Escape closes the menu and returns focus to the trigger (expected
+  // keyboard contract for role="menu"; the backdrop only covers pointer users).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   const { data: session } = authClient.useSession();
   const user = session?.user;
@@ -72,6 +87,7 @@ export function UserMenu({ photoUrl }: { photoUrl?: string | null }) {
     <div className="relative">
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         aria-label={t('userMenu')}

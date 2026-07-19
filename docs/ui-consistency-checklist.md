@@ -161,6 +161,73 @@ follow-ups below. Respected prior documented intentional deviations.
   backdrop keyboard (Escape already works), pricing fallback-price banner, admin
   placeholder-section labels, remaining mobile-grid `sm:` steps.
 
+## UX Audit Wave 4 — 2026-07-19
+
+Web-only wave (a parallel session owned `apps/mobile`). 3-agent exploration +
+prior-wave deferred backlog + live browser verification against the dev stack.
+Commits are on the branch that was checked out at the time
+(`feat/mobile-ui-polish` — the shared worktree was on it); all Wave-4 commits
+touch only `apps/web` + `docs` and cherry-pick cleanly onto `main`.
+
+### Bugs fixed (found live in browser console)
+
+| Fix | File |
+|---|---|
+| **P0** `${color}NN` alpha suffix on `var(--color-*)` = invalid CSS — RSVP badge tints and Guna/dosha/FII pills rendered transparent. → `color-mix(in srgb, <c> N%, transparent)` (works for CSS vars and the hex strings the FII API returns — verified via computed styles: broken form discards to inherited color, fixed form yields real alpha) | `wedding/RsvpStats.tsx`, `fii/FiiDetailPanel.client.tsx`, `fii/FiiCardBadge.client.tsx`, `profile/CompatibilityDisplay.tsx` (4 spots) |
+| **P0** `/admin` console: 176× "two children with the same key" — six sibling `AdminSectionBoundary`s all keyed `{refreshedAt}` → per-section key prefixes | `admin/page.tsx` |
+| **P0** `nav.app.packages` / `nav.app.postMarriage` MISSING_MESSAGE on every page — keys were nested at `nav.*` instead of `nav.app.*` in both locales | `messages/en.json`, `messages/hi.json` |
+| **P0** AppNav/TopNav hydration mismatch for every non-INDIVIDUAL role — role came from client-only `useSession()` (SSR fell back to INDIVIDUAL). → layout fetches `/api/auth/me` and seeds `initialRole` | `(app)/layout.tsx`, `layout/AppNav.client.tsx`, `layout/TopNav.client.tsx` |
+| **P1** `/welcome` "Take me to my matches" unreliable (the e2e-helper workaround memorialized this): Server Action set cookie + `redirect('/feed')` in one response and the middleware gate bounced the redirected render before the browser had the cookie. → action only sets the cookie; new `WelcomeCta.client.tsx` awaits it then navigates. Verified working in browser | `welcome/actions.ts`, `welcome/page.tsx`, `welcome/WelcomeCta.client.tsx` |
+| **P2** UserMenu had no Escape-to-close (role="menu" keyboard contract) → Escape closes + returns focus to trigger | `ui/UserMenu.client.tsx` |
+
+### Design-system consistency
+
+- `ui/dialog.tsx` radius `rounded-t-xl/sm:rounded-xl` → `rounded-t-2xl/sm:rounded-2xl` (card standard).
+- `chat/MediaGallery.client.tsx`: photo tiles `rounded-md`→`rounded-xl`; sheet gains `role="dialog" aria-modal aria-label`; close button 36→44px; tab pills `min-h-[44px]`. (Escape already worked.)
+- Rental surfaces adopt `ui/Button`: `RentalCard` CTA (`asChild`+Link), `BookingForm` submit (`loading` prop). `CategoryTabs` left as-is — it's a correct chip/tab pattern (rounded-full, `role="tab"`, 44px), not a Button clone.
+- `RsvpStats` second card `rounded-xl shadow-sm` → `rounded-2xl shadow-card`.
+- **Intentional, not changed**: `ui/skeleton.tsx` `rounded-md` matches `SkeletonBlock`'s line-level convention (cards/avatars override to `rounded-2xl`/`rounded-full`).
+
+### Dead code removed
+
+- `components/dashboard/QuickActions.tsx`, `components/dashboard/ActivityFeed.tsx` (zero importers re-verified; `components/wedding/*` variants are the live ones — flagged since Day 5-6).
+
+### Performance
+
+- `loading="lazy" decoding="async"` on below-fold raw `<img>`s: store ProductCard / VendorProductCard / CartDrawer / CartPage / product-detail thumbnails, rental card, services partner logo, kundli chart, conversation avatars. Detail-page heroes stay eager.
+- `requests/RequestsClient.client.tsx` (871 lines): `memo(RequestCard)` + handlers take the request so the parent passes stable `useCallback`s + `useMemo` list partitions — a single card's busy state / error flash no longer re-renders all ~100 cards.
+- `profile/ProfileDetailTabs.client.tsx` assessed: no memoization needed (one panel renders at a time, no high-frequency state) — gained proper `tablist/tab/tabpanel` + `aria-selected` semantics instead.
+
+### Forms / mobile
+
+- bookings `BookingForm`: add-on rows stack below 640px (name full-row; qty/price keep usable width at 360px), 44px add/remove targets, `aria-label`s on row inputs, error `role="alert"`.
+
+### E2E / a11y coverage
+
+- `e2e/a11y.spec.ts`: new authenticated block — login qa-ind-01, axe-scan `/en/dashboard`, `/en/feed`, `/en/requests` (soft-assert per route).
+- `e2e/demo.spec.ts`: `/en` locale prefixes (predated the `[locale]` router move).
+- Icon-only-button sweep: scripted scan found 14 candidates — all false positives (visible text in `{}` expressions) except a dev tool; `jsx-a11y/alt-text` at error severity already guarantees alt coverage.
+
+### Deferred (unchanged from Wave 3 + new)
+
+List virtualization · onboarding client→server refactor · `<html lang>` relocation ·
+`text-muted-foreground`/`text-text-muted` rename · circular-ring SVG dedup ·
+EmptyState/Skeleton shared-vs-ui consolidation · `/feed` bundle split ·
+BookingForm/RequestsClient full i18n retrofit (forms are wholly monolingual — needs
+a dedicated keys pass, not just error strings).
+
+### Pre-push gate results (2026-07-19)
+
+| Step | Status |
+|---|---|
+| `pnpm exec turbo type-check --force` (web + deps) | ✅ clean |
+| `pnpm --filter @smartshaadi/web build` | ✅ |
+| `pnpm lint` (web) | ✅ warnings only, all pre-existing |
+| Browser verify (dev stack, Playwright) | ✅ `/admin` console 10 errors → 0; `/requests` `/rentals` `/store` `/feed` clean at 1280 + `/admin` at 375; welcome CTA now navigates; color-mix verified via `getComputedStyle` |
+| `pnpm e2e` | ⏸ axe auth-block authored; full run needs seeded QA accounts (`db:seed:test-accounts`) — store/rentals/feed had no seed data in this DB |
+
+## UX Audit Wave 3 gate — 2026-05-31 (kept for history)
+
 ### Pre-push gate results (2026-05-31)
 
 | Step | Status |

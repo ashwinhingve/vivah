@@ -21,12 +21,13 @@ import { navForRole, filterForDemo, activeNavHref } from './nav-config';
  * `<AppNav>` bottom bar. Role-aware: shares the same per-role nav set as AppNav
  * via `navForRole`, so every role sees its own links (not the INDIVIDUAL set).
  */
-export function TopNav() {
+export function TopNav({ initialRole }: { initialRole?: string }) {
   const t = useTranslations('nav.app');
   const pathname = usePathname() ?? '';
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const role = (session?.user as { role?: string } | undefined)?.role ?? 'INDIVIDUAL';
+  // Server-seeded role avoids the SSR/client nav mismatch (see AppNav).
+  const role = (session?.user as { role?: string } | undefined)?.role ?? initialRole ?? 'INDIVIDUAL';
 
   const { primary, moreGroups } = navForRole(role);
   const items = filterForDemo(primary);
