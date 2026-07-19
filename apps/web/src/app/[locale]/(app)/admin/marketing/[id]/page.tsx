@@ -32,10 +32,11 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
     return await redirect(me.role === 'SUPPORT' ? '/support' : '/dashboard');
   }
 
+  // content + sends endpoints return plain arrays in `data`.
   const [campaign, content, sends] = await Promise.all([
     fetchAuth<MarketingCampaign>(`/api/v1/admin/marketing/${id}`),
-    fetchAuth<{ items: CampaignContent[] }>(`/api/v1/admin/marketing/content/${id}`),
-    fetchAuth<{ items: CampaignSend[] }>(`/api/v1/admin/marketing/${id}/sends?limit=50`),
+    fetchAuth<CampaignContent[]>(`/api/v1/admin/marketing/content/${id}`),
+    fetchAuth<CampaignSend[]>(`/api/v1/admin/marketing/${id}/sends?limit=50`),
   ]);
 
   if (!campaign) {
@@ -58,7 +59,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         />
 
         {/* Campaign metadata and transition buttons */}
-        <div className="mt-6 rounded-2xl bg-white p-6 shadow-card">
+        <div className="mt-6 rounded-2xl bg-surface p-6 shadow-card">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">{t('campaignStatus')}</p>
@@ -74,13 +75,13 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
 
         {/* Content panel */}
         <div className="mt-6">
-          <ContentPanel campaignId={id} content={content?.items ?? []} />
+          <ContentPanel campaignId={id} content={content ?? []} />
         </div>
 
         {/* Sends table */}
-        {sends && sends.items.length > 0 && (
+        {sends && sends.length > 0 && (
           <div className="mt-6">
-            <CampaignSendsTable sends={sends.items} />
+            <CampaignSendsTable sends={sends} />
           </div>
         )}
       </div>

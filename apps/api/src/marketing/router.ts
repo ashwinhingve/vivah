@@ -24,12 +24,14 @@ import {
   getOverviewStats,
 } from './service.js';
 import { CreateMarketingCampaignSchema, UpdateMarketingCampaignSchema, CampaignTransitionSchema, MarketingCampaignsQuerySchema, CampaignSendsQuerySchema } from '@smartshaadi/schemas';
-import { authorize } from '../auth/middleware.js';
+import { authenticate, authorize } from '../auth/middleware.js';
 
 export const marketingRouter = Router();
 
-// Middleware: all routes require ADMIN
-marketingRouter.use(authorize(['ADMIN']));
+// Middleware: all routes require ADMIN. `authenticate` MUST precede
+// `authorize` — authorize only reads req.user, it never resolves the session,
+// so on its own every request 401s regardless of cookie.
+marketingRouter.use(authenticate, authorize(['ADMIN']));
 
 /**
  * GET /api/v1/admin/marketing

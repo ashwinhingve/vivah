@@ -9,6 +9,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { CityDensityReport, CityStatus } from '@smartshaadi/types';
 
+// Cross-origin api base (ADR-002): cookies only travel with credentials:'include'.
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
 const STATUS_COLORS: Record<CityStatus, string> = {
   ACTIVE: 'bg-success/10',
   EXPANSION: 'bg-gold/10',
@@ -45,8 +48,9 @@ export function CityDetail({ density }: { density: CityDensityReport }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/v1/admin/cities/${density.city.id}`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/cities/${density.city.id}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });

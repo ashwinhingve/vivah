@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { MarketingCampaign } from '@smartshaadi/types';
 
+// Cross-origin api base (ADR-002): cookies only travel with credentials:'include'.
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
 interface CampaignTransitionButtonsProps {
   campaign: MarketingCampaign;
 }
@@ -30,8 +33,9 @@ export function CampaignTransitionButtons({ campaign }: CampaignTransitionButton
   const handleTransition = async (action: Action) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/admin/marketing/${campaign.id}/transition`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/marketing/${campaign.id}/transition`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
       });
@@ -56,11 +60,7 @@ export function CampaignTransitionButtons({ campaign }: CampaignTransitionButton
           key={action}
           onClick={() => handleTransition(action)}
           disabled={loading}
-          className="inline-flex h-11 items-center rounded-lg px-4 text-sm font-semibold transition-colors disabled:opacity-50"
-          style={{
-            backgroundColor: getActionColor(action),
-            color: 'white',
-          }}
+          className={`inline-flex h-11 items-center rounded-lg px-4 text-sm font-semibold text-primary-foreground transition-colors disabled:opacity-50 ${ACTION_TONE[action]}`}
         >
           {t(`actions.${action}`)}
         </button>
@@ -69,13 +69,11 @@ export function CampaignTransitionButtons({ campaign }: CampaignTransitionButton
   );
 }
 
-function getActionColor(action: Action): string {
-  const colors: Record<Action, string> = {
-    approve: '#059669', // green
-    activate: '#0E7C7B', // teal
-    pause: '#D97706', // amber
-    resume: '#0E7C7B', // teal
-    complete: '#6B7280', // gray
-  };
-  return colors[action];
-}
+/** Brand-token tones per action — no raw hex (design-system rule). */
+const ACTION_TONE: Record<Action, string> = {
+  approve:  'bg-success hover:bg-success/90',
+  activate: 'bg-teal hover:bg-teal/90',
+  pause:    'bg-warning hover:bg-warning/90',
+  resume:   'bg-teal hover:bg-teal/90',
+  complete: 'bg-muted-foreground hover:bg-muted-foreground/90',
+};

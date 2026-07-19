@@ -1,7 +1,68 @@
 {
   "adminMarketing": {
     "metadata": {
-      "title": "मार्केटिंग अभियान"
+      "title": "मार्केटिंग अभियान",
+      "campaignDetail": "अभियान विवरण",
+      "newCampaign": "नया अभियान"
+    },
+    "form": {
+      "heading": "नया अभियान",
+      "subtitle": "ऑडियंस, ट्रिगर और चैनल चुनें — सामग्री अगले चरण में",
+      "name": "अभियान का नाम",
+      "namePlaceholder": "जैसे स्वागत श्रृंखला",
+      "description": "विवरण (वैकल्पिक)",
+      "triggerType": "ट्रिगर",
+      "triggers": {
+        "EVENT": "प्रोडक्ट इवेंट",
+        "SCHEDULED": "निर्धारित",
+        "SEGMENT_SWEEP": "दैनिक सेगमेंट स्वीप"
+      },
+      "eventHook": "कब चलेगा",
+      "hooks": {
+        "user_registered": "उपयोगकर्ता पंजीकृत",
+        "kyc_approved": "KYC स्वीकृत",
+        "booking_created": "बुकिंग बनी"
+      },
+      "segment": "ऑडियंस सेगमेंट",
+      "segments": {
+        "new_incomplete_48h": "नए उपयोगकर्ता, अधूरी प्रोफ़ाइल (48 घंटे)",
+        "inactive_14d": "14+ दिन निष्क्रिय",
+        "high_intent_7d": "उच्च रुचि (पिछले 7 दिन)",
+        "vendors_new_7d": "नए स्वीकृत वेंडर (7 दिन)",
+        "vendors_idle_30d": "निष्क्रिय वेंडर (30 दिन, कोई बुकिंग नहीं)"
+      },
+      "channels": "चैनल",
+      "channelNames": {
+        "inapp": "इन-ऐप",
+        "email": "ईमेल",
+        "push": "पुश",
+        "sms": "SMS",
+        "whatsapp": "व्हाट्सऐप"
+      },
+      "channelsHint": "हर चैनल उपयोगकर्ता की सूचना प्राथमिकताओं और चैनल गो-लाइव फ़्लैग का पालन करता है",
+      "templateKey": "सामग्री टेम्पलेट",
+      "templates": {
+        "welcome_series": "स्वागत श्रृंखला",
+        "winback_inactive": "वापसी (निष्क्रिय)",
+        "seasonal_muhurat": "मौसमी मुहूर्त"
+      },
+      "conversionGoal": "रूपांतरण लक्ष्य",
+      "goals": {
+        "PROFILE_COMPLETED": "प्रोफ़ाइल पूर्ण",
+        "BOOKING_CREATED": "बुकिंग बनी",
+        "SUBSCRIPTION_STARTED": "सदस्यता शुरू",
+        "ANY": "कोई भी गतिविधि"
+      },
+      "frequencyCap": "प्रति उपयोगकर्ता / सप्ताह अधिकतम संदेश",
+      "attributionWindow": "एट्रिब्यूशन विंडो (दिन)",
+      "create": "अभियान बनाएं",
+      "creating": "बनाया जा रहा है…",
+      "cancel": "रद्द करें",
+      "errors": {
+        "nameTooShort": "नाम कम से कम 3 अक्षरों का होना चाहिए",
+        "noChannel": "कम से कम एक चैनल चुनें",
+        "createFailed": "अभियान नहीं बन सका — कृपया फिर से प्रयास करें"
+      }
     },
     "backToAdmin": "एडमिन पर वापस जाएं",
     "heading": "मार्केटिंग अभियान",
@@ -53,16 +114,13 @@
     "backToMarketing": "अभियानों पर वापस जाएं",
     "noDescription": "कोई विवरण प्रदान नहीं किया गया",
     "campaignStatus": "अभियान की स्थिति",
-    "metadata": {
-      "campaignDetail": "अभियान विवरण"
-    },
     "contentPanel": {
       "title": "सामग्री (कॉपी)",
       "generateCopy": "कॉपी जेनरेट करें",
       "generating": "जेनरेट कर रहे हैं...",
       "subject": "विषय पंक्ति",
-      "bodyShort": "छोटा शरीर (एसएमएस/पुश)",
-      "bodyLong": "लंबा शरीर (ईमेल)",
+      "bodyShort": "संक्षिप्त संदेश (SMS/पुश)",
+      "bodyLong": "विस्तृत संदेश (ईमेल)",
       "cta": "कार्य के लिए कॉल",
       "noContent": "अभी तक कोई सामग्री नहीं। जेनरेट करें या मैन्युअल रूप से जोड़ें।",
       "edit": "संपादित करें",

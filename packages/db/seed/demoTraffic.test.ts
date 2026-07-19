@@ -221,12 +221,19 @@ test('dataset: anchor matches generator constant', () => {
     }
   };
 
-  await dbTest('database: 10 cities in registry', async () => {
+  await dbTest('database: the 10 reference cities exist in the registry', async () => {
     const pool = new pg.Pool({ connectionString: url });
     try {
-      const res = await pool.query('SELECT COUNT(*)::int as cnt FROM cities');
+      // ≥, not ==: the registry legitimately grows (e.g. Phase 8 supply added
+      // PLANNED destination cities). The invariant is that the 10 reference
+      // rows from migration 0038 are all present.
+      const slugs = ['mumbai', 'delhi', 'bangalore', 'hyderabad', 'pune',
+        'jaipur', 'ahmedabad', 'lucknow', 'indore', 'bhopal'];
+      const res = await pool.query(
+        'SELECT COUNT(*)::int as cnt FROM cities WHERE slug = ANY($1)', [slugs],
+      );
       const count = Number(res.rows[0]?.cnt ?? 0);
-      assert.equal(count, 10, `Expected 10 cities, got ${count}`);
+      assert.equal(count, 10, `Expected all 10 reference cities, got ${count}`);
     } finally {
       await pool.end();
     }

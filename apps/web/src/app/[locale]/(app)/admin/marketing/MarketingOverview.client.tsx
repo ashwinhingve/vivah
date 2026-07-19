@@ -67,7 +67,7 @@ export function MarketingOverview({ stats, campaigns }: MarketingOverviewProps) 
           <div className="mt-4 flex justify-center">
             <Link
               href="/admin/marketing/new"
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-white hover:bg-primary/90"
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-5 w-5" />
               {t('actions.createCampaign')}
@@ -80,7 +80,7 @@ export function MarketingOverview({ stats, campaigns }: MarketingOverviewProps) 
             <h3 className="font-heading text-lg font-semibold text-primary">{t('table.title')}</h3>
             <Link
               href="/admin/marketing/new"
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-white hover:bg-primary/90"
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-5 w-5" />
               {t('actions.new')}

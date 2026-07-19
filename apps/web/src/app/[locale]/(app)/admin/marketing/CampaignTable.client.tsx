@@ -26,7 +26,7 @@ export function CampaignTable({ campaigns, statusToneMap }: CampaignTableProps) 
   const tSegment = useTranslations('marketingSegments');
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gold-muted bg-white shadow-card">
+    <div className="overflow-x-auto rounded-2xl border border-gold-muted bg-surface shadow-card">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gold-muted bg-background">

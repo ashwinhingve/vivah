@@ -6,6 +6,9 @@ import { Card } from '@/components/ui/card';
 import { Zap } from 'lucide-react';
 import type { CampaignContent } from '@smartshaadi/types';
 
+// Cross-origin api base (ADR-002): cookies only travel with credentials:'include'.
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
 interface ContentPanelProps {
   campaignId: string;
   content: CampaignContent[];
@@ -24,8 +27,9 @@ export function ContentPanel({ campaignId, content }: ContentPanelProps) {
   const handleRequestGeneration = async () => {
     setGenerating(true);
     try {
-      const res = await fetch(`/api/v1/admin/marketing/content/${campaignId}/generate`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/marketing/content/${campaignId}/generate`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
@@ -45,7 +49,7 @@ export function ContentPanel({ campaignId, content }: ContentPanelProps) {
         <button
           onClick={handleRequestGeneration}
           disabled={generating}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50 hover:bg-primary/90"
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 hover:bg-primary/90"
         >
           <Zap className="h-5 w-5" />
           {generating ? t('contentPanel.generating') : t('contentPanel.generateCopy')}
@@ -133,7 +137,7 @@ function ContentPreview({ language, content, onEdit }: ContentPreviewProps) {
           {content.status === 'DRAFT' && (
             <button
               onClick={() => approveContent(content.id)}
-              className="ml-2 inline-flex h-11 items-center rounded-lg bg-success px-4 text-sm font-semibold text-white hover:bg-success/90"
+              className="ml-2 inline-flex h-11 items-center rounded-lg bg-success px-4 text-sm font-semibold text-primary-foreground hover:bg-success/90"
             >
               {t('contentPanel.approve')}
             </button>
@@ -164,8 +168,9 @@ function ContentEditForm({ language, campaignId, initialContent, onClose }: Cont
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/v1/admin/marketing/content/${campaignId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/marketing/content/${campaignId}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           language: language as 'en' | 'hi',
@@ -231,7 +236,7 @@ function ContentEditForm({ language, campaignId, initialContent, onClose }: Cont
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex h-11 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50 hover:bg-primary/90"
+            className="inline-flex h-11 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 hover:bg-primary/90"
           >
             {saving ? t('contentPanel.saving') : t('contentPanel.save')}
           </button>
@@ -249,8 +254,9 @@ function ContentEditForm({ language, campaignId, initialContent, onClose }: Cont
 
 async function approveContent(contentId: string) {
   try {
-    const res = await fetch('/api/v1/admin/marketing/content/approve', {
+    const res = await fetch(`${API_BASE}/api/v1/admin/marketing/content/approve`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contentId }),
     });

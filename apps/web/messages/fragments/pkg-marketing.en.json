@@ -1,7 +1,68 @@
 {
   "adminMarketing": {
     "metadata": {
-      "title": "Marketing Campaigns"
+      "title": "Marketing Campaigns",
+      "campaignDetail": "Campaign Details",
+      "newCampaign": "New Campaign"
+    },
+    "form": {
+      "heading": "New Campaign",
+      "subtitle": "Define the audience, trigger and channels — content comes next",
+      "name": "Campaign name",
+      "namePlaceholder": "e.g. Welcome Series",
+      "description": "Description (optional)",
+      "triggerType": "Trigger",
+      "triggers": {
+        "EVENT": "Product event",
+        "SCHEDULED": "Scheduled",
+        "SEGMENT_SWEEP": "Daily segment sweep"
+      },
+      "eventHook": "Fires on",
+      "hooks": {
+        "user_registered": "User registered",
+        "kyc_approved": "KYC approved",
+        "booking_created": "Booking created"
+      },
+      "segment": "Audience segment",
+      "segments": {
+        "new_incomplete_48h": "New users, incomplete profile (48h)",
+        "inactive_14d": "Inactive 14+ days",
+        "high_intent_7d": "High intent (last 7 days)",
+        "vendors_new_7d": "Newly approved vendors (7d)",
+        "vendors_idle_30d": "Idle vendors (30d, no bookings)"
+      },
+      "channels": "Channels",
+      "channelNames": {
+        "inapp": "In-app",
+        "email": "Email",
+        "push": "Push",
+        "sms": "SMS",
+        "whatsapp": "WhatsApp"
+      },
+      "channelsHint": "Each channel still respects the user's notification preferences and channel go-live flags",
+      "templateKey": "Content template",
+      "templates": {
+        "welcome_series": "Welcome series",
+        "winback_inactive": "Win-back (inactive)",
+        "seasonal_muhurat": "Seasonal muhurat"
+      },
+      "conversionGoal": "Conversion goal",
+      "goals": {
+        "PROFILE_COMPLETED": "Profile completed",
+        "BOOKING_CREATED": "Booking created",
+        "SUBSCRIPTION_STARTED": "Subscription started",
+        "ANY": "Any activity"
+      },
+      "frequencyCap": "Max messages per user / week",
+      "attributionWindow": "Attribution window (days)",
+      "create": "Create Campaign",
+      "creating": "Creating…",
+      "cancel": "Cancel",
+      "errors": {
+        "nameTooShort": "Name must be at least 3 characters",
+        "noChannel": "Pick at least one channel",
+        "createFailed": "Could not create the campaign — please try again"
+      }
     },
     "backToAdmin": "Back to Admin",
     "heading": "Marketing Campaigns",
@@ -53,9 +114,6 @@
     "backToMarketing": "Back to Campaigns",
     "noDescription": "No description provided",
     "campaignStatus": "Campaign Status",
-    "metadata": {
-      "campaignDetail": "Campaign Details"
-    },
     "contentPanel": {
       "title": "Content (Copy)",
       "generateCopy": "Generate Copy",
