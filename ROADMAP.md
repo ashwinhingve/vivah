@@ -343,8 +343,21 @@ Brought all 5 non-INDIVIDUAL roles to the INDIVIDUAL quality bar. Full type-chec
 - [ ] NBFC partner API integration (loan referral flow)
 - [ ] EMI calculator in budget tracker
 - [ ] Wedding insurance referral flow
-- [ ] Auto-Marketing Engine (n8n + Claude API, content pipeline)
-- [ ] Multi-city vendor network
+- [x] Auto-Marketing Engine — Sprint J (6.4, migration 0038). Full lifecycle: 5 SQL
+      segments, EVENT/SCHEDULED/SEGMENT_SWEEP triggers (hooks: registration/KYC/booking),
+      Gemini copy via ai-service `/ai/marketing/generate` (en+hi, template fallback),
+      per-language admin approval gate (no dry-run fork — nothing sends until ACTIVE +
+      approved content), consent-gated dispatch (`notification_preferences.marketing`),
+      Redis weekly frequency cap, partial-unique send dedup, sweep-based conversion
+      attribution, `/admin/marketing` dashboard + create form + detail/approval UI.
+      `MARKETING_AUTOMATION_ENABLED` kill-switch (default ON). Validated against seeded
+      demo traffic (150 vendors/50 users/200 bookings), NOT market traffic — conversion
+      tuning still needs launch. Bull queues only, no n8n (architecture rule 1/8).
+- [x] Multi-city vendor network — Sprint J (6.5, migration 0038). `cities` registry
+      (10 reference cities seeded, expansion lifecycle ACTIVE/EXPANSION/PLANNED),
+      `vendors.city_id` backfill (free-text `city` untouched — filters/SEO unchanged),
+      `/admin/cities` ops dashboard (per-city density vs target, coverage, 90d
+      bookings/revenue, unmapped-vendor surfacing), public `GET /api/v1/cities`.
 - [ ] WhatsApp Business API integration
 - [ ] Production deployment — Phase 6 live 🚀
 
