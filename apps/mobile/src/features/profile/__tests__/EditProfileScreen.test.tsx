@@ -1,4 +1,4 @@
-import { render, fireEvent, waitFor, screen } from '@testing-library/react-native';
+import { render, waitFor, screen } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ProfileContentResponse } from '@smartshaadi/types';
 
@@ -64,19 +64,20 @@ describe('EditProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     const getContentMock = jest.mocked(api.profiles.getContent);
     getContentMock.mockResolvedValue(mockProfile);
 
     const useRouterMock = jest.mocked(useRouterModule.useRouter);
-    useRouterMock.mockReturnValue({
+    const mockRouter = {
       back: jest.fn(),
       push: jest.fn(),
       replace: jest.fn(),
       navigate: jest.fn(),
       canGoBack: () => true,
-    } as any);
+    };
+    useRouterMock.mockReturnValue(mockRouter as unknown as ReturnType<typeof useRouterModule.useRouter>);
 
     await render(
       <QueryClientProvider client={queryClient}>
@@ -106,19 +107,20 @@ describe('EditProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     const getContentMock = jest.mocked(api.profiles.getContent);
     getContentMock.mockResolvedValue(mockProfile);
 
     const useRouterMock = jest.mocked(useRouterModule.useRouter);
-    useRouterMock.mockReturnValue({
+    const mockRouter = {
       back: jest.fn(),
       push: jest.fn(),
       replace: jest.fn(),
       navigate: jest.fn(),
       canGoBack: () => true,
-    } as any);
+    };
+    useRouterMock.mockReturnValue(mockRouter as unknown as ReturnType<typeof useRouterModule.useRouter>);
 
     await render(
       <QueryClientProvider client={queryClient}>
@@ -144,20 +146,21 @@ describe('EditProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     // Mock getContent to return a pending promise (loading state)
     const getContentMock = jest.mocked(api.profiles.getContent);
     getContentMock.mockImplementation(() => new Promise(() => {}));
 
     const useRouterMock = jest.mocked(useRouterModule.useRouter);
-    useRouterMock.mockReturnValue({
+    const mockRouter = {
       back: jest.fn(),
       push: jest.fn(),
       replace: jest.fn(),
       navigate: jest.fn(),
       canGoBack: () => true,
-    } as any);
+    };
+    useRouterMock.mockReturnValue(mockRouter as unknown as ReturnType<typeof useRouterModule.useRouter>);
 
     await render(
       <QueryClientProvider client={queryClient}>

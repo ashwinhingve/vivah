@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Text, View, ScrollView, Image } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Screen } from '../../../components/Screen';
 import { Button } from '../../../components/Button';

@@ -29,7 +29,7 @@ import { canUseBiometric, isBiometricEnabled, shouldPromptBiometric } from '@/li
 export default function AppLayout() {
   const { colors } = useThemeColors();
   const router = useRouter();
-  const { data: session, isPending: sessionLoading } = useSession();
+  const { data: session } = useSession();
   const appStateRef = useRef(AppState.currentState);
   const biometricShownRef = useRef(false);
 

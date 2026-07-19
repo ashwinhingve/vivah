@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Text, View, ScrollView } from 'react-native';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Text, View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import { Screen } from '../../../../components/Screen';
 import { Button } from '../../../../components/Button';
-import { LoadingState, ErrorState, EmptyState, describeError } from '../../../../components/States';
+import { LoadingState, ErrorState, EmptyState } from '../../../../components/States';
 import { api } from '../../../../lib/api';
 import { useSession } from '../../../../hooks/useSession';
 import OnboardingBasics from '../../../../features/profile/onboarding/OnboardingBasics';

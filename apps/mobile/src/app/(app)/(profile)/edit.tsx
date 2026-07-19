@@ -8,7 +8,6 @@ import { Input } from '../../../components/Input';
 import { LoadingState, ErrorState, EmptyState, describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import { useSession } from '../../../hooks/useSession';
-import type { ProfileContentResponse } from '@smartshaadi/types';
 
 export default function EditProfileScreen() {
   const router = useRouter();

@@ -15,7 +15,6 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  describeError,
 } from '../../../components/States';
 import { tokens } from '../../../theme/tokens';
 import { useMatchFeed } from '../../../features/matches/hooks';
@@ -43,7 +42,6 @@ export default function MatchFeedScreen() {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     isLoading,
     isError,

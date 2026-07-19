@@ -1,10 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from 'react-native';
@@ -25,11 +23,6 @@ import {
   useBlockProfile,
   useReportProfile,
 } from '../../../features/matches/hooks';
-import {
-  formatCompatibilityScore,
-  getTierColor,
-  getTierLabel,
-} from '../../../features/matches/utils';
 
 /**
  * Profile Detail Screen — Sprint I Track B.
@@ -118,7 +111,7 @@ export default function ProfileDetailScreen() {
         toProfileId: profileId,
       });
       alert('Request sent!');
-    } catch (err) {
+    } catch {
       alert('Failed to send request. Please try again.');
     }
   }, [profileId, sendRequestMutation]);
@@ -133,7 +126,7 @@ export default function ProfileDetailScreen() {
       } else {
         await addShortlistMutation.mutateAsync(profileId);
       }
-    } catch (err) {
+    } catch {
       alert('Failed to update shortlist. Please try again.');
     }
   }, [profileId, isShortlisted, addShortlistMutation, removeShortlistMutation]);
@@ -146,7 +139,7 @@ export default function ProfileDetailScreen() {
       await blockMutation.mutateAsync(profileId);
       alert('Profile blocked');
       router.back();
-    } catch (err) {
+    } catch {
       alert('Failed to block profile. Please try again.');
     }
   }, [profileId, blockMutation, router]);
@@ -163,7 +156,7 @@ export default function ProfileDetailScreen() {
         });
         alert('Profile reported. Thank you for helping keep our community safe.');
         setShowReportMenu(false);
-      } catch (err) {
+      } catch {
         alert('Failed to report profile. Please try again.');
       }
     },
@@ -348,40 +341,6 @@ function calculateAge(dateString: string): number {
     age--;
   }
   return age;
-}
-
-/**
- * Breakdown Row Component: Renders a single score component.
- */
-function BreakdownRow({
-  label,
-  score,
-  max,
-}: {
-  label: string;
-  score: number;
-  max: number;
-}) {
-  const percent = Math.round((score / max) * 100);
-  return (
-    <View className="flex-row items-center justify-between">
-      <Text className="text-sm text-ink">{label}</Text>
-      <View className="flex-row items-center gap-2">
-        <View className="h-1.5 flex-1 bg-gold/20 rounded-full w-12">
-          <View
-            className="h-full rounded-full"
-            style={{
-              width: `${percent}%`,
-              backgroundColor: tokens.gold,
-            }}
-          />
-        </View>
-        <Text className="text-xs text-muted w-8 text-right">
-          {score}/{max}
-        </Text>
-      </View>
-    </View>
-  );
 }
 
 /**

@@ -11,7 +11,6 @@ import {
 import { useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../../components/Screen';
 import { LoadingState, ErrorState } from '../../../components/States';
-import { Button } from '../../../components/Button';
 import { useThread } from '../../../features/chat/useThread';
 import { tokens } from '../../../theme/tokens';
 import type { ChatMessage } from '@smartshaadi/types';
@@ -33,7 +32,6 @@ export default function ChatThreadScreen() {
   const [sending, setSending] = useState(false);
 
   const {
-    conversation,
     messages,
     loading,
     error,

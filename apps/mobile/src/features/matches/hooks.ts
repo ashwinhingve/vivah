@@ -1,12 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import type {
-  CompatibilityScore,
-  MatchFeedItem,
-  MatchRequest,
-  MatchRequestPriority,
-  MatchRequestsResponse,
-} from '@smartshaadi/types';
+import type { MatchRequestPriority } from '@smartshaadi/types';
 import { api } from '../../lib/api';
 
 /**

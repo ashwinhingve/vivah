@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { api, ApiRequestError, NetworkError } from '../../lib/api';
+import { api } from '../../lib/api';
 import type { ConversationListItem } from '@smartshaadi/types';
 
 type ConversationFilter = 'all' | 'unread' | 'archived';

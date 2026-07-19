@@ -1,5 +1,3 @@
-import { renderHook, waitFor } from '@testing-library/react-native';
-import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import * as biometric from '../../../lib/biometric';
 
@@ -36,20 +34,19 @@ jest.mock('../../../lib/biometric', () => ({
  */
 describe('AppLayout Biometric Gate Logic — Unit Test', () => {
   let mockRouter: { push: jest.Mock };
-  let capturedHandler: ((state: AppStateStatus) => void) | null = null;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockRouter = { push: jest.fn() };
-    capturedHandler = null;
 
     // Mock AppState.addEventListener to capture the handler
     jest.spyOn(AppState, 'addEventListener').mockImplementation(
       (event: string, handler: (state: AppStateStatus) => void) => {
         if (event === 'change') {
-          capturedHandler = handler;
+          // Handler is captured but not used in this unit test
+          void handler;
         }
-        return { remove: jest.fn() } as any;
+        return { remove: jest.fn() } as { remove: jest.Mock };
       }
     );
   });
@@ -67,7 +64,6 @@ describe('AppLayout Biometric Gate Logic — Unit Test', () => {
     biometricEnabled: boolean,
     hardwareAvailable: boolean
   ): Promise<void> {
-    let appStateRef = { current: 'active' as AppStateStatus };
     let biometricShownRef = { current: false };
 
     // Setup mocks BEFORE running logic

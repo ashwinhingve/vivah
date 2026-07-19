@@ -343,7 +343,7 @@ export function filterMaritalStatus(
 
   // Non-self viewers: strip DIVORCED/WIDOWED unless accepted match exists
   if (!viewer.hasAcceptedMatch && personal.maritalStatus !== 'NEVER_MARRIED') {
-    const { maritalStatus, ...rest } = personal;
+    const { maritalStatus: _maritalStatus, ...rest } = personal;
     return rest as PersonalSection;
   }
 

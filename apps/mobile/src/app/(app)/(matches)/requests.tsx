@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   Text,
   View,
@@ -71,7 +69,7 @@ export default function MatchRequestsScreen() {
     async (requestId: string) => {
       try {
         await acceptMutation.mutateAsync(requestId);
-      } catch (err) {
+      } catch {
         alert('Failed to accept request. Please try again.');
       }
     },
@@ -85,7 +83,7 @@ export default function MatchRequestsScreen() {
     async (requestId: string) => {
       try {
         await declineMutation.mutateAsync(requestId);
-      } catch (err) {
+      } catch {
         alert('Failed to decline request. Please try again.');
       }
     },

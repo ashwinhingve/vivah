@@ -11,7 +11,7 @@ interface OnboardingPhotosProps {
   profile?: ProfileContentResponse;
 }
 
-export default function OnboardingPhotos({ profile }: OnboardingPhotosProps) {
+export default function OnboardingPhotos({ profile: _profile }: OnboardingPhotosProps) {
   const queryClient = useQueryClient();
 
   const [uploadingPhotoIds, setUploadingPhotoIds] = useState<string[]>([]);

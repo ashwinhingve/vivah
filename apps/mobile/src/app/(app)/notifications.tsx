@@ -3,11 +3,9 @@ import {
   FlatList,
   Text,
   Pressable,
-  ActivityIndicator,
 } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { LoadingState, EmptyState, ErrorState } from '../../components/States';
-import { Button } from '../../components/Button';
 import { useNotifications } from '../../features/chat/useNotifications';
 import { tokens } from '../../theme/tokens';
 import type { NotificationRow } from '@smartshaadi/types';

@@ -72,7 +72,7 @@ describe('MyProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     const getMaxMock = jest.mocked(api.profiles.getMe);
     getMaxMock.mockResolvedValue(mockProfile);
@@ -123,7 +123,7 @@ describe('MyProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     const getMeMock = jest.mocked(api.profiles.getMe);
     getMeMock.mockResolvedValue(mockProfile);
@@ -152,7 +152,7 @@ describe('MyProfileScreen', () => {
       isPending: false,
       isError: false,
       error: null,
-    } as any);
+    } as unknown as ReturnType<typeof useSessionModule.useSession>);
 
     const getMeMock = jest.mocked(api.profiles.getMe);
     getMeMock.mockImplementation(() => new Promise(() => {}));

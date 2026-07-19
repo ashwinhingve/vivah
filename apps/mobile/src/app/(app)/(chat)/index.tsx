@@ -4,12 +4,10 @@ import {
   Text,
   Pressable,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import { Link } from 'expo-router';
 import { Screen } from '../../../components/Screen';
 import { LoadingState, EmptyState, ErrorState } from '../../../components/States';
-import { Button } from '../../../components/Button';
 import { useConversations } from '../../../features/chat/useConversations';
 import { tokens } from '../../../theme/tokens';
 import type { ConversationListItem } from '@smartshaadi/types';

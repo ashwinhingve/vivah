@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { api, ApiRequestError, NetworkError } from '../../lib/api';
+import { api } from '../../lib/api';
 import { chatSocket, type ChatSocketStatus } from '../../lib/socket';
 import type { ChatMessage, ChatConversation } from '@smartshaadi/types';
 

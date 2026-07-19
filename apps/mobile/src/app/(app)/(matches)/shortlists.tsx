@@ -71,7 +71,7 @@ export default function ShortlistScreen() {
     async (profileId: string) => {
       try {
         await removeShortlistMutation.mutateAsync(profileId);
-      } catch (err) {
+      } catch {
         alert('Failed to remove from shortlist. Please try again.');
       }
     },
