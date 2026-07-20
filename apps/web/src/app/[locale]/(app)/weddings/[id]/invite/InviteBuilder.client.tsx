@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useActionState, useMemo, useState } from 'react';
 import { InviteCard } from '@/components/invite/InviteCard';
 import { INVITE_TEMPLATES } from '@/lib/invites/templates';
@@ -17,6 +18,7 @@ interface Props {
 const initialState: InviteActionState = { ok: false };
 
 export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseUrl }: Props) {
+  const t = useTranslations('weddings.invite');
   const [templateId, setTemplateId] = useState(previewBase.templateId);
   const [title, setTitle] = useState(previewBase.title ?? '');
   const [message, setMessage] = useState(previewBase.message ?? '');
@@ -47,9 +49,9 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
 
   const whatsappUrl = useMemo(() => {
     if (!publicUrl) return '';
-    const text = `${message || "You're invited!"} ${publicUrl}`;
+    const text = `${message || t('defaultMessage')} ${publicUrl}`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
-  }, [publicUrl, message]);
+  }, [publicUrl, message, t]);
 
   async function handlePublish() {
     setPublishing(true);
@@ -71,9 +73,9 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
   return (
     <main className="min-h-screen bg-background px-4 py-6 sm:py-8">
       <div className="mx-auto max-w-5xl">
-        <h1 className="font-heading text-2xl text-primary mb-1">Digital Invitation</h1>
+        <h1 className="font-heading text-2xl text-primary mb-1">{t('heading')}</h1>
         <p className="text-muted-foreground mb-6">
-          Design a shareable e-invite from your wedding details.
+          {t('subtitle')}
         </p>
 
         <div className="grid gap-8 lg:grid-cols-2">
@@ -83,7 +85,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
             <input type="hidden" name="rsvpEnabled" value={rsvpEnabled ? 'true' : 'false'} />
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Template</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t('templateLabel')}</label>
               <div className="grid grid-cols-3 gap-2">
                 {INVITE_TEMPLATES.map((tpl) => (
                   <button
@@ -105,7 +107,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
 
             <div>
               <label htmlFor="inv-title" className="block text-sm font-medium text-foreground mb-2">
-                Headline (optional)
+                {t('headlineLabel')}
               </label>
               <input
                 id="inv-title"
@@ -113,14 +115,14 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={255}
-                placeholder="e.g. The Wedding of Asha & Vikram"
+                placeholder={t('headlinePlaceholder')}
                 className="h-11 w-full rounded-lg border border-border bg-surface px-3 text-foreground"
               />
             </div>
 
             <div>
               <label htmlFor="inv-message" className="block text-sm font-medium text-foreground mb-2">
-                Invitation message (optional)
+                {t('messageLabel')}
               </label>
               <textarea
                 id="inv-message"
@@ -129,7 +131,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={1000}
                 rows={3}
-                placeholder="request the pleasure of your company…"
+                placeholder={t('messagePlaceholder')}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground"
               />
             </div>
@@ -141,7 +143,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                 onChange={(e) => setRsvpEnabled(e.target.checked)}
                 className="h-5 w-5"
               />
-              <span className="text-sm text-foreground">Allow guests to RSVP from the invite</span>
+              <span className="text-sm text-foreground">{t('rsvpLabel')}</span>
             </label>
 
             {saveState.error && <p className="text-sm text-destructive">{saveState.error}</p>}
@@ -153,7 +155,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                 disabled={savePending}
                 className="h-11 rounded-lg bg-teal px-5 text-surface disabled:opacity-60"
               >
-                {savePending ? 'Saving…' : 'Save'}
+                {savePending ? t('saving') : t('save')}
               </button>
               <button
                 type="button"
@@ -161,14 +163,14 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                 disabled={publishing}
                 className="h-11 rounded-lg bg-primary px-5 text-surface disabled:opacity-60"
               >
-                {publishing ? 'Publishing…' : published ? 'Re-publish' : 'Publish'}
+                {publishing ? t('publishing') : published ? t('republish') : t('publish')}
               </button>
             </div>
             {publishError && <p className="text-sm text-destructive">{publishError}</p>}
 
             {published && slug && (
               <div className="rounded-xl border border-gold/30 bg-surface p-4 space-y-3">
-                <p className="text-sm font-medium text-primary">Share your invitation</p>
+                <p className="text-sm font-medium text-primary">{t('shareHeading')}</p>
                 <div className="flex items-center gap-2">
                   <input
                     readOnly
@@ -180,7 +182,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                     onClick={copyLink}
                     className="h-11 rounded-lg border border-border px-3 text-sm"
                   >
-                    Copy
+                    {t('copy')}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -190,7 +192,7 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                     rel="noopener noreferrer"
                     className="inline-flex h-11 items-center rounded-lg bg-success px-4 text-sm text-surface"
                   >
-                    Share on WhatsApp
+                    {t('shareWhatsapp')}
                   </a>
                   <a
                     href={publicUrl}
@@ -198,21 +200,21 @@ export function InviteBuilder({ weddingId, locale, invite, previewBase, appBaseU
                     rel="noopener noreferrer"
                     className="inline-flex h-11 items-center rounded-lg border border-border px-4 text-sm text-foreground"
                   >
-                    Open invite
+                    {t('openInvite')}
                   </a>
                 </div>
               </div>
             )}
             {current?.status === 'DRAFT' && !published && (
               <p className="text-xs text-muted-foreground">
-                Publish to generate a shareable link and PDF.
+                {t('publishHint')}
               </p>
             )}
           </form>
 
           {/* Live preview */}
           <div>
-            <p className="text-sm font-medium text-foreground mb-3">Preview</p>
+            <p className="text-sm font-medium text-foreground mb-3">{t('preview')}</p>
             <InviteCard view={preview} />
           </div>
         </div>

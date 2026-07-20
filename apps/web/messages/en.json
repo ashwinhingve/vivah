@@ -1278,7 +1278,27 @@
         "send": "Send {count, plural, one {# invitation} other {# invitations}}",
         "result": "Sent {sent} · Failed {failed}",
         "andMore": "…and {count} more"
-      }
+      },
+      "heading": "Digital Invitation",
+      "subtitle": "Design a shareable e-invite from your wedding details.",
+      "templateLabel": "Template",
+      "headlineLabel": "Headline (optional)",
+      "headlinePlaceholder": "e.g. The Wedding of Asha & Vikram",
+      "messageLabel": "Invitation message (optional)",
+      "messagePlaceholder": "request the pleasure of your company…",
+      "rsvpLabel": "Allow guests to RSVP from the invite",
+      "saving": "Saving…",
+      "save": "Save",
+      "publishing": "Publishing…",
+      "publish": "Publish",
+      "republish": "Re-publish",
+      "publishHint": "Publish to generate a shareable link and PDF.",
+      "shareHeading": "Share your invitation",
+      "copy": "Copy",
+      "shareWhatsapp": "Share on WhatsApp",
+      "openInvite": "Open invite",
+      "defaultMessage": "You're invited!",
+      "preview": "Preview"
     },
     "overview": {
       "metadata": {
@@ -1523,6 +1543,43 @@
         "dressCode": "Dress code:",
         "expectedGuests": "~{count} guests expected"
       }
+    },
+    "seating": {
+      "heading": "Seating Plan",
+      "subtitle": "{tableCount} tables · {seatedCount} of {totalConfirmed} confirmed guests seated",
+      "autoAssign": "Auto-assign",
+      "noTablesYet": "No tables yet. Add your first table on the right.",
+      "delete": "Delete",
+      "empty": "Empty",
+      "seat": "Seat",
+      "newTable": "New table",
+      "tableName": "Table name",
+      "capacity": "Capacity",
+      "shape": "Shape",
+      "shapeRound": "Round",
+      "shapeRect": "Rectangle",
+      "shapeSquare": "Square",
+      "shapeOval": "Oval",
+      "addTable": "Add table",
+      "unseatedCount": "Unseated ({count})",
+      "allSeated": "All confirmed guests are seated."
+    },
+    "moodboard": {
+      "heading": "Mood Board",
+      "subtitle": "Collect inspiration for your wedding theme, colors, and décor."
+    },
+    "registry": {
+      "heading": "Gift Registry",
+      "subtitle": "List items guests can claim — appears on your public wedding website if enabled.",
+      "noItems": "No registry items yet.",
+      "claimedBy": "claimed by {name}",
+      "remove": "Remove",
+      "addItem": "Add registry item",
+      "itemLabel": "Item *",
+      "priceLabel": "Price (₹)",
+      "linkLabel": "External link",
+      "descriptionLabel": "Description",
+      "submit": "Add to registry"
     }
   },
   "matchCard": {
@@ -3880,7 +3937,11 @@
         "delivered": "Delivered",
         "cancelled": "Cancelled",
         "refunded": "Refunded"
-      }
+      },
+      "title": "My Orders",
+      "backToStore": "Store",
+      "emptyLabel": "No orders yet",
+      "browseCta": "Browse Products"
     }
   },
   "rentals": {
@@ -4202,6 +4263,16 @@
         "underReview": "Under Review",
         "rejected": "Rejected",
         "draft": "Draft"
+      },
+      "rejectionTitle": "Application needs attention",
+      "draftTitle": "Your profile is in draft",
+      "draftDescription": "Complete your business details and submit for review to start receiving bookings."
+    },
+    "orders": {
+      "statusLabels": {
+        "pending": "Pending",
+        "shipped": "Shipped",
+        "delivered": "Delivered"
       }
     }
   }

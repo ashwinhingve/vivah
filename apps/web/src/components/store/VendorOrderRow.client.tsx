@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import type { VendorOrderItem } from '@smartshaadi/types';
 
@@ -16,13 +17,8 @@ const STATUS_TONE_MAP: Record<string, StatusTone> = {
   DELIVERED: 'success',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  PENDING:   'Pending',
-  SHIPPED:   'Shipped',
-  DELIVERED: 'Delivered',
-};
-
 export function VendorOrderRow({ item }: VendorOrderRowProps) {
+  const t = useTranslations('vendorDashboard.orders');
   const [status, setStatus] = useState(item.fulfilmentStatus);
   const [tracking, setTracking] = useState(item.trackingNumber ?? '');
   const [showShipForm, setShowShipForm] = useState(false);
@@ -96,7 +92,7 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
               tone={STATUS_TONE_MAP[status] ?? 'neutral'}
               className="text-2xs font-semibold"
             >
-              {STATUS_LABELS[status] ?? status}
+              {t(`statusLabels.${status.toLowerCase()}`, { defaultValue: status })}
             </StatusChip>
           </div>
           <p className="text-xs text-muted-foreground">

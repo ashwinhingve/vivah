@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { fetchAuth } from '@/lib/server-fetch';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import type { OrderSummary, OrderStatus } from '@smartshaadi/types';
@@ -18,6 +19,7 @@ const STATUS_TONE_MAP: Record<OrderStatus, StatusTone> = {
 };
 
 export default async function OrdersPage() {
+  const t = await getTranslations('store.orders');
   const data = await fetchAuth<OrdersResponse>('/api/v1/store/orders');
   const orders = data?.orders ?? [];
 
@@ -33,34 +35,27 @@ export default async function OrdersPage() {
         <div className="flex items-center gap-3 mb-6">
           <Link href="/store" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-teal transition-colors text-sm min-h-[44px]">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Store
+            {t('backToStore') ?? 'Store'}
           </Link>
-          <h1 className="font-heading text-primary text-xl font-bold">My Orders</h1>
+          <h1 className="font-heading text-primary text-xl font-bold">{t('title') ?? 'My Orders'}</h1>
         </div>
 
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-muted-foreground">
             <ShoppingBag className="w-12 h-12 text-gold/30" aria-hidden="true" />
-            <p className="text-sm font-medium">No orders yet</p>
+            <p className="text-sm font-medium">{t('emptyLabel') ?? 'No orders yet'}</p>
             <Link
               href="/store"
               className="px-5 py-2.5 min-h-[44px] flex items-center bg-teal text-white font-semibold rounded-lg text-sm hover:bg-teal/90 transition-colors"
             >
-              Browse Products
+              {t('browseCta') ?? 'Browse Products'}
             </Link>
           </div>
         ) : (
           <div className="space-y-3">
             {sorted.map(order => {
               const tone = STATUS_TONE_MAP[order.status] ?? STATUS_TONE_MAP.PLACED;
-              const labels: Record<OrderStatus, string> = {
-                PLACED:    'Placed',
-                CONFIRMED: 'Confirmed',
-                SHIPPED:   'Shipped',
-                DELIVERED: 'Delivered',
-                CANCELLED: 'Cancelled',
-                REFUNDED:  'Refunded',
-              };
+              const statusKey = order.status.toLowerCase() as Lowercase<OrderStatus>;
               return (
                 <Link
                   key={order.id}
@@ -83,7 +78,7 @@ export default async function OrdersPage() {
                       </p>
                     </div>
                     <StatusChip tone={tone} className="text-2xs font-semibold flex-shrink-0">
-                      {labels[order.status]}
+                      {t(`statusLabels.${statusKey}`)}
                     </StatusChip>
                   </div>
                 </Link>

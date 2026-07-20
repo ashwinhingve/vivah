@@ -6,6 +6,7 @@
  * P1-8 (docs/PHASE-1-4-AUDIT.md).
  */
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { Info, AlertTriangle, Loader2 } from 'lucide-react';
@@ -23,6 +24,7 @@ interface StatusView {
 }
 
 export function VendorStatusBanner() {
+  const t = useTranslations('vendorDashboard.statusBanner');
   const [view, setView] = useState<StatusView | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -49,7 +51,7 @@ export function VendorStatusBanner() {
 
   if (view.status === 'PENDING' || view.status === 'UNDER_REVIEW') {
     const statusTone: StatusTone = 'warning';
-    const statusLabel = view.status === 'PENDING' ? 'Pending' : 'Under Review';
+    const statusLabel = view.status === 'PENDING' ? t('labels.pending') : t('labels.underReview');
     return (
       <div className="mx-4 mb-4 mt-4 flex items-start gap-3 rounded-2xl border border-teal/30 bg-teal/5 px-4 py-3 text-sm">
         <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-teal" aria-hidden="true" />
@@ -77,10 +79,10 @@ export function VendorStatusBanner() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-0.5">
             <p className="font-semibold text-destructive">
-              Application needs attention
+              {t('rejectionTitle') ?? 'Application needs attention'}
             </p>
             <StatusChip tone="error" className="text-2xs font-semibold">
-              Rejected
+              {t('labels.rejected')}
             </StatusChip>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -122,13 +124,13 @@ export function VendorStatusBanner() {
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-0.5">
-          <p className="font-semibold text-primary">Your profile is in draft</p>
+          <p className="font-semibold text-primary">{t('draftTitle') ?? 'Your profile is in draft'}</p>
           <StatusChip tone="gold" className="text-2xs font-semibold">
-            Draft
+            {t('labels.draft')}
           </StatusChip>
         </div>
         <p className="text-xs text-muted-foreground">
-          Complete your business details and submit for review to start receiving bookings.
+          {t('draftDescription') ?? 'Complete your business details and submit for review to start receiving bookings.'}
         </p>
       </div>
     </div>
