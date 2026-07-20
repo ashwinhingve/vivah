@@ -370,7 +370,7 @@ async function seedUsers(): Promise<void> {
         photoCounter++;
         await db.insert(profilePhotos).values({
           id: photoId(photoCounter), profileId: pid,
-          r2Key: `qa/photos/${i.userId}-${k + 1}.jpg`,
+          r2Key: `photos/qa/${i.userId}-${k + 1}.jpg`,
           isPrimary: k === 0, displayOrder: k, uploadedAt: now(),
         }).onConflictDoNothing();
       }
