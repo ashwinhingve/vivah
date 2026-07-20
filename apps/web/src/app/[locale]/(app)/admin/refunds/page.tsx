@@ -2,6 +2,7 @@
  * Smart Shaadi — Admin Refund Queue
  * Hybrid: Server Component fetches + client component handles decisions.
  */
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -17,6 +18,12 @@ import { AdminRefundsClient } from './AdminRefundsClient.client';
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface AuthMe { userId: string; role: string; status: string }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('refunds.title')} — Admin | Smart Shaadi` };
+}
 
 async function fetchRefunds(cookie: string, status: string): Promise<RefundRecord[]> {
   try {

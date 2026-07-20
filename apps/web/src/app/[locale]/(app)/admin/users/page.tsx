@@ -4,6 +4,7 @@
  * (apps/api/src/admin/users.router.ts) and renders a paginated, filterable
  * table linking to per-user detail pages.
  */
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { getTranslations } from 'next-intl/server';
@@ -17,6 +18,12 @@ import { UserFilters } from './UserFilters.client';
 import { UsersTable } from './UsersTable.client';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('users.title')} — Admin | Smart Shaadi` };
+}
 
 interface UserRow {
   id: string;
@@ -98,20 +105,20 @@ export default async function AdminUsersPage({
           </div>
 
           {hasNext || hasPrev ? (
-            <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pagination">
+            <nav className="mt-4 flex items-center justify-between" aria-label="Pagination">
               {hasPrev ? (
-                <Link href={pageHref(page - 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
+                <Link href={pageHref(page - 1)} className="h-9 inline-flex items-center gap-1.5 px-3 text-teal hover:bg-teal/5 hover:underline rounded-lg transition-colors">
                   <ChevronLeft className="h-4 w-4" /> {t('common.previous')}
                 </Link>
-              ) : <span />}
+              ) : <span className="h-9" />}
               <span className="text-xs text-muted-foreground">
                 {t('common.pageOf', { page, total: Math.max(1, Math.ceil(total / PAGE_SIZE)) })}
               </span>
               {hasNext ? (
-                <Link href={pageHref(page + 1)} className="inline-flex items-center gap-1 text-teal hover:underline">
+                <Link href={pageHref(page + 1)} className="h-9 inline-flex items-center gap-1.5 px-3 text-teal hover:bg-teal/5 hover:underline rounded-lg transition-colors">
                   {t('common.next')} <ArrowRight className="h-4 w-4" />
                 </Link>
-              ) : <span />}
+              ) : <span className="h-9" />}
             </nav>
           ) : null}
         </FadeUp>

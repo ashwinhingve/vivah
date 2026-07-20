@@ -4,6 +4,7 @@
  * paginated view into the append-only, hash-chained audit trail
  * (apps/api/src/admin/audit.router.ts).
  */
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { getTranslations } from 'next-intl/server';
@@ -17,6 +18,12 @@ import { AuditFilters } from './AuditFilters.client';
 import { AuditExportButton } from './AuditExportButton.client';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('navTiles.audit.label')} — Admin | Smart Shaadi` };
+}
 
 interface AuditRow {
   id: string;

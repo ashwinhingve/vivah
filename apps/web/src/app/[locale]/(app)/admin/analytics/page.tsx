@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { getTranslations } from 'next-intl/server';
@@ -24,6 +25,12 @@ import type {
   RevenueMonth,
   TopMatch,
 } from '@/components/analytics/types';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('analytics.title')} — Admin | Smart Shaadi` };
+}
 
 interface AuthMe {
   userId: string;

@@ -3,6 +3,7 @@
  * Server Component. Fetches /api/v1/admin/vendors/queue and renders a
  * filterable table. Status tabs map to vendor_status enum values.
  */
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { redirect } from '@/i18n/redirect';
@@ -15,6 +16,12 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('navTiles.vendors.label')} — Admin | Smart Shaadi` };
+}
 
 type VendorStatus = 'DRAFT' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 

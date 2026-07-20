@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
@@ -12,6 +13,12 @@ import { PlatformSettingsForm } from './PlatformSettingsForm.client';
 export const dynamic = 'force-dynamic';
 
 interface AuthMe { userId: string; role: string; status: string }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('navTiles.settings.label')} — Admin | Smart Shaadi` };
+}
 
 interface PlatformSettingRow {
   key:        string;
