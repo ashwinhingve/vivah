@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { CompatibilityDisclaimer } from '@/components/dpi/CompatibilityDisclaimer';
 import { CompatibilityGauge } from '@/components/dpi/CompatibilityGauge.client';
 import { FiiDetailPanel } from '@/components/fii/FiiDetailPanel.client';
+import { GunaDetailPanel } from '@/components/guna/GunaDetailPanel.client';
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -45,6 +46,8 @@ export default async function CompatibilityPage({ params }: PageProps) {
         </Suspense>
 
         <FiiDetailPanel matchId={id} />
+
+        <GunaDetailPanel matchId={id} />
       </div>
     </main>
   );

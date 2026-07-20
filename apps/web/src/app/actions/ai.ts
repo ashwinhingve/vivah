@@ -7,6 +7,7 @@ import type {
   EmotionalScore,
   FiiBreakdown,
   FiiCompatibility,
+  GunaResult,
 } from '@smartshaadi/types';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -114,6 +115,23 @@ export async function fetchFiiCompatibility(
     const data = json.data;
     if (!data || typeof data !== 'object' || !('profile_a_score' in data)) return null;
     return data as FiiCompatibility;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchGuna(matchId: string): Promise<GunaResult | null> {
+  try {
+    const store = await cookies();
+    const token = store.get('better-auth.session_token')?.value ?? '';
+    const res = await fetch(`${API_BASE}/api/v1/ai/guna/${matchId}`, {
+      method: 'GET',
+      headers: { Cookie: `better-auth.session_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { success?: boolean; data?: GunaResult };
+    return json.data ?? null;
   } catch {
     return null;
   }

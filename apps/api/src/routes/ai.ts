@@ -48,6 +48,7 @@ import {
   buildCacheKey,
   sanitizeForLogging,
 } from '../services/dpiPrivacy.js';
+import { callAiService } from '../lib/ai.js';
 import { extractFeatures, type DpiProfile, type DpiProfileContent } from '../services/dpiFeatures.js';
 import { logger } from '../lib/logger.js';
 import { ProfileContent as _ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
@@ -737,6 +738,332 @@ aiRouter.get(
     logger.info({ dpi: sanitizeForLogging(dpiResult, userId) }, 'dpi.computed');
 
     ok(res, dpiResult);
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Guna Milan (Ashtakoot) compatibility routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Guna Milan is deterministic Vedic math with zero LLM cost. Rate limit at the
+// standard 30/hour. Cache 7 days since scores never change for a pair.
+const GUNA_RATE_LIMIT      = 30;
+const GUNA_RATE_WINDOW_SEC = 3600;  // 1 hour
+const GUNA_CACHE_TTL_SEC   = 7 * 24 * 3600;  // 7 days
+
+async function checkGunaRateLimit(userId: string): Promise<{ allowed: boolean; remaining: number }> {
+  if (env.NODE_ENV === 'test' || env.USE_MOCK_SERVICES) {
+    return { allowed: true, remaining: GUNA_RATE_LIMIT - 1 };
+  }
+  const key = `guna:rate:${userId}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, GUNA_RATE_WINDOW_SEC);
+    return { allowed: count <= GUNA_RATE_LIMIT, remaining: Math.max(0, GUNA_RATE_LIMIT - count) };
+  } catch {
+    return { allowed: true, remaining: GUNA_RATE_LIMIT - 1 };
+  }
+}
+
+// ── GET /api/v1/ai/guna/:matchId ──────────────────────────────────────────────
+
+aiRouter.get(
+  '/guna/:matchId',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const { matchId } = req.params;
+
+    // ── Validate matchId ────────────────────────────────────────────────────
+    const uuidParse = z.string().uuid().safeParse(matchId);
+    if (!uuidParse.success) {
+      err(res, 'VALIDATION_ERROR', 'matchId must be a valid UUID', 400);
+      return;
+    }
+    const safeMatchId = uuidParse.data;
+
+    // ── Rate limit: 30 per user per hour ────────────────────────────────────
+    const rl = await checkGunaRateLimit(userId);
+    if (!rl.allowed) {
+      res.setHeader('X-RateLimit-Limit', GUNA_RATE_LIMIT);
+      res.setHeader('X-RateLimit-Remaining', 0);
+      err(res, 'RATE_LIMIT_EXCEEDED', 'Guna Milan rate limit reached. Try again later.', 429);
+      return;
+    }
+    res.setHeader('X-RateLimit-Limit', GUNA_RATE_LIMIT);
+    res.setHeader('X-RateLimit-Remaining', rl.remaining);
+
+    // ── Resolve userId → profileId (CLAUDE.md rule 12) ──────────────────────
+    const requesterProfileId = await resolveProfileId(userId);
+    if (!requesterProfileId) {
+      err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
+      return;
+    }
+
+    // ── Privacy: assert match participation + ACCEPTED status ───────────────
+    let otherProfileId: string;
+    try {
+      ({ otherProfileId } = await assertRequesterParticipation(
+        requesterProfileId,
+        safeMatchId,
+        db,
+      ));
+    } catch (e) {
+      if (e instanceof DpiPrivacyError) {
+        err(res, 'DPI_PRIVACY_VIOLATION', e.message, 403);
+        return;
+      }
+      const appErr = e as { code?: string; status?: number; message?: string };
+      if (appErr.code === 'MATCH_NOT_FOUND') {
+        err(res, 'MATCH_NOT_FOUND', 'Match not found', 404);
+        return;
+      }
+      throw e;
+    }
+
+    // ── Build cache key (match-pair is symmetric; normalize key) ────────────
+    const [idA, idB] = [requesterProfileId, otherProfileId].sort() as [string, string];
+    const cacheKey = `guna:${idA}:${idB}`;
+
+    // ── Try cache ───────────────────────────────────────────────────────────
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        ok(res, JSON.parse(cached));
+        return;
+      }
+    } catch {
+      // Cache read failure — proceed to compute
+    }
+
+    // ── Load horoscope + gender for both profiles ────────────────────────────
+    // Gender comes from the SAME Mongo document as the horoscope
+    // (`personal.gender`) — there is no `gender` column on the Postgres
+    // `profiles` table. The `genderEnum` in the Drizzle schema is declared but
+    // attached to nothing, which makes `profiles.gender` look plausible while
+    // being neither typed nor present. Reading both fields from one document
+    // is also one fetch instead of two.
+    type ManglikStatus = 'YES' | 'NO' | 'PARTIAL';
+
+    // `| undefined` is spelled out because tsconfig sets
+    // exactOptionalPropertyTypes: `rashi?: string` there means "may be absent",
+    // NOT "may be undefined", and the Mongo document gives us the latter.
+    interface Chart {
+      horoscope: {
+        rashi?:     string | undefined;
+        nakshatra?: string | undefined;
+        manglik:    ManglikStatus;
+      } | null;
+      gender: string | null;
+    }
+
+    // Seeded and older documents store `manglik` as a BOOLEAN, newer ones as
+    // 'YES' | 'NO' | 'PARTIAL'. The AI service accepts Union[bool, ManglikStatus]
+    // so a raw boolean would not crash — but it would flow through a field
+    // typed `string`, which is a lie the compiler cannot see. Normalise on the
+    // way in, matching what gunaRecalcJob.ts already does, so both paths send
+    // the AI service the same shape.
+    const toManglik = (v: unknown): ManglikStatus => {
+      if (v === true || v === 'YES') return 'YES';
+      if (v === 'PARTIAL') return 'PARTIAL';
+      return 'NO';
+    };
+
+    async function loadChart(profileId: string): Promise<Chart | null> {
+      const [pgProfile] = await db
+        .select({ userId: profiles.userId })
+        .from(profiles)
+        .where(eq(profiles.id, profileId))
+        .limit(1);
+
+      if (!pgProfile) return null;
+
+
+      type ContentDoc = {
+        horoscope?: { rashi?: string; nakshatra?: string; manglik?: unknown };
+        personal?:  { gender?: string };
+      } | null;
+
+      const toChart = (doc: ContentDoc): Chart => ({
+        horoscope: doc?.horoscope
+          ? {
+              rashi:     doc.horoscope.rashi,
+              nakshatra: doc.horoscope.nakshatra,
+              manglik:   toManglik(doc.horoscope.manglik),
+            }
+          : null,
+        gender: doc?.personal?.gender ?? null,
+      });
+
+      if (shouldUseMockMongo) {
+        return toChart(mockGet(pgProfile.userId) as ContentDoc);
+      }
+
+      try {
+        const content = await (ProfileContent as { findOne: (q: object) => { select: (f: string) => { lean: () => Promise<unknown> } } })
+          .findOne({ userId: pgProfile.userId })
+          .select('horoscope personal.gender')
+          .lean();
+        return toChart(content as ContentDoc);
+      } catch {
+        return null;
+      }
+    }
+
+    // ── Decide which profile is `profile_a` ─────────────────────────────────
+    // NOT the requester. Guna Milan is order-sensitive: Varna scores when the
+    // boy's rank >= the girl's, and Tara is counted girl -> boy. Passing
+    // whoever happened to open the page as `profile_a` would give the two
+    // people in one match two different scores for the same pairing — and
+    // because the cache key below is normalised, which score you saw would
+    // depend on who loaded it first. So order by gender, groom first.
+    //
+    // When the pair is not one MALE and one FEMALE (missing gender, NON_BINARY,
+    // OTHER, or same-gender), there is no groom/bride ordering to apply. Fall
+    // back to sorting by profile id: still arbitrary with respect to the Vedic
+    // rule, but at least STABLE, so both parties see the same result and the
+    // shared cache entry stays coherent. The classical rule simply does not
+    // define these cases; presenting one arbitrary-but-consistent answer is
+    // better than two inconsistent ones.
+    const [requesterChart, otherChart] = await Promise.all([
+      loadChart(requesterProfileId),
+      loadChart(otherProfileId),
+    ]);
+
+    // Groom first. When the pair is not one MALE and one FEMALE (gender
+    // missing, NON_BINARY, OTHER, or same-gender) there is no groom/bride
+    // ordering to apply, so fall back to sorting by profile id: still
+    // arbitrary with respect to the Vedic rule, but STABLE, so both parties
+    // see the same result and the shared cache entry stays coherent. Classical
+    // Jyotish does not define these cases; one arbitrary-but-consistent answer
+    // beats two inconsistent ones.
+    const requesterIsGroom =
+      requesterChart?.gender === 'MALE' && otherChart?.gender === 'FEMALE';
+    const otherIsGroom =
+      requesterChart?.gender === 'FEMALE' && otherChart?.gender === 'MALE';
+
+    let chartA: Chart | null;
+    let chartB: Chart | null;
+    if (requesterIsGroom) {
+      [chartA, chartB] = [requesterChart, otherChart];
+    } else if (otherIsGroom) {
+      [chartA, chartB] = [otherChart, requesterChart];
+    } else {
+      [chartA, chartB] = requesterProfileId < otherProfileId
+        ? [requesterChart, otherChart]
+        : [otherChart, requesterChart];
+    }
+
+    const horoscopeA = chartA?.horoscope ?? null;
+    const horoscopeB = chartB?.horoscope ?? null;
+
+    if (!horoscopeA || !horoscopeA.rashi || !horoscopeA.nakshatra ||
+        !horoscopeB || !horoscopeB.rashi || !horoscopeB.nakshatra) {
+      err(res, 'INCOMPLETE_DATA', 'One or both profiles missing horoscope data', 400);
+      return;
+    }
+
+    // ── Call AI service (POST /ai/horoscope/guna) ───────────────────────────
+    try {
+      const result = await callAiService<Record<string, unknown>>('/ai/horoscope/guna', {
+        profile_a: {
+          rashi: horoscopeA.rashi,
+          nakshatra: horoscopeA.nakshatra,
+          manglik: horoscopeA.manglik,
+        },
+        profile_b: {
+          rashi: horoscopeB.rashi,
+          nakshatra: horoscopeB.nakshatra,
+          manglik: horoscopeB.manglik,
+        },
+      });
+
+      // ── Transform response from snake_case (Python) to camelCase (TS) ──────
+      // The AI service returns GunaResultResponse (Pydantic). Map to GunaResult.
+      // The Pydantic shape we expect back per factor. Declared rather than
+      // cast through `any` (CLAUDE.md rule 4) so a field renamed on the Python
+      // side surfaces here as a type error instead of silently defaulting.
+      // Every field stays optional: this is an over-the-wire payload, and the
+      // `??` fallbacks below are what keep a partial response from rendering
+      // as a broken panel.
+      interface RawFactor {
+        score?:      number;
+        max?:        number;
+        compatible?: boolean;
+        name?:       string;
+        name_hi?:    string;
+        domain?:     string;
+        meaning?:    string;
+        status?:     string;
+        boy_value?:  string | null;
+        girl_value?: string | null;
+        axis?:       string | null;
+      }
+
+      const getFactor = (pythonKey: string): RawFactor | undefined =>
+        (result.factors as Record<string, RawFactor> | undefined)?.[pythonKey];
+
+      const transformFactor = (displayName: string, pythonKey: string, maxScore: number): Record<string, unknown> => {
+        const f = getFactor(pythonKey);
+        return {
+          score:      f?.score ?? 0,
+          max:        f?.max ?? maxScore,
+          compatible: f?.compatible ?? false,
+          name:       f?.name ?? displayName,
+          nameHi:     f?.name_hi ?? '',
+          domain:     f?.domain ?? '',
+          meaning:    f?.meaning ?? '',
+          status:     f?.status ?? 'neutral',
+          ...(pythonKey === 'varna' || pythonKey === 'yoni' || pythonKey === 'gana' ? {
+            boyValue:  f?.boy_value ?? null,
+            girlValue: f?.girl_value ?? null,
+          } : {}),
+          ...(pythonKey === 'bhakoot' ? {
+            axis: f?.axis ?? null,
+          } : {}),
+        };
+      };
+
+      const transformed = {
+        totalScore: (result.total_score as number) ?? 0,
+        maxScore: (result.max_score as number) ?? 36,
+        percentage: (result.percentage as number) ?? 0,
+        factors: {
+          varna: transformFactor('Varna', 'varna', 1),
+          vashya: transformFactor('Vashya', 'vashya', 2),
+          tara: transformFactor('Tara', 'tara', 3),
+          yoni: transformFactor('Yoni', 'yoni', 4),
+          grahaMaitri: transformFactor('Graha Maitri', 'graha_maitri', 5),
+          gana: transformFactor('Gana', 'gana', 6),
+          bhakoot: transformFactor('Bhakoot', 'bhakoot', 7),
+          nadi: transformFactor('Nadi', 'nadi', 8),
+        },
+        doshas: (result.doshas as Record<string, unknown>) ?? {},
+        yogas: (result.yogas as Record<string, unknown>) ?? {},
+        insights: (result.insights as Record<string, unknown>) ?? {},
+        remedies: (result.remedies as unknown[]) ?? [],
+        blockingDosha: (result.blocking_dosha as boolean) ?? false,
+        mangalDoshaConflict: (result.mangal_dosha_conflict as boolean) ?? false,
+        interpretation: (result.interpretation as string) ?? 'Average match',
+        recommendation: (result.recommendation as string) ?? '',
+      };
+
+      // ── Cache 7 days (deterministic — never changes) ─────────────────────
+      try {
+        await redis.set(cacheKey, JSON.stringify(transformed), 'EX', GUNA_CACHE_TTL_SEC);
+      } catch {
+        // Cache write failure — still return result
+      }
+
+      ok(res, transformed);
+    } catch (e) {
+      const appErr = e as { code?: string; status?: number };
+      if (appErr.code === 'AI_SERVICE_UNAVAILABLE') {
+        err(res, 'AI_SERVICE_UNAVAILABLE', 'Guna Milan service temporarily unavailable', 503);
+        return;
+      }
+      throw e;
+    }
   }),
 );
 

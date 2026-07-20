@@ -3136,5 +3136,81 @@
       "mediumRisk": "Medium risk",
       "highRisk": "High risk"
     }
+  },
+  "guna-milan": {
+    "heading": "Guna Milan Compatibility",
+    "subtitle": "Vedic Ashtakoot Compatibility Analysis",
+    "score": "Score",
+    "of": "of 36",
+    "interpretation": {
+      "excellent": "Excellent Match",
+      "good": "Good Match",
+      "average": "Average Match",
+      "not_recommended": "Not Recommended"
+    },
+    "factors": {
+      "heading": "8 Ashtakoot Factors",
+      "varna": "Varna (Caste Harmony)",
+      "vashya": "Vashya (Nature Compatibility)",
+      "tara": "Tara (Star Position)",
+      "yoni": "Yoni (Biological Compatibility)",
+      "graha_maitri": "Graha Maitri (Planetary Friendship)",
+      "gana": "Gana (Temperament)",
+      "bhakoot": "Bhakoot (Rashi Compatibility)",
+      "nadi": "Nadi (Genetic Compatibility)"
+    },
+    "doshas": {
+      "heading": "Doshas & Astrological Concerns",
+      "manglik": "Mangal Dosha",
+      "nadi": "Nadi Dosha",
+      "bhakoot": "Bhakoot Dosha",
+      "rajju": "Rajju Dosha",
+      "vedha": "Vedha Dosha",
+      "gana": "Gana Dosha",
+      "blocking_warning": "Blocking Dosha Detected",
+      "blocking_description": "This match has an unresolved high-severity dosha. Consult with a qualified Vedic astrologer for remedies.",
+      "severity": {
+        "none": "None",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "status": {
+        "dosha": "Dosha Present",
+        "cancelled": "Cancelled",
+        "no_dosha": "No Dosha"
+      }
+    },
+    "yogas": {
+      "heading": "Auspicious Yogas",
+      "mahendra": "Mahendra Yoga",
+      "stree_deergha": "Stree Deergha Yoga"
+    },
+    "insights": {
+      "heading": "Domain-wise Insights",
+      "mental": "Mental Compatibility",
+      "physical": "Physical Compatibility",
+      "prosperity": "Prosperity & Finance",
+      "progeny": "Children & Progeny",
+      "longevity": "Relationship Longevity"
+    },
+    "remedies": {
+      "heading": "Recommended Remedies",
+      "empty": "No remedies recommended for this match.",
+      "perform": "Performance Suggestions",
+      "mantra": "Mantra Recitation",
+      "puja": "Puja Recommendation",
+      "gemstone": "Gemstone Recommendation"
+    },
+    "recommendation": "Recommendation",
+    "disclaimer": "Traditional Guidance",
+    "disclaimer_text": "This analysis is based on classical Vedic astrology principles. It represents traditional guidance and should not be considered a definitive prediction of relationship outcomes. Every relationship's success depends on mutual care, communication, and commitment from both partners. For concerns about specific doshas, please consult a qualified Vedic astrologer.",
+    "printReport": "Print Report",
+    "backToCompatibility": "Back to Compatibility",
+    "compatibilityReport": "Compatibility Report",
+    "overallCompatibility": "Overall Compatibility",
+    "vedicAnalysis": "Vedic Ashtakoot Analysis",
+    "scoreSuffix": "Score",
+    "documentTitle": "Guna Milan Compatibility Report"
   }
 }
