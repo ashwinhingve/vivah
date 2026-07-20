@@ -205,7 +205,15 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-20 (current, later session) — Premium UI Phase 3: five-area teammate sweep + real QA portraits
+### 2026-07-21 (current) — Docs audit & reorganization
+
+Full `docs/` audit (124 files): archived 46 historical artifacts (weekly smoke
+tests, 24 superpowers plans, old demo scripts, client-era docs, day notes) into
+`docs/archive/`, moved KYC-PROVIDERS into `PROVIDER-ACTIVATION/kyc-providers.md`,
+deleted 2.2 MB of stale screenshots, added `docs/README.md` navigation index.
+All load-bearing paths kept in place; repo-wide doc-link check clean. Commit `c8a287a`.
+
+### 2026-07-20 — Premium UI Phase 3: five-area teammate sweep + real QA portraits
 
 Five parallel Opus teammates (chat interior, weddings, marketplace, onboarding,
 admin) with strict disjoint file scopes + orchestrator verification. Commits
