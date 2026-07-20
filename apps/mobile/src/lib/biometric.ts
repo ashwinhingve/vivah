@@ -9,6 +9,14 @@ import * as SecureStore from 'expo-secure-store';
  */
 
 const BIOMETRIC_ENABLED_KEY = 'smartshaadi_biometric_enabled';
+const LAST_UNLOCK_KEY = 'smartshaadi_biometric_last_unlock';
+
+/**
+ * Grace window after successful unlock: 60 seconds.
+ * If the user was unlocked less than this many milliseconds ago,
+ * don't re-prompt on foreground.
+ */
+export const GRACE_MS = 60_000;
 
 /**
  * Check if the device has biometric hardware available AND
@@ -99,6 +107,44 @@ export async function isBiometricEnabled(): Promise<boolean> {
 }
 
 /**
+ * Record the timestamp of a successful biometric unlock.
+ * Stored as an epoch-ms string in SecureStore.
+ */
+export async function recordUnlock(): Promise<void> {
+  try {
+    const now = Date.now().toString();
+    SecureStore.setItem(LAST_UNLOCK_KEY, now);
+  } catch (error) {
+    console.error('[biometric] recordUnlock error:', error);
+  }
+}
+
+/**
+ * Retrieve the timestamp of the last successful unlock.
+ * Returns null if never unlocked or if the stored value is invalid.
+ * A non-numeric or unparseable value returns null (fail closed → prompt).
+ */
+export async function getLastUnlockAt(): Promise<number | null> {
+  try {
+    const stored = SecureStore.getItem(LAST_UNLOCK_KEY);
+    if (stored === null) {
+      return null;
+    }
+
+    const ms = parseInt(stored, 10);
+    // Fail closed: if parse fails or result is NaN, return null (re-prompt)
+    if (isNaN(ms)) {
+      return null;
+    }
+
+    return ms;
+  } catch (error) {
+    console.error('[biometric] getLastUnlockAt error:', error);
+    return null;
+  }
+}
+
+/**
  * Pure decision function: should the app prompt for biometric unlock?
  *
  * This is extracted from _layout.tsx so it can be unit tested independently.
@@ -107,16 +153,22 @@ export async function isBiometricEnabled(): Promise<boolean> {
  *   AND user has opted into biometric
  *   AND device has hardware + enrolled biometrics
  *   AND hasn't already unlocked this session
+ *   AND is NOT within the grace window after the last unlock
  *   THEN prompt for biometric
  *
  * The `hasSession` check is CRITICAL: it's the login regression guard.
  * If this inverts, the gate fires during phone→OTP, locking everyone out.
  *
- * @param input The four inputs to the decision:
+ * The grace window (60 seconds) prevents re-prompting immediately after
+ * returning from background — the user just unlocked.
+ *
+ * @param input The inputs to the decision:
  *   - hasSession: User has a valid auth session (already logged in via OTP)
  *   - optedIn: User enabled biometric in settings
  *   - hardwareAvailable: Device has sensor + enrolled biometrics
  *   - alreadyUnlockedThisSession: Gate already fired in this session
+ *   - lastUnlockAt: Epoch-ms timestamp of last successful unlock (or null if never)
+ *   - now: Current time in epoch-ms (for testing; defaults to Date.now())
  * @returns true if should prompt, false otherwise
  */
 export function shouldPromptBiometric(input: {
@@ -124,6 +176,8 @@ export function shouldPromptBiometric(input: {
   optedIn: boolean;
   hardwareAvailable: boolean;
   alreadyUnlockedThisSession: boolean;
+  lastUnlockAt?: number | null;
+  now?: number;
 }): boolean {
   // Login regression guard: if no session, NEVER fire the gate
   // User must log in via OTP first before biometric can unlock
@@ -144,6 +198,20 @@ export function shouldPromptBiometric(input: {
   // Don't re-prompt if already unlocked this session
   if (input.alreadyUnlockedThisSession) {
     return false;
+  }
+
+  // Grace window: if unlocked recently (within 60s), don't re-prompt
+  const now = input.now ?? Date.now();
+  const lastUnlockAt = input.lastUnlockAt;
+
+  if (lastUnlockAt !== null && lastUnlockAt !== undefined) {
+    const timeSinceUnlock = now - lastUnlockAt;
+    // If unlocked less than GRACE_MS ago AND clock is reasonable (time >= 0)
+    // then don't prompt. Fail closed: if clock skew (future lastUnlockAt),
+    // DO prompt.
+    if (timeSinceUnlock >= 0 && timeSinceUnlock < GRACE_MS) {
+      return false;
+    }
   }
 
   // All conditions met: prompt for biometric

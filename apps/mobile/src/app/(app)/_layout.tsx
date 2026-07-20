@@ -1,12 +1,10 @@
-import { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { withAlpha } from '@/theme/tokens';
 import { useSession } from '@/hooks/useSession';
-import { canUseBiometric, isBiometricEnabled, shouldPromptBiometric } from '@/lib/biometric';
+import { useBiometricGate } from '@/hooks/useBiometricGate';
 
 /**
  * Authenticated tab shell — four tabs:
@@ -23,55 +21,27 @@ import { canUseBiometric, isBiometricEnabled, shouldPromptBiometric } from '@/li
  * the device has hardware + enrolled biometrics. Re-arms on returning from
  * background (AppState).
  *
+ * Cold-start gap fix: gate is evaluated on mount (when session loading settles)
+ * AND on AppState foreground transitions. Grace window prevents re-prompting
+ * within 60 seconds of unlock.
+ *
  * The gate does NOT interpose on the initial phone→OTP flow — that would be
  * a login regression. It only gates re-entry over an already-stored session.
  */
 export default function AppLayout() {
   const { colors } = useThemeColors();
   const router = useRouter();
-  const { data: session } = useSession();
-  const appStateRef = useRef(AppState.currentState);
-  const biometricShownRef = useRef(false);
+  const { data: session, isPending: sessionLoading } = useSession();
 
-  // Re-arm biometric check on foreground (return from background)
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, [session]);
-
-  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-    const currentAppState = appStateRef.current;
-    appStateRef.current = nextAppState;
-
-    // Arm biometric gate when returning from background
-    if (
-      currentAppState.match(/inactive|background/) &&
-      nextAppState === 'active'
-    ) {
-      // Gather inputs for the pure decision function
-      const hasSession = !!session?.user;
-      const optedIn = await isBiometricEnabled();
-      const hardwareCheckResult = await canUseBiometric();
-      const hardwareAvailable = hardwareCheckResult.canUse;
-      const alreadyUnlocked = biometricShownRef.current;
-
-      // Call the pure decision function
-      const shouldPrompt = shouldPromptBiometric({
-        hasSession,
-        optedIn,
-        hardwareAvailable,
-        alreadyUnlockedThisSession: alreadyUnlocked,
-      });
-
-      if (shouldPrompt) {
-        biometricShownRef.current = true;
-        router.push('/(app)/biometric-unlock');
-      } else {
-        // Reset flag if conditions aren't met
-        biometricShownRef.current = false;
-      }
-    }
-  };
+  // Biometric re-entry gate. Lives in a hook rather than inline effects because
+  // this component cannot be rendered under RNTL (Tabs trips a displayName error
+  // in react-native-css-interop), so anything left here is untestable — which is
+  // exactly how the cold-start hole survived unnoticed.
+  useBiometricGate({
+    hasSession: !!session?.user,
+    sessionLoading,
+    onPrompt: () => router.push('/(app)/biometric-unlock'),
+  });
 
   return (
     <Tabs
