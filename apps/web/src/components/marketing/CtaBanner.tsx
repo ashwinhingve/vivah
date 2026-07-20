@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { Eyebrow } from './Ornament';
+import AnimatedSection from './AnimatedSection.client';
 import coupleDusk from '../../../public/landing/couple-dusk.webp';
 
 export default async function CtaBanner() {
@@ -46,7 +47,7 @@ export default async function CtaBanner() {
         className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent"
       />
 
-      <div className="relative max-w-2xl mx-auto px-4 text-center">
+      <AnimatedSection className="relative max-w-2xl mx-auto px-4 text-center">
         <Eyebrow tone="dark" className="mb-5">
           {t('eyebrow')}
         </Eyebrow>
@@ -83,7 +84,7 @@ export default async function CtaBanner() {
         <p className="mt-6 text-white/60 text-sm">
           {t('microcopy')}
         </p>
-      </div>
+      </AnimatedSection>
     </section>
   );
 }

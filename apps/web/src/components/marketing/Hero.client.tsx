@@ -143,7 +143,10 @@ export default function Hero() {
           {/* Eyebrow pill */}
           <motion.div
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-surface/70 px-3.5 py-1.5 backdrop-blur-sm"
+            /* gap/padding tighten below sm: at 360px (the Indian Android median
+               width this app targets) the nowrap label + trailing diamond
+               overflowed the viewport by 6px and clipped the pill's right edge. */
+            className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-surface/70 px-3 py-1.5 backdrop-blur-sm sm:gap-2 sm:px-3.5"
           >
             <span aria-hidden="true" className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-gold" />
             <span className="whitespace-nowrap text-2xs font-semibold uppercase tracking-[0.14em] text-gold-muted sm:tracking-[0.18em]">
