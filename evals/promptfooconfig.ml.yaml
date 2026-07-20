@@ -1,0 +1,29 @@
+# Smart Shaadi — ML / deterministic eval config.
+#
+# The 7 ML features only (Emotional, FAQ, Stay, Guna Milan, Reputation,
+# Profile Optimizer, Marriage Readiness), run through the Python provider that
+# calls the real ai-service functions. Split out of promptfooconfig.yaml
+# because `--filter-providers` on the combined config crashes promptfoo 0.107
+# (SqliteError: FOREIGN KEY constraint failed in its internal results DB) and
+# hard-errors on newer promptfoo (tests referencing filtered-out providers).
+# Keep prompt/provider labels identical to promptfooconfig.yaml — the golden
+# files pin them by label.
+
+description: Smart Shaadi ML eval (7 deterministic features, no API keys)
+
+prompts:
+  - id: file://prompts/ml.prompt.js
+    label: ml
+
+providers:
+  - id: file://providers/ml_provider.py
+    label: ml
+
+tests:
+  - file://golden/emotional.yaml
+  - file://golden/faq.yaml
+  - file://golden/stay.yaml
+  - file://golden/guna_milan.yaml
+  - file://golden/reputation.yaml
+  - file://golden/profile_optimizer.yaml
+  - file://golden/marriage_readiness.yaml

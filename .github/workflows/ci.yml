@@ -97,6 +97,19 @@ jobs:
         env:
           DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
 
+      # Migrations 0030+ are hand-written (drizzle's journal ends at 0029, see
+      # CLAUDE.md "Production DB Migration Protocol"), so drizzle-kit migrate
+      # never applies them. They are idempotent; apply in order via psql —
+      # marketing/support/supply tables the unit tests touch live here.
+      - name: Apply hand-written migrations (0030+)
+        run: |
+          for f in $(ls packages/db/migrations/00[3-9][0-9]_*.sql | sort); do
+            echo "== $f"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+        env:
+          DATABASE_URL: postgresql://vivah:vivah@localhost:5432/smart_shaadi_test
+
       - name: Run unit tests
         run: pnpm test
         env:
