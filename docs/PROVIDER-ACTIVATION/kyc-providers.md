@@ -1,6 +1,6 @@
 # KYC Providers — Decision Matrix
 
-> **Purpose.** Maps each KYC adapter in `apps/api/src/kyc/` to its real-world provider, integration effort, and lead time. Companion to `docs/PROVIDER-ACTIVATION/`.
+> **Purpose.** Maps each KYC adapter in `apps/api/src/kyc/` to its real-world provider, integration effort, and lead time. Companion to the per-provider runbooks in this folder (see `README.md`).
 
 ---
 
@@ -8,14 +8,14 @@
 
 | Adapter file | What it verifies | Provider (recommended) | Status | Activation runbook |
 |--------------|------------------|------------------------|--------|---------------------|
-| `aadhaar.ts` | Aadhaar number + name match | DigiLocker (govt-issued) | TODO stub | `PROVIDER-ACTIVATION/digilocker.md` |
-| `pan.ts` | PAN number + name match | NSDL e-Gov | TODO stub | `PROVIDER-ACTIVATION/nsdl-pan.md` |
-| `bank.ts` | Bank account ownership (penny-drop) | Razorpay Fund Account | TODO stub | `PROVIDER-ACTIVATION/razorpay-fund-account.md` |
-| `faceMatch.ts` | Selfie ↔ ID photo similarity | AWS Rekognition `CompareFaces` | TODO stub | `PROVIDER-ACTIVATION/aws-rekognition.md` |
-| `liveness.ts` | Real-person video challenge | AWS Rekognition `FaceLiveness` | TODO stub | `PROVIDER-ACTIVATION/aws-rekognition.md` |
-| `criminal.ts` | Criminal record across India eCourts | Karza (or AuthBridge / IDfy) | TODO stub | `PROVIDER-ACTIVATION/ecourts-criminal.md` |
-| `sanctions.ts` | OFAC / EU / UN watchlists + PEP | Refinitiv WorldCheck One | TODO stub | `PROVIDER-ACTIVATION/refinitiv-worldcheck.md` |
-| `rekognition.ts` | Internal helper for face-collection ops | AWS Rekognition (same IAM) | partial impl | `PROVIDER-ACTIVATION/aws-rekognition.md` |
+| `aadhaar.ts` | Aadhaar number + name match | DigiLocker (govt-issued) | TODO stub | `./digilocker.md` |
+| `pan.ts` | PAN number + name match | NSDL e-Gov | TODO stub | `./nsdl-pan.md` |
+| `bank.ts` | Bank account ownership (penny-drop) | Razorpay Fund Account | TODO stub | `./razorpay-fund-account.md` |
+| `faceMatch.ts` | Selfie ↔ ID photo similarity | AWS Rekognition `CompareFaces` | TODO stub | `./aws-rekognition.md` |
+| `liveness.ts` | Real-person video challenge | AWS Rekognition `FaceLiveness` | TODO stub | `./aws-rekognition.md` |
+| `criminal.ts` | Criminal record across India eCourts | Karza (or AuthBridge / IDfy) | TODO stub | `./ecourts-criminal.md` |
+| `sanctions.ts` | OFAC / EU / UN watchlists + PEP | Refinitiv WorldCheck One | TODO stub | `./refinitiv-worldcheck.md` |
+| `rekognition.ts` | Internal helper for face-collection ops | AWS Rekognition (same IAM) | partial impl | `./aws-rekognition.md` |
 | `audit.ts` | Chained-hash audit log writer | (internal — no provider) | implemented | — |
 | `rateLimit.ts` | Per-user KYC throttle | (internal — Redis) | implemented | — |
 | `risk.ts` | Risk score aggregator | (internal — composes provider results) | implemented | — |

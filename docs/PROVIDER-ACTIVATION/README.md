@@ -72,6 +72,7 @@ Rollback is always: flip the flag back, redeploy. Past data is unaffected becaus
 
 | File | Provider | What it gates |
 |------|----------|---------------|
+| `kyc-providers.md` | (decision matrix) | Maps each KYC adapter in `apps/api/src/kyc/` to its provider, effort, tier, and cost |
 | `razorpay-live.md` | Razorpay LIVE | All payment captures, refunds, escrow, disputes |
 | `razorpay-fund-account.md` | Razorpay Fund Account | Vendor payouts (penny-drop verification) |
 | `msg91-dlt.md` | MSG91 DLT | Phone OTP, transactional SMS |

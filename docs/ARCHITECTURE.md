@@ -296,14 +296,13 @@ api gets a new domain `apps/api/src/ai/` that proxies + enriches + caches. Front
 
 | Doc | Contents |
 |-----|----------|
+| `docs/README.md` | documentation index (start here) |
 | `docs/API.md` | endpoint catalog (auto-gen target M3) |
 | `docs/DATABASE.md` | schema glossary + ER notes |
 | `docs/SETUP.md` | local dev setup steps |
-| `docs/MASTER-PLAN.md` | strategic project plan |
 | `docs/PROVIDER-ACTIVATION/` | 11 provider runbooks + index |
-| `docs/CLIENT-PRESENTATION.md` | client meeting deck source |
+| `docs/PROVIDER-ACTIVATION/kyc-providers.md` | KYC adapter decisions (M2) |
 | `docs/SECURITY-REVIEW.md` | security posture summary |
-| `docs/DEMO-SCRIPT.md` | live demo walkthrough |
+| `docs/DEMO-RUNBOOK-FINAL.md` | live demo walkthrough |
 | `docs/RUNBOOK.md` | incident response (M3) |
-| `docs/KYC-PROVIDERS.md` | KYC adapter decisions (M2) |
-| `~/.claude/plans/you-are-a-software-pure-penguin.md` | stabilization plan |
+| `docs/archive/` | historical plans, QA snapshots, old demo scripts |
