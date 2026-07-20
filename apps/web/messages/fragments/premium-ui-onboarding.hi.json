@@ -1,0 +1,120 @@
+{
+  "onboarding": {
+    "common": {
+      "stepOf": "स्टेप {current} / {total}",
+      "progress": "{percent}%",
+      "backButton": "वापस",
+      "continueButton": "आगे बढ़ें",
+      "saveButton": "सहेजें व आगे बढ़ें",
+      "skipButton": "अभी के लिए छोड़ें",
+      "savingLabel": "सहेजा जा रहा है…"
+    },
+    "personal": {
+      "heading": "आपकी व्यक्तिगत जानकारी",
+      "description": "चलिए आवश्यक विवरण से शुरू करते हैं। यह हमें आपके सर्वोत्तम मिलान ढूंढने में मदद करता है।",
+      "fullName": "पूरा नाम",
+      "fullNamePlaceholder": "आपका पूरा नाम",
+      "dateOfBirth": "जन्म की तारीख",
+      "maritalStatus": "वैवाहिक स्थिति",
+      "gender": "लिंग",
+      "height": "ऊँचाई",
+      "religion": "धर्म",
+      "motherTongue": "मातृभाषा",
+      "currentCity": "वर्तमान शहर",
+      "currentCityPlaceholder": "उदा. पुणे",
+      "state": "राज्य",
+      "aboutMe": "मेरे बारे में",
+      "aboutMePlaceholder": "अपने बारे में, अपनी रुचियों और अपनी तलाश के बारे में कुछ कहें…",
+      "sexualOrientationPrivate": "यौन अभिविन्यास (निजी)",
+      "orientationVisible": "मेरी सार्वजनिक प्रोफ़ाइल पर दिखाएँ",
+      "orientationStorageNote": "आपकी प्रोफ़ाइल पर संग्रहीत है लेकिन अन्य उपयोगकर्ताओं को कभी दृश्यमान नहीं है जब तक आप इसे नीचे टॉगल न करें।"
+    },
+    "family": {
+      "heading": "पारिवारिक पृष्ठभूमि",
+      "description": "मिलान को आपके पारिवारिक मूल्यों और संरचना को समझने में मदद करें।",
+      "fatherOccupation": "पिता का व्यवसाय",
+      "motherOccupation": "माता का व्यवसाय",
+      "siblings": "भाई-बहन",
+      "caste": "जाति",
+      "familyType": "परिवार का प्रकार",
+      "familyValues": "पारिवारिक मूल्य"
+    },
+    "career": {
+      "heading": "करियर व शिक्षा",
+      "description": "अपनी व्यावसायिक यात्रा और शैक्षणिक पृष्ठभूमि साझा करें।",
+      "education": "शिक्षा",
+      "collegeName": "कॉलेज का नाम",
+      "occupation": "व्यवसाय",
+      "company": "कंपनी",
+      "salary": "वार्षिक आय (वैकल्पिक)",
+      "salaryNote": "यह आपको संरेखित जीवन योजनाओं वाले संगत मिलान के साथ सतह करने में मदद करता है।"
+    },
+    "lifestyle": {
+      "heading": "जीवनशैली व रुचियाँ",
+      "description": "अपनी रुचियों और दैनिक आदतों के माध्यम से स्वयं को व्यक्त करें।",
+      "diet": "आहार पसंद",
+      "smoking": "धूम्रपान",
+      "drinking": "पीना",
+      "hobbies": "शौक (सभी लागू को चुनें)",
+      "languages": "बोली जाने वाली भाषाएँ",
+      "personalityTags": "आपके व्यक्तित्व टैग",
+      "personalityTagsNote": "ये आपको संगत मिलान के साथ सतह करने में मदद करते हैं",
+      "fitness": "फिटनेस स्तर"
+    },
+    "preferences": {
+      "heading": "साथी की पसंद",
+      "description": "आप एक जीवन साथी में क्या तलाश रहे हैं?",
+      "ageRange": "आयु सीमा: {min} – {max} वर्ष",
+      "heightRange": "ऊँचाई की सीमा: {min}cm – {max}cm",
+      "maritalStatus": "वैवाहिक स्थिति",
+      "religion": "धर्म की पसंद",
+      "advancedFilters": "उन्नत फ़िल्टर",
+      "basicPreferences": "मूलभूत प्राथमिकताएँ",
+      "manglik": "मांगलिक प्राथमिकता",
+      "diet": "आहार पसंद",
+      "openToInterfaith": "अंतरधार्मिक विवाह के लिए खुला",
+      "openToInterCaste": "अंतर्जातीय विवाह के लिए खुला",
+      "partnerDescription": "अपने आदर्श साथी का वर्णन करें",
+      "partnerDescriptionPlaceholder": "एक जीवन साथी में आप जो गुण तलाश रहे हैं उनका वर्णन करें…",
+      "characterCount": "{current}/1000"
+    },
+    "horoscope": {
+      "heading": "राशिफल विवरण",
+      "description": "हमें आपका सबसे संगत मिलान खोजने में मदद करें।",
+      "astrologicalDetails": "ज्योतिषीय विवरण",
+      "birthInformation": "जन्म की जानकारी",
+      "rashi": "राशि",
+      "rashiLabel": "राशि (चंद्र राशि)",
+      "nakshatra": "नक्षत्र",
+      "nakshatraLabel": "नक्षत्र (जन्म तारका)",
+      "manglikStatus": "मांगलिक स्थिति",
+      "dateOfBirth": "जन्म की तारीख",
+      "timeOfBirth": "जन्म का समय",
+      "timeOfBirthNote": "(घंटा:मिनट)",
+      "placeOfBirth": "जन्म का स्थान",
+      "placeOfBirthPlaceholder": "उदा. पुणे",
+      "kundliChart": "कुंडली चार्ट अपलोड",
+      "kundliChartNote": "जल्द ही आ रहा है — अपनी जन्म कुंडली PDF या छवि अपलोड करें",
+      "gunaMilanScore": "गुणा मिलान स्कोर",
+      "gunaMilanScoreNote": "आपका संगतता स्कोर दिखाई देगा एक बार दोनों प्रोफाइलें पूर्ण हों"
+    },
+    "photos": {
+      "heading": "अपने फ़ोटो जोड़ें",
+      "description": "आपकी मुख्य तस्वीर वह पहली चीज़ है जो संभावित मिलान देखता है",
+      "uploadPhotos": "फ़ोटो अपलोड करें",
+      "dragAndDrop": "यहाँ फ़ोटो ड्रैग और ड्रॉप करें या ब्राउज़ करने के लिए क्लिक करें",
+      "maxFiles": "आप 6 तक फ़ोटो अपलोड कर सकते हैं",
+      "mainPhotoTip": "अपनी पहली फ़ोटो स्पष्ट और हाल की अच्छी लाइटिंग के साथ बनाएँ",
+      "continueButton": "पूर्ण करने के लिए आगे बढ़ें"
+    },
+    "complete": {
+      "greatHeadline": "आपकी प्रोफ़ाइल बहुत अच्छी लग रही है!",
+      "almostHeadline": "लगभग हो गया!",
+      "greatSubtitle": "पूर्ण प्रोफाइलें 3× अधिक प्रतिक्रियाएँ प्राप्त करती हैं",
+      "almostSubtitle": "बेहतर मिलान आकर्षित करने के लिए कुछ और अनुभाग पूर्ण करें",
+      "profileComplete": "पूर्ण",
+      "completeTheseSections": "इन अनुभागों को पूर्ण करें",
+      "goToDashboard": "डैशबोर्ड पर जाएँ"
+    }
+  }
+}

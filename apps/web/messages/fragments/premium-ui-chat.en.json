@@ -1,0 +1,30 @@
+{
+  "chat": {
+    "emptyState": {
+      "title": "Start the conversation",
+      "subtitle": "Say hello and begin your journey together",
+      "beginningOfConversation": "Beginning of conversation"
+    },
+    "typing": "{name} is typing",
+    "presence": {
+      "online": "Online now",
+      "lastSeen": "Last seen {time}",
+      "offline": "Offline"
+    },
+    "smartReplies": {
+      "thinking": "Thinking…"
+    },
+    "menu": {
+      "mediaFiles": "Media & files",
+      "aiCoach": "AI coach",
+      "pinChat": "Pin to top",
+      "unpinChat": "Unpin chat",
+      "muteNotifications": "Mute notifications",
+      "unmuteNotifications": "Unmute notifications",
+      "archiveChat": "Archive chat",
+      "unarchiveChat": "Unarchive",
+      "report": "Report",
+      "blockAndExit": "Block & exit"
+    }
+  }
+}

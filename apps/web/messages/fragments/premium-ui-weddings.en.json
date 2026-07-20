@@ -1,0 +1,231 @@
+{
+  "weddings": {
+    "list": {
+      "metadata": { "title": "My Weddings — Smart Shaadi" },
+      "heading": "My Weddings",
+      "subtitle": "Create and manage your wedding events",
+      "newWedding": "Create Wedding",
+      "emptyCta": "Create your first wedding",
+      "loadError": "Could not load weddings. Please refresh and try again."
+    },
+    "new": {
+      "metadata": { "title": "Create Wedding — Smart Shaadi" },
+      "heading": "Create Your Wedding Plan",
+      "subtitle": "Fill in the basics — you can update everything later.",
+      "back": "Back to Weddings",
+      "form": {
+        "weddingName": "Wedding Name",
+        "weddingNamePlaceholder": "e.g. Priya & Rahul",
+        "weddingNameHelp": "The couple or event title — separate from the venue.",
+        "weddingDate": "Wedding Date",
+        "weddingDateHelp": "Must be a future date.",
+        "venueName": "Venue Name",
+        "venuePlaceholder": "e.g. The Grand Palace Banquet",
+        "venueCity": "City",
+        "venueCityPlaceholder": "e.g. Mumbai",
+        "venueAddress": "Venue Address",
+        "venueAddressLabel": "Venue Address (optional)",
+        "budgetTotal": "Budget",
+        "budgetHelp": "Total estimated cost for the wedding.",
+        "submit": "Create Wedding Plan",
+        "creating": "Creating…",
+        "errorGeneric": "Could not create wedding. Please check your details and try again."
+      }
+    },
+    "detail": {
+      "metadata": { "title": "Wedding Overview — Smart Shaadi" },
+      "quickActions": "Quick actions",
+      "upcomingCeremonies": "Upcoming ceremonies",
+      "allCeremonies": "All ceremonies",
+      "fullTimeline": "Full timeline",
+      "recentActivity": "Recent activity",
+      "auspiciousDates": "Auspicious dates",
+      "dateSelected": "Date selected",
+      "budgetSpent": "Budget spent",
+      "budgetSpentSub": "no budget set",
+      "guests": "Guests",
+      "guestsSub": "on the list",
+      "ceremonies": "Ceremonies",
+      "ceremoniesSub": "planned",
+      "tasksDone": "Tasks done",
+      "tasksDoneSub": "complete",
+      "selectDate": "Select",
+      "selectedBadge": "✓ Selected",
+      "noCeremoniesTitle": "No ceremonies added yet",
+      "noCeremoniesDesc": "Add ceremonies to build out your wedding-day timeline."
+    },
+    "budget": {
+      "metadata": { "title": "Budget — Smart Shaadi" },
+      "heading": "Budget",
+      "spendByCategory": "Spend by Category",
+      "categoryBreakdown": "Category Breakdown",
+      "breakdownSubtitle": "Edit allocated and spent amounts inline",
+      "totalBudget": "Total Budget",
+      "remaining": "Remaining",
+      "spent": "Spent",
+      "noPlan": "No wedding plan found.",
+      "noPlanDesc": "Create a wedding plan first to track your budget.",
+      "tabs": {
+        "tasks": "Tasks",
+        "budget": "Budget",
+        "guests": "Guests"
+      }
+    },
+    "tasks": {
+      "metadata": { "title": "Wedding Tasks — Smart Shaadi" },
+      "heading": "Wedding Tasks",
+      "subtitle": "Drag tasks through the pipeline or use the arrows to move them.",
+      "form": {
+        "title": "Task title *",
+        "dueDate": "Due date (optional)",
+        "priority": "Priority",
+        "priorityLow": "Low",
+        "priorityMedium": "Medium",
+        "priorityHigh": "High",
+        "submit": "Add to list",
+        "creating": "Adding…"
+      }
+    },
+    "timeline": {
+      "metadata": { "title": "Day-of Schedule — Smart Shaadi" },
+      "heading": "Day-of Schedule",
+      "subtitle": "Build out your day's timeline and assign vendors.",
+      "autoGenerate": "Auto-generate",
+      "generateFromCeremonies": "Generate from your ceremonies",
+      "noEvents": "No schedule events yet.",
+      "addCeremoniesFirst": "Add ceremonies first, then auto-generate a schedule.",
+      "addEvent": "Add event",
+      "form": {
+        "title": "Title *",
+        "date": "Date *",
+        "ceremony": "Ceremony",
+        "ceremonyNone": "— None —",
+        "startTime": "Start *",
+        "endTime": "End",
+        "location": "Location",
+        "description": "Description",
+        "submit": "Add to schedule"
+      }
+    },
+    "ceremonies": {
+      "metadata": { "title": "Ceremonies — Smart Shaadi" },
+      "heading": "Ceremonies",
+      "subtitle": "Plan and track every ceremony event",
+      "addNewCeremony": "Add New Ceremony",
+      "noCeremoniesTitle": "No ceremonies yet",
+      "noCeremoniesDesc": "Add your first ceremony above — Haldi, Mehndi, Sangeet, Wedding, or a custom name.",
+      "form": {
+        "ceremonyType": "Ceremony Type *",
+        "ceremonyName": "Ceremony Name",
+        "ceremonyNamePlaceholder": "e.g. Manda",
+        "date": "Date",
+        "startTime": "Start Time",
+        "venue": "Venue",
+        "notes": "Notes",
+        "submit": "Save Changes"
+      },
+      "ceremony": {
+        "labels": {
+          "HALDI": "Haldi",
+          "MEHNDI": "Mehndi",
+          "SANGEET": "Sangeet",
+          "WEDDING": "Wedding",
+          "RECEPTION": "Reception",
+          "ENGAGEMENT": "Engagement",
+          "OTHER": "Other"
+        },
+        "completed": "Completed",
+        "daysAway": "{days}d away",
+        "dressCode": "Dress code:",
+        "expectedGuests": "~{count} guests expected"
+      }
+    },
+    "guests": {
+      "metadata": { "title": "Guest List — Smart Shaadi" },
+      "heading": "Guests",
+      "subtitle": "Manage guest list, RSVPs, invitations, analytics, and check-in.",
+      "addGuest": "Add Guest",
+      "importCsv": "Import CSV",
+      "exportCsv": "Export CSV",
+      "tabs": {
+        "list": "List",
+        "analytics": "Analytics",
+        "checkIn": "Check-in",
+        "questions": "Questions",
+        "seating": "Seating"
+      },
+      "stats": {
+        "totalGuests": "Total Guests",
+        "confirmed": "Confirmed",
+        "declined": "Declined",
+        "awaitingRsvp": "Awaiting RSVP"
+      },
+      "rsvpSummary": "RSVP Summary",
+      "mealPreferences": "Meal Preferences",
+      "guestList": "Guest List",
+      "guestListSubtitle": "sort, filter, and manage RSVPs",
+      "errorLoad": "Could not load guests. Please try again.",
+      "form": {
+        "name": "Full name *",
+        "relationship": "Relationship (e.g. Cousin)",
+        "phone": "Phone",
+        "email": "Email",
+        "side": "Side",
+        "sideBride": "Bride's side",
+        "sideGroom": "Groom's side",
+        "sideBoth": "Both",
+        "mealPref": "Meal preference",
+        "mealVeg": "Veg",
+        "mealNonVeg": "Non-Veg",
+        "mealJain": "Jain",
+        "mealVegan": "Vegan",
+        "mealEggetarian": "Eggetarian",
+        "mealNoPreference": "No preference",
+        "submit": "Add Guest",
+        "cancel": "Cancel"
+      },
+      "table": {
+        "searchPlaceholder": "Search guests…",
+        "addButtonLabel": "Add Guest",
+        "importLabel": "Import CSV",
+        "exportLabel": "Export CSV",
+        "nameColumn": "Name",
+        "relationshipColumn": "Relationship",
+        "sideColumn": "Side",
+        "rsvpColumn": "RSVP",
+        "mealColumn": "Meal",
+        "actionsColumn": "Actions",
+        "noGuests": "No guests added yet.",
+        "noGuestsMatch": "No guests match your search.",
+        "rsvpStatuses": {
+          "YES": "Attending",
+          "NO": "Declined",
+          "MAYBE": "Maybe",
+          "PENDING": "Pending"
+        },
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "dayOf": {
+      "metadata": { "title": "Day-of Dashboard — Smart Shaadi" },
+      "heading": "Day-of Dashboard",
+      "subtitle": "Real-time updates and ceremony coordination.",
+      "loadError": "The day-of snapshot could not be loaded. Check your access to this wedding."
+    },
+    "card": {
+      "fallbackTitle": "Wedding",
+      "statuses": {
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "daysLeft": "{days}d left",
+        "planning": "Planning"
+      },
+      "planningProgress": "Planning progress",
+      "tasksProgress": "{done}/{total} tasks",
+      "guestsCount": "{count} guest{count,plural,one{} other{s}}"
+    }
+  }
+}
