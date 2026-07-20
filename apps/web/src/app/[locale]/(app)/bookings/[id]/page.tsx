@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -69,6 +70,13 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   CANCELLED: 'Cancelled',
   DISPUTED:  'Under Dispute',
 };
+
+export function generateMetadata(): Metadata {
+  return {
+    title: 'Booking Details — Smart Shaadi',
+    description: 'View your booking details, reschedule, or request cancellation.',
+  };
+}
 
 export default async function BookingDetailPage({
   params,

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -63,6 +64,11 @@ async function fetchFeatured(): Promise<ProductSummary[]> {
     return [];
   }
 }
+
+export const metadata: Metadata = {
+  title: 'Wedding Store — Smart Shaadi',
+  description: 'Shop gifts, trousseau, ethnic wear and wedding essentials. Wide selection at great prices.',
+};
 
 export default async function StorePage({ searchParams }: PageProps) {
   const params   = await searchParams;

@@ -16,8 +16,8 @@ import type { RentalItem } from '@smartshaadi/types';
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export const metadata: Metadata = {
-  title: 'Rent Items — Smart Shaadi',
-  description: 'Browse and rent decor, costumes, AV equipment and more for your wedding.',
+  title: 'Rent Wedding Items — Smart Shaadi',
+  description: 'Browse and rent decor, costumes, AV equipment, furniture, lighting and more for your wedding events.',
 };
 
 interface PageData {
