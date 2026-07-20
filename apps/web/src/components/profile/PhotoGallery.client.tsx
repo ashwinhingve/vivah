@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, BadgeCheck, ImageOff, ArrowRight } from 'lucide-react';
+import { Lock, BadgeCheck, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { PhotoLightboxModal } from '@/components/ui/PhotoLightboxModal.client';
@@ -20,8 +20,6 @@ interface Props {
   name: string;
   isVerified?: boolean;
 }
-
-const THUMB_SLOTS = 5;
 
 /**
  * Premium safety-mode placeholder: initialed-avatar pattern (Day 7) with a
@@ -78,7 +76,6 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
 
   const active = sorted[activeIdx];
   const urls = sorted.map((p) => p.url ?? '').filter((u) => u !== '');
-  const remainingSlots = Math.max(0, THUMB_SLOTS - sorted.length);
 
   return (
     <>
@@ -124,45 +121,38 @@ export function PhotoGallery({ photos, name, isVerified = false }: Props) {
           )}
         </div>
 
-        {/* Thumbnail row — always 5 slots, dashed placeholders fill missing */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {sorted.map((photo, idx) => {
-            const isActive = idx === activeIdx;
-            return (
-              <button
-                key={photo.id}
-                type="button"
-                onClick={() => setActiveIdx(idx)}
-                aria-label={`View photo ${idx + 1}`}
-                className={cn(
-                  'relative aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-150',
-                  isActive
-                    ? 'scale-105 border-teal'
-                    : 'border-gold/20 opacity-70 hover:opacity-100'
-                )}
-              >
-                <ImageWithFallback
-                  src={photo.url}
-                  alt=""
-                  fill
-                  sizes="64px"
-                  wrapperClassName="h-full w-full"
-                  name={name}
-                  className="h-full w-full object-cover"
-                />
-              </button>
-            );
-          })}
-          {Array.from({ length: remainingSlots }).map((_, i) => (
-            <div
-              key={`empty-${i}`}
-              className="flex aspect-square h-16 w-16 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-gold/25 bg-gold/5"
-              aria-hidden="true"
-            >
-              <ImageOff className="h-4 w-4 text-gold-muted/40" />
-            </div>
-          ))}
-        </div>
+        {/* Thumbnail row — only real photos; empty slots read as broken images */}
+        {sorted.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {sorted.map((photo, idx) => {
+              const isActive = idx === activeIdx;
+              return (
+                <button
+                  key={photo.id}
+                  type="button"
+                  onClick={() => setActiveIdx(idx)}
+                  aria-label={`View photo ${idx + 1}`}
+                  className={cn(
+                    'relative aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-150',
+                    isActive
+                      ? 'scale-105 border-teal'
+                      : 'border-gold/20 opacity-70 hover:opacity-100'
+                  )}
+                >
+                  <ImageWithFallback
+                    src={photo.url}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    wrapperClassName="h-full w-full"
+                    name={name}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <PhotoLightboxModal

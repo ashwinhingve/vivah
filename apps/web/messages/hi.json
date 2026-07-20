@@ -443,7 +443,15 @@
       "city": "शहर",
       "filtersTitle": "फ़िल्टर",
       "filtersSubtitle": "अपनी मैच फ़ीड परिष्कृत करें",
-      "maritalStatus": "वैवाहिक स्थिति"
+      "maritalStatus": "वैवाहिक स्थिति",
+      "includeDivorcees": "तलाक़शुदा शामिल करें",
+      "includeDivorceesDesc": "तलाक़शुदा या अलग रह रहे लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeDivorceesAria": "मैच फ़ीड में तलाक़शुदा शामिल करें",
+      "includeWidows": "विधवा / विधुर शामिल करें",
+      "includeWidowsDesc": "जीवनसाथी खो चुके लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeWidowsAria": "मैच फ़ीड में विधवा और विधुर शामिल करें",
+      "savingPreference": "प्राथमिकता सहेजी जा रही है…",
+      "couldNotSave": "प्राथमिकता सहेजी नहीं जा सकी"
     },
     "recommended": "अनुशंसित",
     "wantMoreTitle": "और मैच चाहिए?",
@@ -555,7 +563,17 @@
       "lifestyle": "जीवनशैली",
       "horoscope": "कुंडली",
       "preferences": "प्राथमिकताएँ"
-    }
+    },
+    "dimensions": {
+      "demographicAlignment": "जनसांख्यिकी",
+      "lifestyleCompatibility": "जीवनशैली",
+      "careerEducation": "करियर व शिक्षा",
+      "familyValues": "पारिवारिक मूल्य",
+      "preferenceOverlap": "प्राथमिकताएँ",
+      "personalityFit": "व्यक्तित्व",
+      "behaviourCompatibility": "व्यवहार"
+    },
+    "similarTitle": "आपको ये भी पसंद आ सकते हैं"
   },
   "onboarding": {
     "personal": {

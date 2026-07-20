@@ -443,7 +443,15 @@
       "city": "City",
       "filtersTitle": "Filters",
       "filtersSubtitle": "Refine your match feed",
-      "maritalStatus": "Marital Status"
+      "maritalStatus": "Marital Status",
+      "includeDivorcees": "Include divorcees",
+      "includeDivorceesDesc": "Show profiles of people who are divorced or separated",
+      "includeDivorceesAria": "Include divorcees in match feed",
+      "includeWidows": "Include widows / widowers",
+      "includeWidowsDesc": "Show profiles of people who have lost a spouse",
+      "includeWidowsAria": "Include widows and widowers in match feed",
+      "savingPreference": "Saving preference…",
+      "couldNotSave": "Could not save preference"
     },
     "recommended": "Recommended",
     "wantMoreTitle": "Want more matches?",
@@ -555,7 +563,17 @@
       "lifestyle": "Lifestyle",
       "horoscope": "Horoscope",
       "preferences": "Preferences"
-    }
+    },
+    "dimensions": {
+      "demographicAlignment": "Demographics",
+      "lifestyleCompatibility": "Lifestyle",
+      "careerEducation": "Career & Education",
+      "familyValues": "Family Values",
+      "preferenceOverlap": "Preferences",
+      "personalityFit": "Personality",
+      "behaviourCompatibility": "Behaviour"
+    },
+    "similarTitle": "You may also like"
   },
   "onboarding": {
     "personal": {

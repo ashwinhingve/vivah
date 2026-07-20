@@ -7,5 +7,29 @@
   },
   "shortlist": {
     "metadata": { "title": "आपकी शॉर्टलिस्ट — स्मार्ट शादी" }
+  },
+  "profileDetail": {
+    "similarTitle": "आपको ये भी पसंद आ सकते हैं",
+    "dimensions": {
+      "demographicAlignment": "जनसांख्यिकी",
+      "lifestyleCompatibility": "जीवनशैली",
+      "careerEducation": "करियर व शिक्षा",
+      "familyValues": "पारिवारिक मूल्य",
+      "preferenceOverlap": "प्राथमिकताएँ",
+      "personalityFit": "व्यक्तित्व",
+      "behaviourCompatibility": "व्यवहार"
+    }
+  },
+  "feed": {
+    "filters": {
+      "includeDivorcees": "तलाक़शुदा शामिल करें",
+      "includeDivorceesDesc": "तलाक़शुदा या अलग रह रहे लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeDivorceesAria": "मैच फ़ीड में तलाक़शुदा शामिल करें",
+      "includeWidows": "विधवा / विधुर शामिल करें",
+      "includeWidowsDesc": "जीवनसाथी खो चुके लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeWidowsAria": "मैच फ़ीड में विधवा और विधुर शामिल करें",
+      "savingPreference": "प्राथमिकता सहेजी जा रही है…",
+      "couldNotSave": "प्राथमिकता सहेजी नहीं जा सकी"
+    }
   }
 }
