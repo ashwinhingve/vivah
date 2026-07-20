@@ -55,7 +55,7 @@ export default function ReactionPicker({
           type="button"
           aria-label={`React with ${e}`}
           onClick={() => onPick(e)}
-          className="text-lg leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-muted transition-colors"
+          className="text-lg leading-none min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-surface-muted transition-colors"
         >
           {e}
         </button>

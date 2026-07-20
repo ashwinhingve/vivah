@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Check, CheckCheck, Clock, Forward, MoreHorizontal, Pencil, Video } from 'lucide-react'
 import type { ChatMessage } from '@smartshaadi/types'
@@ -54,6 +54,10 @@ function MessageBubbleInner({
   const isSent = message.senderId === currentUserId || message.senderId === currentProfileId
   const [menuOpen, setMenuOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  // Time strings differ between server (UTC) and browser (IST) locales and
+  // throw hydration mismatches — render them only after mount.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressFired = useRef(false)
@@ -309,7 +313,7 @@ function MessageBubbleInner({
             )}
           >
             {message.editedAt && !isDeleted ? <span className="italic">{t('edited')}</span> : null}
-            {time}
+            {mounted ? time : ''}
             {tick}
           </span>
         ) : null}

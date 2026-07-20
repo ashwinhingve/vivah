@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { ArrowDown, Loader2 } from 'lucide-react'
 import type {
   ChatMessage,
@@ -61,6 +62,7 @@ export default function ChatView({
   matchId, currentUserId, currentProfileId, authToken: _authToken,
   initialMessages, initialOther, initialSettings, initialHasMore, initialTotal,
 }: ChatViewProps) {
+  const t = useTranslations('chat')
   const [messages, setMessages] = useState<OptimisticMessage[]>(() => initialMessages.map(normalizeMessage))
   const [reply, setReply] = useState<ChatMessage | null>(null)
   const [editing, setEditing] = useState<ChatMessage | null>(null)
@@ -597,15 +599,15 @@ export default function ChatView({
           </div>
         ) : null}
         {!hasMore && messages.length > PAGE_SIZE ? (
-          <p className="text-center text-2xs text-muted-foreground py-2">Beginning of conversation</p>
+          <p className="text-center text-2xs text-muted-foreground py-2">{t('emptyState.beginningOfConversation')}</p>
         ) : null}
 
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal/10 text-3xl">💬</div>
-            <p className="font-heading text-base font-semibold text-foreground">Start the conversation</p>
+            <p className="font-heading text-base font-semibold text-foreground">{t('emptyState.title')}</p>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              Say hello and begin your journey together
+              {t('emptyState.subtitle')}
             </p>
           </div>
         ) : (
@@ -641,7 +643,7 @@ export default function ChatView({
           <div className="pl-2 pt-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-xs italic text-muted-foreground">
               <TypingDots />
-              {initialOther?.firstName ? `${initialOther.firstName} is typing` : 'typing'}
+              {initialOther?.firstName ? t('typing', { name: initialOther.firstName }) : t('typing', { name: 'Someone' })}
             </span>
           </div>
         ) : null}

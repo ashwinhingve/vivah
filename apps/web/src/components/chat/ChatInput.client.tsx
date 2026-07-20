@@ -285,7 +285,7 @@ export default function ChatInput({
             type="button"
             onClick={() => setEmojiOpen((o) => !o)}
             aria-label="Emoji"
-            className="absolute right-2 top-1.5 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
+            className="absolute right-1 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-muted hover:text-primary"
           >
             <Smile className="h-4 w-4" />
           </button>

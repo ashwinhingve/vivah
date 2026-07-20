@@ -93,7 +93,7 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
         onClick={toggle}
         aria-label={playing ? 'Pause voice note' : 'Play voice note'}
         className={cn(
-          'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
+          'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors',
           isSentByMe
             ? 'bg-surface/20 hover:bg-surface/30 text-white'
             : 'bg-teal text-white hover:bg-teal-hover',

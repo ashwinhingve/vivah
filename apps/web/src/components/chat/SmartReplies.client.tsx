@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Sparkles } from 'lucide-react'
 import type { SmartReplySuggestion } from '@smartshaadi/types'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,7 @@ const TONE_COLORS: Record<SmartReplySuggestion['tone'], string> = {
 }
 
 export default function SmartReplies({ matchId, visible, onPick, refreshKey }: SmartRepliesProps) {
+  const t = useTranslations('chat')
   const [items, setItems] = useState<SmartReplySuggestion[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -47,7 +49,7 @@ export default function SmartReplies({ matchId, visible, onPick, refreshKey }: S
     <div className="flex items-center gap-2 overflow-x-auto pb-2 pl-1 -mx-1 px-1 no-scrollbar">
       <Sparkles className="h-3.5 w-3.5 shrink-0 text-teal" aria-hidden="true" />
       {loading && items.length === 0 ? (
-        <span className="text-xs text-muted-foreground">Thinking…</span>
+        <span className="text-xs text-muted-foreground">{t('smartReplies.thinking')}</span>
       ) : (
         items.map((s, i) => (
           <button
