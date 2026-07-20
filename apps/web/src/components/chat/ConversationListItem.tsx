@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
@@ -35,6 +36,11 @@ const VIDEO_CALL_RE = /Video call started/i
 export default function ConversationListItem({ item, currentProfileId }: Props) {
   const t = useTranslations('chats')
   const locale = useLocale()
+  // Timestamps are timezone-dependent: the server (UTC) and the browser (IST)
+  // format different strings, which was throwing a hydration mismatch on every
+  // /chats visit. Render the time only after mount.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
   const other = item.other
   const photoUrl = other?.primaryPhotoKey ? resolvePhotoUrl(other.primaryPhotoKey) : null
   const isMine = item.lastMessage?.senderId === currentProfileId
@@ -45,7 +51,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
   const pathname = usePathname()
   const isActive = pathname?.startsWith(`/chat/${item.matchRequestId}`) ?? false
 
-  let preview = '—'
+  let preview = t('tapToStart')
   let previewIcon: 'photo' | 'voice' | 'video' | null = null
   if (item.lastMessage) {
     if (item.lastMessage.type === 'PHOTO') {
@@ -115,7 +121,7 @@ export default function ConversationListItem({ item, currentProfileId }: Props) 
             'ml-auto shrink-0 text-2xs',
             isUnread ? 'font-semibold text-teal' : 'text-muted-foreground',
           )}>
-            {formatTs(item.lastMessage?.sentAt ?? item.updatedAt, locale, t('yesterday'))}
+            {mounted ? formatTs(item.lastMessage?.sentAt ?? item.updatedAt, locale, t('yesterday')) : ''}
           </span>
         </div>
         <div className="mt-0.5 flex items-center gap-1.5">

@@ -13,8 +13,8 @@ interface SmartRepliesProps {
 }
 
 const TONE_COLORS: Record<SmartReplySuggestion['tone'], string> = {
-  warm:     'border-destructive/40/50 bg-destructive text-destructive hover:bg-destructive',
-  curious:  'border-warning/40/50 bg-warning/10 text-warning hover:bg-warning/15',
+  warm:     'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15',
+  curious:  'border-warning/40 bg-warning/10 text-warning hover:bg-warning/15',
   friendly: 'border-teal/40 bg-teal/10 text-teal hover:bg-teal/15',
   safe:     'border-border bg-surface-muted text-foreground hover:bg-surface',
 }
@@ -55,7 +55,7 @@ export default function SmartReplies({ matchId, visible, onPick, refreshKey }: S
             type="button"
             onClick={() => onPick(s.text)}
             className={cn(
-              'shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors',
+              'min-h-[36px] shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors',
               TONE_COLORS[s.tone],
             )}
           >

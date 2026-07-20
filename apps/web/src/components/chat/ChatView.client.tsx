@@ -583,12 +583,14 @@ export default function ChatView({
         aria-live="polite"
         aria-relevant="additions"
         aria-label="Chat messages"
-        className="relative min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 py-4"
+        className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4"
         style={{
           // Account for sticky header + iOS safe area
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
+        {/* Readable centered column — full-width bubbles at 1280px strain the eye */}
+        <div className="mx-auto w-full max-w-3xl space-y-2">
         {loadingMore ? (
           <div className="flex justify-center py-2">
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -643,6 +645,7 @@ export default function ChatView({
             </span>
           </div>
         ) : null}
+        </div>
       </div>
 
       {!scrollPinned ? (

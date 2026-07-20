@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { Heart, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -95,7 +95,7 @@ export default async function LikesPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: Math.min(total, 6) }).map((_, i) => (
                 <Card key={i} className="overflow-hidden">
-                  <div className="relative aspect-[4/5] bg-gradient-to-br from-primary/10 via-teal/10 to-gold/10">
+                  <div className="relative aspect-[4/5] bg-gradient-to-br from-primary/10 via-gold/15 to-primary/5">
                     <PhotoFallback name="?" />
                   </div>
                 </Card>
@@ -104,7 +104,7 @@ export default async function LikesPage() {
           </UpgradeCTA>
         ) : items.length === 0 ? (
           <EmptyState
-            icon={Heart}
+            variant="no-matches"
             title={t('emptyTitle')}
             description={t('emptyDescription')}
             action={

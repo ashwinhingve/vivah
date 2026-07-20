@@ -113,8 +113,8 @@ function FilterTab({ href, label, active }: { href: string; label: string; activ
       href={href}
       className={
         active
-          ? 'inline-flex items-center rounded-full bg-teal px-3.5 py-1.5 text-xs font-semibold text-white'
-          : 'inline-flex items-center rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-teal/40 hover:text-foreground'
+          ? 'inline-flex min-h-[44px] items-center rounded-full bg-teal px-4 text-xs font-semibold text-white transition-colors'
+          : 'inline-flex min-h-[44px] items-center rounded-full border border-border bg-surface px-4 text-xs font-medium text-muted-foreground transition-colors hover:border-teal/40 hover:text-foreground'
       }
     >
       {label}
