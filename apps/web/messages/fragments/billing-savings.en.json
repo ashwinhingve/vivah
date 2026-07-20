@@ -1,0 +1,5 @@
+{
+  "billingSavings": {
+    "savingsLabel": "Save ₹{amount} ({percent}%) vs paying monthly"
+  }
+}

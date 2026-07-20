@@ -805,8 +805,24 @@ const COUNTRY_NAMES: Record<string, string> = {
   IN: 'India', US: 'USA', GB: 'United Kingdom', AE: 'United Arab Emirates', CA: 'Canada',
 };
 
+// Horoscope values seeded from the REAL enums in packages/schemas
+// (RASHI_VALUES / NAKSHATRA_VALUES). The previous 'Various' placeholder was
+// neither a valid enum value nor a spelling the Guna calculator recognises,
+// so every seeded pair scored zero — and local data that cannot produce a
+// real Guna score is local data that cannot catch a broken one.
+const SEED_RASHIS = [
+  'MESH', 'VRISHABHA', 'MITHUN', 'KARK', 'SINGH', 'KANYA',
+  'TULA', 'VRISHCHIK', 'DHANU', 'MAKAR', 'KUMBH', 'MEEN',
+] as const;
+const SEED_NAKSHATRAS = [
+  'ASHWINI', 'BHARANI', 'KRITTIKA', 'ROHINI', 'MRIGASHIRA', 'ARDRA',
+  'PUNARVASU', 'PUSHYA', 'ASHLESHA', 'MAGHA', 'HASTA', 'CHITRA',
+  'SWATI', 'VISHAKHA', 'ANURADHA', 'JYESHTHA', 'MULA', 'SHRAVANA',
+  'DHANISHTA', 'SHATABHISHA', 'REVATI',
+] as const;
+
 // DOBs computed so candidates land at the ages declared in CANDIDATES (year 2026 demo time).
-const CANDIDATE_CONTENTS = CANDIDATES.map(c => {
+const CANDIDATE_CONTENTS = CANDIDATES.map((c, i) => {
   const birthYear = 2026 - c.age;
   const dob = new Date(`${birthYear}-06-15`);
   const height = 170 + (c.age % 6) + 5; // 175-188 range
@@ -839,7 +855,13 @@ const CANDIDATE_CONTENTS = CANDIDATES.map(c => {
     location: { city: c.city, state: c.state, country: COUNTRY_NAMES[c.country ?? 'IN'] ?? 'India' },
     lifestyle: { diet: 'VEG', smoking: 'NEVER', drinking: 'OCCASIONALLY',
       hobbies: ['Travel','Reading','Cricket'], languagesSpoken: [c.community.split(' ')[0],'Hindi','English'] },
-    horoscope: { manglik: c.manglik, rashi: 'Various', nakshatra: 'Various', dob },
+    // Real enum values, not the 'Various' placeholder that used to be here.
+    // packages/schemas validates horoscope writes against these UPPERCASE
+    // enums, so seeding anything else makes local data unrepresentative of
+    // production -- which is exactly how a bug that zeroed every Guna Milan
+    // score survived local testing. Spread across rashis/nakshatras by index
+    // so seeded pairs produce varied, non-degenerate compatibility scores.
+    horoscope: { manglik: c.manglik, rashi: SEED_RASHIS[i % SEED_RASHIS.length], nakshatra: SEED_NAKSHATRAS[i % SEED_NAKSHATRAS.length], dob },
     partnerPreferences: {
       ageRange: { min: 24, max: 30 }, heightRange: { min: 155, max: 175 },
       education: ['B.Tech','MBA','Masters','Bachelors'], religion: ['Hindu'],

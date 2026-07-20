@@ -73,33 +73,68 @@ test fail. An earlier version of these tests passed against the buggy code
 because the mocks returned fixtures by call order and so could not tell which
 profile had been loaded first — the mocks are now keyed by input instead.
 
-## What is still unfixed: the background job
+## A second, worse bug: values were never translated (fixed)
 
-`apps/api/src/jobs/gunaRecalcJob.ts` sorts the two profile ids alphabetically
-and passes them as `profile_a` / `profile_b`:
+The endpoint passed the STORED horoscope value straight to the calculator.
+`packages/schemas` validates horoscope writes against UPPERCASE enum values
+(`'TULA'`), while `guna_milan.py` keys on Sanskrit spellings (`'Tula'`).
 
-```ts
-const [idA, idB] = [job.data.profileAId, job.data.profileBId].sort();
-```
+The calculator looks factors up with `dict.get()` and **never raises** on an
+unknown key. So an untranslated value did not error — it scored zero. Measured
+against the running service on the same pair:
 
-This is **deterministic** — it does not have the inconsistency bug above — but
-it is **not gender-ordered**. Roughly half of all pairs are therefore scored
-with the groom and bride reversed, so Varna, Tara and Bhakoot can be computed
-against the wrong direction.
+| Sent | Result |
+|---|---|
+| `Mesha` / `Bharani` (translated) | **15 / 36** |
+| `MESH` / `BHARANI` (raw, as stored) | **0 / 36 — "Not recommended"** |
 
-### Why it was not fixed in the same change
+Every real user would have seen 0/36 on every match, silently, with nothing in
+the logs. It survived local testing only because seeded data stored Sanskrit —
+contradicting the schema the write path enforces.
 
-The number this job writes (`match_scores:{idA}:{idB}`) feeds the matchmaking
-feed and is an input feature to the DPI model. Correcting the ordering would:
+Both paths now normalise through `apps/api/src/lib/horoscope.ts`, which accepts
+either form and returns **null** for anything unrecognised, so a bad value
+refuses to render rather than producing a confident wrong verdict. Its test
+iterates `RASHI_VALUES` / `NAKSHATRA_VALUES` from `packages/schemas` directly:
+adding an enum value without a mapping now fails a test instead of shipping a
+zero score.
 
-- change existing cached scores for about half of all pairs,
-- shift match-feed ordering for those users,
-- and alter a feature the DPI model was calibrated against.
+Seed fixtures were corrected too — `'Various'`, `'Vrischika'` and `'Jyeshta'`
+were not valid in either vocabulary.
 
-That is a real behavioural change to live matchmaking, and it needs a decision
-about backfill and re-calibration rather than a quiet edit made unattended. It
-is not a regression introduced here — it is pre-existing, and it predates the
-user-facing feature.
+## The background job (now fixed)
+
+`apps/api/src/jobs/gunaRecalcJob.ts` used to sort the two profile ids
+alphabetically and pass them straight through as `profile_a` / `profile_b`.
+Deterministic — so it never had the inconsistency bug above — but **not
+gender-ordered**, so roughly half of all pairs were scored with the groom and
+bride reversed.
+
+It now orders groom-first, using the same rule as the endpoint. The sorted ids
+are still the **cache key** (that must keep matching `scorer.ts`); only the
+argument order to the calculator changed.
+
+### What this changes in production, and what to do about it
+
+`match_scores:{idA}:{idB}` feeds the matchmaking feed and is one of ten input
+features to the DPI model. So this is a real behavioural change, not a silent
+cleanup:
+
+- Cached scores for pairs where direction matters will change once recomputed.
+  Existing entries are **not** invalidated by this commit; they expire on the
+  7-day TTL, so the change rolls in gradually rather than shifting every user's
+  feed at once. That is the safer default.
+- To apply it immediately instead, flush the keys and let the job repopulate:
+  `redis-cli -u $REDIS_URL --scan --pattern 'match_scores:*' | xargs redis-cli -u $REDIS_URL DEL`
+  Do this deliberately, not as a routine step — it re-orders the feed for
+  everyone at once and re-runs the AI service across every pair.
+- `guna_milan_score` is a DPI input, so if DPI was calibrated on the old
+  (reversed for half of pairs) values, its calibration is now slightly off.
+  Worth a re-check against fresh scores before relying on DPI thresholds.
+
+Note the magnitude is small per pair — the measured example moved 15/36 to
+14/36 by zeroing Varna — but it is systematic rather than random, since it
+applies to whichever half of pairs sorted the "wrong" way.
 
 ### What to do about it
 

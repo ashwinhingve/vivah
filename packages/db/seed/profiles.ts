@@ -231,7 +231,7 @@ const SEED_PROFILES = [
     family:      { familyType: 'NUCLEAR', familyValues: 'MODERATE', familyStatus: 'UPPER_MIDDLE' },
     location:    { city: 'Bengaluru', state: 'Karnataka', country: 'India' },
     lifestyle:   { diet: 'VEG', smoking: 'NEVER', drinking: 'OCCASIONALLY', languagesSpoken: ['Gujarati', 'Hindi', 'English'] },
-    horoscope:   { rashi: 'Vrischika', nakshatra: 'Jyeshta', manglik: false },
+    horoscope:   { rashi: 'VRISHCHIK', nakshatra: 'JYESHTHA', manglik: false },
     partnerPreferences: {
       ageRange: { min: 22, max: 40 }, heightRange: { min: 150, max: 180 },
       education: ['B.Tech', 'MBA', 'MBBS', 'Masters', 'Bachelors'], religion: ['Hindu'],

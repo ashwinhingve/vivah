@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BillingConfirm } from './BillingConfirm.client';
-import { PLANS_CONSTANT } from '@smartshaadi/types';
+import { PLANS_CONSTANT, monthlySavings } from '@smartshaadi/types';
 
 interface Plan {
   id:       string;
@@ -84,6 +84,7 @@ export default async function BillingPage({
   searchParams: Promise<{ plan?: string }>;
 }) {
   const t = await getTranslations('billing');
+  const tSavings = await getTranslations('billingSavings');
   const { plan: planCode } = await searchParams;
   const plans = await fetchPlans();
   const isMock = process.env['USE_MOCK_SERVICES'] === 'true';
@@ -143,6 +144,11 @@ export default async function BillingPage({
             {plans.map((plan) => {
               const features = featureList(plan.features);
               const isPremium = plan.tier === 'PREMIUM';
+
+              // Calculate savings against monthly plan of same tier
+              const planRowInConstant = PLANS_CONSTANT.find((p) => p.code === plan.code);
+              const savings = planRowInConstant ? monthlySavings(planRowInConstant, PLANS_CONSTANT) : null;
+
               return (
                 <div
                   key={plan.code}
@@ -162,6 +168,14 @@ export default async function BillingPage({
                       / {INTERVAL_LABELS[plan.interval] ?? plan.interval}
                     </span>
                   </p>
+                  {savings ? (
+                    <p className="mb-4 rounded-lg bg-gold/10 px-3 py-2 text-xs font-medium text-gold-muted">
+                      {tSavings('savingsLabel', {
+                        amount: savings.savedAmount.toLocaleString('en-IN'),
+                        percent: savings.percent,
+                      })}
+                    </p>
+                  ) : null}
                   {features.length > 0 ? (
                     <ul className="mb-6 flex-1 space-y-2 text-sm text-foreground">
                       {features.map((f) => (

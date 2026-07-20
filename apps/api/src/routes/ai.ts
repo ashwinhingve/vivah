@@ -49,6 +49,12 @@ import {
   sanitizeForLogging,
 } from '../services/dpiPrivacy.js';
 import { callAiService } from '../lib/ai.js';
+import {
+  normalizeRashi,
+  normalizeNakshatra,
+  normalizeManglik,
+  type ManglikStatus,
+} from '../lib/horoscope.js';
 import { extractFeatures, type DpiProfile, type DpiProfileContent } from '../services/dpiFeatures.js';
 import { logger } from '../lib/logger.js';
 import { ProfileContent as _ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
@@ -843,31 +849,20 @@ aiRouter.get(
     // attached to nothing, which makes `profiles.gender` look plausible while
     // being neither typed nor present. Reading both fields from one document
     // is also one fetch instead of two.
-    type ManglikStatus = 'YES' | 'NO' | 'PARTIAL';
-
-    // `| undefined` is spelled out because tsconfig sets
-    // exactOptionalPropertyTypes: `rashi?: string` there means "may be absent",
-    // NOT "may be undefined", and the Mongo document gives us the latter.
+    // Normalised through lib/horoscope.ts — rashi/nakshatra are stored as
+    // UPPERCASE enum values ('TULA') but the Python calculator keys on Sanskrit
+    // ('Tula'), and it looks factors up with dict.get(), so an unmapped value
+    // does not error — it silently scores 0 and shows the family a confidently
+    // wrong verdict. null here means "unrecognised", and the caller refuses
+    // rather than guessing.
     interface Chart {
       horoscope: {
-        rashi?:     string | undefined;
-        nakshatra?: string | undefined;
-        manglik:    ManglikStatus;
+        rashi:     string | null;
+        nakshatra: string | null;
+        manglik:   ManglikStatus;
       } | null;
       gender: string | null;
     }
-
-    // Seeded and older documents store `manglik` as a BOOLEAN, newer ones as
-    // 'YES' | 'NO' | 'PARTIAL'. The AI service accepts Union[bool, ManglikStatus]
-    // so a raw boolean would not crash — but it would flow through a field
-    // typed `string`, which is a lie the compiler cannot see. Normalise on the
-    // way in, matching what gunaRecalcJob.ts already does, so both paths send
-    // the AI service the same shape.
-    const toManglik = (v: unknown): ManglikStatus => {
-      if (v === true || v === 'YES') return 'YES';
-      if (v === 'PARTIAL') return 'PARTIAL';
-      return 'NO';
-    };
 
     async function loadChart(profileId: string): Promise<Chart | null> {
       const [pgProfile] = await db
@@ -880,16 +875,16 @@ aiRouter.get(
 
 
       type ContentDoc = {
-        horoscope?: { rashi?: string; nakshatra?: string; manglik?: unknown };
+        horoscope?: { rashi?: unknown; nakshatra?: unknown; manglik?: unknown };
         personal?:  { gender?: string };
       } | null;
 
       const toChart = (doc: ContentDoc): Chart => ({
         horoscope: doc?.horoscope
           ? {
-              rashi:     doc.horoscope.rashi,
-              nakshatra: doc.horoscope.nakshatra,
-              manglik:   toManglik(doc.horoscope.manglik),
+              rashi:     normalizeRashi(doc.horoscope.rashi),
+              nakshatra: normalizeNakshatra(doc.horoscope.nakshatra),
+              manglik:   normalizeManglik(doc.horoscope.manglik),
             }
           : null,
         gender: doc?.personal?.gender ?? null,

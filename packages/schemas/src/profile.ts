@@ -153,12 +153,18 @@ export const UpdateLifestyleSchema = z.object({
   sunSign:            z.string().max(20).optional(),
 });
 
-const RASHI_VALUES = [
+// Exported because these are the ONLY values the horoscope write path can
+// store, and the Guna Milan calculator keys on Sanskrit spellings instead
+// ('MESH' -> 'Mesha'). apps/api/src/lib/horoscope.ts translates between the
+// two and tests itself against these lists, so adding a value here without
+// adding a mapping there fails a test rather than silently scoring zero —
+// the Python calculator uses dict.get() and never raises on an unknown rashi.
+export const RASHI_VALUES = [
   'MESH','VRISHABHA','MITHUN','KARK','SINGH','KANYA',
   'TULA','VRISHCHIK','DHANU','MAKAR','KUMBH','MEEN',
 ] as const
 
-const NAKSHATRA_VALUES = [
+export const NAKSHATRA_VALUES = [
   'ASHWINI','BHARANI','KRITTIKA','ROHINI','MRIGASHIRA','ARDRA',
   'PUNARVASU','PUSHYA','ASHLESHA','MAGHA','PURVA_PHALGUNI','UTTARA_PHALGUNI',
   'HASTA','CHITRA','SWATI','VISHAKHA','ANURADHA','JYESHTHA',

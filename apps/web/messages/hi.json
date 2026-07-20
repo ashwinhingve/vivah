@@ -3212,5 +3212,8 @@
     "vedicAnalysis": "वैदिक अष्टकूट विश्लेषण",
     "scoreSuffix": "अंक",
     "documentTitle": "गुण मिलान अनुकूलता रिपोर्ट"
+  },
+  "billingSavings": {
+    "savingsLabel": "मासिक भुगतान की तुलना में ₹{amount} ({percent}%) बचाएं"
   }
 }

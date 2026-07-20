@@ -3212,5 +3212,8 @@
     "vedicAnalysis": "Vedic Ashtakoot Analysis",
     "scoreSuffix": "Score",
     "documentTitle": "Guna Milan Compatibility Report"
+  },
+  "billingSavings": {
+    "savingsLabel": "Save ₹{amount} ({percent}%) vs paying monthly"
   }
 }

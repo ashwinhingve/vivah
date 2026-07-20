@@ -6,6 +6,12 @@ import { db } from '../lib/db.js';
 import { callAiService } from '../lib/ai.js';
 import { getMyProfileContent } from '../profiles/content.service.js';
 import { connection, type MatchComputeJob } from '../infrastructure/redis/queues.js';
+import {
+  normalizeRashi,
+  normalizeNakshatra,
+  normalizeManglik,
+  type ManglikStatus,
+} from '../lib/horoscope.js';
 
 // 7d — Guna scores are deterministic per-pair Vedic math; no need to refresh
 // faster than the weekly match-score cycle described in CLAUDE.md.
@@ -16,31 +22,13 @@ interface GunaApiResponse {
   total_score: number;
 }
 
-// DB enum values (UPPERCASE_UNDERSCORE) → Sanskrit spellings the Python
-// calculator keys on. Anything else (or missing) means we can't compute a
-// guna score and should fall back to the neutral midpoint.
-const RASHI_MAP: Record<string, string> = {
-  MESH: 'Mesha', VRISHABHA: 'Vrishabha', MITHUN: 'Mithuna', KARK: 'Karka',
-  SINGH: 'Simha', KANYA: 'Kanya', TULA: 'Tula', VRISHCHIK: 'Vrishchika',
-  DHANU: 'Dhanu', MAKAR: 'Makara', KUMBH: 'Kumbha', MEEN: 'Meena',
-};
+// Rashi/nakshatra normalisation moved to lib/horoscope.ts — it is shared with
+// the user-facing Guna endpoint, which previously did not translate at all.
 
-const NAKSHATRA_MAP: Record<string, string> = {
-  ASHWINI: 'Ashwini', BHARANI: 'Bharani', KRITTIKA: 'Krittika', ROHINI: 'Rohini',
-  MRIGASHIRA: 'Mrigashira', ARDRA: 'Ardra', PUNARVASU: 'Punarvasu', PUSHYA: 'Pushya',
-  ASHLESHA: 'Ashlesha', MAGHA: 'Magha', PURVA_PHALGUNI: 'Purva Phalguni',
-  UTTARA_PHALGUNI: 'Uttara Phalguni', HASTA: 'Hasta', CHITRA: 'Chitra',
-  SWATI: 'Swati', VISHAKHA: 'Vishakha', ANURADHA: 'Anuradha', JYESHTHA: 'Jyeshtha',
-  MULA: 'Mula', PURVA_ASHADHA: 'Purva Ashadha', UTTARA_ASHADHA: 'Uttara Ashadha',
-  SHRAVANA: 'Shravana', DHANISHTA: 'Dhanishtha', SHATABHISHA: 'Shatabhisha',
-  PURVA_BHADRAPADA: 'Purva Bhadrapada', UTTARA_BHADRAPADA: 'Uttara Bhadrapada',
-  REVATI: 'Revati',
-};
-
-type ManglikStatus = 'YES' | 'NO' | 'PARTIAL';
 interface Horoscope { rashi: string; nakshatra: string; manglik: ManglikStatus }
+interface Chart { horoscope: Horoscope; gender: string | null }
 
-async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
+async function loadChart(profileId: string): Promise<Chart | null> {
   const [row] = await db
     .select({ userId: profiles.userId })
     .from(profiles)
@@ -48,16 +36,19 @@ async function loadHoroscope(profileId: string): Promise<Horoscope | null> {
     .limit(1);
   if (!row) return null;
   const content = (await getMyProfileContent(row.userId)) as {
-    horoscope?: { rashi?: string | null; nakshatra?: string | null; manglik?: string | null };
+    horoscope?: { rashi?: unknown; nakshatra?: unknown; manglik?: unknown };
+    personal?:  { gender?: string };
   } | null;
   const h = content?.horoscope;
-  if (!h?.rashi || !h.nakshatra) return null;
-  const rashi     = RASHI_MAP[h.rashi];
-  const nakshatra = NAKSHATRA_MAP[h.nakshatra];
+  // Normalisation is shared with the user-facing endpoint (lib/horoscope.ts) so
+  // the two paths cannot drift into disagreeing about the same pair.
+  const rashi     = normalizeRashi(h?.rashi);
+  const nakshatra = normalizeNakshatra(h?.nakshatra);
   if (!rashi || !nakshatra) return null;
-  const manglik: ManglikStatus =
-    h.manglik === 'YES' || h.manglik === 'PARTIAL' ? h.manglik : 'NO';
-  return { rashi, nakshatra, manglik };
+  return {
+    horoscope: { rashi, nakshatra, manglik: normalizeManglik(h?.manglik) },
+    gender:    content?.personal?.gender ?? null,
+  };
 }
 
 export function startGunaRecalcWorker(): { close(): Promise<void> } {
@@ -67,10 +58,12 @@ export function startGunaRecalcWorker(): { close(): Promise<void> } {
   const w = new Worker<MatchComputeJob>(
     'match-compute',
     async (job) => {
-      // Sort IDs alphabetically — must match scorer.ts key convention
+      // Sort IDs alphabetically — must match scorer.ts key convention.
+      // NOTE this is the CACHE KEY only. It is deliberately not the argument
+      // order to the calculator; see below.
       const [idA, idB] = [job.data.profileAId, job.data.profileBId].sort() as [string, string];
 
-      const [a, b] = await Promise.all([loadHoroscope(idA), loadHoroscope(idB)]);
+      const [a, b] = await Promise.all([loadChart(idA), loadChart(idB)]);
       const key = `match_scores:${idA}:${idB}`;
       if (!a || !b) {
         // Horoscope missing on one side — park the neutral score so the
@@ -79,9 +72,25 @@ export function startGunaRecalcWorker(): { close(): Promise<void> } {
         return;
       }
 
+      // Guna Milan is ORDER-SENSITIVE: Varna scores when the boy's rank >= the
+      // girl's, and Tara is counted girl -> boy. Feeding it two alphabetically
+      // sorted ids meant roughly half of all pairs were scored with the groom
+      // and bride reversed — a stable number, but the wrong one. Measured on
+      // real data, the reversal moved a pair from 15/36 to 14/36 by zeroing
+      // Varna.
+      //
+      // Order groom-first. When the pair is not one MALE and one FEMALE
+      // (gender missing, NON_BINARY, OTHER, same-gender) the classical rule
+      // does not apply, so keep the sorted order: arbitrary, but stable, which
+      // is what the shared cache entry needs.
+      const groomFirst =
+        b.gender === 'MALE' && a.gender === 'FEMALE'
+          ? ([b, a] as const)
+          : ([a, b] as const);
+
       const result = await callAiService<GunaApiResponse>('/ai/horoscope/guna', {
-        profile_a: a,
-        profile_b: b,
+        profile_a: groomFirst[0].horoscope,
+        profile_b: groomFirst[1].horoscope,
       });
 
       await redis.setex(key, GUNA_TTL_SECONDS, String(result.total_score));

@@ -1,0 +1,5 @@
+{
+  "billingSavings": {
+    "savingsLabel": "मासिक भुगतान की तुलना में ₹{amount} ({percent}%) बचाएं"
+  }
+}
