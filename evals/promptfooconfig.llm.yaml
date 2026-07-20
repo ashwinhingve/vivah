@@ -1,0 +1,46 @@
+# Smart Shaadi — LLM eval config.
+#
+# The 4 LLM features only (Conversation Coach, DPI, FII, Assistant) through
+# the Anthropic API via the Helicone proxy. Split out of promptfooconfig.yaml
+# for the same reason as promptfooconfig.ml.yaml (see its header).
+# Requires HELICONE_API_KEY + ANTHROPIC_API_KEY.
+
+description: Smart Shaadi LLM eval (Helicone-routed, 4 features)
+
+prompts:
+  - id: file://prompts/coach.prompt.js
+    label: coach
+  - id: file://prompts/dpi.prompt.js
+    label: dpi
+  - id: file://prompts/fii.prompt.js
+    label: fii
+  - id: file://prompts/assistant.prompt.js
+    label: assistant
+
+providers:
+  # LLM features — Sonnet through Helicone (Coach, FII, Assistant).
+  - id: anthropic:messages:claude-sonnet-4-6
+    label: helicone-sonnet
+    config:
+      apiBaseUrl: https://anthropic.helicone.ai
+      headers:
+        Helicone-Auth: Bearer {{ env.HELICONE_API_KEY }}
+        Helicone-Property-Feature: eval-harness
+      max_tokens: 800
+      temperature: 0.7
+  # DPI narrative runs on Opus (matches dpi_service.py).
+  - id: anthropic:messages:claude-opus-4-7
+    label: helicone-opus
+    config:
+      apiBaseUrl: https://anthropic.helicone.ai
+      headers:
+        Helicone-Auth: Bearer {{ env.HELICONE_API_KEY }}
+        Helicone-Property-Feature: eval-harness
+      max_tokens: 400
+      temperature: 0.5
+
+tests:
+  - file://golden/coach.yaml
+  - file://golden/dpi.yaml
+  - file://golden/fii.yaml
+  - file://golden/assistant.yaml

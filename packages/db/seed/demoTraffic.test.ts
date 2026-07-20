@@ -184,9 +184,14 @@ test('dataset: anchor matches generator constant', () => {
 // ── DB signal checks (connect, skip gracefully if unreachable) ───────────────
 (async () => {
   const url = process.env['DATABASE_URL'];
-  if (!url) {
+  // Signal checks verify a demo-seeded database (cities registry, ≥150 demo
+  // vendors, seasonality) — meaningless against CI's bare test DB, so they
+  // must be opted into explicitly by the operator.
+  if (!url || process.env['DEMO_DB_CHECKS'] !== '1') {
     console.log(`\ndemoTraffic: ${passed} tests passed`);
-    console.log(`  ⊘ Database checks SKIPPED (DATABASE_URL not set)`);
+    console.log(
+      `  ⊘ Database checks SKIPPED (${!url ? 'DATABASE_URL not set' : 'set DEMO_DB_CHECKS=1 to run against a demo-seeded DB'})`
+    );
     return;
   }
 
