@@ -6,12 +6,13 @@ import { expo } from '@better-auth/expo';
 import { sql, eq as drizzleEq } from 'drizzle-orm';
 import { user, session, account, verification, twoFactor as twoFactorTable } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
+import { env, isReferralLive } from '../lib/env.js';
 import { sessionCookieAttributes } from './cookieAttributes.js';
 import { authTrustedOrigins } from '../lib/cors.js';
 import { recordAuthEvent, isNewDevice, AuthEventType } from './events.js';
 import { recordOtpSent, recordOtpFailure, recordOtpSuccess, isPhoneLocked } from './otpLockout.js';
 import { emitMarketingEvent } from '../marketing/eventHooks.js';
+import { applyCodeAtSignup } from '../services/referralService.js';
 
 /**
  * Pulls the best-available IP for an authenticated request. Better Auth
@@ -236,6 +237,41 @@ export const auth = betterAuth({
             metadata: { phone: (newUser as { phoneNumber?: string }).phoneNumber ?? null },
           });
           emitMarketingEvent('user_registered', newUser.id);
+
+          // Apply referral code if present (non-fatal).
+          if (isReferralLive) {
+            try {
+              // Try to extract code from:
+              // 1. Custom header (manual field submission)
+              // 2. Cookie (share link capture)
+              const headers = ctx?.request?.headers;
+              let code: string | null = null;
+
+              if (headers) {
+                const headerCode = headers.get?.('x-referral-code') ?? null;
+                if (headerCode && typeof headerCode === 'string') {
+                  code = headerCode.trim();
+                }
+              }
+
+              if (!code) {
+                const cookieStr = headers?.get?.('cookie') ?? '';
+                const cookieMatch = cookieStr.match(/referral_code=([^;]+)/);
+                if (cookieMatch?.[1]) {
+                  code = decodeURIComponent(cookieMatch[1]);
+                }
+              }
+
+              if (code) {
+                const result = await applyCodeAtSignup(code, newUser.id);
+                if (!result.ok) {
+                  console.warn('[auth] referral code application failed:', result.reason);
+                }
+              }
+            } catch (error) {
+              console.warn('[auth] referral code processing failed:', error);
+            }
+          }
         },
       },
       delete: {

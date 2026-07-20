@@ -11,7 +11,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { and, eq, sql } from 'drizzle-orm';
-import { referralCodes, referrals, user } from '@smartshaadi/db';
+import { referralCodes, referrals, user, referralCreditsLedger } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
 
 const CODE_LEN = 8;
@@ -52,6 +52,172 @@ function generateCode(): string {
     out += CODE_ALPHABET[bytes[i]! % CODE_ALPHABET.length];
   }
   return out;
+}
+
+/**
+ * Credit ledger operations for atomic, auditable credit holds and spends.
+ * CRITICAL: All operations use conditional INSERT or explicit row matching
+ * to prevent TOCTOU races and double-spending.
+ */
+
+/**
+ * Normalise a `db.execute()` result to the returned rows.
+ *
+ * drizzle's node-postgres driver resolves to a pg `QueryResult` — the rows are
+ * on `.rows`, and the result itself has no `.length`. Reading `.length` directly
+ * yields undefined, which is falsy, so every RETURNING-based guard below would
+ * silently report "no rows" and the operation would look like it failed while
+ * having actually written. Other call sites in this repo (see
+ * jobs/historicalAttendanceJob.ts) hedge across both shapes; do the same here.
+ */
+function executedRows<T>(result: unknown): T[] {
+  if (Array.isArray(result)) return result as T[];
+  const rows = (result as { rows?: unknown }).rows;
+  return Array.isArray(rows) ? (rows as T[]) : [];
+}
+
+export async function getAvailableCredits(userId: string): Promise<number> {
+  // Raw SQL query to atomically SUM all amounts for the user.
+  const rows = await db.select({ total: sql<number>`COALESCE(SUM(amount), 0)` })
+    .from(referralCreditsLedger)
+    .where(eq(referralCreditsLedger.userId, userId));
+  return Number(rows[0]?.total ?? 0);
+}
+
+/**
+ * Atomically reserve credits for an order. Returns the ledger row ID if successful,
+ * null if insufficient balance or if a hold for this order already exists.
+ * Idempotent on (user_id, 'HOLD', related_id) — re-reservation returns existing hold.
+ */
+export async function reserveCreditsForOrder(
+  userId: string,
+  orderId: string,
+  credits: number,
+): Promise<string | null> {
+  if (credits <= 0) return null;
+
+  // TOCTOU-safe: atomic INSERT...SELECT with balance check in WHERE clause.
+  // Uses PostgreSQL's UPSERT with ON CONFLICT to handle idempotency.
+  const rows = executedRows<{ id: string }>(
+    await db.execute(
+      sql`INSERT INTO referral_credits_ledger (user_id, amount, type, related_entity, related_id, description)
+          SELECT ${userId}, ${-credits}, 'HOLD', 'razorpay_subscription', ${orderId}, ${'Reserve for order ' + orderId}
+          WHERE (SELECT COALESCE(SUM(amount), 0) FROM referral_credits_ledger WHERE user_id = ${userId}) >= ${credits}
+          ON CONFLICT (user_id, type, related_id) DO NOTHING
+          RETURNING id`,
+    ),
+  );
+
+  if (rows.length > 0) return rows[0]!.id;
+
+  // Check if the conflict was due to pre-existing hold (idempotent) or insufficient balance.
+  const existing = await db
+    .select({ id: referralCreditsLedger.id })
+    .from(referralCreditsLedger)
+    .where(
+      and(
+        eq(referralCreditsLedger.userId, userId),
+        eq(referralCreditsLedger.type, 'HOLD'),
+        eq(referralCreditsLedger.relatedId, orderId),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length > 0) return null; // Conflict: pre-existing hold (idempotent)
+  return null; // Conflict: insufficient balance
+}
+
+/**
+ * Spend reserved credits by flipping the HOLD row's type to SPEND and setting processed_at.
+ * Idempotent — if already spent, returns true without error.
+ */
+export async function spendCreditsForOrder(
+  userId: string,
+  orderId: string,
+): Promise<boolean> {
+  const rows = executedRows<{ id: string }>(
+    await db.execute(
+      sql`UPDATE referral_credits_ledger
+          SET type = 'SPEND', processed_at = NOW()
+          WHERE user_id = ${userId} AND type = 'HOLD' AND related_id = ${orderId}
+          RETURNING id`,
+    ),
+  );
+
+  if (rows.length > 0) return true;
+
+  // Zero rows updated means either "no such hold" or "already spent". These are
+  // different outcomes and must not collapse into failure: Razorpay retries
+  // webhooks, so a second delivery for an already-spent order is the normal
+  // case, and returning false there would read as a spend failure and alert.
+  // Idempotency is about the terminal state, not about who wrote the row.
+  const settled = await db
+    .select({ id: referralCreditsLedger.id })
+    .from(referralCreditsLedger)
+    .where(
+      and(
+        eq(referralCreditsLedger.userId, userId),
+        eq(referralCreditsLedger.type, 'SPEND'),
+        eq(referralCreditsLedger.relatedId, orderId),
+      ),
+    )
+    .limit(1);
+
+  return settled.length > 0;
+}
+
+/**
+ * Release reserved credits by inserting a balancing RELEASE row.
+ * Idempotent on (user_id, 'RELEASE', related_id) — re-release is a no-op.
+ */
+export async function releaseCreditsForOrder(
+  userId: string,
+  orderId: string,
+): Promise<boolean> {
+  // Find the HOLD amount to release
+  const heldRows = await db
+    .select({ credits: sql<number>`ABS(amount)` })
+    .from(referralCreditsLedger)
+    .where(
+      and(
+        eq(referralCreditsLedger.userId, userId),
+        eq(referralCreditsLedger.type, 'HOLD'),
+        eq(referralCreditsLedger.relatedId, orderId),
+      ),
+    )
+    .limit(1);
+
+  if (heldRows.length === 0) return false; // No hold to release
+
+  const credits = Number(heldRows[0]!.credits);
+
+  const rows = executedRows<{ id: string }>(
+    await db.execute(
+      sql`INSERT INTO referral_credits_ledger (user_id, amount, type, related_entity, related_id, description)
+          VALUES (${userId}, ${credits}, 'RELEASE', 'razorpay_subscription', ${orderId}, ${'Release order ' + orderId})
+          ON CONFLICT (user_id, type, related_id) DO NOTHING
+          RETURNING id`,
+    ),
+  );
+
+  if (rows.length > 0) return true;
+
+  // DO NOTHING fired: a RELEASE for this order already exists. That is the
+  // idempotent re-delivery case (payment-failed webhooks retry), not a failure
+  // — the credits are already back. Confirm the terminal state and report it.
+  const released = await db
+    .select({ id: referralCreditsLedger.id })
+    .from(referralCreditsLedger)
+    .where(
+      and(
+        eq(referralCreditsLedger.userId, userId),
+        eq(referralCreditsLedger.type, 'RELEASE'),
+        eq(referralCreditsLedger.relatedId, orderId),
+      ),
+    )
+    .limit(1);
+
+  return released.length > 0;
 }
 
 /**
@@ -157,6 +323,7 @@ async function creditMilestone(
     .limit(1);
   if (!row) return false;
 
+  // Update referral milestone status
   await db
     .update(referrals)
     .set({
@@ -167,9 +334,31 @@ async function creditMilestone(
     })
     .where(eq(referrals.id, row.id));
 
+  // Write EARN ledger row (idempotent on related_id)
+  await db
+    .insert(referralCreditsLedger)
+    .values({
+      userId: row.referrerUserId,
+      amount: credits,
+      type: 'EARN',
+      relatedEntity: 'referral',
+      relatedId: row.id,
+      description: `${newStatus} reward for referred user`,
+    })
+    .onConflictDoNothing();
+
+  // Refresh the denormalised cache FROM the ledger rather than incrementing it.
+  //
+  // The EARN insert above is onConflictDoNothing, so a repeated milestone writes
+  // no second row — but a blind `referralCredits + credits` would still increment
+  // every time, drifting the cached balance above the ledger truth. Spending stays
+  // safe either way (getAvailableCredits reads the ledger), but the user would see
+  // a balance they cannot spend. Deriving the value makes the cache self-healing:
+  // any past drift is corrected on the next milestone.
+  const balance = await getAvailableCredits(row.referrerUserId);
   await db
     .update(user)
-    .set({ referralCredits: sql`${user.referralCredits} + ${credits}` })
+    .set({ referralCredits: balance })
     .where(eq(user.id, row.referrerUserId));
 
   return true;
@@ -237,4 +426,62 @@ function toCodeRow(r: RawCodeRow): ReferralCodeRow {
     createdAt: r.createdAt,
     expiresAt: r.expiresAt,
   };
+}
+
+/**
+ * Redeem accumulated credits as free days appended to an active subscription.
+ *
+ * Razorpay Subscriptions cannot apply a per-user dynamic discount — discounts go
+ * through pre-created fixed Offers, which cannot express "this user holds 250
+ * credits". So credits are never applied at checkout: the user pays full price and
+ * redemption extends the billing period AFTER payment has already succeeded. That
+ * ordering is the point — there is no window in which credits are consumed against
+ * a payment that might still fail, so this needs no refund path and no
+ * abandoned-checkout expiry sweep.
+ *
+ * Conversion: 1 credit = 1 rupee, converted to days at the plan's own daily rate,
+ * so a credit is worth the same to a Standard and a Premium subscriber. Days are
+ * floored and only the credits those whole days cost are spent — the remainder
+ * stays on the balance rather than being silently burnt on a part-day.
+ *
+ * Idempotent per subscription via the ledger's (user_id, type, related_id) key.
+ */
+export async function redeemCreditsAsFreeDays(
+  userId: string,
+  subscriptionId: string,
+  planAmountInr: number,
+  periodDays: number,
+): Promise<{ daysGranted: number; creditsSpent: number }> {
+  const none = { daysGranted: 0, creditsSpent: 0 };
+  if (planAmountInr <= 0 || periodDays <= 0) return none;
+
+  const balance = await getAvailableCredits(userId);
+  if (balance <= 0) return none;
+
+  const perDay = planAmountInr / periodDays;
+  const daysGranted = Math.floor(balance / perDay);
+  if (daysGranted < 1) return none;
+
+  // Floor, not round: rounding up can bill more credits than the granted days are
+  // actually worth (15d × ₹16.63 = 249.5 → 250). For a rewards currency the
+  // rounding error must fall in the user's favour, never the platform's.
+  const creditsSpent = Math.floor(daysGranted * perDay);
+  const orderKey = `freedays_${subscriptionId}`;
+
+  const reserved = await reserveCreditsForOrder(userId, orderKey, creditsSpent);
+  if (reserved === null) return none; // insufficient balance, or already redeemed
+
+  const spent = await spendCreditsForOrder(userId, orderKey);
+  if (!spent) {
+    // Could not settle the hold — hand the credits back rather than stranding them.
+    await releaseCreditsForOrder(userId, orderKey);
+    return none;
+  }
+
+  await db
+    .update(user)
+    .set({ referralCredits: await getAvailableCredits(userId) })
+    .where(eq(user.id, userId));
+
+  return { daysGranted, creditsSpent };
 }

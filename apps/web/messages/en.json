@@ -130,7 +130,10 @@
         "nameRequired": "Please enter your full name (at least 2 characters)",
         "invalidPhone": "Enter a valid 10-digit Indian mobile number",
         "sendFailed": "Couldn't send the OTP. Please try again."
-      }
+      },
+      "referralLabel": "Referral code (optional)",
+      "referralPlaceholder": "e.g. AB12CD34",
+      "referralHint": "Have a code from a friend? Enter it and you both earn credits."
     },
     "verify": {
       "metadata": {

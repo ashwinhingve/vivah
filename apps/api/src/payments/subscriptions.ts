@@ -24,6 +24,19 @@ import {
 } from '../lib/razorpay.js';
 import { invalidateTierCache } from '../lib/entitlements.js';
 import { appendAuditLog } from './service.js';
+import { isReferralLive } from '../lib/env.js';
+import { markReferralSubscribed, redeemCreditsAsFreeDays } from '../services/referralService.js';
+
+/**
+ * Billing-interval → days, used to derive a plan's daily rate when converting
+ * referral credits into free days. Approximations (30 / 90 / 365) are deliberate:
+ * the conversion only needs to be fair and stable, not calendar-exact.
+ */
+const PERIOD_DAYS: Record<string, number> = {
+  MONTHLY:   30,
+  QUARTERLY: 90,
+  YEARLY:    365,
+};
 
 interface ServiceError extends Error { code: string; status: number; }
 function err(message: string, code: string, status: number): ServiceError {
@@ -219,6 +232,62 @@ export async function handleSubscriptionEvent(eventType: string, entity: Razorpa
       if (tier === 'STANDARD' || tier === 'PREMIUM') {
         await upgradeUserTier(row.userId, tier as 'STANDARD' | 'PREMIUM');
       }
+
+      // Wire up referral subscription milestone (non-fatal).
+      if (isReferralLive) {
+        try {
+          await markReferralSubscribed(row.userId);
+        } catch (error) {
+          console.warn('[subscriptions] referral subscribe milestone failed:', error);
+        }
+
+        // Redeem any accumulated credits as free days on this period. Runs after
+        // the milestone above so credits earned by this very subscription are
+        // already available, and after payment has succeeded so nothing has to be
+        // refunded if it had not. Non-fatal: a redemption failure must never fail
+        // a payment webhook — the credits simply stay on the balance.
+        try {
+          const [plan] = await db
+            .select({ amount: plans.amount, interval: plans.interval })
+            .from(plans)
+            .innerJoin(subscriptions, eq(subscriptions.planId, plans.id))
+            .where(eq(subscriptions.id, row.id))
+            .limit(1);
+
+          const periodDays = PERIOD_DAYS[plan?.interval ?? ''] ?? 0;
+          const amount = Number(plan?.amount ?? 0);
+
+          if (periodDays > 0 && amount > 0) {
+            const { daysGranted } = await redeemCreditsAsFreeDays(
+              row.userId, row.id, amount, periodDays,
+            );
+
+            if (daysGranted > 0) {
+              // Extend from the just-written period end, not from now: the user
+              // keeps the full paid period and the free days land on top of it.
+              const [current] = await db
+                .select({ end: subscriptions.currentPeriodEnd })
+                .from(subscriptions)
+                .where(eq(subscriptions.id, row.id))
+                .limit(1);
+
+              const base = current?.end ?? new Date();
+              const extended = new Date(base.getTime() + daysGranted * 86_400_000);
+
+              await db.update(subscriptions)
+                .set({ currentPeriodEnd: extended, updatedAt: new Date() })
+                .where(eq(subscriptions.id, row.id));
+
+              console.info(
+                `[subscriptions] referral credits redeemed: +${daysGranted}d for ${row.id}`,
+              );
+            }
+          }
+        } catch (error) {
+          console.warn('[subscriptions] referral free-days redemption failed:', error);
+        }
+      }
+
       // Audit-log; eventType must exist in schema.auditEventTypeEnum.
       try {
         await appendAuditLog({
