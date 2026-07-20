@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { DpiResponse } from '@smartshaadi/types';
 import { fetchDpi } from '@/app/actions/ai';
 import { FactorBreakdown } from './FactorBreakdown.client';
@@ -71,26 +72,27 @@ export function ArcSemicircle({
   );
 }
 
-function GaugeSkeleton() {
+function GaugeSkeleton({ analysing }: { analysing: string }) {
   return (
     <div className="text-center" aria-busy="true" aria-live="polite">
       <div className="mx-auto h-[140px] w-full max-w-[280px] rounded-t-full bg-muted/40 animate-pulse" />
-      <p className="mt-4 text-sm text-muted-foreground">Analysing compatibility patterns…</p>
+      <p className="mt-4 text-sm text-muted-foreground">{analysing}</p>
     </div>
   );
 }
 
-function ErrorState() {
+function ErrorState({ errorMessage }: { errorMessage: string }) {
   return (
     <div className="text-center py-6">
       <p className="text-sm text-muted-foreground max-w-md mx-auto">
-        We couldn&apos;t generate detailed analysis right now. Please try again in a moment.
+        {errorMessage}
       </p>
     </div>
   );
 }
 
 export function CompatibilityGauge({ matchId }: Props) {
+  const t = useTranslations('compatibility');
   const [data, setData] = useState<DpiResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -107,8 +109,8 @@ export function CompatibilityGauge({ matchId }: Props) {
     };
   }, [matchId]);
 
-  if (loading) return <GaugeSkeleton />;
-  if (!data) return <ErrorState />;
+  if (loading) return <GaugeSkeleton analysing={t('analysing')} />;
+  if (!data) return <ErrorState errorMessage={t('errorMessage')} />;
 
   return (
     <div>

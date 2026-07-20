@@ -1,26 +1,29 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { StayBucket, StayTier } from './types';
-
-const TIER_META: Record<StayTier, { label: string; color: string }> = {
-  ENGAGED: { label: 'Engaged', color: 'var(--color-success)' },
-  LOW_RISK: { label: 'Low risk', color: 'var(--color-teal)' },
-  MEDIUM_RISK: { label: 'Medium risk', color: 'var(--color-warning)' },
-  HIGH_RISK: { label: 'High risk', color: 'var(--color-destructive)' },
-};
 
 const R = 70;
 const STROKE = 26;
 const C = 2 * Math.PI * R;
 
 export function StayQuotientChart({ data }: { data: StayBucket[] | null }) {
+  const t = useTranslations('stayQuotient');
+
+  const TIER_META: Record<StayTier, { label: string; color: string }> = {
+    ENGAGED: { label: t('tiers.engaged'), color: 'var(--color-success)' },
+    LOW_RISK: { label: t('tiers.lowRisk'), color: 'var(--color-teal)' },
+    MEDIUM_RISK: { label: t('tiers.mediumRisk'), color: 'var(--color-warning)' },
+    HIGH_RISK: { label: t('tiers.highRisk'), color: 'var(--color-destructive)' },
+  };
+
   const total = data?.reduce((s, d) => s + d.count, 0) ?? 0;
 
   if (!data || total === 0) {
     return (
       <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
         <div className="flex h-44 items-center justify-center text-sm text-text-muted">
-          No engagement data available.
+          {t('noData')}
         </div>
       </div>
     );
@@ -37,10 +40,10 @@ export function StayQuotientChart({ data }: { data: StayBucket[] | null }) {
   return (
     <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
       <p className="mb-1 text-xs font-medium text-text-muted">
-        Engagement Risk · activity proxy ({total} active profiles)
+        {t('subtitle')} ({total} active {t('profilesLabel')})
       </p>
       <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-around">
-        <svg viewBox="0 0 200 200" className="h-44 w-44" role="img" aria-label="Engagement risk distribution">
+        <svg viewBox="0 0 200 200" className="h-44 w-44" role="img" aria-label={t('subtitle')}>
           <g transform="rotate(-90 100 100)">
             {segments.map((s) => (
               <circle
@@ -67,7 +70,7 @@ export function StayQuotientChart({ data }: { data: StayBucket[] | null }) {
             {total}
           </text>
           <text x={100} y={116} textAnchor="middle" fontSize={11} fill="var(--color-muted-foreground)">
-            profiles
+            {t('profilesLabel')}
           </text>
         </svg>
         <ul className="space-y-2 text-sm">

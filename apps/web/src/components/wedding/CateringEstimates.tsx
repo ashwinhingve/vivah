@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { fetchFaqSummary } from '@/lib/wedding-api';
 import { CeremonyAttendanceCard } from './CeremonyAttendanceCard';
 
@@ -6,13 +7,14 @@ interface Props {
 }
 
 export async function CateringEstimates({ weddingId }: Props) {
+  const t = await getTranslations('catering');
   const summary = await fetchFaqSummary(weddingId);
 
   if (!summary || summary.ceremonies.length === 0) {
     return (
       <div className="bg-surface border border-gold/20 rounded-2xl shadow-card p-8 text-center">
         <p className="text-muted-foreground">
-          Catering estimates will appear once guests RSVP.
+          {t('emptyState')}
         </p>
       </div>
     );
@@ -28,7 +30,7 @@ export async function CateringEstimates({ weddingId }: Props) {
         />
       ))}
       <p className="text-xs italic text-muted-foreground mt-4">
-        * Catering count includes a 10% buffer for over-attendance.
+        * {t('bufferNote')}
       </p>
     </div>
   );

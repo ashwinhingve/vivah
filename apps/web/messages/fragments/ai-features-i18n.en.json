@@ -1,0 +1,83 @@
+{
+  "smartSuggestions": {
+    "title": "Smart Suggestions",
+    "dismiss": "Dismiss suggestions",
+    "errorCouldNotLoad": "Couldn't load suggestions.",
+    "errorRetry": "Tap to retry"
+  },
+  "emotionalScore": {
+    "sentiment": {
+      "warm": "warm tone",
+      "neutral": "neutral tone",
+      "cool": "cool tone"
+    },
+    "enthusiasm": {
+      "fast": "fast replies",
+      "moderate": "moderate replies",
+      "slow": "slow replies"
+    },
+    "engagement": {
+      "deepening": "messages deepening",
+      "consistent": "consistent",
+      "thinning": "messages thinning"
+    },
+    "curiosity": {
+      "lots": "lots of questions",
+      "some": "some questions",
+      "few": "few questions"
+    },
+    "tooltipLabels": {
+      "conversationTone": "Conversation tone",
+      "replyPace": "Reply pace",
+      "messageDepth": "Message depth",
+      "questionsAsked": "Questions asked"
+    },
+    "labels": {
+      "warm": "Warm",
+      "cooling": "Cooling",
+      "steady": "Steady"
+    }
+  },
+  "compatibility": {
+    "analysing": "Analysing compatibility patterns…",
+    "errorMessage": "We couldn't generate detailed analysis right now. Please try again in a moment."
+  },
+  "fii": {
+    "signals": {
+      "familyTypePreference": "Family structure preference",
+      "familyValuesOrientation": "Family values orientation",
+      "parentsLivingIntent": "Living arrangement with parents",
+      "familyDecisions": "Family in decisions",
+      "culturalEvents": "Cultural events & celebrations",
+      "siblingsEngagement": "Closeness with siblings",
+      "religiousPractice": "Religious practice"
+    },
+    "labels": {
+      "familyFirst": "Family-First",
+      "familyOriented": "Family-Oriented",
+      "balanced": "Balanced",
+      "independentLeaning": "Independent-Leaning",
+      "independent": "Independent"
+    },
+    "heading": "Family & Lifestyle Outlook",
+    "subheading": "How each of you sees family's role in life decisions.",
+    "compatibility": "Compatibility",
+    "discussionStarter": "Try discussing",
+    "detailsToggle": "See what shapes this score"
+  },
+  "catering": {
+    "emptyState": "Catering estimates will appear once guests RSVP.",
+    "bufferNote": "* Catering count includes a 10% buffer for over-attendance."
+  },
+  "stayQuotient": {
+    "noData": "No engagement data available.",
+    "subtitle": "Engagement Risk · activity proxy",
+    "profilesLabel": "profiles",
+    "tiers": {
+      "engaged": "Engaged",
+      "lowRisk": "Low risk",
+      "mediumRisk": "Medium risk",
+      "highRisk": "High risk"
+    }
+  }
+}

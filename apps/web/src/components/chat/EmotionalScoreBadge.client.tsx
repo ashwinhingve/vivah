@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { EmotionalBreakdown, EmotionalScore } from '@smartshaadi/types'
 import { fetchEmotionalScore } from '@/app/actions/ai'
 import { cn } from '@/lib/utils'
@@ -15,46 +16,10 @@ interface EmotionalScoreBadgeProps {
   matchId: string
 }
 
-function sentimentLabel(v: number): string {
-  if (v > 70) return 'warm tone'
-  if (v >= 40) return 'neutral tone'
-  return 'cool tone'
-}
-function enthusiasmLabel(v: number): string {
-  if (v > 70) return 'fast replies'
-  if (v >= 40) return 'moderate replies'
-  return 'slow replies'
-}
-function engagementLabel(v: number): string {
-  if (v > 70) return 'messages deepening'
-  if (v >= 40) return 'consistent'
-  return 'messages thinning'
-}
-function curiosityLabel(v: number): string {
-  if (v > 70) return 'lots of questions'
-  if (v >= 40) return 'some questions'
-  return 'few questions'
-}
-
-function tooltipLines(b: EmotionalBreakdown): string[] {
-  return [
-    `Conversation tone: ${sentimentLabel(b.sentiment)}`,
-    `Reply pace: ${enthusiasmLabel(b.enthusiasm)}`,
-    `Message depth: ${engagementLabel(b.engagement)}`,
-    `Questions asked: ${curiosityLabel(b.curiosity)}`,
-  ]
-}
-
 function badgeStyles(label: EmotionalScore['label']): string {
   if (label === 'WARM') return 'bg-teal/15 text-teal border-teal/30'
   if (label === 'COOLING') return 'bg-primary/15 text-primary border-primary/30'
   return 'bg-gold/15 text-gold-muted border-gold/40'
-}
-
-function labelText(label: EmotionalScore['label']): string {
-  if (label === 'WARM') return 'Warm'
-  if (label === 'COOLING') return 'Cooling'
-  return 'Steady'
 }
 
 function trendArrow(trend: EmotionalScore['trend']): string | null {
@@ -64,8 +29,48 @@ function trendArrow(trend: EmotionalScore['trend']): string | null {
 }
 
 export default function EmotionalScoreBadge({ matchId }: EmotionalScoreBadgeProps) {
+  const t = useTranslations('emotionalScore')
   const [score, setScore] = useState<EmotionalScore | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const sentimentLabel = (v: number): string => {
+    if (v > 70) return t('sentiment.warm')
+    if (v >= 40) return t('sentiment.neutral')
+    return t('sentiment.cool')
+  }
+
+  const enthusiasmLabel = (v: number): string => {
+    if (v > 70) return t('enthusiasm.fast')
+    if (v >= 40) return t('enthusiasm.moderate')
+    return t('enthusiasm.slow')
+  }
+
+  const engagementLabel = (v: number): string => {
+    if (v > 70) return t('engagement.deepening')
+    if (v >= 40) return t('engagement.consistent')
+    return t('engagement.thinning')
+  }
+
+  const curiosityLabel = (v: number): string => {
+    if (v > 70) return t('curiosity.lots')
+    if (v >= 40) return t('curiosity.some')
+    return t('curiosity.few')
+  }
+
+  const tooltipLines = (b: EmotionalBreakdown): string[] => {
+    return [
+      `${t('tooltipLabels.conversationTone')}: ${sentimentLabel(b.sentiment)}`,
+      `${t('tooltipLabels.replyPace')}: ${enthusiasmLabel(b.enthusiasm)}`,
+      `${t('tooltipLabels.messageDepth')}: ${engagementLabel(b.engagement)}`,
+      `${t('tooltipLabels.questionsAsked')}: ${curiosityLabel(b.curiosity)}`,
+    ]
+  }
+
+  const labelText = (label: EmotionalScore['label']): string => {
+    if (label === 'WARM') return t('labels.warm')
+    if (label === 'COOLING') return t('labels.cooling')
+    return t('labels.steady')
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -94,7 +99,7 @@ export default function EmotionalScoreBadge({ matchId }: EmotionalScoreBadgeProp
         <TooltipTrigger asChild>
           <span
             role="status"
-            aria-label={`Conversation tone ${labelText(score.label)}`}
+            aria-label={`${t('tooltipLabels.conversationTone')} ${labelText(score.label)}`}
             className={cn(
               'inline-flex shrink-0 items-center gap-1 rounded-full border font-medium',
               'h-6 px-2 text-2xs sm:h-7 sm:px-3 sm:text-xs',

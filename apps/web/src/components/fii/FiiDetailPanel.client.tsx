@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type {
   FiiCompatibility,
   FiiLabel,
@@ -20,16 +21,6 @@ const LABEL_COLOR: Record<FiiLabel, string> = {
   'Balanced':             'var(--color-teal)',
   'Independent-Leaning':  'var(--color-success)',
   'Independent':          'var(--color-text-muted)',
-};
-
-const SIGNAL_NAME: Record<keyof FiiBreakdown, string> = {
-  family_type_preference:    'Family structure preference',
-  family_values_orientation: 'Family values orientation',
-  parents_living_intent:     'Living arrangement with parents',
-  family_decisions:          'Family in decisions',
-  cultural_events:           'Cultural events & celebrations',
-  siblings_engagement:       'Closeness with siblings',
-  religious_practice:        'Religious practice',
 };
 
 function ScoreBar({ name, score, label }: { name: string; score: number; label: FiiLabel }) {
@@ -81,8 +72,19 @@ function PanelSkeleton() {
 }
 
 export function FiiDetailPanel({ matchId, profileAName, profileBName }: Props) {
+  const t = useTranslations('fii');
   const [data, setData] = useState<FiiCompatibility | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const SIGNAL_NAME: Record<keyof FiiBreakdown, string> = {
+    family_type_preference:    t('signals.familyTypePreference'),
+    family_values_orientation: t('signals.familyValuesOrientation'),
+    parents_living_intent:     t('signals.parentsLivingIntent'),
+    family_decisions:          t('signals.familyDecisions'),
+    cultural_events:           t('signals.culturalEvents'),
+    siblings_engagement:       t('signals.siblingsEngagement'),
+    religious_practice:        t('signals.religiousPractice'),
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -110,10 +112,10 @@ export function FiiDetailPanel({ matchId, profileAName, profileBName }: Props) {
   return (
     <section className="mt-8 border-t border-gold/20 pt-8">
       <h2 className="font-heading text-primary text-xl mb-2">
-        Family &amp; Lifestyle Outlook
+        {t('heading')}
       </h2>
       <p className="text-muted-foreground text-sm mb-6">
-        How each of you sees family&rsquo;s role in life decisions.
+        {t('subheading')}
       </p>
 
       <div className="space-y-4 mb-6">
@@ -130,7 +132,7 @@ export function FiiDetailPanel({ matchId, profileAName, profileBName }: Props) {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm text-muted-foreground">Compatibility:</span>
+        <span className="text-sm text-muted-foreground">{t('compatibility')}:</span>
         <CompatibilityPill label={data.compatibility} color={data.compatibility_color} />
       </div>
 
@@ -139,12 +141,12 @@ export function FiiDetailPanel({ matchId, profileAName, profileBName }: Props) {
       </p>
 
       <p className="text-foreground italic mb-6">
-        Try discussing: {data.discussion_starter}
+        {t('discussionStarter')}: {data.discussion_starter}
       </p>
 
       <details className="border-t border-gold/20 pt-4">
         <summary className="text-sm text-teal cursor-pointer hover:underline list-none">
-          See what shapes this score
+          {t('detailsToggle')}
         </summary>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           {(Object.keys(SIGNAL_NAME) as Array<keyof FiiBreakdown>).map((key) => {

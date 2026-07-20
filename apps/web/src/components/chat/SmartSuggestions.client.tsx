@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
 import type { CoachSuggestion } from '@smartshaadi/types'
 import { fetchCoachSuggestions } from '@/app/actions/ai'
@@ -27,6 +28,7 @@ function recentlyDismissed(matchId: string): boolean {
 }
 
 export default function SmartSuggestions({ matchId, isOpen, onClose }: SmartSuggestionsProps) {
+  const t = useTranslations('smartSuggestions')
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState(false)
   const [suggestions, setSuggestions] = useState<CoachSuggestion[] | null>(null)
@@ -79,17 +81,17 @@ export default function SmartSuggestions({ matchId, isOpen, onClose }: SmartSugg
   return (
     <div
       role="region"
-      aria-label="Smart Suggestions"
+      aria-label={t('title')}
       className="fixed inset-x-0 bottom-[88px] z-30 mx-auto max-w-2xl rounded-t-xl border-t border-gold/30 bg-surface p-3 shadow-lg"
     >
       <div className="mb-2 flex items-center justify-between">
         <p className="font-heading text-sm font-semibold text-primary">
-          💡 Smart Suggestions
+          💡 {t('title')}
         </p>
         <button
           type="button"
           onClick={handleDismiss}
-          aria-label="Dismiss suggestions"
+          aria-label={t('dismiss')}
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
         >
           <X className="h-4 w-4" />
@@ -107,13 +109,13 @@ export default function SmartSuggestions({ matchId, isOpen, onClose }: SmartSugg
         </div>
       ) : error ? (
         <div className="flex flex-col items-start gap-2">
-          <p className="text-sm text-primary">Couldn&rsquo;t load suggestions.</p>
+          <p className="text-sm text-primary">{t('errorCouldNotLoad')}</p>
           <button
             type="button"
             onClick={load}
             className="rounded-full border border-primary/40 px-3 py-1.5 text-sm text-primary hover:bg-primary/10"
           >
-            Tap to retry
+            {t('errorRetry')}
           </button>
         </div>
       ) : (

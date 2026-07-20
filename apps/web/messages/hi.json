@@ -442,7 +442,9 @@
     "metadata": {
       "title": "अनुकूलता विश्लेषण — Smart Shaadi"
     },
-    "heading": "अनुकूलता विश्लेषण"
+    "heading": "अनुकूलता विश्लेषण",
+    "analysing": "अनुकूलता पैटर्न का विश्लेषण किया जा रहा है…",
+    "errorMessage": "हम अभी विस्तृत विश्लेषण उत्पन्न नहीं कर सके। कृपया कुछ क्षणों में फिर से कोशिश करें।"
   },
   "profileView": {
     "metadata": {
@@ -3057,5 +3059,82 @@
     "exploreCta": "मैच देखें",
     "lockedFeature": "प्रीमियम सुविधा",
     "lockedMessage": "आपकी प्रोफ़ाइल पसंद करने वाले सभी लोगों को देखने के लिए अपग्रेड करें।"
+  },
+  "smartSuggestions": {
+    "title": "स्मार्ट सुझाव",
+    "dismiss": "सुझाव खारिज करें",
+    "errorCouldNotLoad": "सुझाव लोड नहीं हो सके।",
+    "errorRetry": "पुनः कोशिश करने के लिए टैप करें"
+  },
+  "emotionalScore": {
+    "sentiment": {
+      "warm": "गर्म टोन",
+      "neutral": "तटस्थ टोन",
+      "cool": "ठंडा टोन"
+    },
+    "enthusiasm": {
+      "fast": "तेज़ जवाब",
+      "moderate": "मध्यम जवाब",
+      "slow": "धीमे जवाब"
+    },
+    "engagement": {
+      "deepening": "गहरे संदेश",
+      "consistent": "सामंजस्यपूर्ण",
+      "thinning": "कम संदेश"
+    },
+    "curiosity": {
+      "lots": "बहुत सारे सवाल",
+      "some": "कुछ सवाल",
+      "few": "कम सवाल"
+    },
+    "tooltipLabels": {
+      "conversationTone": "बातचीत का टोन",
+      "replyPace": "जवाब की गति",
+      "messageDepth": "संदेश की गहराई",
+      "questionsAsked": "पूछे गए सवाल"
+    },
+    "labels": {
+      "warm": "गर्म",
+      "cooling": "ठंडा हो रहा है",
+      "steady": "स्थिर"
+    }
+  },
+  "fii": {
+    "signals": {
+      "familyTypePreference": "परिवार संरचना की प्राथमिकता",
+      "familyValuesOrientation": "पारिवारिक मूल्यों का झुकाव",
+      "parentsLivingIntent": "माता-पिता के साथ रहने की व्यवस्था",
+      "familyDecisions": "निर्णयों में परिवार",
+      "culturalEvents": "सांस्कृतिक समारोह और उत्सव",
+      "siblingsEngagement": "भाई-बहनों के साथ निकटता",
+      "religiousPractice": "धार्मिक अभ्यास"
+    },
+    "labels": {
+      "familyFirst": "परिवार-केंद्रित",
+      "familyOriented": "परिवार-उन्मुख",
+      "balanced": "संतुलित",
+      "independentLeaning": "स्वतंत्रता-प्रवृत्त",
+      "independent": "स्वतंत्र"
+    },
+    "heading": "परिवार और जीवन शैली का दृष्टिकोण",
+    "subheading": "आप दोनों अपने जीवन के निर्णयों में परिवार की भूमिका को कैसे देखते हैं।",
+    "compatibility": "अनुकूलता",
+    "discussionStarter": "चर्चा करने का प्रयास करें",
+    "detailsToggle": "देखें कि यह स्कोर क्या तय करता है"
+  },
+  "catering": {
+    "emptyState": "खाने का अनुमान मेहमानों के RSVP देने के बाद दिखाई देगा।",
+    "bufferNote": "* खाने की गिनती में अधिक उपस्थिति के लिए 10% बफर शामिल है।"
+  },
+  "stayQuotient": {
+    "noData": "कोई एनगेजमेंट डेटा उपलब्ध नहीं है।",
+    "subtitle": "एनगेजमेंट जोखिम · गतिविधि प्रॉक्सी",
+    "profilesLabel": "प्रोफाइल",
+    "tiers": {
+      "engaged": "सक्रिय",
+      "lowRisk": "कम जोखिम",
+      "mediumRisk": "मध्यम जोखिम",
+      "highRisk": "उच्च जोखिम"
+    }
   }
 }
