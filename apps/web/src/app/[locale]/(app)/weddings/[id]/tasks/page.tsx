@@ -31,8 +31,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'weddings.tasks.metadata' });
-  return { title: t('title') };
+  const t = await getTranslations({ locale, namespace: 'weddings.tasks' });
+  return { title: t('metadata.title') };
 }
 
 export default async function TasksPage({ params, searchParams }: PageProps) {
@@ -60,7 +60,7 @@ export default async function TasksPage({ params, searchParams }: PageProps) {
 
           <PageHeader
             title={t('heading')}
-            subtitle="Drag tasks through the pipeline or use the arrows to move them."
+            subtitle={t('subtitle')}
           />
 
           <TaskKanban weddingId={id} initialTasks={tasks} />

@@ -93,11 +93,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'weddings.detail.metadata' });
-  return { title: t('title') };
+  const t = await getTranslations({ locale, namespace: 'weddings.detail' });
+  return { title: t('metadata.title') };
 }
 
 export default async function WeddingOverviewPage({ params }: PageProps) {
+  const t = await getTranslations('weddings.detail');
   const { id } = await params;
   const [wedding, ceremonies, muhuratSuggestions] = await Promise.all([
     fetchWedding(id),
@@ -170,34 +171,34 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
       {/* Stat row */}
       <StaggerList className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatsCard
-          label="Budget spent"
+          label={t('budgetSpent')}
           value={formatINRCompact(budgetSpent)}
-          sub={budgetTotal > 0 ? `of ${formatINRCompact(budgetTotal)}` : 'no budget set'}
+          sub={budgetTotal > 0 ? `of ${formatINRCompact(budgetTotal)}` : t('budgetSpentSub')}
           icon={Wallet}
           variant="gold"
           href={`/weddings/${id}/budget`}
         />
         <StatsCard
-          label="Guests"
+          label={t('guests')}
           value={wedding.guestCount}
-          sub="on the list"
+          sub={t('guestsSub')}
           icon={Users}
           variant="teal"
           href={`/weddings/${id}/guests`}
         />
         <StatsCard
-          label="Ceremonies"
+          label={t('ceremonies')}
           value={ceremonies.length}
-          sub="planned"
+          sub={t('ceremoniesSub')}
           icon={Sparkles}
           variant="default"
           href={`/weddings/${id}/ceremonies`}
         />
         <StatsCard
-          label="Tasks done"
+          label={t('tasksDone')}
           value={taskPct}
           valuePercent={taskPct}
-          sub={`${done}/${total} complete`}
+          sub={`${done}/${total} ${t('tasksDoneSub')}`}
           icon={ListChecks}
           variant="success"
           href={`/weddings/${id}/tasks`}
@@ -206,7 +207,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
 
       {/* Quick actions */}
       <FadeUp delay={0.1}>
-        <SectionHeader title="Quick actions" />
+        <SectionHeader title={t('quickActions')} />
         <QuickActionsGrid id={id} />
       </FadeUp>
 
@@ -228,10 +229,10 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                 <AccordionTrigger>
                   <span className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gold" aria-hidden="true" />
-                    Auspicious dates
+                    {t('auspiciousDates')}
                     {selectedMuhurat && (
                       <Badge variant="success" className="ml-1">
-                        Date selected
+                        {t('dateSelected')}
                       </Badge>
                     )}
                   </span>
@@ -266,11 +267,11 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
                             type="submit"
                             className="min-h-[44px] rounded-lg border border-gold px-3 text-xs font-medium text-primary transition-colors hover:bg-gold/10"
                           >
-                            Select
+                            {t('selectDate')}
                           </button>
                         </form>
                       ) : (
-                        <span className="text-xs font-semibold text-gold-muted">✓ Selected</span>
+                        <span className="text-xs font-semibold text-gold-muted">✓ {t('selectedBadge')}</span>
                       )}
                     </div>
                   ))}
@@ -285,9 +286,9 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
       {upcomingCeremonies.length > 0 && (
         <FadeUp delay={0.25}>
           <SectionHeader
-            title="Upcoming ceremonies"
+            title={t('upcomingCeremonies')}
             viewAllHref={`/weddings/${id}/ceremonies`}
-            viewAllLabel="All ceremonies"
+            viewAllLabel={t('allCeremonies')}
           />
           <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
             {upcomingCeremonies.map((c) => {
@@ -320,12 +321,12 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
       <FadeUp delay={0.3}>
         <div className="rounded-2xl border border-gold/25 bg-surface p-5 shadow-card">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-heading text-lg font-semibold text-primary">All ceremonies</h2>
+            <h2 className="font-heading text-lg font-semibold text-primary">{t('allCeremonies')}</h2>
             <Link
               href={`/weddings/${id}/ceremonies`}
               className="inline-flex items-center gap-1 text-xs font-medium text-teal transition-colors hover:text-teal-hover"
             >
-              Full timeline
+              {t('fullTimeline')}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
@@ -333,8 +334,8 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
           {ceremonies.length === 0 ? (
             <EmptyState
               variant="no-tasks"
-              title="No ceremonies added yet"
-              description="Add ceremonies to build out your wedding-day timeline."
+              title={t('noCeremoniesTitle')}
+              description={t('noCeremoniesDesc')}
               className="py-8"
             />
           ) : (
@@ -435,7 +436,7 @@ export default async function WeddingOverviewPage({ params }: PageProps) {
 
       {/* Recent activity */}
       <FadeUp delay={0.35}>
-        <SectionHeader title="Recent activity" />
+        <SectionHeader title={t('recentActivity')} />
         <ActivityFeed weddingId={id} limit={8} />
       </FadeUp>
     </PageTransition>

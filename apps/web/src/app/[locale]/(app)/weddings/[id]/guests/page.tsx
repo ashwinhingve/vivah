@@ -36,8 +36,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'weddings.guests.metadata' });
-  return { title: t('title') };
+  const t = await getTranslations({ locale, namespace: 'weddings.guests' });
+  return { title: t('metadata.title') };
 }
 
 export default async function GuestsPage({ params, searchParams }: PageProps) {
@@ -85,11 +85,11 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
 
         <PageHeader
           title={t('heading')}
-          subtitle="Manage guest list, RSVPs, invitations, analytics, and check-in."
+          subtitle={t('subtitle')}
           breadcrumbs={[
             { label: 'My Weddings', href: '/weddings' },
             { label: 'Wedding', href: `/weddings/${id}` },
-            { label: 'Guests' },
+            { label: t('heading') },
           ]}
           actions={
             <div className="flex items-center gap-2">
@@ -102,11 +102,11 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         {/* Sub-tab nav (preserved from original) */}
         <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-card p-1 mb-6 overflow-x-auto">
           {[
-            { href: `/weddings/${id}/guests`,            label: 'List',      active: true },
-            { href: `/weddings/${id}/guests/analytics`,  label: 'Analytics', active: false },
-            { href: `/weddings/${id}/guests/check-in`,   label: 'Check-in',  active: false },
-            { href: `/weddings/${id}/rsvp-questions`,    label: 'Questions', active: false },
-            { href: `/weddings/${id}/seating`,           label: 'Seating',   active: false },
+            { href: `/weddings/${id}/guests`,            label: t('tabs.list'),      active: true },
+            { href: `/weddings/${id}/guests/analytics`,  label: t('tabs.analytics'), active: false },
+            { href: `/weddings/${id}/guests/check-in`,   label: t('tabs.checkIn'),   active: false },
+            { href: `/weddings/${id}/rsvp-questions`,    label: t('tabs.questions'), active: false },
+            { href: `/weddings/${id}/seating`,           label: t('tabs.seating'),   active: false },
           ].map(({ href, label, active }) => (
             <Link
               key={href}
@@ -125,17 +125,17 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         {/* Error state */}
         {error && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center mb-6">
-            <p className="text-destructive font-medium">Could not load guests. Please try again.</p>
+            <p className="text-destructive font-medium">{t('errorLoad')}</p>
           </div>
         )}
 
         {/* Quick stats row — Day-1 StatCards with AnimatedNumber */}
         {!error && (
           <StaggerList className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <StatCard label="Total Guests"  value={total}     />
-            <StatCard label="Confirmed"     value={confirmed} />
-            <StatCard label="Declined"      value={declined}  />
-            <StatCard label="Awaiting RSVP" value={awaiting}  />
+            <StatCard label={t('stats.totalGuests')}  value={total}     />
+            <StatCard label={t('stats.confirmed')}     value={confirmed} />
+            <StatCard label={t('stats.declined')}      value={declined}  />
+            <StatCard label={t('stats.awaitingRsvp')} value={awaiting}  />
           </StaggerList>
         )}
 
@@ -151,8 +151,8 @@ export default async function GuestsPage({ params, searchParams }: PageProps) {
         {!error && (
           <>
             <SectionHeader
-              title="Guest List"
-              subtitle={`${total} guests · sort, filter, and manage RSVPs`}
+              title={t('guestList')}
+              subtitle={t('guestListSubtitle')}
             />
             <GuestTable weddingId={id} initialGuests={guests} ceremonies={ceremonies} />
           </>
