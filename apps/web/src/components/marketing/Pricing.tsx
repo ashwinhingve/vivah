@@ -1,26 +1,27 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Check } from 'lucide-react';
+import { PLANS_CONSTANT, monthlySavings } from '@smartshaadi/types';
 import { Eyebrow } from './Ornament';
 
-const freeFeatures = [
-  'Create complete profile',
-  'View 5 matches per day',
-  'Basic Guna Milan score',
-  'Send 3 interests per week',
-  'Safety Mode included',
-];
+/**
+ * Prices are derived from PLANS_CONSTANT (packages/types/src/plans.ts), the
+ * declared single source of truth that apps/api, packages/db and the billing
+ * page all read from. This section used to hard-code ₹999 and ₹2,499, making
+ * it an untested fourth copy — exactly the sync hazard apps/api/src/payments/
+ * plans.test.ts warns about ("a price change was made to only one source").
+ * Deriving them means a plan price change cannot silently leave the public
+ * pricing page advertising a stale number.
+ */
+const premiumMonthly = PLANS_CONSTANT.find((p) => p.code === 'PREMIUM_M');
+const premiumQuarterly = PLANS_CONSTANT.find((p) => p.code === 'PREMIUM_Q');
 
-const premiumFeatures = [
-  'Unlimited daily matches',
-  'Full 8-factor Guna Milan breakdown',
-  'Send unlimited interests',
-  'AI Conversation Coach',
-  'Family Compatibility Mode',
-  'Video calls & private chat',
-  'Priority support',
-  'Wedding planning suite (coming soon)',
-];
+const inr = (amount: string) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(Number.parseFloat(amount));
 
 function PaisleyOrnament({ className }: { className?: string }) {
   return (
@@ -48,16 +49,21 @@ function PaisleyOrnament({ className }: { className?: string }) {
 
 export default async function Pricing() {
   const t = await getTranslations('marketing.pricing');
+  const freeFeatures = t.raw('freeFeatures') as string[];
+  const premiumFeatures = t.raw('premiumFeatures') as string[];
+
+  const savings =
+    premiumQuarterly && monthlySavings(premiumQuarterly, PLANS_CONSTANT);
 
   return (
     <section id="pricing" className="bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
-        <Eyebrow className="mb-3">Pricing</Eyebrow>
+        <Eyebrow className="mb-3">{t('eyebrow')}</Eyebrow>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-foreground mb-4 font-heading">
           {t('sectionHeading')}
         </h2>
         <p className="text-muted-foreground text-center mb-16 leading-relaxed">
-          No credit card. No auto-charges. Cancel anytime.
+          {t('subtext')}
         </p>
 
         <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto items-stretch">
@@ -69,10 +75,10 @@ export default async function Pricing() {
               {t('freePlanName')}
             </p>
             <p className="relative text-5xl md:text-6xl font-bold text-foreground font-heading mt-2">
-              ₹0
+              {inr('0')}
             </p>
             <p className="relative text-sm text-gold-muted mt-1">
-              No credit card required
+              {t('freePriceNote')}
             </p>
 
             <ul className="relative space-y-3 mt-8 flex-1">
@@ -94,14 +100,17 @@ export default async function Pricing() {
               href="/register"
               className="relative inline-flex items-center justify-center w-full mt-10 border border-primary text-primary hover:bg-primary hover:text-white font-semibold rounded-lg px-6 py-3.5 min-h-[48px] transition-all duration-200"
             >
-              Get Started Free
+              {t('freeCta')}
             </Link>
           </article>
 
           {/* PREMIUM CARD */}
           <article className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-hover to-primary rounded-3xl p-8 flex-1 flex flex-col shadow-2xl shadow-primary/30 md:scale-105">
-            <span className="absolute -top-px left-1/2 -translate-x-1/2 bg-gold text-primary text-xs font-bold px-5 py-1.5 rounded-b-xl whitespace-nowrap shadow-md">
-              Most Popular
+            {/* text-plum, not text-primary: burgundy #7B2D42 on gold #C5A47E is
+                3.91:1, under the 4.5:1 WCAG AA floor for 12px bold. Plum
+                #421B2E on the same gold clears it comfortably. */}
+            <span className="absolute -top-px left-1/2 -translate-x-1/2 bg-gold text-plum text-xs font-bold px-5 py-1.5 rounded-b-xl whitespace-nowrap shadow-md">
+              {t('mostPopular')}
             </span>
 
             <PaisleyOrnament className="absolute -bottom-12 -right-12 w-48 h-48 text-gold/20 pointer-events-none" />
@@ -115,13 +124,18 @@ export default async function Pricing() {
             </p>
             <p className="relative mt-2">
               <span className="text-5xl md:text-6xl font-bold text-white font-heading">
-                ₹999
+                {premiumMonthly ? inr(premiumMonthly.amount) : null}
               </span>
-              <span className="text-lg text-gold/70 ml-1">/month</span>
+              <span className="text-lg text-gold/70 ml-1">{t('perMonth')}</span>
             </p>
-            <p className="relative text-sm text-gold/80 mt-1">
-              ₹2,499 for 3 months (save 17%)
-            </p>
+            {premiumQuarterly && savings ? (
+              <p className="relative text-sm text-gold/80 mt-1">
+                {t('quarterlyNote', {
+                  amount: inr(premiumQuarterly.amount),
+                  percent: savings.percent,
+                })}
+              </p>
+            ) : null}
 
             <ul className="relative space-y-3 mt-8 flex-1">
               {premiumFeatures.map((f) => (
@@ -144,7 +158,7 @@ export default async function Pricing() {
               href="/register?plan=premium"
               className="relative inline-flex items-center justify-center w-full mt-10 bg-surface text-primary font-semibold rounded-lg px-6 py-4 min-h-[52px] hover:bg-surface/95 transition-all duration-200 shadow-xl shadow-black/20 hover:-translate-y-0.5"
             >
-              Start 7-Day Free Trial →
+              {t('premiumCta')}
             </Link>
           </article>
         </div>

@@ -250,7 +250,32 @@
     "pricing": {
       "sectionHeading": "Start Free. Upgrade When Ready.",
       "freePlanName": "Free Forever",
-      "premiumPlanName": "Smart Shaadi Premium"
+      "premiumPlanName": "Smart Shaadi Premium",
+      "eyebrow": "Pricing",
+      "subtext": "No credit card. No auto-charges. Cancel anytime.",
+      "freePriceNote": "No credit card required",
+      "perMonth": "/month",
+      "mostPopular": "Most Popular",
+      "quarterlyNote": "{amount} for 3 months (save {percent}%)",
+      "freeCta": "Get Started Free",
+      "premiumCta": "Choose Premium",
+      "freeFeatures": [
+        "Create complete profile",
+        "View 5 matches per day",
+        "Basic Guna Milan score",
+        "Send 3 interests per week",
+        "Safety Mode included"
+      ],
+      "premiumFeatures": [
+        "Unlimited daily matches",
+        "Full 8-factor Guna Milan breakdown",
+        "Send unlimited interests",
+        "AI Conversation Coach",
+        "Family Compatibility Mode",
+        "Video calls & private chat",
+        "Priority support",
+        "Wedding planning suite (coming soon)"
+      ]
     },
     "cta": {
       "eyebrow": "India's Smartest Matrimonial Platform",
