@@ -1,0 +1,147 @@
+{
+  "payments": {
+    "title": "भुगतान इतिहास",
+    "subtitle": "आपकी बुकिंग, वॉलेट और भुगतान रिकॉर्ड",
+    "signInRequired": "अपना भुगतान इतिहास देखने के लिए कृपया साइन इन करें।",
+    "downloadStatement": "विवरण डाउनलोड करें",
+    "refundSubmitted": "रिफंड अनुरोध सफलतापूर्वक जमा किया गया। समीक्षा के बाद आपको सूचित किया जाएगा।",
+    "noPayments": "कोई भुगतान नहीं मिला",
+    "noPaymentsDesc": "आपके पास अभी तक कोई भुगतान रिकॉर्ड नहीं है।",
+    "noPaymentsFilterDesc": "इस फ़िल्टर से कोई भुगतान नहीं मिला।",
+    "booking": "बुकिंग",
+    "viewInvoice": "इनवॉइस देखें",
+    "requestRefund": "रिफंड का अनुरोध करें",
+    "escrowHeading": "स्मार्ट शादी एस्क्रो कैसे काम करता है",
+    "escrowPoint1": "आपकी बुकिंग राशि का 50% भुगतान पर एस्क्रो में सुरक्षित रखा जाता है।",
+    "escrowPoint2": "आपके इवेंट पूरा होने के 48 घंटे बाद विक्रेता को निधि जारी की जाती है।",
+    "escrowPoint3": "यदि कोई विवाद है, तो हमारी सहायता टीम द्वारा समाधान तक निधि रखी जाती है।",
+    "tabs": {
+      "all": "सभी",
+      "captured": "कैप्चर किया गया",
+      "refunded": "रिफंड किया गया",
+      "failed": "विफल"
+    },
+    "status": {
+      "PENDING": "लंबित",
+      "CAPTURED": "कैप्चर किया गया",
+      "RELEASED": "जारी किया गया",
+      "REFUNDED": "रिफंड किया गया",
+      "FAILED": "विफल",
+      "PARTIALLY_REFUNDED": "आंशिक रिफंड"
+    },
+    "escrow": {
+      "HELD": "एस्क्रो धारण",
+      "RELEASED": "एस्क्रो जारी",
+      "DISPUTED": "एस्क्रो विवादित",
+      "REFUNDED": "एस्क्रो रिफंड"
+    },
+    "wallet": {
+      "title": "मेरा वॉलेट",
+      "subtitle": "शेष, क्रेडिट और लेनदेन इतिहास",
+      "signInRequired": "साइन इन आवश्यक है",
+      "signInRequiredDesc": "अपना वॉलेट देखने के लिए कृपया साइन इन करें।",
+      "balanceLabel": "उपलब्ध शेष",
+      "totalCredited": "कुल क्रेडिट किया गया",
+      "totalDebited": "कुल डेबिट किया गया",
+      "walletDeactivated": "यह वॉलेट निष्क्रिय कर दिया गया है। सहायता के लिए सपोर्ट से संपर्क करें।",
+      "walletNotAvailable": "वॉलेट उपलब्ध नहीं है",
+      "walletNotAvailableDesc": "वॉलेट की जानकारी उपलब्ध नहीं है।",
+      "transactionHistory": "लेनदेन इतिहास",
+      "noTransactions": "अभी तक कोई लेनदेन नहीं",
+      "noTransactionsDesc": "आपकी वॉलेट गतिविधि यहां दिखाई देगी।",
+      "columns": {
+        "date": "तारीख",
+        "description": "विवरण",
+        "amount": "राशि",
+        "balanceAfter": "इसके बाद शेष"
+      }
+    },
+    "invoices": {
+      "title": "इनवॉइस",
+      "subtitle": "आपकी बुकिंग और ऑर्डर के लिए जीएसटी-अनुपालन इनवॉइस",
+      "noInvoices": "अभी तक कोई इनवॉइस नहीं",
+      "noInvoicesDesc": "जब बुकिंग या ऑर्डर की पुष्टि की जाती है तो इनवॉइस बनाए जाते हैं।",
+      "columns": {
+        "invoiceNo": "इनवॉइस संख्या",
+        "date": "तारीख",
+        "vendor": "विक्रेता",
+        "total": "कुल",
+        "status": "स्थिति",
+        "action": "कार्रवाई"
+      },
+      "status": {
+        "DRAFT": "ड्राफ्ट",
+        "ISSUED": "जारी",
+        "PAID": "भुगतान किया गया",
+        "CANCELLED": "रद्द किया गया",
+        "CREDITED": "क्रेडिट किया गया"
+      },
+      "view": "देखें"
+    },
+    "invoiceDetail": {
+      "backToInvoices": "इनवॉइस पर वापस जाएं",
+      "companyName": "राष्ट्रीय स्मार्ट विवाह ईवेंट पारिस्थितिकी तंत्र",
+      "taxInvoice": "कर इनवॉइस",
+      "billFrom": "बिल से",
+      "billTo": "बिल को",
+      "smartShaadi": "स्मार्ट शादी प्लेटफॉर्म",
+      "placeOfSupply": "आपूर्ति का स्थान",
+      "description": "विवरण",
+      "quantity": "मात्रा",
+      "rate": "दर",
+      "taxPercent": "कर %",
+      "amount": "राशि",
+      "subtotal": "उप-कुल",
+      "discount": "छूट",
+      "taxableValue": "कर योग्य मूल्य",
+      "totalTax": "कुल कर",
+      "total": "कुल",
+      "note": "नोट"
+    },
+    "refunds": {
+      "title": "रिफंड इतिहास",
+      "subtitle": "अपने रिफंड अनुरोधों की स्थिति ट्रैक करें",
+      "noRefunds": "अभी तक कोई रिफंड नहीं",
+      "noRefundsDesc": "आपने अभी तक कोई रिफंड अनुरोध जमा नहीं किया है।",
+      "paymentPrefix": "भुगतान",
+      "requestedOn": "अनुरोध किया गया",
+      "toWallet": "वॉलेट के लिए",
+      "failurePrefix": "विफलता",
+      "processedOn": "प्रोसेस किया गया",
+      "status": {
+        "REQUESTED": "अनुरोधित",
+        "APPROVED": "मंजूरी दी गई",
+        "PROCESSING": "प्रक्रिया में",
+        "COMPLETED": "पूर्ण",
+        "FAILED": "विफल",
+        "REJECTED": "अस्वीकृत"
+      },
+      "reason": {
+        "CUSTOMER_REQUEST": "ग्राहक अनुरोध",
+        "SERVICE_CANCELLED": "सेवा रद्द",
+        "VENDOR_NO_SHOW": "विक्रेता ने उपस्थिति नहीं दर्ज कराई",
+        "DUPLICATE_PAYMENT": "डुप्लिकेट भुगतान",
+        "DISPUTE_RESOLVED": "विवाद सुलझाया गया",
+        "FRAUD": "धोखाधड़ी",
+        "OTHER": "अन्य"
+      }
+    },
+    "success": {
+      "heading": "भुगतान सफल",
+      "message": "आपका लेनदेन दर्ज किया गया है। धन्यवाद।",
+      "paymentId": "भुगतान आईडी",
+      "booking": "बुकिंग",
+      "viewBooking": "बुकिंग देखें",
+      "allPayments": "सभी भुगतान"
+    },
+    "failure": {
+      "heading": "भुगतान विफल",
+      "defaultMessage": "आपका भुगतान पूरा नहीं किया जा सका।",
+      "reassurance": "कोई पैसा नहीं काटा गया है। यदि आपके बैंक में चार्ज दिखता है, तो यह 5-7 कार्य दिवसों में वापस आ जाएगा।",
+      "retryPayment": "भुगतान को फिर से आजमाएं",
+      "allPayments": "सभी भुगतान"
+    },
+    "walletAction": "वॉलेट",
+    "refundsAction": "रिफंड"
+  }
+}

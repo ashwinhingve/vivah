@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Loader2, Calendar, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WeddingTask, TaskStatus, TaskPriority } from '@smartshaadi/types';
@@ -42,12 +42,15 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
   const [tasks, setTasks] = useState<WeddingTask[]>(initialTasks);
   const [isPending, startTransition] = useTransition();
   const [movingId, setMovingId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   // New task form state
   const [showForm, setShowForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState<TaskPriority>('MEDIUM');
   const [newDueDate, setNewDueDate] = useState('');
+
+  useEffect(() => { setMounted(true); }, []);
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreating, startCreating] = useTransition();
 
@@ -222,10 +225,10 @@ export function TaskKanban({ weddingId, initialTasks }: TaskKanbanProps) {
                       {task.dueDate && (
                         <span className="inline-flex items-center gap-0.5 text-2xs text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
                           <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
-                          {new Date(task.dueDate).toLocaleDateString('en-IN', {
+                          {mounted ? new Date(task.dueDate).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
-                          })}
+                          }) : '—'}
                         </span>
                       )}
                     </div>

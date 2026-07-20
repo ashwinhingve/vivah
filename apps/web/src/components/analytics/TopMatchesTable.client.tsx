@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import type { TopMatch } from './types';
 
@@ -14,6 +14,8 @@ function fmt(iso: string): string {
 
 export function TopMatchesTable({ data }: { data: TopMatch[] | null }) {
   const [desc, setDesc] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   if (!data || data.length === 0) {
     return (
@@ -66,7 +68,7 @@ export function TopMatchesTable({ data }: { data: TopMatch[] | null }) {
                 {r.gunaMilanScore == null ? '—' : `${r.gunaMilanScore}/36`}
               </td>
               <td className="px-4 py-3 text-text-muted">{r.fiiBand}</td>
-              <td className="px-4 py-3 text-text-muted">{fmt(r.computedAt)}</td>
+              <td className="px-4 py-3 text-text-muted">{mounted ? fmt(r.computedAt) : '—'}</td>
             </tr>
           ))}
         </tbody>

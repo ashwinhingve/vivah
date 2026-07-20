@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { RentalCard } from '@/components/rental/RentalCard';
 import { CategoryTabs } from '@/components/rental/CategoryTabs.client';
 import { DateRangePicker } from '@/components/rental/DateRangePicker.client';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { RentalItem } from '@smartshaadi/types';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
@@ -107,14 +108,13 @@ export default async function RentalsPage({ searchParams }: Props) {
 
         {/* Empty state */}
         {data && items.length === 0 && (
-          <div className="rounded-xl border border-gold/30 bg-surface p-8 text-center">
-            <p className="text-lg font-semibold text-primary">No items found</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {category
-                ? `No ${category.toLowerCase()} items available for your selected dates.`
-                : 'No items match your filters. Try adjusting the dates or category.'}
-            </p>
-          </div>
+          <EmptyState
+            variant="no-products"
+            title="No rental items found"
+            description={category
+              ? `No ${category.toLowerCase()} items available for your selected dates.`
+              : 'No items match your filters. Try adjusting the dates or category.'}
+          />
         )}
 
         {/* Grid */}

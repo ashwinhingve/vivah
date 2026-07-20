@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
@@ -47,6 +48,7 @@ interface ProfileSnapshot {
 }
 
 export default function CareerPage() {
+  const t = useTranslations('onboarding.career');
   const [state, formAction] = useActionState(updateCareer, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -72,7 +74,7 @@ export default function CareerPage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
         <PageHeader
-          title="Education & Career"
+          title={t('heading')}
           className="mb-6"
         />
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-4">
@@ -82,41 +84,41 @@ export default function CareerPage() {
             </div>
           )}
           <fieldset>
-            <legend className="text-sm font-semibold text-muted-foreground mb-3">Education</legend>
+            <legend className="text-sm font-semibold text-muted-foreground mb-3">{t('education')}</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Highest Degree</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('highestDegree')}</label>
                 <select
                   name="degree"
                   defaultValue={e?.degree ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="">Select degree</option>
+                  <option value="">{t('selectDegree')}</option>
                   {DEGREES.map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Field of Study</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('fieldOfStudy')}</label>
                 <input
                   name="fieldOfStudy"
                   defaultValue={e?.fieldOfStudy ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. Computer Science"
+                  placeholder={t('fieldOfStudyPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">College / University</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('college')}</label>
                 <input
                   name="college"
                   defaultValue={e?.college ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="Institution name"
+                  placeholder={t('collegePlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Graduation Year</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('graduationYear')}</label>
                 <input
                   name="year"
                   type="number"
@@ -124,75 +126,75 @@ export default function CareerPage() {
                   max={2030}
                   defaultValue={e?.year ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. 2020"
+                  placeholder={t('graduationYearPlaceholder')}
                 />
               </div>
             </div>
           </fieldset>
 
           <fieldset>
-            <legend className="text-sm font-semibold text-muted-foreground mb-3">Profession</legend>
+            <legend className="text-sm font-semibold text-muted-foreground mb-3">{t('profession')}</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Occupation</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('occupation')}</label>
                 <input
                   name="occupation"
                   defaultValue={pr?.occupation ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. Software Engineer"
+                  placeholder={t('occupationPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Employer Type</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('employerType')}</label>
                 <select
                   name="employerType"
                   defaultValue={pr?.employerType ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="">Select type</option>
+                  <option value="">{t('selectEmployerType')}</option>
                   {EMPLOYER_TYPES.map(([v, label]) => (
                     <option key={v} value={v}>{label}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Employer / Company</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('employer')}</label>
                 <input
                   name="employer"
                   defaultValue={pr?.employer ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="Company name"
+                  placeholder={t('employerPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Designation</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('designation')}</label>
                 <input
                   name="designation"
                   defaultValue={pr?.designation ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. Senior Developer"
+                  placeholder={t('designationPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Annual Income</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('annualIncome')}</label>
                 <select
                   name="incomeRange"
                   defaultValue={pr?.incomeRange ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="">Select range</option>
+                  <option value="">{t('selectIncomeRange')}</option>
                   {INCOME_RANGES.map((r) => (
                     <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Work Location</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('workLocation')}</label>
                 <input
                   name="workLocation"
                   defaultValue={pr?.workLocation ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. Pune"
+                  placeholder={t('workLocationPlaceholder')}
                 />
               </div>
             </div>

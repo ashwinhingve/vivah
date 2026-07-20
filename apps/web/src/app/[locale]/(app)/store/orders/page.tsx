@@ -1,19 +1,20 @@
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import type { OrderSummary, OrderStatus } from '@smartshaadi/types';
 
 interface OrdersResponse {
   orders: OrderSummary[];
 }
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; cls: string }> = {
-  PLACED:    { label: 'Placed',    cls: 'bg-warning/10  text-warning'    },
-  CONFIRMED: { label: 'Confirmed', cls: 'bg-teal/10   text-teal'     },
-  SHIPPED:   { label: 'Shipped',   cls: 'bg-primary/10 text-primary'   },
-  DELIVERED: { label: 'Delivered', cls: 'bg-success/10 text-success' },
-  CANCELLED: { label: 'Cancelled', cls: 'bg-secondary  text-muted-foreground'     },
-  REFUNDED:  { label: 'Refunded',  cls: 'bg-secondary  text-muted-foreground'     },
+const STATUS_TONE_MAP: Record<OrderStatus, StatusTone> = {
+  PLACED:    'warning',
+  CONFIRMED: 'teal',
+  SHIPPED:   'primary',
+  DELIVERED: 'success',
+  CANCELLED: 'neutral',
+  REFUNDED:  'neutral',
 };
 
 export default async function OrdersPage() {
@@ -51,7 +52,15 @@ export default async function OrdersPage() {
         ) : (
           <div className="space-y-3">
             {sorted.map(order => {
-              const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PLACED;
+              const tone = STATUS_TONE_MAP[order.status] ?? STATUS_TONE_MAP.PLACED;
+              const labels: Record<OrderStatus, string> = {
+                PLACED:    'Placed',
+                CONFIRMED: 'Confirmed',
+                SHIPPED:   'Shipped',
+                DELIVERED: 'Delivered',
+                CANCELLED: 'Cancelled',
+                REFUNDED:  'Refunded',
+              };
               return (
                 <Link
                   key={order.id}
@@ -73,9 +82,9 @@ export default async function OrdersPage() {
                         })}
                       </p>
                     </div>
-                    <span className={`text-2xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${cfg.cls}`}>
-                      {cfg.label}
-                    </span>
+                    <StatusChip tone={tone} className="text-2xs font-semibold flex-shrink-0">
+                      {labels[order.status]}
+                    </StatusChip>
                   </div>
                 </Link>
               );

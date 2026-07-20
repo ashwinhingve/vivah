@@ -1,0 +1,24 @@
+{
+  "store": {
+    "orders": {
+      "statusLabels": {
+        "placed": "Placed",
+        "confirmed": "Confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
+    }
+  },
+  "vendorDashboard": {
+    "statusBanner": {
+      "labels": {
+        "pending": "Pending",
+        "underReview": "Under Review",
+        "rejected": "Rejected",
+        "draft": "Draft"
+      }
+    }
+  }
+}

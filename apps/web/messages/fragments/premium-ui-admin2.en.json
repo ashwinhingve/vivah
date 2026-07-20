@@ -1,0 +1,26 @@
+{
+  "adminStatus": {
+    "userRoles": {
+      "INDIVIDUAL": "Individual",
+      "FAMILY_MEMBER": "Family Member",
+      "VENDOR": "Vendor",
+      "EVENT_COORDINATOR": "Coordinator",
+      "ADMIN": "Admin",
+      "SUPPORT": "Support"
+    },
+    "userStatus": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "PENDING_VERIFICATION": "Pending",
+      "DELETED": "Deleted"
+    },
+    "disputeStatus": {
+      "open": "Open",
+      "resolved": "Resolved"
+    },
+    "reconciliationStatus": {
+      "OPEN": "Open",
+      "RESOLVED": "Resolved"
+    }
+  }
+}

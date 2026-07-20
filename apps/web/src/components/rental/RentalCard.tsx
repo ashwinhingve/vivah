@@ -37,7 +37,7 @@ export function RentalCard({ item }: Props) {
       <div className="w-full aspect-[4/3] rounded-lg bg-gold/20 flex items-center justify-center overflow-hidden">
         {item.imageKeys[0] ? (
           <img
-            src={`/api/media/${item.imageKeys[0]}`}
+            src={`/api/r2/${encodeURIComponent(item.imageKeys[0])}`}
             alt={item.name}
             loading="lazy"
             decoding="async"

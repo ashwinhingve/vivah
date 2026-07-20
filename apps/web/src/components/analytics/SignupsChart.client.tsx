@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SignupPoint } from './types';
 
 const W = 720;
@@ -25,6 +25,8 @@ function ChartShell({ children }: { children: React.ReactNode }) {
 
 export function SignupsChart({ data }: { data: SignupPoint[] | null }) {
   const [hover, setHover] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   if (!data || data.length === 0) {
     return (
@@ -85,14 +87,14 @@ export function SignupsChart({ data }: { data: SignupPoint[] | null }) {
         />
         {data.map((d, i) => (
           <g key={d.date}>
-            {hover === i && (
+            {hover === i && mounted && (
               <>
                 <circle cx={x(i)} cy={y(d.count)} r={4} fill="var(--color-teal)" />
                 <text
                   x={x(i)}
                   y={y(d.count) - 10}
                   textAnchor="middle"
-                  fontSize={12}
+                  fontSize={10}
                   fill="var(--color-foreground)"
                   fontWeight={600}
                 >
@@ -111,17 +113,17 @@ export function SignupsChart({ data }: { data: SignupPoint[] | null }) {
             />
           </g>
         ))}
-        <text x={PAD_X} y={H - 4} fontSize={11} fill="var(--color-muted-foreground)">
-          {fmtDate(data[0]!.date)}
+        <text x={PAD_X} y={H - 4} fontSize={10} fill="var(--color-muted-foreground)">
+          {mounted ? fmtDate(data[0]!.date) : '—'}
         </text>
         <text
           x={W - PAD_X}
           y={H - 4}
-          fontSize={11}
+          fontSize={10}
           textAnchor="end"
           fill="var(--color-muted-foreground)"
         >
-          {fmtDate(data[data.length - 1]!.date)}
+          {mounted ? fmtDate(data[data.length - 1]!.date) : '—'}
         </text>
       </svg>
     </ChartShell>

@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { RefundRequestModal } from './RefundRequestModal.client';
 import { StatementDownloadModal } from './StatementDownloadModal.client';
 
@@ -46,31 +48,37 @@ function formatDate(iso: string): string {
   });
 }
 
-const STATUS_TABS: { value: PaymentStatus; label: string }[] = [
-  { value: 'ALL',      label: 'All' },
-  { value: 'CAPTURED', label: 'Captured' },
-  { value: 'REFUNDED', label: 'Refunded' },
-  { value: 'FAILED',   label: 'Failed' },
-];
-
-const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING:            { bg: 'bg-warning/15',  text: 'text-warning',  label: 'Pending' },
-  CAPTURED:           { bg: 'bg-teal/10',    text: 'text-teal',       label: 'Captured' },
-  RELEASED:           { bg: 'bg-success/15',  text: 'text-success',  label: 'Released' },
-  REFUNDED:           { bg: 'bg-secondary',  text: 'text-muted-foreground',  label: 'Refunded' },
-  FAILED:             { bg: 'bg-destructive/15',    text: 'text-destructive',    label: 'Failed' },
-  PARTIALLY_REFUNDED: { bg: 'bg-warning/15', text: 'text-warning', label: 'Partly Refunded' },
+const STATUS_TONE_MAP: Record<string, StatusTone> = {
+  PENDING:            'warning',
+  CAPTURED:           'teal',
+  RELEASED:           'success',
+  REFUNDED:           'neutral',
+  FAILED:             'error',
+  PARTIALLY_REFUNDED: 'warning',
 };
 
 export function PaymentsPageClient({ payments }: Props) {
-  const [filter,           setFilter]           = useState<PaymentStatus>('ALL');
-  const [refundTarget,     setRefundTarget]      = useState<PaymentItem | null>(null);
-  const [showStatement,    setShowStatement]     = useState(false);
-  const [refundSuccess,    setRefundSuccess]     = useState(false);
+  const t = useTranslations('payments');
+  const [mounted, setMounted] = useState(false);
+  const [filter, setFilter] = useState<PaymentStatus>('ALL');
+  const [refundTarget, setRefundTarget] = useState<PaymentItem | null>(null);
+  const [showStatement, setShowStatement] = useState(false);
+  const [refundSuccess, setRefundSuccess] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filtered = filter === 'ALL'
     ? payments
     : payments.filter(p => p.status === filter);
+
+  const STATUS_TABS: { value: PaymentStatus; label: string }[] = [
+    { value: 'ALL', label: t('tabs.all') },
+    { value: 'CAPTURED', label: t('tabs.captured') },
+    { value: 'REFUNDED', label: t('tabs.refunded') },
+    { value: 'FAILED', label: t('tabs.failed') },
+  ];
 
   return (
     <>
@@ -79,18 +87,17 @@ export function PaymentsPageClient({ payments }: Props) {
         <button
           type="button"
           onClick={() => setShowStatement(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-gold/10"
-          style={{ borderColor: 'var(--color-gold)', color: 'var(--color-primary)' }}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gold px-4 py-2 text-sm font-medium transition-colors hover:bg-gold/10 text-primary min-h-[44px]"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          Download Statement
+          {t('downloadStatement')}
         </button>
       </div>
 
       {/* Filter tabs */}
-      <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border p-1" style={{ borderColor: 'var(--color-gold)', background: 'var(--color-secondary)' }}>
+      <div className="mb-5 flex gap-1 overflow-x-auto rounded-xl border border-gold p-1 bg-secondary">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.value}
@@ -99,7 +106,7 @@ export function PaymentsPageClient({ payments }: Props) {
             className={[
               'flex-1 min-w-[72px] rounded-lg px-3 py-2 text-xs font-semibold transition-colors whitespace-nowrap',
               filter === tab.value
-                ? 'bg-surface shadow-sm text-primary'
+                ? 'bg-surface shadow-card text-primary'
                 : 'text-muted-foreground hover:text-foreground',
             ].join(' ')}
           >
@@ -110,52 +117,53 @@ export function PaymentsPageClient({ payments }: Props) {
 
       {refundSuccess && (
         <div className="mb-4 rounded-lg bg-success/10 border border-success/30 px-4 py-3 text-sm text-success">
-          Refund request submitted successfully. You will be notified once it is reviewed.
+          {t('refundSubmitted')}
         </div>
       )}
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed py-16 text-center" style={{ borderColor: 'var(--color-gold)' }}>
-          <p className="font-medium" style={{ color: 'var(--color-primary)' }}>No payments found</p>
+        <div className="rounded-2xl border border-gold border-dashed py-16 text-center bg-surface">
+          <p className="font-medium text-primary">{t('noPayments')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {filter === 'ALL' ? 'You have no payment records yet.' : `No ${filter.toLowerCase()} payments.`}
+            {filter === 'ALL' ? t('noPaymentsDesc') : t('noPaymentsFilterDesc')}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filtered.map(payment => {
-            const badge = STATUS_BADGE[payment.status] ?? { bg: 'bg-secondary', text: 'text-muted-foreground', label: payment.status };
+            const tone = STATUS_TONE_MAP[payment.status] ?? 'neutral';
             return (
               <div
                 key={payment.id}
-                className="rounded-2xl bg-surface shadow-card border p-5"
-                style={{ borderColor: 'var(--color-gold)' }}
+                className="rounded-2xl bg-surface shadow-card border border-gold p-5"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground font-mono truncate">
-                      {payment.razorpayOrderId || `Booking ${payment.bookingId.slice(0, 8)}…`}
+                      {payment.razorpayOrderId || `${t('booking')} ${payment.bookingId.slice(0, 8)}…`}
                     </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {formatDate(payment.createdAt)}
-                    </p>
+                    {mounted && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {formatDate(payment.createdAt)}
+                      </p>
+                    )}
                   </div>
-                  <p className="shrink-0 text-lg font-bold" style={{ color: 'var(--color-primary)' }}>
+                  <p className="shrink-0 text-lg font-bold text-primary">
                     {formatINR(payment.amount)}
                   </p>
                 </div>
 
                 {/* Status badges */}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.bg} ${badge.text}`}>
-                    {badge.label}
-                  </span>
+                  <StatusChip tone={tone}>
+                    {t(`status.${payment.status}`)}
+                  </StatusChip>
                   {payment.escrow && (
-                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-teal/10 text-teal">
-                      Escrow {payment.escrow.status.toLowerCase()}
-                    </span>
+                    <StatusChip tone="teal">
+                      {t(`escrow.${payment.escrow.status}`)}
+                    </StatusChip>
                   )}
                 </div>
 
@@ -164,19 +172,18 @@ export function PaymentsPageClient({ payments }: Props) {
                   {payment.invoiceId && (
                     <Link
                       href={`/payments/invoices/${payment.invoiceId}`}
-                      className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-gold/10"
-                      style={{ borderColor: 'var(--color-gold)', color: 'var(--color-primary)' }}
+                      className="inline-flex items-center rounded-lg border border-gold px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 text-primary min-h-[44px]"
                     >
-                      View Invoice
+                      {t('viewInvoice')}
                     </Link>
                   )}
                   {(payment.status === 'CAPTURED' || payment.status === 'RELEASED') && (
                     <button
                       type="button"
                       onClick={() => setRefundTarget(payment)}
-                      className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium text-destructive border-destructive/30 hover:bg-destructive/10 transition-colors"
+                      className="inline-flex items-center rounded-lg border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors min-h-[44px]"
                     >
-                      Request Refund
+                      {t('requestRefund')}
                     </button>
                   )}
                 </div>

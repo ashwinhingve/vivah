@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import {
@@ -11,6 +12,7 @@ import type { EnrichedMatchRequest } from '@smartshaadi/types';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { resolvePhotoUrl } from '@/lib/photo';
@@ -18,33 +20,18 @@ import { useToast } from '@/components/ui/toast';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-const DECLINE_REASONS: { value: string; label: string }[] = [
-  { value: 'NOT_INTERESTED',           label: 'Not interested right now' },
-  { value: 'NOT_MATCHING_PREFERENCES', label: 'Doesn’t match my preferences' },
-  { value: 'INCOMPLETE_PROFILE',       label: 'Profile feels incomplete' },
-  { value: 'PHOTO_HIDDEN',             label: 'Photo is hidden' },
-  { value: 'INAPPROPRIATE_MESSAGE',    label: 'Message felt inappropriate' },
-  { value: 'OTHER',                    label: 'Other' },
-];
+function getStatusBadgeConfig(status: string): { tone: StatusTone; labelKey: string } {
+  switch (status) {
+    case 'PENDING':   return { tone: 'warning', labelKey: 'requests.statusBadges.pending' };
+    case 'ACCEPTED':  return { tone: 'success', labelKey: 'requests.statusBadges.matched' };
+    case 'DECLINED':  return { tone: 'neutral', labelKey: 'requests.statusBadges.declined' };
+    case 'WITHDRAWN': return { tone: 'neutral', labelKey: 'requests.statusBadges.withdrawn' };
+    case 'BLOCKED':   return { tone: 'error', labelKey: 'requests.statusBadges.blocked' };
+    case 'EXPIRED':   return { tone: 'neutral', labelKey: 'requests.statusBadges.expired' };
+    default:          return { tone: 'neutral', labelKey: 'requests.statusBadges.expired' };
+  }
+}
 
-const REPORT_CATEGORIES: { value: string; label: string; tone: string }[] = [
-  { value: 'HARASSMENT',            label: 'Harassment / abusive language', tone: 'text-destructive' },
-  { value: 'FAKE_PROFILE',          label: 'Fake or impersonated profile',  tone: 'text-warning' },
-  { value: 'INAPPROPRIATE_CONTENT', label: 'Inappropriate photos / content', tone: 'text-warning' },
-  { value: 'SCAM',                  label: 'Scam / asking for money',        tone: 'text-destructive' },
-  { value: 'UNDERAGE',              label: 'Underage / minor',                tone: 'text-destructive' },
-  { value: 'SPAM',                  label: 'Spam / repeated unwanted contact', tone: 'text-warning' },
-  { value: 'OTHER',                 label: 'Other',                            tone: 'text-muted-foreground' },
-];
-
-const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
-  PENDING:   { label: 'Pending',   cls: 'bg-warning/10 text-warning' },
-  ACCEPTED:  { label: 'Matched',   cls: 'bg-success/10 text-success' },
-  DECLINED:  { label: 'Declined',  cls: 'bg-destructive/10 text-destructive' },
-  WITHDRAWN: { label: 'Withdrawn', cls: 'bg-secondary text-muted-foreground' },
-  BLOCKED:   { label: 'Blocked',   cls: 'bg-secondary text-muted-foreground' },
-  EXPIRED:   { label: 'Expired',   cls: 'bg-secondary text-muted-foreground' },
-};
 
 function getSessionToken(): string | null {
   if (typeof document === 'undefined') return null;
@@ -64,41 +51,41 @@ async function apiFetch(path: string, options?: RequestInit): Promise<Response> 
   });
 }
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string, t: (key: string, params?: Record<string, string | number | Date>) => string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60_000);
-  if (m < 1)  return 'just now';
-  if (m < 60) return `${m}m ago`;
+  if (m < 1)  return t('requests.timeAgo.justNow');
+  if (m < 60) return t('requests.timeAgo.minutesAgo', { m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return t('requests.timeAgo.hoursAgo', { h });
   const d = Math.floor(h / 24);
-  if (d === 1) return 'yesterday';
-  if (d < 30) return `${d}d ago`;
+  if (d === 1) return t('requests.timeAgo.yesterday');
+  if (d < 30) return t('requests.timeAgo.daysAgo', { d });
   const mo = Math.floor(d / 30);
-  return `${mo}mo ago`;
+  return t('requests.timeAgo.monthsAgo', { mo });
 }
 
-function expiresIn(iso: string | null): string | null {
+function expiresIn(iso: string | null, t: (key: string, params?: Record<string, string | number | Date>) => string): string | null {
   if (!iso) return null;
   const ms = new Date(iso).getTime() - Date.now();
-  if (ms <= 0) return 'expired';
+  if (ms <= 0) return t('requests.timeAgo.expired');
   const d = Math.floor(ms / 86_400_000);
-  if (d > 1)  return `expires in ${d}d`;
+  if (d > 1)  return t('requests.timeAgo.expiresIn', { time: `${d}d` });
   const h = Math.floor(ms / 3_600_000);
-  if (h >= 1) return `expires in ${h}h`;
+  if (h >= 1) return t('requests.timeAgo.expiresIn', { time: `${h}h` });
   const m = Math.max(1, Math.floor(ms / 60_000));
-  return `expires in ${m}m`;
+  return t('requests.timeAgo.expiresIn', { time: `${m}m` });
 }
 
-function lastActiveLabel(iso: string | null): string | null {
+function lastActiveLabel(iso: string | null, t: (key: string, params?: Record<string, string | number | Date>) => string): string | null {
   if (!iso) return null;
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
-  if (m < 5)   return 'Online now';
-  if (m < 60)  return `Active ${m}m ago`;
+  if (m < 5)   return t('requests.timeAgo.onlineNow');
+  if (m < 60)  return t('requests.timeAgo.activeMinutesAgo', { m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `Active ${h}h ago`;
+  if (h < 24) return t('requests.timeAgo.activeHoursAgo', { h });
   const d = Math.floor(h / 24);
-  if (d < 7)  return `Active ${d}d ago`;
+  if (d < 7)  return t('requests.timeAgo.activeDaysAgo', { d });
   return null;
 }
 
@@ -109,8 +96,18 @@ interface DeclineModalProps {
 }
 
 function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
+  const t = useTranslations();
   const [selected, setSelected] = useState<string>('NOT_INTERESTED');
   const [busy, setBusy] = useState(false);
+
+  const declineReasons = [
+    { value: 'NOT_INTERESTED',           label: t('requests.declineReasons.notInterested') },
+    { value: 'NOT_MATCHING_PREFERENCES', label: t('requests.declineReasons.notMatching') },
+    { value: 'INCOMPLETE_PROFILE',       label: t('requests.declineReasons.incompleteProfile') },
+    { value: 'PHOTO_HIDDEN',             label: t('requests.declineReasons.photoHidden') },
+    { value: 'INAPPROPRIATE_MESSAGE',    label: t('requests.declineReasons.inappropriateMessage') },
+    { value: 'OTHER',                    label: t('requests.declineReasons.other') },
+  ];
 
   if (!open) return null;
 
@@ -118,16 +115,16 @@ function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-semibold text-primary font-heading">Decline this request?</h2>
+          <h2 className="text-base font-semibold text-primary font-heading">{t('requests.declineReasons.title')}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Your reason stays private. The sender only sees that you declined.
+          {t('requests.declineReasons.description')}
         </p>
         <div className="space-y-2 mb-4">
-          {DECLINE_REASONS.map((r) => (
+          {declineReasons.map((r) => (
             <label key={r.value} className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${selected === r.value ? 'border-primary bg-primary/5' : 'border-border'}`}>
               <input
                 type="radio"
@@ -148,7 +145,7 @@ function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-semibold text-muted-foreground hover:bg-surface min-h-[44px]"
           >
-            Cancel
+            {t('requests.declineReasons.cancel')}
           </button>
           <button
             type="button"
@@ -159,7 +156,7 @@ function DeclineModal({ open, onClose, onConfirm }: DeclineModalProps) {
             }}
             className="flex-1 rounded-lg bg-destructive py-2.5 text-sm font-semibold text-white hover:bg-destructive min-h-[44px] flex items-center justify-center gap-2"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} Decline
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {t('requests.declineReasons.confirm')}
           </button>
         </div>
       </div>
@@ -175,6 +172,7 @@ interface AcceptModalProps {
 }
 
 function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModalProps) {
+  const t = useTranslations();
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -185,23 +183,23 @@ function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModal
       <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-card">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-semibold text-primary font-heading">
-            Accept {counterpartyName ?? 'this request'}?
+            {t('requests.acceptModal.title', { name: counterpartyName ?? t('common.thisRequest') })}
           </h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Add an optional welcome note. They’ll see it as the first message in your chat.
+          {t('requests.acceptModal.description')}
         </p>
         <textarea
           value={msg}
           onChange={(e) => setMsg(e.target.value.slice(0, 500))}
-          placeholder="Hi! Looking forward to getting to know you..."
+          placeholder={t('requests.acceptModal.placeholder')}
           rows={3}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
         />
-        <div className="text-right text-xs text-muted-foreground mt-1">{msg.length} / 500</div>
+        <div className="text-right text-xs text-muted-foreground mt-1">{t('requests.acceptModal.charCounter', { current: msg.length })}</div>
         <div className="flex gap-2 mt-4">
           <button
             type="button"
@@ -209,7 +207,7 @@ function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModal
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-semibold text-muted-foreground min-h-[44px]"
           >
-            Cancel
+            {t('requests.acceptModal.cancel')}
           </button>
           <button
             type="button"
@@ -220,7 +218,7 @@ function AcceptModal({ open, onClose, onConfirm, counterpartyName }: AcceptModal
             }}
             className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white hover:bg-success min-h-[44px] flex items-center justify-center gap-2"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} Accept
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {t('requests.acceptModal.confirm')}
           </button>
         </div>
       </div>
@@ -235,9 +233,20 @@ interface ReportModalProps {
 }
 
 function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
+  const t = useTranslations();
   const [category, setCategory] = useState<string>('HARASSMENT');
   const [details, setDetails] = useState('');
   const [busy, setBusy] = useState(false);
+
+  const reportCategories = [
+    { value: 'HARASSMENT',            label: t('requests.reportCategories.harassment'),            tone: 'text-destructive' },
+    { value: 'FAKE_PROFILE',          label: t('requests.reportCategories.fakeProfile'),          tone: 'text-warning' },
+    { value: 'INAPPROPRIATE_CONTENT', label: t('requests.reportCategories.inappropriateContent'), tone: 'text-warning' },
+    { value: 'SCAM',                  label: t('requests.reportCategories.scam'),                  tone: 'text-destructive' },
+    { value: 'UNDERAGE',              label: t('requests.reportCategories.underage'),              tone: 'text-destructive' },
+    { value: 'SPAM',                  label: t('requests.reportCategories.spam'),                  tone: 'text-warning' },
+    { value: 'OTHER',                 label: t('requests.reportCategories.other'),                 tone: 'text-muted-foreground' },
+  ];
 
   if (!open) return null;
 
@@ -245,16 +254,16 @@ function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-semibold text-primary font-heading">Report profile</h2>
+          <h2 className="text-base font-semibold text-primary font-heading">{t('requests.reportCategories.title')}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Reports stay confidential. Our moderation team reviews every one within 24h.
+          {t('requests.reportCategories.description')}
         </p>
         <div className="space-y-2 mb-3">
-          {REPORT_CATEGORIES.map((c) => (
+          {reportCategories.map((c) => (
             <label key={c.value} className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${category === c.value ? 'border-primary bg-primary/5' : 'border-border'}`}>
               <input
                 type="radio"
@@ -271,11 +280,11 @@ function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
         <textarea
           value={details}
           onChange={(e) => setDetails(e.target.value.slice(0, 1000))}
-          placeholder="Optional: tell us more..."
+          placeholder={t('requests.reportCategories.detailsPlaceholder')}
           rows={3}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
         />
-        <div className="text-right text-xs text-muted-foreground mt-1">{details.length} / 1000</div>
+        <div className="text-right text-xs text-muted-foreground mt-1">{t('requests.reportCategories.charCounter', { current: details.length })}</div>
         <div className="flex gap-2 mt-4">
           <button
             type="button"
@@ -283,7 +292,7 @@ function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-semibold min-h-[44px]"
           >
-            Cancel
+            {t('requests.reportCategories.cancel')}
           </button>
           <button
             type="button"
@@ -294,7 +303,7 @@ function ReportModal({ open, onClose, onConfirm }: ReportModalProps) {
             }}
             className="flex-1 rounded-lg bg-destructive py-2.5 text-sm font-semibold text-white hover:bg-destructive min-h-[44px] flex items-center justify-center gap-2"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} Submit report
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {t('requests.reportCategories.confirm')}
           </button>
         </div>
       </div>
@@ -317,10 +326,11 @@ interface RequestCardProps {
 // the other ~100 cards in the list. Handlers receive the request so the parent can
 // pass stable callbacks.
 const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecline, onWithdraw, onBlock, onReport }: RequestCardProps) {
+  const t = useTranslations();
   const [menuOpen, setMenuOpen] = useState(false);
   const isSuper = r.priority === 'SUPER_LIKE';
-  const expires = side === 'received' && r.status === 'PENDING' ? expiresIn(r.expiresAt) : null;
-  const lastActive = lastActiveLabel(r.lastActiveAt);
+  const expires = side === 'received' && r.status === 'PENDING' ? expiresIn(r.expiresAt, t) : null;
+  const lastActive = lastActiveLabel(r.lastActiveAt, t);
 
   return (
     <div className={`rounded-2xl border ${isSuper ? 'border-warning/40 bg-warning/5' : 'border-gold/20 bg-surface'} p-4 space-y-3 shadow-card`}>
@@ -351,10 +361,10 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
             )}
           </div>
           <p className="text-xs text-muted-foreground truncate">
-            {[r.age && `${r.age}y`, r.city].filter(Boolean).join(' · ') || 'Profile details hidden'}
+            {[r.age && `${r.age}y`, r.city].filter(Boolean).join(' · ') || t('requests.cardMeta.profileHidden')}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-xs text-muted-foreground">{`Sent ${timeAgo(r.createdAt)}`}</p>
+            <p className="text-xs text-muted-foreground">{t('requests.cardMeta.sent', { timeAgo: timeAgo(r.createdAt, t) })}</p>
             {lastActive && (
               <>
                 <span className="text-muted-foreground/40">·</span>
@@ -388,14 +398,14 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
                   onClick={() => { setMenuOpen(false); onReport(r); }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2"
                 >
-                  <Flag className="h-3.5 w-3.5" /> Report profile
+                  <Flag className="h-3.5 w-3.5" /> {t('requests.actions.reportProfile')}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setMenuOpen(false); onBlock(r); }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-muted text-destructive flex items-center gap-2"
                 >
-                  <ShieldX className="h-3.5 w-3.5" /> Block
+                  <ShieldX className="h-3.5 w-3.5" /> {t('requests.actions.block')}
                 </button>
               </div>
             </>
@@ -424,7 +434,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
 
       {side === 'sent' && r.seenAt && r.status === 'PENDING' && (
         <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <CheckCheck className="h-3 w-3" /> Seen {timeAgo(r.seenAt)}
+          <CheckCheck className="h-3 w-3" /> {t('requests.cardMeta.seen', { timeAgo: timeAgo(r.seenAt, t) })}
         </p>
       )}
 
@@ -436,7 +446,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
             disabled={busy}
             className="flex-1 bg-success text-white text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:bg-success transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
           >
-            <Heart className="h-4 w-4 fill-white" /> Accept
+            <Heart className="h-4 w-4 fill-white" /> {t('requests.actions.accept')}
           </button>
           <button
             type="button"
@@ -444,7 +454,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
             disabled={busy}
             className="flex-1 border border-border text-muted-foreground text-sm font-semibold rounded-lg py-2.5 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
           >
-            Decline
+            {t('requests.actions.decline')}
           </button>
         </div>
       )}
@@ -456,7 +466,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
           disabled={busy}
           className="w-full border border-border text-muted-foreground text-sm font-medium rounded-lg py-2 min-h-[44px] hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-50"
         >
-          Withdraw interest
+          {t('requests.actions.withdraw')}
         </button>
       )}
 
@@ -466,7 +476,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
             href={`/chats?match=${r.id}`}
             className="block text-center w-full rounded-lg bg-teal text-white text-sm font-semibold py-2.5 hover:bg-teal-hover min-h-[44px] flex items-center justify-center gap-1.5"
           >
-            <Heart className="h-4 w-4 fill-white" /> Open chat
+            <Heart className="h-4 w-4 fill-white" /> {t('requests.actions.openChat')}
           </Link>
           {r.userId ? <RevealContactButton otherUserId={r.userId} /> : null}
         </div>
@@ -484,6 +494,7 @@ interface RevealContactState {
 }
 
 function RevealContactButton({ otherUserId }: { otherUserId: string }) {
+  const t = useTranslations();
   const [state, setState] = useState<RevealContactState>({
     loading: false, unlocked: false, contact: null, message: null,
   });
@@ -494,7 +505,7 @@ function RevealContactButton({ otherUserId }: { otherUserId: string }) {
     if (!res.ok) {
       const body = await res.json().catch(() => ({})) as { error?: { message?: string } };
       setState({ loading: false, unlocked: false, contact: null,
-        message: body.error?.message ?? 'Could not unlock — please retry' });
+        message: body.error?.message ?? t('requests.reveal.unlockError') });
       return;
     }
     // Then attempt to read contact — succeeds only when the other side has also unlocked.
@@ -506,14 +517,14 @@ function RevealContactButton({ otherUserId }: { otherUserId: string }) {
     }
     setState({
       loading: false, unlocked: true, contact: null,
-      message: 'Your side is unlocked. Waiting for the other person to unlock their contact.',
+      message: t('requests.reveal.waitingForOther'),
     });
   }
 
   if (state.contact) {
     return (
       <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-foreground space-y-1">
-        <p className="font-medium text-success">Contact details unlocked</p>
+        <p className="font-medium text-success">{t('requests.reveal.unlocked')}</p>
         {state.contact.phoneNumber ? <p>{state.contact.phoneNumber}</p> : null}
         {state.contact.email ? <p>{state.contact.email}</p> : null}
       </div>
@@ -528,7 +539,7 @@ function RevealContactButton({ otherUserId }: { otherUserId: string }) {
         disabled={state.loading}
         className="w-full rounded-lg border border-teal/40 text-teal text-sm font-semibold py-2 min-h-[44px] hover:bg-teal/5 transition-colors disabled:opacity-50"
       >
-        {state.loading ? 'Unlocking…' : state.unlocked ? 'Awaiting their unlock…' : 'Reveal contact (mutual)'}
+        {state.loading ? t('requests.actions.unlocking') : state.unlocked ? t('requests.actions.awaitingUnlock') : t('requests.actions.revealContact')}
       </button>
       {state.message ? <p className="text-xs text-muted-foreground">{state.message}</p> : null}
     </div>
@@ -541,6 +552,7 @@ interface RequestsClientProps {
 }
 
 export function RequestsClient({ initialReceived, initialSent }: RequestsClientProps) {
+  const t = useTranslations();
   const router = useRouter();
   const { toast } = useToast();
   const [tab, setTab] = useState<'received' | 'sent'>('received');
@@ -587,11 +599,11 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         unseen.map((x) => apiFetch(`/api/v1/matchmaking/requests/${x.id}/seen`, { method: 'PUT' })),
       );
     } catch {
-      setError('Failed to load requests. Please try again.');
+      setError(t('requests.toasts.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, t]);
 
   // Mark initial PENDING received requests as seen (initial data was SSR'd).
   useEffect(() => {
@@ -613,12 +625,12 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         body: JSON.stringify({ welcomeMessage }),
       });
       if (!res.ok) throw new Error('Failed');
-      toast(`It's a match! Say hello to ${r.name ?? 'your match'} in Chats`, 'success');
+      toast(t('requests.toasts.acceptSuccess', { name: r.name ?? 'your match' }), 'success');
     } catch {
       setReceived(prev);
-      flashError(r.id, 'Could not accept — please try again');
+      flashError(r.id, t('requests.toasts.acceptError'));
     } finally { setBusy(r.id, false); }
-  }, [received, toast]);
+  }, [received, toast, t]);
 
   const handleDecline = useCallback(async (r: EnrichedMatchRequest, reason: string | null) => {
     setBusy(r.id, true);
@@ -632,12 +644,12 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       if (!res.ok) throw new Error('Failed');
     } catch {
       setReceived(prev);
-      flashError(r.id, 'Could not decline — please try again');
+      flashError(r.id, t('requests.toasts.declineError'));
     } finally { setBusy(r.id, false); }
-  }, [received]);
+  }, [received, t]);
 
   const handleWithdraw = useCallback(async (r: EnrichedMatchRequest) => {
-    if (!confirm('Withdraw this interest? The other person will not be notified unless they had already seen it.')) return;
+    if (!confirm(t('requests.toasts.withdrawConfirm'))) return;
     setBusy(r.id, true);
     const prev = sent;
     setSent((s) => s.map((x) => x.id === r.id ? { ...x, status: 'WITHDRAWN' as const } : x));
@@ -646,12 +658,12 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       if (!res.ok) throw new Error('Failed');
     } catch {
       setSent(prev);
-      flashError(r.id, 'Could not withdraw — please try again');
+      flashError(r.id, t('requests.toasts.withdrawError'));
     } finally { setBusy(r.id, false); }
-  }, [sent]);
+  }, [sent, t]);
 
   const handleBlock = useCallback(async (r: EnrichedMatchRequest) => {
-    if (!confirm(`Block ${r.name ?? 'this profile'}? They will no longer be able to contact you and any open match will be cancelled.`)) return;
+    if (!confirm(t('requests.toasts.blockConfirm', { name: r.name ?? 'this profile' }))) return;
     setBusy(r.id, true);
     try {
       const res = await apiFetch(`/api/v1/matchmaking/block/${r.profileId}`, {
@@ -662,9 +674,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       // Refresh both lists since block flips both directions
       await load();
     } catch {
-      flashError(r.id, 'Could not block — please try again');
+      flashError(r.id, t('requests.toasts.blockError'));
     } finally { setBusy(r.id, false); }
-  }, [load]);
+  }, [load, t]);
 
   const handleReport = useCallback(async (r: EnrichedMatchRequest, category: string, details: string | null) => {
     setBusy(r.id, true);
@@ -675,9 +687,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
       });
       if (!res.ok) throw new Error('Failed');
     } catch {
-      flashError(r.id, 'Could not submit report — please try again');
+      flashError(r.id, t('requests.toasts.reportError'));
     } finally { setBusy(r.id, false); }
-  }, []);
+  }, [t]);
 
   // Stable card callbacks so the memoized RequestCard skips re-renders when
   // unrelated parent state (busyIds, actionError flashes) changes.
@@ -697,26 +709,26 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
     <main className="min-h-screen bg-background">
       <FadeUp className="mx-auto max-w-lg px-4 py-8 space-y-5">
         <PageHeader
-          title="Requests"
-          subtitle="Manage your match interests"
+          title={t('requests.page.title')}
+          subtitle={t('requests.page.subtitle')}
           className="mb-0"
         />
 
         <div className="flex rounded-lg bg-surface border border-border p-1 gap-1">
-          {(['received', 'sent'] as const).map((t) => {
-            const count = t === 'received' ? pendingReceived.length : pendingSent.length;
+          {(['received', 'sent'] as const).map((tabType) => {
+            const count = tabType === 'received' ? pendingReceived.length : pendingSent.length;
             return (
               <button
-                key={t}
+                key={tabType}
                 type="button"
-                onClick={() => setTab(t)}
+                onClick={() => setTab(tabType)}
                 className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[44px] ${
-                  tab === t ? 'bg-primary text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  tab === tabType ? 'bg-primary text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {t === 'received' ? 'Received' : 'Sent'}
+                {tabType === 'received' ? t('requests.tabs.received') : t('requests.tabs.sent')}
                 {count > 0 && (
-                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === t ? 'bg-surface/20' : 'bg-primary/10 text-primary'}`}>
+                  <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === tabType ? 'bg-surface/20' : 'bg-primary/10 text-primary'}`}>
                     {count}
                   </span>
                 )}
@@ -728,7 +740,7 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         {error && (
           <div className="rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive flex items-center justify-between">
             {error}
-            <button type="button" onClick={() => void load()} className="font-semibold underline">Retry</button>
+            <button type="button" onClick={() => void load()} className="font-semibold underline">{t('requests.toasts.retryAction')}</button>
           </div>
         )}
 
@@ -745,9 +757,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
             {pendingReceived.length === 0 && pastReceived.length === 0 && (
               <EmptyState
                 variant="no-matches"
-                title="No requests yet"
-                description="When someone sends you an interest, it will appear here. Explore profiles to get noticed!"
-                actionLabel="Browse profiles"
+                title={t('requests.empty.receivedTitle')}
+                description={t('requests.empty.receivedDesc')}
+                actionLabel={t('requests.empty.browseProfiles')}
                 actionHref="/feed"
               />
             )}
@@ -776,11 +788,11 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
               <details className="group">
                 <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
                   <ChevronRight className="h-3.5 w-3.5 group-open:rotate-90 transition-transform" aria-hidden="true" />
-                  Past requests ({pastReceived.length})
+                  {t('requests.pastRequests', { count: pastReceived.length })}
                 </summary>
                 <div className="space-y-2 mt-2">
                   {pastReceived.map((r) => {
-                    const badge = STATUS_BADGE[r.status] ?? STATUS_BADGE['EXPIRED']!;
+                    const { tone, labelKey } = getStatusBadgeConfig(r.status);
                     return (
                       <Link
                         key={r.id}
@@ -790,9 +802,7 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
                         <div className="text-sm text-foreground flex-1 min-w-0 truncate">
                           {r.name ?? `Profile ${r.profileId.slice(0, 6)}`}
                         </div>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}>
-                          {badge.label}
-                        </span>
+                        <StatusChip tone={tone}>{t(labelKey)}</StatusChip>
                       </Link>
                     );
                   })}
@@ -807,9 +817,9 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
             {pendingSent.length === 0 && pastSent.length === 0 && (
               <EmptyState
                 variant="no-matches"
-                title="No interests sent yet"
-                description="Browse profiles and send an interest to start your journey."
-                actionLabel="Browse profiles"
+                title={t('requests.empty.sentTitle')}
+                description={t('requests.empty.sentDesc')}
+                actionLabel={t('requests.empty.browseProfiles')}
                 actionHref="/feed"
               />
             )}
@@ -838,11 +848,11 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
               <details className="group">
                 <summary className="text-xs font-medium text-muted-foreground cursor-pointer py-2 list-none flex items-center gap-1">
                   <ChevronRight className="h-3.5 w-3.5 group-open:rotate-90 transition-transform" aria-hidden="true" />
-                  Past requests ({pastSent.length})
+                  {t('requests.pastRequests', { count: pastSent.length })}
                 </summary>
                 <div className="space-y-2 mt-2">
                   {pastSent.map((r) => {
-                    const badge = STATUS_BADGE[r.status] ?? STATUS_BADGE['EXPIRED']!;
+                    const { tone, labelKey } = getStatusBadgeConfig(r.status);
                     return (
                       <Link
                         key={r.id}
@@ -852,9 +862,7 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
                         <div className="text-sm text-foreground flex-1 min-w-0 truncate">
                           {r.name ?? `Profile ${r.profileId.slice(0, 6)}`}
                         </div>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}>
-                          {badge.label}
-                        </span>
+                        <StatusChip tone={tone}>{t(labelKey)}</StatusChip>
                       </Link>
                     );
                   })}

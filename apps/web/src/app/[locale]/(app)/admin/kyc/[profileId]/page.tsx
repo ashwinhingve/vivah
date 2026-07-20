@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { redirect } from '@/i18n/redirect';
+import { StatusChip } from '@/components/ui/StatusChip';
 import { KycActionsPanel } from '@/components/admin/KycActionsPanel.client';
 import { KycAppealResolver } from '@/components/admin/KycAppealResolver.client';
 import { AuditTimeline } from '@/app/[locale]/(onboarding)/profile/kyc/AuditTimeline';
@@ -204,11 +205,11 @@ export default async function AdminKycDetailPage({ params }: PageProps) {
                         {d.documentLast4 && <p className="text-2xs font-mono text-muted-foreground">****{d.documentLast4}</p>}
                         <p className="text-2xs text-muted-foreground">{fmt(d.uploadedAt)}</p>
                       </div>
-                      <span className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${
-                        d.status === 'VERIFIED' ? 'bg-success/10 text-success' :
-                        d.status === 'REJECTED' ? 'bg-destructive/10 text-destructive' :
-                                                  'bg-muted/40 text-muted-foreground'
-                      }`}>{d.status}</span>
+                      <StatusChip tone={
+                        d.status === 'VERIFIED' ? 'success' :
+                        d.status === 'REJECTED' ? 'error' :
+                        'neutral'
+                      }>{d.status}</StatusChip>
                     </li>
                   ))}
                 </ul>

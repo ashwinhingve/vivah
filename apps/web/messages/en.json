@@ -597,7 +597,15 @@
       "aboutMePlaceholder": "Share a little about yourself, your interests, and what you're looking for…",
       "sexualOrientationPrivate": "Sexual orientation (private)",
       "orientationVisible": "Show on my public profile",
-      "orientationStorageNote": "Stored on your profile but never visible to other users unless you toggle it below."
+      "orientationStorageNote": "Stored on your profile but never visible to other users unless you toggle it below.",
+      "selectStatus": "Select status",
+      "genderMale": "Male",
+      "genderFemale": "Female",
+      "genderNonBinary": "Non-binary",
+      "genderOther": "Other",
+      "selectReligion": "Select religion",
+      "selectLanguage": "Select language",
+      "selectState": "Select state"
     },
     "family": {
       "metadata": {
@@ -701,7 +709,27 @@
       "occupation": "Occupation",
       "company": "Company",
       "salary": "Annual Income (optional)",
-      "salaryNote": "This helps surface you to compatible matches with aligned life plans."
+      "salaryNote": "This helps surface you to compatible matches with aligned life plans.",
+      "profession": "Profession",
+      "highestDegree": "Highest Degree",
+      "selectDegree": "Select degree",
+      "fieldOfStudy": "Field of Study",
+      "fieldOfStudyPlaceholder": "e.g. Computer Science",
+      "college": "College / University",
+      "collegePlaceholder": "Institution name",
+      "graduationYear": "Graduation Year",
+      "graduationYearPlaceholder": "e.g. 2020",
+      "occupationPlaceholder": "e.g. Software Engineer",
+      "employerType": "Employer Type",
+      "selectEmployerType": "Select type",
+      "employer": "Employer / Company",
+      "employerPlaceholder": "Company name",
+      "designation": "Designation",
+      "designationPlaceholder": "e.g. Senior Developer",
+      "annualIncome": "Annual Income",
+      "selectIncomeRange": "Select range",
+      "workLocation": "Work Location",
+      "workLocationPlaceholder": "e.g. Pune"
     },
     "lifestyle": {
       "heading": "Lifestyle & Interests",
@@ -713,7 +741,11 @@
       "languages": "Languages Spoken",
       "personalityTags": "Your Personality Tags",
       "personalityTagsNote": "These help surface you to compatible matches",
-      "fitness": "Fitness Level"
+      "fitness": "Fitness Level",
+      "selectDiet": "Select diet preference",
+      "selectSmoking": "Select smoking preference",
+      "selectDrinking": "Select drinking preference",
+      "selectFitness": "Select fitness level"
     },
     "preferences": {
       "heading": "Partner Preferences",
@@ -2502,7 +2534,9 @@
     "referralTableFriend": "Friend",
     "referralTableStatus": "Status",
     "referralTableCredits": "Credits",
-    "referralTableJoined": "Joined"
+    "referralTableJoined": "Joined",
+    "dataExport": "Your Data",
+    "dataExportDesc": "Export or delete your data"
   },
   "shortlist": {
     "heading": "Your Shortlist",
@@ -3646,6 +3680,112 @@
   "requests": {
     "metadata": {
       "title": "Match Requests — Smart Shaadi"
+    },
+    "page": {
+      "title": "Requests",
+      "subtitle": "Manage your match interests"
+    },
+    "tabs": {
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "empty": {
+      "receivedTitle": "No requests yet",
+      "receivedDesc": "When someone sends you an interest, it will appear here. Explore profiles to get noticed!",
+      "sentTitle": "No interests sent yet",
+      "sentDesc": "Browse profiles and send an interest to start your journey.",
+      "browseProfiles": "Browse profiles"
+    },
+    "pastRequests": "Past requests ({count})",
+    "cardMeta": {
+      "profileHidden": "Profile details hidden",
+      "sent": "Sent {timeAgo}",
+      "seen": "Seen {timeAgo}"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "withdraw": "Withdraw interest",
+      "openChat": "Open chat",
+      "reportProfile": "Report profile",
+      "block": "Block",
+      "revealContact": "Reveal contact (mutual)",
+      "unlocking": "Unlocking…",
+      "awaitingUnlock": "Awaiting their unlock…"
+    },
+    "declineReasons": {
+      "title": "Decline this request?",
+      "description": "Your reason stays private. The sender only sees that you declined.",
+      "notInterested": "Not interested right now",
+      "notMatching": "Doesn't match my preferences",
+      "incompleteProfile": "Profile feels incomplete",
+      "photoHidden": "Photo is hidden",
+      "inappropriateMessage": "Message felt inappropriate",
+      "other": "Other",
+      "cancel": "Cancel",
+      "confirm": "Decline"
+    },
+    "acceptModal": {
+      "title": "Accept {name}?",
+      "description": "Add an optional welcome note. They'll see it as the first message in your chat.",
+      "placeholder": "Hi! Looking forward to getting to know you...",
+      "charCounter": "{current} / 500",
+      "cancel": "Cancel",
+      "confirm": "Accept"
+    },
+    "reportCategories": {
+      "title": "Report profile",
+      "description": "Reports stay confidential. Our moderation team reviews every one within 24h.",
+      "harassment": "Harassment / abusive language",
+      "fakeProfile": "Fake or impersonated profile",
+      "inappropriateContent": "Inappropriate photos / content",
+      "scam": "Scam / asking for money",
+      "underage": "Underage / minor",
+      "spam": "Spam / repeated unwanted contact",
+      "other": "Other",
+      "detailsPlaceholder": "Optional: tell us more...",
+      "charCounter": "{current} / 1000",
+      "cancel": "Cancel",
+      "confirm": "Submit report"
+    },
+    "statusBadges": {
+      "pending": "Pending",
+      "matched": "Matched",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn",
+      "blocked": "Blocked",
+      "expired": "Expired"
+    },
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{m}m ago",
+      "hoursAgo": "{h}h ago",
+      "yesterday": "yesterday",
+      "daysAgo": "{d}d ago",
+      "monthsAgo": "{mo}mo ago",
+      "expiresIn": "expires in {time}",
+      "expired": "expired",
+      "onlineNow": "Online now",
+      "activeMinutesAgo": "Active {m}m ago",
+      "activeHoursAgo": "Active {h}h ago",
+      "activeDaysAgo": "Active {d}d ago"
+    },
+    "toasts": {
+      "acceptSuccess": "It's a match! Say hello to {name} in Chats",
+      "acceptError": "Could not accept — please try again",
+      "declineError": "Could not decline — please try again",
+      "withdrawError": "Could not withdraw — please try again",
+      "withdrawConfirm": "Withdraw this interest? The other person will not be notified unless they had already seen it.",
+      "blockConfirm": "Block {name}? They will no longer be able to contact you and any open match will be cancelled.",
+      "blockError": "Could not block — please try again",
+      "reportError": "Could not submit report — please try again",
+      "loadError": "Failed to load requests. Please try again.",
+      "retryAction": "Retry"
+    },
+    "reveal": {
+      "unlocked": "Contact details unlocked",
+      "unlockError": "Could not unlock — please retry",
+      "waitingForOther": "Your side is unlocked. Waiting for the other person to unlock their contact."
     }
   },
   "admin": {
@@ -3731,6 +3871,16 @@
       "jewelry": "Jewelry",
       "decor": "Decor",
       "other": "Other"
+    },
+    "orders": {
+      "statusLabels": {
+        "placed": "Placed",
+        "confirmed": "Confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
     }
   },
   "rentals": {
@@ -3827,6 +3977,37 @@
       "writeReview": "Write Review",
       "approveReschedule": "Approve Reschedule",
       "backToBookings": "Back to Bookings"
+    },
+    "title": "My Bookings",
+    "subtitle": "Track bookings, reschedule, and manage events.",
+    "viewingAsLabel": "Viewing as",
+    "asCustomer": "As Customer",
+    "asVendor": "As Vendor",
+    "noBookings": "No bookings here",
+    "noBookingsDesc": "Try a different filter or browse vendors to make your first booking.",
+    "exploreVendors": "Explore Vendors",
+    "reschedulePending": "Reschedule pending",
+    "escrow": "Escrow",
+    "view": "View",
+    "reviewPending": "Review pending",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "timeline": {
+      "all": "All time",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "DISPUTED": "Disputed"
     }
   },
   "trust": {
@@ -3844,5 +4025,184 @@
     "moneyBackGuarantee": "Money Back Guarantee",
     "escrowProtection": "Escrow Protected",
     "instantConfirmation": "Instant Confirmation"
+  },
+  "adminStatus": {
+    "userRoles": {
+      "INDIVIDUAL": "Individual",
+      "FAMILY_MEMBER": "Family Member",
+      "VENDOR": "Vendor",
+      "EVENT_COORDINATOR": "Coordinator",
+      "ADMIN": "Admin",
+      "SUPPORT": "Support"
+    },
+    "userStatus": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "PENDING_VERIFICATION": "Pending",
+      "DELETED": "Deleted"
+    },
+    "disputeStatus": {
+      "open": "Open",
+      "resolved": "Resolved"
+    },
+    "reconciliationStatus": {
+      "OPEN": "Open",
+      "RESOLVED": "Resolved"
+    }
+  },
+  "payments": {
+    "title": "Payment History",
+    "subtitle": "Your bookings, wallet, and payment records",
+    "signInRequired": "Please sign in to view your payment history.",
+    "downloadStatement": "Download Statement",
+    "refundSubmitted": "Refund request submitted successfully. You will be notified once it is reviewed.",
+    "noPayments": "No payments found",
+    "noPaymentsDesc": "You have no payment records yet.",
+    "noPaymentsFilterDesc": "No payments match this filter.",
+    "booking": "Booking",
+    "viewInvoice": "View Invoice",
+    "requestRefund": "Request Refund",
+    "escrowHeading": "How Smart Shaadi Escrow Works",
+    "escrowPoint1": "50% of your booking amount is held securely in escrow on payment.",
+    "escrowPoint2": "Funds are released to the vendor 48 hours after your event is completed.",
+    "escrowPoint3": "If there is a dispute, funds are held until resolved by our support team.",
+    "tabs": {
+      "all": "All",
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "failed": "Failed"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "CAPTURED": "Captured",
+      "RELEASED": "Released",
+      "REFUNDED": "Refunded",
+      "FAILED": "Failed",
+      "PARTIALLY_REFUNDED": "Partly Refunded"
+    },
+    "escrow": {
+      "HELD": "Escrow Held",
+      "RELEASED": "Escrow Released",
+      "DISPUTED": "Escrow Disputed",
+      "REFUNDED": "Escrow Refunded"
+    },
+    "wallet": {
+      "title": "My Wallet",
+      "subtitle": "Balance, credits, and transaction history",
+      "signInRequired": "Sign in required",
+      "signInRequiredDesc": "Please sign in to view your wallet.",
+      "balanceLabel": "Available Balance",
+      "totalCredited": "Total credited",
+      "totalDebited": "Total debited",
+      "walletDeactivated": "This wallet has been deactivated. Contact support for assistance.",
+      "walletNotAvailable": "Wallet not available",
+      "walletNotAvailableDesc": "Wallet information is not available.",
+      "transactionHistory": "Transaction History",
+      "noTransactions": "No transactions yet",
+      "noTransactionsDesc": "Your wallet activity will appear here.",
+      "columns": {
+        "date": "Date",
+        "description": "Description",
+        "amount": "Amount",
+        "balanceAfter": "Balance after"
+      }
+    },
+    "invoices": {
+      "title": "Invoices",
+      "subtitle": "GST-compliant invoices for your bookings and orders",
+      "noInvoices": "No invoices yet",
+      "noInvoicesDesc": "Invoices are generated when a booking or order is confirmed.",
+      "columns": {
+        "invoiceNo": "Invoice No.",
+        "date": "Date",
+        "vendor": "Vendor",
+        "total": "Total",
+        "status": "Status",
+        "action": "Action"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "ISSUED": "Issued",
+        "PAID": "Paid",
+        "CANCELLED": "Cancelled",
+        "CREDITED": "Credited"
+      },
+      "view": "View"
+    },
+    "invoiceDetail": {
+      "backToInvoices": "Back to Invoices",
+      "companyName": "National Smart Marriage Event Ecosystem",
+      "taxInvoice": "Tax Invoice",
+      "billFrom": "Bill From",
+      "billTo": "Bill To",
+      "smartShaadi": "Smart Shaadi Platform",
+      "placeOfSupply": "Place of supply",
+      "description": "Description",
+      "quantity": "Qty",
+      "rate": "Rate",
+      "taxPercent": "Tax %",
+      "amount": "Amount",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "taxableValue": "Taxable value",
+      "totalTax": "Total tax",
+      "total": "Total",
+      "note": "Note"
+    },
+    "refunds": {
+      "title": "Refund History",
+      "subtitle": "Track the status of your refund requests",
+      "noRefunds": "No refunds yet",
+      "noRefundsDesc": "You have not submitted any refund requests.",
+      "paymentPrefix": "Payment",
+      "requestedOn": "Requested",
+      "toWallet": "To wallet",
+      "failurePrefix": "Failure",
+      "processedOn": "Processed on",
+      "status": {
+        "REQUESTED": "Requested",
+        "APPROVED": "Approved",
+        "PROCESSING": "Processing",
+        "COMPLETED": "Completed",
+        "FAILED": "Failed",
+        "REJECTED": "Rejected"
+      },
+      "reason": {
+        "CUSTOMER_REQUEST": "Customer request",
+        "SERVICE_CANCELLED": "Service cancelled",
+        "VENDOR_NO_SHOW": "Vendor no-show",
+        "DUPLICATE_PAYMENT": "Duplicate payment",
+        "DISPUTE_RESOLVED": "Dispute resolved",
+        "FRAUD": "Fraud",
+        "OTHER": "Other"
+      }
+    },
+    "success": {
+      "heading": "Payment successful",
+      "message": "Your transaction has been recorded. Thank you.",
+      "paymentId": "Payment ID",
+      "booking": "Booking",
+      "viewBooking": "View booking",
+      "allPayments": "All payments"
+    },
+    "failure": {
+      "heading": "Payment failed",
+      "defaultMessage": "Your payment could not be completed.",
+      "reassurance": "No money has been deducted. If your bank shows a charge, it will reverse within 5–7 business days.",
+      "retryPayment": "Retry payment",
+      "allPayments": "All payments"
+    },
+    "walletAction": "Wallet",
+    "refundsAction": "Refunds"
+  },
+  "vendorDashboard": {
+    "statusBanner": {
+      "labels": {
+        "pending": "Pending",
+        "underReview": "Under Review",
+        "rejected": "Rejected",
+        "draft": "Draft"
+      }
+    }
   }
 }

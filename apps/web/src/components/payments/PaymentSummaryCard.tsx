@@ -23,23 +23,22 @@ export function PaymentSummaryCard({
   walletBalance,
 }: PaymentSummaryCardProps) {
   const items = [
-    { label: 'Total Spent',     value: formatINR(totalSpend),    color: 'var(--color-primary)' },
-    { label: 'Refunded',        value: formatINR(totalRefunded), color: 'var(--color-success)' },
-    { label: 'Wallet Balance',  value: formatINR(walletBalance), color: 'var(--color-teal)' },
+    { label: 'Total Spent',     value: formatINR(totalSpend),    colorClass: 'text-primary' },
+    { label: 'Refunded',        value: formatINR(totalRefunded), colorClass: 'text-success' },
+    { label: 'Wallet Balance',  value: formatINR(walletBalance), colorClass: 'text-teal' },
   ];
 
   return (
     <div className="grid grid-cols-3 gap-3 sm:gap-4">
-      {items.map(({ label, value, color }) => (
+      {items.map(({ label, value, colorClass }) => (
         <div
           key={label}
-          className="rounded-2xl bg-surface border px-4 py-4 text-center shadow-card"
-          style={{ borderColor: 'var(--color-gold)' }}
+          className="rounded-2xl bg-surface border border-gold px-4 py-4 text-center shadow-card"
         >
-          <p className="text-lg font-bold sm:text-xl" style={{ color }}>
+          <p className={`text-lg font-bold sm:text-xl ${colorClass}`}>
             {value}
           </p>
-          <p className="mt-1 text-2xs text-muted-foreground leading-tight">{label}</p>
+          <p className="mt-1 text-xs text-muted-foreground leading-tight">{label}</p>
         </div>
       ))}
     </div>

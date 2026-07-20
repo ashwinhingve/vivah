@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import type { VendorOrderItem } from '@smartshaadi/types';
 
 interface VendorOrderRowProps {
@@ -9,13 +10,16 @@ interface VendorOrderRowProps {
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
-const statusBadge: Record<
-  string,
-  { text: string; cls: string }
-> = {
-  PENDING:   { text: 'Pending',   cls: 'text-warning bg-warning/10 border border-warning/30' },
-  SHIPPED:   { text: 'Shipped',   cls: 'text-primary bg-primary/10 border border-primary/30' },
-  DELIVERED: { text: 'Delivered', cls: 'text-success bg-success/10 border border-success/30' },
+const STATUS_TONE_MAP: Record<string, StatusTone> = {
+  PENDING:   'warning',
+  SHIPPED:   'primary',
+  DELIVERED: 'success',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING:   'Pending',
+  SHIPPED:   'Shipped',
+  DELIVERED: 'Delivered',
 };
 
 export function VendorOrderRow({ item }: VendorOrderRowProps) {
@@ -25,8 +29,9 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
   const [showAddress, setShowAddress] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  const badge = statusBadge[status] ?? { text: status, cls: 'text-muted-foreground bg-secondary border border-border' };
+  useEffect(() => { setMounted(true); }, []);
 
   async function markShipped() {
     if (!tracking.trim()) {
@@ -87,11 +92,12 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
             <h3 className="font-heading text-primary font-semibold text-sm truncate max-w-[200px]">
               {item.productName}
             </h3>
-            <span
-              className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${badge.cls}`}
+            <StatusChip
+              tone={STATUS_TONE_MAP[status] ?? 'neutral'}
+              className="text-2xs font-semibold"
             >
-              {badge.text}
-            </span>
+              {STATUS_LABELS[status] ?? status}
+            </StatusChip>
           </div>
           <p className="text-xs text-muted-foreground">
             Customer: <span className="font-medium text-foreground">{item.customerName}</span>
@@ -99,11 +105,11 @@ export function VendorOrderRow({ item }: VendorOrderRowProps) {
           <p className="text-xs text-muted-foreground">
             Ordered:{' '}
             <span className="font-medium text-foreground">
-              {new Date(item.orderDate).toLocaleDateString('en-IN', {
+              {mounted ? new Date(item.orderDate).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric',
-              })}
+              }) : '—'}
             </span>
           </p>
           {item.trackingNumber && (

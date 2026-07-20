@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { DataTable, type DataTableColumn } from '@/components/shared';
-import { cn } from '@/lib/utils';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 
 interface Discrepancy {
   id: string;
@@ -74,16 +74,10 @@ export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
     {
       key: 'status',
       header: 'Status',
-      render: (i) => (
-        <span
-          className={cn(
-            'text-xs font-medium',
-            i.status === 'OPEN' ? 'text-warning' : 'text-success'
-          )}
-        >
-          {i.status}
-        </span>
-      ),
+      render: (i) => {
+        const tone: StatusTone = i.status === 'OPEN' ? 'warning' : 'success';
+        return <StatusChip tone={tone}>{i.status}</StatusChip>;
+      },
     },
     {
       key: 'action',

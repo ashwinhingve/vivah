@@ -1,0 +1,35 @@
+{
+  "bookings": {
+    "title": "मेरी बुकिंग",
+    "subtitle": "बुकिंग ट्रैक करें, समय बदलें और इवेंट प्रबंधित करें।",
+    "viewingAsLabel": "इसे देख रहे हैं",
+    "asCustomer": "ग्राहक के रूप में",
+    "asVendor": "विक्रेता के रूप में",
+    "noBookings": "यहां कोई बुकिंग नहीं है",
+    "noBookingsDesc": "एक अलग फ़िल्टर आजमाएं या अपनी पहली बुकिंग करने के लिए विक्रेताओं को ब्राउज़ करें।",
+    "exploreVendors": "विक्रेताओं को देखें",
+    "reschedulePending": "समय बदलने की प्रतीक्षा में",
+    "escrow": "एस्क्रो",
+    "view": "देखें",
+    "reviewPending": "समीक्षा लंबित",
+    "filters": {
+      "all": "सभी",
+      "pending": "लंबित",
+      "confirmed": "पुष्टि की गई",
+      "completed": "पूर्ण",
+      "cancelled": "रद्द किया गया"
+    },
+    "timeline": {
+      "all": "सभी समय",
+      "upcoming": "आने वाली",
+      "past": "पिछली"
+    },
+    "status": {
+      "PENDING": "लंबित",
+      "CONFIRMED": "पुष्टि की गई",
+      "COMPLETED": "पूर्ण",
+      "CANCELLED": "रद्द किया गया",
+      "DISPUTED": "विवादित"
+    }
+  }
+}

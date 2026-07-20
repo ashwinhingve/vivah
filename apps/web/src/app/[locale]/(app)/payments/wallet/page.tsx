@@ -3,6 +3,7 @@
  * Server Component
  */
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import type { WalletSnapshot, WalletTransaction } from '@smartshaadi/types';
 import { Container, DataTable, type DataTableColumn } from '@/components/shared';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -77,14 +78,15 @@ const REASON_LABELS: Record<string, string> = {
 };
 
 export default async function WalletPage() {
+  const t = await getTranslations('payments.wallet');
   const cookie = await getAuthCookie();
   if (!cookie) {
     return (
       <main className="min-h-screen bg-background py-16">
         <Container variant="narrow">
           <EmptyState
-            title="Sign in required"
-            description="Please sign in to view your wallet."
+            title={t('signInRequired')}
+            description={t('signInRequiredDesc')}
           />
         </Container>
       </main>
@@ -99,39 +101,39 @@ export default async function WalletPage() {
   const columns: DataTableColumn<WalletTransaction>[] = [
     {
       key: 'createdAt',
-      header: 'Date',
-      render: (t) => (
+      header: t('columns.date'),
+      render: (tx) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {formatDate(t.createdAt)}
+          {formatDate(tx.createdAt)}
         </span>
       ),
     },
     {
       key: 'description',
-      header: 'Description',
-      render: (t) => (
+      header: t('columns.description'),
+      render: (tx) => (
         <div>
           <p className="text-xs font-medium text-foreground">
-            {REASON_LABELS[t.reason] ?? t.reason}
+            {REASON_LABELS[tx.reason] ?? tx.reason}
           </p>
-          {t.description ? (
-            <p className="max-w-[180px] truncate text-xs text-muted-foreground">{t.description}</p>
+          {tx.description ? (
+            <p className="max-w-[180px] truncate text-xs text-muted-foreground">{tx.description}</p>
           ) : null}
         </div>
       ),
     },
     {
       key: 'amount',
-      header: 'Amount',
-      render: (t) => (
+      header: t('columns.amount'),
+      render: (tx) => (
         <span
           className={cn(
             'whitespace-nowrap text-right text-xs font-semibold',
-            t.type === 'CREDIT' ? 'text-success' : 'text-destructive'
+            tx.type === 'CREDIT' ? 'text-success' : 'text-destructive'
           )}
         >
-          {t.type === 'CREDIT' ? '+' : '−'}
-          {formatINR(t.amount)}
+          {tx.type === 'CREDIT' ? '+' : '−'}
+          {formatINR(tx.amount)}
         </span>
       ),
       cellClassName: 'text-right',
@@ -139,10 +141,10 @@ export default async function WalletPage() {
     },
     {
       key: 'balanceAfter',
-      header: 'Balance after',
-      render: (t) => (
+      header: t('columns.balanceAfter'),
+      render: (tx) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {formatINR(t.balanceAfter)}
+          {formatINR(tx.balanceAfter)}
         </span>
       ),
       cellClassName: 'text-right',
@@ -153,49 +155,49 @@ export default async function WalletPage() {
   return (
     <main className="min-h-screen bg-background py-8">
       <Container variant="narrow">
-        <PageHeader title="My Wallet" subtitle="Balance, credits, and transaction history" />
+        <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
         {wallet ? (
           <section className="mb-6 rounded-2xl border border-gold bg-secondary p-6 text-center shadow-card">
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Available Balance
+              {t('balanceLabel')}
             </p>
             <p className="text-4xl font-bold text-teal">{formatINR(wallet.balance)}</p>
             <p className="mt-1 text-xs text-muted-foreground">{wallet.currency}</p>
 
             <div className="mt-5 grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gold bg-surface px-4 py-3">
+              <div className="rounded-xl border border-gold bg-surface px-4 py-3 shadow-card">
                 <p className="text-base font-bold text-success">{formatINR(wallet.lifetimeIn)}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Total credited</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t('totalCredited')}</p>
               </div>
-              <div className="rounded-xl border border-gold bg-surface px-4 py-3">
+              <div className="rounded-xl border border-gold bg-surface px-4 py-3 shadow-card">
                 <p className="text-base font-bold text-primary">{formatINR(wallet.lifetimeOut)}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Total debited</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t('totalDebited')}</p>
               </div>
             </div>
 
             {!wallet.isActive ? (
               <p className="mt-4 text-xs font-medium text-destructive">
-                This wallet has been deactivated. Contact support for assistance.
+                {t('walletDeactivated')}
               </p>
             ) : null}
           </section>
         ) : (
           <EmptyState
-            title="Wallet not available"
-            description="Wallet information is not available."
+            title={t('walletNotAvailable')}
+            description={t('walletNotAvailableDesc')}
             className="mb-6"
           />
         )}
 
-        <h2 className="mb-3 text-base font-semibold text-primary">Transaction History</h2>
+        <h2 className="mb-3 text-base font-semibold text-primary">{t('transactionHistory')}</h2>
         <DataTable
           columns={columns}
           data={transactions}
-          rowKey={(t) => t.id}
+          rowKey={(tx) => tx.id}
           empty={{
-            title: 'No transactions yet',
-            description: 'Your wallet activity will appear here.',
+            title: t('noTransactions'),
+            description: t('noTransactionsDesc'),
           }}
         />
       </Container>
