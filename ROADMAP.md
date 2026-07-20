@@ -96,7 +96,7 @@ Last updated: 2026-07-19
 | Analytics dashboard (growth, conversion, revenue, churn) | ✅ Built | `apps/api/src/analytics/analytics.router.ts` · `apps/web/src/app/[locale]/(app)/admin/analytics` |
 | GDPR controls (consent, deletion, export, portability) | ✅ Built | `apps/api/src/users/router.ts` · `/api/v1/users/me/export`, `/api/v1/users/me/delete` |
 | Immutable audit logs | ✅ Built | `apps/api/src/kyc/audit.ts` + `apps/api/src/admin/audit.router.ts` · chained-hash per escrow/KYC/payment |
-| Referral program | 🟡 Built, flagged: `REFERRAL_LIVE=false` (not shown in env.ts, needs wiring) | Scaffold exists; awaiting product decision |
+| Referral program | ✅ Built + wired, gated: `REFERRAL_LIVE=false` | Earn loop live end-to-end: `/?ref=CODE` + manual field on signup → `x-referral-code` header → `applyCodeAtSignup` in the Better Auth `user.create.after` hook. Milestones fire on profile-completion crossing 80% (`profiles/content.service.ts`) and on `subscription.activated`. Credits held in an append-only ledger (migration `0040`) with a TOCTOU-safe conditional INSERT — double-spend proven against real Postgres, not mocks. **Redemption = free days appended to the billing period, not a checkout discount**: Razorpay Subscriptions cannot express a per-user dynamic discount (only pre-created fixed Offers), and redeeming after payment succeeds removes the refund path and the abandoned-checkout sweep entirely |
 | Sentry monitoring | ✅ Built | API + web; `SENTRY_DSN` in env; source-map upload in CI |
 | PostHog analytics | ✅ Built | Event tracking instrumented across web |
 | BetterStack uptime monitors | ✅ Configured | Docs in `docs/monitoring/betterstack-setup.md` |
@@ -142,11 +142,12 @@ Last updated: 2026-07-19
 | React Native + Expo mobile app scaffold | ✅ Built | `apps/mobile` (Expo SDK 57, RN 0.86, Expo Router, NativeWind) · phone-OTP cookie auth via `@better-auth/expo` |
 | Mobile design system (light/dark theming, tokens, primitives) | ✅ Built | `apps/mobile/src/theme/` · Button/Input/Screen/Card/OTPInput + animations |
 | Mobile feature parity (auth, profile, matches, messages) | ✅ Built | Phase 0+1 complete on 2026-07-18 (commit `35a6c76`). Type-check, jest 17/17, Android bundle export all green. |
-| Mobile UI Polish (Playfair headings, responsive 375px, a11y, haptics) | ✅ Built (branch `feat/mobile-ui-polish`) | 15 hardcoded hex removed, jest-expo + RNTL migrated, segmented OTP auto-submit, pull-to-refresh, keyboard avoidance. **Status:** pushed, awaiting operator merge to main |
+| Mobile UI Polish (Playfair headings, responsive 375px, a11y, haptics) | ✅ Built + **merged to main** | 15 hardcoded hex removed, jest-expo + RNTL migrated, segmented OTP auto-submit, pull-to-refresh, keyboard avoidance. Merged in `bb47af3`; branch `feat/mobile-ui-polish` deleted |
 | NRI & international matching (country filters, time zone scheduling) | ✅ Built, gated: `NRI_MATCHING_LIVE=false` | Migration 0034 · `apps/api/src/profiles/nri.router.ts` + `apps/api/src/profiles/nri.service.ts` |
 | Virtual Date System (durable scheduling, T-24h/T-15m reminders, icebreakers) | ⏳ Built (Sprint F) | Migration 0033 — feature architecture exists; post-date feedback ready |
 | iOS/Android store submission | ⬜ Not built | Blocked: Apple Developer Program + Google Play Console enrollment (Colonel's side, ~6 weeks) + real on-device testing |
-| Biometric login | ⬜ Not built | Deferred post-store-submission (Phase 7.4) |
+| Biometric re-entry gate (app-lock over a stored session) | ✅ Built | `apps/mobile/src/lib/biometric.ts` + `(app)/biometric-unlock.tsx` + settings toggle (`355f828`). Gate now fires on **cold start as well as** foreground resume, with a 60s grace window persisted to SecureStore; fail-closed on corrupt or future timestamps. Sign-out escape hatch always available. 183/183 jest. **Still needs a physical device** — real sensor prompt, enrolment changes and true background timing are unverifiable in CI, and `AppLayout` cannot render under RNTL (Tabs trips a displayName error in react-native-css-interop), so the mount wiring itself is covered only by the pure decision function |
+| Biometric *login* (biometric replacing OTP on an expired session) | ⬜ Not built | Deferred (Phase 7.4). Needs a server-side refresh-token path in Better Auth; OTP remains the identity factor |
 
 ---
 
@@ -243,7 +244,7 @@ Audited `vivahOS_final_v2.pdf` against the codebase and closed the buildable gap
 
 ### 2026-07-18
 
-- Mobile UI Polish (feat/mobile-ui-polish) complete: design-system tokens, Playfair headings, all Phase 5–8 pages. 295 routes type-check ✓, build ✓. Awaiting operator review + merge.
+- Mobile UI Polish (feat/mobile-ui-polish) complete: design-system tokens, Playfair headings, all Phase 5–8 pages. 295 routes type-check ✓, build ✓. **Merged to main in `bb47af3`** (recorded `b758231`); branch deleted.
 - Mobile feature parity (Phase 0+1) merged to main.
 - Phases 5–8 all Tier-1 units shipped.
 
