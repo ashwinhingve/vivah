@@ -205,7 +205,37 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-19 (current) — contract gap-closure sprint
+### 2026-07-20 (current) — Premium UI Phase 2: core matchmaking journey
+
+Live Playwright audit (375px + 1280px, QA user) of dashboard / feed / profile
+detail / chats / chat thread / matches / requests / likes / shortlist — 28
+findings in `docs/premium-ui/phase2-audit.md` — then three fix chunks.
+Commits `8831256`…`ab50166` on `feat/premium-ui-phase-1`.
+
+- **Bugs found by the live audit, not by tests:** accept-flow welcome note was
+  silently dropped instead of becoming the first chat message (API
+  `acceptRequest` now writes it); /chats hydration mismatch (UTC vs IST
+  timestamps); locked "Why we matched" premium reasons shipped to the DOM
+  behind a CSS blur (content leak — now placeholder rows); smart-reply "warm"
+  chip rendered destructive-red (malformed classes); About-tab Manglik row
+  contradicted the horoscope chip (stale boolean field); QA seed photos 404'd
+  (key prefix outside the media-router allowlist — seed fixed + files added).
+- **Mobile web (360px-first):** stat cards + quick actions to 2×2 grids;
+  Virtual Dates panel collapsed to a 44px row (was ~55% of the chat viewport);
+  filter tabs and card actions to 44px targets; profile tab bar scroll hint;
+  clipped bookmark button fixed.
+- **Premium depth:** branded illustrated empty states wired in (variants were
+  suppressed by `icon=`); layout-matched dashboard skeleton; photo lightbox
+  hover/scrim/hover-lift refinements; shortlist cards gained note display +
+  remove; requests accept toast; i18n added (en+hi) for marital-status
+  toggles, compatibility dimensions, shortlist actions, page titles.
+- **Verification:** cold `turbo type-check --force` 11/11, `pnpm build` green,
+  every touched page re-verified in the browser at both widths, zero console
+  errors on the core journey.
+- **Next:** same playbook for chat-thread interior (composer, media),
+  weddings suite, vendors/store, onboarding wizard, admin.
+
+### 2026-07-19 — contract gap-closure sprint
 
 Audited `vivahOS_final_v2.pdf` against the codebase and closed the buildable gaps.
 5 parallel teammates + orchestrator verification. Commits `521e66f`…`464888c`.
