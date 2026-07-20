@@ -114,7 +114,10 @@ export function formatInZone(
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false,
+        // h23, not hour12:false — some Node/ICU builds resolve hour12:false to
+        // the h24 cycle, which renders midnight as "24". A "T24:00:00Z" string
+        // parses as the NEXT day, so getOffsetMinutes came back 1440 min off.
+        hourCycle: 'h23',
         ...opts,
       },
     );
@@ -160,7 +163,9 @@ export function getOffsetMinutes(date: Date, ianaTz: string): number | null {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false,
+      // h23, not hour12:false — see formatter note above (h24 renders "24:00",
+      // and the "T24:00:00Z" reparse below would land on the next day).
+      hourCycle: 'h23',
     });
 
     const parts = tzFormatter.formatToParts(date);

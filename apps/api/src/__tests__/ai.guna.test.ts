@@ -39,6 +39,15 @@ const {
   mockProfileContentFindOne:        vi.fn(),
 }));
 
+// Pin the Mongoose path regardless of the machine's env. Locally the root
+// .env sets MONGO_LIVE=true so shouldUseMockMongo is false, but CI has no
+// .env — the route then reads from the (empty) mock store and 400s with
+// INCOMPLETE_DATA. This suite mocks ProfileContent, so force that path.
+vi.mock('../lib/env.js', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../lib/env.js')>();
+  return { ...original, shouldUseMockMongo: false };
+});
+
 vi.mock('../auth/config.js', () => ({
   auth: {
     handler: vi.fn((_req: Request, res: Response) => { res.json({ success: true }); }),
