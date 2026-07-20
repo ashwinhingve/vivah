@@ -20,6 +20,8 @@ import { authenticate, authorize } from '../auth/middleware.js';
 import { db } from '../lib/db.js';
 import { user, profiles, vendors, userRoleEnum, userStatusEnum } from '@smartshaadi/db';
 import { ok, err } from '../lib/response.js';
+import { logger } from '../lib/logger.js';
+import { maskEmail, maskPhone } from '../lib/mask.js';
 import { appendAuditLog } from '../payments/service.js';
 
 export const adminUsersRouter = Router();
@@ -86,13 +88,28 @@ adminUsersRouter.get(
       .limit(limit)
       .offset(offset);
 
+    // CLAUDE.md rule 5 — the list is a browse surface: up to 100 accounts per
+    // page, none of which the operator has yet had a reason to contact. Render
+    // it unmasked and every admin session holds a harvestable contact export.
+    //
+    // Search is unaffected: the `ilike` filters above run against the real
+    // columns in Postgres, so an operator can still find an account by typing
+    // the phone number a caller gives them. What changes is only what the
+    // response *prints*. Full contact detail lives on the per-user endpoint
+    // below, where opening it is a deliberate act and gets logged.
+    const items = rows.map((row) => ({
+      ...row,
+      email: maskEmail(row.email),
+      phone: maskPhone(row.phone),
+    }));
+
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(user)
       .where(whereClause);
     const total = countRow?.count ?? 0;
 
-    ok(res, { items: rows, total, page, limit });
+    ok(res, { items, total, page, limit });
   },
 );
 
@@ -133,6 +150,27 @@ adminUsersRouter.get(
       .from(vendors)
       .where(eq(vendors.userId, userId))
       .limit(1);
+
+    // Contact detail is returned UNMASKED here, deliberately. This endpoint is
+    // how support resolves a complaint, verifies a caller, or chases a failed
+    // payout — masking it would not protect anyone, it would push operators to
+    // query the database directly, where nothing is logged at all.
+    //
+    // The control is therefore accountability, not concealment: record who
+    // opened whose record. Note this goes to the structured log, NOT to
+    // `appendAuditLog` — that hash chain is dispute evidence for money
+    // movement, and adding an ADMIN_PII_ACCESSED value to `audit_event_type`
+    // would need an ALTER TYPE migration. If the enum shipped and the
+    // migration lagged, every call here would 500 in production. That exact
+    // split (code deployed, data not) has already caused two incidents on this
+    // project, so it is not a risk worth taking for an access log.
+    //
+    // The logger redacts *.email/*.phone, so the values themselves never reach
+    // the log — only the fact of access, which is the part that matters.
+    logger.info(
+      { adminId: req.user!.id, targetUserId: userId, event: 'admin.pii_accessed' },
+      'admin viewed user contact detail',
+    );
 
     ok(res, {
       user:      row,
