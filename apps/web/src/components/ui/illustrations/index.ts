@@ -8,3 +8,4 @@ export { NoNotificationsIllustration } from './NoNotificationsIllustration';
 export { NoShortlistIllustration } from './NoShortlistIllustration';
 export { NoSearchResultsIllustration } from './NoSearchResultsIllustration';
 export { NoNetworkIllustration } from './NoNetworkIllustration';
+export { NoProductsIllustration } from './NoProductsIllustration';

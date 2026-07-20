@@ -1,5 +1,8 @@
 export { UserAvatar } from './Avatar';
+export { AdminPageSkeleton } from './AdminPageSkeleton';
+export { AdminTableSkeleton } from './AdminTableSkeleton';
 export { CardListSkeleton } from './CardListSkeleton';
+export { ChartSkeleton } from './ChartSkeleton';
 export { Container } from './Container';
 export { DataTable, type DataTableColumn } from './DataTable';
 export { ErrorState } from './ErrorState';
