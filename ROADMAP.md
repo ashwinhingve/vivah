@@ -205,7 +205,67 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-19 (current) — contract gap-closure sprint
+### 2026-07-20 (current, later session) — Premium UI Phase 3: five-area teammate sweep + real QA portraits
+
+Five parallel Opus teammates (chat interior, weddings, marketplace, onboarding,
+admin) with strict disjoint file scopes + orchestrator verification. Commits
+`c35ae2b`…`04f0f33`.
+
+- **QA portraits:** 22 real portrait photos (12M/10F, hand-classified from a
+  70-image pool) rendered to 44 4:5 crops, installed in local mock-R2 and
+  verified live. Production steps STAGED but not executed (classifier blocks
+  agent access to prod creds): operator must run
+  `apps/api/.data/upload-qa-photos.mjs` (R2 upload) and
+  `audit/prod-qa-photos.sql` (33-row key fix; rollback file alongside).
+- **Teammate output verified, 5 defects caught by orchestrator:** vendor-detail
+  template literals mangled to TS1127 garbage by the shell boundary; Metadata
+  imported from 'react'; phantom PageProps in bookings metadata; plus two more
+  instances of the UTC-vs-IST timestamp hydration bug (KycQueueTable,
+  MessageBubble) — same class as the /chats one from Phase 2.
+- **Shipped per area:** chat (44px voice/reaction/header targets, composer
+  polish, i18n for presence/menu/empty states); weddings (i18n across
+  hub/budget/tasks/guests/day-of + GuestTable, localised day-of metadata);
+  marketplace (metadata for vendors/store/product/rentals/bookings, gold star
+  tokens, en+hi string foundation); onboarding (photos step unified onto
+  OnboardingNav, horoscope fieldset grouping, richer loading/error states);
+  admin (metadata on 13 routes, KYC queue touch targets, row hover, stat-card
+  lift).
+- **Verification:** ~700 new i18n keys merged additively (en+hi), cold
+  type-check 11/11, prod build green, browser passes over wedding hub/guests,
+  vendors list+detail, store, admin hub/KYC, onboarding photos, chat thread —
+  zero console errors, no 360px horizontal scroll.
+
+### 2026-07-20 (current) — Premium UI Phase 2: core matchmaking journey
+
+Live Playwright audit (375px + 1280px, QA user) of dashboard / feed / profile
+detail / chats / chat thread / matches / requests / likes / shortlist — 28
+findings in `docs/premium-ui/phase2-audit.md` — then three fix chunks.
+Commits `8831256`…`ab50166` on `feat/premium-ui-phase-1`.
+
+- **Bugs found by the live audit, not by tests:** accept-flow welcome note was
+  silently dropped instead of becoming the first chat message (API
+  `acceptRequest` now writes it); /chats hydration mismatch (UTC vs IST
+  timestamps); locked "Why we matched" premium reasons shipped to the DOM
+  behind a CSS blur (content leak — now placeholder rows); smart-reply "warm"
+  chip rendered destructive-red (malformed classes); About-tab Manglik row
+  contradicted the horoscope chip (stale boolean field); QA seed photos 404'd
+  (key prefix outside the media-router allowlist — seed fixed + files added).
+- **Mobile web (360px-first):** stat cards + quick actions to 2×2 grids;
+  Virtual Dates panel collapsed to a 44px row (was ~55% of the chat viewport);
+  filter tabs and card actions to 44px targets; profile tab bar scroll hint;
+  clipped bookmark button fixed.
+- **Premium depth:** branded illustrated empty states wired in (variants were
+  suppressed by `icon=`); layout-matched dashboard skeleton; photo lightbox
+  hover/scrim/hover-lift refinements; shortlist cards gained note display +
+  remove; requests accept toast; i18n added (en+hi) for marital-status
+  toggles, compatibility dimensions, shortlist actions, page titles.
+- **Verification:** cold `turbo type-check --force` 11/11, `pnpm build` green,
+  every touched page re-verified in the browser at both widths, zero console
+  errors on the core journey.
+- **Next:** same playbook for chat-thread interior (composer, media),
+  weddings suite, vendors/store, onboarding wizard, admin.
+
+### 2026-07-19 — contract gap-closure sprint
 
 Audited `vivahOS_final_v2.pdf` against the codebase and closed the buildable gaps.
 5 parallel teammates + orchestrator verification. Commits `521e66f`…`464888c`.

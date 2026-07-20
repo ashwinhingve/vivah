@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { CalendarHeart, Sparkles, Check, X, Heart } from 'lucide-react';
+import { CalendarHeart, Sparkles, Check, X, Heart, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { VirtualDate, VirtualDateStatus, IcebreakerSet } from '@smartshaadi/types';
@@ -67,6 +67,9 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
   const [when, setWhen] = React.useState('');
   const [durationMin, setDurationMin] = React.useState(30);
   const [setKey, setSetKey] = React.useState('');
+  // Collapsed by default — the chat is the star of this screen. Auto-expands
+  // when a proposal is waiting for the current user's response.
+  const [open, setOpen] = React.useState(false);
 
   const load = React.useCallback(async () => {
     const [d, ib] = await Promise.all([
@@ -80,6 +83,15 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
   }, [matchId]);
 
   React.useEffect(() => { void load(); }, [load]);
+
+  React.useEffect(() => {
+    if (
+      currentProfileId !== null &&
+      dates.some((d) => d.status === 'PROPOSED' && d.proposedBy !== currentProfileId)
+    ) {
+      setOpen(true);
+    }
+  }, [dates, currentProfileId]);
 
   async function schedule(e: React.FormEvent) {
     e.preventDefault();
@@ -123,13 +135,32 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
 
   const minWhen = new Date(Date.now() + 6 * 60 * 1000).toISOString().slice(0, 16);
 
-  return (
-    <section className="border-b border-gold/20 bg-surface px-4 py-4 sm:px-6">
-      <div className="mb-3 flex items-center gap-2">
-        <CalendarHeart className="h-5 w-5 text-primary" />
-        <h2 className="font-heading text-base font-semibold text-primary">{t('virtualDates.title')}</h2>
-      </div>
+  const upcoming = dates.filter((d) => d.status === 'PROPOSED' || d.status === 'CONFIRMED').length;
 
+  return (
+    <section className="border-b border-gold/20 bg-surface">
+      {/* Slim toggle row — the panel must never crowd the conversation out */}
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex min-h-[44px] w-full items-center gap-2 px-4 py-2 text-left transition-colors hover:bg-gold/5 sm:px-6"
+      >
+        <CalendarHeart className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+        <h2 className="font-heading text-base font-semibold text-primary">{t('virtualDates.title')}</h2>
+        {upcoming > 0 && (
+          <span className="rounded-full bg-teal/15 px-2 py-0.5 text-2xs font-semibold text-teal">
+            {upcoming}
+          </span>
+        )}
+        <ChevronDown
+          className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {!open ? null : (
+      <div className="px-4 pb-4 sm:px-6">
       {/* Schedule form */}
       <form onSubmit={schedule} className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-4 sm:items-end">
         <label className="flex flex-col text-xs text-muted-foreground">
@@ -256,6 +287,8 @@ export default function VirtualDates({ matchId, currentProfileId }: Props) {
             );
           })}
         </ul>
+      )}
+      </div>
       )}
     </section>
   );

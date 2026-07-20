@@ -1,8 +1,13 @@
-import { type ComponentType } from 'react';
+import type { ComponentType } from 'react';
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Admin Console | Smart Shaadi' };
+}
 import {
   ShieldCheck,
   Scale,
@@ -378,18 +383,26 @@ export default async function AdminPage() {
           <SectionHeader title={t('platformMetrics.title')} />
           <AdminSectionBoundary section="Platform Metrics" key={`metrics-${refreshedAt}`}>
           <StaggerList className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatsCard label={t('platformMetrics.totalUsers')}         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
-            <StatsCard label={t('platformMetrics.activeVendors')}      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
-            <StatsCard label={t('platformMetrics.bookingsThisMonth')}  value={bookingsThisMonth} icon={CalendarCheck} variant="success" animDelayMs={160} />
-            <StatsCard
-              label={t('platformMetrics.openDisputes')}
-              value={disputes.length}
-              icon={Scale}
-              variant={disputes.length > 0 ? 'warning' : 'default'}
-              href="/admin/escrow"
-              sub={disputes.length > 0 ? t('platformMetrics.actionNeeded') : t('platformMetrics.allClear')}
-              animDelayMs={240}
-            />
+            <div className="transition-all duration-150 hover:shadow-card-hover hover:-translate-y-0.5">
+              <StatsCard label={t('platformMetrics.totalUsers')}         value={totalUsers}        icon={Users}         variant="teal"    href="/admin/users"    animDelayMs={0} />
+            </div>
+            <div className="transition-all duration-150 hover:shadow-card-hover hover:-translate-y-0.5">
+              <StatsCard label={t('platformMetrics.activeVendors')}      value={activeVendors}     icon={Store}         variant="gold"    href="/admin/vendors"  animDelayMs={80} />
+            </div>
+            <div className="transition-all duration-150 hover:shadow-card-hover hover:-translate-y-0.5">
+              <StatsCard label={t('platformMetrics.bookingsThisMonth')}  value={bookingsThisMonth} icon={CalendarCheck} variant="success" animDelayMs={160} />
+            </div>
+            <div className="transition-all duration-150 hover:shadow-card-hover hover:-translate-y-0.5">
+              <StatsCard
+                label={t('platformMetrics.openDisputes')}
+                value={disputes.length}
+                icon={Scale}
+                variant={disputes.length > 0 ? 'warning' : 'default'}
+                href="/admin/escrow"
+                sub={disputes.length > 0 ? t('platformMetrics.actionNeeded') : t('platformMetrics.allClear')}
+                animDelayMs={240}
+              />
+            </div>
           </StaggerList>
           </AdminSectionBoundary>
         </section>

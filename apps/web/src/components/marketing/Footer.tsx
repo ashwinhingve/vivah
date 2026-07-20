@@ -227,9 +227,19 @@ export default async function Footer() {
           <p className="text-xs text-text-on-dark/45">
             {t('copyright')}
           </p>
-          <p className="hidden text-xs text-text-on-dark/35 sm:block">
-            MCA21 · DLT Registered · ISO 27001 Compliant
-          </p>
+          {/*
+            Removed: "MCA21 · DLT Registered · ISO 27001 Compliant".
+
+            All three are regulatory/certification claims and none of them can
+            be substantiated today — CLAUDE.md's own status block lists the
+            company registration, the MSG91 DLT registration and legal review
+            as open launch blockers, and there is no ISO 27001 audit evidence
+            anywhere in the repo. Publishing unearned compliance badges on a
+            payments product is a legal exposure, not a trust signal.
+
+            Re-add individually, and only once each certificate actually
+            exists — with the text behind an i18n key rather than hard-coded.
+          */}
         </div>
       </div>
     </footer>

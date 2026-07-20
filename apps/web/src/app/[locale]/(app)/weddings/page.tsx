@@ -17,8 +17,8 @@ async function fetchWeddings(): Promise<{ weddings: WeddingSummary[]; error: boo
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'weddings.list.metadata' });
-  return { title: t('title') };
+  const t = await getTranslations({ locale, namespace: 'weddings.list' });
+  return { title: t('metadata.title') };
 }
 
 export default async function WeddingsPage() {

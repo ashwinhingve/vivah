@@ -1,0 +1,10 @@
+{
+  "admin": {
+    "settings": {
+      "label": "Settings"
+    },
+    "audit": {
+      "label": "Audit Log"
+    }
+  }
+}

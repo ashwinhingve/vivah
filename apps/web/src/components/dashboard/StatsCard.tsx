@@ -54,7 +54,7 @@ export function StatsCard({
   const delaySec = animDelayMs / 1000;
 
   const cardClasses = cn(
-    'group relative flex min-h-[7.5rem] flex-col gap-1.5 rounded-2xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]',
+    'group relative flex min-h-[7.5rem] flex-col gap-1.5 rounded-2xl border bg-gradient-to-br p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-[var(--shadow-card-hover)]',
     href && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     v.tile
   );
@@ -66,7 +66,7 @@ export function StatsCard({
           {label}
         </p>
         {Icon ? (
-          <Icon className="h-4 w-4 text-gold/60" aria-hidden="true" />
+          <Icon className="h-4 w-4 text-gold/60 transition-colors duration-200 group-hover:text-gold" aria-hidden="true" />
         ) : null}
       </div>
 

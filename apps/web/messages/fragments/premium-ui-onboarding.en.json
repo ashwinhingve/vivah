@@ -1,0 +1,120 @@
+{
+  "onboarding": {
+    "common": {
+      "stepOf": "Step {current} of {total}",
+      "progress": "{percent}%",
+      "backButton": "Back",
+      "continueButton": "Continue",
+      "saveButton": "Save & Continue",
+      "skipButton": "Skip for now",
+      "savingLabel": "Saving…"
+    },
+    "personal": {
+      "heading": "Your Personal Details",
+      "description": "Let's start with the essentials. This helps us find your best matches.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Your full name",
+      "dateOfBirth": "Date of Birth",
+      "maritalStatus": "Marital Status",
+      "gender": "Gender",
+      "height": "Height",
+      "religion": "Religion",
+      "motherTongue": "Mother Tongue",
+      "currentCity": "Current City",
+      "currentCityPlaceholder": "e.g. Pune",
+      "state": "State",
+      "aboutMe": "About Me",
+      "aboutMePlaceholder": "Share a little about yourself, your interests, and what you're looking for…",
+      "sexualOrientationPrivate": "Sexual orientation (private)",
+      "orientationVisible": "Show on my public profile",
+      "orientationStorageNote": "Stored on your profile but never visible to other users unless you toggle it below."
+    },
+    "family": {
+      "heading": "Family Background",
+      "description": "Help matches understand your family values and structure.",
+      "fatherOccupation": "Father's Occupation",
+      "motherOccupation": "Mother's Occupation",
+      "siblings": "Siblings",
+      "caste": "Caste",
+      "familyType": "Family Type",
+      "familyValues": "Family Values"
+    },
+    "career": {
+      "heading": "Career & Education",
+      "description": "Share your professional journey and educational background.",
+      "education": "Education",
+      "collegeName": "College Name",
+      "occupation": "Occupation",
+      "company": "Company",
+      "salary": "Annual Income (optional)",
+      "salaryNote": "This helps surface you to compatible matches with aligned life plans."
+    },
+    "lifestyle": {
+      "heading": "Lifestyle & Interests",
+      "description": "Express yourself through your interests and daily habits.",
+      "diet": "Diet Preference",
+      "smoking": "Smoking",
+      "drinking": "Drinking",
+      "hobbies": "Hobbies (select all that apply)",
+      "languages": "Languages Spoken",
+      "personalityTags": "Your Personality Tags",
+      "personalityTagsNote": "These help surface you to compatible matches",
+      "fitness": "Fitness Level"
+    },
+    "preferences": {
+      "heading": "Partner Preferences",
+      "description": "What are you looking for in a life partner?",
+      "ageRange": "Age Range: {min} – {max} years",
+      "heightRange": "Height Range: {min}cm – {max}cm",
+      "maritalStatus": "Marital Status",
+      "religion": "Religion Preference",
+      "advancedFilters": "Advanced Filters",
+      "basicPreferences": "Basic Preferences",
+      "manglik": "Manglik Preference",
+      "diet": "Diet Preference",
+      "openToInterfaith": "Open to Interfaith Marriage",
+      "openToInterCaste": "Open to Inter-Caste Marriage",
+      "partnerDescription": "Describe Your Ideal Partner",
+      "partnerDescriptionPlaceholder": "Describe qualities you're looking for in a life partner…",
+      "characterCount": "{current}/1000"
+    },
+    "horoscope": {
+      "heading": "Horoscope Details",
+      "description": "Help us find your most compatible match.",
+      "astrologicalDetails": "Astrological Details",
+      "birthInformation": "Birth Information",
+      "rashi": "Rashi",
+      "rashiLabel": "Rashi (Moon Sign)",
+      "nakshatra": "Nakshatra",
+      "nakshatraLabel": "Nakshatra (Birth Star)",
+      "manglikStatus": "Manglik Status",
+      "dateOfBirth": "Date of Birth",
+      "timeOfBirth": "Time of Birth",
+      "timeOfBirthNote": "(HH:MM)",
+      "placeOfBirth": "Place of Birth",
+      "placeOfBirthPlaceholder": "e.g. Pune",
+      "kundliChart": "Kundli Chart Upload",
+      "kundliChartNote": "Coming soon — upload your birth chart PDF or image",
+      "gunaMilanScore": "Guna Milan Score",
+      "gunaMilanScoreNote": "Your compatibility score will appear once both profiles are complete"
+    },
+    "photos": {
+      "heading": "Add Your Photos",
+      "description": "Your main photo is the first thing a potential match sees",
+      "uploadPhotos": "Upload Photos",
+      "dragAndDrop": "Drag and drop photos here or click to browse",
+      "maxFiles": "You can upload up to 6 photos",
+      "mainPhotoTip": "Make your first photo clear and recent with good lighting",
+      "continueButton": "Continue to Complete"
+    },
+    "complete": {
+      "greatHeadline": "Your profile is looking great!",
+      "almostHeadline": "Almost there!",
+      "greatSubtitle": "Complete profiles get 3× more responses",
+      "almostSubtitle": "Complete a few more sections to attract better matches",
+      "profileComplete": "complete",
+      "completeTheseSections": "Complete these sections",
+      "goToDashboard": "Go to Dashboard"
+    }
+  }
+}

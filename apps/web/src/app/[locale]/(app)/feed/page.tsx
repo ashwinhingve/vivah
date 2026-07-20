@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { Heart, Sparkles, ArrowRight, AlertTriangle, RefreshCw, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, ArrowRight, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { MatchFeedItem, ProfileSectionCompletion } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -138,7 +138,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
 
           <div className="flex flex-wrap items-center gap-2">
             {profileReady && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-2xs font-semibold uppercase tracking-widest text-gold-muted">
+              <span className="hidden items-center gap-1 rounded-full border border-gold bg-gold/15 px-2.5 py-1 text-2xs font-semibold uppercase tracking-widest text-gold-muted sm:inline-flex">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 {completeness}% {t('complete')}
               </span>
@@ -157,7 +157,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
         {/* ── Content area ─────────────────────────────────────────────── */}
         {feedFailed ? (
           <EmptyState
-            icon={AlertTriangle}
+            variant="no-network"
             title={t('errorTitle')}
             description={`${t('errorBody')} (${feedRes.status}: ${feedRes.error})`}
             action={
@@ -257,7 +257,7 @@ export default async function MatchFeedPage({ searchParams }: PageProps) {
           })()
         ) : items.length === 0 ? (
           <EmptyState
-            icon={Heart}
+            variant="no-matches"
             title={t('emptyTitle')}
             description={t('emptyBody')}
             action={

@@ -155,7 +155,9 @@ function AboutTab({ aboutMe, personal }: { aboutMe?: string; personal?: Personal
               value={[personal.religion, personal.caste, personal.gotra && `Gotra: ${personal.gotra}`].filter(Boolean).join(' · ')}
             />
           )}
-          {personal.manglik != null && <InfoRow label="Manglik" value={personal.manglik ? 'Yes' : 'No'} />}
+          {/* Manglik intentionally NOT shown here — personal.manglik is a stale
+              boolean that can contradict the authoritative horoscope.manglik
+              enum rendered in the hero chip and Horoscope tab. */}
         </div>
       )}
     </div>
@@ -563,6 +565,12 @@ export function ProfileDetailTabs({
 
   return (
     <Card className="overflow-hidden">
+      <div className="relative">
+        {/* Fade edge — hints that the tab row scrolls (scrollbar is hidden) */}
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-surface to-transparent sm:hidden"
+          aria-hidden="true"
+        />
       <div role="tablist" aria-label="Profile sections" className="flex overflow-x-auto scrollbar-hide border-b border-gold/20">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
@@ -573,7 +581,10 @@ export function ProfileDetailTabs({
               role="tab"
               aria-selected={isActive}
               aria-controls={`profile-tabpanel-${tab.id}`}
-              onClick={() => switchTab(tab.id)}
+              onClick={(e) => {
+                e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                switchTab(tab.id);
+              }}
               className={cn(
                 'min-w-fit flex-1 whitespace-nowrap border-b-[3px] px-4 py-3 text-sm font-semibold transition-colors duration-150',
                 isActive
@@ -585,6 +596,7 @@ export function ProfileDetailTabs({
             </button>
           );
         })}
+      </div>
       </div>
 
       <div key={animKey} role="tabpanel" id={`profile-tabpanel-${activeTab}`} className="p-5 sm:p-6" style={{ animation: 'fadeIn 150ms ease-out' }}>

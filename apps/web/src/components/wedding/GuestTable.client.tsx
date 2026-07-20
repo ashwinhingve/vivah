@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Plus, ChevronUp, ChevronDown, Loader2, Mail, Phone, Star, Pencil,
   Trash2, Download, Upload, CheckCircle2,
@@ -44,6 +45,7 @@ type SortKey = 'name' | 'rsvpStatus' | 'mealPref' | 'relationship' | 'side';
 type SortDir = 'asc' | 'desc';
 
 export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestTableProps) {
+  const t = useTranslations('weddings.guests.table');
   const { toast } = useToast();
   const [guests, setGuests] = useState<GuestRich[]>(initialGuests);
   const [sortKey, setSortKey] = useState<SortKey>('name');
@@ -204,7 +206,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
         <input
           type="search"
           aria-label="Search guests"
-          placeholder="Search guests…"
+          placeholder={t('searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 min-w-[200px] min-h-[44px] rounded-lg border border-gold/40 bg-background px-3 py-2.5 text-sm outline-none focus:border-teal focus:ring-1 focus:ring-teal"
@@ -214,7 +216,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-white text-sm font-medium transition-colors shrink-0 bg-teal"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Add Guest
+          {t('addButtonLabel')}
         </button>
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -222,7 +224,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-gold/40 bg-surface text-primary hover:bg-background disabled:opacity-60"
         >
           {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Import CSV
+          {t('importLabel')}
         </button>
         <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvFile} className="hidden" />
         <button
@@ -230,7 +232,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           className="flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shrink-0 border border-gold/40 bg-surface text-primary hover:bg-background"
         >
           <Download className="h-4 w-4" />
-          Export CSV
+          {t('exportLabel')}
         </button>
       </div>
 
@@ -241,18 +243,18 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           className="bg-surface border border-gold/20 rounded-xl shadow-sm p-4 mb-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <input name="name" aria-label="Full name" type="text" placeholder="Full name *" value={form.name} onChange={handleFormChange} required className={inputCls} />
-            <input name="relationship" aria-label="Relationship" type="text" placeholder="Relationship (e.g. Cousin)" value={form.relationship} onChange={handleFormChange} className={inputCls} />
+            <input name="name" aria-label={t('nameColumn')} type="text" placeholder={`${t('nameColumn')} *`} value={form.name} onChange={handleFormChange} required className={inputCls} />
+            <input name="relationship" aria-label={t('relationshipColumn')} type="text" placeholder={t('relationshipColumn')} value={form.relationship} onChange={handleFormChange} className={inputCls} />
             <input name="phone" aria-label="Phone" type="tel" placeholder="Phone" value={form.phone} onChange={handleFormChange} className={inputCls} />
             <input name="email" aria-label="Email" type="email" placeholder="Email" value={form.email} onChange={handleFormChange} className={inputCls} />
-            <select name="side" aria-label="Guest side" value={form.side} onChange={handleFormChange} className={inputCls}>
-              <option value="">Side</option>
+            <select name="side" aria-label={t('sideColumn')} value={form.side} onChange={handleFormChange} className={inputCls}>
+              <option value="">{t('sideColumn')}</option>
               <option value="BRIDE">Bride's side</option>
               <option value="GROOM">Groom's side</option>
               <option value="BOTH">Both</option>
             </select>
-            <select name="mealPref" aria-label="Meal preference" value={form.mealPref} onChange={handleFormChange} className={inputCls}>
-              <option value="">Meal preference</option>
+            <select name="mealPref" aria-label={t('mealColumn')} value={form.mealPref} onChange={handleFormChange} className={inputCls}>
+              <option value="">{t('mealColumn')}</option>
               <option value="VEG">Veg</option>
               <option value="NON_VEG">Non-Veg</option>
               <option value="JAIN">Jain</option>
@@ -264,7 +266,7 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="min-h-[44px] px-4 rounded-lg border border-gold/40 text-sm text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
             <button type="submit" disabled={isAdding} className="min-h-[44px] px-4 rounded-lg text-white text-sm font-medium disabled:opacity-60 flex items-center gap-1.5 bg-teal">
-              {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Guest'}
+              {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : t('addButtonLabel')}
             </button>
           </div>
         </form>
@@ -273,19 +275,19 @@ export function GuestTable({ weddingId, initialGuests, ceremonies = [] }: GuestT
       {/* Table */}
       {sorted.length === 0 ? (
         <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-10 text-center">
-          <p className="text-muted-foreground text-sm">{search ? 'No guests match your search.' : 'No guests added yet.'}</p>
+          <p className="text-muted-foreground text-sm">{search ? t('noGuestsMatch') : t('noGuests')}</p>
         </div>
       ) : (
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-gold/10 bg-background">
-                <SortHeader col="name"         label="Name"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <SortHeader col="relationship" label="Relationship" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <SortHeader col="side"         label="Side"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <SortHeader col="rsvpStatus"   label="RSVP"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <SortHeader col="mealPref"     label="Meal"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Actions</th>
+                <SortHeader col="name"         label={t('nameColumn')}         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortHeader col="relationship" label={t('relationshipColumn')} sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortHeader col="side"         label={t('sideColumn')}         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortHeader col="rsvpStatus"   label={t('rsvpColumn')}         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortHeader col="mealPref"     label={t('mealColumn')}         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">{t('actionsColumn')}</th>
               </tr>
             </thead>
             <tbody>

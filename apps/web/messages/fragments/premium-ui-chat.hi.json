@@ -1,0 +1,30 @@
+{
+  "chat": {
+    "emptyState": {
+      "title": "बातचीत शुरू करें",
+      "subtitle": "नमस्ते कहें और अपनी यात्रा शुरू करें",
+      "beginningOfConversation": "बातचीत की शुरुआत"
+    },
+    "typing": "{name} टाइप कर रहा है",
+    "presence": {
+      "online": "अभी ऑनलाइन",
+      "lastSeen": "आखिरी बार {time} को देखा गया",
+      "offline": "ऑफलाइन"
+    },
+    "smartReplies": {
+      "thinking": "सोच रहा हूँ…"
+    },
+    "menu": {
+      "mediaFiles": "मीडिया और फाइलें",
+      "aiCoach": "AI कोच",
+      "pinChat": "शीर्ष पर पिन करें",
+      "unpinChat": "अनपिन करें",
+      "muteNotifications": "सूचनाओं को म्यूट करें",
+      "unmuteNotifications": "सूचनाओं को अनम्यूट करें",
+      "archiveChat": "चैट को आर्काइव करें",
+      "unarchiveChat": "आर्काइव से निकालें",
+      "report": "रिपोर्ट करें",
+      "blockAndExit": "ब्लॉक करें और बाहर निकलें"
+    }
+  }
+}

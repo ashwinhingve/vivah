@@ -414,12 +414,9 @@ export default async function ProfileViewPage({ params }: Props) {
               {/* Trait pills */}
               <TraitPills profile={profile} />
 
-              {/* About Me snippet */}
-              {profile.aboutMe && (
-                <p className="text-sm text-muted-foreground italic leading-relaxed border-t border-border-light pt-3">
-                  &ldquo;{profile.aboutMe}&rdquo;
-                </p>
-              )}
+              {/* About Me lives in the About tab (designed quote treatment) —
+                  duplicating a plain snippet here doubled the same text on
+                  one screen. */}
             </div>
 
             {/* Desktop action bar — directly below hero for above-fold CTA */}

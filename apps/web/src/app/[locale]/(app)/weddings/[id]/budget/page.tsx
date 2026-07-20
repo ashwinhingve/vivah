@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { BudgetEditor } from '@/components/wedding/BudgetEditor.client';
@@ -68,6 +69,7 @@ interface PageProps {
 }
 
 export default async function BudgetPage({ params }: PageProps) {
+  const t = await getTranslations('weddings.budget');
   const { id } = await params;
   const { plan, weddingName, error, notFound: nf } = await fetchPlan(id);
 
@@ -90,8 +92,8 @@ export default async function BudgetPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
 
         <PageHeader
-          title="Budget"
-          subtitle={weddingName ? `${weddingName} · Budget tracker` : 'Track spending across your wedding categories.'}
+          title={t('heading')}
+          subtitle={weddingName ? `${weddingName} · ${t('heading')} tracker` : t('heading')}
           breadcrumbs={[
             { label: 'My Weddings', href: '/weddings' },
             { label: weddingName ?? 'Wedding', href: `/weddings/${id}` },
@@ -102,9 +104,9 @@ export default async function BudgetPage({ params }: PageProps) {
         {/* Sub-tab nav (preserved Mohit fix: ?from=budget links) */}
         <div className="flex gap-1 bg-surface border border-gold/20 rounded-xl shadow-card p-1 mb-6">
           {[
-            { href: `/weddings/${id}/tasks?from=budget`,  label: 'Tasks',  active: false },
-            { href: `/weddings/${id}/budget`,             label: 'Budget', active: true },
-            { href: `/weddings/${id}/guests?from=budget`, label: 'Guests', active: false },
+            { href: `/weddings/${id}/tasks?from=budget`,  label: t('tabs.tasks'),  active: false },
+            { href: `/weddings/${id}/budget`,             label: t('tabs.budget'), active: true },
+            { href: `/weddings/${id}/guests?from=budget`, label: t('tabs.guests'), active: false },
           ].map(({ href, label, active }) => (
             <Link
               key={href}
@@ -133,7 +135,7 @@ export default async function BudgetPage({ params }: PageProps) {
             {/* Donut + summary */}
             {plan.budget.categories.length > 0 && (
               <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-5 shadow-card">
-                <SectionHeader title="Spend by Category" />
+                <SectionHeader title={t('spendByCategory')} />
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   {/* Donut — reuse pure-SVG BudgetDonut; no recharts */}
                   <div className="relative shrink-0">
@@ -176,13 +178,13 @@ export default async function BudgetPage({ params }: PageProps) {
                     {/* Totals */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-lg border border-gold/20 bg-background p-3">
-                        <p className="text-xs text-muted-foreground mb-0.5">Total Budget</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">{t('totalBudget')}</p>
                         <p className="font-heading text-lg font-semibold text-primary">
                           {formatINR(plan.budget.total)}
                         </p>
                       </div>
                       <div className="rounded-lg border border-gold/20 bg-background p-3">
-                        <p className="text-xs text-muted-foreground mb-0.5">Remaining</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">{t('remaining')}</p>
                         <p className={`font-heading text-lg font-semibold ${
                           totalBudget - totalSpent < 0 ? 'text-destructive' : 'text-success'
                         }`}>
@@ -196,7 +198,7 @@ export default async function BudgetPage({ params }: PageProps) {
             )}
 
             {/* Editable categories table */}
-            <SectionHeader title="Category Breakdown" subtitle="Edit allocated and spent amounts inline" />
+            <SectionHeader title={t('categoryBreakdown')} subtitle={t('breakdownSubtitle')} />
             <BudgetEditor
               weddingId={id}
               total={plan.budget.total}
@@ -221,9 +223,9 @@ export default async function BudgetPage({ params }: PageProps) {
         {/* No plan yet */}
         {!error && !plan && (
           <div className="bg-surface border border-dashed border-gold/30 rounded-xl p-12 text-center shadow-card">
-            <p className="text-muted-foreground font-medium">No wedding plan found.</p>
+            <p className="text-muted-foreground font-medium">{t('noPlan')}</p>
             <p className="text-muted-foreground text-sm mt-1">
-              Create a wedding plan first to track your budget.
+              {t('noPlanDesc')}
             </p>
           </div>
         )}

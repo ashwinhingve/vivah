@@ -250,7 +250,32 @@
     "pricing": {
       "sectionHeading": "मुफ़्त शुरू करें। तैयार होने पर अपग्रेड करें।",
       "freePlanName": "हमेशा के लिए मुफ़्त",
-      "premiumPlanName": "Smart Shaadi Premium"
+      "premiumPlanName": "Smart Shaadi Premium",
+      "eyebrow": "मूल्य",
+      "subtext": "कोई क्रेडिट कार्ड नहीं। कोई स्वतः शुल्क नहीं। कभी भी रद्द करें।",
+      "freePriceNote": "क्रेडिट कार्ड की आवश्यकता नहीं",
+      "perMonth": "/माह",
+      "mostPopular": "सर्वाधिक लोकप्रिय",
+      "quarterlyNote": "3 माह के लिए {amount} ({percent}% की बचत)",
+      "freeCta": "मुफ़्त शुरू करें",
+      "premiumCta": "प्रीमियम चुनें",
+      "freeFeatures": [
+        "पूरी प्रोफ़ाइल बनाएँ",
+        "प्रतिदिन 5 मैच देखें",
+        "बुनियादी गुण मिलान स्कोर",
+        "प्रति सप्ताह 3 रुचि भेजें",
+        "सेफ़्टी मोड शामिल"
+      ],
+      "premiumFeatures": [
+        "असीमित दैनिक मैच",
+        "पूर्ण 8-कूट गुण मिलान विश्लेषण",
+        "असीमित रुचि भेजें",
+        "AI संवाद कोच",
+        "पारिवारिक अनुकूलता मोड",
+        "वीडियो कॉल और निजी चैट",
+        "प्राथमिकता सहायता",
+        "विवाह नियोजन सुइट (जल्द आ रहा है)"
+      ]
     },
     "cta": {
       "eyebrow": "भारत का सबसे स्मार्ट मैट्रिमोनियल प्लेटफ़ॉर्म",
@@ -418,7 +443,15 @@
       "city": "शहर",
       "filtersTitle": "फ़िल्टर",
       "filtersSubtitle": "अपनी मैच फ़ीड परिष्कृत करें",
-      "maritalStatus": "वैवाहिक स्थिति"
+      "maritalStatus": "वैवाहिक स्थिति",
+      "includeDivorcees": "तलाक़शुदा शामिल करें",
+      "includeDivorceesDesc": "तलाक़शुदा या अलग रह रहे लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeDivorceesAria": "मैच फ़ीड में तलाक़शुदा शामिल करें",
+      "includeWidows": "विधवा / विधुर शामिल करें",
+      "includeWidowsDesc": "जीवनसाथी खो चुके लोगों की प्रोफ़ाइल दिखाएँ",
+      "includeWidowsAria": "मैच फ़ीड में विधवा और विधुर शामिल करें",
+      "savingPreference": "प्राथमिकता सहेजी जा रही है…",
+      "couldNotSave": "प्राथमिकता सहेजी नहीं जा सकी"
     },
     "recommended": "अनुशंसित",
     "wantMoreTitle": "और मैच चाहिए?",
@@ -530,14 +563,41 @@
       "lifestyle": "जीवनशैली",
       "horoscope": "कुंडली",
       "preferences": "प्राथमिकताएँ"
-    }
+    },
+    "dimensions": {
+      "demographicAlignment": "जनसांख्यिकी",
+      "lifestyleCompatibility": "जीवनशैली",
+      "careerEducation": "करियर व शिक्षा",
+      "familyValues": "पारिवारिक मूल्य",
+      "preferenceOverlap": "प्राथमिकताएँ",
+      "personalityFit": "व्यक्तित्व",
+      "behaviourCompatibility": "व्यवहार"
+    },
+    "similarTitle": "आपको ये भी पसंद आ सकते हैं"
   },
   "onboarding": {
     "personal": {
       "metadata": {
         "title": "व्यक्तिगत विवरण — Smart Shaadi"
       },
-      "heading": "अपने बारे में बताएं"
+      "heading": "अपने बारे में बताएं",
+      "description": "चलिए आवश्यक विवरण से शुरू करते हैं। यह हमें आपके सर्वोत्तम मिलान ढूंढने में मदद करता है।",
+      "fullName": "पूरा नाम",
+      "fullNamePlaceholder": "आपका पूरा नाम",
+      "dateOfBirth": "जन्म की तारीख",
+      "maritalStatus": "वैवाहिक स्थिति",
+      "gender": "लिंग",
+      "height": "ऊँचाई",
+      "religion": "धर्म",
+      "motherTongue": "मातृभाषा",
+      "currentCity": "वर्तमान शहर",
+      "currentCityPlaceholder": "उदा. पुणे",
+      "state": "राज्य",
+      "aboutMe": "मेरे बारे में",
+      "aboutMePlaceholder": "अपने बारे में, अपनी रुचियों और अपनी तलाश के बारे में कुछ कहें…",
+      "sexualOrientationPrivate": "यौन अभिविन्यास (निजी)",
+      "orientationVisible": "मेरी सार्वजनिक प्रोफ़ाइल पर दिखाएँ",
+      "orientationStorageNote": "आपकी प्रोफ़ाइल पर संग्रहीत है लेकिन अन्य उपयोगकर्ताओं को कभी दृश्यमान नहीं है जब तक आप इसे नीचे टॉगल न करें।"
     },
     "family": {
       "metadata": {
@@ -597,7 +657,9 @@
       "siblingNamePh": "नाम",
       "siblingOccupationPh": "व्यवसाय",
       "married": "विवाहित",
-      "remove": "हटाएं"
+      "remove": "हटाएं",
+      "description": "मिलान को आपके पारिवारिक मूल्यों और संरचना को समझने में मदद करें।",
+      "caste": "जाति"
     },
     "nri": {
       "metadata": {
@@ -621,6 +683,92 @@
       "relocationTimeline": "स्थानांतरण समयसीमा",
       "relocationTimelineHint": "जैसे 2 वर्षों के भीतर स्थानांतरण के लिए खुला",
       "yearsAbroad": "विदेश में रहने के वर्ष"
+    },
+    "common": {
+      "stepOf": "स्टेप {current} / {total}",
+      "progress": "{percent}%",
+      "backButton": "वापस",
+      "continueButton": "आगे बढ़ें",
+      "saveButton": "सहेजें व आगे बढ़ें",
+      "skipButton": "अभी के लिए छोड़ें",
+      "savingLabel": "सहेजा जा रहा है…"
+    },
+    "career": {
+      "heading": "करियर व शिक्षा",
+      "description": "अपनी व्यावसायिक यात्रा और शैक्षणिक पृष्ठभूमि साझा करें।",
+      "education": "शिक्षा",
+      "collegeName": "कॉलेज का नाम",
+      "occupation": "व्यवसाय",
+      "company": "कंपनी",
+      "salary": "वार्षिक आय (वैकल्पिक)",
+      "salaryNote": "यह आपको संरेखित जीवन योजनाओं वाले संगत मिलान के साथ सतह करने में मदद करता है।"
+    },
+    "lifestyle": {
+      "heading": "जीवनशैली व रुचियाँ",
+      "description": "अपनी रुचियों और दैनिक आदतों के माध्यम से स्वयं को व्यक्त करें।",
+      "diet": "आहार पसंद",
+      "smoking": "धूम्रपान",
+      "drinking": "पीना",
+      "hobbies": "शौक (सभी लागू को चुनें)",
+      "languages": "बोली जाने वाली भाषाएँ",
+      "personalityTags": "आपके व्यक्तित्व टैग",
+      "personalityTagsNote": "ये आपको संगत मिलान के साथ सतह करने में मदद करते हैं",
+      "fitness": "फिटनेस स्तर"
+    },
+    "preferences": {
+      "heading": "साथी की पसंद",
+      "description": "आप एक जीवन साथी में क्या तलाश रहे हैं?",
+      "ageRange": "आयु सीमा: {min} – {max} वर्ष",
+      "heightRange": "ऊँचाई की सीमा: {min}cm – {max}cm",
+      "maritalStatus": "वैवाहिक स्थिति",
+      "religion": "धर्म की पसंद",
+      "advancedFilters": "उन्नत फ़िल्टर",
+      "basicPreferences": "मूलभूत प्राथमिकताएँ",
+      "manglik": "मांगलिक प्राथमिकता",
+      "diet": "आहार पसंद",
+      "openToInterfaith": "अंतरधार्मिक विवाह के लिए खुला",
+      "openToInterCaste": "अंतर्जातीय विवाह के लिए खुला",
+      "partnerDescription": "अपने आदर्श साथी का वर्णन करें",
+      "partnerDescriptionPlaceholder": "एक जीवन साथी में आप जो गुण तलाश रहे हैं उनका वर्णन करें…",
+      "characterCount": "{current}/1000"
+    },
+    "horoscope": {
+      "heading": "राशिफल विवरण",
+      "description": "हमें आपका सबसे संगत मिलान खोजने में मदद करें।",
+      "astrologicalDetails": "ज्योतिषीय विवरण",
+      "birthInformation": "जन्म की जानकारी",
+      "rashi": "राशि",
+      "rashiLabel": "राशि (चंद्र राशि)",
+      "nakshatra": "नक्षत्र",
+      "nakshatraLabel": "नक्षत्र (जन्म तारका)",
+      "manglikStatus": "मांगलिक स्थिति",
+      "dateOfBirth": "जन्म की तारीख",
+      "timeOfBirth": "जन्म का समय",
+      "timeOfBirthNote": "(घंटा:मिनट)",
+      "placeOfBirth": "जन्म का स्थान",
+      "placeOfBirthPlaceholder": "उदा. पुणे",
+      "kundliChart": "कुंडली चार्ट अपलोड",
+      "kundliChartNote": "जल्द ही आ रहा है — अपनी जन्म कुंडली PDF या छवि अपलोड करें",
+      "gunaMilanScore": "गुणा मिलान स्कोर",
+      "gunaMilanScoreNote": "आपका संगतता स्कोर दिखाई देगा एक बार दोनों प्रोफाइलें पूर्ण हों"
+    },
+    "photos": {
+      "heading": "अपने फ़ोटो जोड़ें",
+      "description": "आपकी मुख्य तस्वीर वह पहली चीज़ है जो संभावित मिलान देखता है",
+      "uploadPhotos": "फ़ोटो अपलोड करें",
+      "dragAndDrop": "यहाँ फ़ोटो ड्रैग और ड्रॉप करें या ब्राउज़ करने के लिए क्लिक करें",
+      "maxFiles": "आप 6 तक फ़ोटो अपलोड कर सकते हैं",
+      "mainPhotoTip": "अपनी पहली फ़ोटो स्पष्ट और हाल की अच्छी लाइटिंग के साथ बनाएँ",
+      "continueButton": "पूर्ण करने के लिए आगे बढ़ें"
+    },
+    "complete": {
+      "greatHeadline": "आपकी प्रोफ़ाइल बहुत अच्छी लग रही है!",
+      "almostHeadline": "लगभग हो गया!",
+      "greatSubtitle": "पूर्ण प्रोफाइलें 3× अधिक प्रतिक्रियाएँ प्राप्त करती हैं",
+      "almostSubtitle": "बेहतर मिलान आकर्षित करने के लिए कुछ और अनुभाग पूर्ण करें",
+      "profileComplete": "पूर्ण",
+      "completeTheseSections": "इन अनुभागों को पूर्ण करें",
+      "goToDashboard": "डैशबोर्ड पर जाएँ"
     }
   },
   "nri": {
@@ -701,6 +849,32 @@
       "read": "पढ़ा गया",
       "delivered": "पहुँच गया",
       "sent": "भेजा गया"
+    },
+    "emptyState": {
+      "title": "बातचीत शुरू करें",
+      "subtitle": "नमस्ते कहें और अपनी यात्रा शुरू करें",
+      "beginningOfConversation": "बातचीत की शुरुआत"
+    },
+    "typing": "{name} टाइप कर रहा है",
+    "presence": {
+      "online": "अभी ऑनलाइन",
+      "lastSeen": "आखिरी बार {time} को देखा गया",
+      "offline": "ऑफलाइन"
+    },
+    "smartReplies": {
+      "thinking": "सोच रहा हूँ…"
+    },
+    "menu": {
+      "mediaFiles": "मीडिया और फाइलें",
+      "aiCoach": "AI कोच",
+      "pinChat": "शीर्ष पर पिन करें",
+      "unpinChat": "अनपिन करें",
+      "muteNotifications": "सूचनाओं को म्यूट करें",
+      "unmuteNotifications": "सूचनाओं को अनम्यूट करें",
+      "archiveChat": "चैट को आर्काइव करें",
+      "unarchiveChat": "आर्काइव से निकालें",
+      "report": "रिपोर्ट करें",
+      "blockAndExit": "ब्लॉक करें और बाहर निकलें"
     }
   },
   "chats": {
@@ -883,25 +1057,138 @@
       "metadata": {
         "title": "शादी का अवलोकन — Smart Shaadi"
       },
-      "heading": "शादी का अवलोकन"
+      "heading": "शादी का अवलोकन",
+      "quickActions": "त्वरित कार्य",
+      "upcomingCeremonies": "आने वाली रस्में",
+      "allCeremonies": "सभी रस्में",
+      "fullTimeline": "पूरी समयरेखा",
+      "recentActivity": "हाल की गतिविधि",
+      "auspiciousDates": "शुभ तारीखें",
+      "dateSelected": "तारीख चुनी गई",
+      "budgetSpent": "खर्च किया गया बजट",
+      "budgetSpentSub": "बजट निर्धारित नहीं है",
+      "guests": "अतिथि",
+      "guestsSub": "सूची में",
+      "ceremonies": "रस्में",
+      "ceremoniesSub": "नियोजित",
+      "tasksDone": "पूर्ण कार्य",
+      "tasksDoneSub": "पूर्ण",
+      "selectDate": "चुनें",
+      "selectedBadge": "✓ चुनी गई",
+      "noCeremoniesTitle": "अभी तक कोई समारोह नहीं जोड़ा गया",
+      "noCeremoniesDesc": "अपनी शादी के दिन की समयरेखा बनाने के लिए समारोह जोड़ें।"
     },
     "guests": {
       "metadata": {
         "title": "मेहमान सूची — Smart Shaadi"
       },
-      "heading": "मेहमान सूची"
+      "heading": "मेहमान सूची",
+      "subtitle": "अतिथि सूची, आरएसवीपी, निमंत्रण, विश्लेषण और चेक-इन प्रबंधित करें।",
+      "addGuest": "अतिथि जोड़ें",
+      "importCsv": "CSV आयात करें",
+      "exportCsv": "CSV निर्यात करें",
+      "tabs": {
+        "list": "सूची",
+        "analytics": "विश्लेषण",
+        "checkIn": "चेक-इन",
+        "questions": "प्रश्न",
+        "seating": "बैठने की व्यवस्था"
+      },
+      "stats": {
+        "totalGuests": "कुल अतिथि",
+        "confirmed": "पुष्टि की गई",
+        "declined": "अस्वीकृत",
+        "awaitingRsvp": "आरएसवीपी की प्रतीक्षा में"
+      },
+      "rsvpSummary": "आरएसवीपी सारांश",
+      "mealPreferences": "भोजन वरीयताएँ",
+      "guestList": "अतिथि सूची",
+      "guestListSubtitle": "सॉर्ट, फिल्टर और आरएसवीपी प्रबंधित करें",
+      "errorLoad": "अतिथि लोड नहीं हो सके। कृपया पुनः प्रयास करें।",
+      "form": {
+        "name": "पूरा नाम *",
+        "relationship": "संबंध (जैसे चचेरा भाई)",
+        "phone": "फोन",
+        "email": "ईमेल",
+        "side": "पक्ष",
+        "sideBride": "दुल्हन की ओर",
+        "sideGroom": "दूल्हे की ओर",
+        "sideBoth": "दोनों",
+        "mealPref": "भोजन वरीयता",
+        "mealVeg": "शाकाहारी",
+        "mealNonVeg": "मांसाहारी",
+        "mealJain": "जैन",
+        "mealVegan": "वीगन",
+        "mealEggetarian": "अंडा शाकाहारी",
+        "mealNoPreference": "कोई वरीयता नहीं",
+        "submit": "अतिथि जोड़ें",
+        "cancel": "रद्द करें"
+      },
+      "table": {
+        "searchPlaceholder": "अतिथि खोजें…",
+        "addButtonLabel": "अतिथि जोड़ें",
+        "importLabel": "CSV आयात करें",
+        "exportLabel": "CSV निर्यात करें",
+        "nameColumn": "नाम",
+        "relationshipColumn": "संबंध",
+        "sideColumn": "पक्ष",
+        "rsvpColumn": "आरएसवीपी",
+        "mealColumn": "भोजन",
+        "actionsColumn": "कार्य",
+        "noGuests": "अभी तक कोई अतिथि नहीं जोड़ा गया।",
+        "noGuestsMatch": "आपकी खोज से कोई अतिथि नहीं मिला।",
+        "rsvpStatuses": {
+          "YES": "उपस्थित",
+          "NO": "अस्वीकृत",
+          "MAYBE": "शायद",
+          "PENDING": "लंबित"
+        },
+        "edit": "संपादित करें",
+        "delete": "हटाएँ"
+      }
     },
     "tasks": {
       "metadata": {
         "title": "शादी के कार्य — Smart Shaadi"
       },
-      "heading": "शादी के कार्य"
+      "heading": "शादी के कार्य",
+      "subtitle": "कार्यों को पाइपलाइन के माध्यम से खींचें या उन्हें स्थानांतरित करने के लिए तीरों का उपयोग करें।",
+      "form": {
+        "title": "कार्य शीर्षक *",
+        "dueDate": "निर्धारित तारीख (वैकल्पिक)",
+        "priority": "प्राथमिकता",
+        "priorityLow": "कम",
+        "priorityMedium": "मध्यम",
+        "priorityHigh": "उच्च",
+        "submit": "सूची में जोड़ें",
+        "creating": "जोड़ा जा रहा है…"
+      }
     },
     "new": {
       "metadata": {
         "title": "अपनी शादी प्लान करें — Smart Shaadi"
       },
-      "heading": "अपनी शादी प्लान करें"
+      "heading": "अपनी शादी प्लान करें",
+      "subtitle": "बुनियादी जानकारी भरें — आप बाद में सब कुछ अपडेट कर सकते हैं।",
+      "back": "शादियों पर वापस जाएँ",
+      "form": {
+        "weddingName": "शादी का नाम",
+        "weddingNamePlaceholder": "जैसे प्रिया और राहुल",
+        "weddingNameHelp": "दंपति या इवेंट का शीर्षक — स्थान से अलग।",
+        "weddingDate": "शादी की तारीख",
+        "weddingDateHelp": "भविष्य की तारीख होनी चाहिए।",
+        "venueName": "स्थान का नाम",
+        "venuePlaceholder": "जैसे द ग्रांड पैलेस बैंक्वेट",
+        "venueCity": "शहर",
+        "venueCityPlaceholder": "जैसे मुंबई",
+        "venueAddress": "स्थान का पता",
+        "venueAddressLabel": "स्थान का पता (वैकल्पिक)",
+        "budgetTotal": "बजट",
+        "budgetHelp": "शादी के लिए अनुमानित कुल लागत।",
+        "submit": "शादी की योजना बनाएँ",
+        "creating": "बनाया जा रहा है…",
+        "errorGeneric": "शादी नहीं बना सके। कृपया अपनी जानकारी जाँचें और दोबारा कोशिश करें।"
+      }
     },
     "invite": {
       "builder": {
@@ -984,7 +1271,9 @@
       "vendorCheckedIn": "चेक-इन किया गया",
       "noVendors": "विक्रेता के साथ कोई टाइमलाइन घटना नहीं है।",
       "noIncidents": "कोई घटना रिपोर्ट नहीं की गई। सुगम यात्रा।",
-      "percentage": "{percent}% चेक-इन किए गए"
+      "percentage": "{percent}% चेक-इन किए गए",
+      "subtitle": "रीयल-टाइम अपडेट और समारोह समन्वय।",
+      "loadError": "दिन का स्नैपशॉट लोड नहीं हो सका। इस शादी की अपनी पहुँच जाँचें।"
     },
     "incidents": {
       "metadata": {
@@ -1124,6 +1413,83 @@
         "submitting": "सहेजा जा रहा है…",
         "cancel": "रद्द करें",
         "windowError": "प्रस्थान तिथि आगमन तिथि के बाद या उसी दिन होनी चाहिए।"
+      }
+    },
+    "budget": {
+      "metadata": {
+        "title": "बजट — Smart Shaadi"
+      },
+      "heading": "बजट",
+      "spendByCategory": "श्रेणी के अनुसार खर्च",
+      "categoryBreakdown": "श्रेणी विवरण",
+      "breakdownSubtitle": "आवंटित और व्यय की गई राशि को इनलाइन संपादित करें",
+      "totalBudget": "कुल बजट",
+      "remaining": "बचा हुआ",
+      "spent": "खर्च किया गया",
+      "noPlan": "कोई शादी की योजना नहीं मिली।",
+      "noPlanDesc": "अपने बजट को ट्रैक करने के लिए पहले एक शादी की योजना बनाएँ।",
+      "tabs": {
+        "tasks": "कार्य",
+        "budget": "बजट",
+        "guests": "अतिथि"
+      }
+    },
+    "timeline": {
+      "metadata": {
+        "title": "दिन की समयसूची — Smart Shaadi"
+      },
+      "heading": "दिन की समयसूची",
+      "subtitle": "अपने दिन की समयरेखा बनाएँ और विक्रेताओं को असाइन करें।",
+      "autoGenerate": "स्वतः उत्पन्न करें",
+      "generateFromCeremonies": "अपनी रस्मों से उत्पन्न करें",
+      "noEvents": "अभी तक कोई समयसूची ईवेंट नहीं।",
+      "addCeremoniesFirst": "पहले समारोह जोड़ें, फिर एक समयसूची स्वतः उत्पन्न करें।",
+      "addEvent": "ईवेंट जोड़ें",
+      "form": {
+        "title": "शीर्षक *",
+        "date": "तारीख *",
+        "ceremony": "समारोह",
+        "ceremonyNone": "— कोई नहीं —",
+        "startTime": "शुरुआत *",
+        "endTime": "अंत",
+        "location": "स्थान",
+        "description": "विवरण",
+        "submit": "समयसूची में जोड़ें"
+      }
+    },
+    "ceremonies": {
+      "metadata": {
+        "title": "समारोह — Smart Shaadi"
+      },
+      "heading": "समारोह",
+      "subtitle": "प्रत्येक समारोह ईवेंट की योजना बनाएँ और ट्रैक करें",
+      "addNewCeremony": "नया समारोह जोड़ें",
+      "noCeremoniesTitle": "अभी तक कोई समारोह नहीं",
+      "noCeremoniesDesc": "अपना पहला समारोह जोड़ें — हल्दी, मेहँदी, संगीत, शादी, या एक कस्टम नाम।",
+      "form": {
+        "ceremonyType": "समारोह का प्रकार *",
+        "ceremonyName": "समारोह का नाम",
+        "ceremonyNamePlaceholder": "जैसे मंडा",
+        "date": "तारीख",
+        "startTime": "शुरुआत का समय",
+        "venue": "स्थान",
+        "notes": "नोट्स",
+        "submit": "परिवर्तन सहेजें"
+      },
+      "ceremony": {
+        "labels": {
+          "HALDI": "हल्दी",
+          "MEHNDI": "मेहँदी",
+          "SANGEET": "संगीत",
+          "WEDDING": "शादी",
+          "RECEPTION": "रिसेप्शन",
+          "ENGAGEMENT": "सगाई",
+          "OTHER": "अन्य"
+        },
+        "completed": "पूर्ण",
+        "daysAway": "{days}दिन दूर",
+        "dressCode": "पोशाक कोड:",
+        "expectedGuests": "~{count} अतिथि अपेक्षित"
       }
     }
   },
@@ -2142,7 +2508,15 @@
     "heading": "आपकी शॉर्टलिस्ट",
     "subtitleCount": "{count} प्रोफ़ाइल{count, plural, one {} other {}} जिसे आप विचार कर रहे हैं",
     "subtitleEmpty": "जो प्रोफाइल आप दोबारा देखना चाहते हैं उन्हें सेव करें",
-    "exploreCta": "मेल खोजें"
+    "exploreCta": "मेल खोजें",
+    "metadata": {
+      "title": "आपकी शॉर्टलिस्ट — स्मार्ट शादी"
+    },
+    "viewProfile": "प्रोफ़ाइल देखें",
+    "removeLabel": "हटाएँ",
+    "removeAria": "{name} को शॉर्टलिस्ट से हटाएँ",
+    "removed": "{name} आपकी शॉर्टलिस्ट से हटाया गया",
+    "removeFailed": "हटाया नहीं जा सका — कृपया फिर से प्रयास करें"
   },
   "viewers": {
     "heading": "आपको किसने देखा",
@@ -3047,7 +3421,57 @@
     },
     "detail": {
       "placeholderNotice": "यह प्रीव्यू इन्वेंटरी है — हम इस विक्रेता को पार्टनर के रूप में पुष्टि कर रहे हैं। उपलब्धता जांचने के लिए एक पूछताछ भेजें और हम आपको विवरण के साथ फॉलो अप करेंगे।",
-      "placeholderTitle": "प्रीव्यू लिस्टिंग"
+      "placeholderTitle": "प्रीव्यू लिस्टिंग",
+      "title": "विक्रेता प्रोफ़ाइल",
+      "bookNow": "अभी बुक करें",
+      "inquire": "पूछताछ भेजें",
+      "about": "परिचय",
+      "contact": "संपर्क",
+      "availability": "उपलब्धता",
+      "portfolio": "पोर्टफोलियो",
+      "reviews": "समीक्षाएं",
+      "contactPlaceholder": "इस विक्रेता तक पहुंचने के लिए ऊपर पूछताछ बटन का उपयोग करें",
+      "yearsActive": "{years}+ वर्ष",
+      "replyTime": "~{hours}घ में प्रतिक्रिया देता है",
+      "pricing": "मूल्य निर्धारण",
+      "topRated": "⭐ शीर्ष रेटेड",
+      "affordable": "💰 सस्ता",
+      "verifiedBadge": "सत्यापित",
+      "reviewOne": "समीक्षा",
+      "reviewOther": "समीक्षाएं"
+    },
+    "list": {
+      "title": "शादी के विक्रेता खोजें",
+      "subtitle": "फोटोग्राफर, कैटरर, डेकोरेटर और बहुत कुछ खोजें",
+      "vendor_one": "विक्रेता",
+      "vendor_other": "विक्रेता",
+      "found": "{total} {plural} मिले",
+      "cta": "प्रोफ़ाइल देखें",
+      "saveFavorite": "❤ सहेजे गए",
+      "noResults": "कोई विक्रेता नहीं मिला",
+      "noResultsDescription": "अपने फ़िल्टर को समायोजित करने या पास के शहर की खोज करने का प्रयास करें",
+      "loadError": "विक्रेताओं को लोड नहीं कर सका। कृपया पुनः प्रयास करें",
+      "previousPage": "पिछला",
+      "nextPage": "अगला",
+      "pageOf": "पृष्ठ {current}"
+    },
+    "filters": {
+      "searchPlaceholder": "विक्रेताओं को खोजें...",
+      "category": "श्रेणी",
+      "city": "शहर",
+      "state": "राज्य",
+      "priceRange": "मूल्य सीमा",
+      "minPrice": "न्यूनतम",
+      "maxPrice": "अधिकतम",
+      "rating": "रेटिंग और ऊपर",
+      "verifiedOnly": "केवल सत्यापित",
+      "sort": "सॉर्ट",
+      "sortNewest": "नवीनतम",
+      "sortRating": "सबसे ऊंची रेटेड",
+      "sortPrice": "मूल्य: कम से अधिक",
+      "apply": "फ़िल्टर लागू करें",
+      "clear": "सभी साफ करें",
+      "activeCount": "{count} फ़िल्टर{plural}"
     }
   },
   "likes": {
@@ -3058,7 +3482,10 @@
     "emptyDescription": "अपनी प्रोफ़ाइल पूरी और सक्रिय रखें — पसंद अपने आप आने लगती हैं।",
     "exploreCta": "मैच देखें",
     "lockedFeature": "प्रीमियम सुविधा",
-    "lockedMessage": "आपकी प्रोफ़ाइल पसंद करने वाले सभी लोगों को देखने के लिए अपग्रेड करें।"
+    "lockedMessage": "आपकी प्रोफ़ाइल पसंद करने वाले सभी लोगों को देखने के लिए अपग्रेड करें।",
+    "metadata": {
+      "title": "आपको किसने पसंद किया — स्मार्ट शादी"
+    }
   },
   "smartSuggestions": {
     "title": "स्मार्ट सुझाव",
@@ -3215,5 +3642,207 @@
   },
   "billingSavings": {
     "savingsLabel": "मासिक भुगतान की तुलना में ₹{amount} ({percent}%) बचाएं"
+  },
+  "requests": {
+    "metadata": {
+      "title": "मैच अनुरोध — स्मार्ट शादी"
+    }
+  },
+  "admin": {
+    "settings": {
+      "label": "सेटिंग्स"
+    },
+    "audit": {
+      "label": "ऑडिट लॉग"
+    }
+  },
+  "store": {
+    "list": {
+      "title": "शादी की दुकान",
+      "subtitle": "उपहार, दहेज, नैतिक पहनावा और बहुत कुछ",
+      "allProducts": "सभी उत्पाद",
+      "productCount": "{count}",
+      "featured": "विशेष",
+      "noResults": "कोई उत्पाद नहीं मिला",
+      "noResultsDescription": "अपने फ़िल्टर को समायोजित करने या एक अलग श्रेणी ब्राउज़ करने का प्रयास करें",
+      "loadError": "उत्पाद लोड नहीं कर सका। कृपया पुनः प्रयास करें",
+      "previousPage": "पिछला",
+      "nextPage": "अगला",
+      "pageOf": "पृष्ठ {current} का {total}"
+    },
+    "productCard": {
+      "inStock": "स्टॉक में",
+      "outOfStock": "स्टॉक से बाहर",
+      "lowStock": "कम स्टॉक",
+      "featured": "विशेष",
+      "viewDetails": "विवरण देखें",
+      "discount": "{percent}% छूट"
+    },
+    "productDetail": {
+      "title": "उत्पाद विवरण",
+      "addToCart": "कार्ट में जोड़ें",
+      "outOfStock": "स्टॉक से बाहर",
+      "quantity": "मात्रा",
+      "available": "उपलब्ध",
+      "description": "विवरण",
+      "relatedProducts": "संबंधित उत्पाद",
+      "reviews": "समीक्षाएं",
+      "backToStore": "दुकान",
+      "stock_low": "कम स्टॉक ({qty} बचे)",
+      "comparePrice": "₹{price} पर तुलना करें"
+    },
+    "cart": {
+      "title": "आपकी कार्ट",
+      "empty": "आपकी कार्ट खाली है",
+      "emptyDescription": "सही वस्तुएं खोजने के लिए हमारी दुकान को ब्राउज़ करें",
+      "continueShopping": "खरीदारी जारी रखें",
+      "subtotal": "उप कुल",
+      "shipping": "शिपिंग",
+      "tax": "कर",
+      "total": "कुल",
+      "checkout": "चेकआउट के लिए आगे बढ़ें",
+      "itemOne": "वस्तु",
+      "itemOther": "वस्तुएं",
+      "removeItem": "हटाएं",
+      "updateQuantity": "अपडेट करें",
+      "priceChange": "कीमत चेकआउट पर बदल सकती है"
+    },
+    "checkout": {
+      "title": "चेकआउट",
+      "customerInfo": "डिलीवरी पता",
+      "orderSummary": "ऑर्डर सारांश",
+      "paymentMethod": "भुगतान विधि",
+      "placeOrder": "ऑर्डर दें",
+      "processing": "भुगतान प्रसंस्करण...",
+      "termsAccept": "मैं शर्तों और शर्तों से सहमत हूं",
+      "backToCart": "कार्ट पर लौटें",
+      "subtotal": "उप कुल",
+      "shipping": "शिपिंग",
+      "tax": "कर",
+      "total": "कुल",
+      "paymentFailed": "भुगतान संसाधित नहीं किया जा सका",
+      "tryAgain": "कृपया पुनः प्रयास करें या एक अलग भुगतान विधि का उपयोग करें"
+    },
+    "categoryFilter": {
+      "allCategories": "सभी श्रेणियां",
+      "gifts": "उपहार",
+      "trousseau": "दहेज",
+      "ethnicWear": "नैतिक पहनावा",
+      "jewelry": "गहने",
+      "decor": "सजावट",
+      "other": "अन्य"
+    }
+  },
+  "rentals": {
+    "list": {
+      "title": "अपनी शादी के लिए किराया",
+      "subtitle": "सजावट, पोशाक, एवी उपकरण और बहुत कुछ देखें",
+      "noResults": "कोई वस्तु नहीं मिली",
+      "noResultsDescription": "अपने फ़िल्टर को समायोजित करने या एक अलग श्रेणी की खोज करने का प्रयास करें",
+      "noResultsFilter": "आपकी चयनित तारीखों के लिए कोई {category} वस्तु उपलब्ध नहीं है",
+      "loadError": "किराया वस्तुओं को लोड नहीं कर सका",
+      "loadErrorDescription": "कृपया पृष्ठ को ताज़ा करें या बाद में पुनः प्रयास करें",
+      "itemOne": "वस्तु",
+      "itemOther": "वस्तुएं",
+      "available": "उपलब्ध",
+      "dateRange": "{from} – {to}",
+      "previousPage": "पिछला",
+      "nextPage": "अगला",
+      "pageOf": "पृष्ठ {current}"
+    },
+    "rentalCard": {
+      "viewAndBook": "देखें और बुक करें",
+      "pricePerDay": "/प्रति दिन",
+      "limited": "सीमित ({qty} बचे)",
+      "decor": "सजावट",
+      "costume": "पोशाक",
+      "avEquipment": "एवी उपकरण",
+      "furniture": "फर्नीचर",
+      "lighting": "प्रकाश",
+      "tableware": "तालिका सामान",
+      "other": "अन्य"
+    },
+    "rentalDetail": {
+      "title": "किराया विवरण",
+      "bookNow": "अभी बुक करें",
+      "availability": "उपलब्धता",
+      "terms": "किराया की शर्तें",
+      "pricePerDay": "₹{price}/दिन",
+      "startDate": "शुरुआत की तारीख",
+      "endDate": "अंत की तारीख",
+      "totalDays": "{days} दिन",
+      "totalPrice": "कुल मूल्य",
+      "deposit": "जमा",
+      "backToRentals": "किराए पर लौटें",
+      "description": "विवरण"
+    },
+    "categoryTabs": {
+      "all": "सभी",
+      "decor": "सजावट",
+      "costume": "पोशाक",
+      "avEquipment": "एवी उपकरण",
+      "furniture": "फर्नीचर",
+      "lighting": "प्रकाश",
+      "tableware": "तालिका सामान",
+      "other": "अन्य"
+    }
+  },
+  "bookings": {
+    "list": {
+      "title": "मेरी बुकिंग",
+      "subtitle": "बुकिंग को ट्रैक करें, पुनर्निर्धारित करें और कार्यक्रमों का प्रबंधन करें",
+      "asCustomer": "ग्राहक के रूप में",
+      "asVendor": "विक्रेता के रूप में",
+      "noBookings": "यहां कोई बुकिंग नहीं",
+      "noBookingsDescription": "एक अलग फ़िल्टर आजमाएं या अपनी पहली बुकिंग करने के लिए विक्रेताओं को ब्राउज़ करें",
+      "exploreVendors": "विक्रेताओं को खोजें",
+      "allTime": "सभी समय",
+      "upcoming": "आने वाली",
+      "past": "अतीत",
+      "all": "सभी",
+      "pending": "लंबित",
+      "confirmed": "पुष्टि की गई",
+      "completed": "पूर्ण",
+      "cancelled": "रद्द",
+      "disputed": "विवादास्पद",
+      "rescheduleNeeded": "पुनर्निर्धारण लंबित",
+      "reviewPending": "समीक्षा लंबित",
+      "escrow": "एस्क्रो",
+      "view": "देखें",
+      "bookingDate": "बुकिंग की तारीख"
+    },
+    "bookingDetail": {
+      "title": "बुकिंग विवरण",
+      "vendorInfo": "विक्रेता जानकारी",
+      "bookingInfo": "बुकिंग जानकारी",
+      "eventDate": "कार्यक्रम की तारीख",
+      "eventTime": "कार्यक्रम समय",
+      "status": "स्थिति",
+      "totalAmount": "कुल राशि",
+      "escrowAmount": "एस्क्रो राशि",
+      "packageName": "पैकेज",
+      "reschedule": "पुनर्निर्धारित करें",
+      "cancel": "बुकिंग रद्द करें",
+      "contactVendor": "विक्रेता से संपर्क करें",
+      "writeReview": "समीक्षा लिखें",
+      "approveReschedule": "पुनर्निर्धारण को मंजूरी दें",
+      "backToBookings": "बुकिंग पर लौटें"
+    }
+  },
+  "trust": {
+    "verifiedBadge": "सत्यापित",
+    "previewBadge": "पूर्वावलोकन",
+    "topRatedBadge": "शीर्ष रेटेड",
+    "affordableBadge": "सस्ता",
+    "inStockBadge": "स्टॉक में",
+    "outOfStockBadge": "स्टॉक से बाहर",
+    "lowStockBadge": "कम स्टॉक",
+    "limitedBadge": "सीमित",
+    "availableBadge": "उपलब्ध",
+    "secureCheckout": "सुरक्षित चेकआउट",
+    "encryptedPayment": "एन्क्रिप्टेड भुगतान",
+    "moneyBackGuarantee": "मनी बैक गारंटी",
+    "escrowProtection": "एस्क्रो सुरक्षित",
+    "instantConfirmation": "तुरंत पुष्टि"
   }
 }

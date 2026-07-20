@@ -58,7 +58,7 @@ export function AdminDisputesMini({ disputes }: Props) {
   return (
     <div className="divide-y divide-gold/10">
       {disputes.map((d) => (
-        <div key={d.id ?? d.bookingId} className="flex items-start gap-3 px-4 py-3">
+        <div key={d.id ?? d.bookingId} className="flex items-start gap-3 px-4 py-3 hover:bg-background/50 transition-colors">
           <AlertTriangle
             className="mt-0.5 h-4 w-4 shrink-0 text-warning"
             strokeWidth={1.5}

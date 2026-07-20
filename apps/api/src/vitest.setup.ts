@@ -3,8 +3,11 @@
 process.env['NODE_ENV'] = 'test';
 process.env['USE_MOCK_SERVICES'] = 'true';
 process.env['JWT_SECRET'] = 'test-secret-that-is-at-least-32-characters-long!!';
-process.env['DATABASE_URL'] = 'postgresql://localhost:5432/vivah_test';
-process.env['REDIS_URL'] = 'redis://localhost:6379';
+// CI injects DATABASE_URL/REDIS_URL pointing at its service containers (with
+// credentials and a migrated schema) — overwriting them here breaks every
+// DB-backed suite with SASL "password must be a string". Only fill defaults.
+process.env['DATABASE_URL'] ??= 'postgresql://localhost:5432/vivah_test';
+process.env['REDIS_URL'] ??= 'redis://localhost:6379';
 process.env['MSG91_API_KEY'] = 'test-msg91-api-key';
 process.env['MSG91_TEMPLATE_ID'] = 'test-template-id';
 process.env['FRONTEND_URL'] = 'http://localhost:3000';

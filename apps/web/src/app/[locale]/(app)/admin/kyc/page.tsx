@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -10,6 +11,12 @@ import { KycQueueTable } from '@/components/admin/KycQueueTable.client';
 import { KycStatsBar } from '@/components/admin/KycStatsBar';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('kyc.title')} — Admin | Smart Shaadi` };
+}
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 

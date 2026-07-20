@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { AddToCartButton } from '@/components/store/AddToCartButton.client';
@@ -50,6 +51,25 @@ function stockLabel(qty: number) {
   if (qty === 0) return { text: 'Out of Stock', cls: 'text-destructive bg-destructive/10' };
   if (qty < 5)  return { text: `Low Stock (${qty} left)`, cls: 'text-warning bg-warning/10' };
   return { text: 'In Stock', cls: 'text-success bg-success/10' };
+}
+
+export async function generateMetadata(
+  { params }: PageProps,
+): Promise<Metadata> {
+  const { productId } = await params;
+  const product = await fetchProduct(productId);
+
+  if (!product) {
+    return {
+      title: 'Product Not Found',
+      description: 'This product could not be found.',
+    };
+  }
+
+  return {
+    title: `\${product.name} — Smart Shaadi Store`,
+    description: `Shop \${product.name} for your wedding. Price: ₹\${product.price.toLocaleString('en-IN')}. \${product.stockQty > 0 ? 'In stock' : 'Out of stock'}.`,
+  };
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {

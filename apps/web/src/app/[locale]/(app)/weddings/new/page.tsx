@@ -8,8 +8,8 @@ import { WeddingNewForm } from './WeddingNewForm.client';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'weddings.new.metadata' });
-  return { title: t('title') };
+  const t = await getTranslations({ locale, namespace: 'weddings.new' });
+  return { title: t('metadata.title') };
 }
 
 export default async function NewWeddingPage() {
@@ -24,12 +24,12 @@ export default async function NewWeddingPage() {
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Weddings
+            {t('back')}
           </Link>
 
           <PageHeader
             title={t('heading')}
-            subtitle="Fill in the basics — you can update everything later."
+            subtitle={t('subtitle')}
           />
 
           <div className="mt-6 bg-surface border border-gold/20 rounded-2xl shadow-card p-6">

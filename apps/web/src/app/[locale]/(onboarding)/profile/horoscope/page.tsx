@@ -71,106 +71,119 @@ export default function HoroscopePage() {
           className="mt-6 mb-6"
         />
 
-        <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-5">
+        <form key={loaded ? 'ready' : 'loading'} action={formAction} className="mt-6 space-y-6">
           {state?.error && (
             <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {state.error}
             </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Rashi (Moon Sign)
-            </label>
-            <select
-              name="rashi"
-              defaultValue={h?.rashi ?? ''}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
-            >
-              <option value="">Select Rashi</option>
-              {RASHI_OPTIONS.map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Nakshatra (Birth Star)
-            </label>
-            <select
-              name="nakshatra"
-              defaultValue={h?.nakshatra ?? ''}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
-            >
-              <option value="">Select Nakshatra</option>
-              {NAKSHATRA_OPTIONS.map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-medium text-foreground mb-3">Astrological Details</legend>
 
-          <div>
-            <p className="block text-sm font-medium text-foreground mb-2">Manglik Status</p>
-            <div className="flex gap-3">
-              {(['NO', 'PARTIAL', 'YES'] as const).map((val) => (
-                <label
-                  key={val}
-                  className={`flex-1 cursor-pointer rounded-lg border px-3 py-2.5 text-center text-sm font-medium transition-colors ${
-                    manglik === val
-                      ? 'border-teal bg-teal/10 text-teal'
-                      : 'border-border bg-surface text-muted-foreground'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="manglik"
-                    value={val}
-                    checked={manglik === val}
-                    onChange={() => setManglik(val)}
-                    className="sr-only"
-                  />
-                  {val === 'NO' ? 'Non-Manglik' : val === 'PARTIAL' ? 'Partial' : 'Manglik'}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Rashi <span className="font-normal text-muted-foreground">(Moon Sign)</span>
                 </label>
-              ))}
+                <select
+                  name="rashi"
+                  defaultValue={h?.rashi ?? ''}
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+                >
+                  <option value="">Select Rashi</option>
+                  {RASHI_OPTIONS.map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Nakshatra <span className="font-normal text-muted-foreground">(Birth Star)</span>
+                </label>
+                <select
+                  name="nakshatra"
+                  defaultValue={h?.nakshatra ?? ''}
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+                >
+                  <option value="">Select Nakshatra</option>
+                  {NAKSHATRA_OPTIONS.map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              name="dob"
-              defaultValue={dobString(h?.dob)}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Manglik Status</label>
+              <div className="flex gap-3">
+                {(['NO', 'PARTIAL', 'YES'] as const).map((val) => (
+                  <label
+                    key={val}
+                    className={`flex-1 cursor-pointer rounded-lg border px-3 py-2.5 text-center text-sm font-medium transition-colors min-h-[44px] flex items-center justify-center ${
+                      manglik === val
+                        ? 'border-teal bg-teal/10 text-teal'
+                        : 'border-border bg-surface text-muted-foreground hover:border-teal'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="manglik"
+                      value={val}
+                      checked={manglik === val}
+                      onChange={() => setManglik(val)}
+                      className="sr-only"
+                    />
+                    {val === 'NO' ? 'Non-Manglik' : val === 'PARTIAL' ? 'Partial' : 'Manglik'}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </fieldset>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Time of Birth <span className="text-muted-foreground font-normal">(HH:MM)</span>
-            </label>
-            <input
-              type="time"
-              name="tob"
-              defaultValue={h?.tob ?? ''}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
-            />
-          </div>
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-medium text-foreground mb-3">Birth Information</legend>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Place of Birth
-            </label>
-            <input
-              type="text"
-              name="pob"
-              defaultValue={h?.pob ?? ''}
-              placeholder="e.g. Pune, Maharashtra"
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                name="dob"
+                defaultValue={dobString(h?.dob)}
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Time of Birth <span className="font-normal text-muted-foreground">(HH:MM)</span>
+                </label>
+                <input
+                  type="time"
+                  name="tob"
+                  defaultValue={h?.tob ?? ''}
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Place of Birth
+                </label>
+                <input
+                  type="text"
+                  name="pob"
+                  defaultValue={h?.pob ?? ''}
+                  placeholder="e.g. Pune"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal"
+                />
+              </div>
+            </div>
+          </fieldset>
 
           <div className="rounded-xl border border-dashed border-border bg-surface p-5 text-center">
             <p className="text-sm font-medium text-primary">Kundli Chart Upload</p>

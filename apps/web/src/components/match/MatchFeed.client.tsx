@@ -333,7 +333,7 @@ function FeedCardItem({
           : { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
       }
       exit={{ opacity: 0, x: 80, transition: { duration: 0.25, ease: 'easeIn' } }}
-      className="relative"
+      className="relative h-full"
     >
       {showPassConfirm && (
         <PassConfirmTooltip

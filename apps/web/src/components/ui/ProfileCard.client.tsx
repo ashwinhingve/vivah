@@ -108,7 +108,7 @@ function ProfileCardBase({
   return (
     <article
       className={cn(
-        'group flex flex-col overflow-hidden rounded-2xl border border-gold/30 bg-surface shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-gold/50 hover:shadow-card-hover',
+        'group flex h-full flex-col overflow-hidden rounded-2xl border border-gold/30 bg-surface shadow-card transition-all duration-200 ease-out hover:-translate-y-1 hover:border-gold/50 hover:shadow-card-hover',
         className
       )}
     >
@@ -192,9 +192,11 @@ function ProfileCardBase({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 p-3.5">
+      <div className="flex flex-1 flex-col gap-3 p-3.5">
+        {/* Always reserve the strip row so action rows align across a grid
+            even when neighbouring cards have different pill counts. */}
         {hasMetaStrip && (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex min-h-7 flex-wrap items-center gap-1.5">
             {isInternational && countryName && (
               <span className="inline-flex items-center gap-1 rounded-full bg-teal/15 px-2.5 py-1 text-xs font-semibold text-teal">
                 <Globe className="h-3 w-3" aria-hidden="true" />
@@ -216,7 +218,7 @@ function ProfileCardBase({
             now 1-col (wide) and the narrowest desktop column is ~225px, where
             44 + Connect + 44 still fits; Connect gets min-w-0 + truncate so a
             wide label (e.g. Hindi "कनेक्ट करें") never clips a neighbour. */}
-        <div className="flex items-center gap-2">
+        <div className="mt-auto flex items-center gap-2">
           <button
             type="button"
             aria-label={t('pass')}

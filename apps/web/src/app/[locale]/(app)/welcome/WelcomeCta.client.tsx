@@ -19,6 +19,7 @@ export function WelcomeCta() {
     <Button
       size="lg"
       loading={pending}
+      aria-label="Take me to my matches"
       onClick={() =>
         startTransition(async () => {
           await markWelcomeSeen();

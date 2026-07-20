@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import type { EnrichedMatchRequest } from '@smartshaadi/types';
 import { RequestsClient } from './RequestsClient.client';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'requests.metadata' });
+  return { title: t('title') };
+}
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 

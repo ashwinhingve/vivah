@@ -287,12 +287,23 @@ export async function acceptRequest(
     throw serviceError('ALREADY_PROCESSED', 'Match request was already processed');
   }
 
-  // Mongo Chat document — use mock store in dev
+  // Mongo Chat document — use mock store in dev.
+  // The accept dialog promises "They'll see it as the first message in your
+  // chat", so the welcome note must actually land in `messages`.
+  const welcome = input.welcomeMessage?.trim();
+  const welcomeMsg = welcome
+    ? {
+        senderId: request.receiverId,
+        content:  welcome,
+        type:     'TEXT' as const,
+        sentAt:   new Date(),
+      }
+    : null;
   if (shouldUseMockMongo) {
     mockUpsertField(requestId, 'chat', {
       participants:    [request.senderId, request.receiverId],
       matchRequestId:  requestId,
-      messages:        [],
+      messages:        welcomeMsg ? [{ _id: `welcome-${requestId}`, ...welcomeMsg }] : [],
       isActive:        true,
       welcomeMessage:  input.welcomeMessage ?? null,
     });
@@ -300,7 +311,17 @@ export async function acceptRequest(
     await Chat.create({
       participants:    [request.senderId, request.receiverId],
       matchRequestId:  requestId,
-      messages:        [],
+      messages:        welcomeMsg ? [welcomeMsg] : [],
+      ...(welcomeMsg
+        ? {
+            lastMessage: {
+              content:  welcomeMsg.content,
+              sentAt:   welcomeMsg.sentAt,
+              senderId: welcomeMsg.senderId,
+              type:     welcomeMsg.type,
+            },
+          }
+        : {}),
       isActive:        true,
     });
   }

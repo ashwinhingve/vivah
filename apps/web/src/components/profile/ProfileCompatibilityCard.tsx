@@ -7,7 +7,7 @@
  * detail is not yet surfaced through the matchmaking API) on the right.
  * Below: numbered "Why we matched you" reasons + optional caveat.
  */
-import { Sparkles, AlertCircle, Info } from 'lucide-react';
+import { Sparkles, AlertCircle, Info, Lock } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { CompatibilityScore, MatchExplainer } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
@@ -42,15 +42,15 @@ function gunaBand(score: number): 'review' | 'good' | 'veryGood' | 'excellent' {
   return 'excellent';
 }
 
-const DIMENSION_LABELS: Record<keyof CompatibilityScore['breakdown'], string> = {
-  demographicAlignment:   'Demographics',
-  lifestyleCompatibility: 'Lifestyle',
-  careerEducation:        'Career & Education',
-  familyValues:           'Family Values',
-  preferenceOverlap:      'Preferences',
-  personalityFit:         'Personality',
-  behaviourCompatibility: 'Behaviour',
-};
+const DIMENSION_KEYS: ReadonlyArray<keyof CompatibilityScore['breakdown']> = [
+  'demographicAlignment',
+  'lifestyleCompatibility',
+  'careerEducation',
+  'familyValues',
+  'preferenceOverlap',
+  'personalityFit',
+  'behaviourCompatibility',
+];
 
 function pctColor(pct: number): string {
   if (pct >= 80) return 'var(--color-teal)';
@@ -153,7 +153,10 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-heading text-base font-semibold text-primary">{t('guna.title')}</h3>
             {gunaCalculating ? (
-              <span className="text-2xs italic text-muted-foreground">{t('guna.calculating')}</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-0.5 text-2xs font-semibold text-warning">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning" aria-hidden="true" />
+                {t('guna.calculating')}
+              </span>
             ) : gunaScore != null ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-teal/30 bg-teal/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-teal">
                 {t('guna.score', { score: gunaScore, band: t(`guna.bands.${gunaBand(gunaScore)}`) })}
@@ -172,40 +175,58 @@ export async function ProfileCompatibilityCard({ compatibility, explainer, viewe
             </Link>
           ) : (
             <div className="space-y-2.5">
-              {(Object.entries(breakdown) as [keyof typeof breakdown, { score: number; max: number; coldStart?: boolean }][]).map(
-                ([key, factor]) => {
-                  if (key === 'behaviourCompatibility' && factor.coldStart) return null;
-                  const pct = factor.max > 0 ? (factor.score / factor.max) * 100 : 0;
-                  return (
-                    <DimensionBar
-                      key={key}
-                      label={DIMENSION_LABELS[key] ?? key}
-                      score={factor.score}
-                      max={factor.max}
-                      lowFlag={pct < 40}
-                    />
-                  );
-                }
-              )}
+              {DIMENSION_KEYS.map((key) => {
+                const factor = breakdown[key] as { score: number; max: number; coldStart?: boolean } | undefined;
+                if (!factor) return null;
+                if (key === 'behaviourCompatibility' && factor.coldStart) return null;
+                const pct = factor.max > 0 ? (factor.score / factor.max) * 100 : 0;
+                return (
+                  <DimensionBar
+                    key={key}
+                    label={t(`dimensions.${key}` as 'dimensions.demographicAlignment')}
+                    score={factor.score}
+                    max={factor.max}
+                    lowFlag={pct < 40}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
-      {/* Why we matched you — numbered list */}
+      {/* Why we matched you — numbered list. When locked, the real reasons are
+          NEVER rendered (a CSS blur would leave paid content readable in the
+          DOM); deliberate lock rows stand in instead. */}
       {reasons.length > 0 && (
         <div className="border-t border-gold/10 px-5 py-5">
           <h3 className="font-heading text-base font-semibold text-primary">{t('whyMatched.title')}</h3>
-          <ol className={`mt-3 space-y-2.5 ${reasonsLocked ? 'pointer-events-none select-none blur-sm' : ''}`}>
-            {reasons.slice(0, 3).map((reason, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 font-heading text-xs font-bold text-gold-muted">
-                  {i + 1}
-                </span>
-                <span className="font-heading text-sm italic leading-relaxed text-foreground">{reason}</span>
-              </li>
-            ))}
-          </ol>
+          {reasonsLocked ? (
+            <ol className="mt-3 space-y-2.5" aria-hidden="true">
+              {reasons.slice(0, 3).map((_, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 font-heading text-xs font-bold text-gold-muted">
+                    {i + 1}
+                  </span>
+                  <span className="flex h-4 flex-1 items-center gap-2">
+                    <Lock className="h-3.5 w-3.5 shrink-0 text-gold-muted/70" aria-hidden="true" />
+                    <span className={`h-2.5 rounded-full bg-gold/15 ${i === 0 ? 'w-3/4' : i === 1 ? 'w-2/3' : 'w-4/5'}`} />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <ol className="mt-3 space-y-2.5">
+              {reasons.slice(0, 3).map((reason, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 font-heading text-xs font-bold text-gold-muted">
+                    {i + 1}
+                  </span>
+                  <span className="font-heading text-sm italic leading-relaxed text-foreground">{reason}</span>
+                </li>
+              ))}
+            </ol>
+          )}
           {reasonsLocked && (
             <div className="mt-3">
               <UpgradeCTA

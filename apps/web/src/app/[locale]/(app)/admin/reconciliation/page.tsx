@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -10,6 +11,12 @@ import { FadeUp } from '@/components/shared/FadeUp.client';
 import { ReconciliationTableClient } from './ReconciliationTableClient.client';
 
 interface AuthMe { userId: string; role: string; status: string }
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'adminRole' });
+  return { title: `${t('navTiles.reconciliation.label')} — Admin | Smart Shaadi` };
+}
 
 interface Discrepancy {
   id: string;

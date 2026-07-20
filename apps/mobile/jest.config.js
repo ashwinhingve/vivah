@@ -27,6 +27,10 @@ module.exports = {
   // under parallelism is a scheduling artifact, not a failing test, and it is
   // not worth the hours it costs to re-diagnose next time.
   maxWorkers: 2,
+  // Same scheduling artifact as above on CI's 2-core runners: React-Query
+  // screens that pass in ~0.6s alone exceed the default 5s under load. Matches
+  // the 15s headroom the api's vitest config settled on.
+  testTimeout: 15000,
   setupFiles: [...(require('jest-expo/ios/jest-preset').setupFiles ?? []), '<rootDir>/jest.setup.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],

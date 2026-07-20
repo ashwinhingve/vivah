@@ -50,13 +50,9 @@ export function DesktopFilterSidebar({ maritalPrefs, filters, onFiltersChange, a
           <p className="mt-0.5 text-xs text-muted-foreground">{t('filtersSubtitle')}</p>
         </div>
 
-        {/* Marital status — persisted to server via existing Server Action */}
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t('maritalStatus')}
-          </p>
-          <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
-        </div>
+        {/* Marital status — persisted to server via existing Server Action.
+            The toggle renders its own section label. */}
+        <MaritalStatusFilterToggle initialPrefs={maritalPrefs} />
 
         <hr className="border-border" />
 

@@ -10,8 +10,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PhotoFallback } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { resolvePhotoUrl } from '@/lib/photo';
+import { ShortlistRemoveButton } from './ShortlistRemoveButton.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<import('next').Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'shortlist.metadata' });
+  return { title: t('title') };
+}
 
 interface ShortlistItem {
   id:                 string;
@@ -107,6 +114,17 @@ export default async function ShortlistPage() {
                       </span>
                     ) : null}
                   </Link>
+                  {item.note ? (
+                    <p className="px-3 pt-2 text-xs italic text-muted-foreground line-clamp-2">
+                      &ldquo;{item.note}&rdquo;
+                    </p>
+                  ) : null}
+                  <div className="flex gap-2 p-3">
+                    <Button asChild size="sm" className="min-h-[44px] flex-1">
+                      <Link href={`/profiles/${item.targetProfileId}`}>{t('viewProfile')}</Link>
+                    </Button>
+                    <ShortlistRemoveButton targetProfileId={item.targetProfileId} name={name} />
+                  </div>
                 </Card>
               );
             })}

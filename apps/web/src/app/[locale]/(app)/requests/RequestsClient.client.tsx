@@ -14,6 +14,7 @@ import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import { resolvePhotoUrl } from '@/lib/photo';
+import { useToast } from '@/components/ui/toast';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -353,7 +354,7 @@ const RequestCard = memo(function RequestCard({ r, side, busy, onAccept, onDecli
             {[r.age && `${r.age}y`, r.city].filter(Boolean).join(' · ') || 'Profile details hidden'}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-xs text-muted-foreground">{timeAgo(r.createdAt)}</p>
+            <p className="text-xs text-muted-foreground">{`Sent ${timeAgo(r.createdAt)}`}</p>
             {lastActive && (
               <>
                 <span className="text-muted-foreground/40">·</span>
@@ -541,6 +542,7 @@ interface RequestsClientProps {
 
 export function RequestsClient({ initialReceived, initialSent }: RequestsClientProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [tab, setTab] = useState<'received' | 'sent'>('received');
   const [received, setReceived] = useState<EnrichedMatchRequest[]>(initialReceived);
   const [sent,     setSent]     = useState<EnrichedMatchRequest[]>(initialSent);
@@ -611,11 +613,12 @@ export function RequestsClient({ initialReceived, initialSent }: RequestsClientP
         body: JSON.stringify({ welcomeMessage }),
       });
       if (!res.ok) throw new Error('Failed');
+      toast(`It's a match! Say hello to ${r.name ?? 'your match'} in Chats`, 'success');
     } catch {
       setReceived(prev);
       flashError(r.id, 'Could not accept — please try again');
     } finally { setBusy(r.id, false); }
-  }, [received]);
+  }, [received, toast]);
 
   const handleDecline = useCallback(async (r: EnrichedMatchRequest, reason: string | null) => {
     setBusy(r.id, true);

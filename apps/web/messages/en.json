@@ -250,7 +250,32 @@
     "pricing": {
       "sectionHeading": "Start Free. Upgrade When Ready.",
       "freePlanName": "Free Forever",
-      "premiumPlanName": "Smart Shaadi Premium"
+      "premiumPlanName": "Smart Shaadi Premium",
+      "eyebrow": "Pricing",
+      "subtext": "No credit card. No auto-charges. Cancel anytime.",
+      "freePriceNote": "No credit card required",
+      "perMonth": "/month",
+      "mostPopular": "Most Popular",
+      "quarterlyNote": "{amount} for 3 months (save {percent}%)",
+      "freeCta": "Get Started Free",
+      "premiumCta": "Choose Premium",
+      "freeFeatures": [
+        "Create complete profile",
+        "View 5 matches per day",
+        "Basic Guna Milan score",
+        "Send 3 interests per week",
+        "Safety Mode included"
+      ],
+      "premiumFeatures": [
+        "Unlimited daily matches",
+        "Full 8-factor Guna Milan breakdown",
+        "Send unlimited interests",
+        "AI Conversation Coach",
+        "Family Compatibility Mode",
+        "Video calls & private chat",
+        "Priority support",
+        "Wedding planning suite (coming soon)"
+      ]
     },
     "cta": {
       "eyebrow": "India's Smartest Matrimonial Platform",
@@ -418,7 +443,15 @@
       "city": "City",
       "filtersTitle": "Filters",
       "filtersSubtitle": "Refine your match feed",
-      "maritalStatus": "Marital Status"
+      "maritalStatus": "Marital Status",
+      "includeDivorcees": "Include divorcees",
+      "includeDivorceesDesc": "Show profiles of people who are divorced or separated",
+      "includeDivorceesAria": "Include divorcees in match feed",
+      "includeWidows": "Include widows / widowers",
+      "includeWidowsDesc": "Show profiles of people who have lost a spouse",
+      "includeWidowsAria": "Include widows and widowers in match feed",
+      "savingPreference": "Saving preference…",
+      "couldNotSave": "Could not save preference"
     },
     "recommended": "Recommended",
     "wantMoreTitle": "Want more matches?",
@@ -530,14 +563,41 @@
       "lifestyle": "Lifestyle",
       "horoscope": "Horoscope",
       "preferences": "Preferences"
-    }
+    },
+    "dimensions": {
+      "demographicAlignment": "Demographics",
+      "lifestyleCompatibility": "Lifestyle",
+      "careerEducation": "Career & Education",
+      "familyValues": "Family Values",
+      "preferenceOverlap": "Preferences",
+      "personalityFit": "Personality",
+      "behaviourCompatibility": "Behaviour"
+    },
+    "similarTitle": "You may also like"
   },
   "onboarding": {
     "personal": {
       "metadata": {
         "title": "Personal Details — Smart Shaadi"
       },
-      "heading": "Tell us about yourself"
+      "heading": "Tell us about yourself",
+      "description": "Let's start with the essentials. This helps us find your best matches.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Your full name",
+      "dateOfBirth": "Date of Birth",
+      "maritalStatus": "Marital Status",
+      "gender": "Gender",
+      "height": "Height",
+      "religion": "Religion",
+      "motherTongue": "Mother Tongue",
+      "currentCity": "Current City",
+      "currentCityPlaceholder": "e.g. Pune",
+      "state": "State",
+      "aboutMe": "About Me",
+      "aboutMePlaceholder": "Share a little about yourself, your interests, and what you're looking for…",
+      "sexualOrientationPrivate": "Sexual orientation (private)",
+      "orientationVisible": "Show on my public profile",
+      "orientationStorageNote": "Stored on your profile but never visible to other users unless you toggle it below."
     },
     "family": {
       "metadata": {
@@ -597,7 +657,9 @@
       "siblingNamePh": "Name",
       "siblingOccupationPh": "Occupation",
       "married": "Married",
-      "remove": "Remove"
+      "remove": "Remove",
+      "description": "Help matches understand your family values and structure.",
+      "caste": "Caste"
     },
     "nri": {
       "metadata": {
@@ -621,6 +683,92 @@
       "relocationTimeline": "Relocation Timeline",
       "relocationTimelineHint": "e.g., Open to moving within 2 years",
       "yearsAbroad": "Years Living Abroad"
+    },
+    "common": {
+      "stepOf": "Step {current} of {total}",
+      "progress": "{percent}%",
+      "backButton": "Back",
+      "continueButton": "Continue",
+      "saveButton": "Save & Continue",
+      "skipButton": "Skip for now",
+      "savingLabel": "Saving…"
+    },
+    "career": {
+      "heading": "Career & Education",
+      "description": "Share your professional journey and educational background.",
+      "education": "Education",
+      "collegeName": "College Name",
+      "occupation": "Occupation",
+      "company": "Company",
+      "salary": "Annual Income (optional)",
+      "salaryNote": "This helps surface you to compatible matches with aligned life plans."
+    },
+    "lifestyle": {
+      "heading": "Lifestyle & Interests",
+      "description": "Express yourself through your interests and daily habits.",
+      "diet": "Diet Preference",
+      "smoking": "Smoking",
+      "drinking": "Drinking",
+      "hobbies": "Hobbies (select all that apply)",
+      "languages": "Languages Spoken",
+      "personalityTags": "Your Personality Tags",
+      "personalityTagsNote": "These help surface you to compatible matches",
+      "fitness": "Fitness Level"
+    },
+    "preferences": {
+      "heading": "Partner Preferences",
+      "description": "What are you looking for in a life partner?",
+      "ageRange": "Age Range: {min} – {max} years",
+      "heightRange": "Height Range: {min}cm – {max}cm",
+      "maritalStatus": "Marital Status",
+      "religion": "Religion Preference",
+      "advancedFilters": "Advanced Filters",
+      "basicPreferences": "Basic Preferences",
+      "manglik": "Manglik Preference",
+      "diet": "Diet Preference",
+      "openToInterfaith": "Open to Interfaith Marriage",
+      "openToInterCaste": "Open to Inter-Caste Marriage",
+      "partnerDescription": "Describe Your Ideal Partner",
+      "partnerDescriptionPlaceholder": "Describe qualities you're looking for in a life partner…",
+      "characterCount": "{current}/1000"
+    },
+    "horoscope": {
+      "heading": "Horoscope Details",
+      "description": "Help us find your most compatible match.",
+      "astrologicalDetails": "Astrological Details",
+      "birthInformation": "Birth Information",
+      "rashi": "Rashi",
+      "rashiLabel": "Rashi (Moon Sign)",
+      "nakshatra": "Nakshatra",
+      "nakshatraLabel": "Nakshatra (Birth Star)",
+      "manglikStatus": "Manglik Status",
+      "dateOfBirth": "Date of Birth",
+      "timeOfBirth": "Time of Birth",
+      "timeOfBirthNote": "(HH:MM)",
+      "placeOfBirth": "Place of Birth",
+      "placeOfBirthPlaceholder": "e.g. Pune",
+      "kundliChart": "Kundli Chart Upload",
+      "kundliChartNote": "Coming soon — upload your birth chart PDF or image",
+      "gunaMilanScore": "Guna Milan Score",
+      "gunaMilanScoreNote": "Your compatibility score will appear once both profiles are complete"
+    },
+    "photos": {
+      "heading": "Add Your Photos",
+      "description": "Your main photo is the first thing a potential match sees",
+      "uploadPhotos": "Upload Photos",
+      "dragAndDrop": "Drag and drop photos here or click to browse",
+      "maxFiles": "You can upload up to 6 photos",
+      "mainPhotoTip": "Make your first photo clear and recent with good lighting",
+      "continueButton": "Continue to Complete"
+    },
+    "complete": {
+      "greatHeadline": "Your profile is looking great!",
+      "almostHeadline": "Almost there!",
+      "greatSubtitle": "Complete profiles get 3× more responses",
+      "almostSubtitle": "Complete a few more sections to attract better matches",
+      "profileComplete": "complete",
+      "completeTheseSections": "Complete these sections",
+      "goToDashboard": "Go to Dashboard"
     }
   },
   "nri": {
@@ -701,6 +849,32 @@
       "read": "Read",
       "delivered": "Delivered",
       "sent": "Sent"
+    },
+    "emptyState": {
+      "title": "Start the conversation",
+      "subtitle": "Say hello and begin your journey together",
+      "beginningOfConversation": "Beginning of conversation"
+    },
+    "typing": "{name} is typing",
+    "presence": {
+      "online": "Online now",
+      "lastSeen": "Last seen {time}",
+      "offline": "Offline"
+    },
+    "smartReplies": {
+      "thinking": "Thinking…"
+    },
+    "menu": {
+      "mediaFiles": "Media & files",
+      "aiCoach": "AI coach",
+      "pinChat": "Pin to top",
+      "unpinChat": "Unpin chat",
+      "muteNotifications": "Mute notifications",
+      "unmuteNotifications": "Unmute notifications",
+      "archiveChat": "Archive chat",
+      "unarchiveChat": "Unarchive",
+      "report": "Report",
+      "blockAndExit": "Block & exit"
     }
   },
   "chats": {
@@ -883,25 +1057,138 @@
       "metadata": {
         "title": "Wedding Overview — Smart Shaadi"
       },
-      "heading": "Wedding Overview"
+      "heading": "Wedding Overview",
+      "quickActions": "Quick actions",
+      "upcomingCeremonies": "Upcoming ceremonies",
+      "allCeremonies": "All ceremonies",
+      "fullTimeline": "Full timeline",
+      "recentActivity": "Recent activity",
+      "auspiciousDates": "Auspicious dates",
+      "dateSelected": "Date selected",
+      "budgetSpent": "Budget spent",
+      "budgetSpentSub": "no budget set",
+      "guests": "Guests",
+      "guestsSub": "on the list",
+      "ceremonies": "Ceremonies",
+      "ceremoniesSub": "planned",
+      "tasksDone": "Tasks done",
+      "tasksDoneSub": "complete",
+      "selectDate": "Select",
+      "selectedBadge": "✓ Selected",
+      "noCeremoniesTitle": "No ceremonies added yet",
+      "noCeremoniesDesc": "Add ceremonies to build out your wedding-day timeline."
     },
     "guests": {
       "metadata": {
         "title": "Guest List — Smart Shaadi"
       },
-      "heading": "Guest List"
+      "heading": "Guest List",
+      "subtitle": "Manage guest list, RSVPs, invitations, analytics, and check-in.",
+      "addGuest": "Add Guest",
+      "importCsv": "Import CSV",
+      "exportCsv": "Export CSV",
+      "tabs": {
+        "list": "List",
+        "analytics": "Analytics",
+        "checkIn": "Check-in",
+        "questions": "Questions",
+        "seating": "Seating"
+      },
+      "stats": {
+        "totalGuests": "Total Guests",
+        "confirmed": "Confirmed",
+        "declined": "Declined",
+        "awaitingRsvp": "Awaiting RSVP"
+      },
+      "rsvpSummary": "RSVP Summary",
+      "mealPreferences": "Meal Preferences",
+      "guestList": "Guest List",
+      "guestListSubtitle": "sort, filter, and manage RSVPs",
+      "errorLoad": "Could not load guests. Please try again.",
+      "form": {
+        "name": "Full name *",
+        "relationship": "Relationship (e.g. Cousin)",
+        "phone": "Phone",
+        "email": "Email",
+        "side": "Side",
+        "sideBride": "Bride's side",
+        "sideGroom": "Groom's side",
+        "sideBoth": "Both",
+        "mealPref": "Meal preference",
+        "mealVeg": "Veg",
+        "mealNonVeg": "Non-Veg",
+        "mealJain": "Jain",
+        "mealVegan": "Vegan",
+        "mealEggetarian": "Eggetarian",
+        "mealNoPreference": "No preference",
+        "submit": "Add Guest",
+        "cancel": "Cancel"
+      },
+      "table": {
+        "searchPlaceholder": "Search guests…",
+        "addButtonLabel": "Add Guest",
+        "importLabel": "Import CSV",
+        "exportLabel": "Export CSV",
+        "nameColumn": "Name",
+        "relationshipColumn": "Relationship",
+        "sideColumn": "Side",
+        "rsvpColumn": "RSVP",
+        "mealColumn": "Meal",
+        "actionsColumn": "Actions",
+        "noGuests": "No guests added yet.",
+        "noGuestsMatch": "No guests match your search.",
+        "rsvpStatuses": {
+          "YES": "Attending",
+          "NO": "Declined",
+          "MAYBE": "Maybe",
+          "PENDING": "Pending"
+        },
+        "edit": "Edit",
+        "delete": "Delete"
+      }
     },
     "tasks": {
       "metadata": {
         "title": "Wedding Tasks — Smart Shaadi"
       },
-      "heading": "Wedding Tasks"
+      "heading": "Wedding Tasks",
+      "subtitle": "Drag tasks through the pipeline or use the arrows to move them.",
+      "form": {
+        "title": "Task title *",
+        "dueDate": "Due date (optional)",
+        "priority": "Priority",
+        "priorityLow": "Low",
+        "priorityMedium": "Medium",
+        "priorityHigh": "High",
+        "submit": "Add to list",
+        "creating": "Adding…"
+      }
     },
     "new": {
       "metadata": {
         "title": "Plan Your Wedding — Smart Shaadi"
       },
-      "heading": "Plan Your Wedding"
+      "heading": "Plan Your Wedding",
+      "subtitle": "Fill in the basics — you can update everything later.",
+      "back": "Back to Weddings",
+      "form": {
+        "weddingName": "Wedding Name",
+        "weddingNamePlaceholder": "e.g. Priya & Rahul",
+        "weddingNameHelp": "The couple or event title — separate from the venue.",
+        "weddingDate": "Wedding Date",
+        "weddingDateHelp": "Must be a future date.",
+        "venueName": "Venue Name",
+        "venuePlaceholder": "e.g. The Grand Palace Banquet",
+        "venueCity": "City",
+        "venueCityPlaceholder": "e.g. Mumbai",
+        "venueAddress": "Venue Address",
+        "venueAddressLabel": "Venue Address (optional)",
+        "budgetTotal": "Budget",
+        "budgetHelp": "Total estimated cost for the wedding.",
+        "submit": "Create Wedding Plan",
+        "creating": "Creating…",
+        "errorGeneric": "Could not create wedding. Please check your details and try again."
+      }
     },
     "invite": {
       "builder": {
@@ -984,7 +1271,9 @@
       "vendorCheckedIn": "Checked In",
       "noVendors": "No timeline events with vendors assigned.",
       "noIncidents": "No incidents reported. Smooth sailing.",
-      "percentage": "{percent}% checked in"
+      "percentage": "{percent}% checked in",
+      "subtitle": "Real-time updates and ceremony coordination.",
+      "loadError": "The day-of snapshot could not be loaded. Check your access to this wedding."
     },
     "incidents": {
       "metadata": {
@@ -1124,6 +1413,83 @@
         "submitting": "Saving…",
         "cancel": "Cancel",
         "windowError": "Departure must be on or after arrival."
+      }
+    },
+    "budget": {
+      "metadata": {
+        "title": "Budget — Smart Shaadi"
+      },
+      "heading": "Budget",
+      "spendByCategory": "Spend by Category",
+      "categoryBreakdown": "Category Breakdown",
+      "breakdownSubtitle": "Edit allocated and spent amounts inline",
+      "totalBudget": "Total Budget",
+      "remaining": "Remaining",
+      "spent": "Spent",
+      "noPlan": "No wedding plan found.",
+      "noPlanDesc": "Create a wedding plan first to track your budget.",
+      "tabs": {
+        "tasks": "Tasks",
+        "budget": "Budget",
+        "guests": "Guests"
+      }
+    },
+    "timeline": {
+      "metadata": {
+        "title": "Day-of Schedule — Smart Shaadi"
+      },
+      "heading": "Day-of Schedule",
+      "subtitle": "Build out your day's timeline and assign vendors.",
+      "autoGenerate": "Auto-generate",
+      "generateFromCeremonies": "Generate from your ceremonies",
+      "noEvents": "No schedule events yet.",
+      "addCeremoniesFirst": "Add ceremonies first, then auto-generate a schedule.",
+      "addEvent": "Add event",
+      "form": {
+        "title": "Title *",
+        "date": "Date *",
+        "ceremony": "Ceremony",
+        "ceremonyNone": "— None —",
+        "startTime": "Start *",
+        "endTime": "End",
+        "location": "Location",
+        "description": "Description",
+        "submit": "Add to schedule"
+      }
+    },
+    "ceremonies": {
+      "metadata": {
+        "title": "Ceremonies — Smart Shaadi"
+      },
+      "heading": "Ceremonies",
+      "subtitle": "Plan and track every ceremony event",
+      "addNewCeremony": "Add New Ceremony",
+      "noCeremoniesTitle": "No ceremonies yet",
+      "noCeremoniesDesc": "Add your first ceremony above — Haldi, Mehndi, Sangeet, Wedding, or a custom name.",
+      "form": {
+        "ceremonyType": "Ceremony Type *",
+        "ceremonyName": "Ceremony Name",
+        "ceremonyNamePlaceholder": "e.g. Manda",
+        "date": "Date",
+        "startTime": "Start Time",
+        "venue": "Venue",
+        "notes": "Notes",
+        "submit": "Save Changes"
+      },
+      "ceremony": {
+        "labels": {
+          "HALDI": "Haldi",
+          "MEHNDI": "Mehndi",
+          "SANGEET": "Sangeet",
+          "WEDDING": "Wedding",
+          "RECEPTION": "Reception",
+          "ENGAGEMENT": "Engagement",
+          "OTHER": "Other"
+        },
+        "completed": "Completed",
+        "daysAway": "{days}d away",
+        "dressCode": "Dress code:",
+        "expectedGuests": "~{count} guests expected"
       }
     }
   },
@@ -2142,7 +2508,15 @@
     "heading": "Your Shortlist",
     "subtitleCount": "{count} profile{count, plural, one {} other {s}} you're considering",
     "subtitleEmpty": "Save profiles you want to revisit",
-    "exploreCta": "Explore Matches"
+    "exploreCta": "Explore Matches",
+    "metadata": {
+      "title": "Your Shortlist — Smart Shaadi"
+    },
+    "viewProfile": "View profile",
+    "removeLabel": "Remove",
+    "removeAria": "Remove {name} from shortlist",
+    "removed": "{name} removed from your shortlist",
+    "removeFailed": "Could not remove — please try again"
   },
   "viewers": {
     "heading": "Who viewed you",
@@ -3047,7 +3421,57 @@
     },
     "detail": {
       "placeholderNotice": "This is preview inventory — we're confirming this vendor as a partner. Send an enquiry to check availability and we'll follow up with details.",
-      "placeholderTitle": "Preview listing"
+      "placeholderTitle": "Preview listing",
+      "title": "Vendor Profile",
+      "bookNow": "Book Now",
+      "inquire": "Send Inquiry",
+      "about": "About",
+      "contact": "Contact",
+      "availability": "Availability",
+      "portfolio": "Portfolio",
+      "reviews": "Reviews",
+      "contactPlaceholder": "Use the inquiry button above to reach this vendor",
+      "yearsActive": "{years}+ years",
+      "replyTime": "Replies in ~{hours}h",
+      "pricing": "Pricing",
+      "topRated": "⭐ Top Rated",
+      "affordable": "💰 Affordable",
+      "verifiedBadge": "Verified",
+      "reviewOne": "review",
+      "reviewOther": "reviews"
+    },
+    "list": {
+      "title": "Find Wedding Vendors",
+      "subtitle": "Discover photographers, caterers, decorators and more",
+      "vendor_one": "vendor",
+      "vendor_other": "vendors",
+      "found": "{total} {plural} found",
+      "cta": "View Profile",
+      "saveFavorite": "❤ Saved",
+      "noResults": "No vendors found",
+      "noResultsDescription": "Try adjusting your filters or exploring a nearby city",
+      "loadError": "Could not load vendors. Please try again",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageOf": "Page {current}"
+    },
+    "filters": {
+      "searchPlaceholder": "Search vendors...",
+      "category": "Category",
+      "city": "City",
+      "state": "State",
+      "priceRange": "Price Range",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "rating": "Rating & Up",
+      "verifiedOnly": "Verified Only",
+      "sort": "Sort",
+      "sortNewest": "Newest",
+      "sortRating": "Highest Rated",
+      "sortPrice": "Price: Low to High",
+      "apply": "Apply Filters",
+      "clear": "Clear All",
+      "activeCount": "{count} filter{plural}"
     }
   },
   "likes": {
@@ -3058,7 +3482,10 @@
     "emptyDescription": "Keep your profile complete and active — likes tend to follow.",
     "exploreCta": "Explore matches",
     "lockedFeature": "Premium feature",
-    "lockedMessage": "Upgrade to see everyone who has liked your profile."
+    "lockedMessage": "Upgrade to see everyone who has liked your profile.",
+    "metadata": {
+      "title": "Who Liked You — Smart Shaadi"
+    }
   },
   "smartSuggestions": {
     "title": "Smart Suggestions",
@@ -3215,5 +3642,207 @@
   },
   "billingSavings": {
     "savingsLabel": "Save ₹{amount} ({percent}%) vs paying monthly"
+  },
+  "requests": {
+    "metadata": {
+      "title": "Match Requests — Smart Shaadi"
+    }
+  },
+  "admin": {
+    "settings": {
+      "label": "Settings"
+    },
+    "audit": {
+      "label": "Audit Log"
+    }
+  },
+  "store": {
+    "list": {
+      "title": "Wedding Store",
+      "subtitle": "Gifts, trousseau, ethnic wear & more",
+      "allProducts": "All Products",
+      "productCount": "{count}",
+      "featured": "Featured",
+      "noResults": "No products found",
+      "noResultsDescription": "Try adjusting your filters or browsing a different category",
+      "loadError": "Could not load products. Please try again",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageOf": "Page {current} of {total}"
+    },
+    "productCard": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "lowStock": "Low Stock",
+      "featured": "Featured",
+      "viewDetails": "View Details",
+      "discount": "{percent}% off"
+    },
+    "productDetail": {
+      "title": "Product Details",
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "quantity": "Quantity",
+      "available": "Available",
+      "description": "Description",
+      "relatedProducts": "Related Products",
+      "reviews": "Reviews",
+      "backToStore": "Store",
+      "stock_low": "Low Stock ({qty} left)",
+      "comparePrice": "Compare at ₹{price}"
+    },
+    "cart": {
+      "title": "Your Cart",
+      "empty": "Your cart is empty",
+      "emptyDescription": "Browse our store to find the perfect items",
+      "continueShopping": "Continue Shopping",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "itemOne": "item",
+      "itemOther": "items",
+      "removeItem": "Remove",
+      "updateQuantity": "Update",
+      "priceChange": "Price may change at checkout"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "customerInfo": "Delivery Address",
+      "orderSummary": "Order Summary",
+      "paymentMethod": "Payment Method",
+      "placeOrder": "Place Order",
+      "processing": "Processing payment...",
+      "termsAccept": "I agree to the terms and conditions",
+      "backToCart": "Back to Cart",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total",
+      "paymentFailed": "Payment could not be processed",
+      "tryAgain": "Please try again or use a different payment method"
+    },
+    "categoryFilter": {
+      "allCategories": "All Categories",
+      "gifts": "Gifts",
+      "trousseau": "Trousseau",
+      "ethnicWear": "Ethnic Wear",
+      "jewelry": "Jewelry",
+      "decor": "Decor",
+      "other": "Other"
+    }
+  },
+  "rentals": {
+    "list": {
+      "title": "Rent for Your Wedding",
+      "subtitle": "Browse decor, costumes, AV equipment and more",
+      "noResults": "No items found",
+      "noResultsDescription": "Try adjusting your filters or exploring a different category",
+      "noResultsFilter": "No {category} items available for your selected dates",
+      "loadError": "Failed to load rental items",
+      "loadErrorDescription": "Please refresh the page or try again later",
+      "itemOne": "item",
+      "itemOther": "items",
+      "available": "Available",
+      "dateRange": "{from} – {to}",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageOf": "Page {current}"
+    },
+    "rentalCard": {
+      "viewAndBook": "View & Book",
+      "pricePerDay": "/day",
+      "limited": "Limited ({qty} left)",
+      "decor": "Decor",
+      "costume": "Costume",
+      "avEquipment": "AV Equipment",
+      "furniture": "Furniture",
+      "lighting": "Lighting",
+      "tableware": "Tableware",
+      "other": "Other"
+    },
+    "rentalDetail": {
+      "title": "Rental Details",
+      "bookNow": "Book Now",
+      "availability": "Availability",
+      "terms": "Rental Terms",
+      "pricePerDay": "₹{price}/day",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "totalDays": "{days} days",
+      "totalPrice": "Total Price",
+      "deposit": "Deposit",
+      "backToRentals": "Back to Rentals",
+      "description": "Description"
+    },
+    "categoryTabs": {
+      "all": "All",
+      "decor": "Decor",
+      "costume": "Costume",
+      "avEquipment": "AV Equipment",
+      "furniture": "Furniture",
+      "lighting": "Lighting",
+      "tableware": "Tableware",
+      "other": "Other"
+    }
+  },
+  "bookings": {
+    "list": {
+      "title": "My Bookings",
+      "subtitle": "Track bookings, reschedule, and manage events",
+      "asCustomer": "As Customer",
+      "asVendor": "As Vendor",
+      "noBookings": "No bookings here",
+      "noBookingsDescription": "Try a different filter or browse vendors to make your first booking",
+      "exploreVendors": "Explore Vendors",
+      "allTime": "All time",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "disputed": "Disputed",
+      "rescheduleNeeded": "Reschedule pending",
+      "reviewPending": "Review pending",
+      "escrow": "Escrow",
+      "view": "View",
+      "bookingDate": "Booking Date"
+    },
+    "bookingDetail": {
+      "title": "Booking Details",
+      "vendorInfo": "Vendor Information",
+      "bookingInfo": "Booking Information",
+      "eventDate": "Event Date",
+      "eventTime": "Event Time",
+      "status": "Status",
+      "totalAmount": "Total Amount",
+      "escrowAmount": "Escrow Amount",
+      "packageName": "Package",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel Booking",
+      "contactVendor": "Contact Vendor",
+      "writeReview": "Write Review",
+      "approveReschedule": "Approve Reschedule",
+      "backToBookings": "Back to Bookings"
+    }
+  },
+  "trust": {
+    "verifiedBadge": "Verified",
+    "previewBadge": "Preview",
+    "topRatedBadge": "Top Rated",
+    "affordableBadge": "Affordable",
+    "inStockBadge": "In Stock",
+    "outOfStockBadge": "Out of Stock",
+    "lowStockBadge": "Low Stock",
+    "limitedBadge": "Limited",
+    "availableBadge": "Available",
+    "secureCheckout": "Secure Checkout",
+    "encryptedPayment": "Encrypted Payment",
+    "moneyBackGuarantee": "Money Back Guarantee",
+    "escrowProtection": "Escrow Protected",
+    "instantConfirmation": "Instant Confirmation"
   }
 }

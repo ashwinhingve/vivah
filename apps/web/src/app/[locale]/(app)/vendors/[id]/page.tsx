@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -65,14 +66,37 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <span className="inline-flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: full }).map((_, i) => (
-        <Star key={`f${i}`} className="h-4 w-4 fill-amber-400 text-warning/80" aria-hidden="true" />
+        <Star key={`f${i}`} className="h-4 w-4 fill-gold text-gold" aria-hidden="true" />
       ))}
-      {half ? <StarHalf className="h-4 w-4 fill-amber-400 text-warning/80" aria-hidden="true" /> : null}
+      {half ? <StarHalf className="h-4 w-4 fill-gold text-gold" aria-hidden="true" /> : null}
       {Array.from({ length: empty }).map((_, i) => (
         <Star key={`e${i}`} className="h-4 w-4 text-border" aria-hidden="true" />
       ))}
     </span>
   );
+}
+
+
+export async function generateMetadata(
+  { params }: PageProps,
+): Promise<Metadata> {
+  const { id } = await params;
+  const vendor = await fetchVendor(id, '');
+  
+  if (!vendor) {
+    return {
+      title: 'Vendor Not Found',
+      description: 'This vendor profile could not be found.',
+    };
+  }
+
+  return {
+    title: `${vendor.businessName} — ${vendor.category} in ${vendor.city} | Smart Shaadi`,
+    description:
+      vendor.tagline ||
+      vendor.description?.substring(0, 160) ||
+      `Hire ${vendor.businessName} for your wedding events.`,
+  };
 }
 
 export default async function VendorDetailPage({ params }: PageProps) {

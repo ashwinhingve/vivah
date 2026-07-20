@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client'
 import { Link } from '@/i18n/navigation';
 import {
@@ -40,6 +41,7 @@ export default function ChatHeader({
   matchId, initialOther, onSearchToggle, onMediaToggle, presence,
   initialMuted = false, initialArchived = false, initialPinned = false,
 }: ChatHeaderProps) {
+  const t = useTranslations('chat')
   const [menuOpen, setMenuOpen] = useState(false)
   const [muted, setMuted] = useState(initialMuted)
   const [archived, setArchived] = useState(initialArchived)
@@ -65,8 +67,8 @@ export default function ChatHeader({
   const lastSeenAt = presence?.lastSeenAt ?? initialOther?.lastSeenAt ?? null
 
   const subtitle = isOnline
-    ? 'Online now'
-    : lastSeenAt ? `Last seen ${formatLastSeen(lastSeenAt)}` : 'Offline'
+    ? t('presence.online')
+    : lastSeenAt ? t('presence.lastSeen', { time: formatLastSeen(lastSeenAt) }) : t('presence.offline')
 
   async function patchSettings(body: Record<string, unknown>): Promise<boolean> {
     if (busy) return false
@@ -150,7 +152,7 @@ export default function ChatHeader({
       <Link
         href="/chats"
         aria-label="Back to chats"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background -ml-1"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background -ml-1"
       >
         <ArrowLeft className="h-5 w-5" />
       </Link>
@@ -230,38 +232,38 @@ export default function ChatHeader({
           >
             <MenuItem
               icon={<ImageIcon className="h-4 w-4" />}
-              label="Media & files"
+              label={t('menu.mediaFiles')}
               onClick={() => { onMediaToggle(); setMenuOpen(false) }}
             />
             <MenuItem
               icon={<Lightbulb className="h-4 w-4" />}
-              label="AI coach"
+              label={t('menu.aiCoach')}
               onClick={() => { setShowSuggestions(true); setMenuOpen(false) }}
             />
             <MenuItem
               icon={pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
-              label={pinned ? 'Unpin chat' : 'Pin to top'}
+              label={pinned ? t('menu.unpinChat') : t('menu.pinChat')}
               onClick={togglePin}
             />
             <MenuItem
               icon={muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-              label={muted ? 'Unmute notifications' : 'Mute notifications'}
+              label={muted ? t('menu.unmuteNotifications') : t('menu.muteNotifications')}
               onClick={toggleMute}
             />
             <MenuItem
               icon={archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-              label={archived ? 'Unarchive' : 'Archive chat'}
+              label={archived ? t('menu.unarchiveChat') : t('menu.archiveChat')}
               onClick={toggleArchive}
             />
             <MenuItem
               icon={<Flag className="h-4 w-4" />}
-              label="Report"
+              label={t('menu.report')}
               danger
               onClick={() => { setMenuOpen(false); setConfirm({ kind: 'report' }) }}
             />
             <MenuItem
               icon={<Ban className="h-4 w-4" />}
-              label="Block & exit"
+              label={t('menu.blockAndExit')}
               danger
               onClick={() => { setMenuOpen(false); setConfirm({ kind: 'block' }) }}
             />

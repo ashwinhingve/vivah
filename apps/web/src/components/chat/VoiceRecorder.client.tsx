@@ -138,7 +138,7 @@ export default function VoiceRecorder({ matchId, onSent, disabled }: VoiceRecord
           type="button"
           onClick={cancel}
           aria-label="Cancel recording"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/20 text-destructive hover:bg-destructive/30"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-destructive/20 text-destructive hover:bg-destructive/30"
         >
           <X className="h-4 w-4" />
         </button>
@@ -161,7 +161,7 @@ export default function VoiceRecorder({ matchId, onSent, disabled }: VoiceRecord
           type="button"
           onClick={stop}
           aria-label="Stop and send"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90"
         >
           <Square className="h-3.5 w-3.5 fill-white" />
         </button>

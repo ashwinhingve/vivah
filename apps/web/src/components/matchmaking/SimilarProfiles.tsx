@@ -7,6 +7,7 @@
  */
 
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -36,16 +37,20 @@ export async function SimilarProfiles({ sourceProfileId }: { sourceProfileId: st
   if (!token) return null;
   const items = await fetchSimilar(sourceProfileId, token);
   if (items.length === 0) return null;
+  const t = await getTranslations('profileDetail');
 
   return (
     <section className="space-y-3">
-      <h2 className="font-heading text-lg font-semibold text-primary">You may also like</h2>
+      <h2 className="font-heading text-lg font-semibold text-primary">{t('similarTitle')}</h2>
       <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
         {items.map((item) => {
           const photoUrl = item.photoHidden ? null : resolvePhotoUrl(item.photoKey);
           return (
-            <Card key={item.profileId} className="w-40 flex-shrink-0 overflow-hidden">
-              <Link href={`/profiles/${item.profileId}`} className="relative block aspect-[4/5]">
+            <Card
+              key={item.profileId}
+              className="group w-40 flex-shrink-0 overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover"
+            >
+              <Link href={`/profiles/${item.profileId}`} className="relative block aspect-[4/5] overflow-hidden">
                 <ImageWithFallback
                   src={photoUrl}
                   alt={item.name}
@@ -53,8 +58,9 @@ export async function SimilarProfiles({ sourceProfileId }: { sourceProfileId: st
                   fill
                   sizes="160px"
                   wrapperClassName="absolute inset-0"
+                  className="transition-transform duration-500 group-hover:scale-[1.04]"
                 />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-8">
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-2 pb-2 pt-12">
                   <p className="truncate text-xs font-semibold text-white">
                     {item.name || 'Member'}{item.age != null ? <span className="font-normal text-white/80">, {item.age}</span> : null}
                   </p>

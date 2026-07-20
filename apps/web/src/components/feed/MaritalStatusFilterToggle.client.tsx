@@ -12,6 +12,7 @@
  */
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { updateMaritalPreferences } from '@/app/[locale]/(app)/feed/actions';
 
 type MaritalStatusValue = 'NEVER_MARRIED' | 'DIVORCED' | 'WIDOWED' | 'SEPARATED';
@@ -24,6 +25,7 @@ interface MaritalStatusFilterToggleProps {
 export function MaritalStatusFilterToggle({
   initialPrefs = [],
 }: MaritalStatusFilterToggleProps) {
+  const t = useTranslations('feed.filters');
   const [includeDivorcees, setIncludeDivorcees] = useState(
     initialPrefs.includes('DIVORCED') || initialPrefs.includes('SEPARATED'),
   );
@@ -57,7 +59,7 @@ export function MaritalStatusFilterToggle({
         // Revert optimistic update
         if (type === 'divorced') setIncludeDivorcees(!next);
         else setIncludeWidows(!next);
-        setError(result.error ?? 'Could not save preference');
+        setError(result.error ?? t('couldNotSave'));
       }
     });
   }
@@ -65,21 +67,21 @@ export function MaritalStatusFilterToggle({
   return (
     <div className="space-y-3">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        Marital Status
+        {t('maritalStatus')}
       </p>
 
       {/* Divorcees toggle */}
       <label className="flex cursor-pointer items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">Include divorcees</p>
+          <p className="text-sm font-medium text-foreground">{t('includeDivorcees')}</p>
           <p className="text-xs text-muted-foreground">
-            Show profiles of people who are divorced or separated
+            {t('includeDivorceesDesc')}
           </p>
         </div>
         <button
           role="switch"
           aria-checked={includeDivorcees}
-          aria-label="Include divorcees in match feed"
+          aria-label={t('includeDivorceesAria')}
           disabled={isPending}
           onClick={() => handleToggle('divorced', !includeDivorcees)}
           className={[
@@ -103,15 +105,15 @@ export function MaritalStatusFilterToggle({
       {/* Widows/widowers toggle */}
       <label className="flex cursor-pointer items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">Include widows / widowers</p>
+          <p className="text-sm font-medium text-foreground">{t('includeWidows')}</p>
           <p className="text-xs text-muted-foreground">
-            Show profiles of people who have lost a spouse
+            {t('includeWidowsDesc')}
           </p>
         </div>
         <button
           role="switch"
           aria-checked={includeWidows}
-          aria-label="Include widows and widowers in match feed"
+          aria-label={t('includeWidowsAria')}
           disabled={isPending}
           onClick={() => handleToggle('widowed', !includeWidows)}
           className={[
@@ -139,7 +141,7 @@ export function MaritalStatusFilterToggle({
       ) : null}
 
       {isPending ? (
-        <p className="text-xs text-muted-foreground">Saving preference…</p>
+        <p className="text-xs text-muted-foreground">{t('savingPreference')}</p>
       ) : null}
     </div>
   );

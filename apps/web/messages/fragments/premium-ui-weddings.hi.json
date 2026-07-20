@@ -1,0 +1,231 @@
+{
+  "weddings": {
+    "list": {
+      "metadata": { "title": "मेरी शादियाँ — Smart Shaadi" },
+      "heading": "मेरी शादियाँ",
+      "subtitle": "अपनी शादी के आयोजनों को बनाएँ और प्रबंधित करें",
+      "newWedding": "शादी बनाएँ",
+      "emptyCta": "अपनी पहली शादी बनाएँ",
+      "loadError": "शादियाँ लोड नहीं हो सकीं। कृपया रिफ्रेश करें और दोबारा कोशिश करें।"
+    },
+    "new": {
+      "metadata": { "title": "शादी योजना बनाएँ — Smart Shaadi" },
+      "heading": "अपनी शादी की योजना बनाएँ",
+      "subtitle": "बुनियादी जानकारी भरें — आप बाद में सब कुछ अपडेट कर सकते हैं।",
+      "back": "शादियों पर वापस जाएँ",
+      "form": {
+        "weddingName": "शादी का नाम",
+        "weddingNamePlaceholder": "जैसे प्रिया और राहुल",
+        "weddingNameHelp": "दंपति या इवेंट का शीर्षक — स्थान से अलग।",
+        "weddingDate": "शादी की तारीख",
+        "weddingDateHelp": "भविष्य की तारीख होनी चाहिए।",
+        "venueName": "स्थान का नाम",
+        "venuePlaceholder": "जैसे द ग्रांड पैलेस बैंक्वेट",
+        "venueCity": "शहर",
+        "venueCityPlaceholder": "जैसे मुंबई",
+        "venueAddress": "स्थान का पता",
+        "venueAddressLabel": "स्थान का पता (वैकल्पिक)",
+        "budgetTotal": "बजट",
+        "budgetHelp": "शादी के लिए अनुमानित कुल लागत।",
+        "submit": "शादी की योजना बनाएँ",
+        "creating": "बनाया जा रहा है…",
+        "errorGeneric": "शादी नहीं बना सके। कृपया अपनी जानकारी जाँचें और दोबारा कोशिश करें।"
+      }
+    },
+    "detail": {
+      "metadata": { "title": "शादी का अवलोकन — Smart Shaadi" },
+      "quickActions": "त्वरित कार्य",
+      "upcomingCeremonies": "आने वाली रस्में",
+      "allCeremonies": "सभी रस्में",
+      "fullTimeline": "पूरी समयरेखा",
+      "recentActivity": "हाल की गतिविधि",
+      "auspiciousDates": "शुभ तारीखें",
+      "dateSelected": "तारीख चुनी गई",
+      "budgetSpent": "खर्च किया गया बजट",
+      "budgetSpentSub": "बजट निर्धारित नहीं है",
+      "guests": "अतिथि",
+      "guestsSub": "सूची में",
+      "ceremonies": "रस्में",
+      "ceremoniesSub": "नियोजित",
+      "tasksDone": "पूर्ण कार्य",
+      "tasksDoneSub": "पूर्ण",
+      "selectDate": "चुनें",
+      "selectedBadge": "✓ चुनी गई",
+      "noCeremoniesTitle": "अभी तक कोई समारोह नहीं जोड़ा गया",
+      "noCeremoniesDesc": "अपनी शादी के दिन की समयरेखा बनाने के लिए समारोह जोड़ें।"
+    },
+    "budget": {
+      "metadata": { "title": "बजट — Smart Shaadi" },
+      "heading": "बजट",
+      "spendByCategory": "श्रेणी के अनुसार खर्च",
+      "categoryBreakdown": "श्रेणी विवरण",
+      "breakdownSubtitle": "आवंटित और व्यय की गई राशि को इनलाइन संपादित करें",
+      "totalBudget": "कुल बजट",
+      "remaining": "बचा हुआ",
+      "spent": "खर्च किया गया",
+      "noPlan": "कोई शादी की योजना नहीं मिली।",
+      "noPlanDesc": "अपने बजट को ट्रैक करने के लिए पहले एक शादी की योजना बनाएँ।",
+      "tabs": {
+        "tasks": "कार्य",
+        "budget": "बजट",
+        "guests": "अतिथि"
+      }
+    },
+    "tasks": {
+      "metadata": { "title": "शादी के कार्य — Smart Shaadi" },
+      "heading": "शादी के कार्य",
+      "subtitle": "कार्यों को पाइपलाइन के माध्यम से खींचें या उन्हें स्थानांतरित करने के लिए तीरों का उपयोग करें।",
+      "form": {
+        "title": "कार्य शीर्षक *",
+        "dueDate": "निर्धारित तारीख (वैकल्पिक)",
+        "priority": "प्राथमिकता",
+        "priorityLow": "कम",
+        "priorityMedium": "मध्यम",
+        "priorityHigh": "उच्च",
+        "submit": "सूची में जोड़ें",
+        "creating": "जोड़ा जा रहा है…"
+      }
+    },
+    "timeline": {
+      "metadata": { "title": "दिन की समयसूची — Smart Shaadi" },
+      "heading": "दिन की समयसूची",
+      "subtitle": "अपने दिन की समयरेखा बनाएँ और विक्रेताओं को असाइन करें।",
+      "autoGenerate": "स्वतः उत्पन्न करें",
+      "generateFromCeremonies": "अपनी रस्मों से उत्पन्न करें",
+      "noEvents": "अभी तक कोई समयसूची ईवेंट नहीं।",
+      "addCeremoniesFirst": "पहले समारोह जोड़ें, फिर एक समयसूची स्वतः उत्पन्न करें।",
+      "addEvent": "ईवेंट जोड़ें",
+      "form": {
+        "title": "शीर्षक *",
+        "date": "तारीख *",
+        "ceremony": "समारोह",
+        "ceremonyNone": "— कोई नहीं —",
+        "startTime": "शुरुआत *",
+        "endTime": "अंत",
+        "location": "स्थान",
+        "description": "विवरण",
+        "submit": "समयसूची में जोड़ें"
+      }
+    },
+    "ceremonies": {
+      "metadata": { "title": "समारोह — Smart Shaadi" },
+      "heading": "समारोह",
+      "subtitle": "प्रत्येक समारोह ईवेंट की योजना बनाएँ और ट्रैक करें",
+      "addNewCeremony": "नया समारोह जोड़ें",
+      "noCeremoniesTitle": "अभी तक कोई समारोह नहीं",
+      "noCeremoniesDesc": "अपना पहला समारोह जोड़ें — हल्दी, मेहँदी, संगीत, शादी, या एक कस्टम नाम।",
+      "form": {
+        "ceremonyType": "समारोह का प्रकार *",
+        "ceremonyName": "समारोह का नाम",
+        "ceremonyNamePlaceholder": "जैसे मंडा",
+        "date": "तारीख",
+        "startTime": "शुरुआत का समय",
+        "venue": "स्थान",
+        "notes": "नोट्स",
+        "submit": "परिवर्तन सहेजें"
+      },
+      "ceremony": {
+        "labels": {
+          "HALDI": "हल्दी",
+          "MEHNDI": "मेहँदी",
+          "SANGEET": "संगीत",
+          "WEDDING": "शादी",
+          "RECEPTION": "रिसेप्शन",
+          "ENGAGEMENT": "सगाई",
+          "OTHER": "अन्य"
+        },
+        "completed": "पूर्ण",
+        "daysAway": "{days}दिन दूर",
+        "dressCode": "पोशाक कोड:",
+        "expectedGuests": "~{count} अतिथि अपेक्षित"
+      }
+    },
+    "guests": {
+      "metadata": { "title": "अतिथि सूची — Smart Shaadi" },
+      "heading": "अतिथि",
+      "subtitle": "अतिथि सूची, आरएसवीपी, निमंत्रण, विश्लेषण और चेक-इन प्रबंधित करें।",
+      "addGuest": "अतिथि जोड़ें",
+      "importCsv": "CSV आयात करें",
+      "exportCsv": "CSV निर्यात करें",
+      "tabs": {
+        "list": "सूची",
+        "analytics": "विश्लेषण",
+        "checkIn": "चेक-इन",
+        "questions": "प्रश्न",
+        "seating": "बैठने की व्यवस्था"
+      },
+      "stats": {
+        "totalGuests": "कुल अतिथि",
+        "confirmed": "पुष्टि की गई",
+        "declined": "अस्वीकृत",
+        "awaitingRsvp": "आरएसवीपी की प्रतीक्षा में"
+      },
+      "rsvpSummary": "आरएसवीपी सारांश",
+      "mealPreferences": "भोजन वरीयताएँ",
+      "guestList": "अतिथि सूची",
+      "guestListSubtitle": "सॉर्ट, फिल्टर और आरएसवीपी प्रबंधित करें",
+      "errorLoad": "अतिथि लोड नहीं हो सके। कृपया पुनः प्रयास करें।",
+      "form": {
+        "name": "पूरा नाम *",
+        "relationship": "संबंध (जैसे चचेरा भाई)",
+        "phone": "फोन",
+        "email": "ईमेल",
+        "side": "पक्ष",
+        "sideBride": "दुल्हन की ओर",
+        "sideGroom": "दूल्हे की ओर",
+        "sideBoth": "दोनों",
+        "mealPref": "भोजन वरीयता",
+        "mealVeg": "शाकाहारी",
+        "mealNonVeg": "मांसाहारी",
+        "mealJain": "जैन",
+        "mealVegan": "वीगन",
+        "mealEggetarian": "अंडा शाकाहारी",
+        "mealNoPreference": "कोई वरीयता नहीं",
+        "submit": "अतिथि जोड़ें",
+        "cancel": "रद्द करें"
+      },
+      "table": {
+        "searchPlaceholder": "अतिथि खोजें…",
+        "addButtonLabel": "अतिथि जोड़ें",
+        "importLabel": "CSV आयात करें",
+        "exportLabel": "CSV निर्यात करें",
+        "nameColumn": "नाम",
+        "relationshipColumn": "संबंध",
+        "sideColumn": "पक्ष",
+        "rsvpColumn": "आरएसवीपी",
+        "mealColumn": "भोजन",
+        "actionsColumn": "कार्य",
+        "noGuests": "अभी तक कोई अतिथि नहीं जोड़ा गया।",
+        "noGuestsMatch": "आपकी खोज से कोई अतिथि नहीं मिला।",
+        "rsvpStatuses": {
+          "YES": "उपस्थित",
+          "NO": "अस्वीकृत",
+          "MAYBE": "शायद",
+          "PENDING": "लंबित"
+        },
+        "edit": "संपादित करें",
+        "delete": "हटाएँ"
+      }
+    },
+    "dayOf": {
+      "metadata": { "title": "दिन के डैशबोर्ड — Smart Shaadi" },
+      "heading": "दिन के डैशबोर्ड",
+      "subtitle": "रीयल-टाइम अपडेट और समारोह समन्वय।",
+      "loadError": "दिन का स्नैपशॉट लोड नहीं हो सका। इस शादी की अपनी पहुँच जाँचें।"
+    },
+    "card": {
+      "fallbackTitle": "शादी",
+      "statuses": {
+        "completed": "पूर्ण",
+        "cancelled": "रद्द किया गया",
+        "today": "आज",
+        "tomorrow": "कल",
+        "daysLeft": "{days}दिन बाकी",
+        "planning": "योजना बना रहे हैं"
+      },
+      "planningProgress": "योजना की प्रगति",
+      "tasksProgress": "{done}/{total} कार्य",
+      "guestsCount": "{count} अतिथि{count,plural,one{} other{s}}"
+    }
+  }
+}

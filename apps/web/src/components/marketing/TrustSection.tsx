@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ArrowRight, Check } from 'lucide-react';
 import { Eyebrow } from './Ornament';
+import AnimatedSection from './AnimatedSection.client';
 import coupleDusk from '../../../public/landing/couple-dusk.webp';
 import floralIvory from '../../../public/landing/floral-ivory.webp';
 
@@ -28,7 +29,10 @@ export default async function TrustSection() {
           className="absolute inset-0 -z-10 bg-gradient-to-br from-plum/95 via-primary/85 to-primary-hover/80"
         />
 
-        <div className="relative w-full max-w-[640px] ml-auto px-8 md:px-12 py-20 md:py-24">
+        <AnimatedSection
+          direction="left"
+          className="relative w-full max-w-[640px] ml-auto px-8 md:px-12 py-20 md:py-24"
+        >
           <Eyebrow tone="dark" align="left" className="mb-3">
             {t('individualsEyebrow')}
           </Eyebrow>
@@ -64,7 +68,7 @@ export default async function TrustSection() {
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
           </Link>
-        </div>
+        </AnimatedSection>
       </div>
 
       {/* RIGHT — For Families (ivory-washed family photo) */}
@@ -82,7 +86,10 @@ export default async function TrustSection() {
           className="absolute inset-0 -z-10 bg-gradient-to-bl from-background/85 via-background/72 to-surface/60"
         />
 
-        <div className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24">
+        <AnimatedSection
+          direction="right"
+          className="relative w-full max-w-[640px] mr-auto px-8 md:px-12 py-20 md:py-24"
+        >
           <Eyebrow align="left" className="mb-3">
             {t('familiesEyebrow')}
           </Eyebrow>
@@ -118,7 +125,7 @@ export default async function TrustSection() {
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
           </Link>
-        </div>
+        </AnimatedSection>
       </div>
     </section>
   );

@@ -1,10 +1,20 @@
 import { cookies } from 'next/headers';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { ProfilePhotoUploader } from '@/components/profile/ProfilePhotoUploader.client';
+import { ProfileProgress } from '@/components/profile/ProfileProgress';
+import { PhotosClient } from './PhotosClient.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+const STEPS = [
+  { label: 'Personal',    done: true,  active: false },
+  { label: 'Family',      done: true,  active: false },
+  { label: 'Career',      done: true,  active: false },
+  { label: 'Lifestyle',   done: true,  active: false },
+  { label: 'Horoscope',   done: true,  active: false },
+  { label: 'Community',   done: true,  active: false },
+  { label: 'Preferences', done: true,  active: false },
+  { label: 'Photos',      done: false, active: true  },
+];
 
 async function getPhotos() {
   const cookieStore = await cookies();
@@ -25,26 +35,11 @@ export default async function PhotosPage() {
   const photos = await getPhotos();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-lg px-4 py-6">
-        <div className="mb-6">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-medium text-muted-foreground">Step 8 of 8</span>
-              <span className="text-xs text-muted-foreground">100%</span>
-            </div>
-            <div className="h-1.5 bg-border rounded-full overflow-hidden">
-              <div className="h-full bg-teal rounded-full" style={{ width: '100%' }} />
-            </div>
-          </div>
+    <div>
+      <ProfileProgress steps={STEPS} />
 
-          <Link
-            href="/profile/preferences"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover mb-4 min-h-[44px]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back
-          </Link>
+      <div className="bg-surface rounded-2xl shadow-card border border-gold/20 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gold/10">
           <PageHeader
             title="Add Your Photos"
             subtitle="Your main photo is the first thing a potential match sees"
@@ -52,16 +47,8 @@ export default async function PhotosPage() {
           />
         </div>
 
-        <ProfilePhotoUploader initialPhotos={photos} />
-
-        <div className="mt-6">
-          <Link
-            href="/profile/complete"
-            className="block w-full bg-teal hover:bg-teal-hover text-white font-semibold rounded-lg py-3 text-sm text-center min-h-[48px] flex items-center justify-center gap-1 transition-colors"
-          >
-            Continue
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+        <div className="p-5">
+          <PhotosClient initialPhotos={photos} />
         </div>
       </div>
     </div>
