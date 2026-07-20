@@ -24,6 +24,12 @@ import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<import('next').Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'likes.metadata' });
+  return { title: t('title') };
+}
+
 interface LikeItem {
   requestId: string;
   senderProfileId: string;

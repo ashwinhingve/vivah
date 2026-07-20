@@ -136,7 +136,7 @@ export function MatchCard(props: Props) {
         <div className="flex gap-2">
           <Button
             type="button"
-            className="flex-1"
+            className="min-w-0 flex-1"
             disabled={interestSent}
             onClick={() => onSendInterest?.(id)}
           >
@@ -156,6 +156,7 @@ export function MatchCard(props: Props) {
             type="button"
             variant="outline"
             size="icon"
+            className="shrink-0"
             aria-label={bookmarked ? t('removeShortlist') : t('bookmark')}
             aria-pressed={bookmarked}
             onClick={() => onBookmark?.(id)}

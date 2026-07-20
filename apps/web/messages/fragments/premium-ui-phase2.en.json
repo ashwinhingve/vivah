@@ -1,0 +1,11 @@
+{
+  "requests": {
+    "metadata": { "title": "Match Requests — Smart Shaadi" }
+  },
+  "likes": {
+    "metadata": { "title": "Who Liked You — Smart Shaadi" }
+  },
+  "shortlist": {
+    "metadata": { "title": "Your Shortlist — Smart Shaadi" }
+  }
+}

@@ -10,7 +10,6 @@ import {
   Sparkles,
   Plus,
   Cake,
-  MessageCircle,
   Store,
   Users,
   Search,
@@ -190,24 +189,12 @@ export default async function DashboardPage({
                 </div>
               </div>
 
-              {/* Row 2 — completeness label inline with progress bar */}
-              {completeness < 100 && (
-                <div className="relative mt-4 flex items-center gap-3">
-                  <p className="shrink-0 text-xs font-medium text-muted-foreground">
-                    {t('profileBar.completeText', { percent: completeness })}
-                  </p>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-gold/15">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-teal to-teal-hover transition-all duration-500"
-                      style={{ width: `${completeness}%` }}
-                    />
-                  </div>
-                </div>
-              )}
+              {/* Completeness lives in the stat card + ProfileCompletenessCard below —
+                  the hero stays a clean greeting. */}
               {completeness < 70 && (
                 <Link
                   href="/profile/personal"
-                  className="mt-2 inline-block text-2xs font-semibold text-teal underline-offset-2 hover:underline"
+                  className="relative mt-2 inline-block text-2xs font-semibold text-teal underline-offset-2 hover:underline"
                 >
                   {t('profileBar.completeCta')}
                 </Link>
@@ -216,7 +203,7 @@ export default async function DashboardPage({
           </FadeUp>
 
           {/* ── Stat Cards ─────────────────────────────────────── */}
-          <StaggerList className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4">
+          <StaggerList className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatsCard
               label={t('stats.newMatches')}
               value={feed.length}
@@ -279,7 +266,7 @@ export default async function DashboardPage({
             />
             {completeness < 40 ? (
               <EmptyState
-                icon={Heart}
+                variant="no-matches"
                 title={t('todaysMatches.emptyTitle')}
                 description={t('todaysMatches.emptyBody')}
                 action={
@@ -290,7 +277,7 @@ export default async function DashboardPage({
               />
             ) : feed.length === 0 ? (
               <EmptyState
-                icon={Heart}
+                variant="no-matches"
                 title={t('todaysMatches.warmingTitle')}
                 description={t('todaysMatches.warmingBody')}
               />
@@ -308,7 +295,7 @@ export default async function DashboardPage({
             />
             {upcomingBookings.length === 0 ? (
               <EmptyState
-                icon={Calendar}
+                variant="no-bookings"
                 title={t('upcomingEvents.emptyTitle')}
                 description={t('upcomingEvents.emptyBody')}
                 action={
@@ -373,7 +360,7 @@ export default async function DashboardPage({
             />
             {recentChats.length === 0 ? (
               <EmptyState
-                icon={MessageCircle}
+                variant="no-messages"
                 title={t('recentConversations.emptyTitle')}
                 description={t('recentConversations.emptyBody')}
                 action={
@@ -460,7 +447,7 @@ export default async function DashboardPage({
             ) : (
               <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-primary/5 to-gold/10 shadow-card">
                 <EmptyState
-                  icon={Cake}
+                  variant="no-wedding"
                   title={t('myWedding.emptyTitle')}
                   description={t('myWedding.emptyBody')}
                   action={
@@ -477,7 +464,7 @@ export default async function DashboardPage({
           {/* ── Quick Actions Strip ────────────────────────────── */}
           <FadeUp delay={0.28}>
             <SectionHeader title={t('quickActionsInline.title')} />
-            <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-4 lg:grid-cols-1">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-1">
               {([
                 { href: '/feed',         label: t('quickActionsInline.findMatches'),   icon: Search, variant: 'teal'     },
                 { href: '/weddings/new', label: t('quickActionsInline.planWedding'),   icon: Cake,   variant: 'burgundy' },

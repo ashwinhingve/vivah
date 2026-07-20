@@ -107,9 +107,9 @@ export function DashboardMatches({ items }: { items: DashboardMatchItem[] }) {
 
   return (
     <div className="-mx-4 px-4 overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:overflow-visible">
-      <div className="flex gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex gap-3 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]">
         {items.map((item) => (
-          <div key={item.profileId} className="w-44 shrink-0 sm:w-auto">
+          <div key={item.profileId} className="w-56 shrink-0 sm:w-auto">
             <MatchCard
               id={item.profileId}
               name={item.name || 'Member'}

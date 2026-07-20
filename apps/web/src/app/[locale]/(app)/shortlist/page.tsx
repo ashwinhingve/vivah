@@ -13,6 +13,12 @@ import { resolvePhotoUrl } from '@/lib/photo';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<import('next').Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'shortlist.metadata' });
+  return { title: t('title') };
+}
+
 interface ShortlistItem {
   id:                 string;
   profileId:          string;

@@ -2167,7 +2167,10 @@
     "heading": "Your Shortlist",
     "subtitleCount": "{count} profile{count, plural, one {} other {s}} you're considering",
     "subtitleEmpty": "Save profiles you want to revisit",
-    "exploreCta": "Explore Matches"
+    "exploreCta": "Explore Matches",
+    "metadata": {
+      "title": "Your Shortlist — Smart Shaadi"
+    }
   },
   "viewers": {
     "heading": "Who viewed you",
@@ -3083,7 +3086,10 @@
     "emptyDescription": "Keep your profile complete and active — likes tend to follow.",
     "exploreCta": "Explore matches",
     "lockedFeature": "Premium feature",
-    "lockedMessage": "Upgrade to see everyone who has liked your profile."
+    "lockedMessage": "Upgrade to see everyone who has liked your profile.",
+    "metadata": {
+      "title": "Who Liked You — Smart Shaadi"
+    }
   },
   "smartSuggestions": {
     "title": "Smart Suggestions",
@@ -3240,5 +3246,10 @@
   },
   "billingSavings": {
     "savingsLabel": "Save ₹{amount} ({percent}%) vs paying monthly"
+  },
+  "requests": {
+    "metadata": {
+      "title": "Match Requests — Smart Shaadi"
+    }
   }
 }
