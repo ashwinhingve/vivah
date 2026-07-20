@@ -414,7 +414,7 @@ export default async function AdminPage() {
 
             {/* KYC queue */}
             <AdminSectionBoundary section="KYC Review" key={`kyc-${refreshedAt}`}>
-            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+            <div className="flex min-w-0 flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-heading text-base font-semibold text-text-primary">
@@ -452,7 +452,7 @@ export default async function AdminPage() {
 
             {/* Disputes queue */}
             <AdminSectionBoundary section="Open Disputes" key={`disputes-${refreshedAt}`}>
-            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+            <div className="flex min-w-0 flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-heading text-base font-semibold text-text-primary">
@@ -473,7 +473,7 @@ export default async function AdminPage() {
 
             {/* Vendor approval queue (P1-8 — wired) */}
             <AdminSectionBoundary section="Vendor Approvals" key={`vendors-${refreshedAt}`}>
-            <div className="flex flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
+            <div className="flex min-w-0 flex-col rounded-2xl border border-gold/20 bg-surface shadow-card">
               <div className="flex items-center justify-between border-b border-gold/10 px-5 pt-5 pb-4">
                 <div className="flex items-center gap-2">
                   <Store className="h-4 w-4 text-gold" aria-hidden="true" />

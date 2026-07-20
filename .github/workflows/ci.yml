@@ -289,11 +289,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # WARN-FIRST like the LLM evals: without a preview URL the suite would
+      # point at localhost:3000 (nothing is listening in this job) and fail on
+      # missing infra rather than on code. Skip cleanly until the secret lands.
+      - name: Check preview URL secret
+        id: preview
+        run: |
+          if [ -z "${{ secrets.VERCEL_PREVIEW_URL }}" ]; then
+            echo "::warning::VERCEL_PREVIEW_URL secret not set — skipping E2E run."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # playwright lives in apps/web devDependencies — `pnpm exec` at the repo
+      # root cannot see its binary (this step had never run before: E2E only
+      # fires once test+build pass, and no PR had reached it).
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+        if: steps.preview.outputs.run == 'true'
+        run: pnpm --filter @smartshaadi/web exec playwright install --with-deps chromium
 
       - name: Run E2E tests
-        run: pnpm e2e
+        if: steps.preview.outputs.run == 'true'
+        run: pnpm --filter @smartshaadi/web e2e
         env:
           PLAYWRIGHT_BASE_URL: ${{ secrets.VERCEL_PREVIEW_URL }}
 
