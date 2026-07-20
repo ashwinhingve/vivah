@@ -205,6 +205,36 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
+### 2026-07-20 (current, later session) — Premium UI Phase 3: five-area teammate sweep + real QA portraits
+
+Five parallel Opus teammates (chat interior, weddings, marketplace, onboarding,
+admin) with strict disjoint file scopes + orchestrator verification. Commits
+`c35ae2b`…`04f0f33`.
+
+- **QA portraits:** 22 real portrait photos (12M/10F, hand-classified from a
+  70-image pool) rendered to 44 4:5 crops, installed in local mock-R2 and
+  verified live. Production steps STAGED but not executed (classifier blocks
+  agent access to prod creds): operator must run
+  `apps/api/.data/upload-qa-photos.mjs` (R2 upload) and
+  `audit/prod-qa-photos.sql` (33-row key fix; rollback file alongside).
+- **Teammate output verified, 5 defects caught by orchestrator:** vendor-detail
+  template literals mangled to TS1127 garbage by the shell boundary; Metadata
+  imported from 'react'; phantom PageProps in bookings metadata; plus two more
+  instances of the UTC-vs-IST timestamp hydration bug (KycQueueTable,
+  MessageBubble) — same class as the /chats one from Phase 2.
+- **Shipped per area:** chat (44px voice/reaction/header targets, composer
+  polish, i18n for presence/menu/empty states); weddings (i18n across
+  hub/budget/tasks/guests/day-of + GuestTable, localised day-of metadata);
+  marketplace (metadata for vendors/store/product/rentals/bookings, gold star
+  tokens, en+hi string foundation); onboarding (photos step unified onto
+  OnboardingNav, horoscope fieldset grouping, richer loading/error states);
+  admin (metadata on 13 routes, KYC queue touch targets, row hover, stat-card
+  lift).
+- **Verification:** ~700 new i18n keys merged additively (en+hi), cold
+  type-check 11/11, prod build green, browser passes over wedding hub/guests,
+  vendors list+detail, store, admin hub/KYC, onboarding photos, chat thread —
+  zero console errors, no 360px horizontal scroll.
+
 ### 2026-07-20 (current) — Premium UI Phase 2: core matchmaking journey
 
 Live Playwright audit (375px + 1280px, QA user) of dashboard / feed / profile
