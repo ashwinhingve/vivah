@@ -4,8 +4,8 @@ DPI synthetic data generation + sklearn LogisticRegression trainer.
 Phase 0 of Week 11 Step 1. The model is a *structured opinion* expressed as
 logistic regression — it does not predict divorce. UI must always disclose this.
 
-See docs/superpowers/plans/week11-step1-dpi-plan.md, Decisions 1-3, for the
-underlying design choices.
+See docs/archive/planning/superpowers/plans/week11-step1-dpi-plan.md,
+Decisions 1-3, for the underlying design choices.
 """
 from __future__ import annotations
 

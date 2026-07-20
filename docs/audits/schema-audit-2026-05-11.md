@@ -1,5 +1,9 @@
 # Schema Drift Audit — 2026-05-11
 
+> ⚠️ **Superseded** by `docs/db/journal-drift.md` (2026-07-17), which found hand-written
+> migrations 0030–0031 bypassed the drizzle meta ledger — unknown at the time of this audit.
+> Kept in place because `scripts/incident-response/README.md` links here.
+
 **Auditor:** Phase 4 Day 3 hardening pass
 **Scope:** Reconcile Drizzle schema definitions vs production Postgres state
 **Result:** **No drift detected between local schema TS and Drizzle meta snapshots.**

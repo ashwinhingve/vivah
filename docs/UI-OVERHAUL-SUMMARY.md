@@ -173,5 +173,5 @@ profile dropdown links, feed liveness.
 - [x] `InitialAvatar` is the single canonical fallback — no UserCircle
 - [x] Mobile 375 sweep clean on all pages
 - [x] `pnpm type-check` clean
-- [x] `docs/BRAND-ASSETS.md` committed
+- [x] `docs/archive/client/BRAND-ASSETS.md` committed
 - [x] Screenshots in `docs/screenshots/2026-05-25-final/`

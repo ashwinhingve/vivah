@@ -1,4 +1,5 @@
-import { RouteSkeleton } from '@/components/shared/RouteSkeleton';
+import { AdminTableSkeleton } from '@/components/shared';
+
 export default function Loading() {
-  return <RouteSkeleton />;
+  return <AdminTableSkeleton rows={8} cols={6} />;
 }

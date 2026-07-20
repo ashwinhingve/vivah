@@ -1,0 +1,35 @@
+{
+  "bookings": {
+    "title": "My Bookings",
+    "subtitle": "Track bookings, reschedule, and manage events.",
+    "viewingAsLabel": "Viewing as",
+    "asCustomer": "As Customer",
+    "asVendor": "As Vendor",
+    "noBookings": "No bookings here",
+    "noBookingsDesc": "Try a different filter or browse vendors to make your first booking.",
+    "exploreVendors": "Explore Vendors",
+    "reschedulePending": "Reschedule pending",
+    "escrow": "Escrow",
+    "view": "View",
+    "reviewPending": "Review pending",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "timeline": {
+      "all": "All time",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "DISPUTED": "Disputed"
+    }
+  }
+}

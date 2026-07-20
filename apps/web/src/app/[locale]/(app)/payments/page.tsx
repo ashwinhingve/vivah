@@ -3,6 +3,7 @@
  * Server Component — fetches data server-side, no client JS needed for static content.
  */
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PaymentSummaryCard } from '@/components/payments/PaymentSummaryCard';
@@ -85,11 +86,12 @@ async function fetchWallet(cookie: string): Promise<WalletSnapshot | null> {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function PaymentsPage() {
+  const t = await getTranslations('payments');
   const cookie = await getAuthHeader();
   if (!cookie) {
     return (
       <div className="min-h-screen px-4 py-16 text-center bg-background">
-        <p className="text-muted-foreground">Please sign in to view your payment history.</p>
+        <p className="text-muted-foreground">{t('signInRequired')}</p>
       </div>
     );
   }
@@ -110,24 +112,24 @@ export default async function PaymentsPage() {
   const walletBalance = wallet ? parseFloat(wallet.balance) : 0;
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
+    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-background">
       <div className="mx-auto max-w-3xl">
         <PageHeader
-          title="Payment History"
-          subtitle="Your bookings, wallet, and payment records"
+          title={t('title')}
+          subtitle={t('subtitle')}
           actions={
             <div className="flex gap-2">
               <Link
                 href="/payments/wallet"
-                className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary min-h-[44px]"
+                className="inline-flex items-center rounded-lg border border-gold px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 text-primary min-h-[44px]"
               >
-                Wallet
+                {t('walletAction')}
               </Link>
               <Link
                 href="/payments/refunds"
-                className="inline-flex items-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 border-gold text-primary min-h-[44px]"
+                className="inline-flex items-center rounded-lg border border-gold px-3 py-2 text-xs font-medium transition-colors hover:bg-gold/10 text-primary min-h-[44px]"
               >
-                Refunds
+                {t('refundsAction')}
               </Link>
             </div>
           }
@@ -146,19 +148,17 @@ export default async function PaymentsPage() {
         <PaymentsPageClient payments={payments} />
 
         {/* Escrow explanation */}
-        <div
-          className="mt-8 rounded-xl border px-5 py-4 text-sm border-gold bg-secondary"
-        >
+        <div className="mt-8 rounded-2xl border border-gold px-5 py-4 text-sm bg-secondary shadow-card">
           <p className="font-semibold text-primary">
-            How Smart Shaadi Escrow Works
+            {t('escrowHeading')}
           </p>
           <ul className="mt-2 space-y-1 text-muted-foreground list-disc list-inside">
-            <li>50% of your booking amount is held securely in escrow on payment.</li>
-            <li>Funds are released to the vendor 48 hours after your event is completed.</li>
-            <li>If there is a dispute, funds are held until resolved by our support team.</li>
+            <li>{t('escrowPoint1')}</li>
+            <li>{t('escrowPoint2')}</li>
+            <li>{t('escrowPoint3')}</li>
           </ul>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

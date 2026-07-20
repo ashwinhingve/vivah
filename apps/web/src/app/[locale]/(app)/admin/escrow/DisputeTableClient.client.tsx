@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { StatusChip } from '@/components/ui/StatusChip';
 import { ResolveDisputeRow } from './ResolveDisputeRow.client';
 
 interface DisputedBookingRow {
@@ -37,13 +38,9 @@ export function DisputeTableClient({ disputes }: Props) {
     <>
       {/* Open count badge — updates as disputes are resolved */}
       <div className="mb-4 flex items-center gap-3">
-        <span className="inline-flex items-center rounded-full bg-destructive/15 px-3 py-1 text-sm font-semibold text-destructive">
-          {openCount} open
-        </span>
+        <StatusChip tone="error">{openCount} open</StatusChip>
         {resolvedCount > 0 && (
-          <span className="inline-flex items-center rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">
-            {resolvedCount} resolved this session
-          </span>
+          <StatusChip tone="success">{resolvedCount} resolved this session</StatusChip>
         )}
       </div>
 

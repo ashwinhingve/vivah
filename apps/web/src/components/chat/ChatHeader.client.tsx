@@ -49,8 +49,10 @@ export default function ChatHeader({
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState<null | { kind: 'report' | 'block' }>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
 
+  useEffect(() => { setMounted(true) }, [])
   useEffect(() => { setMuted(initialMuted) }, [initialMuted])
   useEffect(() => { setArchived(initialArchived) }, [initialArchived])
   useEffect(() => { setPinned(initialPinned) }, [initialPinned])
@@ -68,7 +70,7 @@ export default function ChatHeader({
 
   const subtitle = isOnline
     ? t('presence.online')
-    : lastSeenAt ? t('presence.lastSeen', { time: formatLastSeen(lastSeenAt) }) : t('presence.offline')
+    : mounted && lastSeenAt ? t('presence.lastSeen', { time: formatLastSeen(lastSeenAt) }) : mounted ? t('presence.offline') : '—'
 
   async function patchSettings(body: Record<string, unknown>): Promise<boolean> {
     if (busy) return false

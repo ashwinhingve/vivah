@@ -597,7 +597,15 @@
       "aboutMePlaceholder": "अपने बारे में, अपनी रुचियों और अपनी तलाश के बारे में कुछ कहें…",
       "sexualOrientationPrivate": "यौन अभिविन्यास (निजी)",
       "orientationVisible": "मेरी सार्वजनिक प्रोफ़ाइल पर दिखाएँ",
-      "orientationStorageNote": "आपकी प्रोफ़ाइल पर संग्रहीत है लेकिन अन्य उपयोगकर्ताओं को कभी दृश्यमान नहीं है जब तक आप इसे नीचे टॉगल न करें।"
+      "orientationStorageNote": "आपकी प्रोफ़ाइल पर संग्रहीत है लेकिन अन्य उपयोगकर्ताओं को कभी दृश्यमान नहीं है जब तक आप इसे नीचे टॉगल न करें।",
+      "selectStatus": "स्थिति चुनें",
+      "genderMale": "पुरुष",
+      "genderFemale": "महिला",
+      "genderNonBinary": "नॉन-बाइनरी",
+      "genderOther": "अन्य",
+      "selectReligion": "धर्म चुनें",
+      "selectLanguage": "भाषा चुनें",
+      "selectState": "राज्य चुनें"
     },
     "family": {
       "metadata": {
@@ -701,7 +709,27 @@
       "occupation": "व्यवसाय",
       "company": "कंपनी",
       "salary": "वार्षिक आय (वैकल्पिक)",
-      "salaryNote": "यह आपको संरेखित जीवन योजनाओं वाले संगत मिलान के साथ सतह करने में मदद करता है।"
+      "salaryNote": "यह आपको संरेखित जीवन योजनाओं वाले संगत मिलान के साथ सतह करने में मदद करता है।",
+      "profession": "व्यवसाय",
+      "highestDegree": "उच्चतम डिग्री",
+      "selectDegree": "डिग्री चुनें",
+      "fieldOfStudy": "अध्ययन का क्षेत्र",
+      "fieldOfStudyPlaceholder": "उदा. कंप्यूटर विज्ञान",
+      "college": "कॉलेज / विश्वविद्यालय",
+      "collegePlaceholder": "संस्थान का नाम",
+      "graduationYear": "स्नातक वर्ष",
+      "graduationYearPlaceholder": "उदा. 2020",
+      "occupationPlaceholder": "उदा. सॉफ्टवेयर इंजीनियर",
+      "employerType": "नियोक्ता का प्रकार",
+      "selectEmployerType": "प्रकार चुनें",
+      "employer": "नियोक्ता / कंपनी",
+      "employerPlaceholder": "कंपनी का नाम",
+      "designation": "पदनाम",
+      "designationPlaceholder": "उदा. सीनियर डेवलपर",
+      "annualIncome": "वार्षिक आय",
+      "selectIncomeRange": "रेंज चुनें",
+      "workLocation": "कार्य स्थान",
+      "workLocationPlaceholder": "उदा. पुणे"
     },
     "lifestyle": {
       "heading": "जीवनशैली व रुचियाँ",
@@ -713,7 +741,11 @@
       "languages": "बोली जाने वाली भाषाएँ",
       "personalityTags": "आपके व्यक्तित्व टैग",
       "personalityTagsNote": "ये आपको संगत मिलान के साथ सतह करने में मदद करते हैं",
-      "fitness": "फिटनेस स्तर"
+      "fitness": "फिटनेस स्तर",
+      "selectDiet": "आहार पसंद चुनें",
+      "selectSmoking": "धूम्रपान पसंद चुनें",
+      "selectDrinking": "पीने की पसंद चुनें",
+      "selectFitness": "फिटनेस स्तर चुनें"
     },
     "preferences": {
       "heading": "साथी की पसंद",
@@ -1246,7 +1278,27 @@
         "send": "{count, plural, one {# निमंत्रण भेजें} other {# निमंत्रण भेजें}}",
         "result": "भेजे गए {sent} · विफल {failed}",
         "andMore": "…और {count} अधिक"
-      }
+      },
+      "heading": "डिजिटल निमंत्रण",
+      "subtitle": "अपने विवाह विवरण से एक साझा ई-निमंत्रण डिज़ाइन करें।",
+      "templateLabel": "टेम्पलेट",
+      "headlineLabel": "शीर्षक (वैकल्पिक)",
+      "headlinePlaceholder": "उदा। आशा और विक्रम का विवाह",
+      "messageLabel": "निमंत्रण संदेश (वैकल्पिक)",
+      "messagePlaceholder": "अपनी कंपनी का सुख चाहते हैं…",
+      "rsvpLabel": "मेहमानों को निमंत्रण से RSVP देने दें",
+      "saving": "सहेज रहे हैं…",
+      "save": "सहेजें",
+      "publishing": "प्रकाशित कर रहे हैं…",
+      "publish": "प्रकाशित करें",
+      "republish": "दोबारा प्रकाशित करें",
+      "publishHint": "एक साझा लिंक और PDF उत्पन्न करने के लिए प्रकाशित करें।",
+      "shareHeading": "अपना निमंत्रण साझा करें",
+      "copy": "कॉपी करें",
+      "shareWhatsapp": "WhatsApp पर साझा करें",
+      "openInvite": "निमंत्रण खोलें",
+      "defaultMessage": "आप आमंत्रित हैं!",
+      "preview": "पूर्वावलोकन"
     },
     "overview": {
       "metadata": {
@@ -1491,6 +1543,43 @@
         "dressCode": "पोशाक कोड:",
         "expectedGuests": "~{count} अतिथि अपेक्षित"
       }
+    },
+    "seating": {
+      "heading": "बैठने की व्यवस्था",
+      "subtitle": "{tableCount} टेबलें · {seatedCount} में से {totalConfirmed} पुष्टि किए गए मेहमान बैठे हैं",
+      "autoAssign": "स्वचालित असाइन करें",
+      "noTablesYet": "अभी कोई टेबल नहीं। दाईं ओर अपनी पहली टेबल जोड़ें।",
+      "delete": "हटाएं",
+      "empty": "खाली",
+      "seat": "सीट",
+      "newTable": "नई टेबल",
+      "tableName": "टेबल का नाम",
+      "capacity": "क्षमता",
+      "shape": "आकार",
+      "shapeRound": "गोल",
+      "shapeRect": "आयत",
+      "shapeSquare": "वर्ग",
+      "shapeOval": "अंडाकार",
+      "addTable": "टेबल जोड़ें",
+      "unseatedCount": "बिना सीट ({count})",
+      "allSeated": "सभी पुष्टि किए गए मेहमान बैठ गए हैं।"
+    },
+    "moodboard": {
+      "heading": "मूड बोर्ड",
+      "subtitle": "अपने विवाह के थीम, रंग और सजावट के लिए प्रेरणा एकत्र करें।"
+    },
+    "registry": {
+      "heading": "उपहार रजिस्ट्री",
+      "subtitle": "ऐसे आइटम सूचीबद्ध करें जिन्हें मेहमान दावा कर सकें — आपकी सार्वजनिक विवाह वेबसाइट पर दिखाई देता है यदि सक्षम किया गया हो।",
+      "noItems": "अभी कोई रजिस्ट्री आइटम नहीं।",
+      "claimedBy": "{name} द्वारा दावा किया गया",
+      "remove": "हटाएं",
+      "addItem": "रजिस्ट्री आइटम जोड़ें",
+      "itemLabel": "आइटम *",
+      "priceLabel": "मूल्य (₹)",
+      "linkLabel": "बाहरी लिंक",
+      "descriptionLabel": "विवरण",
+      "submit": "रजिस्ट्री में जोड़ें"
     }
   },
   "matchCard": {
@@ -2502,7 +2591,9 @@
     "referralTableFriend": "मित्र",
     "referralTableStatus": "स्थिति",
     "referralTableCredits": "क्रेडिट",
-    "referralTableJoined": "शामिल हुआ"
+    "referralTableJoined": "शामिल हुआ",
+    "dataExport": "आपका डेटा",
+    "dataExportDesc": "अपना डेटा निर्यात या हटाएँ"
   },
   "shortlist": {
     "heading": "आपकी शॉर्टलिस्ट",
@@ -3646,6 +3737,112 @@
   "requests": {
     "metadata": {
       "title": "मैच अनुरोध — स्मार्ट शादी"
+    },
+    "page": {
+      "title": "अनुरोध",
+      "subtitle": "अपनी मैच रुचियों को प्रबंधित करें"
+    },
+    "tabs": {
+      "received": "प्राप्त",
+      "sent": "भेजे गए"
+    },
+    "empty": {
+      "receivedTitle": "अभी कोई अनुरोध नहीं",
+      "receivedDesc": "जब कोई आपको रुचि भेजेगा, तो यह यहाँ दिखेगा। ध्यान आकर्षित करने के लिए प्रोफ़ाइलें खोजें!",
+      "sentTitle": "अभी कोई रुचि भेजी नहीं गई",
+      "sentDesc": "प्रोफ़ाइलें खोजें और अपनी यात्रा शुरू करने के लिए रुचि भेजें।",
+      "browseProfiles": "प्रोफ़ाइलें खोजें"
+    },
+    "pastRequests": "पिछले अनुरोध ({count})",
+    "cardMeta": {
+      "profileHidden": "प्रोफ़ाइल विवरण छिपा हुआ है",
+      "sent": "{timeAgo} भेजा गया",
+      "seen": "{timeAgo} देखा गया"
+    },
+    "actions": {
+      "accept": "स्वीकार करें",
+      "decline": "अस्वीकार करें",
+      "withdraw": "रुचि वापस लें",
+      "openChat": "चैट खोलें",
+      "reportProfile": "प्रोफ़ाइल की रिपोर्ट करें",
+      "block": "ब्लॉक करें",
+      "revealContact": "संपर्क जानकारी दिखाएँ (पारस्परिक)",
+      "unlocking": "अनलॉक किया जा रहा है…",
+      "awaitingUnlock": "उनके अनलॉक की प्रतीक्षा की जा रही है…"
+    },
+    "declineReasons": {
+      "title": "इस अनुरोध को अस्वीकार करें?",
+      "description": "आपका कारण निजी रहता है। प्रेषक केवल यह देखता है कि आपने अस्वीकार किया है।",
+      "notInterested": "अभी रुचि नहीं है",
+      "notMatching": "मेरी पसंद से मेल नहीं खाता",
+      "incompleteProfile": "प्रोफ़ाइल अधूरी लगती है",
+      "photoHidden": "फ़ोटो छिपी हुई है",
+      "inappropriateMessage": "संदेश अनुचित लगा",
+      "other": "अन्य",
+      "cancel": "रद्द करें",
+      "confirm": "अस्वीकार करें"
+    },
+    "acceptModal": {
+      "title": "{name} को स्वीकार करें?",
+      "description": "एक वैकल्पिक स्वागत संदेश जोड़ें। वे इसे अपनी चैट में पहले संदेश के रूप में देखेंगे।",
+      "placeholder": "नमस्ते! आपको जानने के लिए उत्सुक हूँ…",
+      "charCounter": "{current} / 500",
+      "cancel": "रद्द करें",
+      "confirm": "स्वीकार करें"
+    },
+    "reportCategories": {
+      "title": "प्रोफ़ाइल की रिपोर्ट करें",
+      "description": "रिपोर्टें गोपनीय रहती हैं। हमारी मॉडरेशन टीम 24 घंटे में सभी की समीक्षा करती है।",
+      "harassment": "उत्पीड़न / अपमानजनक भाषा",
+      "fakeProfile": "नकली या प्रतिरूपित प्रोफ़ाइल",
+      "inappropriateContent": "अनुचित फ़ोटो / सामग्री",
+      "scam": "धोखाधड़ी / पैसे माँगना",
+      "underage": "नाबालिग",
+      "spam": "स्पैम / बार-बार अनचाही संपर्क",
+      "other": "अन्य",
+      "detailsPlaceholder": "वैकल्पिक: और बताएँ…",
+      "charCounter": "{current} / 1000",
+      "cancel": "रद्द करें",
+      "confirm": "रिपोर्ट सबमिट करें"
+    },
+    "statusBadges": {
+      "pending": "लंबित",
+      "matched": "मिलान",
+      "declined": "अस्वीकार किया गया",
+      "withdrawn": "वापस लिया गया",
+      "blocked": "ब्लॉक किया गया",
+      "expired": "समय सीमा समाप्त"
+    },
+    "timeAgo": {
+      "justNow": "अभी अभी",
+      "minutesAgo": "{m}m पहले",
+      "hoursAgo": "{h}h पहले",
+      "yesterday": "कल",
+      "daysAgo": "{d}d पहले",
+      "monthsAgo": "{mo}mo पहले",
+      "expiresIn": "{time} में समय सीमा समाप्त",
+      "expired": "समय सीमा समाप्त",
+      "onlineNow": "अभी ऑनलाइन",
+      "activeMinutesAgo": "{m}m पहले सक्रिय",
+      "activeHoursAgo": "{h}h पहले सक्रिय",
+      "activeDaysAgo": "{d}d पहले सक्रिय"
+    },
+    "toasts": {
+      "acceptSuccess": "यह एक मैच है! चैट में {name} को नमस्कार कहें",
+      "acceptError": "स्वीकार नहीं किया जा सका — कृपया फिर से प्रयास करें",
+      "declineError": "अस्वीकार नहीं किया जा सका — कृपया फिर से प्रयास करें",
+      "withdrawError": "वापस नहीं लिया जा सका — कृपया फिर से प्रयास करें",
+      "withdrawConfirm": "इस रुचि को वापस लें? दूसरा व्यक्ति सूचित नहीं किया जाएगा जब तक उन्होंने पहले से ही इसे नहीं देखा हो।",
+      "blockConfirm": "{name} को ब्लॉक करें? वे अब आपसे संपर्क नहीं कर सकेंगे और कोई भी खुला मैच रद्द कर दिया जाएगा।",
+      "blockError": "ब्लॉक नहीं किया जा सका — कृपया फिर से प्रयास करें",
+      "reportError": "रिपोर्ट सबमिट नहीं की जा सकी — कृपया फिर से प्रयास करें",
+      "loadError": "अनुरोध लोड नहीं किए जा सके। कृपया फिर से प्रयास करें।",
+      "retryAction": "फिर से प्रयास करें"
+    },
+    "reveal": {
+      "unlocked": "संपर्क विवरण अनलॉक किए गए",
+      "unlockError": "अनलॉक नहीं किया जा सका — कृपया फिर से प्रयास करें",
+      "waitingForOther": "आपकी ओर से अनलॉक हो गया है। दूसरे व्यक्ति के अनलॉक करने की प्रतीक्षा की जा रही है।"
     }
   },
   "admin": {
@@ -3731,6 +3928,20 @@
       "jewelry": "गहने",
       "decor": "सजावट",
       "other": "अन्य"
+    },
+    "orders": {
+      "statusLabels": {
+        "placed": "प्लेस किया गया",
+        "confirmed": "पुष्ट किया गया",
+        "shipped": "भेज दिया गया",
+        "delivered": "डिलीवर किया गया",
+        "cancelled": "रद्द किया गया",
+        "refunded": "वापस किया गया"
+      },
+      "title": "मेरे ऑर्डर",
+      "backToStore": "स्टोर",
+      "emptyLabel": "अभी तक कोई ऑर्डर नहीं",
+      "browseCta": "उत्पाद देखें"
     }
   },
   "rentals": {
@@ -3827,6 +4038,37 @@
       "writeReview": "समीक्षा लिखें",
       "approveReschedule": "पुनर्निर्धारण को मंजूरी दें",
       "backToBookings": "बुकिंग पर लौटें"
+    },
+    "title": "मेरी बुकिंग",
+    "subtitle": "बुकिंग ट्रैक करें, समय बदलें और इवेंट प्रबंधित करें।",
+    "viewingAsLabel": "इसे देख रहे हैं",
+    "asCustomer": "ग्राहक के रूप में",
+    "asVendor": "विक्रेता के रूप में",
+    "noBookings": "यहां कोई बुकिंग नहीं है",
+    "noBookingsDesc": "एक अलग फ़िल्टर आजमाएं या अपनी पहली बुकिंग करने के लिए विक्रेताओं को ब्राउज़ करें।",
+    "exploreVendors": "विक्रेताओं को देखें",
+    "reschedulePending": "समय बदलने की प्रतीक्षा में",
+    "escrow": "एस्क्रो",
+    "view": "देखें",
+    "reviewPending": "समीक्षा लंबित",
+    "filters": {
+      "all": "सभी",
+      "pending": "लंबित",
+      "confirmed": "पुष्टि की गई",
+      "completed": "पूर्ण",
+      "cancelled": "रद्द किया गया"
+    },
+    "timeline": {
+      "all": "सभी समय",
+      "upcoming": "आने वाली",
+      "past": "पिछली"
+    },
+    "status": {
+      "PENDING": "लंबित",
+      "CONFIRMED": "पुष्टि की गई",
+      "COMPLETED": "पूर्ण",
+      "CANCELLED": "रद्द किया गया",
+      "DISPUTED": "विवादित"
     }
   },
   "trust": {
@@ -3844,5 +4086,194 @@
     "moneyBackGuarantee": "मनी बैक गारंटी",
     "escrowProtection": "एस्क्रो सुरक्षित",
     "instantConfirmation": "तुरंत पुष्टि"
+  },
+  "adminStatus": {
+    "userRoles": {
+      "INDIVIDUAL": "व्यक्तिगत",
+      "FAMILY_MEMBER": "परिवार के सदस्य",
+      "VENDOR": "विक्रेता",
+      "EVENT_COORDINATOR": "इवेंट आयोजक",
+      "ADMIN": "व्यवस्थापक",
+      "SUPPORT": "समर्थन"
+    },
+    "userStatus": {
+      "ACTIVE": "सक्रिय",
+      "SUSPENDED": "निलंबित",
+      "PENDING_VERIFICATION": "प्रतीक्षारत",
+      "DELETED": "हटाया गया"
+    },
+    "disputeStatus": {
+      "open": "खुला",
+      "resolved": "हल किया गया"
+    },
+    "reconciliationStatus": {
+      "OPEN": "खुला",
+      "RESOLVED": "हल किया गया"
+    }
+  },
+  "payments": {
+    "title": "भुगतान इतिहास",
+    "subtitle": "आपकी बुकिंग, वॉलेट और भुगतान रिकॉर्ड",
+    "signInRequired": "अपना भुगतान इतिहास देखने के लिए कृपया साइन इन करें।",
+    "downloadStatement": "विवरण डाउनलोड करें",
+    "refundSubmitted": "रिफंड अनुरोध सफलतापूर्वक जमा किया गया। समीक्षा के बाद आपको सूचित किया जाएगा।",
+    "noPayments": "कोई भुगतान नहीं मिला",
+    "noPaymentsDesc": "आपके पास अभी तक कोई भुगतान रिकॉर्ड नहीं है।",
+    "noPaymentsFilterDesc": "इस फ़िल्टर से कोई भुगतान नहीं मिला।",
+    "booking": "बुकिंग",
+    "viewInvoice": "इनवॉइस देखें",
+    "requestRefund": "रिफंड का अनुरोध करें",
+    "escrowHeading": "स्मार्ट शादी एस्क्रो कैसे काम करता है",
+    "escrowPoint1": "आपकी बुकिंग राशि का 50% भुगतान पर एस्क्रो में सुरक्षित रखा जाता है।",
+    "escrowPoint2": "आपके इवेंट पूरा होने के 48 घंटे बाद विक्रेता को निधि जारी की जाती है।",
+    "escrowPoint3": "यदि कोई विवाद है, तो हमारी सहायता टीम द्वारा समाधान तक निधि रखी जाती है।",
+    "tabs": {
+      "all": "सभी",
+      "captured": "कैप्चर किया गया",
+      "refunded": "रिफंड किया गया",
+      "failed": "विफल"
+    },
+    "status": {
+      "PENDING": "लंबित",
+      "CAPTURED": "कैप्चर किया गया",
+      "RELEASED": "जारी किया गया",
+      "REFUNDED": "रिफंड किया गया",
+      "FAILED": "विफल",
+      "PARTIALLY_REFUNDED": "आंशिक रिफंड"
+    },
+    "escrow": {
+      "HELD": "एस्क्रो धारण",
+      "RELEASED": "एस्क्रो जारी",
+      "DISPUTED": "एस्क्रो विवादित",
+      "REFUNDED": "एस्क्रो रिफंड"
+    },
+    "wallet": {
+      "title": "मेरा वॉलेट",
+      "subtitle": "शेष, क्रेडिट और लेनदेन इतिहास",
+      "signInRequired": "साइन इन आवश्यक है",
+      "signInRequiredDesc": "अपना वॉलेट देखने के लिए कृपया साइन इन करें।",
+      "balanceLabel": "उपलब्ध शेष",
+      "totalCredited": "कुल क्रेडिट किया गया",
+      "totalDebited": "कुल डेबिट किया गया",
+      "walletDeactivated": "यह वॉलेट निष्क्रिय कर दिया गया है। सहायता के लिए सपोर्ट से संपर्क करें।",
+      "walletNotAvailable": "वॉलेट उपलब्ध नहीं है",
+      "walletNotAvailableDesc": "वॉलेट की जानकारी उपलब्ध नहीं है।",
+      "transactionHistory": "लेनदेन इतिहास",
+      "noTransactions": "अभी तक कोई लेनदेन नहीं",
+      "noTransactionsDesc": "आपकी वॉलेट गतिविधि यहां दिखाई देगी।",
+      "columns": {
+        "date": "तारीख",
+        "description": "विवरण",
+        "amount": "राशि",
+        "balanceAfter": "इसके बाद शेष"
+      }
+    },
+    "invoices": {
+      "title": "इनवॉइस",
+      "subtitle": "आपकी बुकिंग और ऑर्डर के लिए जीएसटी-अनुपालन इनवॉइस",
+      "noInvoices": "अभी तक कोई इनवॉइस नहीं",
+      "noInvoicesDesc": "जब बुकिंग या ऑर्डर की पुष्टि की जाती है तो इनवॉइस बनाए जाते हैं।",
+      "columns": {
+        "invoiceNo": "इनवॉइस संख्या",
+        "date": "तारीख",
+        "vendor": "विक्रेता",
+        "total": "कुल",
+        "status": "स्थिति",
+        "action": "कार्रवाई"
+      },
+      "status": {
+        "DRAFT": "ड्राफ्ट",
+        "ISSUED": "जारी",
+        "PAID": "भुगतान किया गया",
+        "CANCELLED": "रद्द किया गया",
+        "CREDITED": "क्रेडिट किया गया"
+      },
+      "view": "देखें"
+    },
+    "invoiceDetail": {
+      "backToInvoices": "इनवॉइस पर वापस जाएं",
+      "companyName": "राष्ट्रीय स्मार्ट विवाह ईवेंट पारिस्थितिकी तंत्र",
+      "taxInvoice": "कर इनवॉइस",
+      "billFrom": "बिल से",
+      "billTo": "बिल को",
+      "smartShaadi": "स्मार्ट शादी प्लेटफॉर्म",
+      "placeOfSupply": "आपूर्ति का स्थान",
+      "description": "विवरण",
+      "quantity": "मात्रा",
+      "rate": "दर",
+      "taxPercent": "कर %",
+      "amount": "राशि",
+      "subtotal": "उप-कुल",
+      "discount": "छूट",
+      "taxableValue": "कर योग्य मूल्य",
+      "totalTax": "कुल कर",
+      "total": "कुल",
+      "note": "नोट"
+    },
+    "refunds": {
+      "title": "रिफंड इतिहास",
+      "subtitle": "अपने रिफंड अनुरोधों की स्थिति ट्रैक करें",
+      "noRefunds": "अभी तक कोई रिफंड नहीं",
+      "noRefundsDesc": "आपने अभी तक कोई रिफंड अनुरोध जमा नहीं किया है।",
+      "paymentPrefix": "भुगतान",
+      "requestedOn": "अनुरोध किया गया",
+      "toWallet": "वॉलेट के लिए",
+      "failurePrefix": "विफलता",
+      "processedOn": "प्रोसेस किया गया",
+      "status": {
+        "REQUESTED": "अनुरोधित",
+        "APPROVED": "मंजूरी दी गई",
+        "PROCESSING": "प्रक्रिया में",
+        "COMPLETED": "पूर्ण",
+        "FAILED": "विफल",
+        "REJECTED": "अस्वीकृत"
+      },
+      "reason": {
+        "CUSTOMER_REQUEST": "ग्राहक अनुरोध",
+        "SERVICE_CANCELLED": "सेवा रद्द",
+        "VENDOR_NO_SHOW": "विक्रेता ने उपस्थिति नहीं दर्ज कराई",
+        "DUPLICATE_PAYMENT": "डुप्लिकेट भुगतान",
+        "DISPUTE_RESOLVED": "विवाद सुलझाया गया",
+        "FRAUD": "धोखाधड़ी",
+        "OTHER": "अन्य"
+      }
+    },
+    "success": {
+      "heading": "भुगतान सफल",
+      "message": "आपका लेनदेन दर्ज किया गया है। धन्यवाद।",
+      "paymentId": "भुगतान आईडी",
+      "booking": "बुकिंग",
+      "viewBooking": "बुकिंग देखें",
+      "allPayments": "सभी भुगतान"
+    },
+    "failure": {
+      "heading": "भुगतान विफल",
+      "defaultMessage": "आपका भुगतान पूरा नहीं किया जा सका।",
+      "reassurance": "कोई पैसा नहीं काटा गया है। यदि आपके बैंक में चार्ज दिखता है, तो यह 5-7 कार्य दिवसों में वापस आ जाएगा।",
+      "retryPayment": "भुगतान को फिर से आजमाएं",
+      "allPayments": "सभी भुगतान"
+    },
+    "walletAction": "वॉलेट",
+    "refundsAction": "रिफंड"
+  },
+  "vendorDashboard": {
+    "statusBanner": {
+      "labels": {
+        "pending": "लंबित",
+        "underReview": "समीक्षा में",
+        "rejected": "अस्वीकृत",
+        "draft": "ड्राफ्ट"
+      },
+      "rejectionTitle": "आवेदन पर ध्यान देने की आवश्यकता है",
+      "draftTitle": "आपकी प्रोफाइल ड्राफ्ट में है",
+      "draftDescription": "बुकिंग प्राप्त करना शुरू करने के लिए अपने व्यावसायिक विवरण को पूरा करें और समीक्षा के लिए जमा करें।"
+    },
+    "orders": {
+      "statusLabels": {
+        "pending": "लंबित",
+        "shipped": "भेज दिया गया",
+        "delivered": "डिलीवर किया गया"
+      }
+    }
   }
 }

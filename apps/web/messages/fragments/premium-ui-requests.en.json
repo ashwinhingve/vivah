@@ -1,0 +1,110 @@
+{
+  "requests": {
+    "page": {
+      "title": "Requests",
+      "subtitle": "Manage your match interests"
+    },
+    "tabs": {
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "empty": {
+      "receivedTitle": "No requests yet",
+      "receivedDesc": "When someone sends you an interest, it will appear here. Explore profiles to get noticed!",
+      "sentTitle": "No interests sent yet",
+      "sentDesc": "Browse profiles and send an interest to start your journey.",
+      "browseProfiles": "Browse profiles"
+    },
+    "pastRequests": "Past requests ({count})",
+    "cardMeta": {
+      "profileHidden": "Profile details hidden",
+      "sent": "Sent {timeAgo}",
+      "seen": "Seen {timeAgo}"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "withdraw": "Withdraw interest",
+      "openChat": "Open chat",
+      "reportProfile": "Report profile",
+      "block": "Block",
+      "revealContact": "Reveal contact (mutual)",
+      "unlocking": "Unlocking…",
+      "awaitingUnlock": "Awaiting their unlock…"
+    },
+    "declineReasons": {
+      "title": "Decline this request?",
+      "description": "Your reason stays private. The sender only sees that you declined.",
+      "notInterested": "Not interested right now",
+      "notMatching": "Doesn't match my preferences",
+      "incompleteProfile": "Profile feels incomplete",
+      "photoHidden": "Photo is hidden",
+      "inappropriateMessage": "Message felt inappropriate",
+      "other": "Other",
+      "cancel": "Cancel",
+      "confirm": "Decline"
+    },
+    "acceptModal": {
+      "title": "Accept {name}?",
+      "description": "Add an optional welcome note. They'll see it as the first message in your chat.",
+      "placeholder": "Hi! Looking forward to getting to know you...",
+      "charCounter": "{current} / 500",
+      "cancel": "Cancel",
+      "confirm": "Accept"
+    },
+    "reportCategories": {
+      "title": "Report profile",
+      "description": "Reports stay confidential. Our moderation team reviews every one within 24h.",
+      "harassment": "Harassment / abusive language",
+      "fakeProfile": "Fake or impersonated profile",
+      "inappropriateContent": "Inappropriate photos / content",
+      "scam": "Scam / asking for money",
+      "underage": "Underage / minor",
+      "spam": "Spam / repeated unwanted contact",
+      "other": "Other",
+      "detailsPlaceholder": "Optional: tell us more...",
+      "charCounter": "{current} / 1000",
+      "cancel": "Cancel",
+      "confirm": "Submit report"
+    },
+    "statusBadges": {
+      "pending": "Pending",
+      "matched": "Matched",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn",
+      "blocked": "Blocked",
+      "expired": "Expired"
+    },
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{m}m ago",
+      "hoursAgo": "{h}h ago",
+      "yesterday": "yesterday",
+      "daysAgo": "{d}d ago",
+      "monthsAgo": "{mo}mo ago",
+      "expiresIn": "expires in {time}",
+      "expired": "expired",
+      "onlineNow": "Online now",
+      "activeMinutesAgo": "Active {m}m ago",
+      "activeHoursAgo": "Active {h}h ago",
+      "activeDaysAgo": "Active {d}d ago"
+    },
+    "toasts": {
+      "acceptSuccess": "It's a match! Say hello to {name} in Chats",
+      "acceptError": "Could not accept — please try again",
+      "declineError": "Could not decline — please try again",
+      "withdrawError": "Could not withdraw — please try again",
+      "withdrawConfirm": "Withdraw this interest? The other person will not be notified unless they had already seen it.",
+      "blockConfirm": "Block {name}? They will no longer be able to contact you and any open match will be cancelled.",
+      "blockError": "Could not block — please try again",
+      "reportError": "Could not submit report — please try again",
+      "loadError": "Failed to load requests. Please try again.",
+      "retryAction": "Retry"
+    },
+    "reveal": {
+      "unlocked": "Contact details unlocked",
+      "unlockError": "Could not unlock — please retry",
+      "waitingForOther": "Your side is unlocked. Waiting for the other person to unlock their contact."
+    }
+  }
+}

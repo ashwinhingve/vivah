@@ -3,10 +3,12 @@
  * Server Component
  */
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import type { RefundRecord, RefundStatus } from '@smartshaadi/types';
 import { Container } from '@/components/shared';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -31,23 +33,13 @@ async function fetchRefunds(): Promise<RefundRecord[]> {
   }
 }
 
-const STATUS_MAP: Record<RefundStatus, { className: string; label: string }> = {
-  REQUESTED: { className: 'bg-warning/15 text-warning', label: 'Requested' },
-  APPROVED: { className: 'bg-teal/10 text-teal', label: 'Approved' },
-  PROCESSING: { className: 'bg-primary/15 text-primary', label: 'Processing' },
-  COMPLETED: { className: 'bg-success/15 text-success', label: 'Completed' },
-  FAILED: { className: 'bg-destructive/15 text-destructive', label: 'Failed' },
-  REJECTED: { className: 'bg-secondary text-muted-foreground', label: 'Rejected' },
-};
-
-const REASON_LABELS: Record<string, string> = {
-  CUSTOMER_REQUEST: 'Customer request',
-  SERVICE_CANCELLED: 'Service cancelled',
-  VENDOR_NO_SHOW: 'Vendor no-show',
-  DUPLICATE_PAYMENT: 'Duplicate payment',
-  DISPUTE_RESOLVED: 'Dispute resolved',
-  FRAUD: 'Fraud',
-  OTHER: 'Other',
+const STATUS_TONE_MAP: Record<RefundStatus, StatusTone> = {
+  REQUESTED: 'warning',
+  APPROVED: 'teal',
+  PROCESSING: 'primary',
+  COMPLETED: 'success',
+  FAILED: 'error',
+  REJECTED: 'neutral',
 };
 
 function formatINR(amount: string | number): string {
@@ -68,38 +60,35 @@ function formatDate(iso: string): string {
 }
 
 export default async function RefundsPage() {
+  const t = await getTranslations('payments.refunds');
   const refunds = await fetchRefunds();
 
   return (
     <main className="min-h-screen bg-background py-8">
       <Container variant="narrow">
-        <PageHeader title="Refund History" subtitle="Track the status of your refund requests" />
+        <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
         {refunds.length === 0 ? (
           <EmptyState
-            title="No refunds yet"
-            description="You have not submitted any refund requests."
+            title={t('noRefunds')}
+            description={t('noRefundsDesc')}
           />
         ) : (
           <ul className="space-y-4">
             {refunds.map((refund) => {
-              const badge =
-                STATUS_MAP[refund.status] ?? {
-                  className: 'bg-secondary text-muted-foreground',
-                  label: refund.status,
-                };
+              const tone = STATUS_TONE_MAP[refund.status] ?? 'neutral';
               return (
                 <li
                   key={refund.id}
-                  className="rounded-xl border border-gold bg-surface p-5 shadow-card"
+                  className="rounded-2xl border border-gold bg-surface p-5 shadow-card"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-mono text-xs text-muted-foreground">
-                        Payment {refund.paymentId.slice(0, 8)}…
+                        {t('paymentPrefix')} {refund.paymentId.slice(0, 8)}…
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        Requested {formatDate(refund.requestedAt)}
+                        {t('requestedOn')} {formatDate(refund.requestedAt)}
                       </p>
                     </div>
                     <p className="shrink-0 text-lg font-bold text-primary">
@@ -108,18 +97,16 @@ export default async function RefundsPage() {
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
-                    >
-                      {badge.label}
-                    </span>
+                    <StatusChip tone={tone}>
+                      {t(`status.${refund.status}`)}
+                    </StatusChip>
                     <span className="text-xs text-muted-foreground">
-                      {REASON_LABELS[refund.reason] ?? refund.reason}
+                      {t(`reason.${refund.reason}`)}
                     </span>
                     {refund.refundToWallet ? (
-                      <span className="inline-flex items-center rounded-full bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal">
-                        To wallet
-                      </span>
+                      <StatusChip tone="teal">
+                        {t('toWallet')}
+                      </StatusChip>
                     ) : null}
                   </div>
 
@@ -131,13 +118,13 @@ export default async function RefundsPage() {
 
                   {refund.failureReason ? (
                     <p className="mt-2 text-xs text-destructive">
-                      Failure: {refund.failureReason}
+                      {t('failurePrefix')}: {refund.failureReason}
                     </p>
                   ) : null}
 
                   {refund.processedAt ? (
                     <p className="mt-2 text-xs text-success">
-                      Processed on {formatDate(refund.processedAt)}
+                      {t('processedOn')} {formatDate(refund.processedAt)}
                     </p>
                   ) : null}
                 </li>

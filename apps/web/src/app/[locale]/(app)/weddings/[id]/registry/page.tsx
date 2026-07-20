@@ -1,10 +1,11 @@
+import { getTranslations } from 'next-intl/server';
 import { Plus } from 'lucide-react';
 import { fetchRegistry } from '@/lib/wedding-api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { createRegistryItemAction, deleteRegistryItemAction } from './actions';
 
-interface PageProps { params: Promise<{ id: string }> }
+interface PageProps { params: Promise<{ locale: string; id: string }> }
 
 const STATUS_COLORS: Record<string, string> = {
   AVAILABLE: 'bg-success/15 text-success',
@@ -13,7 +14,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default async function RegistryPage({ params }: PageProps) {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'weddings.registry' });
   const r = await fetchRegistry(id);
   const items = r?.items ?? [];
 
@@ -22,14 +24,14 @@ export default async function RegistryPage({ params }: PageProps) {
       <main id="main-content" className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
           <PageHeader
-            title="Gift Registry"
-            subtitle="List items guests can claim — appears on your public wedding website if enabled."
+            title={t('heading')}
+            subtitle={t('subtitle')}
           />
 
         <div className="bg-surface border border-gold/20 rounded-xl shadow-sm mb-6">
           {items.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-sm text-muted-foreground">No registry items yet.</p>
+              <p className="text-sm text-muted-foreground">{t('noItems')}</p>
             </div>
           ) : (
             <ul className="divide-y divide-gold/10">
@@ -41,11 +43,11 @@ export default async function RegistryPage({ params }: PageProps) {
                     <div className="text-xs mt-1 flex gap-2">
                       {i.price && <span className="text-foreground">₹{i.price.toLocaleString('en-IN')}</span>}
                       <span className={`px-2 py-0.5 rounded-full ${STATUS_COLORS[i.status] ?? ''}`}>{i.status.toLowerCase()}</span>
-                      {i.claimedByName && <span className="text-muted-foreground">claimed by {i.claimedByName}</span>}
+                      {i.claimedByName && <span className="text-muted-foreground">{t('claimedBy', { name: i.claimedByName })}</span>}
                     </div>
                   </div>
                   <form action={deleteRegistryItemAction.bind(null, id, i.id)}>
-                    <button type="submit" className="text-xs text-destructive hover:underline">Remove</button>
+                    <button type="submit" className="text-xs text-destructive hover:underline">{t('remove')}</button>
                   </form>
                 </li>
               ))}
@@ -55,26 +57,26 @@ export default async function RegistryPage({ params }: PageProps) {
 
         <details className="bg-surface border border-gold/20 rounded-xl shadow-sm p-5">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-primary list-none">
-            <Plus className="h-4 w-4" /> Add registry item
+            <Plus className="h-4 w-4" /> {t('addItem')}
           </summary>
           <form action={createRegistryItemAction.bind(null, id)} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Item *</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">{t('itemLabel')}</label>
               <input name="label" required className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Price (₹)</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">{t('priceLabel')}</label>
               <input name="price" type="number" min="0" step="1" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">External link</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">{t('linkLabel')}</label>
               <input name="externalUrl" type="url" placeholder="https://" className="w-full min-h-[40px] rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">{t('descriptionLabel')}</label>
               <textarea name="description" rows={2} className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm" />
             </div>
-            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">Add to registry</button>
+            <button type="submit" className="md:col-span-2 min-h-[44px] rounded-lg bg-primary text-white text-sm font-semibold">{t('submit')}</button>
           </form>
         </details>
         </div>

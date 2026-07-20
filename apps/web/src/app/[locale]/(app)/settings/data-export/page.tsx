@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Database } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { fetchAuth } from '@/lib/server-fetch';
 import { DataExportPanel } from './DataExportPanel.client';
 import type { ExportRequest } from './actions';
@@ -8,6 +9,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Your Data — Smart Shaadi' };
 
 export default async function DataExportPage() {
+  const t = await getTranslations('settings');
   const exports = (await fetchAuth<ExportRequest[]>('/api/v1/gdpr/export/mine')) ?? [];
 
   return (
@@ -18,10 +20,10 @@ export default async function DataExportPage() {
             <Database className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="font-heading text-2xl font-bold text-primary">Your data</h1>
+            <h1 className="font-heading text-2xl font-bold text-primary">{t('dataExport')}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Export a copy of everything Smart Shaadi holds about you. This is your right under
-              India’s data-protection law.
+              India's data-protection law.
             </p>
           </div>
         </div>

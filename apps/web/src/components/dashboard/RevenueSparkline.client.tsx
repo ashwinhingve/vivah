@@ -35,9 +35,12 @@ export function RevenueSparkline({ data, className = '' }: RevenueSparklineProps
   const [progress, setProgress] = useState(reduced ? 1 : 0);
   // x, y stored as percentage of container (0-100) for scale-independent positioning
   const [tooltip, setTooltip] = useState<{ x: number; y: number; day: RevenueDay } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const raf = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const DURATION = 900; // ms
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (reduced || data.length === 0) {
@@ -182,7 +185,7 @@ export function RevenueSparkline({ data, className = '' }: RevenueSparklineProps
         </div>
 
         {/* Tooltip — percentage positioned */}
-        {tooltip && (
+        {mounted && tooltip && (
           <div
             className="pointer-events-none absolute z-10 rounded-lg border border-gold/30 bg-surface px-2.5 py-1.5 shadow-card-hover"
             style={{

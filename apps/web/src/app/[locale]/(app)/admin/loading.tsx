@@ -1,4 +1,5 @@
-import { RouteSkeleton } from '@/components/shared/RouteSkeleton';
+import { AdminPageSkeleton } from '@/components/shared';
+
 export default function Loading() {
-  return <RouteSkeleton />;
+  return <AdminPageSkeleton withStatCards rows={4} />;
 }

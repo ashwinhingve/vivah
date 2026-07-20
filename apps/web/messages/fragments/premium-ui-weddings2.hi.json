@@ -1,0 +1,63 @@
+{
+  "weddings": {
+    "seating": {
+      "heading": "बैठने की व्यवस्था",
+      "subtitle": "{tableCount} टेबलें · {seatedCount} में से {totalConfirmed} पुष्टि किए गए मेहमान बैठे हैं",
+      "autoAssign": "स्वचालित असाइन करें",
+      "noTablesYet": "अभी कोई टेबल नहीं। दाईं ओर अपनी पहली टेबल जोड़ें।",
+      "delete": "हटाएं",
+      "empty": "खाली",
+      "seat": "सीट",
+      "newTable": "नई टेबल",
+      "tableName": "टेबल का नाम",
+      "capacity": "क्षमता",
+      "shape": "आकार",
+      "shapeRound": "गोल",
+      "shapeRect": "आयत",
+      "shapeSquare": "वर्ग",
+      "shapeOval": "अंडाकार",
+      "addTable": "टेबल जोड़ें",
+      "unseatedCount": "बिना सीट ({count})",
+      "allSeated": "सभी पुष्टि किए गए मेहमान बैठ गए हैं।"
+    },
+    "moodboard": {
+      "heading": "मूड बोर्ड",
+      "subtitle": "अपने विवाह के थीम, रंग और सजावट के लिए प्रेरणा एकत्र करें।"
+    },
+    "registry": {
+      "heading": "उपहार रजिस्ट्री",
+      "subtitle": "ऐसे आइटम सूचीबद्ध करें जिन्हें मेहमान दावा कर सकें — आपकी सार्वजनिक विवाह वेबसाइट पर दिखाई देता है यदि सक्षम किया गया हो।",
+      "noItems": "अभी कोई रजिस्ट्री आइटम नहीं।",
+      "claimedBy": "{name} द्वारा दावा किया गया",
+      "remove": "हटाएं",
+      "addItem": "रजिस्ट्री आइटम जोड़ें",
+      "itemLabel": "आइटम *",
+      "priceLabel": "मूल्य (₹)",
+      "linkLabel": "बाहरी लिंक",
+      "descriptionLabel": "विवरण",
+      "submit": "रजिस्ट्री में जोड़ें"
+    },
+    "invite": {
+      "heading": "डिजिटल निमंत्रण",
+      "subtitle": "अपने विवाह विवरण से एक साझा ई-निमंत्रण डिज़ाइन करें।",
+      "templateLabel": "टेम्पलेट",
+      "headlineLabel": "शीर्षक (वैकल्पिक)",
+      "headlinePlaceholder": "उदा। आशा और विक्रम का विवाह",
+      "messageLabel": "निमंत्रण संदेश (वैकल्पिक)",
+      "messagePlaceholder": "अपनी कंपनी का सुख चाहते हैं…",
+      "rsvpLabel": "मेहमानों को निमंत्रण से RSVP देने दें",
+      "saving": "सहेज रहे हैं…",
+      "save": "सहेजें",
+      "publishing": "प्रकाशित कर रहे हैं…",
+      "publish": "प्रकाशित करें",
+      "republish": "दोबारा प्रकाशित करें",
+      "publishHint": "एक साझा लिंक और PDF उत्पन्न करने के लिए प्रकाशित करें।",
+      "shareHeading": "अपना निमंत्रण साझा करें",
+      "copy": "कॉपी करें",
+      "shareWhatsapp": "WhatsApp पर साझा करें",
+      "openInvite": "निमंत्रण खोलें",
+      "defaultMessage": "आप आमंत्रित हैं!",
+      "preview": "पूर्वावलोकन"
+    }
+  }
+}

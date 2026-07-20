@@ -1,0 +1,38 @@
+{
+  "store": {
+    "orders": {
+      "title": "My Orders",
+      "backToStore": "Store",
+      "emptyLabel": "No orders yet",
+      "browseCta": "Browse Products",
+      "statusLabels": {
+        "placed": "Placed",
+        "confirmed": "Confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
+    }
+  },
+  "vendorDashboard": {
+    "statusBanner": {
+      "labels": {
+        "pending": "Pending",
+        "underReview": "Under Review",
+        "rejected": "Rejected",
+        "draft": "Draft"
+      },
+      "rejectionTitle": "Application needs attention",
+      "draftTitle": "Your profile is in draft",
+      "draftDescription": "Complete your business details and submit for review to start receiving bookings."
+    },
+    "orders": {
+      "statusLabels": {
+        "pending": "Pending",
+        "shipped": "Shipped",
+        "delivered": "Delivered"
+      }
+    }
+  }
+}

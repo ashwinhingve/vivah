@@ -205,7 +205,36 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-20 (current, later session) — Premium UI Phase 3: five-area teammate sweep + real QA portraits
+### 2026-07-21 (current) — Ship premium UI + Phase 4: shared components, payments audit, i18n completion, CI green
+
+Shipped `feat/premium-ui-phase-1` (PR #4): pushed 14 accumulated commits, then
+fixed every CI failure the first-ever complete pipeline run surfaced — demo-DB
+signal checks gated behind `DEMO_DB_CHECKS=1`, promptfoo upgraded to pinned
+0.121.19 with per-provider split configs (`evals/promptfooconfig.{ml,llm}.yaml`
+— 0.107.7 crashed on fresh installs), `vitest.setup.ts` no longer clobbers CI's
+`DATABASE_URL`, hand-written migrations 0030+ now applied in CI via psql, mobile
+jest timeout 15s, timezone.ts midnight h24 bug (`hourCycle: 'h23'`), guna suite
+env-pinned, E2E job repaired (playwright binary path + warn-first skip without
+`VERCEL_PREVIEW_URL`). Phase-4 work on `feat/premium-ui-phase-4` via 7 teammates:
+shared `StatusChip` + admin skeleton presets + `no-products` EmptyState + rating
+badge; StatusChip rollout across ~20 status-mapping sites; 16 layout-matched
+admin `loading.tsx`; first `/payments` audit (full i18n, was zero keys);
+onboarding personal/career/lifestyle + RequestsClient (886 lines) + weddings
+seating/moodboard/registry/invite i18n; 6 more mounted-guard hydration fixes;
+~680 en+hi keys merged. Hindi visual pass at 375px across 9 areas (fixed admin
+hub overflow via `min-w-0`, one transliteration). Teammate damage caught by
+orchestrator verification: smart-quote mangling, `t`/`table` shadowing, 3 type
+errors, an orphan duplicate component.
+
+### 2026-07-21 — Docs audit & reorganization
+
+Full `docs/` audit (124 files): archived 46 historical artifacts (weekly smoke
+tests, 24 superpowers plans, old demo scripts, client-era docs, day notes) into
+`docs/archive/`, moved KYC-PROVIDERS into `PROVIDER-ACTIVATION/kyc-providers.md`,
+deleted 2.2 MB of stale screenshots, added `docs/README.md` navigation index.
+All load-bearing paths kept in place; repo-wide doc-link check clean. Commit `c8a287a`.
+
+### 2026-07-20 — Premium UI Phase 3: five-area teammate sweep + real QA portraits
 
 Five parallel Opus teammates (chat interior, weddings, marketplace, onboarding,
 admin) with strict disjoint file scopes + orchestrator verification. Commits

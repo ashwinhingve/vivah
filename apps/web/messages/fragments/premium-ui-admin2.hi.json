@@ -1,0 +1,26 @@
+{
+  "adminStatus": {
+    "userRoles": {
+      "INDIVIDUAL": "व्यक्तिगत",
+      "FAMILY_MEMBER": "परिवार के सदस्य",
+      "VENDOR": "विक्रेता",
+      "EVENT_COORDINATOR": "इवेंट आयोजक",
+      "ADMIN": "व्यवस्थापक",
+      "SUPPORT": "समर्थन"
+    },
+    "userStatus": {
+      "ACTIVE": "सक्रिय",
+      "SUSPENDED": "निलंबित",
+      "PENDING_VERIFICATION": "प्रतीक्षारत",
+      "DELETED": "हटाया गया"
+    },
+    "disputeStatus": {
+      "open": "खुला",
+      "resolved": "हल किया गया"
+    },
+    "reconciliationStatus": {
+      "OPEN": "खुला",
+      "RESOLVED": "हल किया गया"
+    }
+  }
+}

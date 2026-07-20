@@ -86,7 +86,7 @@
 ## Minute 18–20 · Close strong
 
 - **Say:** *"Right now the focus is stabilising the core flows phase by phase. The architecture supports the full roadmap — AI Intelligence Layer, Vendor Utilization Engine, Mobile, NRI."*
-- Hand the WhatsApp summary (`docs/CLIENT-WHATSAPP-SUMMARY.md`).
+- Hand the WhatsApp summary (`docs/archive/client/CLIENT-WHATSAPP-SUMMARY.md`).
 - Schedule the next sync.
 
 ---

@@ -8,6 +8,7 @@ import {
   Sparkles,
   ListChecks,
   SearchX,
+  ShoppingBag,
   Bell,
   Bookmark,
   WifiOff,
@@ -29,6 +30,7 @@ import {
   NoShortlistIllustration,
   NoSearchResultsIllustration,
   NoNetworkIllustration,
+  NoProductsIllustration,
 } from './illustrations';
 
 type EmptyVariant =
@@ -36,6 +38,7 @@ type EmptyVariant =
   | 'no-messages'
   | 'no-bookings'
   | 'no-vendors'
+  | 'no-products'
   | 'no-wedding'
   | 'no-tasks'
   | 'no-results'
@@ -82,6 +85,12 @@ const PRESETS: Record<
     icon: Store,
     title: 'No vendors found',
     description: 'Try widening your filters or exploring a nearby city.',
+  },
+  'no-products': {
+    illustration: NoProductsIllustration,
+    icon: ShoppingBag,
+    title: 'No products found',
+    description: 'Nothing in this category right now. Try another category or check back soon.',
   },
   'no-wedding': {
     illustration: NoWeddingPlanIllustration,

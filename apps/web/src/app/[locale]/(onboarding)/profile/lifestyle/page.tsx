@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
@@ -42,6 +43,7 @@ interface ProfileSnapshot {
 }
 
 export default function LifestylePage() {
+  const t = useTranslations('onboarding.lifestyle');
   const [state, formAction] = useActionState(updateLifestyle, undefined);
   const [profile, setProfile] = useState<ProfileSnapshot | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -85,7 +87,7 @@ export default function LifestylePage() {
       <ProfileProgress steps={STEPS} />
       <div className="bg-surface rounded-2xl shadow-card border border-gold/20 p-6">
         <PageHeader
-          title="Lifestyle & Interests"
+          title={t('heading')}
           className="mb-6"
         />
         <form key={loaded ? 'ready' : 'loading'} action={formAction} className="space-y-6">
@@ -105,7 +107,7 @@ export default function LifestylePage() {
           ))}
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Diet Preference</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('diet')}</label>
             <div className="flex gap-3 flex-wrap">
               {(['VEG', 'NON_VEG', 'JAIN', 'VEGAN', 'EGGETARIAN'] as const).map((d) => (
                 <label key={d} className="flex items-center gap-2 cursor-pointer">
@@ -126,7 +128,7 @@ export default function LifestylePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Smoking</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t('smoking')}</label>
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -143,7 +145,7 @@ export default function LifestylePage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Drinking</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t('drinking')}</label>
               <div className="flex gap-3 flex-wrap">
                 {(['NEVER', 'OCCASIONALLY', 'REGULARLY'] as const).map((v) => (
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -162,7 +164,7 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Hobbies (select all that apply)</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('hobbies')}</label>
             <div className="flex flex-wrap gap-2">
               {HOBBIES.map((h) => (
                 <button
@@ -182,7 +184,7 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Languages Spoken</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('languages')}</label>
             <div className="flex flex-wrap gap-2">
               {LANGUAGES.map((lang) => (
                 <button
@@ -202,8 +204,8 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Your Personality Tags</label>
-            <p className="text-xs text-muted-foreground mb-2">These help surface you to compatible matches</p>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('personalityTags')}</label>
+            <p className="text-xs text-muted-foreground mb-2">{t('personalityTagsNote')}</p>
             <div className="flex flex-wrap gap-2">
               {HYPER_NICHE_TAGS.map((t) => (
                 <button
@@ -223,7 +225,7 @@ export default function LifestylePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Fitness Level</label>
+            <label className="block text-sm font-medium text-foreground mb-2">{t('fitness')}</label>
             <div className="flex gap-3 flex-wrap">
               {(['ACTIVE', 'MODERATE', 'SEDENTARY'] as const).map((f) => (
                 <label key={f} className="flex items-center gap-2 cursor-pointer">

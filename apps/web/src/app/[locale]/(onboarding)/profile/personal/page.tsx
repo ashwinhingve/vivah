@@ -112,7 +112,7 @@ export default function PersonalPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('fullName')}</label>
               <input
                 name="fullName"
                 type="text"
@@ -120,13 +120,13 @@ export default function PersonalPage() {
                 required
                 defaultValue={p?.fullName ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                placeholder="Your full name"
+                placeholder={t('fullNamePlaceholder')}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Date of Birth</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('dateOfBirth')}</label>
                 <input
                   name="dob"
                   type="date"
@@ -136,13 +136,13 @@ export default function PersonalPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Marital Status</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('maritalStatus')}</label>
                 <select
                   name="maritalStatus"
                   defaultValue={p?.maritalStatus ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="" disabled>Select status</option>
+                  <option value="" disabled>{t('selectStatus')}</option>
                   <option value="NEVER_MARRIED">Never Married</option>
                   <option value="DIVORCED">Divorced</option>
                   <option value="WIDOWED">Widowed</option>
@@ -152,7 +152,7 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
+              <label className="block text-sm font-medium text-foreground mb-2">{t('gender')}</label>
               <div className="flex gap-3 flex-wrap">
                 {(lgbtqEnabled
                   ? (['MALE', 'FEMALE', 'NON_BINARY', 'OTHER'] as const)
@@ -168,7 +168,7 @@ export default function PersonalPage() {
                       required
                     />
                     <span className="text-sm text-foreground">
-                      {g === 'NON_BINARY' ? 'Non-binary' : g.charAt(0) + g.slice(1).toLowerCase()}
+                      {g === 'MALE' ? t('genderMale') : g === 'FEMALE' ? t('genderFemale') : g === 'NON_BINARY' ? t('genderNonBinary') : t('genderOther')}
                     </span>
                   </label>
                 ))}
@@ -179,7 +179,7 @@ export default function PersonalPage() {
               <div className="space-y-3 rounded-lg border border-gold/40 bg-gold/5 p-4">
                 <div>
                   <label htmlFor="sexualOrientation" className="block text-sm font-medium text-foreground mb-1">
-                    Sexual orientation <span className="text-muted-foreground">(private)</span>
+                    {t('sexualOrientationPrivate')}
                   </label>
                   <select
                     id="sexualOrientation"
@@ -196,7 +196,7 @@ export default function PersonalPage() {
                     <option value="OTHER">Other</option>
                   </select>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Stored on your profile but never visible to other users unless you toggle it below.
+                    {t('orientationStorageNote')}
                   </p>
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -207,13 +207,13 @@ export default function PersonalPage() {
                     defaultChecked={p?.orientationVisibility === 'OUT'}
                     className="accent-teal"
                   />
-                  <span className="text-sm text-foreground">Show on my public profile</span>
+                  <span className="text-sm text-foreground">{t('orientationVisible')}</span>
                 </label>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Height</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('height')}</label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <select
@@ -242,26 +242,26 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Religion</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('religion')}</label>
                 <select
                   name="religion"
                   defaultValue={p?.religion ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="" disabled>Select religion</option>
+                  <option value="" disabled>{t('selectReligion')}</option>
                   {RELIGIONS.map((r) => (
                     <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Mother Tongue</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('motherTongue')}</label>
                 <select
                   name="motherTongue"
                   defaultValue={p?.motherTongue ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="" disabled>Select language</option>
+                  <option value="" disabled>{t('selectLanguage')}</option>
                   {MOTHER_TONGUES.map((l) => (
                     <option key={l} value={l}>{l}</option>
                   ))}
@@ -271,23 +271,23 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Current City</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('currentCity')}</label>
                 <input
                   name="currentCity"
                   type="text"
                   defaultValue={profile?.location?.city ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none"
-                  placeholder="e.g. Pune"
+                  placeholder={t('currentCityPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">State</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('state')}</label>
                 <select
                   name="currentState"
                   defaultValue={profile?.location?.state ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                 >
-                  <option value="">Select state</option>
+                  <option value="">{t('selectState')}</option>
                   {INDIAN_STATES.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
@@ -296,14 +296,14 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">About Me</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t('aboutMe')}</label>
               <textarea
                 name="aboutMe"
                 rows={3}
                 maxLength={500}
                 defaultValue={profile?.aboutMe ?? ''}
                 className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none resize-none"
-                placeholder="Share a little about yourself, your interests, and what you're looking for…"
+                placeholder={t('aboutMePlaceholder')}
               />
             </div>
 
