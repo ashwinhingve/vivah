@@ -4572,6 +4572,14 @@
         "revoked": "Access revoked",
         "approved": "Approved",
         "error": "Action failed"
+      },
+      "linkNewPage": {
+        "metaTitle": "Link a family member",
+        "backToHub": "Back to family hub",
+        "title": "Link a family member",
+        "subtitle": "Send a request to assist a family member with their matchmaking. They stay in full control — every request needs their approval, and they can revoke your access anytime.",
+        "awaitingApproval": "Awaiting their approval",
+        "pendingSuffix": "pending"
       }
     }
   },

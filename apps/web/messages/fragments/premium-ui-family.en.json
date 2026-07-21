@@ -112,6 +112,14 @@
       }
     },
     "pages": {
+      "linkNewPage": {
+        "metaTitle": "Link a family member",
+        "backToHub": "Back to family hub",
+        "title": "Link a family member",
+        "subtitle": "Send a request to assist a family member with their matchmaking. They stay in full control — every request needs their approval, and they can revoke your access anytime.",
+        "awaitingApproval": "Awaiting their approval",
+        "pendingSuffix": "pending"
+      },
       "linkRequestForm": {
         "childUserIdLabel": "Family member's account ID",
         "childUserIdPlaceholder": "e.g. usr_a1b2c3…",
