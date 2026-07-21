@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
+import { getLocale } from 'next-intl/server';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PhotoFallback } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StatusChip } from '@/components/ui/StatusChip';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
@@ -44,20 +46,27 @@ async function fetchViewers(token: string): Promise<ViewersResponse | null> {
   }
 }
 
-function timeAgo(iso: string): string {
+interface TimeAgoDescriptor {
+  kind: 'justNow' | 'minutes' | 'hours' | 'days' | 'absoluteDate';
+  value?: number;
+  iso?: string;
+}
+
+function getTimeAgoDescriptor(iso: string): TimeAgoDescriptor {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1)    return 'just now';
-  if (mins < 60)   return `${mins}m ago`;
+  if (mins < 1)    return { kind: 'justNow' };
+  if (mins < 60)   return { kind: 'minutes', value: mins };
   const hours = Math.floor(mins / 60);
-  if (hours < 24)  return `${hours}h ago`;
+  if (hours < 24)  return { kind: 'hours', value: hours };
   const days = Math.floor(hours / 24);
-  if (days < 30)   return `${days}d ago`;
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  if (days < 30)   return { kind: 'days', value: days };
+  return { kind: 'absoluteDate', iso };
 }
 
 export default async function ViewersPage() {
   const t = await getTranslations('viewers');
+  const locale = await getLocale();
   const cookieStore = await cookies();
   const token = cookieStore.get('better-auth.session_token')?.value ?? '';
   const [result, entitlements] = await Promise.all([
@@ -66,6 +75,25 @@ export default async function ViewersPage() {
   ]);
   const viewers = result?.viewers ?? [];
   const isLocked = !(entitlements?.entitlements.canViewViewers ?? false);
+
+  const formatTimeAgo = (descriptor: TimeAgoDescriptor): string => {
+    switch (descriptor.kind) {
+      case 'justNow':
+        return t('timeAgo.justNow');
+      case 'minutes':
+        return descriptor.value !== undefined ? t('timeAgo.minutesAgo', { count: descriptor.value }) : '';
+      case 'hours':
+        return descriptor.value !== undefined ? t('timeAgo.hoursAgo', { count: descriptor.value }) : '';
+      case 'days':
+        return descriptor.value !== undefined ? t('timeAgo.daysAgo', { count: descriptor.value }) : '';
+      case 'absoluteDate':
+        return descriptor.iso
+          ? new Date(descriptor.iso).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' })
+          : '';
+      default:
+        return '';
+    }
+  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -88,7 +116,7 @@ export default async function ViewersPage() {
                   <Card key={v.viewerProfileId} className="overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card">
                     <div className="relative block aspect-[4/5]">
                       {photoUrl ? (
-                        <Image src={photoUrl} alt={v.name ? `${v.name}'s profile photo` : 'Viewer profile photo'} fill sizes="33vw" className="object-cover" />
+                        <Image src={photoUrl} alt={v.name ? t('photoAlt', { name: v.name }) : t('photoAltFallback')} fill sizes="33vw" className="object-cover" />
                       ) : (
                         <PhotoFallback name={v.name} />
                       )}
@@ -101,6 +129,8 @@ export default async function ViewersPage() {
         ) : viewers.length === 0 ? (
           <EmptyState
             variant="no-network"
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
             action={
               <Button asChild>
                 <Link href="/feed">
@@ -120,7 +150,7 @@ export default async function ViewersPage() {
                     {photoUrl ? (
                       <Image
                         src={photoUrl}
-                        alt={`${v.name}'s profile photo`}
+                        alt={v.name ? t('photoAlt', { name: v.name }) : t('photoAltFallback')}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform group-hover:scale-[1.03]"
@@ -136,13 +166,13 @@ export default async function ViewersPage() {
                       <p className="truncate text-xs text-white/75">{v.city ?? ''}</p>
                     </div>
                     {v.verificationStatus === 'VERIFIED' ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
+                      <StatusChip tone="success" className="absolute right-2 top-2">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                        Verified
-                      </span>
+                        {t('badgeVerified')}
+                      </StatusChip>
                     ) : null}
                     <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-2xs font-semibold text-white shadow-sm">
-                      {timeAgo(v.viewedAt)}
+                      {formatTimeAgo(getTimeAgoDescriptor(v.viewedAt))}
                     </span>
                   </Link>
                 </Card>

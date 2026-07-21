@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StaggerList } from '@/components/motion/StaggerList.client';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import {
   sendForSignatureAction,
   completeSignatureAction,
@@ -27,26 +28,31 @@ interface DocumentsClientProps {
   isMockEsign: boolean;
 }
 
-function getStatusBadgeColor(status: string): string {
-  switch (status) {
-    case 'DRAFT':
-      return 'bg-gold/10 text-gold-muted';
-    case 'SENT':
-      return 'bg-teal/10 text-teal';
-    case 'SIGNED':
-      return 'bg-success/10 text-success';
-    case 'VOID':
-      return 'bg-destructive/10 text-destructive';
-    default:
-      return 'bg-gold/10 text-gold-muted';
-  }
-}
+const STATUS_TONE_MAP: Record<Contract['status'], StatusTone> = {
+  DRAFT: 'gold',
+  SENT: 'teal',
+  SIGNED: 'success',
+  VOID: 'error',
+};
+
+const STATUS_LABEL_KEY: Record<Contract['status'], string> = {
+  DRAFT: 'statuses.draft',
+  SENT: 'statuses.sent',
+  SIGNED: 'statuses.signed',
+  VOID: 'statuses.void',
+};
 
 export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClientProps) {
   const t = useTranslations('documents.client');
+  const locale = useLocale();
   const [contracts, setContracts] = useState<Contract[]>(initialContracts);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSendForSignature = async (contractId: string) => {
     setLoading(contractId);
@@ -153,13 +159,13 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
                   {contract.title}
                 </h3>
                 <p className="text-sm text-muted mt-1">
-                  {t('createdLabel')} {new Date(contract.createdAt).toLocaleDateString()}
+                  {t('createdLabel')} {mounted ? new Date(contract.createdAt).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN') : contract.createdAt.slice(0, 10)}
                 </p>
               </div>
 
-              <div className={`inline-flex px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusBadgeColor(contract.status)}`}>
-                {contract.status}
-              </div>
+              <StatusChip tone={STATUS_TONE_MAP[contract.status]}>
+                {t(STATUS_LABEL_KEY[contract.status])}
+              </StatusChip>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">

@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PhotoFallback } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
+import { StatusChip } from '@/components/ui/StatusChip';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { ShortlistRemoveButton } from './ShortlistRemoveButton.client';
 
@@ -72,6 +73,8 @@ export default async function ShortlistPage() {
         {items.length === 0 ? (
           <EmptyState
             variant="no-shortlist"
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
             action={
               <Button asChild>
                 <Link href="/feed">
@@ -85,14 +88,14 @@ export default async function ShortlistPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => {
               const photoUrl = resolvePhotoUrl(item.primaryPhotoKey);
-              const name = item.name ?? 'Profile';
+              const name = item.name ?? t('fallbackName');
               return (
                 <Card key={item.id} className="group overflow-hidden rounded-2xl border border-gold/20 bg-surface shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
                   <Link href={`/profiles/${item.targetProfileId}`} className="relative block aspect-[4/5]">
                     {photoUrl ? (
                       <Image
                         src={photoUrl}
-                        alt={`${name}'s profile photo`}
+                        alt={t('photoAlt', { name })}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform group-hover:scale-[1.03]"
@@ -108,10 +111,10 @@ export default async function ShortlistPage() {
                       <p className="truncate text-xs text-white/75">{item.city ?? ''}</p>
                     </div>
                     {item.verificationStatus === 'VERIFIED' ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
+                      <StatusChip tone="success" className="absolute right-2 top-2">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                        Verified
-                      </span>
+                        {t('badgeVerified')}
+                      </StatusChip>
                     ) : null}
                   </Link>
                   {item.note ? (

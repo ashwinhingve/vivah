@@ -383,7 +383,59 @@
       "title": "Pricing — Smart Shaadi"
     },
     "heading": "Simple, Transparent Pricing",
-    "subtext": "Start free. Upgrade when you're ready."
+    "subtext": "Start free. Upgrade when you're ready.",
+    "fallbackPlans": {
+      "free": {
+        "name": "Free",
+        "features": {
+          "f1": "Browse profiles",
+          "f2": "5 daily likes",
+          "f3": "Basic filters"
+        }
+      },
+      "standard": {
+        "name": "Standard",
+        "features": {
+          "f1": "Unlimited likes",
+          "f2": "See who liked you",
+          "f3": "Advanced filters",
+          "f4": "Priority support"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "features": {
+          "f1": "Everything in Standard",
+          "f2": "Verified badge",
+          "f3": "AI-curated matches",
+          "f4": "Read receipts",
+          "f5": "Incognito browsing"
+        }
+      },
+      "premiumAnnual": {
+        "name": "Premium Annual",
+        "features": {
+          "f1": "All Premium features",
+          "f2": "2 months free",
+          "f3": "Concierge matchmaker",
+          "f4": "Personal brand photoshoot voucher"
+        }
+      }
+    },
+    "interval": {
+      "month": "/month",
+      "quarter": "/quarter",
+      "year": "/year"
+    },
+    "badges": {
+      "mostPopular": "Most popular"
+    },
+    "cta": {
+      "continueFree": "Continue free",
+      "choosePlan": "Choose plan"
+    },
+    "footer": "All plans renew automatically. Cancel anytime from",
+    "footerLinkLabel": "Billing"
   },
   "feed": {
     "openFilters": "Filters",
@@ -573,7 +625,15 @@
       "personalityFit": "Personality",
       "behaviourCompatibility": "Behaviour"
     },
-    "similarTitle": "You may also like"
+    "similarTitle": "You may also like",
+    "fallbackName": "Profile",
+    "joinedRelative": {
+      "thisWeek": "Joined this week",
+      "weeksAgo": "Joined {count, plural, one {# week} other {# weeks}} ago",
+      "monthsAgo": "Joined {count, plural, one {# month} other {# months}} ago",
+      "yearsAgo": "Joined {count, plural, one {# year} other {# years}} ago"
+    },
+    "memberSince": "Member since {date}"
   },
   "onboarding": {
     "personal": {
@@ -1693,7 +1753,29 @@
     "stillNeedHelp": "Still need help? Email"
   },
   "welcome": {
-    "supportFooter": "Questions? Email support@smartshaadi.co.in"
+    "supportFooter": "Questions? Email support@smartshaadi.co.in",
+    "metadata": {
+      "title": "Welcome — Smart Shaadi"
+    },
+    "greeting": "Welcome, {firstName}",
+    "greetingDefault": "Welcome to Smart Shaadi",
+    "subtitle": "You're among our founding members. Here's what to expect.",
+    "cards": {
+      "community": {
+        "title": "Matches grow with our community",
+        "body": "We're growing carefully — quality over quantity. Your match feed will refresh daily as more verified profiles join."
+      },
+      "privacy": {
+        "title": "Privacy by default",
+        "body": "Your photos and contact details stay private until both sides show genuine interest. Family members can co-review without exposure."
+      },
+      "notifications": {
+        "title": "Get notified instantly",
+        "body": "When new compatible profiles join, we will notify you. Add your horoscope to unlock Guna Milan compatibility scoring."
+      }
+    },
+    "cta": "Take me to my matches",
+    "launchTagline": "Smart Shaadi launched May 2026 · Building India's most thoughtful matrimony"
   },
   "legal": {
     "privacy": {
@@ -2216,6 +2298,105 @@
         "aboutTodo": "Portfolio “about” (recommended)",
         "eventTypesDone": "{count, plural, one {# event type selected} other {# event types selected}}",
         "eventTypesTodo": "Event types (for coordinator routing)"
+      },
+      "businessForm": {
+        "nameLabel": "Business name *",
+        "categoryLabel": "Category *",
+        "categoryPlaceholder": "Select a category…",
+        "cityLabel": "City *",
+        "stateLabel": "State *",
+        "phoneLabel": "Contact phone",
+        "emailLabel": "Contact email",
+        "taglineLabel": "Tagline",
+        "taglinePlaceholder": "One line that sums up your work",
+        "descriptionLabel": "About your business",
+        "saving": "Saving…",
+        "submit": "Save & continue"
+      },
+      "availabilityManager": {
+        "blockDateTitle": "Block a date",
+        "dateLabel": "Date",
+        "reasonLabel": "Reason (optional)",
+        "reasonPlaceholder": "Already booked, holiday…",
+        "blocking": "Blocking…",
+        "submit": "Block date",
+        "blockedDatesTitle": "Blocked dates",
+        "removeError": "Could not remove that date.",
+        "removeAriaLabel": "Remove blocked date"
+      },
+      "portfolioForm": {
+        "aboutLabel": "About your work",
+        "aboutPlaceholder": "Your style, experience, and what sets you apart.",
+        "awardsLabel": "Awards",
+        "awardsPlaceholder": "Comma-separated, e.g. Best Decor 2024, Editor's Pick",
+        "certificationsLabel": "Certifications",
+        "certificationsPlaceholder": "Comma-separated, e.g. FSSAI, ISO 9001",
+        "eventTypesLabel": "Event types you serve",
+        "eventTypesHint": "Selecting these makes you discoverable to event coordinators routing work.",
+        "saving": "Saving…",
+        "submit": "Save & continue"
+      },
+      "addServiceForm": {
+        "title": "Add a service",
+        "nameLabel": "Service name *",
+        "namePlaceholder": "e.g. Full-day wedding photography",
+        "priceFromLabel": "Price from (₹) *",
+        "priceToLabel": "Up to (₹)",
+        "unitLabel": "Unit *",
+        "descriptionLabel": "Description",
+        "adding": "Adding…",
+        "submit": "Add service"
+      },
+      "submitReview": {
+        "successMessage": "Your profile has been submitted. We'll email you once the review is complete.",
+        "submitting": "Submitting…",
+        "submit": "Submit for review",
+        "gate": "Add your business details and at least one service before submitting.",
+        "error": "Could not submit for review."
+      },
+      "labels": {
+        "categories": {
+          "PHOTOGRAPHY": "Photography",
+          "VIDEOGRAPHY": "Videography",
+          "CATERING": "Catering",
+          "DECORATION": "Decoration",
+          "VENUE": "Venue",
+          "MAKEUP": "Makeup",
+          "JEWELLERY": "Jewellery",
+          "CLOTHING": "Clothing",
+          "MUSIC": "Music",
+          "LIGHTING": "Lighting",
+          "SECURITY": "Security",
+          "TRANSPORT": "Transport",
+          "PRIEST": "Priest",
+          "SOUND": "Sound",
+          "EVENT_HOSTING": "Event hosting",
+          "RENTAL": "Rental",
+          "OTHER": "Other"
+        },
+        "eventTypes": {
+          "WEDDING": "Wedding",
+          "CORPORATE": "Corporate",
+          "FESTIVAL": "Festival",
+          "COMMUNITY_EVENT": "Community event",
+          "COMMUNITY": "Community",
+          "GOVERNMENT": "Government",
+          "SCHOOL": "School",
+          "OTHER": "Other",
+          "HALDI": "Haldi",
+          "MEHNDI": "Mehndi",
+          "SANGEET": "Sangeet",
+          "ENGAGEMENT": "Engagement",
+          "RECEPTION": "Reception"
+        },
+        "serviceUnits": {
+          "per_event": "Per event",
+          "per_day": "Per day",
+          "per_hour": "Per hour",
+          "per_plate": "Per plate",
+          "per_person": "Per person",
+          "fixed": "Fixed"
+        }
       }
     },
     "packages": "Packages",
@@ -2318,16 +2499,40 @@
       "title": "Multi-event pipeline",
       "subtitle": "Track upcoming bookings across weddings, corporate, festival and community events.",
       "needVendorAccount": "You need a vendor account to view this page.",
-      "dataUnavailable": "Pipeline data is not available right now. Please try again in a minute."
+      "dataUnavailable": "Pipeline data is not available right now. Please try again in a minute.",
+      "needVendorAccountTitle": "Vendor account required",
+      "dataUnavailableTitle": "Pipeline unavailable"
     },
     "reviews": {
       "title": "Reviews",
       "emptyTitle": "No reviews yet",
-      "emptyDescription": "Reviews from couples you've worked with will appear here. You can reply to each one."
+      "emptyDescription": "Reviews from couples you've worked with will appear here. You can reply to each one.",
+      "metaTitle": "Reviews · Vendor",
+      "subtitleWithAvg": "{avg} average across {total, plural, one {# review} other {# reviews}} — replying builds trust with future couples.",
+      "subtitleEmpty": "Replies to reviews build trust with future couples.",
+      "yourReply": "Your reply"
     },
     "leads": {
       "title": "Customer leads",
-      "subtitle": "Inquiries sent directly to your vendor profile. You are charged per qualified lead."
+      "subtitle": "Inquiries sent directly to your vendor profile. You are charged per qualified lead.",
+      "needVendorAccount": "Vendor account required",
+      "needVendorAccountDesc": "You need a vendor account to view this page.",
+      "statTotal": "Total leads",
+      "statQualified": "Qualified",
+      "statCharges": "Charges (mo.)",
+      "statAvgFee": "Avg fee",
+      "filterAll": "All",
+      "filterPending": "Pending",
+      "filterCharged": "Charged",
+      "filterRefunded": "Refunded",
+      "filterCancelled": "Cancelled",
+      "statusPending": "Pending",
+      "statusQualified": "Qualified",
+      "statusCharged": "Charged",
+      "statusRefunded": "Refunded",
+      "statusCancelled": "Cancelled",
+      "statusPendingPayment": "Pending payment",
+      "refundedReason": "Refunded — {reason}"
     },
     "components": {
       "availabilityCalendar": {
@@ -2348,6 +2553,50 @@
         "blocked": "Unavailable",
         "alreadyBooked": "This date is already booked"
       }
+    },
+    "payouts": {
+      "metaTitle": "Payouts · Vendor",
+      "needSignIn": "Sign in required",
+      "needSignInDesc": "Please sign in to view your payouts.",
+      "title": "My Payouts",
+      "subtitle": "Track your earnings and payout disbursements",
+      "statLifetime": "Lifetime Paid",
+      "statPending": "Pending",
+      "statFailed": "Failed",
+      "statTotal": "Total Payouts",
+      "emptyTitle": "No payouts yet",
+      "emptyDesc": "Payouts are processed after your bookings are completed and the escrow period ends.",
+      "booking": "Booking {id}...",
+      "scheduled": "Scheduled",
+      "processed": "Processed",
+      "gross": "Gross {amount} − {fee} fee",
+      "statusScheduled": "Scheduled",
+      "statusProcessing": "Processing",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "statusOnHold": "On Hold",
+      "failureReason": "Reason: {reason}",
+      "scheduleTitle": "Payout Schedule",
+      "scheduleBullet1": "Payouts are initiated 48 hours after your event is marked complete by the customer.",
+      "scheduleBullet2": "Funds arrive in your registered bank account within 3–5 business days.",
+      "scheduleBullet3": "Platform fees of 5–10% are deducted before disbursement."
+    },
+    "insights": {
+      "metaTitle": "Insights · Vendor",
+      "title": "Insights",
+      "subtitle": "How couples are finding and responding to your profile.",
+      "statProfileViews": "Profile views",
+      "statSavedByCouples": "Saved by couples",
+      "statAvgRating": "Avg rating",
+      "statReviews": "Reviews",
+      "leadsHeading": "Leads",
+      "statTotalLeads": "Total leads",
+      "statQualified": "Qualified",
+      "statThisMonth": "This month",
+      "statLifetime": "Lifetime",
+      "qualifiedRate": "Qualified rate",
+      "leadsBreakdown": "{charged} charged · {pending} pending · {cancelled} cancelled · avg fee {avgFee}",
+      "emptyLeads": "Lead insights will appear here once couples start reaching out."
     }
   },
   "familyRole": {
@@ -2693,7 +2942,12 @@
     "removeLabel": "Remove",
     "removeAria": "Remove {name} from shortlist",
     "removed": "{name} removed from your shortlist",
-    "removeFailed": "Could not remove — please try again"
+    "removeFailed": "Could not remove — please try again",
+    "fallbackName": "Profile",
+    "badgeVerified": "Verified",
+    "photoAlt": "{name}'s profile photo",
+    "emptyTitle": "Your shortlist is empty",
+    "emptyDescription": "Save profiles you'd like to revisit and they'll appear here."
   },
   "viewers": {
     "heading": "Who viewed you",
@@ -2701,7 +2955,18 @@
     "subtitleEmpty": "No recent visitors yet",
     "lockedFeature": "{count} viewer{count, plural, one {} other {s}}",
     "lockedMessage": "See who has viewed your profile. Upgrade to Standard to unlock all {count} visitor{count, plural, one {} other {s}}.",
-    "exploreCta": "Explore Matches"
+    "exploreCta": "Explore Matches",
+    "badgeVerified": "Verified",
+    "photoAlt": "{name}'s profile photo",
+    "photoAltFallback": "Profile photo",
+    "emptyTitle": "No profile views yet",
+    "emptyDescription": "When someone views your profile, they'll appear here.",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    }
   },
   "vendorUtilization": {
     "metadata": {
@@ -2944,7 +3209,13 @@
       "void": "Void",
       "failedToSend": "Failed to send for signature",
       "failedToComplete": "Failed to complete signature",
-      "failedToDownload": "Failed to download PDF"
+      "failedToDownload": "Failed to download PDF",
+      "statuses": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "signed": "Signed",
+        "void": "Void"
+      }
     }
   },
   "adminAnalyticsForecast": {
@@ -3022,6 +3293,7 @@
     "noOffers": "No offers to show right now.",
     "selectOffer": "Select {name}",
     "tenure": "Tenure",
+    "tenureMonths": "{months} mo",
     "apr": "APR",
     "monthly": "Monthly",
     "viewKfs": "View Key Fact Statement (KFS)",
@@ -3664,7 +3936,11 @@
     "lockedMessage": "Upgrade to see everyone who has liked your profile.",
     "metadata": {
       "title": "Who Liked You — Smart Shaadi"
-    }
+    },
+    "fallbackName": "Member",
+    "badgeVerified": "Verified",
+    "respondCta": "Respond",
+    "photoAlt": "{name}'s profile photo"
   },
   "smartSuggestions": {
     "title": "Smart Suggestions",

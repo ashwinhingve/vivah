@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
 interface Plan {
@@ -30,17 +30,38 @@ async function fetchPlans(): Promise<Plan[]> {
   }
 }
 
-const FALLBACK_PLANS: Plan[] = [
-  { id: 'fallback-free',     code: 'FREE',           name: 'Free',           tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 0,    features: ['Browse profiles', '5 daily likes', 'Basic filters'] },
-  { id: 'fallback-standard', code: 'STANDARD_M',     name: 'Standard',       tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 999,  features: ['Unlimited likes', 'See who liked you', 'Advanced filters', 'Priority support'] },
-  { id: 'fallback-premium',  code: 'PREMIUM_M',      name: 'Premium',        tier: 'PREMIUM' as const,  interval: 'MONTHLY' as const,  amount: 1999, features: ['Everything in Standard', 'Verified badge', 'AI-curated matches', 'Read receipts', 'Incognito browsing'] },
-  { id: 'fallback-premium-y', code: 'PREMIUM_Y',     name: 'Premium Annual', tier: 'PREMIUM' as const,  interval: 'YEARLY' as const,   amount: 19990,features: ['All Premium features', '2 months free', 'Concierge matchmaker', 'Personal brand photoshoot voucher'] },
+type FallbackSlug = 'free' | 'standard' | 'premium' | 'premiumAnnual';
+
+const FALLBACK_PLANS_BASE: (Omit<Plan, 'name'> & { name: FallbackSlug })[] = [
+  { id: 'fallback-free',     code: 'FREE',           name: 'free',           tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 0,    features: [] },
+  { id: 'fallback-standard', code: 'STANDARD_M',     name: 'standard',       tier: 'STANDARD' as const, interval: 'MONTHLY' as const,  amount: 999,  features: [] },
+  { id: 'fallback-premium',  code: 'PREMIUM_M',      name: 'premium',        tier: 'PREMIUM' as const,  interval: 'MONTHLY' as const,  amount: 1999, features: [] },
+  { id: 'fallback-premium-y', code: 'PREMIUM_Y',     name: 'premiumAnnual',  tier: 'PREMIUM' as const,  interval: 'YEARLY' as const,   amount: 19990, features: [] },
 ];
 
-const INTERVAL_LABELS: Record<Plan['interval'], string> = {
-  MONTHLY:   '/month',
-  QUARTERLY: '/quarter',
-  YEARLY:    '/year',
+const FALLBACK_PLAN_KEYS: Record<FallbackSlug, { name: string; features: string[] }> = {
+  free: {
+    name: 'fallbackPlans.free.name',
+    features: ['fallbackPlans.free.features.f1', 'fallbackPlans.free.features.f2', 'fallbackPlans.free.features.f3'],
+  },
+  standard: {
+    name: 'fallbackPlans.standard.name',
+    features: ['fallbackPlans.standard.features.f1', 'fallbackPlans.standard.features.f2', 'fallbackPlans.standard.features.f3', 'fallbackPlans.standard.features.f4'],
+  },
+  premium: {
+    name: 'fallbackPlans.premium.name',
+    features: ['fallbackPlans.premium.features.f1', 'fallbackPlans.premium.features.f2', 'fallbackPlans.premium.features.f3', 'fallbackPlans.premium.features.f4', 'fallbackPlans.premium.features.f5'],
+  },
+  premiumAnnual: {
+    name: 'fallbackPlans.premiumAnnual.name',
+    features: ['fallbackPlans.premiumAnnual.features.f1', 'fallbackPlans.premiumAnnual.features.f2', 'fallbackPlans.premiumAnnual.features.f3', 'fallbackPlans.premiumAnnual.features.f4'],
+  },
+};
+
+const INTERVAL_KEY: Record<Plan['interval'], string> = {
+  MONTHLY:   'interval.month',
+  QUARTERLY: 'interval.quarter',
+  YEARLY:    'interval.year',
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -49,10 +70,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('title') };
 }
 
+function intlLocale(locale: string): string {
+  return locale === 'hi' ? 'hi-IN' : 'en-IN';
+}
+
 export default async function PricingPage() {
   const t = await getTranslations('pricing');
+  const locale = await getLocale();
   const fetched = await fetchPlans();
-  const plans = fetched.length > 0 ? fetched : FALLBACK_PLANS;
+
+  // Hydrate fallback plans with i18n data (explicit literal-key maps — see FALLBACK_PLAN_KEYS)
+  const plans: Plan[] = fetched.length > 0 ? fetched : FALLBACK_PLANS_BASE.map(p => {
+    const keys = FALLBACK_PLAN_KEYS[p.name];
+    return { ...p, name: t(keys.name), features: keys.features.map(k => t(k)) };
+  });
+
+  const dateLocale = intlLocale(locale);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
@@ -71,12 +104,12 @@ export default async function PricingPage() {
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-primary">{plan.name}</h2>
               {plan.tier === 'PREMIUM' && (
-                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-teal/10 text-teal">Most popular</span>
+                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-teal/10 text-teal">{t('badges.mostPopular')}</span>
               )}
             </div>
             <div className="mb-6">
-              <span className="text-3xl font-bold text-foreground">₹{plan.amount.toLocaleString('en-IN')}</span>
-              {plan.amount > 0 && <span className="text-sm text-muted-foreground">{INTERVAL_LABELS[plan.interval]}</span>}
+              <span className="text-3xl font-bold text-foreground">₹{plan.amount.toLocaleString(dateLocale)}</span>
+              {plan.amount > 0 && <span className="text-sm text-muted-foreground">{t(INTERVAL_KEY[plan.interval])}</span>}
             </div>
             <ul className="mb-6 space-y-2 text-sm text-foreground">
               {(Array.isArray(plan.features) ? plan.features as string[] : []).map((f, i) => (
@@ -94,14 +127,14 @@ export default async function PricingPage() {
                   : 'border border-primary text-primary hover:bg-primary/5'
               }`}
             >
-              {plan.amount === 0 ? 'Continue free' : 'Choose plan'}
+              {plan.amount === 0 ? t('cta.continueFree') : t('cta.choosePlan')}
             </Link>
           </div>
         ))}
       </div>
 
       <p className="mt-12 text-center text-sm text-muted-foreground">
-        All plans renew automatically. Cancel anytime from <Link href="/settings/billing" className="text-teal hover:underline">Billing</Link>.
+        {t('footer')} <Link href="/settings/billing" className="text-teal hover:underline">{t('footerLinkLabel')}</Link>.
       </p>
     </main>
   );

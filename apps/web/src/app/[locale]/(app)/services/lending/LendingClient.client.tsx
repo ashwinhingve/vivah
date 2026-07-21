@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { LoanOffer } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -13,13 +13,16 @@ interface LendingClientProps {
   isPreview: boolean;
 }
 
-function formatINR(paise: string): string {
+function formatINR(paise: string, localeTag: string): string {
   const rupees = Number(BigInt(paise)) / 100;
-  return `₹${rupees.toLocaleString('en-IN')}`;
+  return `₹${rupees.toLocaleString(localeTag)}`;
 }
 
 export function LendingClient({ initialOffers, isPreview }: LendingClientProps) {
   const t = useTranslations('servicesLending');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
   const [selected, setSelected] = useState<string | null>(null);
   const [consent, setConsent] = useState(false); // never pre-ticked
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
@@ -34,7 +37,7 @@ export function LendingClient({ initialOffers, isPreview }: LendingClientProps) 
       setStatus('done');
     } else {
       setStatus('error');
-      setError(result.error ?? 'Something went wrong');
+      setError(result.error ?? tCommon('error'));
     }
   };
 
@@ -97,12 +100,12 @@ export function LendingClient({ initialOffers, isPreview }: LendingClientProps) 
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <p className="font-heading text-lg text-primary">{o.reName}</p>
-                      <p className="text-lg font-semibold text-foreground">{formatINR(o.amountPaise)}</p>
+                      <p className="text-lg font-semibold text-foreground">{formatINR(o.amountPaise, localeTag)}</p>
                     </div>
                     <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-text-muted sm:grid-cols-3">
-                      <div><dt className="inline">{t('tenure')}: </dt><dd className="inline text-foreground">{o.tenorMonths} mo</dd></div>
+                      <div><dt className="inline">{t('tenure')}: </dt><dd className="inline text-foreground">{t('tenureMonths', { months: o.tenorMonths })}</dd></div>
                       <div><dt className="inline">{t('apr')}: </dt><dd className="inline text-foreground">{o.aprPct}%</dd></div>
-                      <div><dt className="inline">{t('monthly')}: </dt><dd className="inline text-foreground">{formatINR(o.monthlyPaise)}</dd></div>
+                      <div><dt className="inline">{t('monthly')}: </dt><dd className="inline text-foreground">{formatINR(o.monthlyPaise, localeTag)}</dd></div>
                     </dl>
                     <p className="mt-2 text-xs text-text-muted">{o.penalChargesNote}</p>
                     <a

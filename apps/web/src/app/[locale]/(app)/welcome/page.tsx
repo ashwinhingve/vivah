@@ -14,9 +14,11 @@ interface ProfileResp {
   name?: string | null;
 }
 
-export const metadata: Metadata = {
-  title: 'Welcome — Smart Shaadi',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'welcome.metadata' });
+  return { title: t('title') };
+}
 
 function getDisplayName(raw: string | null | undefined): string | null {
   const first = raw?.trim()?.split(/\s+/)[0];
@@ -40,23 +42,19 @@ async function fetchProfileName(token: string): Promise<string | null> {
   }
 }
 
-const CARDS = [
-  {
-    Icon: Users,
-    title: 'Matches grow with our community',
-    body: "We're growing carefully — quality over quantity. Your match feed will refresh daily as more verified profiles join.",
-  },
-  {
-    Icon: ShieldCheck,
-    title: 'Privacy by default',
-    body: 'Your photos and contact details stay private until both sides show genuine interest. Family members can co-review without exposure.',
-  },
-  {
-    Icon: Bell,
-    title: 'Get notified instantly',
-    body: 'When new compatible profiles join, we will notify you. Add your horoscope to unlock Guna Milan compatibility scoring.',
-  },
-] as const;
+const CARD_KEYS = ['community', 'privacy', 'notifications'] as const;
+
+const CARD_ICONS: Record<(typeof CARD_KEYS)[number], typeof Users> = {
+  community: Users,
+  privacy: ShieldCheck,
+  notifications: Bell,
+};
+
+const CARD_TEXT_KEYS: Record<(typeof CARD_KEYS)[number], { title: string; body: string }> = {
+  community:     { title: 'cards.community.title',     body: 'cards.community.body' },
+  privacy:       { title: 'cards.privacy.title',       body: 'cards.privacy.body' },
+  notifications: { title: 'cards.notifications.title', body: 'cards.notifications.body' },
+};
 
 export default async function WelcomePage() {
   const c = await cookies();
@@ -64,27 +62,34 @@ export default async function WelcomePage() {
   const firstName = await fetchProfileName(token);
   const t = await getTranslations('welcome');
 
+  const greeting = firstName
+    ? t('greeting', { firstName })
+    : t('greetingDefault');
+
   return (
     <main id="main-content" className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
         <PageHeader
-          title={firstName ? `Welcome, ${firstName}` : 'Welcome to Smart Shaadi'}
-          subtitle="You're among our founding members. Here's what to expect."
+          title={greeting}
+          subtitle={t('subtitle')}
           className="text-center"
         />
 
         <ul className="mt-10 grid gap-5 md:grid-cols-3">
-          {CARDS.map(({ Icon, title, body }) => (
-            <li key={title}>
-              <Card className="flex h-full flex-col items-start gap-3 border-gold/25 p-5 shadow-card">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold-muted">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <h2 className="font-heading text-base font-semibold text-primary">{title}</h2>
-                <p className="text-xs leading-relaxed text-muted-foreground">{body}</p>
-              </Card>
-            </li>
-          ))}
+          {CARD_KEYS.map((key) => {
+            const Icon = CARD_ICONS[key];
+            return (
+              <li key={key}>
+                <Card className="flex h-full flex-col items-start gap-3 border-gold/25 p-5 shadow-card">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold-muted">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h2 className="font-heading text-base font-semibold text-primary">{t(CARD_TEXT_KEYS[key].title)}</h2>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{t(CARD_TEXT_KEYS[key].body)}</p>
+                </Card>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="mt-10 flex flex-col items-center gap-3">
@@ -93,7 +98,7 @@ export default async function WelcomePage() {
             {t('supportFooter')}
           </p>
           <p className="text-xs text-muted-foreground">
-            Smart Shaadi launched May 2026 · Building India&rsquo;s most thoughtful matrimony
+            {t('launchTagline')}
           </p>
         </div>
       </div>

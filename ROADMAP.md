@@ -205,7 +205,29 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-21 (current) — Premium UI Phase 5: full UX backlog + never-audited long tail
+### 2026-07-21/22 (current) — Premium UI Phase 6: straggler-route sweep
+
+Cleared the phase-5 follow-up backlog on `feat/premium-ui-phase-6` with 5 Opus
+teammates in one wave + orchestrator repairs. Areas: pricing (fallback plans,
+interval labels, CTAs, footer — all i18n'd), welcome (entire page was hardcoded;
+new namespace incl. generateMetadata), likes/shortlist/viewers (verified badges →
+StatusChip, fallback names, timeAgo descriptors, photo alt text, EmptyState
+overrides — viewers' bare `no-network` preset was rendering "Couldn't load this
+page" for an empty list), documents (status badges → StatusChip via literal-key
+map), profiles (joinedRelative ICU plurals via discriminated union, memberSince
+locale-aware), vendor dashboards (leads/payouts/insights/reviews/pipeline — payouts
++ insights namespaces created from zero, 2 status Records → StatusChip, ~62 keys),
+vendor onboarding forms (5 client forms + category/eventType/unit label maps, ~81
+keys), services insurance/lending + onboarding services page ('en-IN' → locale
+mapping; lending "कार्यकाल"→"अवधि" fix + tenureMonths key). Orchestrator caught:
+T-A's next-intl `defaultValue` misuse (missing-key render) and non-throwing t()
+try/catch probing (would print raw keys as features), template-literal t() keys in
+3 teammates' output, T-B hardcoding 'hi-IN' for all users, T-D leaving pipeline
+EmptyState titles hardcoded, T-C's TS errors it reported as pre-existing.
+213 en+hi key pairs via 5 fragments; browser-verified at 375px in en+hi across 13
+views; type-check/lint/build green (forced). See docs/premium-ui/phase6-summary.md.
+
+### 2026-07-21 — Premium UI Phase 5: full UX backlog + never-audited long tail
 
 Completed the entire tracked premium-UI backlog on `feat/premium-ui-phase-5` (PR #6)
 with 7 Opus teammates in two waves. UX candidates: chat photo-upload optimistic

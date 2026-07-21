@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { InsuranceQuote } from '@smartshaadi/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -13,13 +13,16 @@ interface InsuranceClientProps {
   isPreview: boolean;
 }
 
-function formatINR(paise: string): string {
+function formatINR(paise: string, localeTag: string): string {
   const rupees = Number(BigInt(paise)) / 100;
-  return `₹${rupees.toLocaleString('en-IN')}`;
+  return `₹${rupees.toLocaleString(localeTag)}`;
 }
 
 export function InsuranceClient({ initialQuotes, isPreview }: InsuranceClientProps) {
   const t = useTranslations('servicesInsurance');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
   const [selected, setSelected] = useState<string | null>(null);
   const [consent, setConsent] = useState(false); // never pre-ticked
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
@@ -39,7 +42,7 @@ export function InsuranceClient({ initialQuotes, isPreview }: InsuranceClientPro
       setStatus('done');
     } else {
       setStatus('error');
-      setError(result.error ?? 'Something went wrong');
+      setError(result.error ?? tCommon('error'));
     }
   };
 
@@ -107,8 +110,8 @@ export function InsuranceClient({ initialQuotes, isPreview }: InsuranceClientPro
                     </div>
                     <p className="font-heading text-lg text-primary">{q.insurerName}</p>
                     <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-text-muted">
-                      <div><dt className="inline">{t('cover')}: </dt><dd className="inline text-foreground">{formatINR(q.sumAssuredPaise)}</dd></div>
-                      <div><dt className="inline">{t('premium')}: </dt><dd className="inline text-foreground">{formatINR(q.premiumPaise)}</dd></div>
+                      <div><dt className="inline">{t('cover')}: </dt><dd className="inline text-foreground">{formatINR(q.sumAssuredPaise, localeTag)}</dd></div>
+                      <div><dt className="inline">{t('premium')}: </dt><dd className="inline text-foreground">{formatINR(q.premiumPaise, localeTag)}</dd></div>
                     </dl>
                     <a
                       href={q.insurerGrievanceUrl}

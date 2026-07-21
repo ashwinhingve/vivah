@@ -1,0 +1,78 @@
+{
+  "vendorRole": {
+    "leads": {
+      "needVendorAccount": "Vendor account required",
+      "needVendorAccountDesc": "You need a vendor account to view this page.",
+      "statTotal": "Total leads",
+      "statQualified": "Qualified",
+      "statCharges": "Charges (mo.)",
+      "statAvgFee": "Avg fee",
+      "filterAll": "All",
+      "filterPending": "Pending",
+      "filterCharged": "Charged",
+      "filterRefunded": "Refunded",
+      "filterCancelled": "Cancelled",
+      "statusPending": "Pending",
+      "statusQualified": "Qualified",
+      "statusCharged": "Charged",
+      "statusRefunded": "Refunded",
+      "statusCancelled": "Cancelled",
+      "statusPendingPayment": "Pending payment",
+      "refundedReason": "Refunded — {reason}"
+    },
+    "payouts": {
+      "metaTitle": "Payouts · Vendor",
+      "needSignIn": "Sign in required",
+      "needSignInDesc": "Please sign in to view your payouts.",
+      "title": "My Payouts",
+      "subtitle": "Track your earnings and payout disbursements",
+      "statLifetime": "Lifetime Paid",
+      "statPending": "Pending",
+      "statFailed": "Failed",
+      "statTotal": "Total Payouts",
+      "emptyTitle": "No payouts yet",
+      "emptyDesc": "Payouts are processed after your bookings are completed and the escrow period ends.",
+      "booking": "Booking {id}...",
+      "scheduled": "Scheduled",
+      "processed": "Processed",
+      "gross": "Gross {amount} − {fee} fee",
+      "statusScheduled": "Scheduled",
+      "statusProcessing": "Processing",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "statusOnHold": "On Hold",
+      "failureReason": "Reason: {reason}",
+      "scheduleTitle": "Payout Schedule",
+      "scheduleBullet1": "Payouts are initiated 48 hours after your event is marked complete by the customer.",
+      "scheduleBullet2": "Funds arrive in your registered bank account within 3–5 business days.",
+      "scheduleBullet3": "Platform fees of 5–10% are deducted before disbursement."
+    },
+    "insights": {
+      "metaTitle": "Insights · Vendor",
+      "title": "Insights",
+      "subtitle": "How couples are finding and responding to your profile.",
+      "statProfileViews": "Profile views",
+      "statSavedByCouples": "Saved by couples",
+      "statAvgRating": "Avg rating",
+      "statReviews": "Reviews",
+      "leadsHeading": "Leads",
+      "statTotalLeads": "Total leads",
+      "statQualified": "Qualified",
+      "statThisMonth": "This month",
+      "statLifetime": "Lifetime",
+      "qualifiedRate": "Qualified rate",
+      "leadsBreakdown": "{charged} charged · {pending} pending · {cancelled} cancelled · avg fee {avgFee}",
+      "emptyLeads": "Lead insights will appear here once couples start reaching out."
+    },
+    "pipeline": {
+      "needVendorAccountTitle": "Vendor account required",
+      "dataUnavailableTitle": "Pipeline unavailable"
+    },
+    "reviews": {
+      "metaTitle": "Reviews · Vendor",
+      "subtitleWithAvg": "{avg} average across {total, plural, one {# review} other {# reviews}} — replying builds trust with future couples.",
+      "subtitleEmpty": "Replies to reviews build trust with future couples.",
+      "yourReply": "Your reply"
+    }
+  }
+}

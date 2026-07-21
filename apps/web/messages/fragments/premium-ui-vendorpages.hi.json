@@ -1,0 +1,78 @@
+{
+  "vendorRole": {
+    "leads": {
+      "needVendorAccount": "वेंडर खाता आवश्यक",
+      "needVendorAccountDesc": "इस पृष्ठ को देखने के लिए आपको एक वेंडर खाता की आवश्यकता है।",
+      "statTotal": "कुल लीड्स",
+      "statQualified": "योग्य",
+      "statCharges": "चार्ज (मा.)",
+      "statAvgFee": "औसत शुल्क",
+      "filterAll": "सभी",
+      "filterPending": "लंबित",
+      "filterCharged": "चार्ज किया गया",
+      "filterRefunded": "रिफंड किया गया",
+      "filterCancelled": "रद्द",
+      "statusPending": "लंबित",
+      "statusQualified": "योग्य",
+      "statusCharged": "चार्ज किया गया",
+      "statusRefunded": "रिफंड किया गया",
+      "statusCancelled": "रद्द",
+      "statusPendingPayment": "भुगतान लंबित",
+      "refundedReason": "रिफंड किया गया — {reason}"
+    },
+    "payouts": {
+      "metaTitle": "पेआउट · वेंडर",
+      "needSignIn": "साइन इन आवश्यक",
+      "needSignInDesc": "अपने पेआउट को देखने के लिए कृपया साइन इन करें।",
+      "title": "मेरे पेआउट",
+      "subtitle": "अपनी कमाई और पेआउट वितरण को ट्रैक करें",
+      "statLifetime": "आजीवन भुगतान",
+      "statPending": "लंबित",
+      "statFailed": "विफल",
+      "statTotal": "कुल पेआउट",
+      "emptyTitle": "अभी तक कोई पेआउट नहीं",
+      "emptyDesc": "आपकी बुकिंग पूरी होने और एस्क्रो अवधि समाप्त होने के बाद पेआउट प्रसंस्कृत किए जाते हैं।",
+      "booking": "बुकिंग {id}...",
+      "scheduled": "निर्धारित",
+      "processed": "प्रसंस्कृत",
+      "gross": "सकल {amount} − {fee} शुल्क",
+      "statusScheduled": "निर्धारित",
+      "statusProcessing": "प्रक्रियाधीन",
+      "statusCompleted": "पूर्ण",
+      "statusFailed": "विफल",
+      "statusOnHold": "प्रतीक्षा में",
+      "failureReason": "कारण: {reason}",
+      "scheduleTitle": "पेआउट अनुसूची",
+      "scheduleBullet1": "ग्राहक द्वारा आपकी घटना को पूर्ण के रूप में चिह्नित करने के 48 घंटे बाद पेआउट शुरू किए जाते हैं।",
+      "scheduleBullet2": "धन 3–5 व्यावसायिक दिनों में आपके पंजीकृत बैंक खाते में आता है।",
+      "scheduleBullet3": "वितरण से पहले 5–10% का प्लेटफ़ॉर्म शुल्क काटा जाता है।"
+    },
+    "insights": {
+      "metaTitle": "अंतर्दृष्टि · वेंडर",
+      "title": "अंतर्दृष्टि",
+      "subtitle": "जानें कि जोड़े कैसे आपकी प्रोफ़ाइल ढूंढ रहे हैं और उसे कैसे देख रहे हैं।",
+      "statProfileViews": "प्रोफ़ाइल दृश्य",
+      "statSavedByCouples": "जोड़ों द्वारा सहेजी गई",
+      "statAvgRating": "औसत रेटिंग",
+      "statReviews": "समीक्षाएँ",
+      "leadsHeading": "लीड्स",
+      "statTotalLeads": "कुल लीड्स",
+      "statQualified": "योग्य",
+      "statThisMonth": "इस महीने",
+      "statLifetime": "आजीवन",
+      "qualifiedRate": "योग्यता दर",
+      "leadsBreakdown": "{charged} चार्ज किए गए · {pending} लंबित · {cancelled} रद्द · औसत शुल्क {avgFee}",
+      "emptyLeads": "जब जोड़े पहुंचना शुरू करेंगे तो लीड अंतर्दृष्टि यहां दिखाई देगी।"
+    },
+    "pipeline": {
+      "needVendorAccountTitle": "वेंडर खाता आवश्यक",
+      "dataUnavailableTitle": "पाइपलाइन उपलब्ध नहीं"
+    },
+    "reviews": {
+      "metaTitle": "समीक्षाएँ · वेंडर",
+      "subtitleWithAvg": "{avg} औसत {total, plural, one {# समीक्षा} other {# समीक्षाओं}} में — उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
+      "subtitleEmpty": "समीक्षाओं का उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
+      "yourReply": "आपका उत्तर"
+    }
+  }
+}

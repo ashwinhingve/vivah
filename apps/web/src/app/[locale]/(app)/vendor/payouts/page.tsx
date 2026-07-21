@@ -2,18 +2,28 @@
  * Smart Shaadi — Vendor Payout History
  * Server Component
  */
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Wallet, Clock, XCircle, Receipt, LogIn } from 'lucide-react';
 import type { PayoutRecord, PayoutStatus } from '@smartshaadi/types';
 import { Container } from '@/components/shared';
 import { RoleHero } from '@/components/shared/RoleHero';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('vendorRole.payouts');
+  return {
+    title: t('metaTitle'),
+  };
+}
 
 interface VendorPayoutSummary {
   lifetimePaid: string;
@@ -59,33 +69,29 @@ async function fetchSummary(cookie: string): Promise<VendorPayoutSummary | null>
   }
 }
 
-function formatINR(amount: string | number): string {
+async function formatINR(amount: string | number, locale: string): Promise<string> {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('en-IN', {
+  const numLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  return new Intl.NumberFormat(numLocale, {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
   }).format(num);
 }
 
-function formatDate(iso: string | null): string {
+async function formatDate(iso: string | null, locale: string): Promise<string> {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-IN', {
+  const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  return new Date(iso).toLocaleDateString(dateLocale, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
 }
 
-const STATUS_BADGE: Record<PayoutStatus, { className: string; label: string }> = {
-  SCHEDULED: { className: 'bg-warning/15 text-warning', label: 'Scheduled' },
-  PROCESSING: { className: 'bg-teal/10 text-teal', label: 'Processing' },
-  COMPLETED: { className: 'bg-success/15 text-success', label: 'Completed' },
-  FAILED: { className: 'bg-destructive/15 text-destructive', label: 'Failed' },
-  ON_HOLD: { className: 'bg-warning/20 text-warning', label: 'On Hold' },
-};
-
 export default async function VendorPayoutsPage() {
+  const t = await getTranslations('vendorRole.payouts');
+  const locale = await getLocale();
   const cookie = await getAuthCookie();
   if (!cookie) {
     return (
@@ -93,8 +99,8 @@ export default async function VendorPayoutsPage() {
         <Container variant="narrow">
           <EmptyState
             icon={LogIn}
-            title="Sign in required"
-            description="Please sign in to view your payouts."
+            title={t('needSignIn')}
+            description={t('needSignInDesc')}
           />
         </Container>
       </main>
@@ -108,18 +114,18 @@ export default async function VendorPayoutsPage() {
       <main className="min-h-screen bg-background py-8">
         <Container variant="narrow">
           <RoleHero
-            title="My Payouts"
-            subtitle="Track your earnings and payout disbursements"
+            title={t('title')}
+            subtitle={t('subtitle')}
             icon={Wallet}
           />
 
           {summary ? (
             <FadeUp>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatsCard label="Lifetime Paid" value={formatINR(summary.lifetimePaid)} icon={Wallet} variant="success" animDelayMs={0} />
-                <StatsCard label="Pending" value={formatINR(summary.pending)} icon={Clock} variant="warning" animDelayMs={80} />
-                <StatsCard label="Failed" value={formatINR(summary.failed)} icon={XCircle} variant="default" animDelayMs={160} />
-                <StatsCard label="Total Payouts" value={summary.payoutCount} icon={Receipt} variant="teal" animDelayMs={240} />
+                <StatsCard label={t('statLifetime')} value={await formatINR(summary.lifetimePaid, locale)} icon={Wallet} variant="success" animDelayMs={0} />
+                <StatsCard label={t('statPending')} value={await formatINR(summary.pending, locale)} icon={Clock} variant="warning" animDelayMs={80} />
+                <StatsCard label={t('statFailed')} value={await formatINR(summary.failed, locale)} icon={XCircle} variant="default" animDelayMs={160} />
+                <StatsCard label={t('statTotal')} value={summary.payoutCount} icon={Receipt} variant="teal" animDelayMs={240} />
               </div>
             </FadeUp>
           ) : null}
@@ -129,84 +135,103 @@ export default async function VendorPayoutsPage() {
               <FadeUp>
                 <EmptyState
                   icon={Wallet}
-                  title="No payouts yet"
-                  description="Payouts are processed after your bookings are completed and the escrow period ends."
+                  title={t('emptyTitle')}
+                  description={t('emptyDesc')}
                 />
               </FadeUp>
             ) : (
               <StaggerList className="space-y-4">
-                {payouts.map((payout) => {
-                  const badge =
-                    STATUS_BADGE[payout.status] ?? {
-                      className: 'bg-secondary text-muted-foreground',
-                      label: payout.status,
-                    };
-                  return (
-                    <div
-                      key={payout.id}
-                      className="rounded-xl border border-gold bg-surface p-5 shadow-card"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          {payout.bookingId ? (
-                            <p className="font-mono text-xs text-muted-foreground">
-                              Booking {payout.bookingId.slice(0, 8)}…
-                            </p>
-                          ) : null}
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            Scheduled {formatDate(payout.scheduledFor)}
-                            {payout.processedAt
-                              ? ` · Processed ${formatDate(payout.processedAt)}`
-                              : ''}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-success">
-                            {formatINR(payout.netAmount)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Gross {formatINR(payout.grossAmount)} − {formatINR(payout.platformFee)} fee
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
-                        >
-                          {badge.label}
-                        </span>
-                        {payout.razorpayPayoutId ? (
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {payout.razorpayPayoutId}
-                          </span>
-                        ) : null}
-                      </div>
-
-                      {payout.failureReason ? (
-                        <p className="mt-2 text-xs text-destructive">
-                          Reason: {payout.failureReason}
-                        </p>
-                      ) : null}
-                    </div>
-                  );
-                })}
+                {payouts.map((payout) => (
+                  <PayoutRow key={payout.id} payout={payout} locale={locale} />
+                ))}
               </StaggerList>
             )}
           </div>
 
-          <aside className="mt-8 rounded-xl border border-gold bg-secondary px-5 py-4 text-sm">
-            <p className="font-semibold text-primary">Payout Schedule</p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-              <li>
-                Payouts are initiated 48 hours after your event is marked complete by the customer.
-              </li>
-              <li>Funds arrive in your registered bank account within 3–5 business days.</li>
-              <li>Platform fees of 5–10% are deducted before disbursement.</li>
-            </ul>
-          </aside>
+          <PayoutSchedule />
         </Container>
       </main>
     </PageTransition>
+  );
+}
+
+async function PayoutRow({ payout, locale }: { payout: PayoutRecord; locale: string }) {
+  const t = await getTranslations('vendorRole.payouts');
+
+  const statusTones: Record<PayoutStatus, StatusTone> = {
+    SCHEDULED:   'warning',
+    PROCESSING:  'teal',
+    COMPLETED:   'success',
+    FAILED:      'error',
+    ON_HOLD:     'warning',
+  };
+
+  const statusLabels: Record<PayoutStatus, string> = {
+    SCHEDULED:   t('statusScheduled'),
+    PROCESSING:  t('statusProcessing'),
+    COMPLETED:   t('statusCompleted'),
+    FAILED:      t('statusFailed'),
+    ON_HOLD:     t('statusOnHold'),
+  };
+
+  const scheduledDate = await formatDate(payout.scheduledFor, locale);
+  const processedDate = payout.processedAt ? await formatDate(payout.processedAt, locale) : null;
+  const netAmount = await formatINR(payout.netAmount, locale);
+  const grossAmount = await formatINR(payout.grossAmount, locale);
+  const platformFee = await formatINR(payout.platformFee, locale);
+
+  return (
+    <div className="rounded-xl border border-gold bg-surface p-5 shadow-card">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          {payout.bookingId ? (
+            <p className="font-mono text-xs text-muted-foreground">
+              {t('booking', { id: payout.bookingId.slice(0, 8) })}
+            </p>
+          ) : null}
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t('scheduled')} {scheduledDate}
+            {processedDate ? ` · ${t('processed')} ${processedDate}` : ''}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-bold text-success">{netAmount}</p>
+          <p className="text-xs text-muted-foreground">
+            {t('gross', { amount: grossAmount, fee: platformFee })}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <StatusChip tone={statusTones[payout.status]}>
+          {statusLabels[payout.status]}
+        </StatusChip>
+        {payout.razorpayPayoutId ? (
+          <span className="font-mono text-xs text-muted-foreground">
+            {payout.razorpayPayoutId}
+          </span>
+        ) : null}
+      </div>
+
+      {payout.failureReason ? (
+        <p className="mt-2 text-xs text-destructive">
+          {t('failureReason', { reason: payout.failureReason })}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+async function PayoutSchedule() {
+  const t = await getTranslations('vendorRole.payouts');
+  return (
+    <aside className="mt-8 rounded-xl border border-gold bg-secondary px-5 py-4 text-sm">
+      <p className="font-semibold text-primary">{t('scheduleTitle')}</p>
+      <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
+        <li>{t('scheduleBullet1')}</li>
+        <li>{t('scheduleBullet2')}</li>
+        <li>{t('scheduleBullet3')}</li>
+      </ul>
+    </aside>
   );
 }

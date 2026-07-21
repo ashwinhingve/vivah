@@ -5,8 +5,9 @@
  * fetches the leads inbox + aggregate stats in parallel. Read-only —
  * admin qualification/refund actions live on a separate admin page.
  */
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Users, TrendingUp, Wallet, Receipt, ListFilter } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -14,6 +15,7 @@ import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
@@ -27,6 +29,13 @@ import {
 } from '@/lib/vendor-leads-api';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('vendorRole.leads');
+  return {
+    title: t('title'),
+  };
+}
 
 async function authCookie(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -88,8 +97,8 @@ export default async function VendorLeadsPage({
             <FadeUp>
               <EmptyState
                 icon={Users}
-                title="Vendor account required"
-                description="You need a vendor account to view this page."
+                title={t('needVendorAccount')}
+                description={t('needVendorAccountDesc')}
               />
             </FadeUp>
           ) : (
@@ -125,7 +134,9 @@ async function LeadsContent({
   );
 }
 
-function LeadStats({ stats }: { stats: VendorLeadStats | null }) {
+async function LeadStats({ stats }: { stats: VendorLeadStats | null }) {
+  const t = await getTranslations('vendorRole.leads');
+
   if (!stats) {
     return (
       <div className="rounded-xl border border-gold/20 bg-surface p-4 text-sm text-muted-foreground">
@@ -138,22 +149,23 @@ function LeadStats({ stats }: { stats: VendorLeadStats | null }) {
   return (
     <FadeUp>
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatsCard label="Total leads" value={stats.totalLeads} icon={Users} variant="default" animDelayMs={0} />
-        <StatsCard label="Qualified" value={pct} valuePercent={pct} icon={TrendingUp} variant="teal" animDelayMs={80} />
-        <StatsCard label="Charges (mo.)" value={`₹${stats.monthChargedInr}`} icon={Wallet} variant="gold" animDelayMs={160} />
-        <StatsCard label="Avg fee" value={`₹${stats.avgFeeInr}`} icon={Receipt} variant="default" animDelayMs={240} />
+        <StatsCard label={t('statTotal')} value={stats.totalLeads} icon={Users} variant="default" animDelayMs={0} />
+        <StatsCard label={t('statQualified')} value={pct} valuePercent={pct} icon={TrendingUp} variant="teal" animDelayMs={80} />
+        <StatsCard label={t('statCharges')} value={`₹${stats.monthChargedInr}`} icon={Wallet} variant="gold" animDelayMs={160} />
+        <StatsCard label={t('statAvgFee')} value={`₹${stats.avgFeeInr}`} icon={Receipt} variant="default" animDelayMs={240} />
       </section>
     </FadeUp>
   );
 }
 
-function StatusFilters({ active }: { active?: LeadFeeStatus }) {
-  const opts: Array<{ label: string; value?: LeadFeeStatus }> = [
-    { label: 'All' },
-    { label: 'Pending', value: 'PENDING' },
-    { label: 'Charged', value: 'CHARGED' },
-    { label: 'Refunded', value: 'REFUNDED' },
-    { label: 'Cancelled', value: 'CANCELLED' },
+async function StatusFilters({ active }: { active?: LeadFeeStatus }) {
+  const t = await getTranslations('vendorRole.leads');
+  const opts: Array<{ labelKey: string; value?: LeadFeeStatus }> = [
+    { labelKey: 'filterAll' },
+    { labelKey: 'filterPending', value: 'PENDING' },
+    { labelKey: 'filterCharged', value: 'CHARGED' },
+    { labelKey: 'filterRefunded', value: 'REFUNDED' },
+    { labelKey: 'filterCancelled', value: 'CANCELLED' },
   ];
   return (
     <nav className="flex flex-wrap items-center gap-2 text-xs">
@@ -163,7 +175,7 @@ function StatusFilters({ active }: { active?: LeadFeeStatus }) {
         const href = o.value ? `/vendor/leads?status=${o.value}` : '/vendor/leads';
         return (
           <Link
-            key={o.label}
+            key={o.labelKey}
             href={href}
             className={cn(
               'rounded-full border px-3 py-1.5 transition-colors',
@@ -172,7 +184,7 @@ function StatusFilters({ active }: { active?: LeadFeeStatus }) {
                 : 'border-gold/30 text-muted-foreground hover:border-primary/40',
             )}
           >
-            {o.label}
+            {t(o.labelKey)}
           </Link>
         );
       })}
@@ -195,8 +207,32 @@ function LeadList({ leads }: { leads: VendorLeadRow[] }) {
   );
 }
 
-function LeadRow({ lead }: { lead: VendorLeadRow }) {
-  const date = lead.eventDate ? new Date(lead.eventDate).toLocaleDateString('en-IN') : '—';
+async function LeadRow({ lead }: { lead: VendorLeadRow }) {
+  const t = await getTranslations('vendorRole.leads');
+  const locale = await getLocale();
+  const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  const date = lead.eventDate
+    ? new Date(lead.eventDate).toLocaleDateString(dateLocale)
+    : '—';
+
+  const statusTones: Record<LeadFeeStatus, StatusTone> = {
+    PENDING:         'warning',
+    QUALIFIED:       'teal',
+    CHARGED:         'success',
+    REFUNDED:        'error',
+    CANCELLED:       'neutral',
+    PENDING_PAYMENT: 'warning',
+  };
+
+  const statusLabels: Record<LeadFeeStatus, string> = {
+    PENDING:         t('statusPending'),
+    QUALIFIED:       t('statusQualified'),
+    CHARGED:         t('statusCharged'),
+    REFUNDED:        t('statusRefunded'),
+    CANCELLED:       t('statusCancelled'),
+    PENDING_PAYMENT: t('statusPendingPayment'),
+  };
+
   return (
     <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -209,7 +245,9 @@ function LeadRow({ lead }: { lead: VendorLeadRow }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={lead.feeStatus} />
+          <StatusChip tone={statusTones[lead.feeStatus]}>
+            {statusLabels[lead.feeStatus]}
+          </StatusChip>
           <span className="text-xs text-muted-foreground">₹{lead.feeChargedInr}</span>
         </div>
       </div>
@@ -217,24 +255,10 @@ function LeadRow({ lead }: { lead: VendorLeadRow }) {
         <p className="mt-2 text-sm text-text/90 line-clamp-3">{lead.message}</p>
       ) : null}
       {lead.feeStatus === 'REFUNDED' && lead.refundReason ? (
-        <p className="mt-2 text-xs text-warning">Refunded — {lead.refundReason}</p>
+        <p className="mt-2 text-xs text-warning">
+          {t('refundedReason', { reason: lead.refundReason })}
+        </p>
       ) : null}
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: LeadFeeStatus }) {
-  const styles: Record<LeadFeeStatus, string> = {
-    PENDING:         'bg-warning/10 text-warning border-warning/30',
-    QUALIFIED:       'bg-teal/10 text-teal border-teal/30',
-    CHARGED:         'bg-success/10 text-success border-success/30',
-    REFUNDED:        'bg-destructive/10 text-destructive border-destructive/30',
-    CANCELLED:       'bg-muted text-muted-foreground border-border',
-    PENDING_PAYMENT: 'bg-warning/20 text-warning border-warning/40',
-  };
-  return (
-    <span className={`text-2xs uppercase tracking-wide px-2 py-0.5 rounded-full border ${styles[status]}`}>
-      {status.replace('_', ' ')}
-    </span>
   );
 }

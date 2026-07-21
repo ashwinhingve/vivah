@@ -1,0 +1,105 @@
+{
+  "vendorRole": {
+    "onboarding": {
+      "businessForm": {
+        "nameLabel": "व्यवसाय का नाम *",
+        "categoryLabel": "श्रेणी *",
+        "categoryPlaceholder": "एक श्रेणी चुनें…",
+        "cityLabel": "शहर *",
+        "stateLabel": "राज्य *",
+        "phoneLabel": "संपर्क फोन",
+        "emailLabel": "संपर्क ईमेल",
+        "taglineLabel": "टैगलाइन",
+        "taglinePlaceholder": "एक पंक्ति जो आपके काम को सारांशित करे",
+        "descriptionLabel": "आपके व्यवसाय के बारे में",
+        "saving": "सहेजा जा रहा है…",
+        "submit": "सहेजें और जारी रखें"
+      },
+      "availabilityManager": {
+        "blockDateTitle": "एक तारीख ब्लॉक करें",
+        "dateLabel": "तारीख",
+        "reasonLabel": "कारण (वैकल्पिक)",
+        "reasonPlaceholder": "पहले से बुक, छुट्टी…",
+        "blocking": "ब्लॉक किया जा रहा है…",
+        "submit": "तारीख ब्लॉक करें",
+        "blockedDatesTitle": "ब्लॉक की गई तारीखें",
+        "removeError": "वह तारीख हटाई नहीं जा सकी।",
+        "removeAriaLabel": "ब्लॉक की गई तारीख को हटाएं"
+      },
+      "portfolioForm": {
+        "aboutLabel": "आपके काम के बारे में",
+        "aboutPlaceholder": "आपकी शैली, अनुभव, और जो आपको अलग बनाता है।",
+        "awardsLabel": "पुरस्कार",
+        "awardsPlaceholder": "अल्पविराम से अलग, जैसे बेस्ट डेकोर 2024, एडिटर्स पिक",
+        "certificationsLabel": "प्रमाणपत्र",
+        "certificationsPlaceholder": "अल्पविराम से अलग, जैसे FSSAI, ISO 9001",
+        "eventTypesLabel": "आप जिन इवेंट प्रकारों की सेवा देते हैं",
+        "eventTypesHint": "इन्हें चुनने से आप इवेंट कोऑर्डिनेटर के लिए खोजने योग्य हो जाते हैं।",
+        "saving": "सहेजा जा रहा है…",
+        "submit": "सहेजें और जारी रखें"
+      },
+      "addServiceForm": {
+        "title": "एक सेवा जोड़ें",
+        "nameLabel": "सेवा का नाम *",
+        "namePlaceholder": "जैसे पूरे दिन की शादी की फोटोग्राफी",
+        "priceFromLabel": "मूल्य से (₹) *",
+        "priceToLabel": "तक (₹)",
+        "unitLabel": "इकाई *",
+        "descriptionLabel": "विवरण",
+        "adding": "जोड़ा जा रहा है…",
+        "submit": "सेवा जोड़ें"
+      },
+      "submitReview": {
+        "successMessage": "आपकी प्रोफ़ाइल सबमिट कर दी गई है। समीक्षा पूरी होने पर हम आपको ईमेल करेंगे।",
+        "submitting": "सबमिट किया जा रहा है…",
+        "submit": "समीक्षा के लिए सबमिट करें",
+        "gate": "सबमिट करने से पहले अपना व्यवसाय विवरण और कम से कम एक सेवा जोड़ें।",
+        "error": "समीक्षा के लिए सबमिट नहीं किया जा सका।"
+      },
+      "labels": {
+        "categories": {
+          "PHOTOGRAPHY": "फोटोग्राफी",
+          "VIDEOGRAPHY": "वीडियोग्राफी",
+          "CATERING": "खाद्य सेवा",
+          "DECORATION": "सजावट",
+          "VENUE": "स्थान",
+          "MAKEUP": "मेकअप",
+          "JEWELLERY": "गहने",
+          "CLOTHING": "कपड़े",
+          "MUSIC": "संगीत",
+          "LIGHTING": "प्रकाश",
+          "SECURITY": "सुरक्षा",
+          "TRANSPORT": "परिवहन",
+          "PRIEST": "पुजारी",
+          "SOUND": "ध्वनि",
+          "EVENT_HOSTING": "इवेंट होस्टिंग",
+          "RENTAL": "किराया",
+          "OTHER": "अन्य"
+        },
+        "eventTypes": {
+          "WEDDING": "शादी",
+          "CORPORATE": "कॉर्पोरेट",
+          "FESTIVAL": "त्योहार",
+          "COMMUNITY_EVENT": "सामुदायिक कार्यक्रम",
+          "COMMUNITY": "समुदाय",
+          "GOVERNMENT": "सरकारी",
+          "SCHOOL": "स्कूल",
+          "OTHER": "अन्य",
+          "HALDI": "हल्दी",
+          "MEHNDI": "मेहँदी",
+          "SANGEET": "संगीत",
+          "ENGAGEMENT": "सगुन",
+          "RECEPTION": "स्वागत समारोह"
+        },
+        "serviceUnits": {
+          "per_event": "प्रति इवेंट",
+          "per_day": "प्रति दिन",
+          "per_hour": "प्रति घंटा",
+          "per_plate": "प्रति प्लेट",
+          "per_person": "प्रति व्यक्ति",
+          "fixed": "निश्चित"
+        }
+      }
+    }
+  }
+}
