@@ -1562,6 +1562,7 @@
       "shapeOval": "अंडाकार",
       "addTable": "टेबल जोड़ें",
       "unseatedCount": "बिना सीट ({count})",
+      "seatsCount": "{filled}/{capacity} सीटें",
       "allSeated": "सभी पुष्टि किए गए मेहमान बैठ गए हैं।"
     },
     "moodboard": {

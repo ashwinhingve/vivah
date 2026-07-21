@@ -1562,6 +1562,7 @@
       "shapeOval": "Oval",
       "addTable": "Add table",
       "unseatedCount": "Unseated ({count})",
+      "seatsCount": "{filled}/{capacity} seats",
       "allSeated": "All confirmed guests are seated."
     },
     "moodboard": {

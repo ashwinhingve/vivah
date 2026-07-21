@@ -57,7 +57,7 @@ export default async function SeatingPage({ params }: PageProps) {
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-primary">{table.name}</h3>
-                        <p className="text-xs text-muted-foreground">{table.shape.toLowerCase()} · {filled}/{table.capacity} seats</p>
+                        <p className="text-xs text-muted-foreground">{table.shape.toLowerCase()} · {t('seatsCount', { filled, capacity: table.capacity })}</p>
                       </div>
                       <form action={deleteTableAction.bind(null, id, table.id)}>
                         <button type="submit" className="text-xs text-destructive hover:underline">{t('delete')}</button>

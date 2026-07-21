@@ -1,8 +1,8 @@
 /**
  * Smart Shaadi — typed analytics events.
  *
- * Single source of truth for the 18 named events called out in the UX audit
- * framework Wave 2 (see /root/.claude/plans/...-tender-gizmo.md §6).
+ * Single source of truth for the named product events (UX audit framework
+ * Wave 2 funnel events + store/marketplace events added in premium-UI phase 5).
  *
  * Why typed: untyped posthog.capture('foo') calls drift over time — different
  * spellings, different prop shapes, no way to grep the funnel. This module
@@ -40,7 +40,13 @@ export type AnalyticsEvent =
   | { name: 'payment_failed'; props: { reason?: string } }
   // Wedding workspace
   | { name: 'wedding_created'; props: { weddingId: string } }
-  | { name: 'wedding_section_viewed'; props: { section: WeddingSection } };
+  | { name: 'wedding_section_viewed'; props: { section: WeddingSection } }
+  // Store / marketplace
+  | { name: 'store_product_viewed'; props: { productId: string; category?: string } }
+  | { name: 'store_add_to_cart'; props: { productId: string; quantity: number; pricePaise: number } }
+  | { name: 'store_checkout_started'; props: { itemCount: number; totalPaise: number } }
+  | { name: 'store_order_completed'; props: { orderId: string; itemCount: number; totalPaise: number } }
+  | { name: 'store_filter_used'; props: { filter: 'category' | 'search' | 'sort'; value: string } };
 
 export type OnboardingStep =
   | 'personal'
