@@ -1,0 +1,19 @@
+{
+  "coordinator": {
+    "daysAway": "{days} दिन दूर",
+    "emptyTasks": {
+      "title": "सब कुछ हो गया",
+      "description": "अभी कोई लंबित कार्य नहीं। विवाह आगे बढ़ने पर नए कार्य यहाँ दिखाई देंगे।"
+    },
+    "severity": {
+      "CRITICAL": "गंभीर",
+      "HIGH": "उच्च",
+      "MEDIUM": "मध्यम",
+      "LOW": "निम्न"
+    }
+  },
+  "muhuratCalendar": {
+    "auspicious": "शुभ",
+    "eventCount": "{count, plural, one {# घटना} other {# घटनाएँ}}"
+  }
+}

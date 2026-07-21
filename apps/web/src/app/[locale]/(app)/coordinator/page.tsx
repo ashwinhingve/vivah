@@ -141,7 +141,7 @@ export default async function CoordinatorDashboardPage() {
 
                         <p className="mt-1 text-sm text-muted-foreground">
                           {formatDateIN(w.weddingDate)}
-                          {w.daysUntil !== null ? ` · ${w.daysUntil}d away` : ''}
+                          {w.daysUntil !== null ? ` · ${t('daysAway', { days: w.daysUntil })}` : ''}
                         </p>
 
                         <p className="mt-2 text-sm text-foreground">

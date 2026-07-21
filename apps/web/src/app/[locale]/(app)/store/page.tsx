@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Suspense } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -65,12 +66,16 @@ async function fetchFeatured(): Promise<ProductSummary[]> {
   }
 }
 
-export const metadata: Metadata = {
-  title: 'Wedding Store — Smart Shaadi',
-  description: 'Shop gifts, trousseau, ethnic wear and wedding essentials. Wide selection at great prices.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('store.list');
+  return {
+    title: `${t('title')} — Smart Shaadi`,
+    description: t('subtitle'),
+  };
+}
 
 export default async function StorePage({ searchParams }: PageProps) {
+  const t = await getTranslations('store.list');
   const params   = await searchParams;
   const category = params.category ?? '';
   const search   = params.search   ?? '';
@@ -88,8 +93,8 @@ export default async function StorePage({ searchParams }: PageProps) {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <PageHeader
-          title="Wedding Store"
-          subtitle="Gifts, trousseau, ethnic wear & more"
+          title={t('title')}
+          subtitle={t('subtitle')}
         />
 
         {/* Filters */}
@@ -100,7 +105,7 @@ export default async function StorePage({ searchParams }: PageProps) {
         {/* Featured section */}
         {featured.length > 0 && (
           <section className="mb-8">
-            <h2 className="font-heading text-primary font-semibold text-lg mb-3">Featured</h2>
+            <h2 className="font-heading text-primary font-semibold text-lg mb-3">{t('featured')}</h2>
             <ProductGrid products={featured} />
           </section>
         )}
@@ -109,7 +114,7 @@ export default async function StorePage({ searchParams }: PageProps) {
         <section>
           {category || search ? null : (
             <h2 className="font-heading text-primary font-semibold text-lg mb-3">
-              All Products
+              {t('allProducts')}
               {total > 0 && <span className="text-muted-foreground font-normal text-sm ml-2">({total})</span>}
             </h2>
           )}

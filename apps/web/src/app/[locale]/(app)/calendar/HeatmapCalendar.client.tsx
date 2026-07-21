@@ -108,7 +108,8 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
     setCurrentMonth(`${year}-${String(month).padStart(2, '0')}`);
   };
 
-  const monthName = new Date(year, monthNum - 1).toLocaleDateString('en-IN', {
+  const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  const monthName = new Date(year, monthNum - 1).toLocaleDateString(dateLocale, {
     month: 'long',
     year: 'numeric',
   });
@@ -232,10 +233,10 @@ export function HeatmapCalendar({ days, month: initialMonth }: HeatmapCalendarPr
                 {isHovered && dayData && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-primary text-white text-xs rounded p-2 whitespace-nowrap z-10 shadow-lg">
                     <div className="font-semibold">
-                      {dayData.auspiciousBand} Auspicious
+                      {dayData.auspiciousBand} {t('auspicious')}
                     </div>
                     <div className="text-xs opacity-90">
-                      {dayData.kinds.length} event(s)
+                      {t('eventCount', { count: dayData.kinds.length })}
                     </div>
                   </div>
                 )}

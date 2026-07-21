@@ -1,5 +1,9 @@
 {
   "store": {
+    "list": {
+      "emptyTitle": "कोई उत्पाद नहीं मिला",
+      "emptyDescription": "इस श्रेणी में अभी कुछ नहीं है। कोई और श्रेणी आज़माएँ या बाद में देखें।"
+    },
     "checkout": {
       "shippingDetails": "डिलीवरी विवरण",
       "labels": {

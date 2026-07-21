@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { CalendarDays, ArrowLeft, ArrowRight, AlertTriangle, ListTodo } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
@@ -39,6 +39,8 @@ export default async function CoordinatorCalendarPage() {
     return await redirect('/dashboard');
   }
   const t = await getTranslations('coordinator');
+  const locale = await getLocale();
+  const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
   const bucketLabels: Record<BucketKey, string> = {
     week: t('stats.thisWeek'),
     month: t('calendarBuckets.month'),
@@ -86,7 +88,7 @@ export default async function CoordinatorCalendarPage() {
           {weddings.length === 0 ? (
             <FadeUp>
               <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
-                <EmptyState variant="no-coordinator-weddings" />
+                <EmptyState variant="no-coordinator-weddings" title={t('emptyWeddings.title')} description={t('emptyWeddings.description')} />
               </div>
             </FadeUp>
           ) : (
@@ -110,10 +112,10 @@ export default async function CoordinatorCalendarPage() {
                               {date ? (
                                 <>
                                   <span className="text-lg font-semibold leading-none text-primary">
-                                    {date.toLocaleDateString('en-IN', { day: 'numeric' })}
+                                    {date.toLocaleDateString(dateLocale, { day: 'numeric' })}
                                   </span>
                                   <span className="text-2xs uppercase text-gold-muted">
-                                    {date.toLocaleDateString('en-IN', { month: 'short' })}
+                                    {date.toLocaleDateString(dateLocale, { month: 'short' })}
                                   </span>
                                 </>
                               ) : (

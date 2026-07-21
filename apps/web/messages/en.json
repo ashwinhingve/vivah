@@ -2039,7 +2039,11 @@
       "reportedByLabel": "Reported by",
       "reportedUserLabel": "Reported user",
       "dismiss": "Dismiss",
-      "escalateToTicket": "Escalate to ticket"
+      "escalateToTicket": "Escalate to ticket",
+      "empty": {
+        "title": "No open reports",
+        "description": "Flagged conversations will appear here for review and action."
+      }
     },
     "thread": {
       "title": "Conversation",
@@ -2149,7 +2153,18 @@
       "tbc": "Date to be confirmed"
     },
     "today": "Today",
-    "inDays": "{count, plural, one {in # day} other {in # days}}"
+    "inDays": "{count, plural, one {in # day} other {in # days}}",
+    "daysAway": "{days}d away",
+    "severity": {
+      "CRITICAL": "Critical",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    },
+    "emptyTasks": {
+      "title": "All caught up",
+      "description": "No pending tasks right now. New ones will appear as weddings progress."
+    }
   },
   "vendorRole": {
     "onboarding": {
@@ -2720,7 +2735,9 @@
     "noEvent": "No Event",
     "eventsOnDate": "Events on {date}",
     "previousMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "auspicious": "Auspicious",
+    "eventCount": "{count, plural, one {# event} other {# events}}"
   },
   "vendorPricing": {
     "metadata": {
@@ -3936,7 +3953,9 @@
       "loadError": "Could not load products. Please try again",
       "previousPage": "Previous",
       "nextPage": "Next",
-      "pageOf": "Page {current} of {total}"
+      "pageOf": "Page {current} of {total}",
+      "emptyTitle": "No products found",
+      "emptyDescription": "Nothing in this category right now. Try another category or check back soon."
     },
     "productCard": {
       "inStock": "In Stock",

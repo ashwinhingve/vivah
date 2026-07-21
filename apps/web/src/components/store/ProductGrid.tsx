@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProductCard } from './ProductCard';
 import type { ProductSummary } from '@smartshaadi/types';
@@ -7,9 +8,10 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products }: ProductGridProps) {
+  const t = useTranslations('store.list');
   if (products.length === 0) {
     return (
-      <EmptyState variant="no-products" />
+      <EmptyState variant="no-products" title={t('emptyTitle')} description={t('emptyDescription')} />
     );
   }
 

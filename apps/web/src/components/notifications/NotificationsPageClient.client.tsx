@@ -104,7 +104,7 @@ export function NotificationsPageClient() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState variant="no-notifications" />
+        <EmptyState variant="no-notifications" title={t('panel.empty.title')} description={t('panel.empty.subtitle')} />
       ) : (
         <div className="rounded-2xl border border-gold/20 bg-surface p-2 shadow-card">
           {TIME_BUCKETS.filter((b) => grouped[b].length > 0).map((b) => (

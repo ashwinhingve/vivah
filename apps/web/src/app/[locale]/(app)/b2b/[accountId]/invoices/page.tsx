@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { Link } from '@/i18n/navigation';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
@@ -128,6 +129,12 @@ function InvoiceCard({ invoice, tStatus, t }: InvoiceCardProps) {
     CANCELLED: 'cancelled',
   };
 
+  const toneMap: Record<Invoice['status'], StatusTone> = {
+    DRAFT: 'neutral',
+    ISSUED: 'success',
+    CANCELLED: 'error',
+  };
+
   return (
     <div className="rounded-2xl border border-gold/20 bg-surface p-6 shadow-card">
       <div className="mb-4 flex items-start justify-between">
@@ -135,9 +142,9 @@ function InvoiceCard({ invoice, tStatus, t }: InvoiceCardProps) {
           <h3 className="text-lg font-heading font-semibold text-primary">{invoice.invoiceNo}</h3>
           <p className="mt-1 text-sm text-gold-muted">Rs. {invoice.totalAmount.toFixed(2)}</p>
         </div>
-        <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
+        <StatusChip tone={toneMap[invoice.status]}>
           {tStatus(statusMap[invoice.status] ?? invoice.status)}
-        </span>
+        </StatusChip>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

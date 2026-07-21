@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { Link } from '@/i18n/navigation';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
@@ -126,6 +127,13 @@ function ContractCard({ contract, accountId, t, tStatus }: ContractCardProps) {
     VOID: 'void',
   };
 
+  const toneMap: Record<Contract['status'], StatusTone> = {
+    DRAFT: 'neutral',
+    SENT: 'warning',
+    SIGNED: 'success',
+    VOID: 'error',
+  };
+
   return (
     <Link href={`/b2b/${accountId}/contracts/${contract.id}`}>
       <div className="cursor-pointer rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
@@ -134,9 +142,9 @@ function ContractCard({ contract, accountId, t, tStatus }: ContractCardProps) {
             <h3 className="text-lg font-heading font-semibold text-primary">{contract.title}</h3>
             <p className="mt-1 text-xs text-gold-muted">{t('templateLabel')}: {contract.templateId}</p>
           </div>
-          <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
+          <StatusChip tone={toneMap[contract.status]}>
             {tStatus(statusMap[contract.status] ?? contract.status)}
-          </span>
+          </StatusChip>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gold-muted">

@@ -1,5 +1,9 @@
 {
   "store": {
+    "list": {
+      "emptyTitle": "No products found",
+      "emptyDescription": "Nothing in this category right now. Try another category or check back soon."
+    },
     "checkout": {
       "shippingDetails": "Shipping Details",
       "labels": {

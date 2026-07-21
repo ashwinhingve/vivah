@@ -63,7 +63,11 @@
     },
     "reports": {
       "dismiss": "Dismiss",
-      "escalateToTicket": "Escalate to ticket"
+      "escalateToTicket": "Escalate to ticket",
+      "empty": {
+        "title": "No open reports",
+        "description": "Flagged conversations will appear here for review and action."
+      }
     }
   }
 }
