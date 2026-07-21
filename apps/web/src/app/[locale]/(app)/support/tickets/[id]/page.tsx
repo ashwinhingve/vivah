@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft, Link2, Clock, User } from 'lucide-react';
@@ -10,15 +11,14 @@ import { TicketThread } from '@/components/support/TicketThread.client';
 import { TicketActionsPanel } from '@/components/support/TicketActionsPanel.client';
 import { fetchTicket, fetchSupportStaff } from '@/lib/support-api';
 
-export const metadata = { title: 'Ticket · Support' };
 export const dynamic = 'force-dynamic';
 
-const SOURCE_LABEL: Record<string, string> = {
-  USER: 'Raised by user',
-  CHAT_REPORT: 'From chat report',
-  DISPUTE: 'From booking dispute',
-  KYC_APPEAL: 'From KYC appeal',
-  SYSTEM: 'System-generated',
+const SOURCE_LABEL_KEYS: Record<string, string> = {
+  USER: 'support.ticketDetail.sources.USER',
+  CHAT_REPORT: 'support.ticketDetail.sources.CHAT_REPORT',
+  DISPUTE: 'support.ticketDetail.sources.DISPUTE',
+  KYC_APPEAL: 'support.ticketDetail.sources.KYC_APPEAL',
+  SYSTEM: 'support.ticketDetail.sources.SYSTEM',
 };
 
 function linkedHref(type: string | null, id: string | null): string | null {
@@ -29,11 +29,20 @@ function linkedHref(type: string | null, id: string | null): string | null {
   return null;
 }
 
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t('support.ticketDetail.title') || 'Ticket · Support' };
+}
+
 export default async function TicketDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getTranslations();
+  const locale = await getLocale();
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
+
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'SUPPORT' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
@@ -45,6 +54,7 @@ export default async function TicketDetailPage({
   const staff = staffData?.staff ?? [];
 
   const href = linkedHref(ticket.linkedRefType, ticket.linkedRefId);
+  const sourceLabel = t(SOURCE_LABEL_KEYS[ticket.source] ?? 'support.ticketDetail.sources.SYSTEM');
 
   return (
     <PageTransition>
@@ -54,7 +64,7 @@ export default async function TicketDetailPage({
             href="/support"
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-primary"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to queue
+            <ArrowLeft className="h-4 w-4" /> {t('support.ticketDetail.backToQueue')}
           </Link>
 
           <div className="mb-6 rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
@@ -64,11 +74,11 @@ export default async function TicketDetailPage({
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted">
                   <span className="inline-flex items-center gap-1">
                     <User className="h-3.5 w-3.5" />
-                    {ticket.raisedByName ?? 'Unknown'} · {SOURCE_LABEL[ticket.source] ?? ticket.source}
+                    {ticket.raisedByName ?? 'Unknown'} · {sourceLabel}
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {new Date(ticket.createdAt).toLocaleDateString('en-IN', {
+                    {new Date(ticket.createdAt).toLocaleDateString(localeTag, {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',
@@ -131,7 +141,7 @@ export default async function TicketDetailPage({
             {ticket.events.length > 0 && (
               <FadeUp>
                 <div className="rounded-xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
-                  <h2 className="mb-4 font-heading text-lg text-primary">History</h2>
+                  <h2 className="mb-4 font-heading text-lg text-primary">{t('support.history.title')}</h2>
                   <ol className="space-y-3">
                     {ticket.events.map((ev) => (
                       <li key={ev.id} className="flex gap-3 text-xs">
@@ -142,7 +152,7 @@ export default async function TicketDetailPage({
                             {ev.actorName ? ` · ${ev.actorName}` : ''}
                           </p>
                           <p className="text-text-muted">
-                            {new Date(ev.createdAt).toLocaleString('en-IN', {
+                            {new Date(ev.createdAt).toLocaleString(localeTag, {
                               day: 'numeric',
                               month: 'short',
                               hour: '2-digit',

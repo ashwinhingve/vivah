@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { UserCheck, CheckCircle2 } from 'lucide-react';
 import {
   patchTicketAction,
@@ -33,6 +34,7 @@ export function TicketActionsPanel({
   staff,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -50,9 +52,9 @@ export function TicketActionsPanel({
 
   return (
     <div className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card sm:p-6">
-      <h2 className="mb-4 font-heading text-lg text-primary">Actions</h2>
+      <h2 className="mb-4 font-heading text-lg text-primary">{t('support.actions.title')}</h2>
 
-      <label className="mb-1 block text-xs font-medium text-text-muted">Status</label>
+      <label className="mb-1 block text-xs font-medium text-text-muted">{t('support.actions.statusLabel')}</label>
       <select
         className={selectCls}
         defaultValue={status}
@@ -64,7 +66,7 @@ export function TicketActionsPanel({
         ))}
       </select>
 
-      <label className="mb-1 mt-4 block text-xs font-medium text-text-muted">Priority</label>
+      <label className="mb-1 mt-4 block text-xs font-medium text-text-muted">{t('support.actions.priorityLabel')}</label>
       <select
         className={selectCls}
         defaultValue={priority}
@@ -78,7 +80,7 @@ export function TicketActionsPanel({
 
       <div className="mt-4 space-y-2">
         <p className="text-xs text-text-muted">
-          Assignee: <span className="font-medium text-primary">{assignedToName ?? 'Unassigned'}</span>
+          {t('support.actions.assigneeLabel')}: <span className="font-medium text-primary">{assignedToName ?? t('support.actions.assigneeUnassigned')}</span>
         </p>
         <button
           type="button"
@@ -86,12 +88,12 @@ export function TicketActionsPanel({
           onClick={() => run(() => assignToMeAction(ticketId, myUserId))}
           className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-teal/30 bg-teal/5 text-sm font-medium text-teal hover:bg-teal/10 disabled:opacity-50"
         >
-          <UserCheck className="h-4 w-4" /> Assign to me
+          <UserCheck className="h-4 w-4" /> {t('support.actions.assignToMe')}
         </button>
         {staff.length > 0 && (
           <div>
             <label htmlFor="reassign" className="mb-1 block text-xs font-medium text-text-muted">
-              Reassign to
+              {t('support.actions.reassignLabel')}
             </label>
             <select
               id="reassign"
@@ -102,7 +104,7 @@ export function TicketActionsPanel({
                 run(() => patchTicketAction(ticketId, { assignedToUserId: e.target.value || null }))
               }
             >
-              <option value="">Unassigned</option>
+              <option value="">{t('support.actions.assigneeUnassigned')}</option>
               {staff.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name ?? 'Unnamed staff'}
@@ -118,7 +120,7 @@ export function TicketActionsPanel({
             onClick={() => run(() => resolveTicketAction(ticketId))}
             className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-success text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
-            <CheckCircle2 className="h-4 w-4" /> Mark resolved
+            <CheckCircle2 className="h-4 w-4" /> {t('support.actions.markResolved')}
           </button>
         )}
       </div>

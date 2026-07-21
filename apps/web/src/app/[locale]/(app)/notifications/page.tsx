@@ -1,7 +1,12 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { NotificationsPageClient } from '@/components/notifications/NotificationsPageClient.client';
 
-export const metadata: Metadata = { title: 'Notifications' };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'notifications.metadata' });
+  return { title: t('title') };
+}
 
 /**
  * Notifications page — a thin shell over the app-wide NotificationsProvider

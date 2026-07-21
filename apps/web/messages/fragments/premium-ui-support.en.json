@@ -1,0 +1,69 @@
+{
+  "support": {
+    "thread": {
+      "title": "Conversation",
+      "emptyState": "No replies yet. Start the conversation below.",
+      "internalNoteLabel": "Internal note",
+      "cannedReplyPlaceholder": "Insert canned reply…",
+      "customerPlaceholder": "Reply to the customer…",
+      "internalPlaceholder": "Add an internal note (staff-only)…",
+      "internalNoteCheckbox": "Internal note (not visible to the customer)",
+      "sendReply": "Send reply",
+      "addNote": "Add note"
+    },
+    "canned": {
+      "acknowledge": {
+        "label": "Acknowledge — looking into it",
+        "body": "Thanks for reaching out — we're looking into this now and will update you shortly."
+      },
+      "moreInfo": {
+        "label": "Request more info",
+        "body": "Could you share a few more details (screenshots, booking ID, or profile ID) so we can investigate faster?"
+      },
+      "resolved": {
+        "label": "Resolved — please confirm",
+        "body": "This has been resolved on our end — please refresh and let us know if the issue persists."
+      },
+      "escalated": {
+        "label": "Escalated to specialist team",
+        "body": "We've escalated this to our specialist team and expect an update within 24 hours."
+      },
+      "closing": {
+        "label": "Closing — thanks for your patience",
+        "body": "Thanks for your patience — we're closing this ticket for now. Feel free to reopen if the issue returns."
+      }
+    },
+    "actions": {
+      "title": "Actions",
+      "statusLabel": "Status",
+      "priorityLabel": "Priority",
+      "assigneeLabel": "Assignee",
+      "assigneeUnassigned": "Unassigned",
+      "assignToMe": "Assign to me",
+      "reassignLabel": "Reassign to",
+      "markResolved": "Mark resolved"
+    },
+    "history": {
+      "title": "History"
+    },
+    "ticketDetail": {
+      "title": "Ticket · Support",
+      "backToQueue": "Back to queue",
+      "sources": {
+        "USER": "Raised by user",
+        "CHAT_REPORT": "From chat report",
+        "DISPUTE": "From booking dispute",
+        "KYC_APPEAL": "From KYC appeal",
+        "SYSTEM": "System-generated"
+      }
+    },
+    "sla": {
+      "overdue": "Overdue · ",
+      "due": "Due "
+    },
+    "reports": {
+      "dismiss": "Dismiss",
+      "escalateToTicket": "Escalate to ticket"
+    }
+  }
+}

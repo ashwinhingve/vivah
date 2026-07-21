@@ -1,0 +1,41 @@
+{
+  "notifications": {
+    "metadata": {
+      "title": "Notifications"
+    },
+    "page": {
+      "title": "Notifications"
+    },
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "unreadWithCount": "Unread ({count})"
+    },
+    "actions": {
+      "markAllRead": "Mark all read",
+      "clearAll": "Clear all",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "clear": "Clear notification"
+    },
+    "buckets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "bell": {
+      "label": "Notifications",
+      "labelWithCount": "Notifications, {count} unread"
+    },
+    "panel": {
+      "title": "Notifications",
+      "markAll": "Mark all",
+      "clear": "Clear",
+      "viewAll": "View all notifications",
+      "empty": {
+        "title": "You're all caught up",
+        "subtitle": "New activity will show up here."
+      }
+    }
+  }
+}

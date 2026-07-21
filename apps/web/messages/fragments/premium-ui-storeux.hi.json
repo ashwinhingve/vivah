@@ -1,0 +1,45 @@
+{
+  "store": {
+    "checkout": {
+      "shippingDetails": "डिलीवरी विवरण",
+      "labels": {
+        "fullName": "पूरा नाम",
+        "mobileNumber": "मोबाइल नंबर",
+        "address": "पता",
+        "city": "शहर",
+        "state": "राज्य",
+        "pincode": "पिनकोड"
+      },
+      "placingOrder": "ऑर्डर प्लेस किया जा रहा है…",
+      "cartEmpty": "आपकी कार्ट खाली है",
+      "free": "निःशुल्क",
+      "havePromo": "प्रोमो कोड है?",
+      "hidePromo": "प्रोमो कोड छिपाएं",
+      "promoPlaceholder": "प्रोमो कोड",
+      "promoApply": "लागू करें",
+      "promoSaving": "प्रोमो लागू: ₹{amount} बचत",
+      "errorPromoRequired": "कृपया प्रोमो कोड दर्ज करें।",
+      "errorPromoInvalid": "अमान्य या समाप्त प्रोमो कोड।",
+      "errorNetwork": "नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।",
+      "errorCreateOrder": "ऑर्डर प्लेस करने में विफल। कृपया पुनः प्रयास करें।",
+      "errorConnectionError": "नेटवर्क त्रुटि। कृपया अपने कनेक्शन की जांच करें और पुनः प्रयास करें।",
+      "successTitle": "भुगतान सफल (टेस्ट मोड)",
+      "successMessage": "आपका ऑर्डर प्लेस हो गया है! ऑर्डर विवरण के लिए रीडायरेक्ट किया जा रहा है…",
+      "removePromo": "प्रोमो हटाएं",
+      "mobileSummary": {
+        "title": "ऑर्डर सारांश",
+        "itemCount": "{count, plural, one {# आइटम} other {# आइटम}}",
+        "expand": "विस्तृत करें",
+        "collapse": "संक्षिप्त करें"
+      }
+    },
+    "search": {
+      "placeholder": "उत्पाद खोजें..."
+    },
+    "categoryFilter": {
+      "all": "सभी",
+      "pooja": "पूजा",
+      "stationery": "स्टेशनरी"
+    }
+  }
+}

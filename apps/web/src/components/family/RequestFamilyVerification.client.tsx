@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { requestFamilyVerificationAction } from '@/app/[locale]/(app)/family/actions';
@@ -8,6 +9,7 @@ import { requestFamilyVerificationAction } from '@/app/[locale]/(app)/family/act
 interface Props { verified: boolean; }
 
 export function RequestFamilyVerification({ verified }: Props) {
+  const t = useTranslations('family.components.requestFamilyVerification');
   const { toast } = useToast();
   const [pending, start] = useTransition();
 
@@ -16,8 +18,8 @@ export function RequestFamilyVerification({ verified }: Props) {
   function handleClick(): void {
     start(async () => {
       const r = await requestFamilyVerificationAction();
-      if (r.ok) toast('Verification request sent', 'success');
-      else toast(r.error ?? 'Failed', 'error');
+      if (r.ok) toast(t('success'), 'success');
+      else toast(r.error ?? t('error'), 'error');
     });
   }
 
@@ -27,7 +29,7 @@ export function RequestFamilyVerification({ verified }: Props) {
       disabled={pending}
       className="text-xs text-teal underline mt-1 disabled:opacity-60 inline-flex items-center gap-1"
     >
-      {pending && <Loader2 className="h-3 w-3 animate-spin" />} Request verification
+      {pending && <Loader2 className="h-3 w-3 animate-spin" />} {t('button')}
     </button>
   );
 }

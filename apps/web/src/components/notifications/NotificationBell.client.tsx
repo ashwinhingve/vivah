@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Bell } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
@@ -12,11 +13,12 @@ import { NotificationPanel } from './NotificationPanel.client';
  * opens a bottom Sheet. Both render the same NotificationPanel.
  */
 export function NotificationBell() {
+  const t = useTranslations('notifications');
   const { unreadCount } = useNotifications();
   const [openDesktop, setOpenDesktop] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
 
-  const label = unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications';
+  const label = unreadCount > 0 ? t('bell.labelWithCount', { count: unreadCount }) : t('bell.label');
   const badge = unreadCount > 99 ? '99+' : String(unreadCount);
 
   const trigger = (

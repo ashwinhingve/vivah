@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { motion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import { ArrowDown, Loader2 } from 'lucide-react'
 import type {
   ChatMessage,
@@ -398,9 +400,10 @@ export default function ChatView({
   const pushOptimistic = useCallback((partial: {
     content: string
     type:    'TEXT' | 'PHOTO' | 'VOICE'
-    photoKey?: string | null
-    voiceKey?: string | null
-    voiceDuration?: number | null
+    photoKey?: string | null | undefined
+    photoLoading?: boolean
+    voiceKey?: string | null | undefined
+    voiceDuration?: number | null | undefined
   }) => {
     if (!currentProfileId) return null
     const clientMsgId = `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
@@ -413,6 +416,7 @@ export default function ChatView({
       contentEn:     null,
       type:          partial.type,
       photoKey:      partial.photoKey ?? null,
+      photoLoading:  partial.photoLoading ?? false,
       voiceKey:      partial.voiceKey ?? null,
       voiceDuration: partial.voiceDuration ?? null,
       sentAt:        new Date().toISOString(),
@@ -436,6 +440,11 @@ export default function ChatView({
     setMessages((prev) => [...prev, opt])
     return clientMsgId
   }, [currentProfileId, reply])
+
+  const removeOptimistic = useCallback((clientMsgId: string) => {
+    optimisticByClient.current.delete(clientMsgId)
+    setMessages((prev) => prev.filter((x) => x.clientMsgId !== clientMsgId))
+  }, [])
 
   // ── Action handlers wired to socket ──
   const onReply = useCallback((m: ChatMessage) => { setReply(m); setEditing(null) }, [])
@@ -683,6 +692,7 @@ export default function ChatView({
         onCancelEdit={onCancelEdit}
         smartReplyKey={smartReplyKey}
         onOptimisticSend={pushOptimistic}
+        onOptimisticRemove={removeOptimistic}
         translateOn={translateOn}
         translateBusy={translating}
         onToggleTranslate={handleTranslateToggle}
@@ -718,13 +728,34 @@ export default function ChatView({
 }
 
 function TypingDots() {
+  const prefersReducedMotion = useReducedMotion()
+
+  if (prefersReducedMotion) {
+    return (
+      <span className="inline-flex h-2 items-end gap-0.5">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="block h-1.5 w-1.5 animate-pulse rounded-full bg-teal"
+            style={{ animationDelay: `${i * 150}ms` }}
+          />
+        ))}
+      </span>
+    )
+  }
+
   return (
     <span className="inline-flex h-2 items-end gap-0.5">
       {[0, 1, 2].map((i) => (
-        <span
+        <motion.span
           key={i}
-          className="block h-1.5 w-1.5 animate-pulse rounded-full bg-teal"
-          style={{ animationDelay: `${i * 150}ms` }}
+          className="block h-1.5 w-1.5 rounded-full bg-teal"
+          animate={{ y: [0, -3, 0] }}
+          transition={{
+            duration: 0.6,
+            repeat: Infinity,
+            delay: i * 0.15,
+          }}
         />
       ))}
     </span>

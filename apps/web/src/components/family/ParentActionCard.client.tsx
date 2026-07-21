@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { approveAction, rejectAction, type DraftedAction } from '@/lib/family-mode-api';
 
 interface Props {
@@ -10,35 +12,24 @@ interface Props {
   names?: Record<string, string | null>;
 }
 
-function describePayload(action: DraftedAction, names?: Record<string, string | null>): string {
-  const p = action.payload as { targetProfileId?: string; message?: string; field?: string; value?: unknown };
-  const who = (p.targetProfileId && names?.[p.targetProfileId]) || 'a member';
-  switch (action.actionType) {
-    case 'SEND_INTEREST':
-      return `Send interest to ${who}${p.message ? ` — "${p.message}"` : ''}`;
-    case 'ACCEPT_INTEREST':  return `Accept interest from ${who}`;
-    case 'REJECT_INTEREST':  return `Reject interest from ${who}`;
-    case 'SEND_MESSAGE':     return `Send message: "${p.message ?? ''}"`;
-    case 'UPDATE_PROFILE':   return `Update profile field ${p.field ?? '?'}`;
-    case 'BLOCK_USER':       return `Block ${who}`;
-    default:                 return action.actionType;
-  }
-}
-
-function timeUntil(expiresAt: string | null): string {
-  if (!expiresAt) return '';
-  const ms = new Date(expiresAt).getTime() - Date.now();
-  if (ms <= 0) return 'expired';
-  const days = Math.floor(ms / 86400000);
-  const hrs  = Math.floor((ms % 86400000) / 3600000);
-  if (days > 0) return `${days}d ${hrs}h left`;
-  return `${hrs}h left`;
-}
+const STATUS_TONE: Record<string, StatusTone> = {
+  EXECUTED: 'success',
+  REJECTED: 'error',
+  EXPIRED:  'neutral',
+  PENDING:  'warning',
+};
 
 export function ParentActionCard({ action, names }: Props) {
+  const t = useTranslations('family.components.parentActionCard');
+  const locale = useLocale();
   const [busy, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function handle(kind: 'approve' | 'reject') {
     setErr(null);
@@ -46,33 +37,59 @@ export function ParentActionCard({ action, names }: Props) {
       const result = kind === 'approve'
         ? await approveAction(action.id)
         : await rejectAction(action.id);
-      if (!result) { setErr('Action failed.'); return; }
+      if (!result) { setErr(t('actionFailed')); return; }
       router.refresh();
     });
   }
 
   const isPending = action.status === 'PENDING';
 
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
+
+  function describePayload(): string {
+    const p = action.payload as { targetProfileId?: string; message?: string; field?: string; value?: unknown };
+    const who = (p.targetProfileId && names?.[p.targetProfileId]) || t('payload.someone');
+    switch (action.actionType) {
+      case 'SEND_INTEREST':
+        return p.message
+          ? t('payload.sendInterestWithMessage', { who, message: p.message })
+          : t('payload.sendInterest', { who });
+      case 'ACCEPT_INTEREST':  return t('payload.acceptInterest', { who });
+      case 'REJECT_INTEREST':  return t('payload.rejectInterest', { who });
+      case 'SEND_MESSAGE':     return t('payload.sendMessage', { message: p.message ?? '' });
+      case 'UPDATE_PROFILE':   return t('payload.updateProfile', { field: p.field ?? '?' });
+      case 'BLOCK_USER':       return t('payload.blockUser', { who });
+      default:                 return action.actionType;
+    }
+  }
+
+  // Uses Date.now(), so only render after mount — SSR text would drift from the client.
+  function timeUntil(expiresAt: string | null): string {
+    if (!expiresAt) return '';
+    const ms = new Date(expiresAt).getTime() - Date.now();
+    if (ms <= 0) return t('timeExpired');
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
+    if (days > 0) return t('timeLeftDaysHours', { days, hours });
+    return t('timeLeftHours', { hours });
+  }
+
+  const typeLabel = t(`actionType.${action.actionType}`);
+
   return (
     <article className="rounded-2xl border border-gold/20 bg-surface p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <span className="inline-block rounded-full bg-teal/10 text-teal text-xs px-2 py-0.5">
-            {action.actionType.replace(/_/g, ' ')}
-          </span>
-          <p className="text-sm text-foreground">{describePayload(action, names)}</p>
+          <StatusChip tone="teal">{typeLabel}</StatusChip>
+          <p className="text-sm text-foreground">{describePayload()}</p>
           <p className="text-xs text-gold-muted">
-            Drafted {new Date(action.parentDraftedAt).toLocaleString()} · {timeUntil(action.expiresAt)}
+            {t('drafted')} {mounted ? new Date(action.parentDraftedAt).toLocaleString(localeTag) : '—'}
+            {mounted && timeUntil(action.expiresAt) ? ` · ${timeUntil(action.expiresAt)}` : ''}
           </p>
         </div>
-        <span className={`text-xs uppercase tracking-wide ${
-          action.status === 'EXECUTED' ? 'text-success' :
-          action.status === 'REJECTED' ? 'text-destructive' :
-          action.status === 'EXPIRED'  ? 'text-muted-foreground' :
-          'text-warning'
-        }`}>
-          {action.status}
-        </span>
+        <StatusChip tone={STATUS_TONE[action.status] ?? 'neutral'} className="shrink-0 uppercase tracking-wide">
+          {t(`statusLabel.${action.status}`)}
+        </StatusChip>
       </div>
 
       {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
@@ -85,7 +102,7 @@ export function ParentActionCard({ action, names }: Props) {
             onClick={() => handle('approve')}
             className="rounded-lg bg-primary text-primary-foreground px-4 h-10 text-sm hover:opacity-95 disabled:opacity-60"
           >
-            Approve
+            {t('approve')}
           </button>
           <button
             type="button"
@@ -93,7 +110,7 @@ export function ParentActionCard({ action, names }: Props) {
             onClick={() => handle('reject')}
             className="rounded-lg border border-destructive/40 text-destructive px-4 h-10 text-sm hover:bg-destructive/5 disabled:opacity-60"
           >
-            Reject
+            {t('reject')}
           </button>
         </div>
       )}

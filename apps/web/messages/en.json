@@ -907,6 +907,13 @@
       "unarchiveChat": "Unarchive",
       "report": "Report",
       "blockAndExit": "Block & exit"
+    },
+    "audio": {
+      "unavailable": "Audio unavailable",
+      "retry": "Retry"
+    },
+    "reactions": {
+      "reactWith": "React with {emoji}"
     }
   },
   "chats": {
@@ -2030,7 +2037,70 @@
       "dismissed": "Dismissed",
       "conversationLabel": "Conversation",
       "reportedByLabel": "Reported by",
-      "reportedUserLabel": "Reported user"
+      "reportedUserLabel": "Reported user",
+      "dismiss": "Dismiss",
+      "escalateToTicket": "Escalate to ticket"
+    },
+    "thread": {
+      "title": "Conversation",
+      "emptyState": "No replies yet. Start the conversation below.",
+      "internalNoteLabel": "Internal note",
+      "cannedReplyPlaceholder": "Insert canned reply…",
+      "customerPlaceholder": "Reply to the customer…",
+      "internalPlaceholder": "Add an internal note (staff-only)…",
+      "internalNoteCheckbox": "Internal note (not visible to the customer)",
+      "sendReply": "Send reply",
+      "addNote": "Add note"
+    },
+    "canned": {
+      "acknowledge": {
+        "label": "Acknowledge — looking into it",
+        "body": "Thanks for reaching out — we're looking into this now and will update you shortly."
+      },
+      "moreInfo": {
+        "label": "Request more info",
+        "body": "Could you share a few more details (screenshots, booking ID, or profile ID) so we can investigate faster?"
+      },
+      "resolved": {
+        "label": "Resolved — please confirm",
+        "body": "This has been resolved on our end — please refresh and let us know if the issue persists."
+      },
+      "escalated": {
+        "label": "Escalated to specialist team",
+        "body": "We've escalated this to our specialist team and expect an update within 24 hours."
+      },
+      "closing": {
+        "label": "Closing — thanks for your patience",
+        "body": "Thanks for your patience — we're closing this ticket for now. Feel free to reopen if the issue returns."
+      }
+    },
+    "actions": {
+      "title": "Actions",
+      "statusLabel": "Status",
+      "priorityLabel": "Priority",
+      "assigneeLabel": "Assignee",
+      "assigneeUnassigned": "Unassigned",
+      "assignToMe": "Assign to me",
+      "reassignLabel": "Reassign to",
+      "markResolved": "Mark resolved"
+    },
+    "history": {
+      "title": "History"
+    },
+    "ticketDetail": {
+      "title": "Ticket · Support",
+      "backToQueue": "Back to queue",
+      "sources": {
+        "USER": "Raised by user",
+        "CHAT_REPORT": "From chat report",
+        "DISPUTE": "From booking dispute",
+        "KYC_APPEAL": "From KYC appeal",
+        "SYSTEM": "System-generated"
+      }
+    },
+    "sla": {
+      "overdue": "Overdue · ",
+      "due": "Due "
     }
   },
   "coordinator": {
@@ -3919,15 +3989,49 @@
       "tax": "Tax",
       "total": "Total",
       "paymentFailed": "Payment could not be processed",
-      "tryAgain": "Please try again or use a different payment method"
+      "tryAgain": "Please try again or use a different payment method",
+      "shippingDetails": "Shipping Details",
+      "labels": {
+        "fullName": "Full Name",
+        "mobileNumber": "Mobile Number",
+        "address": "Address",
+        "city": "City",
+        "state": "State",
+        "pincode": "Pincode"
+      },
+      "placingOrder": "Placing Order…",
+      "cartEmpty": "Your cart is empty",
+      "free": "Free",
+      "havePromo": "Have a promo code?",
+      "hidePromo": "Hide promo code",
+      "promoPlaceholder": "PROMO CODE",
+      "promoApply": "Apply",
+      "promoSaving": "Promo applied: saving ₹{amount}",
+      "errorPromoRequired": "Please enter a promo code.",
+      "errorPromoInvalid": "Invalid or expired promo code.",
+      "errorNetwork": "Network error. Please try again.",
+      "errorCreateOrder": "Failed to place order. Please try again.",
+      "errorConnectionError": "Network error. Please check your connection and try again.",
+      "successTitle": "Payment Successful (Test Mode)",
+      "successMessage": "Your order has been placed! Redirecting to order details…",
+      "removePromo": "Remove promo",
+      "mobileSummary": {
+        "title": "Order Summary",
+        "itemCount": "{count, plural, one {# item} other {# items}}",
+        "expand": "Expand",
+        "collapse": "Collapse"
+      }
     },
     "categoryFilter": {
       "allCategories": "All Categories",
+      "all": "All",
       "gifts": "Gifts",
       "trousseau": "Trousseau",
       "ethnicWear": "Ethnic Wear",
       "jewelry": "Jewelry",
+      "pooja": "Pooja",
       "decor": "Decor",
+      "stationery": "Stationery",
       "other": "Other"
     },
     "orders": {
@@ -3943,6 +4047,9 @@
       "backToStore": "Store",
       "emptyLabel": "No orders yet",
       "browseCta": "Browse Products"
+    },
+    "search": {
+      "placeholder": "Search products..."
     }
   },
   "rentals": {
@@ -4275,6 +4382,252 @@
         "shipped": "Shipped",
         "delivered": "Delivered"
       }
+    }
+  },
+  "family": {
+    "components": {
+      "assistedSeekerCard": {
+        "relationshipLabel": {
+          "FATHER": "Father",
+          "MOTHER": "Mother",
+          "GUARDIAN": "Guardian",
+          "SIBLING": "Sibling"
+        },
+        "permissionLabel": {
+          "VIEW_ONLY": "View only",
+          "EDIT_PROFILE": "Can edit profile",
+          "DRAFT_ACTIONS": "Can draft actions",
+          "FULL_PROXY": "Full proxy"
+        },
+        "pending": "pending",
+        "draftInterest": "Draft an interest",
+        "viewHistory": "View history"
+      },
+      "parentActionCard": {
+        "statusLabel": {
+          "PENDING": "Pending",
+          "EXECUTED": "Executed",
+          "REJECTED": "Rejected",
+          "EXPIRED": "Expired"
+        },
+        "actionFailed": "Action failed.",
+        "drafted": "Drafted",
+        "approve": "Approve",
+        "reject": "Reject",
+        "actionType": {
+          "SEND_INTEREST": "Send interest",
+          "ACCEPT_INTEREST": "Accept interest",
+          "REJECT_INTEREST": "Reject interest",
+          "SEND_MESSAGE": "Send message",
+          "UPDATE_PROFILE": "Update profile",
+          "BLOCK_USER": "Block user"
+        },
+        "payload": {
+          "someone": "a member",
+          "sendInterest": "Send interest to {who}",
+          "sendInterestWithMessage": "Send interest to {who} — \"{message}\"",
+          "acceptInterest": "Accept interest from {who}",
+          "rejectInterest": "Reject interest from {who}",
+          "sendMessage": "Send message: \"{message}\"",
+          "updateProfile": "Update profile field {field}",
+          "blockUser": "Block {who}"
+        },
+        "timeExpired": "expired",
+        "timeLeftDaysHours": "{days}d {hours}h left",
+        "timeLeftHours": "{hours}h left"
+      },
+      "familyMembersClient": {
+        "heading": "Family members",
+        "addButton": "Add",
+        "fullName": "Full name *",
+        "relationship": "Relationship",
+        "phone": "Phone",
+        "email": "Email",
+        "notes": "Notes (optional)",
+        "isManaging": "This person manages my profile",
+        "cancel": "Cancel",
+        "addMember": "Add member",
+        "adding": "Adding…",
+        "addedSuccess": "Family member added",
+        "removedSuccess": "Removed",
+        "failedError": "Failed",
+        "noMembers": "No family members added.",
+        "removeConfirmTitle": "Remove family member?",
+        "removeConfirmDesc": "This will remove the entry from your structured family list."
+      },
+      "draftInterestButton": {
+        "draftInterest": "Draft interest",
+        "drafting": "Drafting…",
+        "drafted": "Drafted — awaiting their approval",
+        "draftFailed": "Could not draft the interest."
+      },
+      "familyInviteCode": {
+        "heading": "Your family code",
+        "description": "Share this with a family member so they can send you a link request to help with your search.",
+        "copy": "Copy",
+        "copied": "Copied"
+      },
+      "requestFamilyVerification": {
+        "button": "Request verification",
+        "success": "Verification request sent",
+        "error": "Failed"
+      },
+      "familyRatingForm": {
+        "heading": "Your family rating",
+        "overall": "Overall (0–100)",
+        "concerns": "Concerns (comma-separated)",
+        "concernsPlaceholder": "e.g. location, finances",
+        "notes": "Notes",
+        "error": "Could not submit rating. Check your permissions.",
+        "success": "Rating saved.",
+        "submit": "Save rating",
+        "submitting": "Saving…"
+      },
+      "jointScoreCard": {
+        "heading": "Family joint view",
+        "noRatings": "No family ratings yet",
+        "ratingCountSingular": "rating",
+        "ratingCountPlural": "ratings",
+        "askRating": "Ask a parent or sibling to rate this match. Their scores combine with yours to surface where you agree or differ.",
+        "joint": "Joint",
+        "yourMatch": "Your match",
+        "familyAvg": "Family avg",
+        "agreement": "Agreement with you:",
+        "familySignal": "family"
+      }
+    },
+    "pages": {
+      "linkRequestForm": {
+        "childUserIdLabel": "Family member's account ID",
+        "childUserIdPlaceholder": "e.g. usr_a1b2c3…",
+        "childUserIdHint": "Ask them to open their Family requests page and copy their family code. They must have their own Smart Shaadi account.",
+        "relationshipLabel": "Your relationship to them",
+        "relationship": {
+          "FATHER": "Father",
+          "MOTHER": "Mother",
+          "GUARDIAN": "Guardian",
+          "SIBLING": "Sibling"
+        },
+        "permissionLegend": "Access you're requesting",
+        "permission": {
+          "VIEW_ONLY": {
+            "label": "View only",
+            "hint": "See their profile & matches, no actions"
+          },
+          "DRAFT_ACTIONS": {
+            "label": "Draft actions",
+            "hint": "Suggest interests they approve (recommended)"
+          },
+          "EDIT_PROFILE": {
+            "label": "Edit profile",
+            "hint": "Help complete their profile details"
+          },
+          "FULL_PROXY": {
+            "label": "Full proxy",
+            "hint": "Act on their behalf — highest trust"
+          }
+        },
+        "errorRequired": "Enter your family member's account ID.",
+        "errorDefault": "Could not send the request. Check the account ID and try again.",
+        "submit": "Send link request",
+        "submitting": "Sending…",
+        "successHeading": "Request sent",
+        "successBody": "Your family member will see the request in their account. Once they approve it, they'll appear on your family hub and you can start assisting them.",
+        "successAgain": "Send another request"
+      },
+      "linkRequestPage": {
+        "heading": "Family link request",
+        "subtitle": "A {relationship} has requested access to your profile.",
+        "relationshipLabel": "Relationship",
+        "permissionLabel": "Permission",
+        "requestedAtLabel": "Requested at",
+        "note": "You retain final say on every action they draft. Approving only grants their tier of access — you can revoke anytime.",
+        "alreadyApproved": "You've already approved this {relationship}'s access.",
+        "linkRevoked": "This link has been revoked."
+      },
+      "linkApprovalActions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "revoking": "Revoking…",
+        "approving": "Approving…",
+        "revoked": "Access revoked",
+        "approved": "Approved",
+        "error": "Action failed"
+      }
+    }
+  },
+  "notifications": {
+    "metadata": {
+      "title": "Notifications"
+    },
+    "page": {
+      "title": "Notifications"
+    },
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "unreadWithCount": "Unread ({count})"
+    },
+    "actions": {
+      "markAllRead": "Mark all read",
+      "clearAll": "Clear all",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "clear": "Clear notification"
+    },
+    "buckets": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "bell": {
+      "label": "Notifications",
+      "labelWithCount": "Notifications, {count} unread"
+    },
+    "panel": {
+      "title": "Notifications",
+      "markAll": "Mark all",
+      "clear": "Clear",
+      "viewAll": "View all notifications",
+      "empty": {
+        "title": "You're all caught up",
+        "subtitle": "New activity will show up here."
+      }
+    }
+  },
+  "assistant": {
+    "metadata": {
+      "title": "Assistant"
+    },
+    "page": {
+      "title": "Assistant",
+      "subtitle": "Apke matches, profile tips, aur platform questions ka instant guidance."
+    },
+    "toggle": {
+      "label": "Open Smart Shaadi assistant",
+      "title": "Smart Shaadi assistant"
+    },
+    "chat": {
+      "greeting": "Hi! Pucho kuch — top matches, profile tips, ya next steps about your journey on Smart Shaadi.",
+      "placeholder": "Ask the assistant…",
+      "messageLabel": "Message",
+      "sendLabel": "Send message"
+    },
+    "tools": {
+      "get_my_profile": "Checking your profile…",
+      "get_my_matches": "Looking at your matches…",
+      "get_pending_requests": "Checking your requests…",
+      "get_who_liked_me": "Seeing who liked you…",
+      "get_match_status": "Checking match status…",
+      "list_conversations": "Reading your chats…",
+      "get_unread_count": "Counting unread messages…",
+      "list_weddings": "Opening your wedding…",
+      "get_wedding_budget": "Reviewing your budget…",
+      "get_wedding_tasks": "Checking your tasks…",
+      "get_wedding_ceremonies": "Looking at your ceremonies…",
+      "suggest_muhurat_dates": "Finding auspicious dates…",
+      "find_similar_matches": "Finding similar profiles…",
+      "default": "Looking that up…"
     }
   }
 }

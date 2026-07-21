@@ -1,0 +1,11 @@
+{
+  "chat": {
+    "audio": {
+      "unavailable": "Audio unavailable",
+      "retry": "Retry"
+    },
+    "reactions": {
+      "reactWith": "React with {emoji}"
+    }
+  }
+}

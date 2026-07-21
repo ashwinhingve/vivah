@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
+import { track } from '@/lib/analytics';
 import type { ProductSummary } from '@smartshaadi/types';
 
 interface AddToCartButtonProps {
@@ -27,6 +28,14 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       vendorId:   product.vendorId,
       vendorName: product.vendorName,
     });
+
+    // Track add to cart
+    track('store_add_to_cart', {
+      productId: product.id,
+      quantity: 1,
+      pricePaise: Math.round(product.price * 100),
+    });
+
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }

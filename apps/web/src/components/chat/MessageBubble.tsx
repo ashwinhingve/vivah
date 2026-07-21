@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Check, CheckCheck, Clock, Forward, MoreHorizontal, Pencil, Video } from 'lucide-react'
+import { Check, CheckCheck, Clock, Forward, Loader2, MoreHorizontal, Pencil, Video } from 'lucide-react'
 import type { ChatMessage } from '@smartshaadi/types'
 import { cn } from '@/lib/utils'
 import { resolvePhotoUrl } from '@/lib/photo'
@@ -188,9 +188,10 @@ function MessageBubbleInner({
           )}>
             {t('deleted')}
           </div>
-        ) : message.type === 'PHOTO' && message.photoKey ? (
+        ) : message.type === 'PHOTO' && (message.photoKey || message.photoLoading) ? (
           <PhotoBubble
-            photoKey={message.photoKey}
+            photoKey={message.photoKey ?? null}
+            photoLoading={message.photoLoading ?? false}
             isSent={isSent}
             replyTo={message.replyTo}
             currentProfileId={currentProfileId}
@@ -323,17 +324,22 @@ function MessageBubbleInner({
 }
 
 function PhotoBubble({
-  photoKey, isSent, replyTo, currentProfileId, otherFirstName, onPhotoTap,
+  photoKey, photoLoading, isSent, replyTo, currentProfileId, otherFirstName, onPhotoTap,
 }: {
-  photoKey: string
+  photoKey: string | null
+  photoLoading?: boolean
   isSent: boolean
   replyTo: ChatMessage['replyTo']
   currentProfileId: string | null
   otherFirstName: string | null
   onPhotoTap?: (key: string) => void
 }) {
-  const photoUrl = resolvePhotoUrl(photoKey)
-  if (!photoUrl) return null
+  // Handle both blob:// URLs (local preview during upload) and R2 keys
+  const isLocalPreview = photoKey?.startsWith('blob:') ?? false
+  const photoUrl = photoKey ? (isLocalPreview ? photoKey : resolvePhotoUrl(photoKey)) : null
+
+  if (!photoUrl && !photoLoading) return null
+
   return (
     <>
       {replyTo ? (
@@ -341,17 +347,38 @@ function PhotoBubble({
           <ReplyQuote reply={replyTo} currentProfileId={currentProfileId ?? ''} variant="bubble" otherName={otherFirstName} />
         </div>
       ) : null}
-      <button
-        type="button"
-        onClick={() => onPhotoTap?.(photoKey)}
+      <div
         className={cn(
-          'block overflow-hidden rounded-2xl shadow-sm transition-transform active:scale-[0.98]',
+          'relative block overflow-hidden rounded-2xl shadow-sm',
+          !photoLoading && 'cursor-pointer transition-transform active:scale-[0.98]',
           isSent ? 'rounded-br-md' : 'rounded-bl-md border border-gold/20',
         )}
-        aria-label="Open photo"
       >
-        <Image src={photoUrl} alt="Shared photo" width={320} height={220} className="block max-w-full" />
-      </button>
+        {photoUrl && !photoLoading ? (
+          <button
+            type="button"
+            onClick={() => photoKey && !isLocalPreview && onPhotoTap?.(photoKey)}
+            className="w-full"
+            aria-label="Open photo"
+            disabled={isLocalPreview}
+          >
+            <Image src={photoUrl} alt="Shared photo" width={320} height={220} unoptimized={isLocalPreview} className="block max-w-full" />
+          </button>
+        ) : null}
+        {photoLoading && photoUrl ? (
+          <div className="relative bg-surface-muted overflow-hidden rounded-2xl">
+            <Image src={photoUrl} alt="Shared photo" width={320} height={220} unoptimized={isLocalPreview} className="block max-w-full opacity-50" />
+            <div className="absolute inset-0 flex items-center justify-center bg-primary/40">
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+          </div>
+        ) : null}
+        {photoLoading && !photoUrl ? (
+          <div className="bg-surface-muted rounded-2xl w-80 h-56 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : null}
+      </div>
     </>
   )
 }

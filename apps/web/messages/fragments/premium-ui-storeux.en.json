@@ -1,0 +1,45 @@
+{
+  "store": {
+    "checkout": {
+      "shippingDetails": "Shipping Details",
+      "labels": {
+        "fullName": "Full Name",
+        "mobileNumber": "Mobile Number",
+        "address": "Address",
+        "city": "City",
+        "state": "State",
+        "pincode": "Pincode"
+      },
+      "placingOrder": "Placing Order…",
+      "cartEmpty": "Your cart is empty",
+      "free": "Free",
+      "havePromo": "Have a promo code?",
+      "hidePromo": "Hide promo code",
+      "promoPlaceholder": "PROMO CODE",
+      "promoApply": "Apply",
+      "promoSaving": "Promo applied: saving ₹{amount}",
+      "errorPromoRequired": "Please enter a promo code.",
+      "errorPromoInvalid": "Invalid or expired promo code.",
+      "errorNetwork": "Network error. Please try again.",
+      "errorCreateOrder": "Failed to place order. Please try again.",
+      "errorConnectionError": "Network error. Please check your connection and try again.",
+      "successTitle": "Payment Successful (Test Mode)",
+      "successMessage": "Your order has been placed! Redirecting to order details…",
+      "removePromo": "Remove promo",
+      "mobileSummary": {
+        "title": "Order Summary",
+        "itemCount": "{count, plural, one {# item} other {# items}}",
+        "expand": "Expand",
+        "collapse": "Collapse"
+      }
+    },
+    "search": {
+      "placeholder": "Search products..."
+    },
+    "categoryFilter": {
+      "all": "All",
+      "pooja": "Pooja",
+      "stationery": "Stationery"
+    }
+  }
+}

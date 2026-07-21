@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 import { getMyLinks } from '@/lib/family-mode-api';
@@ -9,6 +10,7 @@ interface PageProps {
 }
 
 export default async function LinkRequestPage({ params }: PageProps) {
+  const t = await getTranslations('family.pages.linkRequestPage');
   const cookieStore = await cookies();
   if (!readSessionCookie(cookieStore)) return await redirect('/login');
 
@@ -23,7 +25,7 @@ export default async function LinkRequestPage({ params }: PageProps) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6">
         <p className="rounded-2xl border border-success/30 bg-success/10 p-4 text-sm text-success">
-          You've already approved this {link.relationship.toLowerCase()}'s access.
+          {t('alreadyApproved', { relationship: link.relationship.toLowerCase() })}
         </p>
       </main>
     );
@@ -33,7 +35,7 @@ export default async function LinkRequestPage({ params }: PageProps) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6">
         <p className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
-          This link has been revoked.
+          {t('linkRevoked')}
         </p>
       </main>
     );
@@ -42,24 +44,23 @@ export default async function LinkRequestPage({ params }: PageProps) {
   return (
     <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
       <header>
-        <h1 className="text-xl sm:text-2xl font-heading text-primary">Family link request</h1>
+        <h1 className="text-xl sm:text-2xl font-heading text-primary">{t('heading')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          A {link.relationship.toLowerCase()} has requested access to your profile.
+          {t('subtitle', { relationship: link.relationship.toLowerCase() })}
         </p>
       </header>
 
       <section className="rounded-2xl border border-gold/20 bg-surface p-4 sm:p-6 space-y-2">
         <dl className="grid grid-cols-3 gap-2 text-sm">
-          <dt className="text-gold-muted">Relationship</dt>
+          <dt className="text-gold-muted">{t('relationshipLabel')}</dt>
           <dd className="col-span-2 text-foreground">{link.relationship}</dd>
-          <dt className="text-gold-muted">Permission</dt>
+          <dt className="text-gold-muted">{t('permissionLabel')}</dt>
           <dd className="col-span-2 text-foreground">{link.permissions.replace(/_/g, ' ')}</dd>
-          <dt className="text-gold-muted">Requested at</dt>
+          <dt className="text-gold-muted">{t('requestedAtLabel')}</dt>
           <dd className="col-span-2 text-foreground">{new Date(link.createdAt).toLocaleString()}</dd>
         </dl>
         <p className="text-xs text-gold-muted pt-2">
-          You retain final say on every action they draft. Approving only grants their tier of access —
-          you can revoke anytime.
+          {t('note')}
         </p>
       </section>
 

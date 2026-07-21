@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { z } from 'zod';
 import { useCartStore } from '@/store/useCartStore';
+import { track } from '@/lib/analytics';
 import type { PromoApplicationResult } from '@smartshaadi/types';
 
 const ShippingSchema = z.object({
@@ -31,6 +33,7 @@ const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export function CheckoutForm() {
   const router     = useRouter();
+  const t          = useTranslations('store.checkout');
   const items      = useCartStore(s => s.items);
   const totalPrice = useCartStore(s => s.totalPrice);
   const clearCart  = useCartStore(s => s.clearCart);
@@ -40,6 +43,8 @@ export function CheckoutForm() {
   const [submitting,   setSubmitting]   = useState(false);
   const [serverError,  setServerError]  = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  const [mounted,      setMounted]      = useState(false);
+  const [mobileOpen,   setMobileOpen]   = useState(false);
 
   // Promo code state
   const [promoOpen,    setPromoOpen]    = useState(false);
@@ -48,10 +53,17 @@ export function CheckoutForm() {
   const [promoError,   setPromoError]   = useState<string | null>(null);
   const [promoResult,  setPromoResult]  = useState<PromoApplicationResult | null>(null);
 
+  useEffect(() => {
+    setMounted(true);
+    const subtotal = totalPrice();
+    const itemCount = items.length;
+    track('store_checkout_started', { itemCount, totalPaise: Math.round(subtotal * 100) });
+  }, []);
+
   async function applyPromo() {
     setPromoError(null);
     if (!promoCode.trim()) {
-      setPromoError('Please enter a promo code.');
+      setPromoError(t('errorPromoRequired'));
       return;
     }
     setPromoApplying(true);
@@ -64,13 +76,13 @@ export function CheckoutForm() {
       });
       const json = (await res.json()) as { success: boolean; data?: PromoApplicationResult; error?: string };
       if (!res.ok || !json.success || !json.data) {
-        setPromoError(json.error ?? 'Invalid or expired promo code.');
+        setPromoError(json.error ?? t('errorPromoInvalid'));
         setPromoResult(null);
         return;
       }
       setPromoResult(json.data);
     } catch {
-      setPromoError('Network error. Please try again.');
+      setPromoError(t('errorNetwork'));
     } finally {
       setPromoApplying(false);
     }
@@ -106,7 +118,7 @@ export function CheckoutForm() {
     }
 
     if (items.length === 0) {
-      setServerError('Your cart is empty');
+      setServerError(t('cartEmpty'));
       return;
     }
 
@@ -132,13 +144,20 @@ export function CheckoutForm() {
       };
 
       if (!res.ok || !json.success) {
-        setServerError(json.error ?? 'Failed to place order. Please try again.');
+        setServerError(json.error ?? t('errorCreateOrder'));
         return;
       }
 
       const orderId = json.data?.order.id;
       clearCart();
       setOrderSuccess(orderId ?? '');
+
+      // Track order completion
+      track('store_order_completed', {
+        orderId: orderId ?? '',
+        itemCount: items.length,
+        totalPaise: Math.round((promoResult ? promoResult.finalAmount : subtotal) * 100),
+      });
 
       // Mock Razorpay capture — flip PLACED → CONFIRMED so the demo flow shows
       // a confirmed order. Real Razorpay replaces this with the client-side
@@ -161,7 +180,7 @@ export function CheckoutForm() {
         }
       }, 1500);
     } catch {
-      setServerError('Network error. Please check your connection and try again.');
+      setServerError(t('errorConnectionError'));
     } finally {
       setSubmitting(false);
     }
@@ -175,8 +194,8 @@ export function CheckoutForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="font-heading text-primary text-xl font-bold">Payment Successful (Test Mode)</h2>
-        <p className="text-sm text-muted-foreground">Your order has been placed! Redirecting to order details…</p>
+        <h2 className="font-heading text-primary text-xl font-bold">{t('successTitle')}</h2>
+        <p className="text-sm text-muted-foreground">{t('successMessage')}</p>
       </div>
     );
   }
@@ -184,10 +203,11 @@ export function CheckoutForm() {
   const subtotal = totalPrice();
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      {/* Shipping form */}
-      <form onSubmit={handleSubmit} className="md:col-span-2 space-y-4">
-        <h2 className="font-heading text-primary font-semibold text-lg">Shipping Details</h2>
+    <>
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Shipping form */}
+        <form onSubmit={handleSubmit} className="md:col-span-2 space-y-4">
+          <h2 className="font-heading text-primary font-semibold text-lg">{t('shippingDetails')}</h2>
 
         {serverError && (
           <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
@@ -195,175 +215,241 @@ export function CheckoutForm() {
           </div>
         )}
 
-        {/* Name */}
-        <Field
-          label="Full Name"
-          name="name"
-          type="text"
-          placeholder="Ravi Kumar"
-          value={form.name}
-          error={errors.name}
-          onChange={handleChange}
-        />
-
-        {/* Phone */}
-        <Field
-          label="Mobile Number"
-          name="phone"
-          type="tel"
-          placeholder="9876543210"
-          value={form.phone}
-          error={errors.phone}
-          onChange={handleChange}
-        />
-
-        {/* Address */}
-        <Field
-          label="Address"
-          name="address"
-          type="text"
-          placeholder="123, MG Road, Shivaji Nagar"
-          value={form.address}
-          error={errors.address}
-          onChange={handleChange}
-        />
-
-        {/* City + State row */}
-        <div className="grid grid-cols-2 gap-3">
+          {/* Name */}
           <Field
-            label="City"
-            name="city"
+            label={t('labels.fullName')}
+            name="name"
             type="text"
-            placeholder="Pune"
-            value={form.city}
-            error={errors.city}
+            placeholder="Ravi Kumar"
+            value={form.name}
+            error={errors.name}
             onChange={handleChange}
           />
+
+          {/* Phone */}
           <Field
-            label="State"
-            name="state"
-            type="text"
-            placeholder="Maharashtra"
-            value={form.state}
-            error={errors.state}
+            label={t('labels.mobileNumber')}
+            name="phone"
+            type="tel"
+            placeholder="9876543210"
+            value={form.phone}
+            error={errors.phone}
             onChange={handleChange}
           />
-        </div>
 
-        {/* Pincode */}
-        <Field
-          label="Pincode"
-          name="pincode"
-          type="text"
-          placeholder="411001"
-          value={form.pincode}
-          error={errors.pincode}
-          onChange={handleChange}
-        />
+          {/* Address */}
+          <Field
+            label={t('labels.address')}
+            name="address"
+            type="text"
+            placeholder="123, MG Road, Shivaji Nagar"
+            value={form.address}
+            error={errors.address}
+            onChange={handleChange}
+          />
 
-        <button
-          type="submit"
-          disabled={submitting || items.length === 0}
-          className="w-full min-h-[44px] bg-teal text-white font-semibold rounded-lg text-sm hover:bg-teal/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
-        >
-          {submitting ? 'Placing Order…' : 'Place Order'}
-        </button>
-      </form>
+          {/* City + State row */}
+          <div className="grid grid-cols-2 gap-3">
+            <Field
+              label={t('labels.city')}
+              name="city"
+              type="text"
+              placeholder="Pune"
+              value={form.city}
+              error={errors.city}
+              onChange={handleChange}
+            />
+            <Field
+              label={t('labels.state')}
+              name="state"
+              type="text"
+              placeholder="Maharashtra"
+              value={form.state}
+              error={errors.state}
+              onChange={handleChange}
+            />
+          </div>
 
-      {/* Order summary sidebar */}
-      <div className="bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
-        <h2 className="font-heading text-primary font-semibold text-base mb-3">Order Summary</h2>
+          {/* Pincode */}
+          <Field
+            label={t('labels.pincode')}
+            name="pincode"
+            type="text"
+            placeholder="411001"
+            value={form.pincode}
+            error={errors.pincode}
+            onChange={handleChange}
+          />
 
-        <div className="space-y-2.5 mb-4">
-          {items.map(item => (
-            <div key={item.productId} className="flex justify-between text-xs">
-              <span className="text-muted-foreground truncate max-w-[140px]">
-                {item.name} × {item.quantity}
-              </span>
-              <span className="font-medium text-foreground ml-2 flex-shrink-0">
-                ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+          <button
+            type="submit"
+            disabled={submitting || items.length === 0}
+            className="w-full min-h-[44px] bg-teal text-white font-semibold rounded-lg text-sm hover:bg-teal/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
+          >
+            {submitting ? t('placingOrder') : t('placeOrder')}
+          </button>
+        </form>
+
+        {/* Order summary sidebar — desktop only */}
+        <div className="hidden md:block bg-surface border border-gold/20 rounded-2xl p-4 h-fit sticky top-24">
+          <h2 className="font-heading text-primary font-semibold text-base mb-3">{t('orderSummary')}</h2>
+
+          <div className="space-y-2.5 mb-4">
+            {items.map(item => (
+              <div key={item.productId} className="flex justify-between text-xs">
+                <span className="text-muted-foreground truncate max-w-[140px]">
+                  {item.name} × {item.quantity}
+                </span>
+                <span className="font-medium text-foreground ml-2 flex-shrink-0">
+                  {mounted ? `₹${(item.price * item.quantity).toLocaleString('en-IN')}` : '—'}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2 text-sm border-t border-gold/20 pt-3">
+            <div className="flex justify-between text-muted-foreground">
+              <span>{t('subtotal')}</span>
+              <span className="text-foreground">{mounted ? `₹${subtotal.toLocaleString('en-IN')}` : '—'}</span>
+            </div>
+            {promoResult && (
+              <div className="flex justify-between text-success">
+                <span className="flex items-center gap-1">
+                  {promoResult.code}
+                  <button
+                    type="button"
+                    onClick={removePromo}
+                    className="text-2xs text-muted-foreground hover:text-destructive ml-1"
+                    aria-label={t('removePromo')}
+                  >
+                    ✕
+                  </button>
+                </span>
+                <span>−{mounted ? `₹${promoResult.discount.toLocaleString('en-IN')}` : '—'}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-muted-foreground">
+              <span>{t('shipping')}</span>
+              <span className="text-success">{t('free')}</span>
+            </div>
+            <div className="flex justify-between font-bold text-foreground border-t border-gold/20 pt-2">
+              <span>{t('total')}</span>
+              <span className="text-teal">
+                {mounted ? `₹${(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}` : '—'}
               </span>
             </div>
-          ))}
-        </div>
-
-        <div className="space-y-2 text-sm border-t border-gold/20 pt-3">
-          <div className="flex justify-between text-muted-foreground">
-            <span>Subtotal</span>
-            <span className="text-foreground">₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
-          {promoResult && (
-            <div className="flex justify-between text-success">
-              <span className="flex items-center gap-1">
-                {promoResult.code}
+
+          {/* Promo code section */}
+          <div className="mt-4 border-t border-gold/20 pt-3">
+            {!promoResult ? (
+              <>
                 <button
                   type="button"
-                  onClick={removePromo}
-                  className="text-2xs text-muted-foreground hover:text-destructive ml-1"
-                  aria-label="Remove promo"
+                  onClick={() => setPromoOpen(v => !v)}
+                  className="text-xs font-medium text-teal hover:underline"
                 >
-                  ✕
+                  {promoOpen ? t('hidePromo') : t('havePromo')}
                 </button>
-              </span>
-              <span>−₹{promoResult.discount.toLocaleString('en-IN')}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-muted-foreground">
-            <span>Shipping</span>
-            <span className="text-success">Free</span>
-          </div>
-          <div className="flex justify-between font-bold text-foreground border-t border-gold/20 pt-2">
-            <span>Total</span>
-            <span className="text-teal">
-              ₹{(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}
-            </span>
-          </div>
-        </div>
-
-        {/* Promo code section */}
-        <div className="mt-4 border-t border-gold/20 pt-3">
-          {!promoResult ? (
-            <>
-              <button
-                type="button"
-                onClick={() => setPromoOpen(v => !v)}
-                className="text-xs font-medium text-teal hover:underline"
-              >
-                {promoOpen ? 'Hide promo code' : 'Have a promo code?'}
-              </button>
-              {promoOpen && (
-                <div className="mt-2 space-y-2">
-                  {promoError && (
-                    <p className="text-xs text-destructive">{promoError}</p>
-                  )}
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={e => setPromoCode(e.target.value.toUpperCase())}
-                      placeholder="PROMO CODE"
-                      className="flex-1 h-9 rounded-lg border border-gold/30 bg-surface px-3 text-xs font-mono focus:outline-none focus:border-teal uppercase"
-                    />
-                    <button
-                      type="button"
-                      onClick={applyPromo}
-                      disabled={promoApplying}
-                      className="h-9 px-3 rounded-lg bg-teal text-white text-xs font-semibold disabled:opacity-60"
-                    >
-                      {promoApplying ? '…' : 'Apply'}
-                    </button>
+                {promoOpen && (
+                  <div className="mt-2 space-y-2">
+                    {promoError && (
+                      <p className="text-xs text-destructive">{promoError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                        placeholder={t('promoPlaceholder')}
+                        className="flex-1 h-9 rounded-lg border border-gold/30 bg-surface px-3 text-xs font-mono focus:outline-none focus:border-teal uppercase"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyPromo}
+                        disabled={promoApplying}
+                        className="h-9 px-3 rounded-lg bg-teal text-white text-xs font-semibold disabled:opacity-60"
+                      >
+                        {promoApplying ? '…' : t('promoApply')}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-xs text-success font-medium">
-              Promo applied: saving ₹{promoResult.discount.toLocaleString('en-IN')}
-            </p>
-          )}
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-success font-medium">
+                {t('promoSaving', { amount: mounted ? promoResult.discount.toLocaleString('en-IN') : '—' })}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile sticky summary — visible only below md */}
+      {mounted && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-gold/20 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(v => !v)}
+            className="w-full flex items-center justify-between min-h-[44px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-left">
+                <p className="text-xs text-muted-foreground">{t('mobileSummary.title')}</p>
+                <p className="font-semibold text-sm text-foreground">₹{(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}</p>
+              </div>
+              <span className="text-xs bg-teal/15 text-teal px-2 py-1 rounded-full">
+                {t('mobileSummary.itemCount', { count: items.length })}
+              </span>
+            </div>
+            <svg className={`h-5 w-5 text-muted-foreground transition-transform ${mobileOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+
+          {mobileOpen && (
+            <div className="mt-3 pt-3 border-t border-gold/20 space-y-2 max-h-48 overflow-y-auto">
+              {items.map(item => (
+                <div key={item.productId} className="flex justify-between text-xs">
+                  <span className="text-muted-foreground truncate max-w-[180px]">
+                    {item.name} × {item.quantity}
+                  </span>
+                  <span className="font-medium text-foreground ml-2 flex-shrink-0">
+                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              ))}
+              <div className="pt-2 border-t border-gold/20 space-y-1.5 text-xs">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t('subtotal')}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                </div>
+                {promoResult && (
+                  <div className="flex justify-between text-success">
+                    <span>{promoResult.code}</span>
+                    <span>−₹{promoResult.discount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t('shipping')}</span>
+                  <span className="text-success">{t('free')}</span>
+                </div>
+                <div className="flex justify-between font-bold text-foreground border-t border-gold/20 pt-1.5">
+                  <span>{t('total')}</span>
+                  <span className="text-teal">
+                    ₹{(promoResult ? promoResult.finalAmount : subtotal).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mobile padding to prevent content overlap */}
+      <div className="md:hidden h-32" />
+    </>
+
   );
 }
 

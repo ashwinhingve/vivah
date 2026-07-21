@@ -907,6 +907,13 @@
       "unarchiveChat": "आर्काइव से निकालें",
       "report": "रिपोर्ट करें",
       "blockAndExit": "ब्लॉक करें और बाहर निकलें"
+    },
+    "audio": {
+      "unavailable": "ऑडियो उपलब्ध नहीं",
+      "retry": "फिर से प्रयास करें"
+    },
+    "reactions": {
+      "reactWith": "{emoji} से प्रतिक्रिया दें"
     }
   },
   "chats": {
@@ -2030,7 +2037,70 @@
       "dismissed": "खारिज",
       "conversationLabel": "बातचीत",
       "reportedByLabel": "रिपोर्ट करने वाला",
-      "reportedUserLabel": "रिपोर्ट किया गया उपयोगकर्ता"
+      "reportedUserLabel": "रिपोर्ट किया गया उपयोगकर्ता",
+      "dismiss": "रद्द करें",
+      "escalateToTicket": "टिकट में एस्केलेट करें"
+    },
+    "thread": {
+      "title": "वार्तालाप",
+      "emptyState": "अभी कोई उत्तर नहीं है। नीचे वार्तालाप शुरू करें।",
+      "internalNoteLabel": "आंतरिक नोट",
+      "cannedReplyPlaceholder": "तैयार उत्तर डालें…",
+      "customerPlaceholder": "ग्राहक को उत्तर दें…",
+      "internalPlaceholder": "एक आंतरिक नोट जोड़ें (केवल स्टाफ के लिए)…",
+      "internalNoteCheckbox": "आंतरिक नोट (ग्राहक को दिखाई नहीं देगा)",
+      "sendReply": "उत्तर भेजें",
+      "addNote": "नोट जोड़ें"
+    },
+    "canned": {
+      "acknowledge": {
+        "label": "स्वीकार करें — इस पर काम कर रहे हैं",
+        "body": "संपर्क के लिए धन्यवाद — हम अभी इस पर काम कर रहे हैं और जल्द ही आपको अपडेट देंगे।"
+      },
+      "moreInfo": {
+        "label": "अधिक जानकारी माँगें",
+        "body": "क्या आप कुछ और विवरण साझा कर सकते हैं (स्क्रीनशॉट, बुकिंग आईडी, या प्रोफाइल आईडी) ताकि हम तेजी से जाँच कर सकें?"
+      },
+      "resolved": {
+        "label": "हल — कृपया पुष्टि करें",
+        "body": "यह हमारे सिरे पर हल हो गया है — कृपया रीफ्रेश करें और बताएँ कि क्या समस्या बनी रहती है।"
+      },
+      "escalated": {
+        "label": "विशेषज्ञ टीम को भेजा गया",
+        "body": "हमने इसे अपनी विशेषज्ञ टीम को भेज दिया है और 24 घंटे में अपडेट की उम्मीद है।"
+      },
+      "closing": {
+        "label": "बंद कर रहे हैं — आपके धैर्य के लिए धन्यवाद",
+        "body": "आपके धैर्य के लिए धन्यवाद — हम अभी के लिए यह टिकट बंद कर रहे हैं। यदि समस्या फिर से आए तो इसे फिर से खोल सकते हैं।"
+      }
+    },
+    "actions": {
+      "title": "कार्रवाई",
+      "statusLabel": "स्थिति",
+      "priorityLabel": "प्राथमिकता",
+      "assigneeLabel": "जिम्मेदार व्यक्ति",
+      "assigneeUnassigned": "अनासाइन",
+      "assignToMe": "मुझे असाइन करें",
+      "reassignLabel": "किसी अन्य को असाइन करें",
+      "markResolved": "हल के रूप में चिह्नित करें"
+    },
+    "history": {
+      "title": "इतिहास"
+    },
+    "ticketDetail": {
+      "title": "टिकट · समर्थन",
+      "backToQueue": "कतार पर वापस जाएँ",
+      "sources": {
+        "USER": "उपयोगकर्ता द्वारा उठाया गया",
+        "CHAT_REPORT": "चैट रिपोर्ट से",
+        "DISPUTE": "बुकिंग विवाद से",
+        "KYC_APPEAL": "केवाईसी अपील से",
+        "SYSTEM": "सिस्टम-जनित"
+      }
+    },
+    "sla": {
+      "overdue": "अतिदेय · ",
+      "due": "देय "
     }
   },
   "coordinator": {
@@ -3919,15 +3989,49 @@
       "tax": "कर",
       "total": "कुल",
       "paymentFailed": "भुगतान संसाधित नहीं किया जा सका",
-      "tryAgain": "कृपया पुनः प्रयास करें या एक अलग भुगतान विधि का उपयोग करें"
+      "tryAgain": "कृपया पुनः प्रयास करें या एक अलग भुगतान विधि का उपयोग करें",
+      "shippingDetails": "डिलीवरी विवरण",
+      "labels": {
+        "fullName": "पूरा नाम",
+        "mobileNumber": "मोबाइल नंबर",
+        "address": "पता",
+        "city": "शहर",
+        "state": "राज्य",
+        "pincode": "पिनकोड"
+      },
+      "placingOrder": "ऑर्डर प्लेस किया जा रहा है…",
+      "cartEmpty": "आपकी कार्ट खाली है",
+      "free": "निःशुल्क",
+      "havePromo": "प्रोमो कोड है?",
+      "hidePromo": "प्रोमो कोड छिपाएं",
+      "promoPlaceholder": "प्रोमो कोड",
+      "promoApply": "लागू करें",
+      "promoSaving": "प्रोमो लागू: ₹{amount} बचत",
+      "errorPromoRequired": "कृपया प्रोमो कोड दर्ज करें।",
+      "errorPromoInvalid": "अमान्य या समाप्त प्रोमो कोड।",
+      "errorNetwork": "नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।",
+      "errorCreateOrder": "ऑर्डर प्लेस करने में विफल। कृपया पुनः प्रयास करें।",
+      "errorConnectionError": "नेटवर्क त्रुटि। कृपया अपने कनेक्शन की जांच करें और पुनः प्रयास करें।",
+      "successTitle": "भुगतान सफल (टेस्ट मोड)",
+      "successMessage": "आपका ऑर्डर प्लेस हो गया है! ऑर्डर विवरण के लिए रीडायरेक्ट किया जा रहा है…",
+      "removePromo": "प्रोमो हटाएं",
+      "mobileSummary": {
+        "title": "ऑर्डर सारांश",
+        "itemCount": "{count, plural, one {# आइटम} other {# आइटम}}",
+        "expand": "विस्तृत करें",
+        "collapse": "संक्षिप्त करें"
+      }
     },
     "categoryFilter": {
       "allCategories": "सभी श्रेणियां",
+      "all": "सभी",
       "gifts": "उपहार",
-      "trousseau": "दहेज",
-      "ethnicWear": "नैतिक पहनावा",
+      "trousseau": "दुल्हन की पोशाकें",
+      "ethnicWear": "पारंपरिक परिधान",
       "jewelry": "गहने",
+      "pooja": "पूजा",
       "decor": "सजावट",
+      "stationery": "स्टेशनरी",
       "other": "अन्य"
     },
     "orders": {
@@ -3943,6 +4047,9 @@
       "backToStore": "स्टोर",
       "emptyLabel": "अभी तक कोई ऑर्डर नहीं",
       "browseCta": "उत्पाद देखें"
+    },
+    "search": {
+      "placeholder": "उत्पाद खोजें..."
     }
   },
   "rentals": {
@@ -4275,6 +4382,252 @@
         "shipped": "भेज दिया गया",
         "delivered": "डिलीवर किया गया"
       }
+    }
+  },
+  "family": {
+    "components": {
+      "assistedSeekerCard": {
+        "relationshipLabel": {
+          "FATHER": "पिता",
+          "MOTHER": "माता",
+          "GUARDIAN": "अभिभावक",
+          "SIBLING": "भाई/बहन"
+        },
+        "permissionLabel": {
+          "VIEW_ONLY": "केवल देखें",
+          "EDIT_PROFILE": "प्रोफ़ाइल संपादित कर सकते हैं",
+          "DRAFT_ACTIONS": "कार्य का मसौदा तैयार कर सकते हैं",
+          "FULL_PROXY": "पूर्ण प्रतिनिधित्व"
+        },
+        "pending": "लंबित",
+        "draftInterest": "दिलचस्पी का मसौदा बनाएँ",
+        "viewHistory": "इतिहास देखें"
+      },
+      "parentActionCard": {
+        "statusLabel": {
+          "PENDING": "लंबित",
+          "EXECUTED": "निष्पादित",
+          "REJECTED": "अस्वीकृत",
+          "EXPIRED": "समाप्त"
+        },
+        "actionFailed": "कार्य विफल।",
+        "drafted": "मसौदा तैयार",
+        "approve": "स्वीकृत करें",
+        "reject": "अस्वीकार करें",
+        "actionType": {
+          "SEND_INTEREST": "रुचि भेजें",
+          "ACCEPT_INTEREST": "रुचि स्वीकारें",
+          "REJECT_INTEREST": "रुचि अस्वीकारें",
+          "SEND_MESSAGE": "संदेश भेजें",
+          "UPDATE_PROFILE": "प्रोफ़ाइल अपडेट करें",
+          "BLOCK_USER": "उपयोगकर्ता ब्लॉक करें"
+        },
+        "payload": {
+          "someone": "एक सदस्य",
+          "sendInterest": "{who} को रुचि भेजें",
+          "sendInterestWithMessage": "{who} को रुचि भेजें — \"{message}\"",
+          "acceptInterest": "{who} की रुचि स्वीकारें",
+          "rejectInterest": "{who} की रुचि अस्वीकारें",
+          "sendMessage": "संदेश भेजें: \"{message}\"",
+          "updateProfile": "प्रोफ़ाइल फ़ील्ड {field} अपडेट करें",
+          "blockUser": "{who} को ब्लॉक करें"
+        },
+        "timeExpired": "समाप्त",
+        "timeLeftDaysHours": "{days} दिन {hours} घंटे शेष",
+        "timeLeftHours": "{hours} घंटे शेष"
+      },
+      "familyMembersClient": {
+        "heading": "परिवार के सदस्य",
+        "addButton": "जोड़ें",
+        "fullName": "पूरा नाम *",
+        "relationship": "संबंध",
+        "phone": "फोन",
+        "email": "ईमेल",
+        "notes": "नोट्स (वैकल्पिक)",
+        "isManaging": "यह व्यक्ति मेरी प्रोफ़ाइल का प्रबंधन करता है",
+        "cancel": "रद्द करें",
+        "addMember": "सदस्य जोड़ें",
+        "adding": "जोड़ा जा रहा है…",
+        "addedSuccess": "परिवार का सदस्य जोड़ा गया",
+        "removedSuccess": "हटाया गया",
+        "failedError": "विफल",
+        "noMembers": "कोई परिवार के सदस्य नहीं जोड़े गए।",
+        "removeConfirmTitle": "परिवार के सदस्य को हटाएँ?",
+        "removeConfirmDesc": "यह आपकी संरचित परिवार सूची से प्रविष्टि को हटा देगा।"
+      },
+      "draftInterestButton": {
+        "draftInterest": "दिलचस्पी का मसौदा बनाएँ",
+        "drafting": "मसौदा तैयार किया जा रहा है…",
+        "drafted": "मसौदा तैयार — उनकी मंजूरी का इंतज़ार",
+        "draftFailed": "दिलचस्पी का मसौदा नहीं बन सका।"
+      },
+      "familyInviteCode": {
+        "heading": "आपका परिवार कोड",
+        "description": "यह एक परिवार के सदस्य के साथ साझा करें ताकि वे आपकी खोज में मदद करने के लिए आपको लिंक अनुरोध भेज सकें।",
+        "copy": "कॉपी करें",
+        "copied": "कॉपी किया गया"
+      },
+      "requestFamilyVerification": {
+        "button": "सत्यापन का अनुरोध करें",
+        "success": "सत्यापन अनुरोध भेज दिया गया",
+        "error": "विफल"
+      },
+      "familyRatingForm": {
+        "heading": "आपकी परिवार की रेटिंग",
+        "overall": "कुल (0–100)",
+        "concerns": "चिंताएँ (अल्पविराम से अलग)",
+        "concernsPlaceholder": "उदाहरण के लिए स्थान, वित्त",
+        "notes": "नोट्स",
+        "error": "रेटिंग जमा नहीं की जा सकी। अपनी अनुमतियाँ जाँचें।",
+        "success": "रेटिंग सहेजी गई।",
+        "submit": "रेटिंग सहेजें",
+        "submitting": "सहेजा जा रहा है…"
+      },
+      "jointScoreCard": {
+        "heading": "परिवार का संयुक्त दृश्य",
+        "noRatings": "अभी तक कोई परिवार की रेटिंग नहीं",
+        "ratingCountSingular": "रेटिंग",
+        "ratingCountPlural": "रेटिंग",
+        "askRating": "माता-पिता या भाई/बहन से इस मिलान को रेट करने के लिए कहें। उनके स्कोर आपके के साथ मिलकर यह दिखाते हैं कि आप कहाँ सहमत हैं या असहमत हैं।",
+        "joint": "संयुक्त",
+        "yourMatch": "आपका मिलान",
+        "familyAvg": "परिवार का औसत",
+        "agreement": "आपसे सहमति:",
+        "familySignal": "परिवार"
+      }
+    },
+    "pages": {
+      "linkRequestForm": {
+        "childUserIdLabel": "परिवार के सदस्य का खाता आईडी",
+        "childUserIdPlaceholder": "उदाहरण के लिए usr_a1b2c3…",
+        "childUserIdHint": "उनसे कहें कि अपना परिवार अनुरोध पृष्ठ खोलें और अपना परिवार कोड कॉपी करें। उनके पास अपना स्वयं का स्मार्ट शादी खाता होना चाहिए।",
+        "relationshipLabel": "उनसे आपका संबंध",
+        "relationship": {
+          "FATHER": "पिता",
+          "MOTHER": "माता",
+          "GUARDIAN": "अभिभावक",
+          "SIBLING": "भाई-बहन"
+        },
+        "permissionLegend": "जिस पहुँच का आप अनुरोध कर रहे हैं",
+        "permission": {
+          "VIEW_ONLY": {
+            "label": "केवल देखें",
+            "hint": "उनकी प्रोफ़ाइल और मिलान देखें, कोई कार्य नहीं"
+          },
+          "DRAFT_ACTIONS": {
+            "label": "कार्य का मसौदा तैयार करें",
+            "hint": "दिलचस्पी का सुझाव दें जिसे वे मंजूरी देते हैं (अनुशंसित)"
+          },
+          "EDIT_PROFILE": {
+            "label": "प्रोफ़ाइल संपादित करें",
+            "hint": "उनकी प्रोफ़ाइल विवरण पूरा करने में मदद करें"
+          },
+          "FULL_PROXY": {
+            "label": "पूर्ण प्रतिनिधित्व",
+            "hint": "उनकी ओर से कार्य करें — सर्वोच्च विश्वास"
+          }
+        },
+        "errorRequired": "अपने परिवार के सदस्य का खाता आईडी दर्ज करें।",
+        "errorDefault": "अनुरोध नहीं भेजा जा सका। खाता आईडी जाँचें और फिर से कोशिश करें।",
+        "submit": "लिंक अनुरोध भेजें",
+        "submitting": "भेजा जा रहा है…",
+        "successHeading": "अनुरोध भेज दिया गया",
+        "successBody": "आपका परिवार का सदस्य अपने खाते में अनुरोध देखेगा। एक बार वे इसे मंजूरी दे देते हैं, वे आपके परिवार के हब पर दिखाई देंगे और आप उन्हें सहायता देना शुरू कर सकते हैं।",
+        "successAgain": "एक और अनुरोध भेजें"
+      },
+      "linkRequestPage": {
+        "heading": "परिवार का लिंक अनुरोध",
+        "subtitle": "एक {relationship} ने आपकी प्रोफ़ाइल तक पहुँच का अनुरोध किया है।",
+        "relationshipLabel": "संबंध",
+        "permissionLabel": "अनुमति",
+        "requestedAtLabel": "अनुरोध किया गया",
+        "note": "आप हर कार्य पर अंतिम निर्णय लेते हैं जो वे मसौदा तैयार करते हैं। मंजूरी देने से केवल उन्हें उनके स्तर की पहुँच मिलती है — आप किसी भी समय इसे रद्द कर सकते हैं।",
+        "alreadyApproved": "आपने पहले से ही इस {relationship} की पहुँच को मंजूरी दे दी है।",
+        "linkRevoked": "यह लिंक रद्द कर दिया गया है।"
+      },
+      "linkApprovalActions": {
+        "approve": "स्वीकृत करें",
+        "reject": "अस्वीकार करें",
+        "revoking": "रद्द किया जा रहा है…",
+        "approving": "स्वीकृत किया जा रहा है…",
+        "revoked": "पहुँच रद्द की गई",
+        "approved": "स्वीकृत",
+        "error": "कार्य विफल"
+      }
+    }
+  },
+  "notifications": {
+    "metadata": {
+      "title": "सूचनाएँ"
+    },
+    "page": {
+      "title": "सूचनाएँ"
+    },
+    "tabs": {
+      "all": "सभी",
+      "unread": "पढ़ी गई नहीं",
+      "unreadWithCount": "पढ़ी गई नहीं ({count})"
+    },
+    "actions": {
+      "markAllRead": "सभी को पढ़ा हुआ चिन्हित करें",
+      "clearAll": "सभी हटाएँ",
+      "markRead": "पढ़ा हुआ चिन्हित करें",
+      "markUnread": "पढ़ी गई नहीं चिन्हित करें",
+      "clear": "सूचना हटाएँ"
+    },
+    "buckets": {
+      "today": "आज",
+      "yesterday": "कल",
+      "earlier": "पहले"
+    },
+    "bell": {
+      "label": "सूचनाएँ",
+      "labelWithCount": "सूचनाएँ, {count} पढ़ी गई नहीं"
+    },
+    "panel": {
+      "title": "सूचनाएँ",
+      "markAll": "सभी को चिन्हित करें",
+      "clear": "हटाएँ",
+      "viewAll": "सभी सूचनाएँ देखें",
+      "empty": {
+        "title": "आप सब कुछ पढ़ चुके हैं",
+        "subtitle": "नई गतिविधि यहाँ दिखाई देगी।"
+      }
+    }
+  },
+  "assistant": {
+    "metadata": {
+      "title": "सहायक"
+    },
+    "page": {
+      "title": "सहायक",
+      "subtitle": "अपने मैच, प्रोफ़ाइल टिप्स और प्लेटफ़ॉर्म प्रश्नों के लिए तुरंत मार्गदर्शन पाएँ।"
+    },
+    "toggle": {
+      "label": "स्मार्ट शादी सहायक खोलें",
+      "title": "स्मार्ट शादी सहायक"
+    },
+    "chat": {
+      "greeting": "नमस्ते! अपने मैच, प्रोफ़ाइल टिप्स या स्मार्ट शादी पर अपनी यात्रा के अगले कदमों के बारे में कुछ पूछें।",
+      "placeholder": "सहायक से पूछें…",
+      "messageLabel": "संदेश",
+      "sendLabel": "संदेश भेजें"
+    },
+    "tools": {
+      "get_my_profile": "आपकी प्रोफ़ाइल जाँच रहे हैं…",
+      "get_my_matches": "आपके मैच देख रहे हैं…",
+      "get_pending_requests": "आपके अनुरोध जाँच रहे हैं…",
+      "get_who_liked_me": "देख रहे हैं कि किसने आपको पसंद किया…",
+      "get_match_status": "मैच स्थिति जाँच रहे हैं…",
+      "list_conversations": "आपनी चैट पढ़ रहे हैं…",
+      "get_unread_count": "पढ़ी गई नहीं संदेश गिन रहे हैं…",
+      "list_weddings": "आपकी शादी खोल रहे हैं…",
+      "get_wedding_budget": "आपका बजट देख रहे हैं…",
+      "get_wedding_tasks": "आपके कार्य जाँच रहे हैं…",
+      "get_wedding_ceremonies": "आपके समारोह देख रहे हैं…",
+      "suggest_muhurat_dates": "शुभ तारीखें ढूँढ रहे हैं…",
+      "find_similar_matches": "समान प्रोफ़ाइल ढूँढ रहे हैं…",
+      "default": "वह जानकारी ढूँढ रहे हैं…"
     }
   }
 }
