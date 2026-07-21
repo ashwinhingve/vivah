@@ -50,10 +50,11 @@ async function fetchHeatmap(month: string): Promise<HeatmapDay[] | null> {
   }
 }
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('muhuratCalendar');
   return {
-    title: 'Calendar Intelligence — Smart Shaadi',
-    description: 'View auspicious dates, festivals, and important events for your wedding planning',
+    title: t('metadata.title'),
+    description: t('subtitle'),
   };
 }
 

@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { CompletenessBar } from '@/components/profile/CompletenessBar';
 import { FadeUp } from '@/components/shared/FadeUp.client';
+import { Celebration } from './Celebration.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
@@ -58,6 +59,7 @@ export default async function ProfileCompletePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Celebration />
       <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
         {/* Score celebration */}
         <FadeUp>

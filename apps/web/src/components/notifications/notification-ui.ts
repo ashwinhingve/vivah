@@ -49,8 +49,8 @@ export function rowHref(n: NotificationRow): string | undefined {
   return deepLinkFor(jobType, n.data ?? {});
 }
 
-/** Compact relative age: "now", "5m", "3h", "2d", else a short date. */
-export function formatAge(iso: string, now: number): string {
+/** Compact relative age: "now", "5m", "3h", "2d", else a short date. Accepts locale param for date formatting. */
+export function formatAge(iso: string, now: number, locale?: string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
   const secs = Math.max(0, Math.floor((now - then) / 1000));
@@ -61,18 +61,21 @@ export function formatAge(iso: string, now: number): string {
   if (hrs < 24) return `${hrs}h`;
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}d`;
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  return new Date(iso).toLocaleDateString(localeTag, { day: 'numeric', month: 'short' });
 }
 
-export type TimeBucket = 'Today' | 'Yesterday' | 'Earlier';
+export type TimeBucket = 'today' | 'yesterday' | 'earlier';
 
-/** Bucket a row by day relative to `now` (local time). */
+export const TIME_BUCKETS: readonly TimeBucket[] = ['today', 'yesterday', 'earlier'];
+
+/** Bucket a row by day relative to `now` (local time). Callers translate the key at render. */
 export function timeBucket(iso: string, now: number): TimeBucket {
   const d = new Date(iso);
-  const today = new Date(now);
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayDate = new Date(now);
+  const startOfToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
   const t = d.getTime();
-  if (t >= startOfToday) return 'Today';
-  if (t >= startOfToday - 24 * 60 * 60 * 1000) return 'Yesterday';
-  return 'Earlier';
+  if (t >= startOfToday) return 'today';
+  if (t >= startOfToday - 24 * 60 * 60 * 1000) return 'yesterday';
+  return 'earlier';
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations, useLocale } from 'next-intl';
 import { Check, Undo2, X } from 'lucide-react';
 import { notificationMeta, type NotificationRow } from '@smartshaadi/types';
 import { Link } from '@/i18n/navigation';
@@ -15,11 +16,13 @@ interface Props {
 }
 
 export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Props) {
+  const t = useTranslations('notifications');
+  const locale = useLocale();
   const category = rowCategory(item);
   const href = rowHref(item);
   const Icon = CATEGORY_ICON[category];
   const tone = TONE_CLASSES[notificationMeta[category].tone];
-  const age = formatAge(item.createdAt, now);
+  const age = formatAge(item.createdAt, now, locale);
 
   const body = (
     <>
@@ -66,8 +69,8 @@ export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Prop
         <button
           type="button"
           onClick={() => onToggle(item.id, item.read)}
-          title={item.read ? 'Mark as unread' : 'Mark as read'}
-          aria-label={item.read ? 'Mark as unread' : 'Mark as read'}
+          title={item.read ? t('actions.markUnread') : t('actions.markRead')}
+          aria-label={item.read ? t('actions.markUnread') : t('actions.markRead')}
           className={cn(touchTarget, 'flex items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-teal focus:outline-none focus-visible:ring-2 focus-visible:ring-ring')}
         >
           {item.read ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-4 w-4" />}
@@ -75,8 +78,8 @@ export function NotificationItem({ item, now, onOpen, onToggle, onRemove }: Prop
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          title="Clear"
-          aria-label="Clear notification"
+          title={t('actions.clear')}
+          aria-label={t('actions.clear')}
           className={cn(touchTarget, 'flex items-center justify-center rounded-full text-muted-foreground hover:bg-surface hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-ring')}
         >
           <X className="h-3.5 w-3.5" />

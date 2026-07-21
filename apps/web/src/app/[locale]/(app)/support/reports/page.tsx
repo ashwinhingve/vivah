@@ -107,7 +107,7 @@ export default async function SupportReportsPage({
 
         {reports.length === 0 ? (
           <FadeUp>
-            <EmptyState variant="no-reports" />
+            <EmptyState variant="no-reports" title={t('reports.empty.title')} description={t('reports.empty.description')} />
           </FadeUp>
         ) : (
           <StaggerList className="space-y-3">

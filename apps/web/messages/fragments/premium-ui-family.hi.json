@@ -1,0 +1,182 @@
+{
+  "family": {
+    "components": {
+      "assistedSeekerCard": {
+        "relationshipLabel": {
+          "FATHER": "पिता",
+          "MOTHER": "माता",
+          "GUARDIAN": "अभिभावक",
+          "SIBLING": "भाई/बहन"
+        },
+        "permissionLabel": {
+          "VIEW_ONLY": "केवल देखें",
+          "EDIT_PROFILE": "प्रोफ़ाइल संपादित कर सकते हैं",
+          "DRAFT_ACTIONS": "कार्य का मसौदा तैयार कर सकते हैं",
+          "FULL_PROXY": "पूर्ण प्रतिनिधित्व"
+        },
+        "pending": "लंबित",
+        "draftInterest": "दिलचस्पी का मसौदा बनाएँ",
+        "viewHistory": "इतिहास देखें"
+      },
+      "parentActionCard": {
+        "statusLabel": {
+          "PENDING": "लंबित",
+          "EXECUTED": "निष्पादित",
+          "REJECTED": "अस्वीकृत",
+          "EXPIRED": "समाप्त"
+        },
+        "actionType": {
+          "SEND_INTEREST": "रुचि भेजें",
+          "ACCEPT_INTEREST": "रुचि स्वीकारें",
+          "REJECT_INTEREST": "रुचि अस्वीकारें",
+          "SEND_MESSAGE": "संदेश भेजें",
+          "UPDATE_PROFILE": "प्रोफ़ाइल अपडेट करें",
+          "BLOCK_USER": "उपयोगकर्ता ब्लॉक करें"
+        },
+        "payload": {
+          "someone": "एक सदस्य",
+          "sendInterest": "{who} को रुचि भेजें",
+          "sendInterestWithMessage": "{who} को रुचि भेजें — \"{message}\"",
+          "acceptInterest": "{who} की रुचि स्वीकारें",
+          "rejectInterest": "{who} की रुचि अस्वीकारें",
+          "sendMessage": "संदेश भेजें: \"{message}\"",
+          "updateProfile": "प्रोफ़ाइल फ़ील्ड {field} अपडेट करें",
+          "blockUser": "{who} को ब्लॉक करें"
+        },
+        "timeExpired": "समाप्त",
+        "timeLeftDaysHours": "{days} दिन {hours} घंटे शेष",
+        "timeLeftHours": "{hours} घंटे शेष",
+        "actionFailed": "कार्य विफल।",
+        "drafted": "मसौदा तैयार",
+        "approve": "स्वीकृत करें",
+        "reject": "अस्वीकार करें"
+      },
+      "familyMembersClient": {
+        "heading": "परिवार के सदस्य",
+        "addButton": "जोड़ें",
+        "fullName": "पूरा नाम *",
+        "relationship": "संबंध",
+        "phone": "फोन",
+        "email": "ईमेल",
+        "notes": "नोट्स (वैकल्पिक)",
+        "isManaging": "यह व्यक्ति मेरी प्रोफ़ाइल का प्रबंधन करता है",
+        "cancel": "रद्द करें",
+        "addMember": "सदस्य जोड़ें",
+        "adding": "जोड़ा जा रहा है…",
+        "addedSuccess": "परिवार का सदस्य जोड़ा गया",
+        "removedSuccess": "हटाया गया",
+        "failedError": "विफल",
+        "noMembers": "कोई परिवार के सदस्य नहीं जोड़े गए।",
+        "removeConfirmTitle": "परिवार के सदस्य को हटाएँ?",
+        "removeConfirmDesc": "यह आपकी संरचित परिवार सूची से प्रविष्टि को हटा देगा।"
+      },
+      "draftInterestButton": {
+        "draftInterest": "दिलचस्पी का मसौदा बनाएँ",
+        "drafting": "मसौदा तैयार किया जा रहा है…",
+        "drafted": "मसौदा तैयार — उनकी मंजूरी का इंतज़ार",
+        "draftFailed": "दिलचस्पी का मसौदा नहीं बन सका।"
+      },
+      "familyInviteCode": {
+        "heading": "आपका परिवार कोड",
+        "description": "यह एक परिवार के सदस्य के साथ साझा करें ताकि वे आपकी खोज में मदद करने के लिए आपको लिंक अनुरोध भेज सकें।",
+        "copy": "कॉपी करें",
+        "copied": "कॉपी किया गया"
+      },
+      "requestFamilyVerification": {
+        "button": "सत्यापन का अनुरोध करें",
+        "success": "सत्यापन अनुरोध भेज दिया गया",
+        "error": "विफल"
+      },
+      "familyRatingForm": {
+        "heading": "आपकी परिवार की रेटिंग",
+        "overall": "कुल (0–100)",
+        "concerns": "चिंताएँ (अल्पविराम से अलग)",
+        "concernsPlaceholder": "उदाहरण के लिए स्थान, वित्त",
+        "notes": "नोट्स",
+        "error": "रेटिंग जमा नहीं की जा सकी। अपनी अनुमतियाँ जाँचें।",
+        "success": "रेटिंग सहेजी गई।",
+        "submit": "रेटिंग सहेजें",
+        "submitting": "सहेजा जा रहा है…"
+      },
+      "jointScoreCard": {
+        "heading": "परिवार का संयुक्त दृश्य",
+        "noRatings": "अभी तक कोई परिवार की रेटिंग नहीं",
+        "ratingCountSingular": "रेटिंग",
+        "ratingCountPlural": "रेटिंग",
+        "askRating": "माता-पिता या भाई/बहन से इस मिलान को रेट करने के लिए कहें। उनके स्कोर आपके के साथ मिलकर यह दिखाते हैं कि आप कहाँ सहमत हैं या असहमत हैं।",
+        "joint": "संयुक्त",
+        "yourMatch": "आपका मिलान",
+        "familyAvg": "परिवार का औसत",
+        "agreement": "आपसे सहमति:",
+        "familySignal": "परिवार"
+      }
+    },
+    "pages": {
+      "linkNewPage": {
+        "metaTitle": "परिवार के सदस्य को जोड़ें",
+        "backToHub": "परिवार हब पर वापस",
+        "title": "परिवार के सदस्य को जोड़ें",
+        "subtitle": "परिवार के किसी सदस्य की मैचमेकिंग में सहायता के लिए अनुरोध भेजें। पूरा नियंत्रण उन्हीं के पास रहता है — हर अनुरोध के लिए उनकी मंज़ूरी ज़रूरी है, और वे कभी भी आपकी पहुँच रद्द कर सकते हैं।",
+        "awaitingApproval": "उनकी मंज़ूरी की प्रतीक्षा में",
+        "pendingSuffix": "लंबित"
+      },
+      "linkRequestForm": {
+        "childUserIdLabel": "परिवार के सदस्य का खाता आईडी",
+        "childUserIdPlaceholder": "उदाहरण के लिए usr_a1b2c3…",
+        "childUserIdHint": "उनसे कहें कि अपना परिवार अनुरोध पृष्ठ खोलें और अपना परिवार कोड कॉपी करें। उनके पास अपना स्वयं का स्मार्ट शादी खाता होना चाहिए।",
+        "relationshipLabel": "उनसे आपका संबंध",
+        "relationship": {
+          "FATHER": "पिता",
+          "MOTHER": "माता",
+          "GUARDIAN": "अभिभावक",
+          "SIBLING": "भाई-बहन"
+        },
+        "permissionLegend": "जिस पहुँच का आप अनुरोध कर रहे हैं",
+        "permission": {
+          "VIEW_ONLY": {
+            "label": "केवल देखें",
+            "hint": "उनकी प्रोफ़ाइल और मिलान देखें, कोई कार्य नहीं"
+          },
+          "DRAFT_ACTIONS": {
+            "label": "कार्य का मसौदा तैयार करें",
+            "hint": "दिलचस्पी का सुझाव दें जिसे वे मंजूरी देते हैं (अनुशंसित)"
+          },
+          "EDIT_PROFILE": {
+            "label": "प्रोफ़ाइल संपादित करें",
+            "hint": "उनकी प्रोफ़ाइल विवरण पूरा करने में मदद करें"
+          },
+          "FULL_PROXY": {
+            "label": "पूर्ण प्रतिनिधित्व",
+            "hint": "उनकी ओर से कार्य करें — सर्वोच्च विश्वास"
+          }
+        },
+        "errorRequired": "अपने परिवार के सदस्य का खाता आईडी दर्ज करें।",
+        "errorDefault": "अनुरोध नहीं भेजा जा सका। खाता आईडी जाँचें और फिर से कोशिश करें।",
+        "submit": "लिंक अनुरोध भेजें",
+        "submitting": "भेजा जा रहा है…",
+        "successHeading": "अनुरोध भेज दिया गया",
+        "successBody": "आपका परिवार का सदस्य अपने खाते में अनुरोध देखेगा। एक बार वे इसे मंजूरी दे देते हैं, वे आपके परिवार के हब पर दिखाई देंगे और आप उन्हें सहायता देना शुरू कर सकते हैं।",
+        "successAgain": "एक और अनुरोध भेजें"
+      },
+      "linkRequestPage": {
+        "heading": "परिवार का लिंक अनुरोध",
+        "subtitle": "एक {relationship} ने आपकी प्रोफ़ाइल तक पहुँच का अनुरोध किया है।",
+        "relationshipLabel": "संबंध",
+        "permissionLabel": "अनुमति",
+        "requestedAtLabel": "अनुरोध किया गया",
+        "note": "आप हर कार्य पर अंतिम निर्णय लेते हैं जो वे मसौदा तैयार करते हैं। मंजूरी देने से केवल उन्हें उनके स्तर की पहुँच मिलती है — आप किसी भी समय इसे रद्द कर सकते हैं।",
+        "alreadyApproved": "आपने पहले से ही इस {relationship} की पहुँच को मंजूरी दे दी है।",
+        "linkRevoked": "यह लिंक रद्द कर दिया गया है।"
+      },
+      "linkApprovalActions": {
+        "approve": "स्वीकृत करें",
+        "reject": "अस्वीकार करें",
+        "revoking": "रद्द किया जा रहा है…",
+        "approving": "स्वीकृत किया जा रहा है…",
+        "revoked": "पहुँच रद्द की गई",
+        "approved": "स्वीकृत",
+        "error": "कार्य विफल"
+      }
+    }
+  }
+}

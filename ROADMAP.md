@@ -205,7 +205,25 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-21 (current) — Ship premium UI + Phase 4: shared components, payments audit, i18n completion, CI green
+### 2026-07-21 (current) — Premium UI Phase 5: full UX backlog + never-audited long tail
+
+Completed the entire tracked premium-UI backlog on `feat/premium-ui-phase-5` (PR #6)
+with 7 Opus teammates in two waves. UX candidates: chat photo-upload optimistic
+spinner (+`photoLoading` on ChatMessage), voice-player error/retry, reaction-picker
+keyboard nav, framer-motion typing dots, checkout mobile sticky summary + full i18n,
+store filter i18n, 5 typed marketplace analytics events, onboarding confetti
+(framer-motion — canvas-confetti rejected after `pnpm add` churned better-auth peer
+deps in the lockfile), seating "seats" literal. Never-audited areas i18n'd + chipped:
+family (~135 keys), support (~40), notifications+assistant (~44), coordinator,
+calendar (fixed hardcoded 'en-IN' heatmap locale bug — Hindi months now render), b2b.
+Also fixed: "दहेज" (dowry!) as the Trousseau store category label, i18next-style
+plural keys, raw-HTML-in-message INVALID_TAG crash, duplicate optimistic photo
+bubbles, phantom StatusChip claims, English EmptyState presets leaking into hi.
+~250 en+hi key pairs via 7 fragments; browser-verified at 375px in en+hi across 11
+areas; type-check/build/lint green. Follow-up backlog documented in
+`docs/premium-ui/phase5-summary.md` (pricing/services/packages/vendor/documents/…).
+
+### 2026-07-21 — Ship premium UI + Phase 4: shared components, payments audit, i18n completion, CI green
 
 Shipped `feat/premium-ui-phase-1` (PR #4): pushed 14 accumulated commits, then
 fixed every CI failure the first-ever complete pipeline run surfaced — demo-DB

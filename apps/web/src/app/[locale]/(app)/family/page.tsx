@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
+import { getLocale } from "next-intl/server";
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import {
@@ -31,6 +32,7 @@ export default async function FamilyPage() {
   if (me && me.role !== 'FAMILY_MEMBER' && me.role !== 'ADMIN') {
     return await redirect('/dashboard');
   }
+  const locale = await getLocale();
   const t = await getTranslations('familyRole.hub');
   const BADGE_LABEL: Record<FamilyVerificationBadge, string> = {
     NONE:            t('badgeNone'),
@@ -96,7 +98,7 @@ export default async function FamilyPage() {
             <StatsCard
               label={t('kpiVerification')}
               value={verification ? BADGE_LABEL[verification.badge] : t('badgeNone')}
-              sub={verification?.verifiedAt ? t('kpiVerificationSince', { date: new Date(verification.verifiedAt).toLocaleDateString() }) : t('kpiVerificationFrom')}
+              sub={verification?.verifiedAt ? t('kpiVerificationSince', { date: new Date(verification.verifiedAt).toLocaleDateString(locale === "hi" ? "hi-IN" : "en-IN") }) : t('kpiVerificationFrom')}
               icon={ShieldCheck}
               variant={verification?.isVerified ? 'success' : 'default'}
               animDelayMs={200}

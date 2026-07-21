@@ -1,0 +1,182 @@
+{
+  "family": {
+    "components": {
+      "assistedSeekerCard": {
+        "relationshipLabel": {
+          "FATHER": "Father",
+          "MOTHER": "Mother",
+          "GUARDIAN": "Guardian",
+          "SIBLING": "Sibling"
+        },
+        "permissionLabel": {
+          "VIEW_ONLY": "View only",
+          "EDIT_PROFILE": "Can edit profile",
+          "DRAFT_ACTIONS": "Can draft actions",
+          "FULL_PROXY": "Full proxy"
+        },
+        "pending": "pending",
+        "draftInterest": "Draft an interest",
+        "viewHistory": "View history"
+      },
+      "parentActionCard": {
+        "statusLabel": {
+          "PENDING": "Pending",
+          "EXECUTED": "Executed",
+          "REJECTED": "Rejected",
+          "EXPIRED": "Expired"
+        },
+        "actionType": {
+          "SEND_INTEREST": "Send interest",
+          "ACCEPT_INTEREST": "Accept interest",
+          "REJECT_INTEREST": "Reject interest",
+          "SEND_MESSAGE": "Send message",
+          "UPDATE_PROFILE": "Update profile",
+          "BLOCK_USER": "Block user"
+        },
+        "payload": {
+          "someone": "a member",
+          "sendInterest": "Send interest to {who}",
+          "sendInterestWithMessage": "Send interest to {who} — \"{message}\"",
+          "acceptInterest": "Accept interest from {who}",
+          "rejectInterest": "Reject interest from {who}",
+          "sendMessage": "Send message: \"{message}\"",
+          "updateProfile": "Update profile field {field}",
+          "blockUser": "Block {who}"
+        },
+        "timeExpired": "expired",
+        "timeLeftDaysHours": "{days}d {hours}h left",
+        "timeLeftHours": "{hours}h left",
+        "actionFailed": "Action failed.",
+        "drafted": "Drafted",
+        "approve": "Approve",
+        "reject": "Reject"
+      },
+      "familyMembersClient": {
+        "heading": "Family members",
+        "addButton": "Add",
+        "fullName": "Full name *",
+        "relationship": "Relationship",
+        "phone": "Phone",
+        "email": "Email",
+        "notes": "Notes (optional)",
+        "isManaging": "This person manages my profile",
+        "cancel": "Cancel",
+        "addMember": "Add member",
+        "adding": "Adding…",
+        "addedSuccess": "Family member added",
+        "removedSuccess": "Removed",
+        "failedError": "Failed",
+        "noMembers": "No family members added.",
+        "removeConfirmTitle": "Remove family member?",
+        "removeConfirmDesc": "This will remove the entry from your structured family list."
+      },
+      "draftInterestButton": {
+        "draftInterest": "Draft interest",
+        "drafting": "Drafting…",
+        "drafted": "Drafted — awaiting their approval",
+        "draftFailed": "Could not draft the interest."
+      },
+      "familyInviteCode": {
+        "heading": "Your family code",
+        "description": "Share this with a family member so they can send you a link request to help with your search.",
+        "copy": "Copy",
+        "copied": "Copied"
+      },
+      "requestFamilyVerification": {
+        "button": "Request verification",
+        "success": "Verification request sent",
+        "error": "Failed"
+      },
+      "familyRatingForm": {
+        "heading": "Your family rating",
+        "overall": "Overall (0–100)",
+        "concerns": "Concerns (comma-separated)",
+        "concernsPlaceholder": "e.g. location, finances",
+        "notes": "Notes",
+        "error": "Could not submit rating. Check your permissions.",
+        "success": "Rating saved.",
+        "submit": "Save rating",
+        "submitting": "Saving…"
+      },
+      "jointScoreCard": {
+        "heading": "Family joint view",
+        "noRatings": "No family ratings yet",
+        "ratingCountSingular": "rating",
+        "ratingCountPlural": "ratings",
+        "askRating": "Ask a parent or sibling to rate this match. Their scores combine with yours to surface where you agree or differ.",
+        "joint": "Joint",
+        "yourMatch": "Your match",
+        "familyAvg": "Family avg",
+        "agreement": "Agreement with you:",
+        "familySignal": "family"
+      }
+    },
+    "pages": {
+      "linkNewPage": {
+        "metaTitle": "Link a family member",
+        "backToHub": "Back to family hub",
+        "title": "Link a family member",
+        "subtitle": "Send a request to assist a family member with their matchmaking. They stay in full control — every request needs their approval, and they can revoke your access anytime.",
+        "awaitingApproval": "Awaiting their approval",
+        "pendingSuffix": "pending"
+      },
+      "linkRequestForm": {
+        "childUserIdLabel": "Family member's account ID",
+        "childUserIdPlaceholder": "e.g. usr_a1b2c3…",
+        "childUserIdHint": "Ask them to open their Family requests page and copy their family code. They must have their own Smart Shaadi account.",
+        "relationshipLabel": "Your relationship to them",
+        "relationship": {
+          "FATHER": "Father",
+          "MOTHER": "Mother",
+          "GUARDIAN": "Guardian",
+          "SIBLING": "Sibling"
+        },
+        "permissionLegend": "Access you're requesting",
+        "permission": {
+          "VIEW_ONLY": {
+            "label": "View only",
+            "hint": "See their profile & matches, no actions"
+          },
+          "DRAFT_ACTIONS": {
+            "label": "Draft actions",
+            "hint": "Suggest interests they approve (recommended)"
+          },
+          "EDIT_PROFILE": {
+            "label": "Edit profile",
+            "hint": "Help complete their profile details"
+          },
+          "FULL_PROXY": {
+            "label": "Full proxy",
+            "hint": "Act on their behalf — highest trust"
+          }
+        },
+        "errorRequired": "Enter your family member's account ID.",
+        "errorDefault": "Could not send the request. Check the account ID and try again.",
+        "submit": "Send link request",
+        "submitting": "Sending…",
+        "successHeading": "Request sent",
+        "successBody": "Your family member will see the request in their account. Once they approve it, they'll appear on your family hub and you can start assisting them.",
+        "successAgain": "Send another request"
+      },
+      "linkRequestPage": {
+        "heading": "Family link request",
+        "subtitle": "A {relationship} has requested access to your profile.",
+        "relationshipLabel": "Relationship",
+        "permissionLabel": "Permission",
+        "requestedAtLabel": "Requested at",
+        "note": "You retain final say on every action they draft. Approving only grants their tier of access — you can revoke anytime.",
+        "alreadyApproved": "You've already approved this {relationship}'s access.",
+        "linkRevoked": "This link has been revoked."
+      },
+      "linkApprovalActions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "revoking": "Revoking…",
+        "approving": "Approving…",
+        "revoked": "Access revoked",
+        "approved": "Approved",
+        "error": "Action failed"
+      }
+    }
+  }
+}

@@ -24,9 +24,12 @@ interface ChatInputProps {
     content: string
     type:    'TEXT' | 'PHOTO' | 'VOICE'
     photoKey?: string | null
+    photoLoading?: boolean
     voiceKey?: string | null
     voiceDuration?: number | null
   }) => string | null
+  /** Remove a stranded optimistic message (e.g. photo upload failed before the server ever saw it). */
+  onOptimisticRemove?: (clientMsgId: string) => void
   /** Translate toggle hoisted from ChatView — Day 10 input bar lives here now. */
   translateOn?:        boolean
   translateBusy?:      boolean
@@ -39,7 +42,7 @@ const QUICK_EMOJIS = ['😊', '😂', '❤️', '🙏', '👍', '🎉', '🔥', 
 
 export default function ChatInput({
   matchId, socketRef,
-  reply, editing, onCancelReply, onCancelEdit, smartReplyKey, onOptimisticSend,
+  reply, editing, onCancelReply, onCancelEdit, smartReplyKey, onOptimisticSend, onOptimisticRemove,
   translateOn = false, translateBusy = false, onToggleTranslate,
   userHasSentMessage = false,
 }: ChatInputProps) {
@@ -142,6 +145,19 @@ export default function ChatInput({
     if (!file || !socketRef.current || isUploading) return
     if (file.size > 10 * 1024 * 1024) { toast('Image too large (max 10MB)', 'error'); return }
     setIsUploading(true)
+
+    // Optimistic bubble with a local blob preview + spinner; the server echo
+    // (message_received) reconciles it into the real message. On failure we
+    // remove it — a stranded "uploading" bubble would never resolve.
+    const localUrl = URL.createObjectURL(file)
+    const optimisticId = onOptimisticSend?.({
+      content: 'Photo',
+      type: 'PHOTO',
+      photoKey: localUrl,
+      photoLoading: true,
+    })
+    const dropOptimistic = () => { if (optimisticId) onOptimisticRemove?.(optimisticId) }
+
     const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
     try {
       const res = await fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/photos`, {
@@ -154,6 +170,7 @@ export default function ChatInput({
       if (!json.success) {
         console.error('[chat-upload] presign failed', { status: res.status, error: json.error })
         toast(json.error?.message ?? 'Photo upload failed (presign)', 'error')
+        dropOptimistic()
         return
       }
       // Surface the actual upload host so we can tell path-style from
@@ -167,9 +184,9 @@ export default function ChatInput({
         const body = await putRes.text().catch(() => '<no body>')
         console.error('[chat-upload] R2 PUT failed', { host: uploadHost, status: putRes.status, body: body.slice(0, 500) })
         toast(`Photo upload failed (R2 ${putRes.status})`, 'error')
+        dropOptimistic()
         return
       }
-      onOptimisticSend?.({ content: 'Photo', type: 'PHOTO', photoKey: json.data.key })
       socketRef.current.emit('send_message', {
         matchRequestId: matchId,
         content: 'Photo',
@@ -181,7 +198,11 @@ export default function ChatInput({
     } catch (e) {
       console.error('[chat-upload] exception', e)
       toast(`Photo upload failed: ${(e as Error).message ?? 'unknown'}`, 'error')
+      dropOptimistic()
     } finally {
+      // The blob URL may still be on screen until the server echo replaces the
+      // optimistic bubble — revoke late instead of immediately.
+      setTimeout(() => URL.revokeObjectURL(localUrl), 60_000)
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }

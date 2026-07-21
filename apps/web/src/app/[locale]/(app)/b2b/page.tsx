@@ -11,6 +11,7 @@ import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -101,6 +102,13 @@ function AccountCard({ account, t, tStatus }: AccountCardProps) {
     SUSPENDED: 'suspended',
   };
 
+  const toneMap: Record<B2BAccount['status'], StatusTone> = {
+    PENDING: 'warning',
+    VERIFIED: 'success',
+    REJECTED: 'error',
+    SUSPENDED: 'neutral',
+  };
+
   return (
     <Link href={`/b2b/${account.id}`}>
       <div className="cursor-pointer rounded-2xl border border-gold/20 bg-surface p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover">
@@ -109,9 +117,9 @@ function AccountCard({ account, t, tStatus }: AccountCardProps) {
             <h3 className="text-lg font-heading font-semibold text-primary">{account.legalName}</h3>
             <p className="mt-1 text-sm text-gold-muted">GSTIN: {account.gstin}</p>
           </div>
-          <span className="inline-block rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-muted">
+          <StatusChip tone={toneMap[account.status]}>
             {tStatus(statusMap[account.status] ?? account.status)}
-          </span>
+          </StatusChip>
         </div>
 
         <div className="flex items-center justify-between">

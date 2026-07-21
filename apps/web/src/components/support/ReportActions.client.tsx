@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ShieldX, ArrowUpRight } from 'lucide-react';
 import { actOnReportAction } from '@/app/[locale]/(app)/support/actions';
 
 export function ReportActions({ reportId }: { reportId: string }) {
+  const t = useTranslations();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -28,7 +30,7 @@ export function ReportActions({ reportId }: { reportId: string }) {
           onClick={() => run('DISMISS')}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium text-text-muted hover:border-gold/40 disabled:opacity-50"
         >
-          <ShieldX className="h-3.5 w-3.5" /> Dismiss
+          <ShieldX className="h-3.5 w-3.5" /> {t('support.reports.dismiss')}
         </button>
         <button
           type="button"
@@ -36,7 +38,7 @@ export function ReportActions({ reportId }: { reportId: string }) {
           onClick={() => run('ESCALATE')}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-warning px-3 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
         >
-          <ArrowUpRight className="h-3.5 w-3.5" /> Escalate to ticket
+          <ArrowUpRight className="h-3.5 w-3.5" /> {t('support.reports.escalateToTicket')}
         </button>
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}

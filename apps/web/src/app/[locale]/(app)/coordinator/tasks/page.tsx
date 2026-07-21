@@ -1,9 +1,10 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Inbox, ArrowLeft, ArrowRight, AlertTriangle, ListTodo } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { fetchAuth } from '@/lib/server-fetch';
 import { fetchCoordinatorTasks } from '@/lib/coordinator-api';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { RoleHero } from '@/components/shared/RoleHero';
@@ -19,11 +20,11 @@ export async function generateMetadata() {
 
 type BucketKey = 'urgent' | 'overdue' | 'week' | 'later';
 
-const SEVERITY_STYLES: Record<IncidentSeverity, string> = {
-  CRITICAL: 'bg-destructive/15 text-destructive',
-  HIGH:     'bg-warning/15 text-warning',
-  MEDIUM:   'bg-gold/15 text-gold-muted',
-  LOW:      'bg-foreground/5 text-muted-foreground',
+const SEVERITY_TONES: Record<IncidentSeverity, StatusTone> = {
+  CRITICAL: 'error',
+  HIGH:     'warning',
+  MEDIUM:   'gold',
+  LOW:      'neutral',
 };
 
 function daysUntil(iso: string): number {
@@ -54,6 +55,8 @@ export default async function CoordinatorTasksPage() {
     return await redirect('/dashboard');
   }
   const t = await getTranslations('coordinator');
+  const locale = await getLocale();
+  const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
   const bucketLabels: Record<BucketKey, string> = {
     urgent: t('buckets.urgent'),
     overdue: t('buckets.overdue'),
@@ -90,7 +93,7 @@ export default async function CoordinatorTasksPage() {
           {items.length === 0 ? (
             <FadeUp>
               <div className="rounded-2xl border border-gold/20 bg-surface shadow-card">
-                <EmptyState variant="no-tasks" />
+                <EmptyState variant="no-tasks" title={t('emptyTasks.title')} description={t('emptyTasks.description')} />
               </div>
             </FadeUp>
           ) : (
@@ -122,16 +125,17 @@ export default async function CoordinatorTasksPage() {
                               <p className="text-sm text-text-muted">
                                 {item.weddingTitle}
                                 {item.kind === 'TASK' && item.dueDate
-                                  ? ` · ${t('due')} ${new Date(item.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
+                                  ? ` · ${t('due')} ${new Date(item.dueDate).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}`
                                   : ''}
                               </p>
                             </div>
                             {item.kind === 'INCIDENT' && item.severity ? (
-                              <span
-                                className={`shrink-0 rounded-full px-2.5 py-0.5 text-2xs font-medium uppercase tracking-wide ${SEVERITY_STYLES[item.severity]}`}
+                              <StatusChip
+                                tone={SEVERITY_TONES[item.severity]}
+                                className="shrink-0"
                               >
-                                {item.severity}
-                              </span>
+                                {t(`severity.${item.severity}`)}
+                              </StatusChip>
                             ) : null}
                             <ArrowRight className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5" />
                           </Link>

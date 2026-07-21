@@ -47,6 +47,8 @@ export interface ChatMessage {
   linkPreview:    LinkPreview | null
   editedAt:       string | null
   deletedAt:      string | null
+  /** Client-only optimistic flag: photo is still uploading to R2. Never persisted. */
+  photoLoading?:  boolean
 }
 
 export interface ConversationSettings {

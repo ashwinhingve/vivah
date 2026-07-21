@@ -1,0 +1,19 @@
+{
+  "coordinator": {
+    "daysAway": "{days}d away",
+    "emptyTasks": {
+      "title": "All caught up",
+      "description": "No pending tasks right now. New ones will appear as weddings progress."
+    },
+    "severity": {
+      "CRITICAL": "Critical",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    }
+  },
+  "muhuratCalendar": {
+    "auspicious": "Auspicious",
+    "eventCount": "{count, plural, one {# event} other {# events}}"
+  }
+}

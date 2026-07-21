@@ -1,52 +1,67 @@
 /**
- * Support console — presentational status/priority/SLA badges (server-safe).
+ * Support console — status/priority badges via StatusChip (server-safe).
  */
 import { cn } from '@/lib/utils';
+import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import type { TicketPriority, TicketStatus } from '@/lib/support-api';
+import { getLocale } from 'next-intl/server';
 
-const PRIORITY_STYLES: Record<TicketPriority, string> = {
-  LOW: 'bg-teal/10 text-teal border-teal/20',
-  NORMAL: 'bg-gold/10 text-gold-muted border-gold/30',
-  HIGH: 'bg-warning/10 text-warning border-warning/30',
-  URGENT: 'bg-destructive/10 text-destructive border-destructive/30',
+// Map ticket priority to StatusChip tone
+const PRIORITY_TONE: Record<TicketPriority, StatusTone> = {
+  LOW: 'teal',
+  NORMAL: 'gold',
+  HIGH: 'warning',
+  URGENT: 'error',
 };
 
-const STATUS_STYLES: Record<TicketStatus, string> = {
-  OPEN: 'bg-teal/10 text-teal border-teal/20',
-  PENDING: 'bg-warning/10 text-warning border-warning/30',
-  RESOLVED: 'bg-success/10 text-success border-success/30',
-  CLOSED: 'bg-surface-muted text-text-muted border-border',
+// Map ticket status to StatusChip tone
+const STATUS_TONE: Record<TicketStatus, StatusTone> = {
+  OPEN: 'teal',
+  PENDING: 'warning',
+  RESOLVED: 'success',
+  CLOSED: 'neutral',
 };
 
-function pill(label: string, className: string) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium',
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
+function formatPriorityLabel(priority: TicketPriority): string {
+  return priority.charAt(0) + priority.slice(1).toLowerCase();
+}
+
+function formatStatusLabel(status: TicketStatus): string {
+  return status.charAt(0) + status.slice(1).toLowerCase();
 }
 
 export function PriorityPill({ priority }: { priority: TicketPriority }) {
-  return pill(priority.charAt(0) + priority.slice(1).toLowerCase(), PRIORITY_STYLES[priority]);
+  return (
+    <StatusChip tone={PRIORITY_TONE[priority]}>
+      {formatPriorityLabel(priority)}
+    </StatusChip>
+  );
 }
 
 export function StatusPill({ status }: { status: TicketStatus }) {
-  return pill(status.charAt(0) + status.slice(1).toLowerCase(), STATUS_STYLES[status]);
+  return (
+    <StatusChip tone={STATUS_TONE[status]}>
+      {formatStatusLabel(status)}
+    </StatusChip>
+  );
 }
 
-export function SlaBadge({ slaDueAt, overdue }: { slaDueAt: string | null; overdue: boolean }) {
+export async function SlaBadge({ slaDueAt, overdue }: { slaDueAt: string | null; overdue: boolean }) {
+  const locale = await getLocale();
+  const localeTag = locale === 'hi' ? 'hi-IN' : 'en-IN';
+
   if (!slaDueAt) return <span className="text-xs text-text-muted">—</span>;
+
   const due = new Date(slaDueAt);
-  const label = due.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) +
-    ' ' + due.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const label = due.toLocaleDateString(localeTag, { day: 'numeric', month: 'short' }) +
+    ' ' + due.toLocaleTimeString(localeTag, { hour: '2-digit', minute: '2-digit' });
+
+  // Overdue and Due labels are kept in English for admin staff UI clarity
+  const prefix = overdue ? 'Overdue · ' : 'Due ';
+
   return (
     <span className={cn('text-xs', overdue ? 'font-semibold text-destructive' : 'text-text-muted')}>
-      {overdue ? 'Overdue · ' : 'Due '}{label}
+      {prefix}{label}
     </span>
   );
 }

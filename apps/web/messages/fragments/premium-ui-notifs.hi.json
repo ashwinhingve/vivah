@@ -1,0 +1,41 @@
+{
+  "notifications": {
+    "metadata": {
+      "title": "सूचनाएँ"
+    },
+    "page": {
+      "title": "सूचनाएँ"
+    },
+    "tabs": {
+      "all": "सभी",
+      "unread": "पढ़ी गई नहीं",
+      "unreadWithCount": "पढ़ी गई नहीं ({count})"
+    },
+    "actions": {
+      "markAllRead": "सभी को पढ़ा हुआ चिन्हित करें",
+      "clearAll": "सभी हटाएँ",
+      "markRead": "पढ़ा हुआ चिन्हित करें",
+      "markUnread": "पढ़ी गई नहीं चिन्हित करें",
+      "clear": "सूचना हटाएँ"
+    },
+    "buckets": {
+      "today": "आज",
+      "yesterday": "कल",
+      "earlier": "पहले"
+    },
+    "bell": {
+      "label": "सूचनाएँ",
+      "labelWithCount": "सूचनाएँ, {count} पढ़ी गई नहीं"
+    },
+    "panel": {
+      "title": "सूचनाएँ",
+      "markAll": "सभी को चिन्हित करें",
+      "clear": "हटाएँ",
+      "viewAll": "सभी सूचनाएँ देखें",
+      "empty": {
+        "title": "आप सब कुछ पढ़ चुके हैं",
+        "subtitle": "नई गतिविधि यहाँ दिखाई देगी।"
+      }
+    }
+  }
+}

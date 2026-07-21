@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Pause, Play } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { AlertCircle, Pause, Play, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { resolvePhotoUrl } from '@/lib/photo'
 
@@ -32,10 +33,12 @@ function pseudoBars(seed: string): number[] {
 }
 
 export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: VoicePlayerProps) {
+  const t = useTranslations('chat')
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [position, setPosition] = useState(0)
+  const [error, setError] = useState(false)
   const url = resolvePhotoUrl(voiceKey)
   const bars = pseudoBars(voiceKey)
 
@@ -59,11 +62,17 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
   function toggle() {
     const a = audioRef.current
     if (!a || !url) return
+    if (error) {
+      setError(false)
+      a.load()
+      a.play().then(() => setPlaying(true)).catch(() => setError(true))
+      return
+    }
     if (playing) {
       a.pause()
       setPlaying(false)
     } else {
-      a.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
+      a.play().then(() => setPlaying(true)).catch(() => setError(true))
     }
   }
 
@@ -78,6 +87,37 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
   }
 
   if (!url) return null
+
+  if (error) {
+    return (
+      <div
+        className={cn(
+          'flex items-center gap-2.5 rounded-2xl px-3 py-2 shadow-sm min-w-[200px]',
+          isSentByMe
+            ? 'rounded-br-md bg-teal text-white'
+            : 'rounded-bl-md border border-gold/20 bg-surface text-foreground',
+        )}
+      >
+        <div className="flex items-center gap-2 flex-1">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span className="text-sm">{t('audio.unavailable')}</span>
+        </div>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={t('audio.retry')}
+          className={cn(
+            'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors shrink-0',
+            isSentByMe
+              ? 'bg-surface/20 hover:bg-surface/30 text-white'
+              : 'bg-teal text-white hover:bg-teal-hover',
+          )}
+        >
+          <RotateCcw className="h-4 w-4" />
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -135,7 +175,7 @@ export default function VoicePlayer({ voiceKey, durationSec, isSentByMe }: Voice
       >
         {formatTime(playing || position > 0 ? position : durationSec)}
       </span>
-      <audio ref={audioRef} src={url} preload="none" className="hidden" />
+      <audio ref={audioRef} src={url} preload="none" className="hidden" onError={() => setError(true)} />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,27 +17,8 @@ function newId(): string {
   return Math.random().toString(36).slice(2, 11);
 }
 
-/** Friendly "thinking" line shown while the assistant runs a data tool. */
-function toolActivityLabel(tool: string): string {
-  const labels: Record<string, string> = {
-    get_my_profile:         'Checking your profile…',
-    get_my_matches:         'Looking at your matches…',
-    get_pending_requests:   'Checking your requests…',
-    get_who_liked_me:       'Seeing who liked you…',
-    get_match_status:       'Checking match status…',
-    list_conversations:     'Reading your chats…',
-    get_unread_count:       'Counting unread messages…',
-    list_weddings:          'Opening your wedding…',
-    get_wedding_budget:     'Reviewing your budget…',
-    get_wedding_tasks:      'Checking your tasks…',
-    get_wedding_ceremonies: 'Looking at your ceremonies…',
-    suggest_muhurat_dates:  'Finding auspicious dates…',
-    find_similar_matches:   'Finding similar profiles…',
-  };
-  return labels[tool] ?? 'Looking that up…';
-}
-
 export function AssistantChat({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations('assistant');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -44,6 +26,28 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [activity, setActivity] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  /** Friendly "thinking" line shown while the assistant runs a data tool. */
+  const toolActivityLabel = (tool: string): string => {
+    const toolKey = tool as keyof typeof toolLabels;
+    return toolLabels[toolKey] ?? t('tools.default');
+  };
+
+  const toolLabels: Record<string, string> = {
+    get_my_profile: t('tools.get_my_profile'),
+    get_my_matches: t('tools.get_my_matches'),
+    get_pending_requests: t('tools.get_pending_requests'),
+    get_who_liked_me: t('tools.get_who_liked_me'),
+    get_match_status: t('tools.get_match_status'),
+    list_conversations: t('tools.list_conversations'),
+    get_unread_count: t('tools.get_unread_count'),
+    list_weddings: t('tools.list_weddings'),
+    get_wedding_budget: t('tools.get_wedding_budget'),
+    get_wedding_tasks: t('tools.get_wedding_tasks'),
+    get_wedding_ceremonies: t('tools.get_wedding_ceremonies'),
+    suggest_muhurat_dates: t('tools.suggest_muhurat_dates'),
+    find_similar_matches: t('tools.find_similar_matches'),
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -101,7 +105,7 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
       >
         {messages.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-8">
-            Hi! Pucho kuch — top matches, profile tips, ya next steps about your journey on Smart Shaadi.
+            {t('chat.greeting')}
           </div>
         )}
         {messages.map(m => (
@@ -141,15 +145,15 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
         <Input
           value={draft}
           onChange={e => setDraft(e.target.value)}
-          placeholder="Ask the assistant…"
+          placeholder={t('chat.placeholder')}
           disabled={streaming}
-          aria-label="Message"
+          aria-label={t('chat.messageLabel')}
           className="flex-1"
         />
         <Button
           type="submit"
           disabled={streaming || !draft.trim()}
-          aria-label="Send message"
+          aria-label={t('chat.sendLabel')}
           className="min-h-[44px] min-w-[44px]"
         >
           <Send className="h-4 w-4" aria-hidden="true" />

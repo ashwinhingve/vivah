@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { AddToCartButton } from '@/components/store/AddToCartButton.client';
+import { ProductViewTracker } from '@/components/store/ProductViewTracker.client';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import type { ProductSummary } from '@smartshaadi/types';
 
@@ -92,6 +93,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-background px-4 py-6">
+      <ProductViewTracker productId={product.id} category={product.category} />
       <div className="max-w-3xl mx-auto">
         {/* Breadcrumb */}
         <nav className="text-xs text-muted-foreground mb-4 flex items-center gap-1.5">

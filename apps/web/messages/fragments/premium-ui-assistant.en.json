@@ -1,0 +1,37 @@
+{
+  "assistant": {
+    "metadata": {
+      "title": "Assistant"
+    },
+    "page": {
+      "title": "Assistant",
+      "subtitle": "Apke matches, profile tips, aur platform questions ka instant guidance."
+    },
+    "toggle": {
+      "label": "Open Smart Shaadi assistant",
+      "title": "Smart Shaadi assistant"
+    },
+    "chat": {
+      "greeting": "Hi! Pucho kuch — top matches, profile tips, ya next steps about your journey on Smart Shaadi.",
+      "placeholder": "Ask the assistant…",
+      "messageLabel": "Message",
+      "sendLabel": "Send message"
+    },
+    "tools": {
+      "get_my_profile": "Checking your profile…",
+      "get_my_matches": "Looking at your matches…",
+      "get_pending_requests": "Checking your requests…",
+      "get_who_liked_me": "Seeing who liked you…",
+      "get_match_status": "Checking match status…",
+      "list_conversations": "Reading your chats…",
+      "get_unread_count": "Counting unread messages…",
+      "list_weddings": "Opening your wedding…",
+      "get_wedding_budget": "Reviewing your budget…",
+      "get_wedding_tasks": "Checking your tasks…",
+      "get_wedding_ceremonies": "Looking at your ceremonies…",
+      "suggest_muhurat_dates": "Finding auspicious dates…",
+      "find_similar_matches": "Finding similar profiles…",
+      "default": "Looking that up…"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "chat": {
+    "audio": {
+      "unavailable": "ऑडियो उपलब्ध नहीं",
+      "retry": "फिर से प्रयास करें"
+    },
+    "reactions": {
+      "reactWith": "{emoji} से प्रतिक्रिया दें"
+    }
+  }
+}
