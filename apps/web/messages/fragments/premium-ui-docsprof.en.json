@@ -1,0 +1,22 @@
+{
+  "documents": {
+    "client": {
+      "statuses": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "signed": "Signed",
+        "void": "Void"
+      }
+    }
+  },
+  "profileDetail": {
+    "fallbackName": "Profile",
+    "joinedRelative": {
+      "thisWeek": "Joined this week",
+      "weeksAgo": "Joined {count, plural, one {# week} other {# weeks}} ago",
+      "monthsAgo": "Joined {count, plural, one {# month} other {# months}} ago",
+      "yearsAgo": "Joined {count, plural, one {# year} other {# years}} ago"
+    },
+    "memberSince": "Member since {date}"
+  }
+}

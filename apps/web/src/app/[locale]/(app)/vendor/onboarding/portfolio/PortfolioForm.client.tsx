@@ -1,13 +1,26 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import { savePortfolioAction } from './actions';
 import { EVENT_TYPE_VALUES, type EventTypeValue } from '@smartshaadi/schemas';
 
-function label(v: string): string {
-  return v.charAt(0) + v.slice(1).toLowerCase().replace(/_/g, ' ');
-}
+const EVENT_TYPE_LABELS = {
+  WEDDING: 'vendorRole.onboarding.labels.eventTypes.WEDDING',
+  CORPORATE: 'vendorRole.onboarding.labels.eventTypes.CORPORATE',
+  FESTIVAL: 'vendorRole.onboarding.labels.eventTypes.FESTIVAL',
+  COMMUNITY_EVENT: 'vendorRole.onboarding.labels.eventTypes.COMMUNITY_EVENT',
+  COMMUNITY: 'vendorRole.onboarding.labels.eventTypes.COMMUNITY',
+  GOVERNMENT: 'vendorRole.onboarding.labels.eventTypes.GOVERNMENT',
+  SCHOOL: 'vendorRole.onboarding.labels.eventTypes.SCHOOL',
+  OTHER: 'vendorRole.onboarding.labels.eventTypes.OTHER',
+  HALDI: 'vendorRole.onboarding.labels.eventTypes.HALDI',
+  MEHNDI: 'vendorRole.onboarding.labels.eventTypes.MEHNDI',
+  SANGEET: 'vendorRole.onboarding.labels.eventTypes.SANGEET',
+  ENGAGEMENT: 'vendorRole.onboarding.labels.eventTypes.ENGAGEMENT',
+  RECEPTION: 'vendorRole.onboarding.labels.eventTypes.RECEPTION',
+} as const;
 
 interface Props {
   vendorId: string;
@@ -18,6 +31,7 @@ interface Props {
 }
 
 export function PortfolioForm({ vendorId, about, awards, certifications, selectedEventTypes }: Props) {
+  const t = useTranslations();
   const [state, formAction, pending] = useActionState(savePortfolioAction, undefined);
   const selected = new Set<string>(selectedEventTypes);
 
@@ -30,28 +44,28 @@ export function PortfolioForm({ vendorId, about, awards, certifications, selecte
       <input type="hidden" name="vendorId" value={vendorId} />
 
       <div>
-        <label htmlFor="about" className={labelCls}>About your work</label>
+        <label htmlFor="about" className={labelCls}>{t('vendorRole.onboarding.portfolioForm.aboutLabel')}</label>
         <textarea id="about" name="about" rows={4} defaultValue={about} disabled={pending}
           className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary focus:border-teal focus:outline-none disabled:opacity-50"
-          placeholder="Your style, experience, and what sets you apart." />
+          placeholder={t('vendorRole.onboarding.portfolioForm.aboutPlaceholder')} />
       </div>
 
       <div>
-        <label htmlFor="awards" className={labelCls}>Awards</label>
+        <label htmlFor="awards" className={labelCls}>{t('vendorRole.onboarding.portfolioForm.awardsLabel')}</label>
         <input id="awards" name="awards" defaultValue={awards.join(', ')} disabled={pending} className={inputCls}
-          placeholder="Comma-separated, e.g. Best Décor 2024, Editor's Pick" />
+          placeholder={t('vendorRole.onboarding.portfolioForm.awardsPlaceholder')} />
       </div>
 
       <div>
-        <label htmlFor="certifications" className={labelCls}>Certifications</label>
+        <label htmlFor="certifications" className={labelCls}>{t('vendorRole.onboarding.portfolioForm.certificationsLabel')}</label>
         <input id="certifications" name="certifications" defaultValue={certifications.join(', ')} disabled={pending} className={inputCls}
-          placeholder="Comma-separated, e.g. FSSAI, ISO 9001" />
+          placeholder={t('vendorRole.onboarding.portfolioForm.certificationsPlaceholder')} />
       </div>
 
       <fieldset>
-        <legend className={labelCls}>Event types you serve</legend>
+        <legend className={labelCls}>{t('vendorRole.onboarding.portfolioForm.eventTypesLabel')}</legend>
         <p className="mb-2 text-xs text-muted-foreground">
-          Selecting these makes you discoverable to event coordinators routing work.
+          {t('vendorRole.onboarding.portfolioForm.eventTypesHint')}
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {EVENT_TYPE_VALUES.map((v) => (
@@ -61,7 +75,7 @@ export function PortfolioForm({ vendorId, about, awards, certifications, selecte
             >
               <input type="checkbox" name="eventTypes" value={v} defaultChecked={selected.has(v)} disabled={pending}
                 className="h-4 w-4 rounded border-border accent-teal" />
-              <span className="text-primary">{label(v)}</span>
+              <span className="text-primary">{t(EVENT_TYPE_LABELS[v as keyof typeof EVENT_TYPE_LABELS])}</span>
             </label>
           ))}
         </div>
@@ -71,7 +85,7 @@ export function PortfolioForm({ vendorId, about, awards, certifications, selecte
 
       <button type="submit" disabled={pending}
         className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
-        {pending ? 'Saving…' : 'Save & continue'} <ArrowRight className="h-4 w-4" />
+        {pending ? t('vendorRole.onboarding.portfolioForm.saving') : t('vendorRole.onboarding.portfolioForm.submit')} <ArrowRight className="h-4 w-4" />
       </button>
     </form>
   );

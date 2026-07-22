@@ -1,5 +1,5 @@
 import { redirect } from '@/i18n/redirect';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, Package, ListChecks } from 'lucide-react';
 import { fetchAuth } from '@/lib/server-fetch';
@@ -29,6 +29,15 @@ interface VendorWithServices {
   services?: ServiceRow[];
 }
 
+const UNIT_LABEL_KEY: Record<string, string> = {
+  per_event:  'serviceUnits.per_event',
+  per_day:    'serviceUnits.per_day',
+  per_hour:   'serviceUnits.per_hour',
+  per_plate:  'serviceUnits.per_plate',
+  per_person: 'serviceUnits.per_person',
+  fixed:      'serviceUnits.fixed',
+};
+
 export default async function ServicesStepPage() {
   const me = await fetchAuth<{ userId: string; role: string }>('/api/auth/me');
   if (me && me.role !== 'VENDOR' && me.role !== 'ADMIN') {
@@ -36,6 +45,9 @@ export default async function ServicesStepPage() {
   }
 
   const t = await getTranslations('vendorRole.onboarding.services');
+  const tLabels = await getTranslations('vendorRole.onboarding.labels');
+  const locale = await getLocale();
+  const numLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
 
   const vendor = await fetchMyVendor();
   if (!vendor?.id) return await redirect('/vendor/onboarding/business');
@@ -55,15 +67,18 @@ export default async function ServicesStepPage() {
 
         {services.length > 0 && (
           <StaggerList className="mb-5 space-y-2">
-            {services.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-xl border border-gold/20 bg-surface px-4 py-3 shadow-card">
-                <span className="text-sm font-medium text-primary">{s.name}</span>
-                <span className="text-sm text-muted-foreground">
-                  ₹{s.priceFrom.toLocaleString('en-IN')}
-                  {s.priceTo ? `–${s.priceTo.toLocaleString('en-IN')}` : ''} · {s.unit}
-                </span>
-              </div>
-            ))}
+            {services.map((s) => {
+              const unitKey = UNIT_LABEL_KEY[s.unit];
+              return (
+                <div key={s.id} className="flex items-center justify-between rounded-xl border border-gold/20 bg-surface px-4 py-3 shadow-card">
+                  <span className="text-sm font-medium text-primary">{s.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    ₹{s.priceFrom.toLocaleString(numLocale)}
+                    {s.priceTo ? `–${s.priceTo.toLocaleString(numLocale)}` : ''} · {unitKey ? tLabels(unitKey) : s.unit}
+                  </span>
+                </div>
+              );
+            })}
           </StaggerList>
         )}
 

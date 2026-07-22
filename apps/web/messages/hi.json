@@ -383,7 +383,59 @@
       "title": "प्राइसिंग — Smart Shaadi"
     },
     "heading": "सरल, पारदर्शी प्राइसिंग",
-    "subtext": "मुफ़्त शुरू करें। तैयार होने पर अपग्रेड करें।"
+    "subtext": "मुफ़्त शुरू करें। तैयार होने पर अपग्रेड करें।",
+    "fallbackPlans": {
+      "free": {
+        "name": "फ्री",
+        "features": {
+          "f1": "प्रोफ़ाइल ब्राउज़ करें",
+          "f2": "प्रतिदिन 5 पसंद",
+          "f3": "बेसिक फ़िल्टर"
+        }
+      },
+      "standard": {
+        "name": "स्टैंडर्ड",
+        "features": {
+          "f1": "असीमित पसंद",
+          "f2": "देखें कि किसने आपको पसंद किया",
+          "f3": "उन्नत फ़िल्टर",
+          "f4": "प्राथमिकता सहायता"
+        }
+      },
+      "premium": {
+        "name": "प्रीमियम",
+        "features": {
+          "f1": "स्टैंडर्ड में सब कुछ",
+          "f2": "सत्यापित बैज",
+          "f3": "AI-क्यूरेटेड मैच",
+          "f4": "रीड रसीदें",
+          "f5": "गुप्त ब्राउज़िंग"
+        }
+      },
+      "premiumAnnual": {
+        "name": "प्रीमियम वार्षिक",
+        "features": {
+          "f1": "सभी प्रीमियम फीचर्स",
+          "f2": "2 महीने फ्री",
+          "f3": "कॉन्सिएर्ज मैचमेकर",
+          "f4": "व्यक्तिगत ब्रांड फोटोशूट वाउचर"
+        }
+      }
+    },
+    "interval": {
+      "month": "/महीना",
+      "quarter": "/त्रैमासिक",
+      "year": "/साल"
+    },
+    "badges": {
+      "mostPopular": "सबसे लोकप्रिय"
+    },
+    "cta": {
+      "continueFree": "फ्री जारी रखें",
+      "choosePlan": "प्लान चुनें"
+    },
+    "footer": "सभी प्लान स्वचालित रूप से नवीनीकृत होते हैं। कभी भी रद्द करें —",
+    "footerLinkLabel": "बिलिंग"
   },
   "feed": {
     "openFilters": "फ़िल्टर",
@@ -573,7 +625,15 @@
       "personalityFit": "व्यक्तित्व",
       "behaviourCompatibility": "व्यवहार"
     },
-    "similarTitle": "आपको ये भी पसंद आ सकते हैं"
+    "similarTitle": "आपको ये भी पसंद आ सकते हैं",
+    "fallbackName": "प्रोफाइल",
+    "joinedRelative": {
+      "thisWeek": "इस हफ्ते शामिल हुए",
+      "weeksAgo": "{count, plural, one {# हफ्ते पहले शामिल हुए} other {# हफ्तों पहले शामिल हुए}}",
+      "monthsAgo": "{count, plural, one {# महीने पहले शामिल हुए} other {# महीनों पहले शामिल हुए}}",
+      "yearsAgo": "{count, plural, one {# साल पहले शामिल हुए} other {# सालों पहले शामिल हुए}}"
+    },
+    "memberSince": "{date} के बाद से सदस्य"
   },
   "onboarding": {
     "personal": {
@@ -1693,7 +1753,29 @@
     "stillNeedHelp": "अभी भी सहायता चाहिए? ईमेल करें"
   },
   "welcome": {
-    "supportFooter": "प्रश्न हैं? support@smartshaadi.co.in पर ईमेल करें"
+    "supportFooter": "प्रश्न हैं? support@smartshaadi.co.in पर ईमेल करें",
+    "metadata": {
+      "title": "आपका स्वागत है — Smart Shaadi"
+    },
+    "greeting": "स्वागत है, {firstName}",
+    "greetingDefault": "Smart Shaadi में आपका स्वागत है",
+    "subtitle": "आप हमारे संस्थापक सदस्यों में से हैं। जानिए आगे क्या होगा।",
+    "cards": {
+      "community": {
+        "title": "हमारे समुदाय के साथ मैच बढ़ते हैं",
+        "body": "हम सावधानी से बढ़ रहे हैं — मात्रा से अधिक गुणवत्ता। जैसे-जैसे अधिक सत्यापित प्रोफ़ाइल जुड़ेंगी, आपका मैच फ़ीड प्रतिदिन रीफ्रेश होगा।"
+      },
+      "privacy": {
+        "title": "डिफ़ॉल्ट रूप से गोपनीयता",
+        "body": "आपकी फ़ोटो और संपर्क विवरण तब तक निजी रहते हैं जब तक दोनों पक्ष वास्तविक रुचि न दिखाएँ। परिवार के सदस्य बिना एक्सपोजर के सह-समीक्षा कर सकते हैं।"
+      },
+      "notifications": {
+        "title": "तुरंत सूचित हो जाएँ",
+        "body": "जब नए संगत प्रोफ़ाइल जुड़ेंगी, तो हम आपको सूचित करेंगे। गुण मिलान संगतता स्कोर अनलॉक करने के लिए अपनी जन्म कुंडली जोड़ें।"
+      }
+    },
+    "cta": "मुझे अपने मैच पर ले जाएँ",
+    "launchTagline": "Smart Shaadi — मई 2026 में लॉन्च · भारत की सबसे विचारशील मैट्रिमोनी सेवा का निर्माण"
   },
   "legal": {
     "privacy": {
@@ -2216,6 +2298,105 @@
         "aboutTodo": "पोर्टफ़ोलियो “परिचय” (अनुशंसित)",
         "eventTypesDone": "{count, plural, one {# इवेंट प्रकार चुना गया} other {# इवेंट प्रकार चुने गए}}",
         "eventTypesTodo": "इवेंट प्रकार (कोऑर्डिनेटर रूटिंग के लिए)"
+      },
+      "businessForm": {
+        "nameLabel": "व्यवसाय का नाम *",
+        "categoryLabel": "श्रेणी *",
+        "categoryPlaceholder": "एक श्रेणी चुनें…",
+        "cityLabel": "शहर *",
+        "stateLabel": "राज्य *",
+        "phoneLabel": "संपर्क फोन",
+        "emailLabel": "संपर्क ईमेल",
+        "taglineLabel": "टैगलाइन",
+        "taglinePlaceholder": "एक पंक्ति जो आपके काम को सारांशित करे",
+        "descriptionLabel": "आपके व्यवसाय के बारे में",
+        "saving": "सहेजा जा रहा है…",
+        "submit": "सहेजें और जारी रखें"
+      },
+      "availabilityManager": {
+        "blockDateTitle": "एक तारीख ब्लॉक करें",
+        "dateLabel": "तारीख",
+        "reasonLabel": "कारण (वैकल्पिक)",
+        "reasonPlaceholder": "पहले से बुक, छुट्टी…",
+        "blocking": "ब्लॉक किया जा रहा है…",
+        "submit": "तारीख ब्लॉक करें",
+        "blockedDatesTitle": "ब्लॉक की गई तारीखें",
+        "removeError": "वह तारीख हटाई नहीं जा सकी।",
+        "removeAriaLabel": "ब्लॉक की गई तारीख को हटाएं"
+      },
+      "portfolioForm": {
+        "aboutLabel": "आपके काम के बारे में",
+        "aboutPlaceholder": "आपकी शैली, अनुभव, और जो आपको अलग बनाता है।",
+        "awardsLabel": "पुरस्कार",
+        "awardsPlaceholder": "अल्पविराम से अलग, जैसे बेस्ट डेकोर 2024, एडिटर्स पिक",
+        "certificationsLabel": "प्रमाणपत्र",
+        "certificationsPlaceholder": "अल्पविराम से अलग, जैसे FSSAI, ISO 9001",
+        "eventTypesLabel": "आप जिन इवेंट प्रकारों की सेवा देते हैं",
+        "eventTypesHint": "इन्हें चुनने से आप इवेंट कोऑर्डिनेटर के लिए खोजने योग्य हो जाते हैं।",
+        "saving": "सहेजा जा रहा है…",
+        "submit": "सहेजें और जारी रखें"
+      },
+      "addServiceForm": {
+        "title": "एक सेवा जोड़ें",
+        "nameLabel": "सेवा का नाम *",
+        "namePlaceholder": "जैसे पूरे दिन की शादी की फोटोग्राफी",
+        "priceFromLabel": "मूल्य से (₹) *",
+        "priceToLabel": "तक (₹)",
+        "unitLabel": "इकाई *",
+        "descriptionLabel": "विवरण",
+        "adding": "जोड़ा जा रहा है…",
+        "submit": "सेवा जोड़ें"
+      },
+      "submitReview": {
+        "successMessage": "आपकी प्रोफ़ाइल सबमिट कर दी गई है। समीक्षा पूरी होने पर हम आपको ईमेल करेंगे।",
+        "submitting": "सबमिट किया जा रहा है…",
+        "submit": "समीक्षा के लिए सबमिट करें",
+        "gate": "सबमिट करने से पहले अपना व्यवसाय विवरण और कम से कम एक सेवा जोड़ें।",
+        "error": "समीक्षा के लिए सबमिट नहीं किया जा सका।"
+      },
+      "labels": {
+        "categories": {
+          "PHOTOGRAPHY": "फोटोग्राफी",
+          "VIDEOGRAPHY": "वीडियोग्राफी",
+          "CATERING": "खाद्य सेवा",
+          "DECORATION": "सजावट",
+          "VENUE": "स्थान",
+          "MAKEUP": "मेकअप",
+          "JEWELLERY": "गहने",
+          "CLOTHING": "कपड़े",
+          "MUSIC": "संगीत",
+          "LIGHTING": "प्रकाश",
+          "SECURITY": "सुरक्षा",
+          "TRANSPORT": "परिवहन",
+          "PRIEST": "पुजारी",
+          "SOUND": "ध्वनि",
+          "EVENT_HOSTING": "इवेंट होस्टिंग",
+          "RENTAL": "किराया",
+          "OTHER": "अन्य"
+        },
+        "eventTypes": {
+          "WEDDING": "शादी",
+          "CORPORATE": "कॉर्पोरेट",
+          "FESTIVAL": "त्योहार",
+          "COMMUNITY_EVENT": "सामुदायिक कार्यक्रम",
+          "COMMUNITY": "समुदाय",
+          "GOVERNMENT": "सरकारी",
+          "SCHOOL": "स्कूल",
+          "OTHER": "अन्य",
+          "HALDI": "हल्दी",
+          "MEHNDI": "मेहँदी",
+          "SANGEET": "संगीत",
+          "ENGAGEMENT": "सगुन",
+          "RECEPTION": "स्वागत समारोह"
+        },
+        "serviceUnits": {
+          "per_event": "प्रति इवेंट",
+          "per_day": "प्रति दिन",
+          "per_hour": "प्रति घंटा",
+          "per_plate": "प्रति प्लेट",
+          "per_person": "प्रति व्यक्ति",
+          "fixed": "निश्चित"
+        }
       }
     },
     "packages": "पैकेज",
@@ -2318,16 +2499,40 @@
       "title": "बहु-ईवेंट पाइपलाइन",
       "subtitle": "शादियों, कॉर्पोरेट, त्योहार और सामुदायिक कार्यक्रमों में आने वाली बुकिंग को ट्रैक करें।",
       "needVendorAccount": "इस पृष्ठ को देखने के लिए आपको विक्रेता खाते की आवश्यकता है।",
-      "dataUnavailable": "पाइपलाइन डेटा अभी उपलब्ध नहीं है। कृपया एक मिनट में पुनः प्रयास करें।"
+      "dataUnavailable": "पाइपलाइन डेटा अभी उपलब्ध नहीं है। कृपया एक मिनट में पुनः प्रयास करें।",
+      "needVendorAccountTitle": "वेंडर खाता आवश्यक",
+      "dataUnavailableTitle": "पाइपलाइन उपलब्ध नहीं"
     },
     "reviews": {
       "title": "समीक्षाएं",
       "emptyTitle": "अभी तक कोई समीक्षा नहीं",
-      "emptyDescription": "जिन जोड़ों के साथ आपने काम किया है उनकी समीक्षाएं यहां दिखाई देंगी। आप प्रत्येक का जवाब दे सकते हैं।"
+      "emptyDescription": "जिन जोड़ों के साथ आपने काम किया है उनकी समीक्षाएं यहां दिखाई देंगी। आप प्रत्येक का जवाब दे सकते हैं।",
+      "metaTitle": "समीक्षाएँ · वेंडर",
+      "subtitleWithAvg": "{avg} औसत {total, plural, one {# समीक्षा} other {# समीक्षाओं}} में — उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
+      "subtitleEmpty": "समीक्षाओं का उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
+      "yourReply": "आपका उत्तर"
     },
     "leads": {
       "title": "ग्राहक लीड",
-      "subtitle": "आपकी विक्रेता प्रोफ़ाइल को सीधे भेजी गई पूछताछ। आप प्रत्येक योग्य लीड के लिए चार्ज किए जाते हैं।"
+      "subtitle": "आपकी विक्रेता प्रोफ़ाइल को सीधे भेजी गई पूछताछ। आप प्रत्येक योग्य लीड के लिए चार्ज किए जाते हैं।",
+      "needVendorAccount": "वेंडर खाता आवश्यक",
+      "needVendorAccountDesc": "इस पृष्ठ को देखने के लिए आपको एक वेंडर खाता की आवश्यकता है।",
+      "statTotal": "कुल लीड्स",
+      "statQualified": "योग्य",
+      "statCharges": "चार्ज (मा.)",
+      "statAvgFee": "औसत शुल्क",
+      "filterAll": "सभी",
+      "filterPending": "लंबित",
+      "filterCharged": "चार्ज किया गया",
+      "filterRefunded": "रिफंड किया गया",
+      "filterCancelled": "रद्द",
+      "statusPending": "लंबित",
+      "statusQualified": "योग्य",
+      "statusCharged": "चार्ज किया गया",
+      "statusRefunded": "रिफंड किया गया",
+      "statusCancelled": "रद्द",
+      "statusPendingPayment": "भुगतान लंबित",
+      "refundedReason": "रिफंड किया गया — {reason}"
     },
     "components": {
       "availabilityCalendar": {
@@ -2348,6 +2553,50 @@
         "blocked": "अनुपलब्ध",
         "alreadyBooked": "यह तारीख पहले से बुक है"
       }
+    },
+    "payouts": {
+      "metaTitle": "पेआउट · वेंडर",
+      "needSignIn": "साइन इन आवश्यक",
+      "needSignInDesc": "अपने पेआउट को देखने के लिए कृपया साइन इन करें।",
+      "title": "मेरे पेआउट",
+      "subtitle": "अपनी कमाई और पेआउट वितरण को ट्रैक करें",
+      "statLifetime": "आजीवन भुगतान",
+      "statPending": "लंबित",
+      "statFailed": "विफल",
+      "statTotal": "कुल पेआउट",
+      "emptyTitle": "अभी तक कोई पेआउट नहीं",
+      "emptyDesc": "आपकी बुकिंग पूरी होने और एस्क्रो अवधि समाप्त होने के बाद पेआउट प्रसंस्कृत किए जाते हैं।",
+      "booking": "बुकिंग {id}...",
+      "scheduled": "निर्धारित",
+      "processed": "प्रसंस्कृत",
+      "gross": "सकल {amount} − {fee} शुल्क",
+      "statusScheduled": "निर्धारित",
+      "statusProcessing": "प्रक्रियाधीन",
+      "statusCompleted": "पूर्ण",
+      "statusFailed": "विफल",
+      "statusOnHold": "प्रतीक्षा में",
+      "failureReason": "कारण: {reason}",
+      "scheduleTitle": "पेआउट अनुसूची",
+      "scheduleBullet1": "ग्राहक द्वारा आपकी घटना को पूर्ण के रूप में चिह्नित करने के 48 घंटे बाद पेआउट शुरू किए जाते हैं।",
+      "scheduleBullet2": "धन 3–5 व्यावसायिक दिनों में आपके पंजीकृत बैंक खाते में आता है।",
+      "scheduleBullet3": "वितरण से पहले 5–10% का प्लेटफ़ॉर्म शुल्क काटा जाता है।"
+    },
+    "insights": {
+      "metaTitle": "अंतर्दृष्टि · वेंडर",
+      "title": "अंतर्दृष्टि",
+      "subtitle": "जानें कि जोड़े कैसे आपकी प्रोफ़ाइल ढूंढ रहे हैं और उसे कैसे देख रहे हैं।",
+      "statProfileViews": "प्रोफ़ाइल दृश्य",
+      "statSavedByCouples": "जोड़ों द्वारा सहेजी गई",
+      "statAvgRating": "औसत रेटिंग",
+      "statReviews": "समीक्षाएँ",
+      "leadsHeading": "लीड्स",
+      "statTotalLeads": "कुल लीड्स",
+      "statQualified": "योग्य",
+      "statThisMonth": "इस महीने",
+      "statLifetime": "आजीवन",
+      "qualifiedRate": "योग्यता दर",
+      "leadsBreakdown": "{charged} चार्ज किए गए · {pending} लंबित · {cancelled} रद्द · औसत शुल्क {avgFee}",
+      "emptyLeads": "जब जोड़े पहुंचना शुरू करेंगे तो लीड अंतर्दृष्टि यहां दिखाई देगी।"
     }
   },
   "familyRole": {
@@ -2693,7 +2942,12 @@
     "removeLabel": "हटाएँ",
     "removeAria": "{name} को शॉर्टलिस्ट से हटाएँ",
     "removed": "{name} आपकी शॉर्टलिस्ट से हटाया गया",
-    "removeFailed": "हटाया नहीं जा सका — कृपया फिर से प्रयास करें"
+    "removeFailed": "हटाया नहीं जा सका — कृपया फिर से प्रयास करें",
+    "fallbackName": "प्रोफाइल",
+    "badgeVerified": "सत्यापित",
+    "photoAlt": "{name} की प्रोफाइल फोटो",
+    "emptyTitle": "आपकी शॉर्टलिस्ट खाली है",
+    "emptyDescription": "जिन प्रोफाइल को आप बाद में देखना चाहें उन्हें सहेजें — वे यहाँ दिखेंगी।"
   },
   "viewers": {
     "heading": "आपको किसने देखा",
@@ -2701,7 +2955,18 @@
     "subtitleEmpty": "अभी तक कोई हाल ही का आगंतुक नहीं",
     "lockedFeature": "{count} दर्शक{count, plural, one {} other {}}",
     "lockedMessage": "देखें कि किसने आपकी प्रोफाइल देखी है। सभी {count} आगंतुक{count, plural, one {} other {ों}} को अनलॉक करने के लिए स्टैंडर्ड अपग्रेड करें।",
-    "exploreCta": "मेल खोजें"
+    "exploreCta": "मेल खोजें",
+    "badgeVerified": "सत्यापित",
+    "photoAlt": "{name} की प्रोफाइल फोटो",
+    "photoAltFallback": "प्रोफाइल फोटो",
+    "emptyTitle": "अभी तक कोई प्रोफाइल व्यू नहीं",
+    "emptyDescription": "जब कोई आपकी प्रोफाइल देखेगा, तो वह यहाँ दिखाई देगा।",
+    "timeAgo": {
+      "justNow": "अभी",
+      "minutesAgo": "{count} मिनट पहले",
+      "hoursAgo": "{count} घंटे पहले",
+      "daysAgo": "{count} दिन पहले"
+    }
   },
   "vendorUtilization": {
     "metadata": {
@@ -2944,7 +3209,13 @@
       "void": "अमान्य",
       "failedToSend": "हस्ताक्षर के लिए भेजने में विफल",
       "failedToComplete": "हस्ताक्षर पूरा करने में विफल",
-      "failedToDownload": "PDF डाउनलोड करने में विफल"
+      "failedToDownload": "PDF डाउनलोड करने में विफल",
+      "statuses": {
+        "draft": "ड्राफ्ट",
+        "sent": "भेजा गया",
+        "signed": "हस्ताक्षरित",
+        "void": "रद्द"
+      }
     }
   },
   "adminAnalyticsForecast": {
@@ -3021,7 +3292,8 @@
     "successDescription": "हमने आपकी सहमति नोट कर ली है। जब हमारा ऋण भागीदार लाइव हो जाएगा, तो आपको किसी भी समझौते से पहले एक मुख्य तथ्य विवरण के साथ संदर्भित किया जाएगा।",
     "noOffers": "अभी दिखाने के लिए कोई प्रस्ताव नहीं।",
     "selectOffer": "{name} चुनें",
-    "tenure": "कार्यकाल",
+    "tenure": "अवधि",
+    "tenureMonths": "{months} माह",
     "apr": "वार्षिक प्रतिशत दर",
     "monthly": "मासिक",
     "viewKfs": "मुख्य तथ्य विवरण देखें (KFS)",
@@ -3664,7 +3936,11 @@
     "lockedMessage": "आपकी प्रोफ़ाइल पसंद करने वाले सभी लोगों को देखने के लिए अपग्रेड करें।",
     "metadata": {
       "title": "आपको किसने पसंद किया — स्मार्ट शादी"
-    }
+    },
+    "fallbackName": "सदस्य",
+    "badgeVerified": "सत्यापित",
+    "respondCta": "जवाब दें",
+    "photoAlt": "{name} की प्रोफाइल फोटो"
   },
   "smartSuggestions": {
     "title": "स्मार्ट सुझाव",

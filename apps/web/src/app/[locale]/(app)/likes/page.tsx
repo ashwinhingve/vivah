@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PhotoFallback } from '@/components/shared';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
+import { StatusChip } from '@/components/ui/StatusChip';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
@@ -126,26 +127,26 @@ export default async function LikesPage() {
                     {photoUrl ? (
                       <Image
                         src={photoUrl}
-                        alt={`${item.name ?? 'Member'} profile photo`}
+                        alt={t('photoAlt', { name: item.name ?? t('fallbackName') })}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
                         className="object-cover transition-transform group-hover:scale-[1.03]"
                       />
                     ) : (
-                      <PhotoFallback name={item.name ?? 'Member'} />
+                      <PhotoFallback name={item.name ?? t('fallbackName')} />
                     )}
                     <div className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70" aria-hidden="true" />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-3 pb-2 pt-10">
                       <p className="font-heading text-sm font-semibold text-white">
-                        {item.name ?? 'Member'}{item.age != null ? <span className="font-normal text-white/80">, {item.age}</span> : null}
+                        {item.name ?? t('fallbackName')}{item.age != null ? <span className="font-normal text-white/80">, {item.age}</span> : null}
                       </p>
                       <p className="truncate text-xs text-white/75">{item.city ?? ''}</p>
                     </div>
                     {item.isVerified ? (
-                      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/95 px-1.5 py-0.5 text-2xs font-bold text-success shadow-sm">
+                      <StatusChip tone="success" className="absolute right-2 top-2">
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                        Verified
-                      </span>
+                        {t('badgeVerified')}
+                      </StatusChip>
                     ) : null}
                   </Link>
                   <div className="flex flex-wrap items-center gap-2 p-3 pt-2">
@@ -157,7 +158,7 @@ export default async function LikesPage() {
                   ) : null}
                   <div className="flex gap-2 p-3 pt-0">
                     <Button asChild size="sm" className="flex-1">
-                      <Link href={`/requests`}>Respond</Link>
+                      <Link href={`/requests`}>{t('respondCta')}</Link>
                     </Button>
                   </div>
                 </Card>

@@ -6,6 +6,7 @@
  * vendor engine route. Falls back to empty states if either fetch fails
  * (no auth, no vendor account, infra unreachable).
  */
+import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/redirect';
@@ -21,6 +22,13 @@ import {
 } from '@/components/vendor/MultiEventPipeline.client';
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('vendorRole.pipeline');
+  return {
+    title: t('title'),
+  };
+}
 
 async function authCookie(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -86,7 +94,7 @@ export default async function VendorPipelinePage() {
           {!vendor ? (
             <EmptyState
               icon={BarChart3}
-              title="Vendor account required"
+              title={t('needVendorAccountTitle')}
               description={t('needVendorAccount')}
             />
           ) : (
@@ -111,7 +119,7 @@ async function VendorPipelineContent({
     return (
       <EmptyState
         icon={BarChart3}
-        title="Pipeline unavailable"
+        title={t('dataUnavailableTitle')}
         description={t('dataUnavailable')}
       />
     );

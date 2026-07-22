@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { markWelcomeSeen } from './actions';
@@ -13,13 +14,15 @@ import { markWelcomeSeen } from './actions';
  */
 export function WelcomeCta() {
   const router = useRouter();
+  const t = useTranslations('welcome');
   const [pending, startTransition] = useTransition();
+  const ctaText = t('cta');
 
   return (
     <Button
       size="lg"
       loading={pending}
-      aria-label="Take me to my matches"
+      aria-label={ctaText}
       onClick={() =>
         startTransition(async () => {
           await markWelcomeSeen();
@@ -27,7 +30,7 @@ export function WelcomeCta() {
         })
       }
     >
-      Take me to my matches
+      {ctaText}
       <ArrowRight className="h-4 w-4" aria-hidden="true" />
     </Button>
   );

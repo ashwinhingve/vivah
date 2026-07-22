@@ -1,0 +1,80 @@
+{
+  "pricing": {
+    "fallbackPlans": {
+      "free": {
+        "name": "Free",
+        "features": {
+          "f1": "Browse profiles",
+          "f2": "5 daily likes",
+          "f3": "Basic filters"
+        }
+      },
+      "standard": {
+        "name": "Standard",
+        "features": {
+          "f1": "Unlimited likes",
+          "f2": "See who liked you",
+          "f3": "Advanced filters",
+          "f4": "Priority support"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "features": {
+          "f1": "Everything in Standard",
+          "f2": "Verified badge",
+          "f3": "AI-curated matches",
+          "f4": "Read receipts",
+          "f5": "Incognito browsing"
+        }
+      },
+      "premiumAnnual": {
+        "name": "Premium Annual",
+        "features": {
+          "f1": "All Premium features",
+          "f2": "2 months free",
+          "f3": "Concierge matchmaker",
+          "f4": "Personal brand photoshoot voucher"
+        }
+      }
+    },
+    "interval": {
+      "month": "/month",
+      "quarter": "/quarter",
+      "year": "/year"
+    },
+    "badges": {
+      "mostPopular": "Most popular"
+    },
+    "cta": {
+      "continueFree": "Continue free",
+      "choosePlan": "Choose plan"
+    },
+    "footer": "All plans renew automatically. Cancel anytime from",
+    "footerLinkLabel": "Billing"
+  },
+  "welcome": {
+    "metadata": {
+      "title": "Welcome — Smart Shaadi"
+    },
+    "greeting": "Welcome, {firstName}",
+    "greetingDefault": "Welcome to Smart Shaadi",
+    "subtitle": "You're among our founding members. Here's what to expect.",
+    "cards": {
+      "community": {
+        "title": "Matches grow with our community",
+        "body": "We're growing carefully — quality over quantity. Your match feed will refresh daily as more verified profiles join."
+      },
+      "privacy": {
+        "title": "Privacy by default",
+        "body": "Your photos and contact details stay private until both sides show genuine interest. Family members can co-review without exposure."
+      },
+      "notifications": {
+        "title": "Get notified instantly",
+        "body": "When new compatible profiles join, we will notify you. Add your horoscope to unlock Guna Milan compatibility scoring."
+      }
+    },
+    "cta": "Take me to my matches",
+    "launchTagline": "Smart Shaadi launched May 2026 · Building India's most thoughtful matrimony"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "likes": {
+    "fallbackName": "Member",
+    "badgeVerified": "Verified",
+    "respondCta": "Respond",
+    "photoAlt": "{name}'s profile photo"
+  },
+  "shortlist": {
+    "fallbackName": "Profile",
+    "badgeVerified": "Verified",
+    "photoAlt": "{name}'s profile photo",
+    "emptyTitle": "Your shortlist is empty",
+    "emptyDescription": "Save profiles you'd like to revisit and they'll appear here."
+  },
+  "viewers": {
+    "badgeVerified": "Verified",
+    "photoAlt": "{name}'s profile photo",
+    "photoAltFallback": "Profile photo",
+    "emptyTitle": "No profile views yet",
+    "emptyDescription": "When someone views your profile, they'll appear here.",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    }
+  }
+}

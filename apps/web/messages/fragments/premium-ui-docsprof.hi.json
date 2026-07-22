@@ -1,0 +1,22 @@
+{
+  "documents": {
+    "client": {
+      "statuses": {
+        "draft": "ड्राफ्ट",
+        "sent": "भेजा गया",
+        "signed": "हस्ताक्षरित",
+        "void": "रद्द"
+      }
+    }
+  },
+  "profileDetail": {
+    "fallbackName": "प्रोफाइल",
+    "joinedRelative": {
+      "thisWeek": "इस हफ्ते शामिल हुए",
+      "weeksAgo": "{count, plural, one {# हफ्ते पहले शामिल हुए} other {# हफ्तों पहले शामिल हुए}}",
+      "monthsAgo": "{count, plural, one {# महीने पहले शामिल हुए} other {# महीनों पहले शामिल हुए}}",
+      "yearsAgo": "{count, plural, one {# साल पहले शामिल हुए} other {# सालों पहले शामिल हुए}}"
+    },
+    "memberSince": "{date} के बाद से सदस्य"
+  }
+}

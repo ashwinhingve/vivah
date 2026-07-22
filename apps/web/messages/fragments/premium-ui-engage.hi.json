@@ -1,0 +1,28 @@
+{
+  "likes": {
+    "fallbackName": "सदस्य",
+    "badgeVerified": "सत्यापित",
+    "respondCta": "जवाब दें",
+    "photoAlt": "{name} की प्रोफाइल फोटो"
+  },
+  "shortlist": {
+    "fallbackName": "प्रोफाइल",
+    "badgeVerified": "सत्यापित",
+    "photoAlt": "{name} की प्रोफाइल फोटो",
+    "emptyTitle": "आपकी शॉर्टलिस्ट खाली है",
+    "emptyDescription": "जिन प्रोफाइल को आप बाद में देखना चाहें उन्हें सहेजें — वे यहाँ दिखेंगी।"
+  },
+  "viewers": {
+    "badgeVerified": "सत्यापित",
+    "photoAlt": "{name} की प्रोफाइल फोटो",
+    "photoAltFallback": "प्रोफाइल फोटो",
+    "emptyTitle": "अभी तक कोई प्रोफाइल व्यू नहीं",
+    "emptyDescription": "जब कोई आपकी प्रोफाइल देखेगा, तो वह यहाँ दिखाई देगा।",
+    "timeAgo": {
+      "justNow": "अभी",
+      "minutesAgo": "{count} मिनट पहले",
+      "hoursAgo": "{count} घंटे पहले",
+      "daysAgo": "{count} दिन पहले"
+    }
+  }
+}

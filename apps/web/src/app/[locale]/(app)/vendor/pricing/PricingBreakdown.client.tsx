@@ -1,15 +1,16 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Sparkles, CalendarDays, TrendingUp, ShieldCheck } from 'lucide-react';
 import type { WireMoney, WirePricingRule, WirePricingSuggestion } from './types';
 
 /** Integer-paise string → "₹1,234.50" display. */
-function inr(m: WireMoney): string {
+function inr(m: WireMoney, locale: string): string {
   const rupees = Number(BigInt(m.paise)) / 100;
   const symbol = m.currency === 'INR' ? '₹' : `${m.currency} `;
-  return `${symbol}${rupees.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+  const localeMap = locale === 'hi' ? 'hi-IN' : 'en-IN';
+  return `${symbol}${rupees.toLocaleString(localeMap, { maximumFractionDigits: 2 })}`;
 }
 
 /** Multiplier → signed percentage label, e.g. 1.25 → "+25%", 0.9 → "−10%", 1 → "—". */
@@ -49,6 +50,7 @@ interface Props {
 
 export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Props) {
   const t = useTranslations('vendorPricing');
+  const locale = useLocale();
   const router = useRouter();
 
   function update(next: { ruleId?: string; date?: string }) {
@@ -107,10 +109,10 @@ export function PricingBreakdown({ rules, selectedRuleId, date, suggestion }: Pr
               {t('suggestedPrice')}
             </p>
             <p className="mt-1 font-heading text-4xl font-semibold text-primary">
-              {inr(suggestion.suggested)}
+              {inr(suggestion.suggested, locale)}
             </p>
             <p className="mt-1 text-sm text-text-muted">
-              {t('baseAndMultiplier', { base: inr(suggestion.base), multiplier: suggestion.clampedMultiplier.toFixed(3) })}
+              {t('baseAndMultiplier', { base: inr(suggestion.base, locale), multiplier: suggestion.clampedMultiplier.toFixed(3) })}
             </p>
           </div>
 

@@ -1,0 +1,105 @@
+{
+  "vendorRole": {
+    "onboarding": {
+      "businessForm": {
+        "nameLabel": "Business name *",
+        "categoryLabel": "Category *",
+        "categoryPlaceholder": "Select a category…",
+        "cityLabel": "City *",
+        "stateLabel": "State *",
+        "phoneLabel": "Contact phone",
+        "emailLabel": "Contact email",
+        "taglineLabel": "Tagline",
+        "taglinePlaceholder": "One line that sums up your work",
+        "descriptionLabel": "About your business",
+        "saving": "Saving…",
+        "submit": "Save & continue"
+      },
+      "availabilityManager": {
+        "blockDateTitle": "Block a date",
+        "dateLabel": "Date",
+        "reasonLabel": "Reason (optional)",
+        "reasonPlaceholder": "Already booked, holiday…",
+        "blocking": "Blocking…",
+        "submit": "Block date",
+        "blockedDatesTitle": "Blocked dates",
+        "removeError": "Could not remove that date.",
+        "removeAriaLabel": "Remove blocked date"
+      },
+      "portfolioForm": {
+        "aboutLabel": "About your work",
+        "aboutPlaceholder": "Your style, experience, and what sets you apart.",
+        "awardsLabel": "Awards",
+        "awardsPlaceholder": "Comma-separated, e.g. Best Decor 2024, Editor's Pick",
+        "certificationsLabel": "Certifications",
+        "certificationsPlaceholder": "Comma-separated, e.g. FSSAI, ISO 9001",
+        "eventTypesLabel": "Event types you serve",
+        "eventTypesHint": "Selecting these makes you discoverable to event coordinators routing work.",
+        "saving": "Saving…",
+        "submit": "Save & continue"
+      },
+      "addServiceForm": {
+        "title": "Add a service",
+        "nameLabel": "Service name *",
+        "namePlaceholder": "e.g. Full-day wedding photography",
+        "priceFromLabel": "Price from (₹) *",
+        "priceToLabel": "Up to (₹)",
+        "unitLabel": "Unit *",
+        "descriptionLabel": "Description",
+        "adding": "Adding…",
+        "submit": "Add service"
+      },
+      "submitReview": {
+        "successMessage": "Your profile has been submitted. We'll email you once the review is complete.",
+        "submitting": "Submitting…",
+        "submit": "Submit for review",
+        "gate": "Add your business details and at least one service before submitting.",
+        "error": "Could not submit for review."
+      },
+      "labels": {
+        "categories": {
+          "PHOTOGRAPHY": "Photography",
+          "VIDEOGRAPHY": "Videography",
+          "CATERING": "Catering",
+          "DECORATION": "Decoration",
+          "VENUE": "Venue",
+          "MAKEUP": "Makeup",
+          "JEWELLERY": "Jewellery",
+          "CLOTHING": "Clothing",
+          "MUSIC": "Music",
+          "LIGHTING": "Lighting",
+          "SECURITY": "Security",
+          "TRANSPORT": "Transport",
+          "PRIEST": "Priest",
+          "SOUND": "Sound",
+          "EVENT_HOSTING": "Event hosting",
+          "RENTAL": "Rental",
+          "OTHER": "Other"
+        },
+        "eventTypes": {
+          "WEDDING": "Wedding",
+          "CORPORATE": "Corporate",
+          "FESTIVAL": "Festival",
+          "COMMUNITY_EVENT": "Community event",
+          "COMMUNITY": "Community",
+          "GOVERNMENT": "Government",
+          "SCHOOL": "School",
+          "OTHER": "Other",
+          "HALDI": "Haldi",
+          "MEHNDI": "Mehndi",
+          "SANGEET": "Sangeet",
+          "ENGAGEMENT": "Engagement",
+          "RECEPTION": "Reception"
+        },
+        "serviceUnits": {
+          "per_event": "Per event",
+          "per_day": "Per day",
+          "per_hour": "Per hour",
+          "per_plate": "Per plate",
+          "per_person": "Per person",
+          "fixed": "Fixed"
+        }
+      }
+    }
+  }
+}

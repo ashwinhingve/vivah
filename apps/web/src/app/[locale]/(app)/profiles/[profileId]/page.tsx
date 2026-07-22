@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { BadgeCheck, Sparkles, ChevronLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { PageTransition } from '@/components/motion/PageTransition.client';
@@ -185,20 +185,24 @@ function VerificationBadge({
 }
 
 /** "Joined N months ago" — coarse since signup date. */
-function formatJoinedRelative(createdAt: string | Date): string {
+type JoinedRelative =
+  | { kind: 'thisWeek' }
+  | { kind: 'weeksAgo' | 'monthsAgo' | 'yearsAgo'; count: number };
+
+function formatJoinedRelative(createdAt: string | Date): JoinedRelative {
   const ts = typeof createdAt === 'string' ? new Date(createdAt).getTime() : createdAt.getTime();
   const days = Math.floor((Date.now() - ts) / 86_400_000);
-  if (days < 7) return 'Joined this week';
+  if (days < 7) return { kind: 'thisWeek' };
   if (days < 30) {
     const w = Math.floor(days / 7);
-    return `Joined ${w} week${w === 1 ? '' : 's'} ago`;
+    return { kind: 'weeksAgo', count: w };
   }
   if (days < 365) {
     const m = Math.floor(days / 30);
-    return `Joined ${m} month${m === 1 ? '' : 's'} ago`;
+    return { kind: 'monthsAgo', count: m };
   }
   const y = Math.floor(days / 365);
-  return `Joined ${y} year${y === 1 ? '' : 's'} ago`;
+  return { kind: 'yearsAgo', count: y };
 }
 
 /** Quick trait pills row */
@@ -290,12 +294,13 @@ export async function generateMetadata({
 
 export default async function ProfileViewPage({ params }: Props) {
   const { profileId } = await params;
-  const [profile, entitlements, fullScore, matchStatus, isShortlisted] = await Promise.all([
+  const [profile, entitlements, fullScore, matchStatus, isShortlisted, locale] = await Promise.all([
     getProfile(profileId),
     getEntitlementsForCurrentUser(),
     getFullMatchScore(profileId),
     getMatchStatusWithProfile(profileId),
     getShortlistStatus(profileId),
+    getLocale(),
   ]);
 
   if (!profile) notFound();
@@ -311,7 +316,7 @@ export default async function ProfileViewPage({ params }: Props) {
   const isSelf = profile.phoneNumber != null || profile.email != null;
 
   // Name: prefer MongoDB personal.fullName
-  const displayName = profile.personal?.fullName ?? 'Complete your profile';
+  const displayName = profile.personal?.fullName ?? t('fallbackName');
 
   // Sort photos by isPrimary then displayOrder
   const sortedPhotos = [...profile.photos].sort((a, b) => {
@@ -389,9 +394,28 @@ export default async function ProfileViewPage({ params }: Props) {
 
               {/* Activity strip — joined / member since / view count */}
               <p className="text-[13px] text-muted-foreground">
-                {isSelf
-                  ? formatJoinedRelative(profile.createdAt)
-                  : `Member since ${new Date(profile.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
+                {isSelf ? (
+                  (() => {
+                    const joined = formatJoinedRelative(profile.createdAt);
+                    if (joined.kind === 'thisWeek') {
+                      return t('joinedRelative.thisWeek');
+                    }
+                    if (joined.kind === 'weeksAgo') {
+                      return t('joinedRelative.weeksAgo', { count: joined.count });
+                    }
+                    if (joined.kind === 'monthsAgo') {
+                      return t('joinedRelative.monthsAgo', { count: joined.count });
+                    }
+                    if (joined.kind === 'yearsAgo') {
+                      return t('joinedRelative.yearsAgo', { count: joined.count });
+                    }
+                    return '';
+                  })()
+                ) : (
+                  t('memberSince', {
+                    date: new Date(profile.createdAt).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN', { month: 'long', year: 'numeric' }),
+                  })
+                )}
               </p>
 
               {/* Verification trust badge (verified profiles only) */}
