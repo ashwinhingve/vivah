@@ -35,7 +35,11 @@ export { ChatEndpoints } from './endpoints/chat.js';
 export type { ConversationFilter } from './endpoints/chat.js';
 
 export { UserEndpoints } from './endpoints/users.js';
-export type { DevicePlatform } from './endpoints/users.js';
+export type {
+  DevicePlatform,
+  NotificationPreferences,
+  NotificationPreferencesUpdate,
+} from './endpoints/users.js';
 
 export { VendorEndpoints } from './endpoints/vendors.js';
 export type {

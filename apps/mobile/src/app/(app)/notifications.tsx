@@ -4,6 +4,7 @@ import {
   Text,
   Pressable,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Screen } from '../../components/Screen';
 import { LoadingState, EmptyState, ErrorState } from '../../components/States';
 import { useNotifications } from '../../features/chat/useNotifications';
@@ -24,6 +25,7 @@ import { useState } from 'react';
  * - Filter unread
  */
 export default function NotificationsScreen() {
+  const router = useRouter();
   const [unreadOnly, setUnreadOnly] = useState(false);
   const { notifications, unreadCount, loading, error, retry, markRead, markAllRead } =
     useNotifications(unreadOnly, 50);
@@ -113,16 +115,26 @@ export default function NotificationsScreen() {
           <Text className="font-heading text-2xl text-primary">
             Notifications
           </Text>
-          {unreadCount > 0 && (
-            <View
-              className="px-2 py-1 rounded-full"
-              style={{ backgroundColor: tokens.primary }}
+          <View className="flex-row items-center gap-3">
+            {unreadCount > 0 && (
+              <View
+                className="px-2 py-1 rounded-full"
+                style={{ backgroundColor: tokens.primary }}
+              >
+                <Text className="text-white text-xs font-semibold">
+                  {unreadCount}
+                </Text>
+              </View>
+            )}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Notification preferences"
+              onPress={() => router.push('/(app)/notification-preferences')}
+              hitSlop={8}
             >
-              <Text className="text-white text-xs font-semibold">
-                {unreadCount}
-              </Text>
-            </View>
-          )}
+              <Text className="text-sm font-semibold text-teal">Preferences</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Filter and actions */}

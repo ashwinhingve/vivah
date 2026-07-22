@@ -4,6 +4,23 @@ import type { ApiClient } from '../client.js';
 export type DevicePlatform = 'ios' | 'android' | 'web';
 
 /**
+ * Per-channel notification switches + a list of muted notification types.
+ * Shape matches `GET /users/me/notification-preferences`, which returns these
+ * defaults (all channels on, marketing off) when the user has never saved any.
+ */
+export interface NotificationPreferences {
+  push: boolean;
+  sms: boolean;
+  email: boolean;
+  inApp: boolean;
+  marketing: boolean;
+  mutedTypes: string[];
+}
+
+/** Every field optional — the PUT upserts only what is sent. */
+export type NotificationPreferencesUpdate = Partial<NotificationPreferences>;
+
+/**
  * User / notification / device surface — Track C's REST endpoints, under
  * '/api/v1/users'.
  *
@@ -41,6 +58,24 @@ export class UserEndpoints {
   getEntitlements(): Promise<Record<string, unknown>> {
     return this.client.get<Record<string, unknown>>(
       '/api/v1/users/me/entitlements',
+    );
+  }
+
+  // ── Notification preferences ──────────────────────────────────────────────
+
+  getNotificationPreferences(): Promise<NotificationPreferences> {
+    return this.client.get<NotificationPreferences>(
+      '/api/v1/users/me/notification-preferences',
+    );
+  }
+
+  /** Upsert — send only the switches you are changing. */
+  updateNotificationPreferences(
+    input: NotificationPreferencesUpdate,
+  ): Promise<{ ok: boolean }> {
+    return this.client.put<{ ok: boolean }>(
+      '/api/v1/users/me/notification-preferences',
+      input,
     );
   }
 
