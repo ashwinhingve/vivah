@@ -268,6 +268,21 @@ export const churnRecoverySweepQueue = new Queue<ChurnRecoverySweepJob>(
 );
 
 /**
+ * Virtual-date lifecycle sweep (Phase 7 Sprint F hardening) — hourly repeatable.
+ * Advances stalled durable virtual_dates rows to their terminal states:
+ * unanswered PROPOSED → CANCELLED, and CONFIRMED-but-ended-with-no-feedback →
+ * NO_SHOW (the only writer of NO_SHOW). Pure status transitions, no messaging.
+ */
+export interface VirtualDateLifecycleJob {
+  scheduledAt: string;
+}
+
+export const virtualDateLifecycleQueue = new Queue<VirtualDateLifecycleJob>(
+  'virtual-date-lifecycle',
+  { connection },
+);
+
+/**
  * Marketing sweep (Unit 6.4) — daily repeatable, churn-recovery-sweep pattern:
  * runs due SCHEDULED / SEGMENT_SWEEP campaigns, then the conversion-attribution
  * pass over SENT rows still inside their window.

@@ -19,15 +19,23 @@
 ## Current Status
 
 ```
-Phase:    4 (complete — launch-ready)
+Phase:    8 (all phases 1–8 shipped — launch staging). See ROADMAP.md for the
+          authoritative per-unit status; it is the source of truth, not this block.
 Week:     Post-launch prep
 Focus:    Awaiting Colonel's registrations to go live
 Mocks:    USE_MOCK_SERVICES=true (Razorpay + MSG91 only)
           R2_LIVE=true · VIDEO_LIVE=true · LLM_PROVIDER=gemini
-Blocker:  Colonel's company registration — Razorpay + MSG91 DLT + legal review
+Blocker:  External only — Razorpay live acct · MSG91 DLT · DigiLocker · legal ·
+          App Store/Play enrollment · real venue/vendor supply (80 placeholder rows).
+          Engineering: staging SLO calibration + pen-test (post-launch).
+Recent:   Virtual Date System (Phase 7) hardened — durable lifecycle sweep now
+          expires unanswered PROPOSED dates → CANCELLED and marks ended, un-rated
+          CONFIRMED dates → NO_SHOW (first writer of that status); live video rooms
+          now stamp roomName onto the durable virtual_dates row.
 ```
 
-> **Update this block at the start of every session.**
+> **Update this block at the start of every session. ROADMAP.md holds the
+> detailed, current phase/unit status — keep the two consistent.**
 
 ---
 
