@@ -2,11 +2,14 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Reply, Send } from 'lucide-react';
 import { replyToReviewAction } from '@/app/[locale]/(app)/vendor/reviews/actions';
 
 export function VendorReviewReply({ reviewId }: { reviewId: string }) {
   const router = useRouter();
+  const t = useTranslations('vendorRole.reviews');
+  const tCommon = useTranslations('common');
   const [open, setOpen] = useState(false);
   const [reply, setReply] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +22,7 @@ export function VendorReviewReply({ reviewId }: { reviewId: string }) {
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-teal hover:underline"
       >
-        <Reply className="h-4 w-4" /> Reply
+        <Reply className="h-4 w-4" /> {t('replyCta')}
       </button>
     );
   }
@@ -32,7 +35,7 @@ export function VendorReviewReply({ reviewId }: { reviewId: string }) {
         disabled={pending}
         rows={3}
         maxLength={2000}
-        placeholder="Thank the reviewer or address their feedback…"
+        placeholder={t('replyPlaceholder')}
         className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary focus:border-teal focus:outline-none disabled:opacity-50"
       />
       <div className="mt-2 flex items-center gap-2">
@@ -43,7 +46,7 @@ export function VendorReviewReply({ reviewId }: { reviewId: string }) {
             setError(null);
             startTransition(async () => {
               const r = await replyToReviewAction(reviewId, reply);
-              if (!r.ok) setError(r.error ?? 'Could not post your reply.');
+              if (!r.ok) setError(r.error ?? t('replyError'));
               else {
                 setOpen(false);
                 setReply('');
@@ -53,7 +56,7 @@ export function VendorReviewReply({ reviewId }: { reviewId: string }) {
           }}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
         >
-          <Send className="h-3.5 w-3.5" /> {pending ? 'Posting…' : 'Post reply'}
+          <Send className="h-3.5 w-3.5" /> {pending ? t('replyPosting') : t('replyPost')}
         </button>
         <button
           type="button"
@@ -61,7 +64,7 @@ export function VendorReviewReply({ reviewId }: { reviewId: string }) {
           onClick={() => { setOpen(false); setError(null); }}
           className="inline-flex h-9 items-center rounded-lg border border-border px-4 text-sm text-text-muted hover:border-gold/40 disabled:opacity-50"
         >
-          Cancel
+          {tCommon('cancel')}
         </button>
       </div>
       {error && <p className="mt-1 text-sm text-destructive">{error}</p>}

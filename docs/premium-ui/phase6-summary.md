@@ -77,13 +77,44 @@ with 5 Opus teammates in a single wave under strict file-ownership partitioning
   API held a stale Mongo connection (profile 500s) — both fixed by restart, neither
   a code issue.
 
-## Remaining backlog (documented follow-up — NOT in this phase)
-- `OnboardingStepper` step labels + "Step N of 6" are English-only (shared vendor
-  onboarding component, outside this sweep's ownership).
-- Vendor dashboards with a real VENDOR session (lead rows, payout rows, review
-  cards with data) were not browser-exercised — only their gates/empty states;
-  covered by type-check + literal-key maps.
-- Store packages/post-marriage custom loading skeletons could move to shared
-  RouteSkeleton presets (cosmetic).
-- API-seeded content (subscription plan names/features from DB) is English-only —
-  a data/backend concern, not UI i18n.
+## Remaining backlog — CLEARED in follow-up session (2026-07-22)
+
+All four items were completed on `feat/premium-ui-followups`:
+
+- ✅ `OnboardingStepper` fully i18n'd — async server component using
+  `vendorRole.onboarding.stepper.*` (literal-key label map), Back reuses
+  `common.back`; browser-verified en + hi ("6 में से चरण 2").
+- ✅ Vendor dashboards browser-exercised with a real VENDOR session (qa-ven-01,
+  seeded 3 leads / 3 payouts / 2 reviews in local dev DB). Three real bugs found
+  and fixed that only data rows could reveal:
+  1. Payouts stat cards showed `₹NaN` — web typed the summary as
+     `pending`/`failed` (strings) but the API returns `pendingAmount`/
+     `failedAmount` (numbers). Interface aligned to the API shape.
+  2. Lead rows rendered the raw `eventType` enum (`WEDDING`, `MEHNDI`) — now
+     mapped through `vendorRole.onboarding.labels.eventTypes.*` (added missing
+     `TILAK`/`SAGAN` keys; fixed hi `ENGAGEMENT` "सगुन" → "सगाई"); plus
+     hardcoded `'Anonymous'` fallback → `fallbackName` key.
+  3. `VendorReviewReply` widget was 100% hardcoded English (Reply / placeholder /
+     Post reply / Posting… / Cancel / error) — fully i18n'd.
+- ✅ packages + post-marriage loading skeletons consolidated onto shared
+  `RouteSkeleton` presets (`mediaGrid` / `iconGrid`), rendered with the warm
+  `Skeleton` primitive.
+- ✅ DB-seeded subscription plan names/features now localize in the web UI via
+  `apps/web/src/lib/plan-i18n.ts` — plan `code` → `planCatalog.names.*`, exact
+  seeded English feature literal → `planCatalog.features.*`, unknown values fall
+  back to the DB string (future plans degrade to English, never raw keys).
+  Applied on /pricing, /settings/billing and the confirm step; also i18n'd the
+  billing page's stray literals (Subscribe, Premium badge, Test Mode, Confirm &
+  Pay, interval labels) and locale-mapped its number formatting.
+
+Verification: forced turbo type-check 11/11, lint 11/11, unit tests green
+(web forced), web production build green, en/hi key parity for all new
+namespaces, browser pass (Playwright, 375px) over leads/payouts/reviews
+(en+hi, with data), onboarding stepper (en+hi), pricing/billing/confirm (hi),
+packages + post-marriage. Zero console errors.
+
+Debug note: a stale `sw.js` service worker (`static-v1` Cache Storage) served
+old client chunks during verification — symptoms looked exactly like stale HMR
+(persisted across dev-server restart AND `rm -rf .next`). Fix: unregister the
+SW + clear CacheStorage in the test browser before trusting "code didn't
+update" symptoms.

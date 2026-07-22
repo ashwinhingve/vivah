@@ -25,10 +25,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Matches getVendorPayoutSummary in apps/api/src/payments/payouts.ts —
+// the API serializes these as numbers under these exact field names.
 interface VendorPayoutSummary {
-  lifetimePaid: string;
-  pending: string;
-  failed: string;
+  lifetimePaid: number;
+  pendingAmount: number;
+  failedAmount: number;
   payoutCount: number;
 }
 
@@ -123,8 +125,8 @@ export default async function VendorPayoutsPage() {
             <FadeUp>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatsCard label={t('statLifetime')} value={await formatINR(summary.lifetimePaid, locale)} icon={Wallet} variant="success" animDelayMs={0} />
-                <StatsCard label={t('statPending')} value={await formatINR(summary.pending, locale)} icon={Clock} variant="warning" animDelayMs={80} />
-                <StatsCard label={t('statFailed')} value={await formatINR(summary.failed, locale)} icon={XCircle} variant="default" animDelayMs={160} />
+                <StatsCard label={t('statPending')} value={await formatINR(summary.pendingAmount, locale)} icon={Clock} variant="warning" animDelayMs={80} />
+                <StatsCard label={t('statFailed')} value={await formatINR(summary.failedAmount, locale)} icon={XCircle} variant="default" animDelayMs={160} />
                 <StatsCard label={t('statTotal')} value={summary.payoutCount} icon={Receipt} variant="teal" animDelayMs={240} />
               </div>
             </FadeUp>

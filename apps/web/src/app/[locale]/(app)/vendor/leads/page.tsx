@@ -209,11 +209,30 @@ function LeadList({ leads }: { leads: VendorLeadRow[] }) {
 
 async function LeadRow({ lead }: { lead: VendorLeadRow }) {
   const t = await getTranslations('vendorRole.leads');
+  const tEventTypes = await getTranslations('vendorRole.onboarding.labels.eventTypes');
   const locale = await getLocale();
   const dateLocale = locale === 'hi' ? 'hi-IN' : 'en-IN';
   const date = lead.eventDate
     ? new Date(lead.eventDate).toLocaleDateString(dateLocale)
     : '—';
+
+  const eventTypeLabels: Record<string, string> = {
+    WEDDING:         tEventTypes('WEDDING'),
+    HALDI:           tEventTypes('HALDI'),
+    MEHNDI:          tEventTypes('MEHNDI'),
+    SANGEET:         tEventTypes('SANGEET'),
+    ENGAGEMENT:      tEventTypes('ENGAGEMENT'),
+    RECEPTION:       tEventTypes('RECEPTION'),
+    TILAK:           tEventTypes('TILAK'),
+    SAGAN:           tEventTypes('SAGAN'),
+    CORPORATE:       tEventTypes('CORPORATE'),
+    FESTIVAL:        tEventTypes('FESTIVAL'),
+    COMMUNITY:       tEventTypes('COMMUNITY'),
+    COMMUNITY_EVENT: tEventTypes('COMMUNITY_EVENT'),
+    GOVERNMENT:      tEventTypes('GOVERNMENT'),
+    SCHOOL:          tEventTypes('SCHOOL'),
+    OTHER:           tEventTypes('OTHER'),
+  };
 
   const statusTones: Record<LeadFeeStatus, StatusTone> = {
     PENDING:         'warning',
@@ -238,10 +257,10 @@ async function LeadRow({ lead }: { lead: VendorLeadRow }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="font-heading text-primary truncate">
-            {lead.inquirerName ?? 'Anonymous'}
+            {lead.inquirerName ?? t('fallbackName')}
           </div>
           <div className="text-xs text-muted-foreground">
-            {lead.eventType} · {date} {lead.eventLocation ? `· ${lead.eventLocation}` : ''}
+            {eventTypeLabels[lead.eventType] ?? lead.eventType} · {date} {lead.eventLocation ? `· ${lead.eventLocation}` : ''}
           </div>
         </div>
         <div className="flex items-center gap-2">
