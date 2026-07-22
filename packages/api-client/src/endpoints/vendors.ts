@@ -40,12 +40,22 @@ export interface VendorListPage {
 }
 
 /**
+ * `GET /vendors/:id/availability?month=YYYY-MM`. Drives the booking calendar:
+ * `bookedDates` are days already taken by confirmed bookings, `blockedDates` are
+ * days the vendor marked unavailable (with an optional reason). Both are the
+ * dates the picker must disable for the requested month.
+ */
+export interface VendorAvailability {
+  bookedDates: string[];
+  blockedDates: { date: string; reason: string | null }[];
+}
+
+/**
  * Vendor discovery surface.
  *
- * Read-only plus favourites and enquiries. Booking, quoting and payment flows
- * are deliberately absent: they need the vendor availability calendar and the
- * Razorpay checkout, neither of which exists on mobile yet, and a half-wired
- * booking button is worse than no button.
+ * Read-only plus favourites, enquiries and availability. Booking itself lives in
+ * `BookingEndpoints` (bookings.ts); this group stops at telling the booking
+ * screen which dates are free.
  *
  * Paths verified against apps/api/src/vendors/router.ts, mounted at
  * '/api/v1/vendors' in apps/api/src/index.ts.
@@ -114,6 +124,17 @@ export class VendorEndpoints {
   getMyInquiries(): Promise<{ inquiries: unknown[] }> {
     return this.client.get<{ inquiries: unknown[] }>(
       '/api/v1/vendors/inquiries/mine',
+    );
+  }
+
+  /**
+   * Booked + blocked dates for one month (`YYYY-MM`). Public — the booking
+   * screen needs it before the user is committed to anything.
+   */
+  getAvailability(vendorId: string, month: string): Promise<VendorAvailability> {
+    return this.client.get<VendorAvailability>(
+      `/api/v1/vendors/${vendorId}/availability`,
+      { query: { month } },
     );
   }
 }

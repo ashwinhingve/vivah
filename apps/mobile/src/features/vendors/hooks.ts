@@ -50,6 +50,19 @@ export function useVendorReviews(vendorId: string) {
   });
 }
 
+/**
+ * Booked + blocked dates for one `YYYY-MM` month. `month` is part of the key so
+ * paging to a different month is a fresh fetch rather than a silent overwrite.
+ */
+export function useVendorAvailability(vendorId: string, month: string) {
+  return useQuery({
+    queryKey: ['vendors', 'availability', vendorId, month],
+    queryFn: () => api.vendors.getAvailability(vendorId, month),
+    enabled: Boolean(vendorId) && Boolean(month),
+    staleTime: 60_000,
+  });
+}
+
 export function useFavoriteVendors() {
   return useQuery({
     queryKey: ['vendors', 'favorites'],

@@ -196,6 +196,33 @@ export function useBlockProfile() {
     mutationFn: (profileId: string) => api.matchmaking.blockProfile(profileId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matchFeed'] });
+      queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+    },
+  });
+}
+
+/**
+ * Query hook for the caller's blocked list (settings → Manage Blocked Users).
+ */
+export function useBlockedUsers() {
+  return useQuery({
+    queryKey: ['blockedUsers'],
+    queryFn: () => api.matchmaking.getBlockedUsers(),
+  });
+}
+
+/**
+ * Mutation hook for unblocking a profile. Invalidates the blocked list and the
+ * feed — an unblocked profile can surface in matches again.
+ */
+export function useUnblockProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (profileId: string) => api.matchmaking.unblockProfile(profileId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['matchFeed'] });
     },
   });
 }

@@ -24,6 +24,20 @@ export interface FeedParams {
 }
 
 /**
+ * A row from `GET /matchmaking/blocks`. Mirrors `BlockedUserItem` in
+ * apps/api/src/matchmaking/requests/service.ts. `name`/`primaryPhotoKey` are
+ * null when the blocked profile has no display data left to show.
+ */
+export interface BlockedUser {
+  blockId: string;
+  profileId: string;
+  name: string | null;
+  primaryPhotoKey: string | null;
+  reason: string | null;
+  blockedAt: string;
+}
+
+/**
  * Matchmaking surface — Track B's endpoints.
  *
  * Paths verified against apps/api/src/matchmaking/router.ts and its two
@@ -154,6 +168,19 @@ export class MatchmakingEndpoints {
 
   blockProfile(profileId: string): Promise<void> {
     return this.client.post<void>(`/api/v1/matchmaking/block/${profileId}`);
+  }
+
+  /** The caller's blocked list, enriched with name + primary photo. */
+  getBlockedUsers(): Promise<{ blocks: BlockedUser[]; total: number }> {
+    return this.client.get<{ blocks: BlockedUser[]; total: number }>(
+      '/api/v1/matchmaking/blocks',
+    );
+  }
+
+  unblockProfile(profileId: string): Promise<{ unblocked: boolean }> {
+    return this.client.delete<{ unblocked: boolean }>(
+      `/api/v1/matchmaking/block/${profileId}`,
+    );
   }
 
   reportProfile(

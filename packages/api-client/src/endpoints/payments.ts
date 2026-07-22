@@ -32,15 +32,30 @@ export interface ActiveSubscription {
 }
 
 /**
- * Billing surface — READ-ONLY on mobile, by design.
+ * Result of `POST /payments/subscriptions`.
  *
- * Starting or cancelling a subscription is intentionally not exposed here.
- * Both run through Razorpay, which is still mocked behind USE_MOCK_SERVICES
- * pending the Colonel's merchant account; worse, shipping in-app purchase of a
- * digital subscription would put the app straight into Apple's IAP rules and
- * Google Play Billing. That is a store-policy decision, not a code one, so
- * mobile shows the user what they are on and the web app remains the place to
- * change it.
+ * The client never charges a card in-app: the server creates the Razorpay
+ * subscription and hands back `shortUrl` — Razorpay's own hosted checkout page.
+ * Mobile opens that URL in the system browser and lets Razorpay collect the
+ * mandate/payment; the tier flips when Razorpay's webhook reaches the API. This
+ * keeps card data off the device AND keeps us out of Apple/Google in-app-billing
+ * rules (a payment-gateway subscription, not a digital IAP). `shortUrl` is null
+ * only in mock mode without a hosted link, in which case the caller polls
+ * `getSubscription()` for the status change instead of opening a browser.
+ */
+export interface StartSubscriptionResult {
+  subscriptionId: string;
+  razorpaySubscriptionId: string | null;
+  shortUrl: string | null;
+  status: string;
+}
+
+/**
+ * Billing surface.
+ *
+ * Reads (plans, current subscription, invoices, statement) plus the two
+ * subscription mutations. Starting a subscription returns a Razorpay hosted
+ * checkout link rather than taking payment in-app — see StartSubscriptionResult.
  *
  * Paths verified against apps/api/src/index.ts:
  *   '/api/v1/payments/statement'     -> statementRouter
@@ -84,6 +99,34 @@ export class PaymentEndpoints {
   getPlans(): Promise<SubscriptionPlan[]> {
     return this.client.get<SubscriptionPlan[]>(
       '/api/v1/payments/subscriptions/plans',
+    );
+  }
+
+  /**
+   * Create a Razorpay subscription for `planCode`. Returns a hosted-checkout
+   * `shortUrl` the caller opens in a browser (see StartSubscriptionResult). The
+   * server rejects with 409 if the user already has an active/pending one.
+   */
+  startSubscription(planCode: string): Promise<StartSubscriptionResult> {
+    return this.client.post<StartSubscriptionResult>(
+      '/api/v1/payments/subscriptions',
+      { planCode },
+    );
+  }
+
+  /**
+   * Cancel a subscription. `atCycleEnd` true (default) keeps access until the
+   * period ends; false cancels immediately. DELETE carries a body, so this goes
+   * through `request` directly rather than the bodyless `delete` helper.
+   */
+  cancelSubscription(
+    subscriptionId: string,
+    atCycleEnd = true,
+  ): Promise<{ ok: true }> {
+    return this.client.request<{ ok: true }>(
+      'DELETE',
+      `/api/v1/payments/subscriptions/${subscriptionId}`,
+      { atCycleEnd },
     );
   }
 }

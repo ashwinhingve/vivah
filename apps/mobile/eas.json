@@ -1,15 +1,18 @@
 {
   "cli": {
-    "version": ">= 13.0.0",
-    "promptToConfigureWithGitHub": false
+    "version": ">= 13.0.0"
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in" }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in" }
     },
     "production": {
       "autoIncrement": true

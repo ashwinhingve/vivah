@@ -114,13 +114,12 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <Button
-          title="Change Password"
-          variant="secondary"
-          onPress={() => {
-            // In-app purchase flow is out of scope
-          }}
-        />
+        {/* No "Change Password": accounts sign in with phone OTP, there is no
+            password credential to change. */}
+        <View className="bg-surface border border-gold/20 rounded-xl p-4">
+          <Text className="text-sm text-muted mb-1">Sign-in method</Text>
+          <Text className="font-semibold text-ink">Phone OTP</Text>
+        </View>
       </View>
 
       {/* Subscription Section */}
@@ -150,14 +149,11 @@ export default function SettingsScreen() {
           </Text>
         </View>
 
-        {profile?.premiumTier === 'STANDARD' && (
+        {profile?.premiumTier !== 'PREMIUM' && (
           <Button
             title="Upgrade to Premium"
             variant="primary"
-            onPress={() => {
-              // In-app purchase flow is out of scope for Phase 1
-              // Just navigate to a billing view or show a message
-            }}
+            onPress={() => router.push('/(app)/billing')}
           />
         )}
       </View>
@@ -217,9 +213,7 @@ export default function SettingsScreen() {
         <Button
           title="Manage Blocked Users"
           variant="secondary"
-          onPress={() => {
-            // Navigation to blocked users list
-          }}
+          onPress={() => router.push('/(app)/blocked-users')}
         />
       </View>
 
@@ -230,9 +224,7 @@ export default function SettingsScreen() {
         <Button
           title="FAQs"
           variant="secondary"
-          onPress={() => {
-            // Navigation to FAQs
-          }}
+          onPress={() => router.push('/(app)/help')}
         />
       </View>
 

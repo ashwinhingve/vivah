@@ -113,10 +113,22 @@ export default function VendorDetailScreen() {
         </Text>
       </View>
 
-      <View className="mt-4">
+      <View className="mt-4 gap-3">
+        {vendor.services.length > 0 ? (
+          <Button
+            title="Request Booking"
+            variant="primary"
+            onPress={() => router.push(`/(app)/booking/${vendorId}`)}
+            accessibilityLabel={`Request a booking with ${vendor.businessName}`}
+          />
+        ) : null}
         <Button
           title={vendor.isFavorite ? 'Saved' : 'Save vendor'}
-          variant={vendor.isFavorite ? 'secondary' : 'primary'}
+          variant={
+            vendor.isFavorite || vendor.services.length > 0
+              ? 'secondary'
+              : 'primary'
+          }
           loading={toggleFavorite.isPending}
           onPress={handleToggleFavorite}
           accessibilityLabel={

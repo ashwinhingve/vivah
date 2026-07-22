@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { api } from '../lib/api';
 
@@ -75,7 +76,7 @@ export async function initializePush(): Promise<void> {
     await api.users.registerDevice({
       token,
       platform,
-      appVersion: '1.0.0', // TODO: read from app.json
+      appVersion: Constants.expoConfig?.version ?? '0.1.0',
     });
 
     console.log('[push] Initialized with token:', token.slice(0, 20) + '...');

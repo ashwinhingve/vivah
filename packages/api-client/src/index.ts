@@ -7,11 +7,10 @@
  * and its credential as constructor arguments and imports nothing
  * platform-specific — but migrating web is deliberately NOT part of Sprint I.
  *
- * Scope: the matchmaking core, plus vendor discovery and read-only billing.
- * Weddings, bookings, store, b2b and admin are intentionally absent; they are
- * web-only surfaces for now, and stubbing them here would imply a mobile
- * commitment that does not exist. Vendor BOOKING is absent for the same reason
- * even though vendor browsing is present — see the note on VendorEndpoints.
+ * Scope: the matchmaking core, vendor discovery + booking, and billing
+ * (read plus Razorpay-hosted subscribe/cancel). Weddings, store, b2b and admin
+ * remain web-only surfaces; stubbing them here would imply a mobile commitment
+ * that does not exist.
  */
 export { ApiClient, createApiClient } from './client.js';
 export type {
@@ -23,7 +22,7 @@ export type {
 export { ApiRequestError, NetworkError } from './errors.js';
 
 export { MatchmakingEndpoints } from './endpoints/matchmaking.js';
-export type { FeedPage, FeedParams } from './endpoints/matchmaking.js';
+export type { BlockedUser, FeedPage, FeedParams } from './endpoints/matchmaking.js';
 
 export { ProfileEndpoints } from './endpoints/profiles.js';
 export type {
@@ -40,18 +39,31 @@ export type { DevicePlatform } from './endpoints/users.js';
 
 export { VendorEndpoints } from './endpoints/vendors.js';
 export type {
+  VendorAvailability,
   VendorListPage,
   VendorListParams,
   VendorSort,
 } from './endpoints/vendors.js';
 
+export { BookingEndpoints } from './endpoints/bookings.js';
+export type {
+  BookingListPage,
+  BookingListParams,
+  BookingRole,
+  BookingStatusFilter,
+  BookingTimeline,
+  CreateBookingInput,
+} from './endpoints/bookings.js';
+
 export { PaymentEndpoints } from './endpoints/payments.js';
 export type {
   ActiveSubscription,
+  StartSubscriptionResult,
   SubscriptionPlan,
 } from './endpoints/payments.js';
 
 import { ApiClient, type ApiClientConfig } from './client.js';
+import { BookingEndpoints } from './endpoints/bookings.js';
 import { ChatEndpoints } from './endpoints/chat.js';
 import { MatchmakingEndpoints } from './endpoints/matchmaking.js';
 import { PaymentEndpoints } from './endpoints/payments.js';
@@ -75,6 +87,7 @@ export interface SmartShaadiApi {
   chat: ChatEndpoints;
   users: UserEndpoints;
   vendors: VendorEndpoints;
+  bookings: BookingEndpoints;
   payments: PaymentEndpoints;
 }
 
@@ -87,6 +100,7 @@ export function createSmartShaadiApi(config: ApiClientConfig): SmartShaadiApi {
     chat: new ChatEndpoints(raw),
     users: new UserEndpoints(raw),
     vendors: new VendorEndpoints(raw),
+    bookings: new BookingEndpoints(raw),
     payments: new PaymentEndpoints(raw),
   };
 }

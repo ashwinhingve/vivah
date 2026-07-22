@@ -12,7 +12,7 @@
 - **Client:** Colonel Deepak
 - **Developer:** Ashwin Hingve (sole execution owner)
 - **Agreement date:** 05 April 2026
-- **Stack:** TypeScript end-to-end · Node.js API · Python AI service · Next.js web · (React Native mobile deferred to Phase 7)
+- **Stack:** TypeScript end-to-end · Node.js API · Python AI service · Next.js web · React Native/Expo mobile (scaffolded, MVP-complete)
 
 ---
 
@@ -64,7 +64,7 @@ Phase 4 Day 3: docs + BetterStack monitor setup (manual)
 apps/web/          → Next.js 15 App Router (frontend + Server Actions)
 apps/api/          → Node.js/Express/TypeScript (core REST API)
 apps/ai-service/   → Python/FastAPI (ML scoring, AI matchmaking, fraud)
-# apps/mobile/     → DEFERRED to Phase 7 (not yet scaffolded)
+apps/mobile/       → Expo SDK 57 + React Native 0.86 + Expo Router (scaffolded, MVP-complete: auth, matches, chat, vendors, profile, payments)
 packages/types/    → Shared TypeScript types (used by all apps)
 packages/schemas/  → Shared Zod validation schemas
 packages/db/       → Drizzle ORM schema + migrations (PostgreSQL)
@@ -267,7 +267,7 @@ connection error. Use `... | xargs -I@ cmd @` pipelines and literal filenames in
 
 ```
 Frontend:    Next.js 15 App Router · TypeScript strict · shadcn/ui · Tailwind v4
-Mobile:      (Phase 7 — React Native 0.78 + Expo SDK 55 + Expo Router v4 + NativeWind, not yet scaffolded)
+Mobile:      React Native 0.86 · Expo SDK 57 · Expo Router · NativeWind v4 · Better Auth (expo) · TanStack Query · socket.io (scaffolded, MVP-complete)
 Core API:    Node.js · Express · TypeScript · Drizzle ORM (PostgreSQL)
 AI Service:  Python 3.11 · FastAPI · Scikit-learn · HuggingFace · PyTorch
 Databases:   PostgreSQL (Supabase/Railway) · MongoDB Atlas · Redis (Railway)

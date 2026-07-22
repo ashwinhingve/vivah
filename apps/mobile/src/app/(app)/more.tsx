@@ -37,6 +37,13 @@ export default function MoreScreen() {
       onPress: () => router.push('/(app)/(profile)/onboarding/preferences'),
     },
     {
+      id: 'bookings',
+      label: 'My Bookings',
+      description: 'Vendor bookings you have requested',
+      icon: '📅',
+      onPress: () => router.push('/(app)/bookings'),
+    },
+    {
       id: 'payments',
       label: 'Payments & Billing',
       description: 'Your plan, activity and invoices',
@@ -62,9 +69,7 @@ export default function MoreScreen() {
       label: 'Help & Support',
       description: 'FAQs and customer support',
       icon: '❓',
-      onPress: () => {
-        // Navigation to FAQs/help
-      },
+      onPress: () => router.push('/(app)/help'),
     },
   ];
 

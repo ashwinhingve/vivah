@@ -11,7 +11,8 @@
     "type-check": "tsc --noEmit",
     "build": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "eas-build-post-install": "cd ../.. && pnpm --filter @smartshaadi/types run build && pnpm --filter @smartshaadi/schemas run build && pnpm --filter @smartshaadi/api-client run build"
   },
   "dependencies": {
     "@better-auth/expo": "1.6.2",

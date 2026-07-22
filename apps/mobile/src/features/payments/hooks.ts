@@ -1,9 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 
 /**
- * Billing data for the signed-in user. All read-only — see the note on
- * PaymentEndpoints for why mobile does not start or cancel a subscription.
+ * Billing data + subscription actions for the signed-in user.
+ *
+ * Reads (invoices, subscription, statement, plans) plus starting a subscription.
+ * Starting does NOT charge in-app: it returns a Razorpay hosted-checkout link
+ * that the billing screen opens in a browser — see PaymentEndpoints.
  */
 
 export function useInvoices() {
@@ -17,6 +20,32 @@ export function useSubscription() {
   return useQuery({
     queryKey: ['payments', 'subscription'],
     queryFn: () => api.payments.getSubscription(),
+  });
+}
+
+/** Available plans. Public — used to render the upgrade options. */
+export function usePlans() {
+  return useQuery({
+    queryKey: ['payments', 'plans'],
+    queryFn: () => api.payments.getPlans(),
+  });
+}
+
+/**
+ * Start a subscription for a plan code. On success the caller opens the returned
+ * `shortUrl`; the tier flips server-side via Razorpay's webhook, so we invalidate
+ * the current-subscription query when the user returns to re-read their status.
+ */
+export function useStartSubscription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (planCode: string) => api.payments.startSubscription(planCode),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['payments', 'subscription'],
+      });
+    },
   });
 }
 
