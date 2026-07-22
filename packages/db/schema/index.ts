@@ -1460,6 +1460,23 @@ export const referrals = pgTable('referrals', {
   codeIdx:     index('referrals_code_idx').on(t.codeId),
 }));
 
+export const referralCreditsLedger = pgTable('referral_credits_ledger', {
+  id:             uuid('id').primaryKey().defaultRandom(),
+  userId:         text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  amount:         integer('amount').notNull(),
+  type:           varchar('type', { length: 12 }).notNull(),
+  relatedEntity:  varchar('related_entity', { length: 50 }),
+  relatedId:      text('related_id'),
+  description:    text('description'),
+  createdAt:      timestamp('created_at').notNull().defaultNow(),
+  processedAt:    timestamp('processed_at'),
+}, (t) => ({
+  userIdx:   index('referral_credits_ledger_user_id_idx').on(t.userId),
+  typeIdx:   index('referral_credits_ledger_type_idx').on(t.type),
+  createdIdx: index('referral_credits_ledger_created_idx').on(t.createdAt),
+  uniqueKey: uniqueIndex('referral_credits_ledger_unique').on(t.userId, t.type, t.relatedId),
+}));
+
 // ── RELATIONS ─────────────────────────────────────────────────────────────────
 
 export const userRelations = relations(user, ({ one, many }) => ({

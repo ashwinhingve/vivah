@@ -1,11 +1,12 @@
 // apps/api/src/profiles/content.service.ts
 
-import { shouldUseMockMongo } from '../lib/env.js';
+import { shouldUseMockMongo, isReferralLive } from '../lib/env.js';
 import { mockUpsertField, mockGet } from '../lib/mockStore.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { db } from '../lib/db.js';
 import { bustOwnFeedCache } from '../lib/redis.js';
 import { enqueueEmbeddingRefresh } from '../matchmaking/embeddingSync.js';
+import { markReferralComplete } from '../services/referralService.js';
 
 function mockUpsert(userId: string, section: string, data: object): Record<string, unknown> {
   return mockUpsertField(userId, section, data);
@@ -195,6 +196,7 @@ export async function updateAboutMe(
 /**
  * Compute profile completeness by analyzing MongoDB ProfileContent document
  * and updating both profileSections (PostgreSQL) and profiles.profileCompleteness.
+ * When completeness >= 80 for the first time, fires the referral completion milestone.
  * Returns the computed score (0–100).
  */
 export async function computeAndUpdateCompleteness(userId: string): Promise<number> {
@@ -299,10 +301,27 @@ export async function computeAndUpdateCompleteness(userId: string): Promise<numb
     (personality ? 10 : 0);
 
   // 5. Update profiles.profileCompleteness
+  const [oldProfile] = await db
+    .select({ profileCompleteness: profiles.profileCompleteness })
+    .from(profiles)
+    .where(eq(profiles.id, profileId))
+    .limit(1);
+
   await db
     .update(profiles)
     .set({ profileCompleteness: score })
     .where(eq(profiles.id, profileId));
+
+  // 6. Fire referral completion milestone when crossing 80% threshold for the first time.
+  const wasIncomplete = (oldProfile?.profileCompleteness ?? 0) < 80;
+  const isNowComplete = score >= 80;
+  if (isReferralLive && wasIncomplete && isNowComplete) {
+    try {
+      await markReferralComplete(userId);
+    } catch (error) {
+      console.warn('[profiles] referral complete milestone failed:', error);
+    }
+  }
 
   return score;
 }

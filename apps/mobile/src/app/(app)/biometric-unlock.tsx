@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { authenticate, canUseBiometric } from '../../lib/biometric';
+import { authenticate, canUseBiometric, recordUnlock } from '../../lib/biometric';
 import { signOut } from '../../lib/auth-client';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
@@ -59,6 +59,8 @@ export default function BiometricUnlockScreen() {
       const success = await authenticate();
 
       if (success) {
+        // Record the unlock timestamp before dismissing the screen
+        await recordUnlock();
         // Authentication succeeded — dismiss this screen by going back to app
         router.dismiss();
       } else {

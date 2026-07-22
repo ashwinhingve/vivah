@@ -66,6 +66,12 @@ export const envSchema = z.object({
   LENDING_LIVE:   z.string().default('false').transform(v => v === 'true'),
   INSURANCE_LIVE: z.string().default('false').transform(v => v === 'true'),
 
+  // ── Phase 4 Referral Programme earn loop gate ──
+  // When FALSE (default), referral milestone crediting + UI visibility stay off.
+  // No third-party provider swap — the flag gates crediting logic only.
+  // Set 'true' to enable profile-completion and subscription rewards.
+  REFERRAL_LIVE: z.string().default('false').transform(v => v === 'true'),
+
   // ── Phase 7 Sprint F — churn-recovery outreach gate (Unit 7.3) ──
   // When FALSE (default), the daily sweep computes + STORES recovery attempts as
   // DRY_RUN for admin review but messages NO user — safe to run pre-launch. Set
@@ -536,3 +542,11 @@ export const isMarketingAutomationEnabled = env.MARKETING_AUTOMATION_ENABLED;
  * opened, deduped within 24h (re-opening same profile doesn't burn another view).
  */
 export const isViewQuotaEnabled = env.VIEW_QUOTA_ENABLED;
+
+/**
+ * Referral Programme earn loop gate (Phase 4). FALSE by default — referral milestone
+ * crediting and UI visibility stay off. No third-party provider, so the flag gates
+ * crediting logic only, not a provider swap. Set 'true' to enable profile-completion
+ * and subscription rewards.
+ */
+export const isReferralLive = env.REFERRAL_LIVE && !env.USE_MOCK_SERVICES;

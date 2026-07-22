@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { track } from '@/lib/analytics';
+import { readReferralCookie, REFERRAL_COOKIE } from '@/components/referral/ReferralCapture.client';
 
 export default function RegisterForm() {
   const t = useTranslations('auth.register');
@@ -17,8 +18,15 @@ export default function RegisterForm() {
 
   const [name, setName]       = useState('');
   const [phone, setPhone]     = useState('');
+  const [referral, setReferral] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
+
+  // Prefill from a share link if one brought the user here.
+  useEffect(() => {
+    const captured = readReferralCookie();
+    if (captured) setReferral(captured);
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,6 +44,13 @@ export default function RegisterForm() {
     if (!/^\+91[6-9]\d{9}$/.test(e164)) {
       setError(t('errors.invalidPhone'));
       return;
+    }
+
+    // Persist a manually-typed code the same way a share link would, so the
+    // verify step (where the user is actually created) can attach it.
+    if (referral) {
+      document.cookie =
+        `${REFERRAL_COOKIE}=${encodeURIComponent(referral)}; path=/; max-age=3600; samesite=lax`;
     }
 
     setLoading(true);
@@ -114,6 +129,30 @@ export default function RegisterForm() {
         <p className="flex items-center gap-1.5 text-2xs text-gold-muted">
           <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
           {t('reassurance')}
+        </p>
+      </div>
+
+      {/*
+        Optional referral code. Prefilled when the user arrived via a share link;
+        typed manually when the code was passed on verbally, which is the common
+        case here. Kept optional and unvalidated client-side — the API ignores an
+        unknown code rather than blocking the signup.
+      */}
+      <div className="space-y-1.5">
+        <Label htmlFor="referral" className="text-sm">{t('referralLabel')}</Label>
+        <Input
+          id="referral"
+          type="text"
+          inputMode="text"
+          autoComplete="off"
+          maxLength={12}
+          placeholder={t('referralPlaceholder')}
+          value={referral}
+          onChange={(e) => setReferral(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+          aria-describedby="referral-hint"
+        />
+        <p id="referral-hint" className="text-2xs text-muted-foreground">
+          {t('referralHint')}
         </p>
       </div>
 

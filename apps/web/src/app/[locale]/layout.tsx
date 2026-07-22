@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
+import ReferralCapture from '@/components/referral/ReferralCapture.client';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
@@ -29,6 +31,15 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      {/*
+        Captures ?ref=CODE into a cookie wherever a share link lands. Renders
+        nothing. Suspense-wrapped because useSearchParams opts the subtree into
+        client rendering, and without a boundary that would deopt every static
+        page under this layout.
+      */}
+      <Suspense fallback={null}>
+        <ReferralCapture />
+      </Suspense>
       {children}
     </NextIntlClientProvider>
   );

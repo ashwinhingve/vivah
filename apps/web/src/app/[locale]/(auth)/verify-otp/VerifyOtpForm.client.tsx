@@ -9,6 +9,7 @@ import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics';
+import { readReferralCookie } from '@/components/referral/ReferralCapture.client';
 
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
@@ -48,7 +49,19 @@ export default function VerifyOtpForm() {
       setError(null);
       setLoading(true);
 
-      const result = await authClient.phoneNumber.verify({ phoneNumber: phone, code });
+      // Attach the captured referral code to the request that CREATES the user —
+      // the API's user.create.after hook reads it from this header. It travels as
+      // a header rather than riding the cookie: web and api are different
+      // subdomains, so a page-scoped cookie would never reach the API at all.
+      // Unknown or expired codes are ignored server-side and never block signup.
+      const referralCode = readReferralCookie();
+      const result = await authClient.phoneNumber.verify({
+        phoneNumber: phone,
+        code,
+        fetchOptions: referralCode
+          ? { headers: { 'x-referral-code': referralCode } }
+          : undefined,
+      });
 
       if (result.error) {
         setError(result.error.message ?? t('errors.invalidOtp'));
