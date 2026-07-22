@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { BillingConfirm } from './BillingConfirm.client';
 import { PLANS_CONSTANT, monthlySavings } from '@smartshaadi/types';
+import { localizePlanName, localizePlanFeatures } from '@/lib/plan-i18n';
 
 interface Plan {
   id:       string;
@@ -20,11 +21,15 @@ interface Plan {
   features: unknown;
 }
 
-const INTERVAL_LABELS: Record<Plan['interval'], string> = {
-  MONTHLY:   'month',
-  QUARTERLY: 'quarter',
-  YEARLY:    'year',
+const INTERVAL_KEYS: Record<Plan['interval'], string> = {
+  MONTHLY:   'interval.month',
+  QUARTERLY: 'interval.quarter',
+  YEARLY:    'interval.year',
 };
+
+function intlLocale(locale: string): string {
+  return locale === 'hi' ? 'hi-IN' : 'en-IN';
+}
 
 // Derived from the shared PLANS_CONSTANT rather than restated, so a price can
 // never be changed in one place and quietly disagree here. A hand-copied
@@ -66,12 +71,6 @@ async function fetchPlans(): Promise<Plan[]> {
 
 export const dynamic = 'force-dynamic';
 
-function featureList(features: unknown): string[] {
-  return Array.isArray(features)
-    ? features.filter((f): f is string => typeof f === 'string')
-    : [];
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'billing.metadata' });
@@ -85,6 +84,9 @@ export default async function BillingPage({
 }) {
   const t = await getTranslations('billing');
   const tSavings = await getTranslations('billingSavings');
+  const tCatalog = await getTranslations('planCatalog');
+  const locale = await getLocale();
+  const numberLocale = intlLocale(locale);
   const { plan: planCode } = await searchParams;
   const plans = await fetchPlans();
   const isMock = process.env['USE_MOCK_SERVICES'] === 'true';
@@ -104,17 +106,17 @@ export default async function BillingPage({
             <FadeUp delay={0.1}>
               <BillingConfirm
                 planCode={plan.code}
-                planName={plan.name}
+                planName={localizePlanName(tCatalog, plan.code, plan.name)}
                 amount={plan.amount}
-                interval={INTERVAL_LABELS[plan.interval] ?? plan.interval}
-                features={featureList(plan.features)}
+                interval={INTERVAL_KEYS[plan.interval] ? t(INTERVAL_KEYS[plan.interval]) : plan.interval}
+                features={localizePlanFeatures(tCatalog, plan.features)}
                 isMock={isMock}
               />
             </FadeUp>
             <FadeUp delay={0.2} className="mt-6 text-center">
               <Link href="/settings/billing" className="inline-flex items-center gap-1 text-teal hover:text-teal-hover text-sm">
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Choose a different plan
+                {t('chooseDifferentPlan')}
               </Link>
             </FadeUp>
           </main>
@@ -135,14 +137,14 @@ export default async function BillingPage({
         {isMock ? (
           <FadeUp delay={0.1}>
             <div className="mx-auto mb-8 max-w-2xl rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-center text-sm text-warning">
-              Test Mode — no real charge will be made
+              {t('testMode')}
             </div>
           </FadeUp>
         ) : null}
         <FadeUp delay={isMock ? 0.2 : 0.1}>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {plans.map((plan) => {
-              const features = featureList(plan.features);
+              const features = localizePlanFeatures(tCatalog, plan.features);
               const isPremium = plan.tier === 'PREMIUM';
 
               // Calculate savings against monthly plan of same tier
@@ -158,20 +160,20 @@ export default async function BillingPage({
                 >
                   {isPremium ? (
                     <span className="mb-2 inline-block w-fit rounded-full bg-gold/20 px-2 py-0.5 text-xs font-semibold text-gold-muted">
-                      Premium
+                      {t('badgePremium')}
                     </span>
                   ) : null}
-                  <h2 className="mb-1 text-xl font-semibold text-primary">{plan.name}</h2>
+                  <h2 className="mb-1 text-xl font-semibold text-primary">{localizePlanName(tCatalog, plan.code, plan.name)}</h2>
                   <p className="mb-4 text-2xl font-bold text-foreground">
-                    ₹{plan.amount.toLocaleString('en-IN')}
+                    ₹{plan.amount.toLocaleString(numberLocale)}
                     <span className="ml-1 text-sm font-normal text-muted-foreground">
-                      / {INTERVAL_LABELS[plan.interval] ?? plan.interval}
+                      / {INTERVAL_KEYS[plan.interval] ? t(INTERVAL_KEYS[plan.interval]) : plan.interval}
                     </span>
                   </p>
                   {savings ? (
                     <p className="mb-4 rounded-lg bg-gold/10 px-3 py-2 text-xs font-medium text-gold-muted">
                       {tSavings('savingsLabel', {
-                        amount: savings.savedAmount.toLocaleString('en-IN'),
+                        amount: savings.savedAmount.toLocaleString(numberLocale),
                         percent: savings.percent,
                       })}
                     </p>
@@ -187,7 +189,7 @@ export default async function BillingPage({
                     </ul>
                   ) : null}
                   <Button asChild className="mt-auto w-full">
-                    <Link href={`/settings/billing?plan=${plan.code}`}>Subscribe</Link>
+                    <Link href={`/settings/billing?plan=${plan.code}`}>{t('subscribe')}</Link>
                   </Button>
                 </div>
               );

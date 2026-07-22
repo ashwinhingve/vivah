@@ -1125,7 +1125,39 @@
     "heading": "बिलिंग और सब्सक्रिप्शन",
     "subtitle": "प्लान चुनें, या अपने मौजूदा प्लान को प्रबंधित करें।",
     "confirmHeading": "अपना प्लान कन्फ़र्म करें",
-    "confirmSubtitle": "भुगतान से पहले देखें कि इसमें क्या शामिल है।"
+    "confirmSubtitle": "भुगतान से पहले देखें कि इसमें क्या शामिल है।",
+    "interval": {
+      "month": "महीना",
+      "quarter": "त्रैमासिक",
+      "year": "साल"
+    },
+    "badgePremium": "प्रीमियम",
+    "subscribe": "सब्सक्राइब करें",
+    "chooseDifferentPlan": "कोई दूसरा प्लान चुनें",
+    "testMode": "टेस्ट मोड — कोई वास्तविक शुल्क नहीं लिया जाएगा",
+    "confirmPay": "पुष्टि करें और भुगतान करें",
+    "processing": "प्रोसेस हो रहा है…"
+  },
+  "planCatalog": {
+    "names": {
+      "standardMonthly": "स्टैंडर्ड मासिक",
+      "standardQuarterly": "स्टैंडर्ड त्रैमासिक",
+      "standardYearly": "स्टैंडर्ड वार्षिक",
+      "premiumMonthly": "प्रीमियम मासिक",
+      "premiumQuarterly": "प्रीमियम त्रैमासिक",
+      "premiumYearly": "प्रीमियम वार्षिक"
+    },
+    "features": {
+      "unlimitedMatches": "असीमित मैच",
+      "aiConversationCoach": "AI कन्वर्सेशन कोच",
+      "priorityVisibility": "प्राथमिकता विज़िबिलिटी",
+      "save20": "20% बचाएं",
+      "save17": "17% बचाएं",
+      "fourMonthsFree": "4 महीने फ्री",
+      "everythingInStandard": "स्टैंडर्ड में सब कुछ",
+      "verifiedBadge": "सत्यापित बैज",
+      "dedicatedRecommendations": "विशेष अनुशंसाएं"
+    }
   },
   "weddings": {
     "list": {
@@ -2252,6 +2284,18 @@
     "onboarding": {
       "title": "वेंडर ऑनबोर्डिंग",
       "subtitle": "हर चरण पूरा करें, फिर समीक्षा के लिए अपनी प्रोफ़ाइल सबमिट करें।",
+      "stepper": {
+        "ariaLabel": "ऑनबोर्डिंग प्रगति",
+        "stepCounter": "{total} में से चरण {current}",
+        "steps": {
+          "business": "व्यवसाय",
+          "services": "सेवाएं",
+          "portfolio": "पोर्टफ़ोलियो",
+          "availability": "उपलब्धता",
+          "bank": "भुगतान",
+          "review": "समीक्षा"
+        }
+      },
       "business": {
         "metaTitle": "व्यवसाय · वेंडर ऑनबोर्डिंग",
         "title": "अपने व्यवसाय के बारे में बताएं",
@@ -2386,8 +2430,10 @@
           "HALDI": "हल्दी",
           "MEHNDI": "मेहँदी",
           "SANGEET": "संगीत",
-          "ENGAGEMENT": "सगुन",
-          "RECEPTION": "स्वागत समारोह"
+          "ENGAGEMENT": "सगाई",
+          "RECEPTION": "स्वागत समारोह",
+          "TILAK": "तिलक",
+          "SAGAN": "सगुन"
         },
         "serviceUnits": {
           "per_event": "प्रति इवेंट",
@@ -2510,7 +2556,12 @@
       "metaTitle": "समीक्षाएँ · वेंडर",
       "subtitleWithAvg": "{avg} औसत {total, plural, one {# समीक्षा} other {# समीक्षाओं}} में — उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
       "subtitleEmpty": "समीक्षाओं का उत्तर देना भविष्य के जोड़ों के साथ विश्वास बनाता है।",
-      "yourReply": "आपका उत्तर"
+      "yourReply": "आपका उत्तर",
+      "replyCta": "उत्तर दें",
+      "replyPlaceholder": "समीक्षक को धन्यवाद दें या उनकी प्रतिक्रिया का जवाब दें…",
+      "replyPost": "उत्तर पोस्ट करें",
+      "replyPosting": "पोस्ट हो रहा है…",
+      "replyError": "आपका उत्तर पोस्ट नहीं हो सका।"
     },
     "leads": {
       "title": "ग्राहक लीड",
@@ -2532,7 +2583,8 @@
       "statusRefunded": "रिफंड किया गया",
       "statusCancelled": "रद्द",
       "statusPendingPayment": "भुगतान लंबित",
-      "refundedReason": "रिफंड किया गया — {reason}"
+      "refundedReason": "रिफंड किया गया — {reason}",
+      "fallbackName": "सदस्य"
     },
     "components": {
       "availabilityCalendar": {

@@ -1125,7 +1125,39 @@
     "heading": "Billing & Subscription",
     "subtitle": "Choose a plan, or manage the one you're on.",
     "confirmHeading": "Confirm your plan",
-    "confirmSubtitle": "Review what's included before you pay."
+    "confirmSubtitle": "Review what's included before you pay.",
+    "interval": {
+      "month": "month",
+      "quarter": "quarter",
+      "year": "year"
+    },
+    "badgePremium": "Premium",
+    "subscribe": "Subscribe",
+    "chooseDifferentPlan": "Choose a different plan",
+    "testMode": "Test Mode — no real charge will be made",
+    "confirmPay": "Confirm & Pay",
+    "processing": "Processing…"
+  },
+  "planCatalog": {
+    "names": {
+      "standardMonthly": "Standard Monthly",
+      "standardQuarterly": "Standard Quarterly",
+      "standardYearly": "Standard Yearly",
+      "premiumMonthly": "Premium Monthly",
+      "premiumQuarterly": "Premium Quarterly",
+      "premiumYearly": "Premium Yearly"
+    },
+    "features": {
+      "unlimitedMatches": "Unlimited matches",
+      "aiConversationCoach": "AI Conversation Coach",
+      "priorityVisibility": "Priority visibility",
+      "save20": "Save 20%",
+      "save17": "Save 17%",
+      "fourMonthsFree": "4 months free",
+      "everythingInStandard": "Everything in Standard",
+      "verifiedBadge": "Verified badge",
+      "dedicatedRecommendations": "Dedicated recommendations"
+    }
   },
   "weddings": {
     "list": {
@@ -2252,6 +2284,18 @@
     "onboarding": {
       "title": "Vendor onboarding",
       "subtitle": "Complete each step, then submit your profile for review.",
+      "stepper": {
+        "ariaLabel": "Onboarding progress",
+        "stepCounter": "Step {current} of {total}",
+        "steps": {
+          "business": "Business",
+          "services": "Services",
+          "portfolio": "Portfolio",
+          "availability": "Availability",
+          "bank": "Payouts",
+          "review": "Review"
+        }
+      },
       "business": {
         "metaTitle": "Business · Vendor onboarding",
         "title": "Tell us about your business",
@@ -2387,7 +2431,9 @@
           "MEHNDI": "Mehndi",
           "SANGEET": "Sangeet",
           "ENGAGEMENT": "Engagement",
-          "RECEPTION": "Reception"
+          "RECEPTION": "Reception",
+          "TILAK": "Tilak",
+          "SAGAN": "Sagan"
         },
         "serviceUnits": {
           "per_event": "Per event",
@@ -2510,7 +2556,12 @@
       "metaTitle": "Reviews · Vendor",
       "subtitleWithAvg": "{avg} average across {total, plural, one {# review} other {# reviews}} — replying builds trust with future couples.",
       "subtitleEmpty": "Replies to reviews build trust with future couples.",
-      "yourReply": "Your reply"
+      "yourReply": "Your reply",
+      "replyCta": "Reply",
+      "replyPlaceholder": "Thank the reviewer or address their feedback…",
+      "replyPost": "Post reply",
+      "replyPosting": "Posting…",
+      "replyError": "Could not post your reply."
     },
     "leads": {
       "title": "Customer leads",
@@ -2532,7 +2583,8 @@
       "statusRefunded": "Refunded",
       "statusCancelled": "Cancelled",
       "statusPendingPayment": "Pending payment",
-      "refundedReason": "Refunded — {reason}"
+      "refundedReason": "Refunded — {reason}",
+      "fallbackName": "Member"
     },
     "components": {
       "availabilityCalendar": {

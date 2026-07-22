@@ -205,7 +205,28 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-21/22 (current) — Premium UI Phase 6: straggler-route sweep
+### 2026-07-22 (current) — Premium UI follow-ups: phase-6 tail cleared
+
+Merged PR #7 (phase 6) to main, then cleared all four documented follow-ups on
+`feat/premium-ui-followups`: (1) OnboardingStepper fully i18n'd (async server
+component, `vendorRole.onboarding.stepper.*`, browser-verified en+hi);
+(2) vendor dashboards browser-exercised with a real VENDOR session (qa-ven-01 +
+seeded leads/payouts/reviews rows in local dev) — found and fixed three
+data-only bugs: payouts `₹NaN` stats (web/API field-name drift
+`pending`→`pendingAmount`), raw `eventType` enum on lead rows (label map; added
+TILAK/SAGAN keys, fixed hi ENGAGEMENT "सगुन"→"सगाई"), and a 100%-hardcoded
+VendorReviewReply widget; (3) packages/post-marriage skeletons consolidated
+onto RouteSkeleton `mediaGrid`/`iconGrid` presets; (4) DB-seeded plan
+names/features localized via `apps/web/src/lib/plan-i18n.ts` (code/literal
+keyed, DB-string fallback) on pricing + billing + confirm, plus billing's stray
+English literals and 'en-IN' formatting. Debug find: a stale `sw.js` service
+worker served old client chunks — looked exactly like stale HMR, survived
+dev-server restart and `.next` wipe; fix is unregister SW + clear CacheStorage.
+Verification: forced type-check/lint 11/11, tests green, prod build green,
+Playwright 375px en+hi across 10+ views, zero console errors.
+See docs/premium-ui/phase6-summary.md (backlog section).
+
+### 2026-07-21/22 — Premium UI Phase 6: straggler-route sweep
 
 Cleared the phase-5 follow-up backlog on `feat/premium-ui-phase-6` with 5 Opus
 teammates in one wave + orchestrator repairs. Areas: pricing (fallback plans,

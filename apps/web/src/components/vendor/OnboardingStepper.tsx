@@ -3,6 +3,7 @@
  * Shared across all six wizard steps so the chrome stays identical.
  */
 import type { LucideIcon } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Check, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,30 +11,35 @@ import { cn } from '@/lib/utils';
 export type OnboardingStepKey =
   | 'business' | 'services' | 'portfolio' | 'availability' | 'bank' | 'review';
 
-const STEPS: { key: OnboardingStepKey; label: string }[] = [
-  { key: 'business', label: 'Business' },
-  { key: 'services', label: 'Services' },
-  { key: 'portfolio', label: 'Portfolio' },
-  { key: 'availability', label: 'Availability' },
-  { key: 'bank', label: 'Payouts' },
-  { key: 'review', label: 'Review' },
+const STEPS: OnboardingStepKey[] = [
+  'business', 'services', 'portfolio', 'availability', 'bank', 'review',
 ];
 
-export function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
-  const currentIdx = STEPS.findIndex((s) => s.key === current);
+export async function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
+  const t = await getTranslations('vendorRole.onboarding.stepper');
+  const tCommon = await getTranslations('common');
+  const stepLabels: Record<OnboardingStepKey, string> = {
+    business: t('steps.business'),
+    services: t('steps.services'),
+    portfolio: t('steps.portfolio'),
+    availability: t('steps.availability'),
+    bank: t('steps.bank'),
+    review: t('steps.review'),
+  };
+  const currentIdx = STEPS.indexOf(current);
   const pct = ((currentIdx + 1) / STEPS.length) * 100;
   const prevStep = currentIdx > 0 ? STEPS[currentIdx - 1] : undefined;
 
   return (
-    <nav aria-label="Onboarding progress" className="mb-6">
+    <nav aria-label={t('ariaLabel')} className="mb-6">
       <ol className="flex items-center gap-1 overflow-x-auto pb-1">
         {STEPS.map((step, i) => {
           const done = i < currentIdx;
           const active = i === currentIdx;
           return (
-            <li key={step.key} className="flex flex-1 items-center gap-1">
+            <li key={step} className="flex flex-1 items-center gap-1">
               <Link
-                href={`/vendor/onboarding/${step.key}`}
+                href={`/vendor/onboarding/${step}`}
                 aria-current={active ? 'step' : undefined}
                 className={cn(
                   'flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors sm:text-sm',
@@ -52,7 +58,7 @@ export function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
                 >
                   {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
                 </span>
-                <span className="truncate">{step.label}</span>
+                <span className="truncate">{stepLabels[step]}</span>
               </Link>
             </li>
           );
@@ -62,10 +68,10 @@ export function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
       <div className="mt-3 flex items-center gap-3">
         {prevStep ? (
           <Link
-            href={`/vendor/onboarding/${prevStep.key}`}
+            href={`/vendor/onboarding/${prevStep}`}
             className="inline-flex min-h-[44px] shrink-0 items-center gap-1 text-sm font-medium text-primary hover:text-primary/80"
           >
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> {tCommon('back')}
           </Link>
         ) : (
           <span />
@@ -75,7 +81,7 @@ export function OnboardingStepper({ current }: { current: OnboardingStepKey }) {
             <div className="h-full rounded-full bg-teal transition-all duration-300" style={{ width: `${pct}%` }} />
           </div>
           <span className="shrink-0 text-xs text-text-muted">
-            Step {currentIdx + 1} of {STEPS.length}
+            {t('stepCounter', { current: currentIdx + 1, total: STEPS.length })}
           </span>
         </div>
       </div>

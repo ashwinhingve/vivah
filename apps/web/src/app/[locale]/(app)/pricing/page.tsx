@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { localizePlanName, localizePlanFeatures } from '@/lib/plan-i18n';
 interface Plan {
   id:       string;
   code:     string;
@@ -76,14 +77,22 @@ function intlLocale(locale: string): string {
 
 export default async function PricingPage() {
   const t = await getTranslations('pricing');
+  const tCatalog = await getTranslations('planCatalog');
   const locale = await getLocale();
   const fetched = await fetchPlans();
 
-  // Hydrate fallback plans with i18n data (explicit literal-key maps — see FALLBACK_PLAN_KEYS)
-  const plans: Plan[] = fetched.length > 0 ? fetched : FALLBACK_PLANS_BASE.map(p => {
-    const keys = FALLBACK_PLAN_KEYS[p.name];
-    return { ...p, name: t(keys.name), features: keys.features.map(k => t(k)) };
-  });
+  // API plans carry English DB strings — localize via the code/literal maps in
+  // plan-i18n. Fallback plans hydrate from their own i18n keys (FALLBACK_PLAN_KEYS).
+  const plans: Plan[] = fetched.length > 0
+    ? fetched.map(p => ({
+        ...p,
+        name: localizePlanName(tCatalog, p.code, p.name),
+        features: localizePlanFeatures(tCatalog, p.features),
+      }))
+    : FALLBACK_PLANS_BASE.map(p => {
+        const keys = FALLBACK_PLAN_KEYS[p.name];
+        return { ...p, name: t(keys.name), features: keys.features.map(k => t(k)) };
+      });
 
   const dateLocale = intlLocale(locale);
 
