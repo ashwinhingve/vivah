@@ -34,20 +34,22 @@ describe('Match Utils', () => {
   });
 
   describe('getTierColor', () => {
-    it('returns green (#059669) for excellent tier', () => {
-      expect(getTierColor('excellent')).toBe('#059669');
+    // Returns a theme-palette key (resolved by the caller against light/dark),
+    // not a fixed hex — that's what keeps the tier badge correct in dark mode.
+    it('returns "success" for excellent tier', () => {
+      expect(getTierColor('excellent')).toBe('success');
     });
 
-    it('returns gold (#C5A47E) for good tier', () => {
-      expect(getTierColor('good')).toBe('#C5A47E');
+    it('returns "gold" for good tier', () => {
+      expect(getTierColor('good')).toBe('gold');
     });
 
-    it('returns warning amber (#D97706) for average tier', () => {
-      expect(getTierColor('average')).toBe('#D97706');
+    it('returns "warning" for average tier', () => {
+      expect(getTierColor('average')).toBe('warning');
     });
 
-    it('returns destructive red (#DC2626) for low tier', () => {
-      expect(getTierColor('low')).toBe('#DC2626');
+    it('returns "destructive" for low tier', () => {
+      expect(getTierColor('low')).toBe('destructive');
     });
   });
 

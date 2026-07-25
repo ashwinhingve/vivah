@@ -7,7 +7,8 @@ import { Button } from '../../components/Button';
 import { LoadingState, EmptyState } from '../../components/States';
 import { api } from '../../lib/api';
 import { useSession } from '../../hooks/useSession';
-import { tokens } from '../../theme/tokens';
+import { tokens, withAlpha } from '../../theme/tokens';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import {
   canUseBiometric,
   isBiometricEnabled,
@@ -17,6 +18,7 @@ import {
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { colors } = useThemeColors();
   const { data: session } = useSession();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -184,9 +186,9 @@ export default function SettingsScreen() {
               value={biometricEnabled && biometricAvailable}
               onValueChange={handleBiometricToggle}
               disabled={!biometricAvailable || !biometricCheckDone}
-              trackColor={{ false: '#d9d9d9', true: tokens.teal }}
+              trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
               thumbColor={
-                biometricEnabled && biometricAvailable ? tokens.primary : '#f4f3f4'
+                biometricEnabled && biometricAvailable ? colors.primary : colors.gold
               }
               testID="biometric-toggle"
             />
@@ -204,8 +206,8 @@ export default function SettingsScreen() {
             <Switch
               value={profile?.isActive || false}
               disabled={true}
-              trackColor={{ false: '#d9d9d9', true: tokens.teal }}
-              thumbColor={profile?.isActive ? tokens.primary : '#f4f3f4'}
+              trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
+              thumbColor={profile?.isActive ? colors.primary : colors.gold}
             />
           </View>
         </View>

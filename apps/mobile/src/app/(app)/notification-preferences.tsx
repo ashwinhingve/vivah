@@ -4,6 +4,7 @@ import type { NotificationPreferences } from '@smartshaadi/api-client';
 import { Screen } from '../../components/Screen';
 import { ErrorState, LoadingState } from '../../components/States';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { withAlpha } from '../../theme/tokens';
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -98,8 +99,8 @@ export default function NotificationPreferencesScreen() {
               <Switch
                 value={value}
                 onValueChange={(next) => update.mutate({ [channel.key]: next })}
-                trackColor={{ false: '#d9d9d9', true: colors.teal }}
-                thumbColor={value ? colors.primary : '#f4f3f4'}
+                trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
+                thumbColor={value ? colors.primary : colors.gold}
                 testID={`pref-${channel.key}`}
                 accessibilityLabel={channel.label}
               />
