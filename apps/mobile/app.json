@@ -46,8 +46,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9ebdf4da-cf8d-431f-b5c0-19e04bb32681"
+        "projectId": "403d8f3c-3f9a-4ab1-a2d4-2d100d443d66"
       }
-    }
+    },
+    "owner": "gulaabi-clean"
   }
 }
