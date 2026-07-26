@@ -16,7 +16,9 @@ import {
   ErrorState,
   LoadingState,
 } from '../../../components/States';
-import { tokens } from '../../../theme/tokens';
+import { tokens, withAlpha } from '../../../theme/tokens';
+import { useThemeColors } from '../../../hooks/useThemeColors';
+import { MEDIA_BASE_URL } from '../../../lib/env';
 import { useMatchFeed } from '../../../features/matches/hooks';
 import {
   formatCompatibilityScore,
@@ -38,6 +40,7 @@ import {
  */
 export default function MatchFeedScreen() {
   const router = useRouter();
+  const { colors } = useThemeColors();
   const {
     data,
     fetchNextPage,
@@ -93,7 +96,9 @@ export default function MatchFeedScreen() {
    * Render a single match card — tappable to navigate to detail.
    */
   const renderMatchCard = useCallback(
-    ({ item }: { item: typeof items[0] }) => (
+    ({ item }: { item: typeof items[0] }) => {
+      const tierColor = colors[getTierColor(item.compatibility.tier)];
+      return (
       <Pressable
         onPress={() => router.push(`/(app)/(matches)/${item.profileId}`)}
         className="mb-4 rounded-2xl bg-surface overflow-hidden"
@@ -103,7 +108,7 @@ export default function MatchFeedScreen() {
         <View className="h-48 bg-background overflow-hidden">
           {item.photoKey && !item.photoHidden ? (
             <Image
-              source={{ uri: `https://media.smartshaadi.co.in/${item.photoKey}` }}
+              source={{ uri: `${MEDIA_BASE_URL}/${item.photoKey}` }}
               className="w-full h-full"
               resizeMode="cover"
             />
@@ -152,11 +157,11 @@ export default function MatchFeedScreen() {
             <Text className="text-xs text-muted">Compatibility</Text>
             <View
               className="px-3 py-1 rounded-full"
-              style={{ backgroundColor: `${getTierColor(item.compatibility.tier)}20` }}
+              style={{ backgroundColor: withAlpha(tierColor, '20') }}
             >
               <Text
                 className="font-semibold text-sm"
-                style={{ color: getTierColor(item.compatibility.tier) }}
+                style={{ color: tierColor }}
               >
                 {formatCompatibilityScore(item.compatibility.totalScore)}
               </Text>
@@ -174,8 +179,9 @@ export default function MatchFeedScreen() {
           <Text className="text-xs text-teal text-center">Tap to view profile</Text>
         </View>
       </Pressable>
-    ),
-    [router],
+      );
+    },
+    [router, colors],
   );
 
   /**

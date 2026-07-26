@@ -15,7 +15,9 @@ import {
   LoadingState,
 } from '../../../components/States';
 import { Button } from '../../../components/Button';
-import { tokens } from '../../../theme/tokens';
+import { tokens, withAlpha } from '../../../theme/tokens';
+import { useThemeColors } from '../../../hooks/useThemeColors';
+import { MEDIA_BASE_URL } from '../../../lib/env';
 import {
   useShortlistFeed,
   useRemoveShortlist,
@@ -37,6 +39,7 @@ import {
  */
 export default function ShortlistScreen() {
   const router = useRouter();
+  const { colors } = useThemeColors();
   const {
     data,
     fetchNextPage,
@@ -94,7 +97,7 @@ export default function ShortlistScreen() {
             {item.photoKey && !item.photoHidden ? (
               <Image
                 source={{
-                  uri: `https://media.smartshaadi.co.in/${item.photoKey}`,
+                  uri: `${MEDIA_BASE_URL}/${item.photoKey}`,
                 }}
                 className="w-full h-full"
                 resizeMode="cover"
@@ -120,12 +123,15 @@ export default function ShortlistScreen() {
                 <View
                   className="px-2 py-1 rounded-full"
                   style={{
-                    backgroundColor: `${getTierColor(item.compatibility.tier)}20`,
+                    backgroundColor: withAlpha(
+                      colors[getTierColor(item.compatibility.tier)],
+                      '20',
+                    ),
                   }}
                 >
                   <Text
                     className="text-xs font-semibold"
-                    style={{ color: getTierColor(item.compatibility.tier) }}
+                    style={{ color: colors[getTierColor(item.compatibility.tier)] }}
                   >
                     {formatCompatibilityScore(item.compatibility.totalScore)}
                   </Text>
@@ -151,7 +157,7 @@ export default function ShortlistScreen() {
         </View>
       </View>
     ),
-    [router, removeShortlistMutation.isPending, handleRemove],
+    [router, removeShortlistMutation.isPending, handleRemove, colors],
   );
 
   if (isLoading) {

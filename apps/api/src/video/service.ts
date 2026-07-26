@@ -15,7 +15,7 @@ import { Chat }            from '../infrastructure/mongo/models/Chat.js';
 import { getIO }           from '../chat/socket/index.js';
 import { queueNotification, queueDelayedNotification } from '../infrastructure/redis/queues.js';
 import { profiles, matchRequests, virtualDates } from '@smartshaadi/db';
-import { eq, or, and, desc } from 'drizzle-orm';
+import { eq, or, and, desc, lt, isNull, inArray } from 'drizzle-orm';
 import { isValidIcebreakerKey } from './icebreakers.js';
 import { resolveTimezone, formatInZone, overlapHours } from '../lib/timezone.js';
 import {
@@ -216,6 +216,117 @@ function toVirtualDate(row: VirtualDateRow): VirtualDate {
     createdAt:        iso(row.createdAt)!,
     updatedAt:        iso(row.updatedAt)!,
   };
+}
+
+/**
+ * Stamp a created room's name onto the nearest upcoming CONFIRMED virtual-date
+ * row for a match (best-effort). Called when a live video room is created so the
+ * durable record reflects that the date's room was actually opened.
+ *
+ * Targets the most recent CONFIRMED row for the match that has no room yet — a
+ * match has at most one live confirmed date at a time in practice. No-op if none.
+ */
+async function linkRoomToVirtualDate(matchId: string, roomName: string): Promise<void> {
+  const rows = await db
+    .select({ id: virtualDates.id })
+    .from(virtualDates)
+    .where(and(
+      eq(virtualDates.matchId, matchId),
+      eq(virtualDates.status, 'CONFIRMED'),
+      isNull(virtualDates.roomName),
+    ))
+    .orderBy(desc(virtualDates.scheduledAt))
+    .limit(1);
+
+  const target = rows[0];
+  if (!target) return;
+
+  await db.update(virtualDates)
+    .set({ roomName, updatedAt: new Date() })
+    .where(eq(virtualDates.id, target.id));
+}
+
+// ── Lifecycle sweep (hardening) ───────────────────────────────────────────────
+//
+// Without this, a durable virtual_dates row never reaches a terminal state on
+// its own: a PROPOSED date nobody answers sits PROPOSED forever (its Redis
+// proposal quietly expires via TTL), and a CONFIRMED date nobody joins/rates
+// sits CONFIRMED forever. This sweep closes both, and is the only writer of the
+// NO_SHOW status. Pure status transitions on already-past dates — no user
+// messaging — so it is safe to run pre-launch (same posture as tokenCleanup).
+
+/** A PROPOSED date this long past its start with no response is treated as expired. */
+const PROPOSED_EXPIRY_GRACE_MS = 15 * 60 * 1000;   // 15 min
+/** A CONFIRMED date whose end + this grace passed with zero ratings is a NO_SHOW. */
+const NO_SHOW_GRACE_MS         = 60 * 60 * 1000;    // 1 h
+
+export interface VirtualDateSweepResult {
+  /** Stale PROPOSED rows transitioned to CANCELLED (nobody ever responded). */
+  expired: number;
+  /** CONFIRMED rows transitioned to NO_SHOW (ended, neither side rated). */
+  noShow:  number;
+}
+
+/**
+ * Advance stalled virtual dates to their terminal states. Exported for the
+ * BullMQ worker and for unit testing without the queue wrapper.
+ *
+ *  1. PROPOSED  &  scheduledAt < now − 15m               → CANCELLED (expired)
+ *  2. CONFIRMED &  scheduledAt + durationMin + 1h < now
+ *               &  neither participant rated             → NO_SHOW
+ *
+ * A CONFIRMED date where at least one side rated is left untouched — someone
+ * showed up; it either completes via the second rating or lingers as a
+ * one-sided record, which is a truer signal than NO_SHOW.
+ */
+export async function sweepVirtualDateLifecycle(
+  now: Date = new Date(),
+): Promise<VirtualDateSweepResult> {
+  // 1. Expire unanswered proposals.
+  const expiredCutoff = new Date(now.getTime() - PROPOSED_EXPIRY_GRACE_MS);
+  const expiredRows = await db.update(virtualDates)
+    .set({ status: 'CANCELLED', updatedAt: now })
+    .where(and(
+      eq(virtualDates.status, 'PROPOSED'),
+      lt(virtualDates.scheduledAt, expiredCutoff),
+    ))
+    .returning({ id: virtualDates.id });
+
+  // 2. NO_SHOW confirmed dates that ended with no feedback from either side.
+  //    Pre-filter on scheduledAt (a coarse but correct superset: end =
+  //    scheduledAt + duration + grace, and duration ≥ 0, so any due row has
+  //    scheduledAt < now − grace), then refine per-row with the real duration.
+  const confirmedCutoff = new Date(now.getTime() - NO_SHOW_GRACE_MS);
+  const candidates = await db.select({
+      id:          virtualDates.id,
+      scheduledAt: virtualDates.scheduledAt,
+      durationMin: virtualDates.durationMin,
+    })
+    .from(virtualDates)
+    .where(and(
+      eq(virtualDates.status, 'CONFIRMED'),
+      isNull(virtualDates.proposerRating),
+      isNull(virtualDates.inviteeRating),
+      lt(virtualDates.scheduledAt, confirmedCutoff),
+    ));
+
+  const dueIds = candidates
+    .filter((c) => {
+      const endMs = new Date(c.scheduledAt).getTime() + c.durationMin * 60_000;
+      return endMs + NO_SHOW_GRACE_MS <= now.getTime();
+    })
+    .map((c) => c.id);
+
+  let noShow = 0;
+  if (dueIds.length > 0) {
+    const noShowRows = await db.update(virtualDates)
+      .set({ status: 'NO_SHOW', updatedAt: now })
+      .where(inArray(virtualDates.id, dueIds))
+      .returning({ id: virtualDates.id });
+    noShow = noShowRows.length;
+  }
+
+  return { expired: expiredRows.length, noShow };
 }
 
 /**
@@ -438,6 +549,13 @@ export async function createVideoRoom(
     input.matchId,
     `Video call started — join: ${room.url}`,
   );
+
+  // Link the live room back to the durable virtual-date row (best-effort).
+  // Stamps roomName onto the nearest upcoming CONFIRMED date for this match so
+  // the durable history records that a room was actually opened — and the
+  // lifecycle sweep can distinguish "room opened, no feedback" from a true
+  // NO_SHOW. Never blocks the call flow (same posture as appendSystemMessage).
+  await linkRoomToVirtualDate(input.matchId, room.name).catch(() => { /* non-fatal */ });
 
   const io = getIO();
   if (io) {

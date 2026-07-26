@@ -12,7 +12,8 @@ import {
   LoadingState,
 } from '../../../components/States';
 import { Button } from '../../../components/Button';
-import { tokens } from '../../../theme/tokens';
+import { useThemeColors } from '../../../hooks/useThemeColors';
+import type { ThemeColors } from '../../../theme/tokens';
 import {
   useReceivedRequests,
   useSentRequests,
@@ -23,20 +24,20 @@ import {
 type Tab = 'received' | 'sent';
 
 /**
- * Get color for request status badge.
+ * Color for a request status badge, resolved against the active theme palette.
  */
-function getStatusColor(status: string): string {
+function getStatusColor(status: string, colors: ThemeColors): string {
   switch (status) {
     case 'ACCEPTED':
-      return tokens.success;
+      return colors.success;
     case 'PENDING':
-      return tokens.warning;
+      return colors.warning;
     case 'DECLINED':
     case 'WITHDRAWN':
     case 'BLOCKED':
-      return tokens.destructive;
+      return colors.destructive;
     default:
-      return tokens.muted;
+      return colors.muted;
   }
 }
 
@@ -48,6 +49,7 @@ function getStatusColor(status: string): string {
  * Sent requests: Show status (pending, accepted, declined, etc.)
  */
 export default function MatchRequestsScreen() {
+  const { colors } = useThemeColors();
   const [activeTab, setActiveTab] = useState<Tab>('received');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -117,7 +119,7 @@ export default function MatchRequestsScreen() {
 
         {/* Status Badge */}
         <View className="mb-4 px-3 py-2 bg-background rounded-lg self-start">
-          <Text className="text-xs font-semibold" style={{ color: getStatusColor(item.status) }}>
+          <Text className="text-xs font-semibold" style={{ color: getStatusColor(item.status, colors) }}>
             {item.status}
           </Text>
         </View>
@@ -154,7 +156,7 @@ export default function MatchRequestsScreen() {
         )}
       </View>
     ),
-    [activeTab, handleAccept, handleDecline, acceptMutation.isPending, declineMutation.isPending],
+    [activeTab, handleAccept, handleDecline, acceptMutation.isPending, declineMutation.isPending, colors],
   );
 
   /**
@@ -172,14 +174,14 @@ export default function MatchRequestsScreen() {
           className="flex-1 py-2 rounded-md items-center justify-center"
           style={{
             backgroundColor:
-              activeTab === tab ? tokens.primary : 'transparent',
+              activeTab === tab ? colors.primary : 'transparent',
           }}
         >
           <Text
             className="font-semibold capitalize"
             style={{
               color:
-                activeTab === tab ? '#FFFFFF' : tokens.ink,
+                activeTab === tab ? colors.onPrimary : colors.ink,
             }}
           >
             {tab}

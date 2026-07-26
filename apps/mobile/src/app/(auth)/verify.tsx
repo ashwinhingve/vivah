@@ -159,8 +159,8 @@ export default function VerifyScreen() {
       </View>
 
       {/* Info Note */}
-      <InfoNote variant="info" title="Mock mode" className="mt-8">
-        The OTP code is the configured MOCK_OTP_VALUE environment variable.
+      <InfoNote variant="info" title="Test build" className="mt-8">
+        No real SMS is sent in this test build. Enter the test OTP code shared with you.
       </InfoNote>
     </Screen>
   );

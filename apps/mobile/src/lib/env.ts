@@ -6,3 +6,12 @@
  */
 
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
+
+/**
+ * Base URL for user-uploaded media (profile photos), served from the Cloudflare
+ * R2 bucket behind this CDN host. Photo keys are appended directly:
+ * `${MEDIA_BASE_URL}/${photoKey}`. Baked in at build time via eas.json so a
+ * release APK points at production, not a placeholder.
+ */
+export const MEDIA_BASE_URL =
+  process.env.EXPO_PUBLIC_MEDIA_URL ?? 'https://media.smartshaadi.co.in';

@@ -114,6 +114,10 @@ import {
   scheduleChurnRecoverySweepJob,
 } from './jobs/churnRecoverySweepJob.js'; // Phase 7 Sprint F (Unit 7.3)
 import {
+  registerVirtualDateLifecycleWorker,
+  scheduleVirtualDateLifecycleJob,
+} from './jobs/virtualDateLifecycleJob.js'; // Phase 7 Sprint F hardening (virtual-date lifecycle)
+import {
   registerWeddingReminderWorker,
   scheduleWeddingReminderJob,
 } from './jobs/weddingReminderJob.js';
@@ -639,6 +643,8 @@ async function bootstrap(): Promise<void> {
     workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
     workers.push(registerChurnRecoverySweepWorker()); // Phase 7 Sprint F — churn recovery sweep
     void scheduleChurnRecoverySweepJob();
+    workers.push(registerVirtualDateLifecycleWorker()); // Phase 7 Sprint F hardening — virtual-date lifecycle sweep
+    void scheduleVirtualDateLifecycleJob();
     workers.push(registerMarketingSweepWorker()); // Phase 6 Sprint J — campaign sweep + attribution
     void scheduleMarketingSweepJob();
     workers.push(registerMarketingEventWorker()); // Phase 6 Sprint J — event-triggered campaigns

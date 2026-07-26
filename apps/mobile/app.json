@@ -46,8 +46,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9ebdf4da-cf8d-431f-b5c0-19e04bb32681"
+        "projectId": "b291b6cf-78d5-4006-a81c-603784b01a25"
       }
-    }
+    },
+    "owner": "gulaabi-cleans-team"
   }
 }

@@ -48,14 +48,20 @@ vi.mock('../../lib/db.js', () => ({
 vi.mock('@smartshaadi/db', () => ({
   profiles:      {},
   matchRequests: {},
-  virtualDates:  { id: {}, matchId: {}, status: {}, scheduledAt: {} },
+  virtualDates:  {
+    id: {}, matchId: {}, status: {}, scheduledAt: {}, durationMin: {},
+    roomName: {}, proposerRating: {}, inviteeRating: {},
+  },
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:   vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and:  vi.fn((...args: unknown[]) => ({ type: 'and', args })),
-  or:   vi.fn((...args: unknown[]) => ({ type: 'or', args })),
-  desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  eq:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:     vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  or:      vi.fn((...args: unknown[]) => ({ type: 'or', args })),
+  desc:    vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  lt:      vi.fn((_col: unknown, _val: unknown) => ({ type: 'lt', _col, _val })),
+  isNull:  vi.fn((_col: unknown) => ({ type: 'isNull', _col })),
+  inArray: vi.fn((_col: unknown, _vals: unknown) => ({ type: 'inArray', _col, _vals })),
 }));
 
 vi.mock('../../lib/env.js', () => ({
@@ -123,6 +129,16 @@ function makeSelectOrderBy(rows: Row[]) {
   };
 }
 
+/** select().from().where().orderBy().limit() → rows (used by linkRoomToVirtualDate). */
+function makeSelectOrderByLimit(rows: Row[]) {
+  return {
+    from:    vi.fn().mockReturnThis(),
+    where:   vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
+    limit:   vi.fn().mockResolvedValue(rows),
+  };
+}
+
 /** insert().values() → resolves (durable virtual_dates shadow row). */
 function makeInsertChain() {
   return { values: vi.fn().mockResolvedValue(undefined) };
@@ -175,6 +191,7 @@ import {
   getActiveRoom,
   submitDateFeedback,
   listVirtualDates,
+  sweepVirtualDateLifecycle,
 } from '../service.js';
 import { invalidateProfileIdCache } from '../../lib/profile.js';
 
@@ -764,5 +781,95 @@ describe('listVirtualDates', () => {
     expect(dates[0]!.id).toBe('d1');
     expect(typeof dates[0]!.scheduledAt).toBe('string');
     expect(dates[0]!.status).toBe('COMPLETED');
+  });
+});
+
+// ── roomName linkage (hardening) ──────────────────────────────────────────────
+
+describe('createVideoRoom — durable roomName linkage', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('stamps the created room name onto the match\'s CONFIRMED virtual_dates row', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))       // resolveProfileId
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]))       // assertParticipant
+      .mockReturnValueOnce(makeSelectOrderByLimit([{ id: MEETING_ID }])); // link target
+    mockRedisGet.mockResolvedValue(null);
+    mockCreateRoom.mockResolvedValue(mockDailyRoom);
+    mockRedisSet.mockResolvedValue('OK');
+    mockChatFindOneAndUpdate.mockResolvedValue(null);
+    const updateChain = makeUpdateChain();
+    mockUpdate.mockReturnValue(updateChain);
+
+    await createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 });
+
+    // The durable CONFIRMED row is updated with the live room's name.
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
+    const setArg = updateChain.set.mock.calls[0]![0] as Record<string, unknown>;
+    expect(setArg.roomName).toBe(mockDailyRoom.name);
+  });
+
+  it('is non-fatal when no CONFIRMED date exists to link (call still succeeds)', async () => {
+    mockSelect
+      .mockReturnValueOnce(makeSelectChain([profileRow]))
+      .mockReturnValueOnce(makeSelectNoLimit([matchRow]))
+      .mockReturnValueOnce(makeSelectOrderByLimit([]));   // no linkable row
+    mockRedisGet.mockResolvedValue(null);
+    mockCreateRoom.mockResolvedValue(mockDailyRoom);
+    mockRedisSet.mockResolvedValue('OK');
+    mockChatFindOneAndUpdate.mockResolvedValue(null);
+    mockUpdate.mockReturnValue(makeUpdateChain());
+
+    const result = await createVideoRoom(USER_ID, { matchId: MATCH_ID, durationMin: 60 });
+
+    expect(result.roomUrl).toContain('mock-room');
+    expect(mockUpdate).not.toHaveBeenCalled();  // nothing to update
+  });
+});
+
+// ── Lifecycle sweep (hardening) ───────────────────────────────────────────────
+
+describe('sweepVirtualDateLifecycle', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  const HOUR = 60 * 60 * 1000;
+
+  it('expires stale PROPOSED dates and NO_SHOWs ended CONFIRMED dates with no ratings', async () => {
+    const now = new Date(NOW);
+
+    // Expiry update returns 2 stale-proposal rows.
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([{ id: 'p1' }, { id: 'p2' }]));
+
+    // CONFIRMED candidates: one truly ended (due), one that ended too recently (not due).
+    const dueRow    = { id: 'due-1',    scheduledAt: new Date(NOW - 3 * HOUR),  durationMin: 30 }; // ended ~2.5h ago
+    const notDueRow = { id: 'notdue-1', scheduledAt: new Date(NOW - 65 * 60_000), durationMin: 30 }; // ends in +25m after grace
+    mockSelect.mockReturnValueOnce(makeSelectNoLimit([dueRow, notDueRow]));
+
+    // NO_SHOW update returns just the due row.
+    const noShowChain = makeUpdateChain([{ id: 'due-1' }]);
+    mockUpdate.mockReturnValueOnce(noShowChain);
+
+    const result = await sweepVirtualDateLifecycle(now);
+
+    expect(result.expired).toBe(2);
+    expect(result.noShow).toBe(1);
+    // Two updates total: expiry + no-show.
+    expect(mockUpdate).toHaveBeenCalledTimes(2);
+    // The no-show update sets status NO_SHOW.
+    const noShowSet = noShowChain.set.mock.calls[0]![0] as Record<string, unknown>;
+    expect(noShowSet.status).toBe('NO_SHOW');
+  });
+
+  it('does not run the NO_SHOW update when no CONFIRMED date is due', async () => {
+    const now = new Date(NOW);
+    mockUpdate.mockReturnValueOnce(makeUpdateChain([]));   // no proposals expired
+    mockSelect.mockReturnValueOnce(makeSelectNoLimit([])); // no confirmed candidates
+
+    const result = await sweepVirtualDateLifecycle(now);
+
+    expect(result.expired).toBe(0);
+    expect(result.noShow).toBe(0);
+    // Only the expiry update ran; no second update for an empty due-set.
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
   });
 });
