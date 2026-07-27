@@ -15,7 +15,7 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { createHash } from 'node:crypto';
+import { auditContentHash } from '../lib/auditHash.js';
 import { eq, desc } from 'drizzle-orm';
 import { authenticate, authorize } from '../auth/middleware.js';
 import { ok, err } from '../lib/response.js';
@@ -26,12 +26,6 @@ import {
   listPlatformSettings,
   setPlatformSetting,
 } from '../services/platformSettingsService.js';
-
-function hashChain(payload: unknown, prevHash: string | null): string {
-  return createHash('sha256')
-    .update(JSON.stringify(payload) + (prevHash ?? ''))
-    .digest('hex');
-}
 
 export const platformSettingsRouter = Router();
 
@@ -121,7 +115,7 @@ platformSettingsRouter.patch(
         .limit(1);
       const prevHash = lastLog?.contentHash ?? null;
       const payload = { key, value };
-      const contentHash = hashChain(payload, prevHash);
+      const contentHash = auditContentHash(payload, prevHash);
       await db.insert(auditLogs).values({
         eventType: 'PLATFORM_SETTING_CHANGED',
         entityType: 'platform_setting',

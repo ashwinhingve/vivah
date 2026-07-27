@@ -7,8 +7,7 @@
  *  - audit_logs are APPEND-ONLY — never UPDATE or DELETE
  *  - USE_MOCK_SERVICES guard on all external calls (enforced by razorpay.ts)
  */
-import { createHash } from 'crypto';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, notInArray } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import {
@@ -16,20 +15,14 @@ import {
   createRefund,
 } from '../lib/razorpay.js';
 import { rupeesToPaise } from '../lib/money.js';
+import { auditContentHash } from '../lib/auditHash.js';
 import type { PaymentOrder } from '@smartshaadi/types';
 import type { CreatePaymentInput, RefundInput } from '@smartshaadi/schemas';
 
 // ---------------------------------------------------------------------------
-// Hash utility — required for audit_logs.contentHash (NOT NULL)
-// ---------------------------------------------------------------------------
-function computeHash(payload: unknown, prevHash: string | null): string {
-  return createHash('sha256')
-    .update(JSON.stringify(payload) + (prevHash ?? ''))
-    .digest('hex');
-}
-
-// ---------------------------------------------------------------------------
-// Audit log helper — append-only, never update
+// Audit log helper — append-only, never update. Hash via the shared canonical
+// helper (lib/auditHash) so write-time and verify-time hashes agree across the
+// jsonb round-trip (P2-1) and never drift between copies (P2-6).
 // ---------------------------------------------------------------------------
 async function appendAuditLog({
   eventType,
@@ -52,7 +45,7 @@ async function appendAuditLog({
     .orderBy(desc(schema.auditLogs.createdAt))
     .limit(1);
   const prevHash = lastLog?.contentHash ?? null;
-  const contentHash = computeHash(payload, prevHash);
+  const contentHash = auditContentHash(payload, prevHash);
   await db.insert(schema.auditLogs).values({
     eventType,
     entityType,
@@ -232,16 +225,50 @@ export async function requestRefund(
     throw new Error('Payment has no Razorpay payment ID — cannot refund');
   }
 
-  // 2. Call Razorpay refund — Razorpay expects paise
-  await createRefund(payment.razorpayPaymentId, rupeesToPaise(parseFloat(payment.amount)));
+  // 2. Claim the refund atomically BEFORE calling Razorpay (P1-S2). Flip the payment
+  //    to REFUND_PENDING only if it is not already refunded / in progress / failed —
+  //    the status guard means only one of two concurrent requests wins (0 rows =
+  //    already claimed → reject), so Razorpay is never called twice for one payment.
+  //    Replaces the previous Razorpay-first, unguarded UPDATE that relied entirely on
+  //    Razorpay's refundable-amount cap to prevent a double refund.
+  const claimed = await db
+    .update(schema.payments)
+    .set({ status: 'REFUND_PENDING' })
+    .where(and(
+      eq(schema.payments.id, payment.id),
+      notInArray(schema.payments.status, ['REFUNDED', 'REFUND_PENDING', 'FAILED']),
+    ))
+    .returning({ id: schema.payments.id });
 
-  // 3. Update payment status → REFUNDED
+  if (claimed.length === 0) {
+    throw new Error('Payment is not in a refundable state (already refunded or a refund is in progress)');
+  }
+
+  // 3. Call Razorpay with a deterministic idempotency key (razorpay.ts A2-03) so a
+  //    retried lost-response call is deduped. On failure, revert the claim so the
+  //    user can retry — the key keeps a duplicate Razorpay call safe.
+  try {
+    await createRefund(
+      payment.razorpayPaymentId,
+      rupeesToPaise(parseFloat(payment.amount)),
+      undefined,
+      `refund:${payment.id}`,
+    );
+  } catch (e) {
+    await db
+      .update(schema.payments)
+      .set({ status: payment.status })
+      .where(and(eq(schema.payments.id, payment.id), eq(schema.payments.status, 'REFUND_PENDING')));
+    throw e;
+  }
+
+  // 4. Finalise REFUND_PENDING → REFUNDED.
   await db
     .update(schema.payments)
     .set({ status: 'REFUNDED' })
-    .where(eq(schema.payments.id, payment.id));
+    .where(and(eq(schema.payments.id, payment.id), eq(schema.payments.status, 'REFUND_PENDING')));
 
-  // 4. Append audit log (NEVER update)
+  // 5. Append audit log (NEVER update)
   const auditPayload = { paymentId: payment.id, amount: payment.amount, refunded: true };
   await appendAuditLog({
     eventType:  'REFUND_ISSUED',
@@ -455,5 +482,5 @@ export async function retryPaymentOrder(userId: string, bookingId: string): Prom
   return createPaymentOrder(userId, { bookingId });
 }
 
-// Export for escrow job
-export { computeHash, appendAuditLog };
+// Export for escrow job. (Hashing now lives in lib/auditHash → auditContentHash.)
+export { appendAuditLog };

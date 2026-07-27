@@ -1147,14 +1147,19 @@ aiRouter.get(
       return;
     }
 
-    // Verify profile exists
+    // Verify profile exists AND is owned by the caller (P1-S1: this endpoint
+    // selected profiles.userId but never checked it, so any authenticated user could
+    // read any profile's FII score by supplying a profileId from their match feed.
+    // Enforce owner-or-ADMIN like the sibling optimizer/readiness endpoints; return
+    // 404 (not 403) so a non-owner cannot probe ownership of a feed-handed profileId.)
     const [profileRow] = await db
       .select({ id: profiles.id, userId: profiles.userId, familyInclinationScore: profiles.familyInclinationScore })
       .from(profiles)
       .where(eq(profiles.id, safeProfileId))
       .limit(1);
 
-    if (!profileRow) {
+    const isAdmin = req.user!.role === 'ADMIN';
+    if (!profileRow || (profileRow.userId !== userId && !isAdmin)) {
       err(res, 'PROFILE_NOT_FOUND', 'Profile not found', 404);
       return;
     }

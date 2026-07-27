@@ -319,9 +319,17 @@ export async function sweepVirtualDateLifecycle(
 
   let noShow = 0;
   if (dueIds.length > 0) {
+    // P2-3: re-assert CONFIRMED + un-rated in the UPDATE itself. Without this, a date
+    // that was rated/completed between the SELECT above and this UPDATE would be wrongly
+    // flipped to NO_SHOW — the sweep must be the "first writer" of that status.
     const noShowRows = await db.update(virtualDates)
       .set({ status: 'NO_SHOW', updatedAt: now })
-      .where(inArray(virtualDates.id, dueIds))
+      .where(and(
+        inArray(virtualDates.id, dueIds),
+        eq(virtualDates.status, 'CONFIRMED'),
+        isNull(virtualDates.proposerRating),
+        isNull(virtualDates.inviteeRating),
+      ))
       .returning({ id: virtualDates.id });
     noShow = noShowRows.length;
   }
