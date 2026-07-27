@@ -53,7 +53,7 @@ describe('Reports Module', () => {
     describe('formatRupees', () => {
       it('should format rupee amounts with 2 decimal places', () => {
         expect(formatRupees(100)).toBe('Rs. 100.00');
-        expect(formatRupees(1000)).toBe('Rs. 1000.00');
+        expect(formatRupees(1000)).toBe('Rs. 1,000.00'); // A2-07: lakh/crore grouping
         expect(formatRupees(0.5)).toBe('Rs. 0.50');
         expect(formatRupees(99.99)).toBe('Rs. 99.99');
       });

@@ -46,8 +46,11 @@ vi.mock('../service.js', () => ({
 }));
 
 interface WalletRow { id: string; userId: string; balance: string; lifetimeIn: string; lifetimeOut: string; isActive: boolean; }
-const walletState: { row: WalletRow } = {
+// `updateResult` models the atomic `UPDATE … RETURNING` (A2-04): an empty array
+// simulates the conditional debit WHERE `balance >= amount` matching zero rows.
+const walletState: { row: WalletRow; updateResult: Array<{ balance: string }> } = {
   row: { id: 'w-1', userId: 'u-1', balance: '0', lifetimeIn: '0', lifetimeOut: '0', isActive: true },
+  updateResult: [{ balance: '0' }],
 };
 
 vi.mock('../../lib/db.js', () => {
@@ -56,6 +59,7 @@ vi.mock('../../lib/db.js', () => {
     where: vi.fn().mockReturnThis(),
     limit: vi.fn().mockResolvedValue([walletState.row]),
     orderBy: vi.fn().mockReturnThis(),
+    for:   vi.fn().mockResolvedValue([walletState.row]),
   });
   const tx = {
     select: vi.fn().mockImplementation(buildSelectChain),
@@ -66,8 +70,11 @@ vi.mock('../../lib/db.js', () => {
       }),
     }),
     update: vi.fn().mockReturnValue({
-      set:   vi.fn().mockReturnThis(),
-      where: vi.fn().mockResolvedValue([]),
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockImplementation(async () => walletState.updateResult),
+        }),
+      }),
     }),
   };
   return {
@@ -81,6 +88,7 @@ vi.mock('../../lib/db.js', () => {
 beforeEach(() => {
   vi.clearAllMocks();
   walletState.row = { id: 'w-1', userId: 'u-1', balance: '0', lifetimeIn: '0', lifetimeOut: '0', isActive: true };
+  walletState.updateResult = [{ balance: '0' }];
 });
 
 describe('wallet service', () => {
@@ -94,6 +102,7 @@ describe('wallet service', () => {
 
   it('debitWallet rejects when balance is too low', async () => {
     walletState.row.balance = '20';
+    walletState.updateResult = []; // atomic `WHERE balance >= amount` matches 0 rows
     const { debitWallet, WalletError } = await import('../wallet.js');
     await expect(debitWallet({ userId: 'u-1', amount: 100, reason: 'PAYMENT' }))
       .rejects.toThrow(WalletError);

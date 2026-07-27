@@ -12,6 +12,7 @@
 import { eq, and, sql, desc, gte, lte } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
+import { computeGst } from '../lib/gst.js';
 import * as schema from '@smartshaadi/db';
 import { appendAuditLog } from './service.js';
 import { notificationsQueue } from '../infrastructure/redis/queues.js';
@@ -61,13 +62,10 @@ async function nextInvoiceNumber(now: Date): Promise<{ invoiceNo: string; financ
 }
 
 function computeTax(taxableValue: number, customerState: string | null, taxRate = 18) {
-  const isIntraState = !customerState || customerState.toLowerCase() === PLATFORM_STATE.toLowerCase();
-  const totalTax     = Math.round(taxableValue * taxRate) / 100;
-  if (isIntraState) {
-    const half = Math.round(totalTax * 50) / 100;
-    return { cgst: half, sgst: totalTax - half, igst: 0, totalTax };
-  }
-  return { cgst: 0, sgst: 0, igst: totalTax, totalTax };
+  // A2-06: delegate to the shared GST helper so this (persisted) invoice and the
+  // printed B2B invoice cannot drift. Map `total` → `totalTax` for existing callers.
+  const g = computeGst(taxableValue, customerState, PLATFORM_STATE, taxRate);
+  return { cgst: g.cgst, sgst: g.sgst, igst: g.igst, totalTax: g.total };
 }
 
 export interface IssueInvoiceInput {
