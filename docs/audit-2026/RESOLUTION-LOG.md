@@ -1,0 +1,45 @@
+# Smart Shaadi — Audit Resolution Log
+
+> Fix pass for `AUDIT-TRIAGE-AND-FIX-PLAN.md` (PASS-0…PASS-5). Branch:
+> `fix/audit-2026-batches`. One row per resolved item: root cause → fix →
+> verification evidence → commit. Regression baseline (frozen): API 1388 ·
+> ai-service 452 · web 24 · mobile 208 · Playwright 7/23.
+
+| Item | Sev | Root cause | Fix | Verification | Commit |
+|---|---|---|---|---|---|
+| P1-001 | P1 | 4 sklearn bundles loaded via bare `joblib.load()`; exists()-only fallback never regenerates a present-but-incompatible `.pkl`; unbounded `numpy>=2.0` | `_load_or_retrain()` try/except → retrain-and-reload in dpi/faq/reputation/stay; pins capped `numpy<3`, `scikit-learn<2`, `joblib<2` | pytest 452 (unchanged); all 4 diffs reviewed | `c85d12f` |
+| A4-06 | P2 | FastAPI OpenAPI `title="VivahOS AI Service"` brand leak | → `"Smart Shaadi AI Service"` | grep confirms no VivahOS in ai-service; pytest 452 | `c85d12f` |
+| A4-01 | P0 | Booking invoice PDF branded "VivahOS" / footer "Powered by VivahOS" / dispute `support@vivah.os` (non-existent domain) | Header→"Smart Shaadi", footer→"Smart Shaadi — National Marriage Ecosystem", dispute→`support@smartshaadi.co.in` | Rendered real PDF; header/footer/contact confirmed via pdftotext; api type-check exit 0 | `730cd6d` |
+| A2-02 | P1 | `formatInr` emitted `₹` (U+20B9) into default-Helvetica PDFKit → black box on customer invoice | `formatInr` now emits grouped ASCII `Rs. 1,25,000.00`, never the glyph | `pdftotext -layout \| grep ■` → empty on rendered invoice | `730cd6d` |
+| U1 | P1 | MatchCard name/city white text unreadable on photo-less (fallback) cards | Branch overlay on `hasPhoto`: white-on-gradient w/ photo, `text-text`/`text-muted` on fallback | web type-check/lint/test pass; browser QA pending | `bde0c8c` |
+| U2 | P1 | `/vendor-dashboard/orders` tabs built key `tab${VALUE}` (tabALL) vs catalog camelCase (tabAll) → raw keys shown | Normalize key case in `t()` call | Keys confirmed present in en.json + hi.json; type-check pass | `bde0c8c` |
+| U3 | P1 | `/profile/personal` dob + 6 selects had no programmatic label | Added `id` + `htmlFor` on all 7 controls | type-check/lint pass; browser QA pending | `bde0c8c` |
+| A3-01 | P1 | Presigned R2 URLs rendered via `next/image` (expiry + optimizer defeats presigning) | Detect presigned (X-Amz-Signature/Expires) → plain `<img>`; next/image for other hosts | type-check/lint pass; browser QA pending | `bde0c8c` |
+| A2-08 | P2 | Web currency mapped CAD/AUD/SGD to native locales (ambiguous `$`) + blind `$→US$` ascii replace (mislabels CAD) | Mirror API: en-US + currency-keyed ASCII prefixes (CA$/A$/SGD) | web type-check + 24 tests pass | `bde0c8c` |
+| A2-01 | P1 | Mobile `billing.tsx` divided rupee `plan.amount` by 100 (₹499→₹5); unit test masked it with a paise mock | Drop `/100`; fix test mock 49900→499; correct api-client doc | mobile billing test 3/3 pass; API return unit re-traced (rupees) | `93d59f9` |
+| A2-03 | P1 | Razorpay SDK v2.9.6 strips non-allowlisted headers → cannot send `X-Razorpay-Idempotency-Key`; a retried lost/5xx response re-executed refund/transfer | `razorpayPost` raw-REST path sends the key; money-out calls route through it when a deterministic key is supplied (reused across retries → Razorpay dedupes). Caller threading in Batch 3 | api type-check; razorpayIdempotency test 3/3 | `ab94110` |
+| A2-04 | P2 | Wallet credit/debit float read-modify-write, no lock → lost update | Atomic SQL `balance = balance ± amount`; debit guard `balance >= amount` in the same UPDATE WHERE | wallet test 3/3 (mock models RETURNING) | `ab94110` |
+| A2-05 | P2 | Topup dedup SELECT outside credit txn (TOCTOU); whole-rupee credit `Math.round(paise/100)` | Dedup inside txn + `SELECT … FOR UPDATE` wallet-row lock; credit exact `amount/100` | api type-check; payments suite | `ab94110` |
+| A2-06 | P2 | GST computed by two byte-identical copies (invoiceService + b2b) that could drift; persisted GST untested | One shared `computeGst`; both callers delegate | gst test 5/5 (rounding + residual sum) | `ab94110` |
+| A2-07 | P2 | PDF `formatRupees` had no lakh/crore grouping | Group integer part on top of `toFixed(2)` (rounding unchanged) | reports test 17/17 (grouping assertion updated) | `ab94110` |
+| P1-S1 | P1 | `GET /ai/fii/score/:profileId` selected `profiles.userId` but never checked it → any user could read any profile's FII (feed hands out profileIds) | Enforce owner-or-ADMIN; 404 on non-owner (no relationship leak) | api type-check; mirrors sibling optimizer/readiness guards | `d22de27` |
+| P1-S2 | P1 | `cancelBooking` + `requestRefund` read-then-update money state (safe only via external backstops) | Local atomic CAS: escrow `HELD→REFUND_PENDING` guarded + RETURNING (only winner refunds); payment claimed before Razorpay; deterministic idempotency key threaded | bookings+payments suites 117/117; api type-check | `d22de27` |
+| P2-1 / P2-6 | P2 | Audit-chain hash used `JSON.stringify(payload)` → diverged on jsonb round-trip (false `CHAIN TAMPERED`); 3 duplicated copies | One shared `lib/auditHash.auditContentHash`, canonical (key-sorted) serialization; all 3 sites use it | api type-check; admin/jobs suites | `d22de27` |
+| P2-3 | P2 | Virtual-date NO_SHOW sweep updated `WHERE id IN(…)` with no status guard → could flip a rated date | Re-assert `status=CONFIRMED` + unrated in the UPDATE (first-writer) | video suite 32/32 | `d22de27` |
+| P2-5 | P2 | Pino redact lacked response `set-cookie` (session token) | Added `res.headers["set-cookie"]` | api type-check | `d22de27` |
+| U4 | P1 | EVENT_COORDINATOR 404'd on assigned weddings — dashboard-linked handlers used OWNER-only `resolveOwnedWedding` while schema+guard already model COORDINATOR access | `resolveOwnedWedding(…, minRole)`: owner fast-path, then access guard; 11 operational handlers relaxed to VIEWER/EDITOR; owner-only ops unchanged | weddings suites 46/46; api type-check | `055c423` |
+| A4-03 | P1 | Mock OTP override honoured whenever `USE_MOCK_SERVICES` — under the `ALLOW_MOCK_SERVICES_IN_PROD` escape hatch, seeded QA/ADMIN/SUPPORT accounts were loginable in prod with a known code | Request-time guard: sendOTP mock override throws when `NODE_ENV=production`; phone-change response never echoes the code in prod | auth+env suites 19/19; api type-check | `a40a14f` |
+| A4-05 | P1 | `NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'` inlined across 184 web files, no build guard | Central `lib/api-url.ts` (throws on a real prod deploy `VERCEL_ENV=production` when unset; localhost fallback for local/CI/preview); codemod-migrated all 184 sites onto `API_URL` (imports after directives, no self-ref consts); fixed ChatView `/api/v1` drop | web type-check + `next build` pass; 0 leftover fallbacks | `45d9ab4` |
+
+## Deferred / ops (not code-fixable in this pass)
+
+| Item | Sev | Reason deferred | Action needed |
+|---|---|---|---|
+| A4-04 | P1 | Mobile has no exposed mock flag (`USE_MOCK_SERVICES` is server-side only) — cannot gate a test-mode badge without one | Add `EXPO_PUBLIC_MOCK_MODE` to `apps/mobile/eas.json` (or a `/health` mock-status field), then badge OTP + payment screens. (Web-side badge still to do in Batch 7.) |
+| A4-09 | P2 | Config mismatch: mobile expects `media.smartshaadi.co.in` (`apps/mobile/src/lib/env.ts:17`), API prod `R2_PUBLIC_URL` = raw `pub-…r2.dev` bucket | Ops: point a CNAME `media.smartshaadi.co.in → r2.dev` bucket, or align `R2_PUBLIC_URL`/`EXPO_PUBLIC_MEDIA_URL` |
+| A4-04 | P1 | Mocked payments/OTP carry no per-surface "test mode" label (web + mobile) | Needs a consistent mock-mode indicator; mobile has no exposed flag (see above). Own follow-up — not demo-blocking |
+| A4-06 (alias) | P2 | Vercel alias `vivah-web.vercel.app` is a brand leak (FastAPI title already fixed in `c85d12f`) | Ops: rename the Vercel production alias to a smartshaadi domain |
+| A4-08 | P2 | `MIGRATIONS-PENDING.md` stale — documents ≤0029, 0030–0040 undocumented | Doc-only refresh; schema frozen at 0040 so no migration work. Follow-up |
+| P2-2 | P2 | Non-money read-then-update transitions (decline/withdraw/block, subscription grace, completeBooking) | Same one-line `AND status=<expected>` CAS pattern; non-money blast radius → P2 follow-up |
+| P2-4 | P2 | Audit-chain coverage gaps (block/unblock, virtual-date lifecycle append no chained row) | Add `appendAuditLog` calls; P2 follow-up |
+| ~100 bare `throw new Error()` | P2 | Large mechanical diff across business logic; audit says keep separate | Own dedicated session after these batches |
