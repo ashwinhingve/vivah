@@ -660,7 +660,7 @@ export async function completeBooking(userId: string, bookingId: string): Promis
   const [updated] = await db
     .update(bookings)
     .set({ status: 'COMPLETED', updatedAt: new Date() })
-    .where(eq(bookings.id, bookingId))
+    .where(and(eq(bookings.id, bookingId), eq(bookings.status, 'CONFIRMED')))
     .returning();
 
   if (!updated) {
