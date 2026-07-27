@@ -6,18 +6,27 @@
 import PDFDocument from 'pdfkit';
 import type { InvoiceData } from '@smartshaadi/types';
 
-// VivahOS brand colours
+// Smart Shaadi brand colours
 const ROYAL_BURGUNDY = '#7B2D42';
 const TEXT_DARK      = '#1A1A1A';
 const TEXT_MUTED     = '#6B7280';
 const DIVIDER        = '#E5E7EB';
 
 /**
- * Format a number as Indian Rupees with comma separators.
- * e.g. 125000 → "₹1,25,000"
+ * Format a number as Indian Rupees with lakh/crore grouping and an ASCII "Rs."
+ * prefix. PDFKit's default Helvetica font has no ₹ (U+20B9) glyph — it renders as a
+ * black box on the customer invoice — so every amount uses the "Rs." convention,
+ * matching the sibling PDF generators (b2b/invoice-pdf.ts, reports, contracts).
+ * e.g. 125000 → "Rs. 1,25,000.00"
  */
 function formatInr(amount: number): string {
-  return '₹' + amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  return (
+    'Rs. ' +
+    amount.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
 }
 
 export function generateInvoice(data: InvoiceData): Promise<Buffer> {
@@ -34,7 +43,7 @@ export function generateInvoice(data: InvoiceData): Promise<Buffer> {
       .fillColor(ROYAL_BURGUNDY)
       .fontSize(28)
       .font('Helvetica-Bold')
-      .text('VivahOS', 50, 50);
+      .text('Smart Shaadi', 50, 50);
 
     doc
       .fillColor(TEXT_MUTED)
@@ -204,8 +213,8 @@ export function generateInvoice(data: InvoiceData): Promise<Buffer> {
       .fillColor(TEXT_MUTED)
       .fontSize(9)
       .font('Helvetica')
-      .text('Powered by VivahOS — Smart Shaadi', 50, 768, { align: 'center', width: 495 })
-      .text('For disputes contact support@vivah.os | This is a computer-generated invoice.', 50, 782, {
+      .text('Smart Shaadi — National Marriage Ecosystem', 50, 768, { align: 'center', width: 495 })
+      .text('For disputes contact support@smartshaadi.co.in | This is a computer-generated invoice.', 50, 782, {
         align: 'center',
         width: 495,
       });
