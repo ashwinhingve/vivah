@@ -79,7 +79,7 @@ from src.routers.stay import router as stay_router
 from src.routers.translate import router as translate_router
 
 app = FastAPI(
-    title="VivahOS AI Service",
+    title="Smart Shaadi AI Service",
     version="0.2.0",
     description="ML scoring, AI matchmaking, fraud detection",
 )

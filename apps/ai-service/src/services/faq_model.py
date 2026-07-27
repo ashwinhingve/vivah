@@ -13,6 +13,7 @@ Public API:
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Optional
 
@@ -26,6 +27,8 @@ from src.services.faq_training import (
     train_model,
 )
 
+logger = logging.getLogger(__name__)
+
 # Module-level singletons — None until load_model() is called
 _model: Any = None
 _bundle: Any = None
@@ -35,6 +38,22 @@ _metadata: Optional[dict] = None
 def is_loaded() -> bool:
     """Cheap status — does NOT trigger model load. For /ready health probes."""
     return _bundle is not None
+
+
+def _load_or_retrain(
+    model_path: Path, metadata_path: Path
+) -> dict:
+    """Load model bundle or retrain if load fails."""
+    if not model_path.exists():
+        train_model(save_path=model_path, metadata_path=metadata_path)
+    try:
+        return joblib.load(model_path)
+    except Exception as exc:
+        logger.warning(
+            "model load failed (%s); retraining %s", exc, model_path
+        )
+        train_model(save_path=model_path, metadata_path=metadata_path)
+        return joblib.load(model_path)
 
 
 def load_model(
@@ -53,10 +72,7 @@ def load_model(
     model_path = Path(model_path)
     metadata_path = Path(metadata_path)
 
-    if not model_path.exists():
-        train_model(save_path=model_path, metadata_path=metadata_path)
-
-    _bundle = joblib.load(model_path)
+    _bundle = _load_or_retrain(model_path, metadata_path)
     _model = _bundle["calibrated"]
 
     if metadata_path.exists():

@@ -13,6 +13,7 @@ Public API:
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,8 @@ from src.services.reputation_training import (
     FEATURE_NAMES,
     train_model,
 )
+
+logger = logging.getLogger(__name__)
 
 # (platinum_min, gold_min, silver_min, bronze_min) — anything below bronze_min
 # is "flagged". Thresholds are on the 0..100 integer score.
@@ -53,6 +56,22 @@ def is_loaded() -> bool:
     return _model is not None
 
 
+def _load_or_retrain(
+    model_path: Path, metadata_path: Path
+) -> dict:
+    """Load model bundle or retrain if load fails."""
+    if not model_path.exists():
+        train_model(save_path=model_path, metadata_path=metadata_path)
+    try:
+        return joblib.load(model_path)
+    except Exception as exc:
+        logger.warning(
+            "model load failed (%s); retraining %s", exc, model_path
+        )
+        train_model(save_path=model_path, metadata_path=metadata_path)
+        return joblib.load(model_path)
+
+
 def load_model(
     model_path: str | Path = DEFAULT_MODEL_PATH,
     metadata_path: str | Path = DEFAULT_METADATA_PATH,
@@ -65,10 +84,7 @@ def load_model(
     model_path = Path(model_path)
     metadata_path = Path(metadata_path)
 
-    if not model_path.exists():
-        train_model(save_path=model_path, metadata_path=metadata_path)
-
-    bundle = joblib.load(model_path)
+    bundle = _load_or_retrain(model_path, metadata_path)
     _model = bundle["calibrated"]
     _explainer = bundle["explainer"]
 
