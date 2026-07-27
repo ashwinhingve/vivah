@@ -126,8 +126,9 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('dateOfBirth')}</label>
+                <label htmlFor="dob" className="block text-sm font-medium text-foreground mb-1">{t('dateOfBirth')}</label>
                 <input
+                  id="dob"
                   name="dob"
                   type="date"
                   required
@@ -136,8 +137,9 @@ export default function PersonalPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('maritalStatus')}</label>
+                <label htmlFor="maritalStatus" className="block text-sm font-medium text-foreground mb-1">{t('maritalStatus')}</label>
                 <select
+                  id="maritalStatus"
                   name="maritalStatus"
                   defaultValue={p?.maritalStatus ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
@@ -213,10 +215,11 @@ export default function PersonalPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">{t('height')}</label>
+              <label htmlFor="heightFt" className="block text-sm font-medium text-foreground mb-1">{t('height')}</label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <select
+                    id="heightFt"
                     name="heightFt"
                     defaultValue={String(ft)}
                     className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
@@ -228,6 +231,7 @@ export default function PersonalPage() {
                 </div>
                 <div className="flex-1">
                   <select
+                    id="heightIn"
                     name="heightIn"
                     defaultValue={String(inches)}
                     className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
@@ -242,8 +246,9 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('religion')}</label>
+                <label htmlFor="religion" className="block text-sm font-medium text-foreground mb-1">{t('religion')}</label>
                 <select
+                  id="religion"
                   name="religion"
                   defaultValue={p?.religion ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
@@ -255,8 +260,9 @@ export default function PersonalPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('motherTongue')}</label>
+                <label htmlFor="motherTongue" className="block text-sm font-medium text-foreground mb-1">{t('motherTongue')}</label>
                 <select
+                  id="motherTongue"
                   name="motherTongue"
                   defaultValue={p?.motherTongue ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
@@ -271,8 +277,9 @@ export default function PersonalPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('currentCity')}</label>
+                <label htmlFor="currentCity" className="block text-sm font-medium text-foreground mb-1">{t('currentCity')}</label>
                 <input
+                  id="currentCity"
                   name="currentCity"
                   type="text"
                   defaultValue={profile?.location?.city ?? ''}
@@ -281,8 +288,9 @@ export default function PersonalPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t('state')}</label>
+                <label htmlFor="currentState" className="block text-sm font-medium text-foreground mb-1">{t('state')}</label>
                 <select
+                  id="currentState"
                   name="currentState"
                   defaultValue={profile?.location?.state ?? ''}
                   className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"

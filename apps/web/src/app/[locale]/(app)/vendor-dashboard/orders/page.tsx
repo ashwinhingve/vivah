@@ -96,6 +96,8 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
             <div className="flex gap-1 overflow-x-auto pb-1">
               {STATUS_TABS.map(({ value }) => {
                 const isActive = activeFilter === value;
+                // Normalize value to camelCase for i18n key: ALL -> tabAll, PENDING -> tabPending, etc.
+                const tabKey = `tab${value.charAt(0)}${value.slice(1).toLowerCase()}` as const;
                 return (
                   <Link
                     key={value}
@@ -106,7 +108,7 @@ export default async function VendorOrdersPage({ searchParams }: PageProps) {
                         : 'bg-surface border border-gold/20 text-muted-foreground hover:border-teal hover:text-teal'
                     }`}
                   >
-                    {t(`tab${value}`)}
+                    {t(tabKey)}
                   </Link>
                 );
               })}
