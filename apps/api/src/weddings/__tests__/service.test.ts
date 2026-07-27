@@ -568,7 +568,8 @@ describe('weddings/service — addCeremony', () => {
 
     mockDb.select
       .mockReturnValueOnce(buildSelectChain([profile]))
-      .mockReturnValueOnce(buildSelectChain([])); // no wedding
+      .mockReturnValueOnce(buildSelectChain([]))  // owner fast-path: no owned wedding
+      .mockReturnValueOnce(buildSelectChain([])); // access guard getWeddingRole: no wedding → null role
 
     const { addCeremony } = await import('../service.js');
 
