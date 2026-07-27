@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -29,7 +30,7 @@ export default function SmartReplies({ matchId, visible, onPick, refreshKey }: S
     if (!visible) return
     let cancelled = false
     setLoading(true)
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/smart-replies`, {
       credentials: 'include',
     })

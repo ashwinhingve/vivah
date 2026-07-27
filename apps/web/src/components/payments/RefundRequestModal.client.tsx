@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const REASON_LABELS: Record<string, string> = {
   CUSTOMER_REQUEST: 'I no longer need this service',

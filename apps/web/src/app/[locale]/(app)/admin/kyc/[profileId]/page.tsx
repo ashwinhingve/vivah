@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -9,7 +10,7 @@ import { AuditTimeline } from '@/app/[locale]/(onboarding)/profile/kyc/AuditTime
 
 export const dynamic = 'force-dynamic';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface AuthMe { userId: string; role: string; status: string }
 

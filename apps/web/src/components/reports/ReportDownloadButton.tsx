@@ -11,9 +11,10 @@
  * Cross-origin cookie behaviour is per ADR-002 (SameSite=None; Secure in prod).
  */
 
+import { API_URL } from '@/lib/api-url';
 import { Download } from 'lucide-react';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface ReportDownloadButtonProps {
   /** API path under /api/v1/reports, e.g. '/admin/platform-report'. */

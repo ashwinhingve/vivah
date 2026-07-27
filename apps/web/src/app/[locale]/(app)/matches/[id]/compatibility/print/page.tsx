@@ -2,6 +2,7 @@
  * Guna Milan Compatibility Report — Printable Page
  * Server Component — print-friendly, shareable Vedic compatibility analysis.
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
@@ -9,7 +10,6 @@ import { getTranslations } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
 import type { GunaResult, DoshaSeverity } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface PageProps {
   params: Promise<{ id: string; locale: string }>;

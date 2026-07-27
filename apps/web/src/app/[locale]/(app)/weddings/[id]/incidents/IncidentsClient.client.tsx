@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import type { WeddingIncident } from '@smartshaadi/types';
 import { useToast } from '@/components/ui/toast';
+import { API_URL } from '@/lib/api-url';
 
 interface Props {
   weddingId: string;
@@ -17,7 +18,7 @@ export function IncidentsClient({ weddingId, initial }: Props) {
   const [severity, setSeverity] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM');
   const [, startTx] = useTransition();
   const { toast } = useToast();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+  const apiBase = API_URL;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

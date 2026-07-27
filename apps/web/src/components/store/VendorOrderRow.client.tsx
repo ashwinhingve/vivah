@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -9,7 +10,6 @@ interface VendorOrderRowProps {
   item: VendorOrderItem;
 }
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const STATUS_TONE_MAP: Record<string, StatusTone> = {
   PENDING:   'warning',

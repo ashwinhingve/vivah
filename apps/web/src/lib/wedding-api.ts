@@ -5,6 +5,7 @@
  * endpoints. Use from Server Components and Server Actions.
  */
 
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { fetchAuth } from './server-fetch';
 import type {
@@ -20,7 +21,7 @@ import type {
   FaqWeddingSummary, FaqCeremonyResult,
 } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function cookieHeader(): Promise<string> {
   const store = await cookies();

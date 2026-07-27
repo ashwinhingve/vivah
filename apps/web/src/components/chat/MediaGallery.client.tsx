@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
@@ -27,7 +28,7 @@ export default function MediaGallery({ open, matchId, onClose, onPhotoTap }: Med
 
   useEffect(() => {
     if (!open) return
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     let cancelled = false
     setLoading(true)
     fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/media`, { credentials: 'include' })

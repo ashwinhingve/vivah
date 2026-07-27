@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { VirtualDate, VirtualDateStatus, IcebreakerSet } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface Props {
   matchId: string;

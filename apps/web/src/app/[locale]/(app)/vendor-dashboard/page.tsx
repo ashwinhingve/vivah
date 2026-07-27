@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -28,7 +29,7 @@ import type { BookingSummary, VendorInquiry, VendorBlockedDate, VendorProfile } 
 
 export const dynamic = 'force-dynamic';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 const TAB_VALUES = ['overview', 'inquiries', 'calendar', 'profile'] as const;
 

@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useActionState, useEffect, useState, type JSX } from 'react';
 import { ArrowLeft } from 'lucide-react';
@@ -17,7 +18,7 @@ interface PersonalityState {
   familyIndependent: number;
 }
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 // Personality is the profile-completeness refinement step; every core section
 // precedes it, so the progress bar shows the full journey as done.

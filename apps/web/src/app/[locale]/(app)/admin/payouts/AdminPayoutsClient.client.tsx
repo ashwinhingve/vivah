@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/utils';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function formatINR(amount: string | number): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;

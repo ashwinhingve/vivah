@@ -4,8 +4,8 @@
  * Server-side fetches forward the better-auth.session_token cookie.
  * Browser-side fetches rely on default credentials inclusion.
  */
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
+import { API_URL } from '@/lib/api-url';
 export type LeadFeeStatus =
   | 'PENDING' | 'QUALIFIED' | 'CHARGED' | 'REFUNDED' | 'CANCELLED' | 'PENDING_PAYMENT';
 export type LeadQuality = 'HIGH' | 'MEDIUM' | 'LOW' | 'SPAM';

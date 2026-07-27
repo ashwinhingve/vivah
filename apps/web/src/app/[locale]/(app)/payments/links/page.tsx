@@ -2,11 +2,11 @@
  * Smart Shaadi — Payment Links Page (vendor/coordinator)
  * Hybrid: Server Component for listing + client component for create form.
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import type { PaymentLinkRecord } from '@smartshaadi/types';
 import { PaymentLinksClient } from './PaymentLinksClient.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchLinks(): Promise<PaymentLinkRecord[]> {
   const cookieStore = await cookies();

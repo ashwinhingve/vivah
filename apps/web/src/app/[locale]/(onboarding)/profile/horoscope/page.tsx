@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useActionState, useEffect, useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -7,7 +8,7 @@ import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateHoroscope } from '../actions';
 import { RASHI_LABELS, NAKSHATRA_LABELS } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 const STEPS = [
   { label: 'Personal',  done: true,  active: false },

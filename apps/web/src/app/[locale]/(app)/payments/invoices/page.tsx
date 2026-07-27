@@ -2,6 +2,7 @@
  * Smart Shaadi — Invoice List Page
  * Server Component
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -10,7 +11,6 @@ import { Container, DataTable, type DataTableColumn } from '@/components/shared'
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchInvoices(): Promise<InvoiceRecord[]> {
   const cookieStore = await cookies();

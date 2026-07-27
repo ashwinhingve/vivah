@@ -6,6 +6,7 @@
  * is placeheld with graceful empty state + contract documentation.
  */
 
+import { API_URL } from '@/lib/api-url';
 import { type ReactNode } from 'react';
 import { redirect } from '@/i18n/redirect';
 import { cookies } from 'next/headers';
@@ -18,7 +19,7 @@ import { StaggerList } from '@/components/shared/StaggerList.client';
 import { Calendar, TrendingUp, Zap } from 'lucide-react';
 import type { VendorCapacityWindow } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 export const dynamic = 'force-dynamic';
 

@@ -1,8 +1,9 @@
+import { API_URL } from '@/lib/api-url';
 import { createAuthClient } from 'better-auth/react';
 import { phoneNumberClient, twoFactorClient } from 'better-auth/client/plugins';
 
 export const authClient = createAuthClient({
-  baseURL: process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000',
+  baseURL: API_URL,
   plugins: [
     phoneNumberClient(),
     twoFactorClient({

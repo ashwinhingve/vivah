@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
@@ -8,7 +9,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import type { VendorProfile } from '@smartshaadi/types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 const PAGE_SIZE = 12;
 
 interface VendorsApiResponse {

@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -11,7 +12,6 @@ import { ReverifyBanner } from './ReverifyBanner.client';
 import { LevelTierCards } from './LevelTierCards';
 import { AuditTimeline } from './AuditTimeline';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type KycLevel = 'NONE' | 'BASIC' | 'STANDARD' | 'PREMIUM' | 'ELITE';
 

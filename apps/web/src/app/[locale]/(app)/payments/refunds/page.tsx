@@ -2,6 +2,7 @@
  * Smart Shaadi — Refund History Page
  * Server Component
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import type { RefundRecord, RefundStatus } from '@smartshaadi/types';
@@ -10,7 +11,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchRefunds(): Promise<RefundRecord[]> {
   const cookieStore = await cookies();

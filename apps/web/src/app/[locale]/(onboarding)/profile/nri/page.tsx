@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useActionState, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -9,7 +10,7 @@ import { updateNri } from '../actions';
 import { COUNTRIES } from '@/lib/countries';
 import { RESIDENCY_STATUS_LABELS, SUPPORTED_CURRENCIES } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 const STEPS = [
   { label: 'International Profile', done: false, active: true },

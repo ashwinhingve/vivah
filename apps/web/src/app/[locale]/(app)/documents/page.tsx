@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
@@ -5,7 +6,7 @@ import { DocumentsClient } from './DocumentsClient.client';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 const ESIGN_LIVE = process.env['NEXT_PUBLIC_ESIGN_LIVE'] === 'true';
 
 interface Contract {

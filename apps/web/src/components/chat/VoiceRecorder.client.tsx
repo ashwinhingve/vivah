@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useRef, useState } from 'react'
 import { Mic, Square, X } from 'lucide-react'
@@ -96,7 +97,7 @@ export default function VoiceRecorder({ matchId, onSent, disabled }: VoiceRecord
   async function upload(blob: Blob, mime: string, duration: number) {
     setUploading(true)
     try {
-      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const apiUrl = API_URL
       const ext = mime.includes('webm') ? 'webm' : 'audio'
       const res = await fetch(
         `${apiUrl}/api/v1/chat/conversations/${matchId}/voice`,

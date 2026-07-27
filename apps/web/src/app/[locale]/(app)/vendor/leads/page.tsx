@@ -5,6 +5,7 @@
  * fetches the leads inbox + aggregate stats in parallel. Read-only —
  * admin qualification/refund actions live on a separate admin page.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations, getLocale } from 'next-intl/server';
@@ -28,7 +29,6 @@ import {
   type VendorLeadStats,
 } from '@/lib/vendor-leads-api';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('vendorRole.leads');

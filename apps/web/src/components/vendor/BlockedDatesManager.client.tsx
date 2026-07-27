@@ -1,10 +1,10 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import type { VendorBlockedDate } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface BlockedDatesManagerProps {
   initial: VendorBlockedDate[];

@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -6,7 +7,6 @@ import { Plus, Trash2 } from 'lucide-react';
 import { AvailabilityCalendar } from '@/components/vendor/AvailabilityCalendar.client';
 import type { VendorProfile } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const CEREMONY_TYPES = [
   'WEDDING','HALDI','MEHNDI','SANGEET','ENGAGEMENT','RECEPTION',

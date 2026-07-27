@@ -1,11 +1,11 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 import { cookies } from 'next/headers';
 import { redirect } from '@/i18n/redirect';
 import type { UserRole } from '@smartshaadi/types';
 import { readSessionCookie } from '@/lib/auth/session-cookie';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 /**
  * Sends an OTP to the given phone number via Better Auth.

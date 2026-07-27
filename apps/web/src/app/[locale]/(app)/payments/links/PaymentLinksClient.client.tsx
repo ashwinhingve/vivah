@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import type { PaymentLinkRecord, PaymentLinkStatus } from '@smartshaadi/types';
@@ -8,7 +9,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { extractErrorMessage } from '@/lib/api-envelope';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function formatINR(amount: string | number): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;

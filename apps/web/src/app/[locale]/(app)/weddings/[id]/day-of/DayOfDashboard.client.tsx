@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import type { DayOfSnapshot } from '@smartshaadi/types';
 import { useToast } from '@/components/ui/toast';
+import { API_URL } from '@/lib/api-url';
 
 const POLL_MS = 15_000;
 
@@ -15,7 +16,7 @@ export function DayOfDashboard({ weddingId, initial }: Props) {
   const [snap, setSnap] = useState<DayOfSnapshot>(initial);
   const [, startTx] = useTransition();
   const { toast } = useToast();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+  const apiBase = API_URL;
 
   useEffect(() => {
     const t = setInterval(async () => {

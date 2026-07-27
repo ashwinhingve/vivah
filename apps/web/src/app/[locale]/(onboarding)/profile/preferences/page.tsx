@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useActionState, useEffect, useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -6,7 +7,7 @@ import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updatePreferences } from '../actions';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 const STEPS = [
   { label: 'Personal',    done: true,  active: false },

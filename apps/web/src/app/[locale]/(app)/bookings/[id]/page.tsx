@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
@@ -8,7 +9,6 @@ import { CancelBookingButton } from '@/components/bookings/CancelBookingButton.c
 import { RescheduleControls } from '@/components/bookings/RescheduleControls.client';
 import { VendorReviews } from '@/components/vendor/VendorReviews.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface BookingDetail {
   id:             string;

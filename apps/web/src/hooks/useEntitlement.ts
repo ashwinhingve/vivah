@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 /**
  * Smart Shaadi — useEntitlement (client hook)
@@ -11,7 +12,7 @@
 import { useEffect, useState } from 'react';
 import type { Entitlements, PremiumTier } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 export interface EntitlementState {
   tier: PremiumTier;

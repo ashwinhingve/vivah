@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -15,7 +16,7 @@ interface Prefs {
 }
 
 async function fetchPrefs(): Promise<Prefs> {
-  const apiBase = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+  const apiBase = API_URL;
   const h = await headers();
   const cookie = h.get('cookie') ?? '';
   try {

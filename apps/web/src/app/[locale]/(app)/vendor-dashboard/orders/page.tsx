@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -11,7 +12,6 @@ import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 import type { VendorOrderItem } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type StatusFilter = 'ALL' | 'PENDING' | 'SHIPPED' | 'DELIVERED';
 

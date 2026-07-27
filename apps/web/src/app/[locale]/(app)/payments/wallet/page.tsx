@@ -2,6 +2,7 @@
  * Smart Shaadi — Wallet Page
  * Server Component
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import type { WalletSnapshot, WalletTransaction } from '@smartshaadi/types';
@@ -10,7 +11,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/utils';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function getAuthCookie(): Promise<string | null> {
   const cookieStore = await cookies();

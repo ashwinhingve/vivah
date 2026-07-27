@@ -1,10 +1,10 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { Loader2, Check, AlertTriangle } from 'lucide-react';
 import type { PublicRsvpView, MealPref, GuestCeremonyPref } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
   token:  string;

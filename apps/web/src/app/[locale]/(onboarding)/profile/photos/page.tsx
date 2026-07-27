@@ -1,9 +1,9 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ProfileProgress } from '@/components/profile/ProfileProgress';
 import { PhotosClient } from './PhotosClient.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const STEPS = [
   { label: 'Personal',    done: true,  active: false },

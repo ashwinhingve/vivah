@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { ComponentType } from 'react';
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
@@ -168,7 +169,7 @@ interface ReadyResponse {
 // Fetch helpers
 // ---------------------------------------------------------------------------
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {

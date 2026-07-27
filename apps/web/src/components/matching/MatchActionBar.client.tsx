@@ -1,10 +1,10 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 type Status = 'none' | 'sent_pending' | 'received_pending' | 'matched' | 'sending' | 'declined' | 'error';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
   profileId: string;

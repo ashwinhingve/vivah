@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -10,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { StaggerList } from '@/components/motion/StaggerList.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface BookingsResponse {
   success: boolean;

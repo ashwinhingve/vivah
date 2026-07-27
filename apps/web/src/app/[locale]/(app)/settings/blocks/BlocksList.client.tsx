@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from '@/i18n/navigation';
@@ -6,7 +7,6 @@ import { Loader2, ShieldOff } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import type { BlockedUser } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();

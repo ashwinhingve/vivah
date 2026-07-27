@@ -6,6 +6,7 @@
  * vendor engine route. Falls back to empty states if either fetch fails
  * (no auth, no vendor account, infra unreachable).
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -21,7 +22,6 @@ import {
   type MultiEventPipelineData,
 } from '@/components/vendor/MultiEventPipeline.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('vendorRole.pipeline');

@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { NextRequest, NextResponse } from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
@@ -61,7 +62,7 @@ export async function middleware(request: NextRequest) {
 
     try {
       const sessionRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/api/auth/get-session`,
+        `${API_URL}/api/auth/get-session`,
         {
           headers: { cookie: request.headers.get('cookie') ?? '' },
           cache: 'no-store',

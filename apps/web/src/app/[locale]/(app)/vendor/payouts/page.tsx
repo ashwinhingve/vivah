@@ -2,6 +2,7 @@
  * Smart Shaadi — Vendor Payout History
  * Server Component
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations, getLocale } from 'next-intl/server';
@@ -16,7 +17,6 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { StaggerList } from '@/components/shared/StaggerList.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('vendorRole.payouts');

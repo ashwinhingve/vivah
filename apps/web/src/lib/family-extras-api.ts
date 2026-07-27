@@ -4,9 +4,10 @@
  * pattern (cookie-forwarding on the server, credentials:'include' in browser).
  */
 
+import { API_URL } from '@/lib/api-url';
 import type { WeddingSummary } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface ApiEnvelope<T> {
   success: boolean;

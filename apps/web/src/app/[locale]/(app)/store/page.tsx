@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -8,7 +9,6 @@ import { ProductGrid } from '@/components/store/ProductGrid';
 import { StoreCategoryFilter } from '@/components/store/StoreCategoryFilter.client';
 import type { ProductSummary } from '@smartshaadi/types';
 
-const API_URL  = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 const PAGE_SIZE = 12;
 
 interface ProductsApiResponse {

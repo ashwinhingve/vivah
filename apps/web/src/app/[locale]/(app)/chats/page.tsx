@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers'
 import { redirect } from '@/i18n/redirect';
 import { Link } from '@/i18n/navigation';
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('title') };
 }
 
-const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+const BASE_URL = API_URL
 
 type Filter = 'all' | 'unread' | 'archived'
 

@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import type { PromoCodeRecord, PromoType, PromoScope } from '@smartshaadi/types';
@@ -13,7 +14,6 @@ import {
 import { PageHeader } from '@/components/ui/PageHeader';
 import { extractErrorMessage } from '@/lib/api-envelope';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function formatDate(iso: string | null): string {
   if (!iso) return 'No expiry';

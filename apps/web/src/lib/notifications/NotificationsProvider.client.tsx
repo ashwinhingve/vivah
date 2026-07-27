@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useState,
@@ -11,7 +12,6 @@ import {
   markReadAction, markUnreadAction, markAllReadAction, removeAction, clearAllAction,
 } from '@/app/[locale]/(app)/notifications/actions';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function getSessionToken(): string {
   if (typeof document === 'undefined') return '';

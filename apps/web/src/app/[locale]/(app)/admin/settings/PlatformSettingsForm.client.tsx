@@ -1,11 +1,11 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 
 // Web and API are separate origins in prod (smartshaadi.co.in ↔
 // api.smartshaadi.co.in) with no Next rewrites — a relative fetch 404s. Prefix
 // the API origin like every other admin client component.
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
   lgbtqEnabled:   boolean;

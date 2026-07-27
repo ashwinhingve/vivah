@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useRef, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
@@ -17,7 +18,6 @@ import type {
   GuestRich, RsvpStatus, MealPref, Ceremony,
 } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface GuestTableProps {
   weddingId:    string;

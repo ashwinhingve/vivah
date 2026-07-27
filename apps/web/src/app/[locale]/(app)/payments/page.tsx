@@ -2,6 +2,7 @@
  * Smart Shaadi — Payment History Page
  * Server Component — fetches data server-side, no client JS needed for static content.
  */
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -9,7 +10,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PaymentSummaryCard } from '@/components/payments/PaymentSummaryCard';
 import { PaymentsPageClient } from '@/components/payments/PaymentsPageClient.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

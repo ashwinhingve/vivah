@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -18,7 +19,6 @@ interface Discrepancy {
   detectedAt: string;
 }
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export function ReconciliationTableClient({ items }: { items: Discrepancy[] }) {
   const [pending, startTransition] = useTransition();

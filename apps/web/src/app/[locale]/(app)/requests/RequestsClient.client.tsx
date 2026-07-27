@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -18,7 +19,6 @@ import { StaggerList } from '@/components/shared/StaggerList.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import { useToast } from '@/components/ui/toast';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function getStatusBadgeConfig(status: string): { tone: StatusTone; labelKey: string } {
   switch (status) {

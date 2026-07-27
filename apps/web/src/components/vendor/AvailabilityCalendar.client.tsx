@@ -1,10 +1,10 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface AvailabilityCalendarProps {
   vendorId:    string;
