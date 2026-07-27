@@ -6,8 +6,8 @@ import type { ApiClient } from '../client.js';
  * `@smartshaadi/schemas` (vendor.ts) — the server is the validating authority, so
  * this stays a plain shape rather than pulling schemas in as a dependency. The
  * caller (mobile) validates with the Zod schema before handing the object here.
- * `eventDate` is `YYYY-MM-DD`; amounts are rupees, not paise (the bookings table
- * stores rupees, unlike subscription plans).
+ * `eventDate` is `YYYY-MM-DD`; all amounts are rupees (both bookings and subscription plans
+ * store decimal(12,2) RUPEE values).
  */
 export interface CreateBookingInput {
   vendorId: string;
