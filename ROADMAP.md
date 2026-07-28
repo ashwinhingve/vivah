@@ -99,7 +99,7 @@ Last updated: 2026-07-19
 | Referral program | ✅ Built + wired, gated: `REFERRAL_LIVE=false` | Earn loop live end-to-end: `/?ref=CODE` + manual field on signup → `x-referral-code` header → `applyCodeAtSignup` in the Better Auth `user.create.after` hook. Milestones fire on profile-completion crossing 80% (`profiles/content.service.ts`) and on `subscription.activated`. Credits held in an append-only ledger (migration `0040`) with a TOCTOU-safe conditional INSERT — double-spend proven against real Postgres, not mocks. **Redemption = free days appended to the billing period, not a checkout discount**: Razorpay Subscriptions cannot express a per-user dynamic discount (only pre-created fixed Offers), and redeeming after payment succeeds removes the refund path and the abandoned-checkout sweep entirely |
 | Sentry monitoring | ✅ Built | API + web; `SENTRY_DSN` in env; source-map upload in CI |
 | PostHog analytics | ✅ Built | Event tracking instrumented across web |
-| BetterStack uptime monitors | ✅ Configured | Docs in `docs/monitoring/betterstack-setup.md` |
+| BetterStack uptime monitors | 🟡 Docs-only (not wired) | Setup doc `docs/monitoring/betterstack-setup.md` exists but there is **no code integration** — admin UI carries TODO placeholders (`AdminHealthAndRisk.client.tsx:151,158`); uptime/APM is not actually pulled. Corrected per audit-2026 PASS 0. |
 
 ---
 
@@ -125,8 +125,8 @@ Last updated: 2026-07-19
 
 | Unit | Status | Evidence |
 |------|--------|----------|
-| NBFC lending (loan referral, EMI calculator) | 🟡 Built, gated: `LENDING_LIVE=false` | Razorpay EMI already live in payments |
-| Wedding insurance referral | 🟡 Built, gated: `INSURANCE_LIVE=false` | Mock shell waiting for partner integration |
+| NBFC lending (loan referral, EMI calculator) | 🟡 MOCK-SHELL, gated: `LENDING_LIVE=false` | **Placement UX only — not a live lending feature.** `lending/service.ts` returns a static `MOCK_OFFERS` array; the `LENDING_LIVE=true` path **throws** (no NBFC/aggregator backend wired). Separate from the real Razorpay EMI in payments. Needs an RBI-DLG-compliant partner before it does anything real. Corrected per audit-2026 PASS 0. |
+| Wedding insurance referral | 🟡 MOCK-SHELL, gated: `INSURANCE_LIVE=false` | **Placement UX only — not a live insurance feature.** `insurance/service.ts` returns a static `MOCK_QUOTES` array; the `INSURANCE_LIVE=true` path **throws** (no IRDAI aggregator backend wired). Needs a partner agreement before it does anything real. Corrected per audit-2026 PASS 0. |
 | Auto-Marketing Engine | ✅ Built + seeded (6.4, migration 0038) | 5 SQL segments, Gemini copy generation, per-language approval gate, weekly sweeps, consent-gated dispatch, Redis frequency cap, `/admin/marketing` dashboard. **Live**: control with `MARKETING_AUTOMATION_ENABLED=true` (default ON) |
 | Multi-City Network (cities registry, vendor network) | ✅ Built + seeded (6.5, migration 0038) | 10 reference cities seeded, vendor city_id backfilled, `/admin/cities` ops dashboard, `/api/v1/cities` public endpoint. Expansion lifecycle: ACTIVE/EXPANSION/PLANNED |
 | WhatsApp Business API integration | 🟡 Built, gated: `WHATSAPP_LIVE=false` | `apps/api/src/whatsapp/*` · mocked; activate with `WHATSAPP_LIVE=true` + Cloud API credentials |
