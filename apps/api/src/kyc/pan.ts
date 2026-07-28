@@ -7,6 +7,7 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { PanRegex } from '@smartshaadi/schemas';
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { PanVerificationResult } from '@smartshaadi/types';
 
 export interface PanVerifyArgs {
@@ -39,5 +40,5 @@ export async function verifyPan(args: PanVerifyArgs): Promise<PanVerificationRes
   //   - never log the raw PAN
   //   - never persist `name`/`dob` returned by provider
   //   - rate-limit caller before invoking (caller's responsibility)
-  throw new Error('Real PAN provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'PAN provider not yet configured', 503);
 }

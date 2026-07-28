@@ -13,6 +13,7 @@
 import { eq, and, ilike, sql, inArray, or, gte, lte, desc, asc, type SQL } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { env, shouldUseMockMongo } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import {
   vendors,
   vendorServices,
@@ -330,7 +331,7 @@ export async function updateVendor(
     .limit(1);
 
   if (ownership.length === 0) {
-    throw new Error('access denied');
+    throw new AppError('FORBIDDEN', 'Access denied', 403);
   }
 
   const patch: Record<string, unknown> = { updatedAt: new Date() };
@@ -357,7 +358,7 @@ export async function updateVendor(
     .where(eq(vendors.id, vendorId))
     .returning();
 
-  if (!updated) throw new Error('Failed to update vendor');
+  if (!updated) throw new AppError('DB_UPDATE_FAILED', 'Failed to update vendor', 500);
 
   const serviceRows = await db
     .select()
@@ -381,7 +382,7 @@ export async function addService(
     .limit(1);
 
   if (vendorRows.length === 0) {
-    throw new Error('Vendor not found or access denied');
+    throw new AppError('FORBIDDEN', 'Vendor not found or access denied', 403);
   }
 
   const inserted = await db
@@ -418,7 +419,7 @@ export async function getAvailability(
   vendorId: string,
   month: string,
 ): Promise<AvailabilityResult> {
-  if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('month must be in YYYY-MM format');
+  if (!/^\d{4}-\d{2}$/.test(month)) throw new AppError('INVALID_INPUT', 'month must be in YYYY-MM format', 400);
   const [year, mon] = month.split('-') as [string, string];
 
   const start = `${year}-${mon}-01`;

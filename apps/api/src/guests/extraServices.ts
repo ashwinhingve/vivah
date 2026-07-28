@@ -89,7 +89,7 @@ export async function upsertGuestAddress(
   const [a] = await db.insert(guestAddresses).values(values)
     .onConflictDoUpdate({ target: guestAddresses.guestId, set: values })
     .returning();
-  if (!a) throw new Error('Failed to upsert address');
+  if (!a) throw appErr('Failed to upsert address', 'DB_INSERT_FAILED', 500);
 
   await logActivity(weddingId, userId, 'guest.address.upsert', 'guest', guestId);
   return {
@@ -193,7 +193,7 @@ export async function addRsvpQuestion(
     isRequired:   input.isRequired ?? false,
     sortOrder:    input.sortOrder ?? 0,
   }).returning();
-  if (!r) throw new Error('Failed to add question');
+  if (!r) throw appErr('Failed to add question', 'DB_INSERT_FAILED', 500);
   await logActivity(weddingId, userId, 'rsvpQuestion.add', 'question', r.id);
   return mapQuestion(r);
 }
@@ -263,7 +263,7 @@ export async function upsertRsvpDeadline(
       set: { deadline: values.deadline, enforced: values.enforced, reminderDays: values.reminderDays, updatedAt: values.updatedAt },
     })
     .returning();
-  if (!r) throw new Error('Failed to upsert deadline');
+  if (!r) throw appErr('Failed to upsert deadline', 'DB_INSERT_FAILED', 500);
 
   // Schedule reminders for each reminderDays offset (mock-safe — queue is in-memory in mock)
   try {

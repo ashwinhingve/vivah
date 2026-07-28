@@ -9,6 +9,7 @@ import { Router, Request, Response } from 'express';
 import { eq } from 'drizzle-orm';
 import { ZodError } from 'zod';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
 import { campaignSends } from '@smartshaadi/db';
 import {
@@ -214,7 +215,7 @@ marketingRouter.post('/:id/transition', async (req: Request, res: Response) => {
           break;
         default:
           const _exhaustive: never = input.action;
-          throw new Error(`Unknown action: ${_exhaustive}`);
+          throw new AppError('INTERNAL_ERROR', `Unknown action: ${_exhaustive}`, 500);
       }
     } catch (e) {
       const err = e as Error & { status?: number };

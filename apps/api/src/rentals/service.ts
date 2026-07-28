@@ -10,6 +10,7 @@
 
 import { and, eq, inArray, lte, gte, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import {
   rentalItems,
   rentalBookings,
@@ -305,7 +306,7 @@ export async function createRentalBooking(
 
     const reserved = reservedRows[0]?.reserved ?? 0;
     if (reserved + input.quantity > item.stockQty) {
-      throw new Error('ITEM_NO_LONGER_AVAILABLE');
+      throw new AppError('ITEM_NO_LONGER_AVAILABLE', 'Item no longer available in requested quantity', 409);
     }
 
     const [inserted] = await tx
@@ -361,7 +362,7 @@ export async function confirmRentalBooking(
 
   // FIX A6: crash guard when update affects 0 rows
   if (updated.length === 0) {
-    throw new Error('RENTAL_BOOKING_NOT_FOUND_OR_WRONG_VENDOR');
+    throw new AppError('NOT_FOUND', 'Rental booking not found or wrong vendor', 404);
   }
 
   const row = updated[0] as RentalBookingRow;
@@ -407,7 +408,7 @@ export async function activateRentalBooking(
     .returning();
 
   if (updated.length === 0) {
-    throw new Error('RENTAL_BOOKING_NOT_FOUND_OR_WRONG_VENDOR');
+    throw new AppError('NOT_FOUND', 'Rental booking not found or wrong vendor', 404);
   }
 
   const row = updated[0] as RentalBookingRow;

@@ -164,65 +164,6 @@ unresolved schema work.
 
 ---
 
-## 0027 — Digital Invitation Builder (contract Item 16) — PENDING
-
-- **Source:** `packages/db/migrations/0027_invitation_builder.sql` (apply verbatim).
-- **Scope:** fully additive — `invite_status` enum + `wedding_invites` table +
-  `wedding_invites_slug_idx`. No DROP / TRUNCATE / ALTER COLUMN.
-- **Ordering:** generated on the canonical chain; apply after `0026_drift_rollup`.
-- **Verify:** `SELECT to_regclass('public.wedding_invites');`
-- **Validated** 2026-05-31 against a scratch PG16 DB: 12 columns, enum
-  `{DRAFT,PUBLISHED}`, indexes `pkey / wedding_id_unique / slug_unique / slug_idx`.
-
----
-
-## 0027 — Digital Invitation Builder (contract Item 16) — PENDING
-
-> Generated cleanly on the canonical chain (after the `0026_drift_rollup`
-> rollup lands). Fully additive — one new enum, one new table, one index.
-> No DROP / TRUNCATE / ALTER COLUMN. Safe to apply via Railway SQL console
-> or `psql` with `ON_ERROR_STOP=1`. Source: `migrations/0027_invitation_builder.sql`.
-
-### Apply (all additive)
-
-```sql
-CREATE TYPE "public"."invite_status" AS ENUM('DRAFT', 'PUBLISHED');
-
-CREATE TABLE IF NOT EXISTS "wedding_invites" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"wedding_id" uuid NOT NULL,
-	"slug" varchar(32) NOT NULL,
-	"template_id" varchar(50) DEFAULT 'classic-royal' NOT NULL,
-	"status" "invite_status" DEFAULT 'DRAFT' NOT NULL,
-	"title" varchar(255),
-	"message" text,
-	"rsvp_enabled" boolean DEFAULT true NOT NULL,
-	"asset_key" varchar(500),
-	"published_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "wedding_invites_wedding_id_unique" UNIQUE("wedding_id"),
-	CONSTRAINT "wedding_invites_slug_unique" UNIQUE("slug")
-);
-
-DO $$ BEGIN
- ALTER TABLE "wedding_invites" ADD CONSTRAINT "wedding_invites_wedding_id_weddings_id_fk" FOREIGN KEY ("wedding_id") REFERENCES "public"."weddings"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION WHEN duplicate_object THEN null;
-END $$;
-
-CREATE INDEX IF NOT EXISTS "wedding_invites_slug_idx" ON "wedding_invites" USING btree ("slug");
-```
-
-### Verify
-
-```sql
-SELECT enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid WHERE t.typname='invite_status';  -- DRAFT, PUBLISHED
-SELECT to_regclass('public.wedding_invites');  -- wedding_invites
-```
-
-> Locally validated 2026-05-31 against a scratch PG16 DB: 12 columns,
-> enum `{DRAFT,PUBLISHED}`, indexes `pkey / wedding_id_unique / slug_unique / slug_idx`.
-
 ---
 
 ## ✅ APPLIED 2026-06-01 (UTC) — migrations 0026 + 0027 to PRODUCTION
@@ -305,3 +246,122 @@ the top of this section and `scripts/db/reconcile-drift-2026-06-07.sql`.
 **Seeded data (not a migration):** `calendar_events` was data-seeded on
 2026-06-07 (190 rows: MUHURAT 152 / FESTIVAL 32 / GOVT 6) via `db:seed:calendar`
 from PowerShell — idempotent (run 1 = 190 inserted, run 2 = 0). Data only, no DDL.
+
+---
+
+## Migrations 0030–0041 (hand-authored, post-0029 freeze)
+
+> **⚠️ SCHEMA FROZEN AT 0040** — operator directive 2026-07-26. Migration 0041 is
+> enum-only (forward-only, cannot rollback per Postgres semantics).
+>
+> **Apply-state NOT confirmed on prod.** The `__drizzle_migrations` ledger on prod
+> was baseline-seeded only through `0029` on 2026-06-07. Migrations `0030–0041`
+> exist in `packages/db/migrations/*.sql` and have been applied to local dev, but
+> **operator verification against prod's current `__drizzle_migrations` table is
+> required before next rollout.** See `docs/db/journal-drift.md` for the 0030/0031
+> hand-authored background; `0032–0041` followed the same pattern (bypass
+> `drizzle-kit generate`, apply via Railway SQL console or psql).
+>
+> All **0030–0040 are additive + idempotent**. Can be applied via Railway SQL
+> console or `psql` with `ON_ERROR_STOP=1`. **0041 is forward-only** (adds enum
+> values; Postgres does not support dropping enum values).
+
+### 0030 — pgvector embedding resize (768-dim)
+
+- **Source:** `packages/db/migrations/0030_pgvector_embedding_768.sql`.
+- **Scope:** Resize `profiles.ai_embedding` from `vector(1536)` → `vector(768)`;
+  drop + recreate HNSW index (no data loss — all existing values NULL).
+- **Status:** Additive + idempotent.
+- **Note:** Hand-authored to match 0029 convention. See `docs/db/journal-drift.md`
+  for full context (0030/0031 bypass the drizzle journal).
+
+### 0031 — Support Tickets console
+
+- **Source:** `packages/db/migrations/0031_support_tickets.sql`.
+- **Scope:** 5 enums (`ticket_category`, `ticket_priority`, `ticket_status`,
+  `ticket_source`, `ticket_event_type`) + 3 tables (`support_tickets`,
+  `ticket_messages`, `ticket_events`).
+- **Status:** Additive + idempotent.
+- **Note:** Hand-authored; untracked in drizzle journal (see `journal-drift.md`).
+
+### 0032 — Financial shells & WhatsApp messages
+
+- **Source:** `packages/db/migrations/0032_financial_shells.sql`.
+- **Scope:** Phase 6 Sprint D — 4 enums (`service_referral_kind`,
+  `service_referral_status`, `whatsapp_message_status`, `money_currency`) +
+  `service_referrals` + `whatsapp_messages` tables (RBI LSP compliance).
+- **Status:** Additive + idempotent.
+
+### 0033 — Virtual dates & retention campaigns
+
+- **Source:** `packages/db/migrations/0033_virtual_dates_retention.sql`.
+- **Scope:** Phase 7 Sprint F — 3 enums + `virtual_dates` + `retention_campaigns`
+  tables. Durable layer for video-date history and churn-recovery tracking.
+- **Status:** Additive + idempotent.
+
+### 0034 — NRI / international matching
+
+- **Source:** `packages/db/migrations/0034_nri_international.sql`.
+- **Scope:** Phase 7 Sprint G — `residency_status` enum + NRI columns on
+  `profiles` (country, timezone, residency, NRI opt-in). Gated behind
+  `NRI_MATCHING_LIVE` flag; existing rows safe (nullable/default).
+- **Status:** Additive + idempotent.
+
+### 0035 — Analytics indexes (scale hardening)
+
+- **Source:** `packages/db/migrations/0035_scale_indexes.sql`.
+- **Scope:** Phase 8 Sprint H — 3 composite btree indexes on `payments`
+  (`status`, `created_at`) and `bookings` (`vendor_id`, `event_date`, `status`,
+  `profile_id`, `start_at`). No DROP / ALTER COLUMN.
+- **Status:** Additive + idempotent (index-only, zero data risk).
+
+### 0036 — Destination wedding planning core
+
+- **Source:** `packages/db/migrations/0036_destination_wedding.sql`.
+- **Scope:** Phase 8 Sprint I — `wedding_destinations` + `guest_travel_legs`
+  tables. Multi-city wedding legs with country/timezone. Supply side (packages,
+  rooms, transport) explicitly deferred.
+- **Status:** Additive + idempotent.
+
+### 0037 — Phase 8 supply: packages & post-marriage services
+
+- **Source:** `packages/db/migrations/0037_phase8_supply_services.sql`.
+- **Scope:** Phase 8 Units 8.1 + 8.2 — `premium_packages` (+
+  `_inclusions`, `_availability`), `service_partners`, `post_marriage_*` tables,
+  `vendor_inquiries`. Seeded placeholder inventory (role-gated until real partners).
+  Money in rupees (decimal), not paise.
+- **Status:** Additive + idempotent.
+
+### 0038 — Marketing campaigns & city registry
+
+- **Source:** `packages/db/migrations/0038_marketing_cities_registry.sql`.
+- **Scope:** Phase 6 Unit 6.4 + 6.5 — `marketing_campaigns` (lifecycle DRAFT →
+  APPROVED → ACTIVE), `campaign_content`, `campaign_sends` (with idempotency
+  PARTIAL index). Registry `cities` seeded with 10 operational markets (Tier 1).
+- **Status:** Additive + idempotent.
+
+### 0039 — Supply city registry link
+
+- **Source:** `packages/db/migrations/0039_supply_city_registry_link.sql`.
+- **Scope:** Phase 8 — Add nullable `city_id` FKs on `premium_packages` and
+  `service_partners` to bind supply to the admin city registry (0038 pattern).
+  Free-text city column stays for display/SEO; `city_id` is canonical for facets.
+- **Status:** Additive + idempotent.
+
+### 0040 — Referral credits ledger
+
+- **Source:** `packages/db/migrations/0040_referral_credits_ledger.sql`.
+- **Scope:** Phase 4 — Append-only ledger for atomic credit reservations +
+  double-spend prevention. 3 indexes on `user_id`, `type`, `created_at`.
+- **Status:** Additive + idempotent.
+
+### 0041 — Audit event types (P2-4 safety + virtual-date lifecycle)
+
+- **Source:** `packages/db/migrations/0041_audit_event_types_p2_4.sql`.
+- **Scope:** Adds 3 enum values to `audit_event_type`:
+  `PROFILE_UNBLOCKED`, `VIRTUAL_DATE_EXPIRED`, `VIRTUAL_DATE_NO_SHOW`.
+  Enables truthful audit trail for unblock + virtual-date lifecycle sweep.
+- **Status:** **Forward-only** (Postgres cannot DROP enum values). Each `ALTER
+  TYPE … ADD VALUE` is a separate statement (not transactional); apply via
+  Railway SQL console or `psql` standalone.
+- **Rollback:** Not possible. Treat as permanent schema change.

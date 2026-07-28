@@ -9,7 +9,8 @@
       "android": { "buildType": "apk" },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in",
-        "EXPO_PUBLIC_MEDIA_URL": "https://media.smartshaadi.co.in"
+        "EXPO_PUBLIC_MEDIA_URL": "https://pub-7636b4a54e624991aabbe56292aff185.r2.dev",
+        "EXPO_PUBLIC_MOCK_MODE": "true"
       }
     },
     "preview": {
@@ -17,7 +18,8 @@
       "android": { "buildType": "apk" },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in",
-        "EXPO_PUBLIC_MEDIA_URL": "https://media.smartshaadi.co.in"
+        "EXPO_PUBLIC_MEDIA_URL": "https://pub-7636b4a54e624991aabbe56292aff185.r2.dev",
+        "EXPO_PUBLIC_MOCK_MODE": "true"
       }
     },
     "production": {

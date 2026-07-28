@@ -14,8 +14,13 @@ import { readReferralCookie } from '@/components/referral/ReferralCapture.client
 const OTP_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
 
-export default function VerifyOtpForm() {
+interface VerifyOtpFormProps {
+  isMock?: boolean;
+}
+
+export default function VerifyOtpForm({ isMock = false }: VerifyOtpFormProps) {
   const t = useTranslations('auth.verifyOtp');
+  const tBilling = useTranslations('billing');
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') ?? '';
@@ -168,6 +173,11 @@ export default function VerifyOtpForm() {
           <ShieldCheck className="h-3 w-3" aria-hidden="true" />
           {t('badge')}
         </span>
+        {isMock && (
+          <div className="mt-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
+            {tBilling('testMode')}
+          </div>
+        )}
         <h2 className="mt-3 font-heading text-3xl font-semibold leading-tight text-primary">
           {t('heading')}
         </h2>

@@ -63,6 +63,18 @@ import {
 
 import { registerUuidParams } from '../middleware/validateUuidParams.js';
 
+/**
+ * Extract a typed error's semantic `.code` (AppError from lib/errors.js carries
+ * one). Service throws now use a human-readable message + a stable `.code`, so
+ * catch-blocks branch on the code, not the message.
+ */
+function codeOf(e: unknown): string | undefined {
+  return typeof e === 'object' && e !== null && 'code' in e &&
+    typeof (e as { code: unknown }).code === 'string'
+    ? (e as { code: string }).code
+    : undefined;
+}
+
 export const weddingRouter = Router();
 registerUuidParams(weddingRouter, 'id', 'weddingId', 'taskId', 'ceremonyId', 'cId');
 
@@ -103,7 +115,7 @@ weddingRouter.post(
       ok(res, result, 201);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to create wedding';
-      if (message === 'PROFILE_NOT_FOUND') {
+      if (codeOf(e) === 'PROFILE_NOT_FOUND') {
         err(res, 'PROFILE_NOT_FOUND', 'User profile not found', 404);
         return;
       }
@@ -272,7 +284,7 @@ weddingRouter.post(
       ok(res, task, 201);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to create task';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404);
         return;
       }
@@ -376,7 +388,7 @@ weddingRouter.put(
       ok(res, { categories });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to update budget';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404);
         return;
       }
@@ -405,7 +417,7 @@ weddingRouter.post(
       ok(res, result, 201);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to generate checklist';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404);
         return;
       }
@@ -428,7 +440,7 @@ weddingRouter.get(
       ok(res, { ceremonies: result });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to get ceremonies';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
       }
       err(res, 'CEREMONIES_GET_ERROR', message, 500);
@@ -456,7 +468,7 @@ weddingRouter.post(
       ok(res, ceremony, 201);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to add ceremony';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
       }
       err(res, 'CEREMONY_CREATE_ERROR', message, 500);
@@ -489,7 +501,7 @@ weddingRouter.put(
       ok(res, ceremony);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to update ceremony';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
       }
       err(res, 'CEREMONY_UPDATE_ERROR', message, 500);
@@ -565,7 +577,7 @@ weddingRouter.put(
       ok(res, { muhuratDates: dates });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to select muhurat';
-      if (message === 'WEDDING_NOT_FOUND') {
+      if (codeOf(e) === 'WEDDING_NOT_FOUND') {
         err(res, 'NOT_FOUND', 'Wedding not found', 404); return;
       }
       err(res, 'MUHURAT_SELECT_ERROR', message, 500);

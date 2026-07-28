@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { BankVerificationResult } from '@smartshaadi/types';
 
 export interface BankVerifyArgs {
@@ -31,5 +32,5 @@ export async function verifyBank(args: BankVerifyArgs): Promise<BankVerification
   //   - poll status until 'completed' or timeout 30s
   //   - on success, fuzzy-match returned `account_holder_name` vs `accountHolderName`
   //   - reject if name match score < 80
-  throw new Error('Real bank provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'Bank verification provider not yet configured', 503);
 }

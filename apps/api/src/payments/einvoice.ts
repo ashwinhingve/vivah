@@ -6,6 +6,7 @@
  */
 
 import { env } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 
 export interface EInvoiceResult {
   irn:    string;
@@ -43,5 +44,5 @@ export async function generateEInvoice(payload: EInvoicePayload): Promise<EInvoi
     };
   }
   // TODO(future): wire to https://einvoice.gst.gov.in/eivital/v1.04/Invoice
-  throw new Error('Real e-invoicing endpoint not configured');
+  throw new AppError('SERVICE_NOT_CONFIGURED', 'Real e-invoicing endpoint not configured', 501);
 }

@@ -95,7 +95,7 @@ export async function addFamilyMember(userId: string, input: AddFamilyMemberInpu
     email:         input.email ?? null,
     notes:         input.notes ?? null,
   }).returning();
-  if (!r) throw new Error('Failed to add family member');
+  if (!r) throw appErr('Failed to add family member', 'DB_INSERT_FAILED', 500);
   return mapMember(r);
 }
 
@@ -152,7 +152,7 @@ export async function requestFamilyVerification(userId: string): Promise<FamilyV
   const [r] = await db.insert(familyVerifications).values(values)
     .onConflictDoUpdate({ target: familyVerifications.profileId, set: { updatedAt: values.updatedAt } })
     .returning();
-  if (!r) throw new Error('Failed to record verification request');
+  if (!r) throw appErr('Failed to record verification request', 'DB_INSERT_FAILED', 500);
   return mapVerification(r);
 }
 

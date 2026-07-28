@@ -14,4 +14,4 @@ export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost
  * release APK points at production, not a placeholder.
  */
 export const MEDIA_BASE_URL =
-  process.env.EXPO_PUBLIC_MEDIA_URL ?? 'https://media.smartshaadi.co.in';
+  process.env.EXPO_PUBLIC_MEDIA_URL ?? 'https://pub-7636b4a54e624991aabbe56292aff185.r2.dev';

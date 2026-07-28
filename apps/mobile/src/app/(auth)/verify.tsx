@@ -9,6 +9,7 @@ import { OTPInput, OTP_LENGTH } from '@/components/OTPInput';
 import { Button } from '@/components/Button';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { InfoNote } from '@/components/InfoNote';
+import { usePlatformSettings } from '@/features/settings/platformSettingsHook';
 
 /**
  * OTP verification screen.
@@ -22,6 +23,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 export default function VerifyScreen() {
   const router = useRouter();
   const { phone } = useLocalSearchParams<{ phone: string }>();
+  const platformSettings = usePlatformSettings();
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,13 @@ export default function VerifyScreen() {
           We&apos;ve sent a code to {phone}
         </Text>
       </View>
+
+      {/* Test Mode Badge */}
+      {platformSettings.data?.isMockMode && (
+        <View className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2">
+          <Text className="text-warning text-sm">Test Mode — no real charge will be made</Text>
+        </View>
+      )}
 
       {/* OTP Input — auto-submits when all 6 digits are entered */}
       <View className="mb-6">

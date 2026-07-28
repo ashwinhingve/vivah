@@ -14,6 +14,7 @@
 import { eq, inArray } from 'drizzle-orm';
 import { profiles } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import { shouldUseMockMongo } from '../lib/env.js';
 import { ProfileContent } from '../infrastructure/mongo/models/ProfileContent.js';
 import { resolveProfileId } from '../lib/profile.js';
@@ -40,7 +41,7 @@ export async function enqueueEmbeddingRefresh(userId: string): Promise<void> {
 /** Write one profile's embedding into the indexed pgvector column. */
 export async function syncProfileEmbedding(profileId: string, embedding: number[]): Promise<void> {
   if (embedding.length !== EMBEDDING_DIMS) {
-    throw new Error(`embedding must be ${EMBEDDING_DIMS}-dim, got ${embedding.length}`);
+    throw new AppError('INVALID_INPUT', `embedding must be ${EMBEDDING_DIMS}-dim, got ${embedding.length}`, 400);
   }
   await db
     .update(profiles)

@@ -13,6 +13,7 @@ import {
   useStatement,
   useSubscription,
 } from '../../features/payments/hooks';
+import { usePlatformSettings } from '@/features/settings/platformSettingsHook';
 
 /**
  * Payments & billing — Unit 7.1 (mobile parity). READ-ONLY.
@@ -26,6 +27,7 @@ import {
 export default function PaymentsScreen() {
   const router = useRouter();
   const { colors } = useThemeColors();
+  const platformSettings = usePlatformSettings();
 
   // Computed once per mount so the window cannot slide underneath a cached key.
   const range = useMemo(() => defaultStatementRange(), []);
@@ -95,6 +97,13 @@ export default function PaymentsScreen() {
       <Text className="font-heading text-2xl text-primary mb-6">
         Payments &amp; Billing
       </Text>
+
+      {/* Test Mode Badge */}
+      {platformSettings.data?.isMockMode && (
+        <View className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2">
+          <Text className="text-warning text-sm">Test Mode — no real charge will be made</Text>
+        </View>
+      )}
 
       {/* ── Current plan ─────────────────────────────────────────────────── */}
       <Text className="font-heading text-lg text-primary mb-2">Your plan</Text>

@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { CriminalCheckResult } from '@smartshaadi/types';
 
 export interface CriminalCheckArgs {
@@ -25,5 +26,5 @@ export async function checkCriminalRecord(args: CriminalCheckArgs): Promise<Crim
   }
 
   // TODO: integrate eCourts/Karza criminal-record API.
-  throw new Error('Real criminal-check provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'Criminal record provider not yet configured', 503);
 }

@@ -1,10 +1,12 @@
 import { getTranslations } from 'next-intl/server';
+import { getPlatformSettings } from '@/lib/platform-settings';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { CheckoutForm } from '@/components/store/CheckoutForm.client';
 
 export default async function CheckoutPage() {
   const t = await getTranslations('store');
+  const settings = await getPlatformSettings();
   return (
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="max-w-3xl mx-auto">
@@ -20,7 +22,7 @@ export default async function CheckoutPage() {
           <h1 className="font-heading text-primary text-xl font-bold">{t('checkout.title')}</h1>
         </div>
 
-        <CheckoutForm />
+        <CheckoutForm isMock={settings.isMockMode} />
       </div>
     </main>
   );

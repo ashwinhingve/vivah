@@ -4,6 +4,7 @@ import { env } from '../lib/env.js';
 import * as schema from '@smartshaadi/db';
 import { transferToVendor } from '../lib/razorpay.js';
 import { rupeesToPaise } from '../lib/money.js';
+import { AppError } from '../lib/errors.js';
 
 export interface AddSplitInput {
   bookingId:   string;
@@ -38,7 +39,7 @@ export async function addSplit(input: AddSplitInput): Promise<SplitRow> {
     .returning();
 
   if (!row) {
-    throw new Error('Failed to insert payment split');
+    throw new AppError('DB_INSERT_FAILED', 'Failed to insert payment split', 500);
   }
 
   return {
@@ -79,13 +80,13 @@ export async function releaseSplit(splitId: string): Promise<SplitRow> {
     .limit(1);
 
   if (!split) {
-    throw new Error('Split not found');
+    throw new AppError('NOT_FOUND', 'Split not found', 404);
   }
   if (split.status === 'DISPUTED') {
-    throw new Error('Cannot release a disputed split');
+    throw new AppError('INVALID_STATE', 'Cannot release a disputed split', 409);
   }
   if (split.status === 'RELEASED') {
-    throw new Error('Split already released');
+    throw new AppError('CONFLICT', 'Split already released', 409);
   }
 
   const amount = parseFloat(split.amount);
@@ -148,10 +149,10 @@ export async function disputeSplit(splitId: string): Promise<SplitRow> {
     .limit(1);
 
   if (!split) {
-    throw new Error('Split not found');
+    throw new AppError('NOT_FOUND', 'Split not found', 404);
   }
   if (split.status === 'RELEASED') {
-    throw new Error('Cannot dispute an already-released split');
+    throw new AppError('INVALID_STATE', 'Cannot dispute an already-released split', 409);
   }
 
   const [updated] = await db
@@ -161,7 +162,7 @@ export async function disputeSplit(splitId: string): Promise<SplitRow> {
     .returning();
 
   if (!updated) {
-    throw new Error('Failed to update split status');
+    throw new AppError('DB_UPDATE_FAILED', 'Failed to update split status', 500);
   }
 
   return {
