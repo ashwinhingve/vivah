@@ -31,7 +31,7 @@
 | A4-03 | P1 | Mock OTP override honoured whenever `USE_MOCK_SERVICES` — under the `ALLOW_MOCK_SERVICES_IN_PROD` escape hatch, seeded QA/ADMIN/SUPPORT accounts were loginable in prod with a known code | Request-time guard: sendOTP mock override throws when `NODE_ENV=production`; phone-change response never echoes the code in prod | auth+env suites 19/19; api type-check | `a40a14f` |
 | A4-05 | P1 | `NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'` inlined across 184 web files, no build guard | Central `lib/api-url.ts` (throws on a real prod deploy `VERCEL_ENV=production` when unset; localhost fallback for local/CI/preview); codemod-migrated all 184 sites onto `API_URL` (imports after directives, no self-ref consts); fixed ChatView `/api/v1` drop | web type-check + `next build` pass; 0 leftover fallbacks | `45d9ab4` |
 | P2-2 | P2 | Non-money read-then-update transitions (decline/withdraw, subscription webhook states, completeBooking) | Optimistic CAS: `AND status=<expected>` in the UPDATE WHERE; subscription terminal case gates `downgradeUserTier` on the CAS winner | matchmaking+payments+bookings 226/226; api type-check | `5b50757` |
-| P2-4 (block) | P2 | `blockUser` (safety action) left no chained audit trail | Append `PROFILE_BLOCKED` audit row on block. **Unblock + virtual-date coverage NOT done** — enum lacks `PROFILE_UNBLOCKED`/virtual-date events; a correct fix needs a schema change (frozen) → escalated | api type-check; block covered, deferred noted | `5b50757` |
+| P2-4 | P2 | `blockUser`/`unblockUser` (safety actions) + the virtual-date lifecycle sweep left no chained audit trail | Block audit (`PROFILE_BLOCKED`) in `5b50757`; **completed** in `51d95e3` — added enum values `PROFILE_UNBLOCKED`/`VIRTUAL_DATE_EXPIRED`/`VIRTUAL_DATE_NO_SHOW` + migration 0041 (schema unfreeze approved), wired unblock + sweep to correct events (best-effort). Apply 0041 on deploy | api type-check; video+matchmaking 70/70 | `5b50757`, `51d95e3` |
 
 ## Deferred / ops (not code-fixable in this pass)
 
@@ -42,6 +42,4 @@
 | A4-04 | P1 | Mocked payments/OTP carry no per-surface "test mode" label (web + mobile) | Needs a consistent mock-mode indicator; mobile has no exposed flag (see above). Own follow-up — not demo-blocking |
 | A4-06 (alias) | P2 | Vercel alias `vivah-web.vercel.app` is a brand leak (FastAPI title already fixed in `c85d12f`) | Ops: rename the Vercel production alias to a smartshaadi domain |
 | A4-08 | P2 | `MIGRATIONS-PENDING.md` stale — documents ≤0029, 0030–0040 undocumented | Doc-only refresh; schema frozen at 0040 so no migration work. Follow-up |
-| P2-2 | P2 | Non-money read-then-update transitions (decline/withdraw/block, subscription grace, completeBooking) | Same one-line `AND status=<expected>` CAS pattern; non-money blast radius → P2 follow-up |
-| P2-4 | P2 | Audit-chain coverage gaps (block/unblock, virtual-date lifecycle append no chained row) | Add `appendAuditLog` calls; P2 follow-up |
-| ~100 bare `throw new Error()` | P2 | Large mechanical diff across business logic; audit says keep separate | Own dedicated session after these batches |
+| ~100 bare `throw new Error()` | P2 | Large mechanical diff across business logic; audit says keep separate | In progress (typed-error sweep) |
