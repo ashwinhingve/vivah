@@ -42,4 +42,4 @@
 | A4-04 | P1 | Mocked payments/OTP carry no per-surface "test mode" label (web + mobile) | Needs a consistent mock-mode indicator; mobile has no exposed flag (see above). Own follow-up — not demo-blocking |
 | A4-06 (alias) | P2 | Vercel alias `vivah-web.vercel.app` is a brand leak (FastAPI title already fixed in `c85d12f`) | Ops: rename the Vercel production alias to a smartshaadi domain |
 | A4-08 | P2 | `MIGRATIONS-PENDING.md` stale — documents ≤0029, 0030–0040 undocumented | Doc-only refresh; schema frozen at 0040 so no migration work. Follow-up |
-| ~100 bare `throw new Error()` | P2 | Large mechanical diff across business logic; audit says keep separate | In progress (typed-error sweep) |
+| ~100 bare `throw new Error()` | P2 | 103 found; **11 converted** where a module error class exists (marketing/documents/whatsapp, `7dccb76`). Remaining **92** are in modules with NO typed-error class (auth, kyc, payments, weddings, vendors, guests, rentals, profiles, …) | Needs per-module error classes or a shared base error — a design decision; do as its own batch |
