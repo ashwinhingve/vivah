@@ -1,4 +1,5 @@
 import { API_URL } from '@/lib/api-url';
+import { getPlatformSettings } from '@/lib/platform-settings';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations, getLocale } from 'next-intl/server';
@@ -90,7 +91,8 @@ export default async function BillingPage({
   const numberLocale = intlLocale(locale);
   const { plan: planCode } = await searchParams;
   const plans = await fetchPlans();
-  const isMock = process.env['USE_MOCK_SERVICES'] === 'true';
+  const settings = await getPlatformSettings();
+  const isMock = settings.isMockMode;
 
   if (planCode) {
     const plan = plans.find((p) => p.code === planCode) ?? null;

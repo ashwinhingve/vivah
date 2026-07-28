@@ -40,8 +40,10 @@ platformSettingsPublicRouter.get(
   async (_req: Request, res: Response) => {
     try {
       const { isLGBTQMatchingEnabled } = await import('../services/platformSettingsService.js');
+      const { env } = await import('../lib/env.js');
       const lgbtqEnabled = await isLGBTQMatchingEnabled();
-      return ok(res, { lgbtqEnabled });
+      const isMockMode = env.USE_MOCK_SERVICES;
+      return ok(res, { lgbtqEnabled, isMockMode });
     } catch (e) {
       logger.error({ err: e }, 'platform-settings public read failed');
       return err(res, 'SERVER_ERROR', 'Failed to read platform settings', 500);

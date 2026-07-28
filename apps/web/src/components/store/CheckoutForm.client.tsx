@@ -31,9 +31,14 @@ const INITIAL: ShippingFields = {
 };
 
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  isMock?: boolean;
+}
+
+export function CheckoutForm({ isMock = false }: CheckoutFormProps) {
   const router     = useRouter();
   const t          = useTranslations('store.checkout');
+  const tBilling   = useTranslations('billing');
   const items      = useCartStore(s => s.items);
   const totalPrice = useCartStore(s => s.totalPrice);
   const clearCart  = useCartStore(s => s.clearCart);
@@ -204,6 +209,11 @@ export function CheckoutForm() {
 
   return (
     <>
+      {isMock && (
+        <div className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
+          {tBilling('testMode')}
+        </div>
+      )}
       <div className="grid md:grid-cols-3 gap-6">
         {/* Shipping form */}
         <form onSubmit={handleSubmit} className="md:col-span-2 space-y-4">
