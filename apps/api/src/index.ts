@@ -560,6 +560,21 @@ app.use((error: unknown, _req: Request, res: Response, next: NextFunction): void
     return;
   }
 
+  // Typed application errors — AppError (lib/errors.ts) and the `appErr({code,status})`
+  // pattern used by requireRole/access guards. Honor their HTTP status + code instead
+  // of masking them as a generic 500. Guarded on a numeric 4xx/5xx status so raw
+  // Postgres errors (which carry a string `.code` like '23505' but no `.status`) still
+  // fall through to the 500 branch below.
+  const appStatus = (error as { status?: unknown }).status;
+  const appCode   = (error as { code?: unknown }).code;
+  if (
+    typeof appStatus === 'number' && appStatus >= 400 && appStatus < 600 &&
+    typeof appCode === 'string'
+  ) {
+    errResponse(res, appCode, error instanceof Error ? error.message : 'Request failed', appStatus);
+    return;
+  }
+
   logger.error({ err: error, requestId: (_req as Request & { id?: string }).id }, 'unhandled error');
   captureException(error, { requestId: (_req as Request & { id?: string }).id });
   errResponse(res, 'INTERNAL_ERROR', 'Internal server error', 500);
