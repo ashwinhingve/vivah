@@ -15,6 +15,7 @@
 import { eq, and, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { shouldUseMockMongo, env } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import { weddings, weddingTasks, profiles, guestLists, ceremonies, weddingMembers } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
 import { getWeddingRole, type WeddingRole } from './access.js';
@@ -135,7 +136,7 @@ export async function createWedding(
     .limit(1);
 
   if (!profile) {
-    throw new Error('PROFILE_NOT_FOUND');
+    throw new AppError('PROFILE_NOT_FOUND', 'Profile not found', 404);
   }
 
   // Insert PostgreSQL row
@@ -155,7 +156,7 @@ export async function createWedding(
     .returning();
 
   if (!weddingRow) {
-    throw new Error('WEDDING_CREATE_FAILED');
+    throw new AppError('WEDDING_CREATE_FAILED', 'Failed to create wedding', 500);
   }
 
   const defaultPlan: WeddingPlanType = {
@@ -487,7 +488,7 @@ export async function updateBudget(
   input: UpdateBudgetInput,
 ): Promise<BudgetCategory[]> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   if (shouldUseMockMongo) {
     const existing = mockGetPlan(weddingId);
@@ -607,7 +608,7 @@ export async function createTask(
   input: CreateTaskInput,
 ): Promise<WeddingTask> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   const [task] = await db
     .insert(weddingTasks)
@@ -622,7 +623,7 @@ export async function createTask(
     })
     .returning();
 
-  if (!task) throw new Error('TASK_CREATE_FAILED');
+  if (!task) throw new AppError('TASK_CREATE_FAILED', 'Failed to create task', 500);
 
   return mapTaskRow(task);
 }
@@ -709,7 +710,7 @@ export async function autoGenerateChecklist(
   weddingDate: string,
 ): Promise<{ created: number }> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   const targetDate = new Date(weddingDate);
   const now        = new Date();
@@ -835,7 +836,7 @@ export async function addCeremony(
   input: CreateCeremonyInput,
 ): Promise<Ceremony> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   const [inserted] = await db
     .insert(ceremonies)
@@ -854,7 +855,7 @@ export async function addCeremony(
     })
     .returning();
 
-  if (!inserted) throw new Error('CEREMONY_CREATE_FAILED');
+  if (!inserted) throw new AppError('CEREMONY_CREATE_FAILED', 'Failed to create ceremony', 500);
 
   const ceremony = mapCeremonyRow(inserted);
 
@@ -910,7 +911,7 @@ export async function updateCeremony(
   input: UpdateCeremonyInput,
 ): Promise<Ceremony | null> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   const updates: Partial<CeremonyRow> = {};
   if (input.type      !== undefined) {
@@ -962,7 +963,7 @@ export async function getCeremonies(
   weddingId: string,
 ): Promise<Ceremony[]> {
   const row = await resolveOwnedWedding(userId, weddingId, 'VIEWER');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   const rows = await db
     .select()
@@ -1039,7 +1040,7 @@ export async function selectMuhurat(
   input: SelectMuhuratInput,
 ): Promise<MuhuratDate[]> {
   const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
-  if (!row) throw new Error('WEDDING_NOT_FOUND');
+  if (!row) throw new AppError('WEDDING_NOT_FOUND', 'Wedding not found', 404);
 
   // Also update weddingDate in PostgreSQL
   await db

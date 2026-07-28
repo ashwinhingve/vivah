@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { randomUUID } from 'node:crypto';
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 
 export interface DigiLockerAuthUrl {
   authUrl: string;
@@ -21,7 +22,7 @@ export interface DigiLockerVerifyResult {
 export async function getDigiLockerAuthUrl(redirectUri: string): Promise<DigiLockerAuthUrl> {
   if (!shouldUseMockKyc) {
     // TODO: import DigiLocker SDK and call getAuthUrl(redirectUri, scopes)
-    throw new Error('Real DigiLocker client not yet configured');
+    throw new AppError('NOT_CONFIGURED', 'DigiLocker provider not yet configured', 503);
   }
 
   const state = randomUUID();
@@ -35,7 +36,7 @@ export async function verifyDigiLockerCallback(_code: string): Promise<DigiLocke
   if (!shouldUseMockKyc) {
     // TODO: exchange code for token, pull Aadhaar XML, extract name + DOB,
     //       confirm identity, then discard all PII. Return only refId.
-    throw new Error('Real DigiLocker client not yet configured');
+    throw new AppError('NOT_CONFIGURED', 'DigiLocker provider not yet configured', 503);
   }
 
   return {

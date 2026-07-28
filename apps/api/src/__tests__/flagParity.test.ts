@@ -149,7 +149,7 @@ describe('KYC mock parity (kyc/aadhaar)', () => {
 
   it('shouldUseMockKyc=false → verifyDigiLockerCallback throws (real DigiLocker unconfigured)', async () => {
     const aadhaar = await loadAadhaar(false);
-    await expect(aadhaar.verifyDigiLockerCallback('any-code')).rejects.toThrow('Real DigiLocker client not yet configured');
+    await expect(aadhaar.verifyDigiLockerCallback('any-code')).rejects.toThrow('DigiLocker provider not yet configured');
   });
 });
 

@@ -27,6 +27,13 @@ import { notifyAdmins } from '../notifications/service.js';
 import type { DisputeEscrowInput } from '@smartshaadi/schemas';
 import { logger } from '../lib/logger.js';
 
+// ── Error handling ────────────────────────────────────────────────────────────
+
+interface ServiceError extends Error { code: string; status: number; }
+function err(message: string, code: string, status: number): ServiceError {
+  return Object.assign(new Error(message), { code, status });
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 async function cancelEscrowReleaseJob(bookingId: string): Promise<void> {
@@ -61,10 +68,10 @@ export async function raiseDispute(
     .limit(1);
 
   if (!bookingCheck) {
-    throw new Error('Booking not found');
+    throw err('Booking not found', 'NOT_FOUND', 404);
   }
   if (bookingCheck.customerId !== userId) {
-    throw new Error('Forbidden: booking does not belong to this user');
+    throw err('Forbidden: booking does not belong to this user', 'FORBIDDEN', 403);
   }
 
   // 2. Transaction with SELECT … FOR UPDATE to prevent concurrent double-dispute.
@@ -80,10 +87,10 @@ export async function raiseDispute(
     const lockedRow = locked.rows[0] as { id: string; status: string; vendor_id: string } | undefined;
 
     if (!lockedRow) {
-      throw new Error('Booking not found');
+      throw err('Booking not found', 'NOT_FOUND', 404);
     }
     if (lockedRow.status !== 'CONFIRMED' && lockedRow.status !== 'COMPLETED') {
-      throw new Error(`Invalid state: booking status is ${lockedRow.status}, must be CONFIRMED or COMPLETED`);
+      throw err(`Invalid state: booking status is ${lockedRow.status}, must be CONFIRMED or COMPLETED`, 'INVALID_STATE', 409);
     }
 
     vendorId = lockedRow.vendor_id;
@@ -96,7 +103,7 @@ export async function raiseDispute(
       .limit(1);
 
     if (!escrow || escrow.status !== 'HELD') {
-      throw new Error(`Invalid state: escrow status is ${escrow?.status ?? 'missing'}, must be HELD`);
+      throw err(`Invalid state: escrow status is ${escrow?.status ?? 'missing'}, must be HELD`, 'INVALID_STATE', 409);
     }
 
     // Atomic update booking
@@ -112,7 +119,7 @@ export async function raiseDispute(
       .returning({ id: schema.bookings.id });
 
     if (updated.length === 0) {
-      throw new Error('BOOKING_ALREADY_DISPUTED or invalid status');
+      throw err('BOOKING_ALREADY_DISPUTED or invalid status', 'CONFLICT', 409);
     }
 
     // Update escrow status
@@ -202,7 +209,7 @@ export async function resolveDispute(
     .limit(1);
 
   if (!adminUser || adminUser.role !== 'ADMIN') {
-    throw new Error('Forbidden: admin access required');
+    throw err('Forbidden: admin access required', 'FORBIDDEN', 403);
   }
 
   // 2. Idempotency — generate or accept caller-supplied resolutionId
@@ -216,10 +223,10 @@ export async function resolveDispute(
     .limit(1);
 
   if (!booking) {
-    throw new Error('Booking not found');
+    throw err('Booking not found', 'NOT_FOUND', 404);
   }
   if (booking.status !== 'DISPUTED') {
-    throw new Error(`Invalid state: booking status is ${booking.status}, must be DISPUTED`);
+    throw err(`Invalid state: booking status is ${booking.status}, must be DISPUTED`, 'INVALID_STATE', 409);
   }
 
   // 4. Fetch escrow account
@@ -230,7 +237,7 @@ export async function resolveDispute(
     .limit(1);
 
   if (!escrow) {
-    throw new Error('Escrow account not found for booking');
+    throw err('Escrow account not found for booking', 'NOT_FOUND', 404);
   }
 
   // 5. Fetch latest payment for this booking
@@ -302,7 +309,7 @@ export async function resolveDispute(
     .returning({ id: schema.bookings.id });
 
   if (lockResult.length === 0) {
-    throw new Error('DISPUTE_ALREADY_RESOLVED');
+    throw err('DISPUTE_ALREADY_RESOLVED', 'CONFLICT', 409);
   }
 
   switch (resolution) {
@@ -387,7 +394,7 @@ export async function resolveDispute(
 
     case 'SPLIT': {
       if (splitRatio === undefined || splitRatio <= 0 || splitRatio >= 1) {
-        throw new Error('splitRatio must be between 0 and 1 (exclusive) for SPLIT resolution');
+        throw err('splitRatio must be between 0 and 1 (exclusive) for SPLIT resolution', 'INVALID_INPUT', 400);
       }
 
       vendorAmount   = Math.round(escrowTotal * splitRatio);
@@ -450,7 +457,7 @@ export async function resolveDispute(
     }
 
     default: {
-      throw new Error(`Unknown resolution type: ${String(resolution)}`);
+      throw err(`Unknown resolution type: ${String(resolution)}`, 'INTERNAL_ERROR', 500);
     }
   }
 
@@ -494,7 +501,7 @@ export async function getDisputedBookings(adminUserId: string): Promise<Disputed
     .limit(1);
 
   if (!adminUser || adminUser.role !== 'ADMIN') {
-    throw new Error('Forbidden: admin access required');
+    throw err('Forbidden: admin access required', 'FORBIDDEN', 403);
   }
 
   const rows = await db

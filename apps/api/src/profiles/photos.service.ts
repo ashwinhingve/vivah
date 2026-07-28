@@ -1,5 +1,6 @@
 import { eq, and, asc } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import { profiles, profilePhotos, profileSections } from '@smartshaadi/db';
 import { getPhotoUrls } from '../storage/service.js';
 import { bustOwnFeedCache } from '../lib/redis.js';
@@ -89,7 +90,7 @@ export async function addProfilePhoto(
     .returning();
 
   if (!newPhoto) {
-    throw new Error('Failed to insert photo');
+    throw new AppError('DB_INSERT_FAILED', 'Failed to insert photo', 500);
   }
 
   // 7. Update profileSections: set photos=true

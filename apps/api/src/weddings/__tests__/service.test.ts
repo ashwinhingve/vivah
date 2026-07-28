@@ -199,7 +199,7 @@ describe('weddings/service — createWedding', () => {
 
     await expect(
       createWedding('ghost-user', { weddingDate: '2027-02-14' }),
-    ).rejects.toThrow('PROFILE_NOT_FOUND');
+    ).rejects.toMatchObject({ code: 'PROFILE_NOT_FOUND' });
   });
 });
 
@@ -575,7 +575,7 @@ describe('weddings/service — addCeremony', () => {
 
     await expect(
       addCeremony('user-1', 'bad-wedding', { type: 'MEHNDI' })
-    ).rejects.toThrow('WEDDING_NOT_FOUND');
+    ).rejects.toMatchObject({ code: 'WEDDING_NOT_FOUND' });
   });
 });
 

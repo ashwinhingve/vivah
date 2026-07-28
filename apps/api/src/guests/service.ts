@@ -14,6 +14,7 @@
 
 import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import {
   guestLists,
   guests,
@@ -152,7 +153,7 @@ async function ensureGuestList(weddingId: string, userId: string): Promise<Guest
     .returning();
 
   const gl = inserted[0];
-  if (!gl) throw new Error('Failed to create guest list');
+  if (!gl) throw new AppError('DB_INSERT_FAILED', 'Failed to create guest list', 500);
   return gl;
 }
 
@@ -235,7 +236,7 @@ export async function addGuest(
     .returning();
 
   const guest = inserted[0];
-  if (!guest) throw new Error('Failed to insert guest');
+  if (!guest) throw new AppError('DB_INSERT_FAILED', 'Failed to insert guest', 500);
   await logActivity(weddingId, userId, 'guest.add', 'guest', guest.id, { name: guest.name });
   return mapGuestRich(guest);
 }

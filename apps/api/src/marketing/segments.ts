@@ -7,6 +7,7 @@
 
 import { and, gt, lt, eq, notExists, sql } from 'drizzle-orm';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 import { profiles, matchRequests, vendors, bookings } from '@smartshaadi/db';
 import type { MarketingSegmentKey } from '@smartshaadi/types';
 
@@ -140,7 +141,7 @@ export async function evaluateSegment(segmentKey: MarketingSegmentKey): Promise<
       return vendorsIdle30d();
     default: {
       const _exhaustive: never = segmentKey;
-      throw new Error(`Unknown segment: ${String(_exhaustive)}`);
+      throw new AppError('INTERNAL_ERROR', `Unknown segment: ${String(_exhaustive)}`, 500);
     }
   }
 }

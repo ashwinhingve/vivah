@@ -27,6 +27,7 @@ import { db } from '../lib/db.js';
 import { env, shouldUseMockR2 } from '../lib/env.js';
 import { getPhotoUrl } from '../storage/service.js';
 import { sendEmail } from '../notifications/providers/ses.js';
+import { AppError } from '../lib/errors.js';
 
 const EXPORT_TTL_SECONDS = 7 * 24 * 60 * 60;
 
@@ -178,7 +179,7 @@ async function uploadArchive(r2Key: string, body: Buffer): Promise<void> {
 
 export async function processExportRequest(requestId: string): Promise<void> {
   const current = await getExportRequest(requestId);
-  if (!current) throw new Error(`export request not found: ${requestId}`);
+  if (!current) throw new AppError('NOT_FOUND', `export request not found: ${requestId}`, 404);
 
   await db.update(dataExportRequests)
     .set({ status: 'PROCESSING' })

@@ -1,6 +1,7 @@
 import { RekognitionClient, DetectFacesCommand, CompareFacesCommand, Attribute } from '@aws-sdk/client-rekognition';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { env } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { PhotoAnalysis } from '@smartshaadi/types';
 
 // Mock response returned when USE_MOCK_SERVICES=true.
@@ -46,7 +47,7 @@ async function fetchImageBytes(r2Key: string): Promise<Uint8Array> {
     Bucket: env.CLOUDFLARE_R2_BUCKET,
     Key:    r2Key,
   }));
-  if (!res.Body) throw new Error(`Empty body for R2 key: ${r2Key}`);
+  if (!res.Body) throw new AppError('R2_FETCH_FAILED', `Empty body for R2 key: ${r2Key}`, 500);
   return res.Body.transformToByteArray();
 }
 

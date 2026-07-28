@@ -7,6 +7,7 @@ import { sql, eq as drizzleEq } from 'drizzle-orm';
 import { user, session, account, verification, twoFactor as twoFactorTable } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
 import { env, isReferralLive } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import { sessionCookieAttributes } from './cookieAttributes.js';
 import { authTrustedOrigins } from '../lib/cors.js';
 import { recordAuthEvent, isNewDevice, AuthEventType } from './events.js';
@@ -110,7 +111,7 @@ export const auth = betterAuth({
         // Lockout check — block before the verification row is even written.
         if (await isPhoneLocked(phone)) {
           await recordAuthEvent({ userId: null, type: AuthEventType.OTP_LOCKED, ipAddress: ip, userAgent: ua, metadata: { phone } });
-          throw new Error('Too many OTP requests for this number. Try again in 15 minutes.');
+          throw new AppError('RATE_LIMITED', 'Too many OTP requests for this number. Try again in 15 minutes.', 429);
         }
 
         await recordOtpSent(phone);
@@ -123,7 +124,7 @@ export const auth = betterAuth({
           // would be loginable in prod with a known code. env.ts documents this exact
           // degraded behaviour ("auth routes will fail at request time").
           if (env.NODE_ENV === 'production') {
-            throw new Error('Mock OTP is disabled in production');
+            throw new AppError('MOCK_DISABLED', 'Mock OTP is disabled in production', 403);
           }
           // Non-null assertion is safe: env.ts superRefine guarantees
           // MOCK_OTP_VALUE is defined whenever USE_MOCK_SERVICES=true.
@@ -139,10 +140,10 @@ export const auth = betterAuth({
         // Fail loud in real mode until MSG91 is wired up — silent no-op would
         // make the UX say "code sent" when nothing was delivered.
         if (!env.MSG91_API_KEY) {
-          throw new Error('MSG91 not configured — set USE_MOCK_SERVICES=true or MSG91_API_KEY');
+          throw new AppError('NOT_CONFIGURED', 'MSG91 not configured — set USE_MOCK_SERVICES=true or MSG91_API_KEY', 503);
         }
         // TODO: real MSG91 integration
-        throw new Error('MSG91 integration not yet implemented');
+        throw new AppError('NOT_CONFIGURED', 'MSG91 integration not yet implemented', 503);
       },
       // Auto-create user on first OTP verify (phone-first signup flow).
       // Temp email is derived from phone — user sets real email in profile later.

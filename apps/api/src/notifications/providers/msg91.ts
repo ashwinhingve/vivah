@@ -1,4 +1,5 @@
 import { env } from '../../lib/env.js';
+import { AppError } from '../../lib/errors.js';
 import { msg91Breaker } from '../../lib/circuit-breaker.js';
 import type { SmsPayload, DeliveryResult } from './types.js';
 
@@ -28,7 +29,7 @@ export async function sendSms(p: SmsPayload): Promise<DeliveryResult> {
         }),
       });
       if (!res.ok) {
-        throw new Error(`MSG91 HTTP ${res.status}`);
+        throw new AppError('PROVIDER_ERROR', `MSG91 HTTP ${res.status}`, 503);
       }
       const data = await res.json() as { request_id?: string };
       return { ok: true, provider: 'msg91', id: data.request_id ?? '' };

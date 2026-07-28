@@ -13,6 +13,7 @@ import { randomBytes } from 'node:crypto';
 import { and, eq, sql } from 'drizzle-orm';
 import { referralCodes, referrals, user, referralCreditsLedger } from '@smartshaadi/db';
 import { db } from '../lib/db.js';
+import { AppError } from '../lib/errors.js';
 
 const CODE_LEN = 8;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -247,7 +248,7 @@ export async function generateCodeForUser(userId: string): Promise<ReferralCodeR
       if (!/unique|duplicate/i.test(msg)) throw e;
     }
   }
-  throw new Error('Failed to generate unique referral code after 3 attempts');
+  throw new AppError('CODE_GEN_FAILED', 'Failed to generate unique referral code after 3 attempts', 500);
 }
 
 export async function validateCode(code: string): Promise<ReferralCodeRow | null> {

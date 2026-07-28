@@ -353,7 +353,7 @@ describe('createRentalBooking', () => {
         toDate:       '2026-05-04',
         quantity:     1,
       })
-    ).rejects.toThrow('ITEM_NO_LONGER_AVAILABLE');
+    ).rejects.toMatchObject({ code: 'ITEM_NO_LONGER_AVAILABLE' });
   });
 
   it('prevents overbooking under concurrent requests — transaction test', async () => {
@@ -378,7 +378,7 @@ describe('createRentalBooking', () => {
         toDate:       '2026-05-04',
         quantity:     2, // 4+2=6 > 5
       })
-    ).rejects.toThrow('ITEM_NO_LONGER_AVAILABLE');
+    ).rejects.toMatchObject({ code: 'ITEM_NO_LONGER_AVAILABLE' });
 
     expect(callCount).toBe(1); // transaction was entered
   });
@@ -450,7 +450,7 @@ describe('confirmRentalBooking', () => {
     mockUpdate.mockReturnValueOnce(makeUpdateChain([]));
 
     await expect(confirmRentalBooking(USER_ID, BOOKING_ID)).rejects.toThrow(
-      'RENTAL_BOOKING_NOT_FOUND_OR_WRONG_VENDOR'
+      'Rental booking not found or wrong vendor',
     );
   });
 });

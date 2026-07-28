@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { createHash } from 'node:crypto';
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { FaceMatchResult } from '@smartshaadi/types';
 
 export interface FaceMatchArgs {
@@ -34,7 +35,7 @@ export async function compareFaces(args: FaceMatchArgs): Promise<FaceMatchResult
   //   }));
   //   const top = out.FaceMatches?.[0];
   //   return { matched: !!top, score: top?.Similarity ?? 0, analyzedAt: ... };
-  throw new Error('Real face-match provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'Face match provider not yet configured', 503);
 }
 
 export const FACE_MATCH_THRESHOLD = MATCH_THRESHOLD;

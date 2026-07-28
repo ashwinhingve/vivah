@@ -19,6 +19,7 @@ import { eq, and, inArray, gte, lte } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import { vendorCapacity, vendorEventTypes } from '@smartshaadi/db';
 import { rupeesToPaise } from '../lib/money.js';
+import { AppError } from '../lib/errors.js';
 import { asProfileId } from '@smartshaadi/types';
 import type { VendorCapacityWindow, ProfileId } from '@smartshaadi/types';
 
@@ -196,7 +197,7 @@ export async function queryVendorUtilizationOpportunities(
  */
 export function computeExpectedMarginPaise(leadFeeInr: number): bigint {
   if (!Number.isFinite(leadFeeInr) || leadFeeInr < 0) {
-    throw new Error(`Invalid lead fee: ${leadFeeInr}`);
+    throw new AppError('INVALID_INPUT', `Invalid lead fee: ${leadFeeInr}`, 400);
   }
   return BigInt(rupeesToPaise(leadFeeInr));
 }

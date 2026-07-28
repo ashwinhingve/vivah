@@ -16,6 +16,7 @@ import {
 } from '../lib/razorpay.js';
 import { rupeesToPaise } from '../lib/money.js';
 import { auditContentHash } from '../lib/auditHash.js';
+import { AppError } from '../lib/errors.js';
 import type { PaymentOrder } from '@smartshaadi/types';
 import type { CreatePaymentInput, RefundInput } from '@smartshaadi/schemas';
 
@@ -72,17 +73,17 @@ export async function createPaymentOrder(
     .limit(1);
 
   if (!booking) {
-    throw new Error('Booking not found');
+    throw new AppError('NOT_FOUND', 'Booking not found', 404);
   }
 
   // 2. Verify ownership
   if (booking.customerId !== userId) {
-    throw new Error('Forbidden: booking does not belong to this user');
+    throw new AppError('FORBIDDEN', 'Forbidden: booking does not belong to this user', 403);
   }
 
   // 3. Verify booking status
   if (booking.status !== 'CONFIRMED') {
-    throw new Error('Booking must be CONFIRMED before payment');
+    throw new AppError('INVALID_STATE', 'Booking must be CONFIRMED before payment', 400);
   }
 
   // 4. Escrow = exactly 50% of booking total (in rupees)
@@ -125,7 +126,7 @@ export async function handlePaymentSuccess(
     .limit(1);
 
   if (!payment) {
-    throw new Error(`Payment not found for order: ${razorpayOrderId}`);
+    throw new AppError('NOT_FOUND', `Payment not found for order: ${razorpayOrderId}`, 404);
   }
 
   // Idempotency — if this webhook has already been processed for this order,
@@ -216,13 +217,13 @@ export async function requestRefund(
     );
 
   if (rows.length === 0) {
-    throw new Error('Payment not found or forbidden');
+    throw new AppError('NOT_FOUND', 'Payment not found or forbidden', 404);
   }
 
   const { payment } = rows[0]!;
 
   if (!payment.razorpayPaymentId) {
-    throw new Error('Payment has no Razorpay payment ID — cannot refund');
+    throw new AppError('INVALID_STATE', 'Payment has no Razorpay payment ID — cannot refund', 400);
   }
 
   // 2. Claim the refund atomically BEFORE calling Razorpay (P1-S2). Flip the payment
@@ -241,7 +242,7 @@ export async function requestRefund(
     .returning({ id: schema.payments.id });
 
   if (claimed.length === 0) {
-    throw new Error('Payment is not in a refundable state (already refunded or a refund is in progress)');
+    throw new AppError('CONFLICT', 'Payment is not in a refundable state (already refunded or a refund is in progress)', 409);
   }
 
   // 3. Call Razorpay with a deterministic idempotency key (razorpay.ts A2-03) so a
@@ -463,9 +464,9 @@ export async function retryPaymentOrder(userId: string, bookingId: string): Prom
     .from(schema.bookings)
     .where(eq(schema.bookings.id, bookingId))
     .limit(1);
-  if (!booking) throw new Error('Booking not found');
-  if (booking.customerId !== userId) throw new Error('Forbidden');
-  if (booking.status !== 'CONFIRMED') throw new Error('Booking must be CONFIRMED');
+  if (!booking) throw new AppError('NOT_FOUND', 'Booking not found', 404);
+  if (booking.customerId !== userId) throw new AppError('FORBIDDEN', 'Forbidden', 403);
+  if (booking.status !== 'CONFIRMED') throw new AppError('INVALID_STATE', 'Booking must be CONFIRMED', 400);
 
   // Look up the most-recent payment for this booking. If it's already CAPTURED, refuse.
   const [latest] = await db
@@ -476,7 +477,7 @@ export async function retryPaymentOrder(userId: string, bookingId: string): Prom
     .limit(1);
 
   if (latest && latest.status === 'CAPTURED') {
-    throw new Error('Payment already captured for this booking');
+    throw new AppError('CONFLICT', 'Payment already captured for this booking', 409);
   }
 
   return createPaymentOrder(userId, { bookingId });

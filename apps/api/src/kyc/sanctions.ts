@@ -4,6 +4,7 @@
 // Mock-mode: blocks names containing 'BLOCKED' (test fixture).
 // ─────────────────────────────────────────────────────────────────────────────
 import { env } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { SanctionsCheckResult } from '@smartshaadi/types';
 
 export interface SanctionsArgs {
@@ -28,5 +29,5 @@ export async function checkSanctions(args: SanctionsArgs): Promise<SanctionsChec
 
   // TODO: vendor (e.g. Refinitiv World-Check) — fuzzy-match name + DOB across LISTS,
   //   any matchScore >= 90 = hard block, 70-89 = manual review escalation.
-  throw new Error('Real sanctions provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'Sanctions provider not yet configured', 503);
 }

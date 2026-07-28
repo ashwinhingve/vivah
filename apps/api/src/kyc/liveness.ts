@@ -5,6 +5,7 @@
 // integration (FaceX / HyperVerge / IDfy) plugs in here.
 // ─────────────────────────────────────────────────────────────────────────────
 import { shouldUseMockKyc } from '../lib/env.js';
+import { AppError } from '../lib/errors.js';
 import type { LivenessResult } from '@smartshaadi/types';
 
 export interface LivenessArgs {
@@ -33,5 +34,5 @@ export async function checkLiveness(args: LivenessArgs): Promise<LivenessResult>
   //   Detect: screen replay (moiré pattern), photo holdup (depth=0),
   //   mask (texture homogeneity), deepfake (frame-coherence anomaly).
   //   Compose into `score` and binary `passed`.
-  throw new Error('Real liveness provider not yet configured');
+  throw new AppError('NOT_CONFIGURED', 'Liveness provider not yet configured', 503);
 }
