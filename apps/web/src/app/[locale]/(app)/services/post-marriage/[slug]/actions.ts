@@ -1,4 +1,5 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 /**
  * Service enquiry Server Action — Phase 8, Unit 8.2.
@@ -8,7 +9,7 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 export interface ServiceEnquiryResult {
   success: boolean;

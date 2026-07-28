@@ -1,4 +1,5 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 /**
  * Admin package management actions — Phase 8, Unit 8.1.
@@ -16,7 +17,7 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 export interface AdminActionResult {
   success: boolean;

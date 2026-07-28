@@ -4,6 +4,7 @@
  * PREMIUM sees full sender details + Accept/Decline (links to /requests).
  */
 
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -23,7 +24,6 @@ import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
 import { ManglikChip } from '@/components/profile/ManglikChip';
 import { LastActiveBadge } from '@/components/profile/LastActiveBadge';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<import('next').Metadata> {
   const { locale } = await params;

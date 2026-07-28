@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -317,7 +318,7 @@ export default function ChatView({
     const prevScrollHeight = el?.scrollHeight ?? 0
     const prevScrollTop = el?.scrollTop ?? 0
     try {
-      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const apiUrl = API_URL
       const url = cursor
         ? `${apiUrl}/api/v1/chat/conversations/${matchId}?before=${encodeURIComponent(cursor)}&limit=${PAGE_SIZE}`
         : `${apiUrl}/api/v1/chat/conversations/${matchId}?page=${page + 1}&limit=${PAGE_SIZE}`
@@ -519,7 +520,7 @@ export default function ChatView({
       setTranslateOn(false)
       return
     }
-    const apiBase = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000/api/v1'
+    const apiBase = `${API_URL}/api/v1`
     const devanagariRe = /[ऀ-ॿ]/
     const candidates = messages.filter(
       (m) => m.type === 'TEXT' && m.content && devanagariRe.test(m.content) && !translations[m._id],

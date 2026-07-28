@@ -1,10 +1,10 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { Loader2, Heart, CheckCircle2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function getSessionToken(): string | null {
   return document.cookie

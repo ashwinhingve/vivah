@@ -48,6 +48,14 @@ jest.mock('../../../lib/api', () => ({
   NetworkError: class extends Error {},
 }));
 
+// The screen reads the signed-in user's id (to align own vs. other bubbles)
+// from useSession. Mock it here so importing the screen doesn't pull in the
+// ESM-only better-auth client, which jest-expo won't transform. The id differs
+// from the 'other-user' fixtures, so those still render as the other party.
+jest.mock('../../../hooks/useSession', () => ({
+  useSession: () => ({ data: { user: { id: 'current-user' } }, isPending: false }),
+}));
+
 import { api } from '../../../lib/api';
 import { chatSocket } from '../../../lib/socket';
 import ChatThreadScreen from '../../../app/(app)/(chat)/[matchId]';

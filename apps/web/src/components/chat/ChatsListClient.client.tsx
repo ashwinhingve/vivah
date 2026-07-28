@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -48,7 +49,7 @@ export default function ChatsListClient({
 
   useEffect(() => {
     const socket: Socket = contextSocket ?? (() => {
-      const url = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const url = API_URL
       const s = io(`${url}/chat`, {
         auth:           { token: authToken },
         withCredentials: true,

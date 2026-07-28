@@ -93,9 +93,9 @@ export default function PhoneScreen() {
       />
 
       {/* Info Note */}
-      <InfoNote variant="warning" className="mt-8">
-        Pre-launch scaffold — not live. In mock mode, use any phone number and the OTP code
-        configured in env.
+      <InfoNote variant="info" title="Test build" className="mt-8">
+        This is a test build — no real SMS is sent. Enter your phone number, then use the
+        test OTP code shared with you on the next screen.
       </InfoNote>
     </Screen>
   );

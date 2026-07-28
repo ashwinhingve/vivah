@@ -114,6 +114,10 @@ import {
   scheduleChurnRecoverySweepJob,
 } from './jobs/churnRecoverySweepJob.js'; // Phase 7 Sprint F (Unit 7.3)
 import {
+  registerVirtualDateLifecycleWorker,
+  scheduleVirtualDateLifecycleJob,
+} from './jobs/virtualDateLifecycleJob.js'; // Phase 7 Sprint F hardening (virtual-date lifecycle)
+import {
   registerWeddingReminderWorker,
   scheduleWeddingReminderJob,
 } from './jobs/weddingReminderJob.js';
@@ -556,6 +560,21 @@ app.use((error: unknown, _req: Request, res: Response, next: NextFunction): void
     return;
   }
 
+  // Typed application errors — AppError (lib/errors.ts) and the `appErr({code,status})`
+  // pattern used by requireRole/access guards. Honor their HTTP status + code instead
+  // of masking them as a generic 500. Guarded on a numeric 4xx/5xx status so raw
+  // Postgres errors (which carry a string `.code` like '23505' but no `.status`) still
+  // fall through to the 500 branch below.
+  const appStatus = (error as { status?: unknown }).status;
+  const appCode   = (error as { code?: unknown }).code;
+  if (
+    typeof appStatus === 'number' && appStatus >= 400 && appStatus < 600 &&
+    typeof appCode === 'string'
+  ) {
+    errResponse(res, appCode, error instanceof Error ? error.message : 'Request failed', appStatus);
+    return;
+  }
+
   logger.error({ err: error, requestId: (_req as Request & { id?: string }).id }, 'unhandled error');
   captureException(error, { requestId: (_req as Request & { id?: string }).id });
   errResponse(res, 'INTERNAL_ERROR', 'Internal server error', 500);
@@ -639,6 +658,8 @@ async function bootstrap(): Promise<void> {
     workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
     workers.push(registerChurnRecoverySweepWorker()); // Phase 7 Sprint F — churn recovery sweep
     void scheduleChurnRecoverySweepJob();
+    workers.push(registerVirtualDateLifecycleWorker()); // Phase 7 Sprint F hardening — virtual-date lifecycle sweep
+    void scheduleVirtualDateLifecycleJob();
     workers.push(registerMarketingSweepWorker()); // Phase 6 Sprint J — campaign sweep + attribution
     void scheduleMarketingSweepJob();
     workers.push(registerMarketingEventWorker()); // Phase 6 Sprint J — event-triggered campaigns

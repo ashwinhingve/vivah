@@ -55,13 +55,19 @@ export async function creditWallet(input: WalletOpInput) {
     const wallet = await ensureWallet(tx as unknown as typeof db, input.userId);
     if (!wallet.isActive) throw new WalletError('WALLET_INACTIVE', 'Wallet is inactive');
 
-    const newBalance    = parseFloat(wallet.balance) + input.amount;
-    const newLifetimeIn = parseFloat(wallet.lifetimeIn) + input.amount;
-
-    await tx
+    // Atomic increment (A2-04): let Postgres compute balance = balance + amount so
+    // concurrent credits cannot lost-update the denormalised balance. Return the
+    // post-update balance for the ledger snapshot.
+    const [updated] = await tx
       .update(schema.wallets)
-      .set({ balance: String(newBalance), lifetimeIn: String(newLifetimeIn), updatedAt: new Date() })
-      .where(eq(schema.wallets.id, wallet.id));
+      .set({
+        balance:    sql`${schema.wallets.balance} + ${input.amount}`,
+        lifetimeIn: sql`${schema.wallets.lifetimeIn} + ${input.amount}`,
+        updatedAt:  new Date(),
+      })
+      .where(eq(schema.wallets.id, wallet.id))
+      .returning({ balance: schema.wallets.balance });
+    const newBalance = parseFloat(updated!.balance);
 
     const [txn] = await tx
       .insert(schema.walletTransactions)
@@ -106,18 +112,29 @@ export async function debitWallet(input: WalletOpInput) {
     const wallet = await ensureWallet(tx as unknown as typeof db, input.userId);
     if (!wallet.isActive) throw new WalletError('WALLET_INACTIVE', 'Wallet is inactive');
 
-    const balance = parseFloat(wallet.balance);
-    if (balance < input.amount) {
-      throw new WalletError('INSUFFICIENT_BALANCE', `Available ₹${balance}, requested ₹${input.amount}`);
-    }
-
-    const newBalance     = balance - input.amount;
-    const newLifetimeOut = parseFloat(wallet.lifetimeOut) + input.amount;
-
-    await tx
+    // Atomic check-and-debit (A2-04): the `balance >= amount` guard lives in the
+    // UPDATE's WHERE so the check and the decrement are one atomic statement — no
+    // TOCTOU between a read and a write, no lost update under concurrency.
+    const [updated] = await tx
       .update(schema.wallets)
-      .set({ balance: String(newBalance), lifetimeOut: String(newLifetimeOut), updatedAt: new Date() })
-      .where(eq(schema.wallets.id, wallet.id));
+      .set({
+        balance:     sql`${schema.wallets.balance} - ${input.amount}`,
+        lifetimeOut: sql`${schema.wallets.lifetimeOut} + ${input.amount}`,
+        updatedAt:   new Date(),
+      })
+      .where(and(
+        eq(schema.wallets.id, wallet.id),
+        sql`${schema.wallets.balance} >= ${input.amount}`,
+      ))
+      .returning({ balance: schema.wallets.balance });
+
+    if (!updated) {
+      throw new WalletError(
+        'INSUFFICIENT_BALANCE',
+        `Available ₹${parseFloat(wallet.balance)}, requested ₹${input.amount}`,
+      );
+    }
+    const newBalance = parseFloat(updated.balance);
 
     const [txn] = await tx
       .insert(schema.walletTransactions)
@@ -204,22 +221,76 @@ export async function createWalletTopupOrder(userId: string, amount: number): Pr
 /**
  * Idempotent wallet credit triggered by payment.captured webhook.
  * Uses metadata.razorpayPaymentId to dedupe replays.
+ *
+ * A2-05: the dedup check runs INSIDE the credit transaction, gated by a
+ * `SELECT … FOR UPDATE` lock on the wallet row. Two webhook deliveries for the
+ * same payment therefore serialize on that row — the second waits for the first to
+ * commit, then sees the first's inserted ledger row and returns `duplicate: true`.
+ * (A unique index on the dedup key would be cleaner but needs a schema change,
+ * which is frozen; the row lock closes the TOCTOU without one.) The credit itself
+ * uses the same atomic `balance + amount` increment as `creditWallet`.
  */
 export async function creditWalletForTopup(userId: string, amount: number, razorpayPaymentId: string): Promise<{ duplicate: boolean }> {
-  const [existing] = await db
-    .select({ id: schema.walletTransactions.id })
-    .from(schema.walletTransactions)
-    .where(sql`${schema.walletTransactions.metadata}->>'razorpayPaymentId' = ${razorpayPaymentId}`)
-    .limit(1);
-  if (existing) return { duplicate: true };
+  return db.transaction(async (tx) => {
+    const wallet = await ensureWallet(tx as unknown as typeof db, userId);
 
-  // amount arrives in rupees (webhook converts paise → rupees before calling).
-  // Wallet ledger stores rupees (decimal(12,2)), so write rupees verbatim.
-  await creditWallet({
-    userId,
-    amount,
-    reason:   'TOPUP',
-    metadata: { razorpayPaymentId },
+    // Serialize concurrent same-payment webhooks on the wallet row.
+    await tx
+      .select({ id: schema.wallets.id })
+      .from(schema.wallets)
+      .where(eq(schema.wallets.id, wallet.id))
+      .for('update');
+
+    const [existing] = await tx
+      .select({ id: schema.walletTransactions.id })
+      .from(schema.walletTransactions)
+      .where(sql`${schema.walletTransactions.metadata}->>'razorpayPaymentId' = ${razorpayPaymentId}`)
+      .limit(1);
+    if (existing) return { duplicate: true };
+
+    if (!wallet.isActive) throw new WalletError('WALLET_INACTIVE', 'Wallet is inactive');
+
+    // amount arrives in rupees (webhook converts paise → rupees before calling).
+    // Wallet ledger stores rupees (decimal(12,2)), so write rupees verbatim.
+    const [updated] = await tx
+      .update(schema.wallets)
+      .set({
+        balance:    sql`${schema.wallets.balance} + ${amount}`,
+        lifetimeIn: sql`${schema.wallets.lifetimeIn} + ${amount}`,
+        updatedAt:  new Date(),
+      })
+      .where(eq(schema.wallets.id, wallet.id))
+      .returning({ balance: schema.wallets.balance });
+    const newBalance = parseFloat(updated!.balance);
+
+    await tx
+      .insert(schema.walletTransactions)
+      .values({
+        walletId:     wallet.id,
+        userId,
+        type:         'CREDIT',
+        reason:       'TOPUP',
+        amount:       String(amount),
+        balanceAfter: String(newBalance),
+        metadata:     { razorpayPaymentId },
+      });
+
+    void appendAuditLog({
+      eventType:  'WALLET_CREDIT',
+      entityType: 'wallet',
+      entityId:   wallet.id,
+      actorId:    userId,
+      payload:    { amount, reason: 'TOPUP', balanceAfter: newBalance, razorpayPaymentId },
+    }).catch(() => undefined);
+
+    void notificationsQueue
+      .add('WALLET_CREDITED', {
+        type:    'WALLET_CREDITED',
+        userId,
+        payload: { amount, balanceAfter: newBalance, reason: 'TOPUP' },
+      })
+      .catch(() => undefined);
+
+    return { duplicate: false };
   });
-  return { duplicate: false };
 }

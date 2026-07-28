@@ -13,6 +13,7 @@
  * team confirm availability and send a quote. The row is not hidden or otherwise
  * restricted — only clearly labelled so users understand the status.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
@@ -25,7 +26,7 @@ import { Link } from '@/i18n/navigation';
 import { formatINR, formatDateIN } from '@/lib/format';
 import { EnquiryForm } from './EnquiryForm.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;

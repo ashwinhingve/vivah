@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { Link } from '@/i18n/navigation';
@@ -13,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface OverviewResponse {
   account: {

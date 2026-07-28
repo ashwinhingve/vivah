@@ -8,7 +8,7 @@
  *   to ACTIVE + invalidateTierCache → user starts seeing PREMIUM features.
  */
 
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import {
   plans,
@@ -215,7 +215,10 @@ export async function handleSubscriptionEvent(eventType: string, entity: Razorpa
         currentPeriodEnd:   entity.current_end   ? new Date(entity.current_end   * 1000) : null,
         gracePeriodEnd:     null,
         updatedAt:          new Date(),
-      }).where(eq(subscriptions.id, row.id));
+      }).where(and(
+        eq(subscriptions.id, row.id),
+        eq(subscriptions.status, row.status), // CAS: only update if still in current state
+      ));
 
       // Record charge if the event includes payment_id.
       if (eventType === 'subscription.charged' && (entity as { payment_id?: string }).payment_id) {
@@ -304,38 +307,56 @@ export async function handleSubscriptionEvent(eventType: string, entity: Razorpa
     case 'subscription.halted':
     case 'subscription.pending': {
       // Payment retry exhausted — start 7-day grace.
+      // Only transition if not already HALTED, CANCELLED, COMPLETED, or EXPIRED
       const graceUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       await db.update(subscriptions).set({
         status:         'HALTED',
         gracePeriodEnd: graceUntil,
         updatedAt:      new Date(),
-      }).where(eq(subscriptions.id, row.id));
+      }).where(and(
+        eq(subscriptions.id, row.id),
+        eq(subscriptions.status, row.status), // CAS: only update if still in current state
+      ));
       break;
     }
 
     case 'subscription.paused': {
       await db.update(subscriptions).set({ status: 'PAUSED', updatedAt: new Date() })
-        .where(eq(subscriptions.id, row.id));
+        .where(and(
+          eq(subscriptions.id, row.id),
+          eq(subscriptions.status, row.status), // CAS: only update if still in current state
+        ));
       break;
     }
 
     case 'subscription.resumed': {
       await db.update(subscriptions).set({ status: 'ACTIVE', updatedAt: new Date() })
-        .where(eq(subscriptions.id, row.id));
+        .where(and(
+          eq(subscriptions.id, row.id),
+          eq(subscriptions.status, row.status), // CAS: only update if still in current state
+        ));
       break;
     }
 
     case 'subscription.cancelled':
     case 'subscription.completed':
     case 'subscription.expired': {
-      await db.update(subscriptions).set({
+      // Only transition to terminal state if not already terminal
+      const [updated] = await db.update(subscriptions).set({
         status:             eventType === 'subscription.completed' ? 'COMPLETED'
                           : eventType === 'subscription.expired'   ? 'EXPIRED'
                           : 'CANCELLED',
         updatedAt:          new Date(),
-      }).where(eq(subscriptions.id, row.id));
-      await downgradeUserTier(row.userId);
-      invalidateTierCache(row.userId);
+      }).where(and(
+        eq(subscriptions.id, row.id),
+        eq(subscriptions.status, row.status), // CAS: only update if still in current state
+      )).returning({ id: subscriptions.id });
+
+      // Only downgrade if the transition succeeded (status was not already terminal)
+      if (updated) {
+        await downgradeUserTier(row.userId);
+        invalidateTierCache(row.userId);
+      }
       break;
     }
   }

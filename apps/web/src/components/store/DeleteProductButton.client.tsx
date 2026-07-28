@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -7,7 +8,6 @@ interface DeleteProductButtonProps {
   productName: string;
 }
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export function DeleteProductButton({ productId, productName }: DeleteProductButtonProps) {
   const router = useRouter();

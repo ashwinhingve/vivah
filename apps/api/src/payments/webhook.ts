@@ -143,7 +143,10 @@ export async function webhookHandler(req: Request, res: Response): Promise<void>
           if (notes['kind'] === 'WALLET_TOPUP' && notes['userId']) {
             const amount = (entity as { amount?: number }).amount ?? 0;
             const { creditWalletForTopup } = await import('./wallet.js');
-            await creditWalletForTopup(notes['userId'], Math.round(amount / 100), entity.id).catch((err) => {
+            // A2-05: amount is paise; credit the EXACT rupee value (÷100, not
+            // Math.round) so a non-round topup (e.g. 10050 paise = ₹100.50) is not
+            // mis-credited by up to ₹0.49 — the ledger is decimal(12,2).
+            await creditWalletForTopup(notes['userId'], amount / 100, entity.id).catch((err) => {
               logger.error({ err, userId: notes['userId'], amount }, '[webhook] wallet topup credit failed');
             });
           } else {

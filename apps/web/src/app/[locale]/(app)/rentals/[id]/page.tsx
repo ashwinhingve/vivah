@@ -4,6 +4,7 @@
  * Shows item details + BookingForm client component
  */
 
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -11,7 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 import { BookingForm } from '@/components/rental/BookingForm.client';
 import type { RentalItem } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 /** Plain (unauthenticated) fetch — public GET endpoints */
 async function fetchPublic<T>(path: string): Promise<T | null> {

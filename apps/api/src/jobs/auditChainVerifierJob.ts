@@ -15,13 +15,13 @@
  * direct DB write access and would invalidate the chain from the tampered
  * row onwards — this job catches that.
  */
-import { createHash } from 'node:crypto';
 import { Worker, Queue } from 'bullmq';
 import { eq, asc } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { connection, DEFAULT_JOB_OPTS } from '../infrastructure/redis/queues.js';
 import { logger } from '../lib/logger.js';
+import { auditContentHash } from '../lib/auditHash.js';
 import * as Sentry from '@sentry/node';
 
 const QUEUE_NAME = 'audit-chain-verifier';
@@ -31,12 +31,6 @@ export interface AuditChainVerifierJob {
 }
 
 export const auditChainVerifierQueue = new Queue<AuditChainVerifierJob>(QUEUE_NAME, { connection });
-
-function computeHash(payload: unknown, prevHash: string | null): string {
-  return createHash('sha256')
-    .update(JSON.stringify(payload) + (prevHash ?? ''))
-    .digest('hex');
-}
 
 export async function verifyEntityChain(entityId: string): Promise<{
   ok: boolean;
@@ -56,7 +50,7 @@ export async function verifyEntityChain(entityId: string): Promise<{
 
   let prev: string | null = null;
   for (const row of rows) {
-    const expected = computeHash(row.payload, prev);
+    const expected = auditContentHash(row.payload, prev);
     if (expected !== row.contentHash) {
       return { ok: false, entriesChecked: rows.length, firstBadRowId: row.id };
     }

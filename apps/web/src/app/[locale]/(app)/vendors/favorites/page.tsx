@@ -1,10 +1,10 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { VendorCard } from '@/components/vendor/VendorCard';
 import type { VendorProfile } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface FavoritesResponse {
   success: boolean;

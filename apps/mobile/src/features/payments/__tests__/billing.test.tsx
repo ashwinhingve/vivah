@@ -59,7 +59,7 @@ function plan(overrides: Record<string, unknown> = {}) {
     name: 'Premium Monthly',
     tier: 'PREMIUM',
     interval: 'MONTHLY',
-    amount: 49900, // paise → ₹499
+    amount: 499, // rupees (decimal(12,2) column)
     features: {},
     ...overrides,
   };

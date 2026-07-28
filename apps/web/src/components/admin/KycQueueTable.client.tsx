@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { Link } from '@/i18n/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,7 +24,7 @@ interface KycRow {
 
 interface Props { initialRows: KycRow[] }
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 type Filter = 'ALL' | 'DUPLICATES' | 'SANCTIONS' | 'HIGH_RISK' | 'LOW_RISK';
 

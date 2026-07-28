@@ -1,10 +1,10 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 import { cookies } from 'next/headers';
 import { redirect } from '@/i18n/redirect';
 import { revalidatePath } from 'next/cache';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function getAuthToken(): Promise<string | undefined> {
   const cookieStore = await cookies();

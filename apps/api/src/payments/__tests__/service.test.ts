@@ -23,10 +23,11 @@ vi.mock('@smartshaadi/db', () => ({
 }));
 
 vi.mock('drizzle-orm', () => ({
-  eq:   vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
-  and:  vi.fn((...args: unknown[]) => ({ type: 'and', args })),
-  desc: vi.fn((_col: unknown) => ({ type: 'desc', _col })),
-  sql:  vi.fn(() => ({ type: 'sql' })),
+  eq:         vi.fn((_col: unknown, _val: unknown) => ({ type: 'eq', _col, _val })),
+  and:        vi.fn((...args: unknown[]) => ({ type: 'and', args })),
+  desc:       vi.fn((_col: unknown) => ({ type: 'desc', _col })),
+  sql:        vi.fn(() => ({ type: 'sql' })),
+  notInArray: vi.fn((_col: unknown, _vals: unknown[]) => ({ type: 'notInArray', _col, _vals })),
 }));
 
 vi.mock('../../lib/env.js', () => ({
@@ -292,7 +293,9 @@ describe('requestRefund', () => {
       return makeSelect(data)();
     });
 
-    mockDbUpdate.mockImplementation(makeUpdate());
+    // The claim CAS (UPDATE … WHERE status NOT IN (…) RETURNING) must return a row
+    // so the refund proceeds; [] would mean "already refunded / in progress".
+    mockDbUpdate.mockImplementation(makeUpdate([{ id: 'pay-2' }]));
     mockDbInsert.mockReturnValue({
       values:              vi.fn().mockReturnThis(),
       returning:           vi.fn().mockResolvedValue([{ id: 'new-id' }]),
@@ -301,8 +304,9 @@ describe('requestRefund', () => {
 
     await requestRefund('user-abc', 'pay-2', { reason: 'Event cancelled' });
 
-    // Razorpay requires paise — 5000 rupees → 500_000 paise.
-    expect(mockCreateRefund).toHaveBeenCalledWith('pay_real_xyz', 500_000);
+    // Razorpay requires paise — 5000 rupees → 500_000 paise — with a deterministic
+    // idempotency key (A2-03) = refund:<payment id>.
+    expect(mockCreateRefund).toHaveBeenCalledWith('pay_real_xyz', 500_000, undefined, 'refund:pay-2');
     expect(mockDbUpdate).toHaveBeenCalled();
   });
 });

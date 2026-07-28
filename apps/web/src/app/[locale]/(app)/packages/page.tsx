@@ -9,6 +9,7 @@
  * inventory — the flag only gates the booking CTA, and that decision is made by
  * the server on the detail page, not here.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type { PremiumPackageListResult, PremiumPackageFacets } from '@smartshaadi/types';
@@ -18,7 +19,7 @@ import { Link } from '@/i18n/navigation';
 import { PackageCard } from './PackageCard';
 import { PackageFilters } from './PackageFilters.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 const PAGE_SIZE = 12;
 
 // Every filter the API accepts. Kept as one list so the pagination links below

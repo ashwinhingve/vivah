@@ -29,6 +29,7 @@ import type { ProfileId } from '@smartshaadi/types';
 import { Chat } from '../../infrastructure/mongo/models/Chat.js';
 import { notificationsQueue } from '../../infrastructure/redis/queues.js';
 import { notifyAdmins } from '../../notifications/service.js';
+import { appendAuditLog } from '../../payments/service.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -365,7 +366,7 @@ export async function declineRequest(
       seenAt:        request.seenAt ?? new Date(),
       updatedAt:     new Date(),
     })
-    .where(eq(matchRequests.id, requestId))
+    .where(and(eq(matchRequests.id, requestId), eq(matchRequests.status, 'PENDING')))
     .returning();
 
   if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to decline match request');
@@ -394,7 +395,7 @@ export async function withdrawRequest(callerProfileId: ProfileId, requestId: str
   const [updated] = await db
     .update(matchRequests)
     .set({ status: 'WITHDRAWN', updatedAt: new Date() })
-    .where(eq(matchRequests.id, requestId))
+    .where(and(eq(matchRequests.id, requestId), eq(matchRequests.status, 'PENDING')))
     .returning();
 
   if (!updated) throw serviceError('UPDATE_FAILED', 'Failed to withdraw match request');
@@ -456,6 +457,7 @@ export async function blockUser(
     .returning();
 
   // Cancel PENDING + flip ACCEPTED match requests to BLOCKED
+  // Only update if still in PENDING or ACCEPTED state — two concurrent blocks won't both succeed.
   const affected = await db
     .update(matchRequests)
     .set({ status: 'BLOCKED', updatedAt: new Date() })
@@ -487,17 +489,47 @@ export async function blockUser(
       }
     }
   }
+
+  // Audit log the block action (best-effort, non-fatal)
+  try {
+    await appendAuditLog({
+      eventType:  'PROFILE_BLOCKED',
+      entityType: 'profile',
+      entityId:   targetProfileId,
+      actorId:    userId,
+      payload:    { blockedProfileId: targetProfileId, reason: reason ?? null, affectedMatchCount: affected.length },
+    });
+  } catch {
+    // Audit logging is best-effort; do not fail the block operation
+  }
 }
 
 /** Unblock a previously-blocked profile. `callerProfileId` = blocker's `profiles.id`. */
 export async function unblockUser(callerProfileId: ProfileId, targetProfileId: ProfileId): Promise<void> {
   const userId = callerProfileId;
-  await db
+  const [deleted] = await db
     .delete(blockedUsers)
     .where(and(
       eq(blockedUsers.blockerId, userId),
       eq(blockedUsers.blockedId, targetProfileId),
-    ));
+    ))
+    .returning({ id: blockedUsers.id });
+
+  // Audit the unblock (safety action) with the correct PROFILE_UNBLOCKED event
+  // (migration 0041). Best-effort + only if a row was actually removed.
+  if (deleted) {
+    try {
+      await appendAuditLog({
+        eventType:  'PROFILE_UNBLOCKED',
+        entityType: 'profile',
+        entityId:   targetProfileId,
+        actorId:    userId,
+        payload:    { unblockedProfileId: targetProfileId },
+      });
+    } catch {
+      // Audit logging is best-effort; do not fail the unblock operation.
+    }
+  }
 }
 
 export interface BlockedUserItem {

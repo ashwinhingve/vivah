@@ -569,7 +569,7 @@ export async function cancelBooking(
     };
   }
 
-  const updated = await db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const [row] = await tx
       .update(bookings)
       .set({
@@ -580,30 +580,43 @@ export async function cancelBooking(
       .where(eq(bookings.id, bookingId))
       .returning();
 
+    // P1-S2: atomic HELD -> REFUND_PENDING CAS. The status guard in the WHERE means
+    // only ONE of two concurrent cancels claims the escrow; the loser gets 0 rows
+    // and must NOT fire a second Razorpay refund. Replaces the previous read-then-
+    // update that relied entirely on external backstops (Razorpay refundable cap).
+    let escrowClaimed = false;
     if (escrow?.id && escrow.status === 'HELD') {
-      // Optimistically mark escrow as REFUND_PENDING; flip to RELEASED on
-      // successful Razorpay refund call below.
-      await tx
+      const flipped = await tx
         .update(escrowAccounts)
         .set({ status: 'REFUND_PENDING' })
-        .where(eq(escrowAccounts.id, escrow.id));
+        .where(and(eq(escrowAccounts.id, escrow.id), eq(escrowAccounts.status, 'HELD')))
+        .returning({ id: escrowAccounts.id });
+      escrowClaimed = flipped.length > 0;
     }
 
-    return row;
+    return { row, escrowClaimed };
   });
 
+  const updated = result.row;
   if (!updated) {
     throw new BookingError('UPDATE_FAILED', 'Failed to cancel booking.');
   }
 
   // Razorpay call outside the transaction — network I/O should never hold a DB lock.
-  if (refundAttempt && escrow?.id) {
+  // Only the cancel that WON the escrow CAS issues the refund; the idempotency key
+  // (escrow id) makes even a retried lost-response call safe (razorpay.ts A2-03).
+  if (refundAttempt && escrow?.id && result.escrowClaimed) {
     try {
-      await createRefund(refundAttempt.paymentId, rupeesToPaise(refundAttempt.amount));
+      await createRefund(
+        refundAttempt.paymentId,
+        rupeesToPaise(refundAttempt.amount),
+        undefined,
+        `refund:${escrow.id}`,
+      );
       await db
         .update(escrowAccounts)
         .set({ status: 'RELEASED', released: String(refundAttempt.amount), releasedAt: new Date() })
-        .where(eq(escrowAccounts.id, escrow.id));
+        .where(and(eq(escrowAccounts.id, escrow.id), eq(escrowAccounts.status, 'REFUND_PENDING')));
     } catch (e) {
       // Booking stays CANCELLED + escrow REFUND_PENDING — surface so admin retry can act.
       console.error('[bookings/cancel] Razorpay refund failed — escrow left REFUND_PENDING:', e);
@@ -647,7 +660,7 @@ export async function completeBooking(userId: string, bookingId: string): Promis
   const [updated] = await db
     .update(bookings)
     .set({ status: 'COMPLETED', updatedAt: new Date() })
-    .where(eq(bookings.id, bookingId))
+    .where(and(eq(bookings.id, bookingId), eq(bookings.status, 'CONFIRMED')))
     .returning();
 
   if (!updated) {

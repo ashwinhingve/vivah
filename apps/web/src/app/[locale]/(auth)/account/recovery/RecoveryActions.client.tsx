@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -6,7 +7,6 @@ import { Loader2, ShieldCheck, Trash2 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface OverviewResponse {
   account: { deletionRequestedAt: string | null };

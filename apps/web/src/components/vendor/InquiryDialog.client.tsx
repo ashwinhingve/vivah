@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { MessageSquare } from 'lucide-react';
@@ -22,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const CEREMONY_TYPES = [
   'WEDDING', 'HALDI', 'MEHNDI', 'SANGEET', 'ENGAGEMENT', 'RECEPTION',

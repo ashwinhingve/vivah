@@ -5,11 +5,12 @@ import {
   Pressable,
   Image,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Screen } from '../../../components/Screen';
 import { LoadingState, EmptyState, ErrorState } from '../../../components/States';
 import { useConversations } from '../../../features/chat/useConversations';
 import { tokens } from '../../../theme/tokens';
+import { MEDIA_BASE_URL } from '../../../lib/env';
 import type { ConversationListItem } from '@smartshaadi/types';
 import { useState } from 'react';
 
@@ -27,6 +28,7 @@ const FILTER_TABS: { label: string; value: FilterTab }[] = [
  * Supports filtering by all/unread/archived.
  */
 export default function ConversationsScreen() {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const { conversations, loading, error, retry } =
     useConversations(activeFilter);
@@ -41,7 +43,7 @@ export default function ConversationsScreen() {
             {/* Participant photo */}
             {item.other?.primaryPhotoKey ? (
               <Image
-                source={{ uri: `https://example.com/photos/${item.other.primaryPhotoKey}` }}
+                source={{ uri: `${MEDIA_BASE_URL}/${item.other.primaryPhotoKey}` }}
                 className="w-12 h-12 rounded-full bg-gold/10"
               />
             ) : (
@@ -145,9 +147,7 @@ export default function ConversationsScreen() {
           }
           message="Start matching to begin chatting"
           actionLabel="Browse matches"
-          onAction={() => {
-            // Navigate to matches — adjust route as needed
-          }}
+          onAction={() => router.replace('/(app)/(matches)')}
         />
       ) : (
         <FlatList

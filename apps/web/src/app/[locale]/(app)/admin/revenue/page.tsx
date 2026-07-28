@@ -2,6 +2,7 @@
  * Smart Shaadi — Admin Revenue Dashboard
  * Server Component with client date filter.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Link } from '@/i18n/navigation';
@@ -15,7 +16,6 @@ import { PageTransition } from '@/components/motion/PageTransition.client';
 import { FadeUp } from '@/components/shared/FadeUp.client';
 import { AdminRevenueClient } from './AdminRevenueClient.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface AuthMe { userId: string; role: string; status: string }
 

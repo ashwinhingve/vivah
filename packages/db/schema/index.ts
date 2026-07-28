@@ -368,6 +368,10 @@ export const auditEventTypeEnum = pgEnum('audit_event_type', [
   'WEBHOOK_RECEIVED',
   'WEBHOOK_DUPLICATE',
   'PLATFORM_SETTING_CHANGED',
+  // P2-4 (migration 0041): audit coverage for safety + virtual-date lifecycle.
+  'PROFILE_UNBLOCKED',
+  'VIRTUAL_DATE_EXPIRED',
+  'VIRTUAL_DATE_NO_SHOW',
 ]);
 
 export const genderEnum = pgEnum('gender', ['MALE', 'FEMALE', 'NON_BINARY', 'OTHER']);

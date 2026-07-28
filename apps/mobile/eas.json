@@ -7,12 +7,18 @@
       "developmentClient": true,
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in",
+        "EXPO_PUBLIC_MEDIA_URL": "https://media.smartshaadi.co.in"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.smartshaadi.co.in",
+        "EXPO_PUBLIC_MEDIA_URL": "https://media.smartshaadi.co.in"
+      }
     },
     "production": {
       "autoIncrement": true

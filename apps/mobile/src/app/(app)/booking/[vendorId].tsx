@@ -55,12 +55,16 @@ export default function BookingScreen() {
   const vendor = useVendorDetail(vendorId);
   const createBooking = useCreateBooking();
 
-  // Availability for this month + next covers the whole 45-day window.
+  // A 45-day window starting today can straddle up to THREE calendar months
+  // (e.g. late Jan → Feb → early Mar), so fetch this month plus the next two.
+  // Fixed count of hook calls — never map a hook over a variable-length array.
   const now = useMemo(() => new Date(), []);
   const thisMonth = toYm(now);
   const nextMonth = toYm(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+  const monthAfter = toYm(new Date(now.getFullYear(), now.getMonth() + 2, 1));
   const availThis = useVendorAvailability(vendorId, thisMonth);
   const availNext = useVendorAvailability(vendorId, nextMonth);
+  const availAfter = useVendorAvailability(vendorId, monthAfter);
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -72,13 +76,13 @@ export default function BookingScreen() {
 
   const unavailable = useMemo(() => {
     const set = new Set<string>();
-    for (const avail of [availThis.data, availNext.data]) {
+    for (const avail of [availThis.data, availNext.data, availAfter.data]) {
       if (!avail) continue;
       for (const d of avail.bookedDates) set.add(d);
       for (const b of avail.blockedDates) set.add(b.date);
     }
     return set;
-  }, [availThis.data, availNext.data]);
+  }, [availThis.data, availNext.data, availAfter.data]);
 
   const dateOptions = useMemo(() => {
     const out: string[] = [];

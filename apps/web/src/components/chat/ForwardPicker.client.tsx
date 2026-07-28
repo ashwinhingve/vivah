@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react'
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client'
@@ -33,7 +34,7 @@ export default function ForwardPicker({
     if (!message) return
     let cancelled = false
     setLoading(true)
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     fetch(`${apiUrl}/api/v1/chat/conversations/forward-targets?exclude=${excludeMatchId}`, {
       credentials: 'include',
     })
@@ -60,7 +61,7 @@ export default function ForwardPicker({
     if (!message) return
     setSendingTo(t.matchRequestId)
     try {
-      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const apiUrl = API_URL
       const res = await fetch(
         `${apiUrl}/api/v1/chat/conversations/${excludeMatchId}/forward`,
         {

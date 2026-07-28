@@ -1,9 +1,9 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { Upload, Loader2 } from 'lucide-react';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
   folder: 'photos' | 'documents' | 'portfolios';

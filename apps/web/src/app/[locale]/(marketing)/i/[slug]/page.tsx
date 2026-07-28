@@ -1,10 +1,11 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { InviteCard } from '@/components/invite/InviteCard';
 import type { PublicInviteView } from '@/lib/invites/types';
 import { RsvpForm } from './RsvpForm.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function fetchInvite(slug: string): Promise<PublicInviteView | null> {
   try {

@@ -117,6 +117,14 @@ export const auth = betterAuth({
         await recordAuthEvent({ userId: null, type: AuthEventType.OTP_SENT, ipAddress: ip, userAgent: ua, metadata: { phone } });
 
         if (env.USE_MOCK_SERVICES) {
+          // A4-03: defense-in-depth. Even if the app boots in production via the
+          // ALLOW_MOCK_SERVICES_IN_PROD escape hatch, the fixed MOCK_OTP_VALUE must
+          // NEVER be honoured — otherwise every seeded account (incl. QA ADMIN/SUPPORT)
+          // would be loginable in prod with a known code. env.ts documents this exact
+          // degraded behaviour ("auth routes will fail at request time").
+          if (env.NODE_ENV === 'production') {
+            throw new Error('Mock OTP is disabled in production');
+          }
           // Non-null assertion is safe: env.ts superRefine guarantees
           // MOCK_OTP_VALUE is defined whenever USE_MOCK_SERVICES=true.
           const mockCode = env.MOCK_OTP_VALUE!;

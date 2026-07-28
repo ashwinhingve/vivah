@@ -26,8 +26,8 @@ import {
  * the device and keeps us clear of Apple/Google in-app-billing rules (a
  * payment-gateway subscription is not a digital IAP).
  *
- * Plan `amount` is in PAISE (unlike on-screen rupee amounts elsewhere), so it is
- * divided by 100 before formatting.
+ * Plan `amount` is already in RUPEES (decimal(12,2) column in the database),
+ * so it is displayed directly without conversion.
  */
 export default function BillingScreen() {
   const router = useRouter();
@@ -155,7 +155,7 @@ export default function BillingScreen() {
 
               <View className="flex-row items-baseline mt-3 mb-4">
                 <Text className="font-heading text-2xl text-ink">
-                  {formatINR(plan.amount / 100)}
+                  {formatINR(plan.amount)}
                 </Text>
                 <Text className="text-sm text-muted ml-1">
                   / {plan.interval.toLowerCase()}

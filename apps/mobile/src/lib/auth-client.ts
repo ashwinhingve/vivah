@@ -75,3 +75,34 @@ export function getSessionCookie(): string | null {
   const cookie = getCookie(stored);
   return cookie.length > 0 ? cookie : null;
 }
+
+/**
+ * Fetch the current session straight from the server, bypassing the
+ * `useSession` React store.
+ *
+ * The store-backed hook can wedge in a release build — its initial fetch never
+ * flips `isPending`, stranding the app on a permanent boot spinner. This is the
+ * boot gate's repair path: a plain `fetch` with the persisted cookie and a HARD
+ * timeout, so a reachable server always yields a definitive answer even when the
+ * hook does not. It must never hang — it exists precisely because something
+ * upstream already did. Hits the same endpoint with the same `Cookie` header the
+ * expo plugin would send, so its answer always agrees with a healthy hook.
+ */
+export async function fetchSessionDirect(
+  timeoutMs: number,
+): Promise<{ user: unknown } | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const cookie = getSessionCookie();
+    const response = await fetch(`${API_BASE_URL}/api/auth/get-session`, {
+      headers: cookie ? { Cookie: cookie } : {},
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { user?: unknown } | null;
+    return body?.user ? { user: body.user } : null;
+  } finally {
+    clearTimeout(timer);
+  }
+}

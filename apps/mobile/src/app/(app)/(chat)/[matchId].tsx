@@ -12,6 +12,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../../components/Screen';
 import { LoadingState, ErrorState } from '../../../components/States';
 import { useThread } from '../../../features/chat/useThread';
+import { useSession } from '../../../hooks/useSession';
 import { tokens } from '../../../theme/tokens';
 import type { ChatMessage } from '@smartshaadi/types';
 import { useState, useEffect, useRef } from 'react';
@@ -28,6 +29,7 @@ import { useState, useEffect, useRef } from 'react';
  */
 export default function ChatThreadScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
+  const { data: session } = useSession();
   const [messageContent, setMessageContent] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -42,18 +44,23 @@ export default function ChatThreadScreen() {
   } = useThread(matchId || '');
 
   const flatListRef = useRef<FlatList>(null);
-  const userIdRef = useRef<string | null>(null);
+
+  // The signed-in user's id, used to tell own messages from the other party's.
+  // Read reactively from the session (not stashed in a ref) so that when the
+  // session resolves after first paint, the list re-renders and bubbles align
+  // correctly — a ref update alone wouldn't trigger that re-render.
+  const currentUserId = session?.user?.id ?? null;
 
   // Mark unread messages as read when they come in
   useEffect(() => {
     const unreadMessageIds = messages
-      .filter((m) => !m.readAt && m.senderId !== userIdRef.current)
+      .filter((m) => !m.readAt && m.senderId !== currentUserId)
       .map((m) => m._id);
 
     if (unreadMessageIds.length > 0) {
       markMessagesRead(unreadMessageIds);
     }
-  }, [messages, markMessagesRead]);
+  }, [messages, markMessagesRead, currentUserId]);
 
   const handleSendMessage = async (): Promise<void> => {
     const trimmed = messageContent.trim();
@@ -66,7 +73,7 @@ export default function ChatThreadScreen() {
   };
 
   const renderMessage = ({ item }: { item: ChatMessage }) => {
-    const isOwn = item.senderId === userIdRef.current;
+    const isOwn = item.senderId === currentUserId;
     const isDeleted = !!item.deletedAt;
 
     return (

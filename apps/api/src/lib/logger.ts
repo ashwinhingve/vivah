@@ -20,6 +20,7 @@ export const logger: Logger = pino({
     paths: [
       'req.headers.authorization',
       'req.headers.cookie',
+      'res.headers["set-cookie"]', // P2-5: response Set-Cookie carries the session token
       '*.razorpayKeySecret',
       '*.email',
       '*.phone',

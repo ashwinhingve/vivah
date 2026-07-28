@@ -13,6 +13,7 @@
 import PDFDocument from 'pdfkit';
 import { BURGUNDY, GOLD, INK, MUTED, PAD } from '../lib/pdf/brand.js';
 import { formatRupees, formatDate, renderBuffer } from '../lib/pdf/format.js';
+import { computeGst, type GstBreakdown } from '../lib/gst.js';
 
 export interface InvoiceLineItem {
   description: string;
@@ -44,33 +45,17 @@ export interface InvoicePdfData {
 }
 
 /**
- * Calculate GST tax for an amount.
+ * Calculate GST tax for an amount. A2-06: delegates to the shared GST helper so the
+ * printed B2B invoice and the persisted invoice (payments/invoiceService.ts) share
+ * one formula and cannot drift.
  */
 function calculateTax(
   amount: number,
   customerState: string | undefined,
   platformState: string = 'MH',
   rate: number = 18,
-): { cgst: number; sgst: number; igst: number; total: number } {
-  const isIntraState = !customerState || customerState.toUpperCase() === platformState.toUpperCase();
-  const totalTax = Math.round(amount * rate) / 100;
-
-  if (isIntraState) {
-    const half = Math.round(totalTax * 50) / 100;
-    return {
-      cgst: half,
-      sgst: totalTax - half,
-      igst: 0,
-      total: totalTax,
-    };
-  }
-
-  return {
-    cgst: 0,
-    sgst: 0,
-    igst: totalTax,
-    total: totalTax,
-  };
+): GstBreakdown {
+  return computeGst(amount, customerState, platformState, rate);
 }
 
 export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {

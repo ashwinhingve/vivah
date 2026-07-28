@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -16,7 +17,6 @@ import { ProfileCompletionGuide } from '@/components/profile/ProfileCompletionGu
 import { DivorceeOnboarding } from '@/components/profile/DivorceeOnboarding';
 import type { PersonalSection } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

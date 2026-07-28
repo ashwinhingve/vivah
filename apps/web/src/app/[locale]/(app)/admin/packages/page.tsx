@@ -8,6 +8,7 @@
  * Role is enforced by the API (authorize(['ADMIN'])); a non-admin session gets
  * an empty list rather than a partial render, because the fetch 403s.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { cookies } from 'next/headers';
@@ -16,7 +17,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageTransition } from '@/components/motion/PageTransition.client';
 import { AdminPackageTable } from './AdminPackageTable.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function fetchAll(): Promise<{ result: PremiumPackageListResult; forbidden: boolean }> {
   const empty: PremiumPackageListResult = { packages: [], total: 0, page: 1, limit: 100 };

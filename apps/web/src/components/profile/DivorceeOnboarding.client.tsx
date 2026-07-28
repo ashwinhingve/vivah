@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useTransition } from 'react';
 import { useTranslations } from 'next-intl';
@@ -7,7 +8,6 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 /**
  * Mark divorcee onboarding as complete. Calls

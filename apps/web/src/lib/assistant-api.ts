@@ -6,7 +6,8 @@
  * unchanged, so the wire format is `data: {...}\n\n` lines.
  */
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+import { API_URL } from '@/lib/api-url';
+const API_BASE = API_URL;
 
 export type AssistantSSEEvent =
   | { type: 'context';       context: Record<string, unknown> }

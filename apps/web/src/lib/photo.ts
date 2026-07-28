@@ -1,4 +1,5 @@
-const RAW_API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+import { API_URL } from '@/lib/api-url';
+const RAW_API_BASE = API_URL;
 // Strip /api/v1 suffix if present — mock-r2 and storage endpoints sit at server root.
 const API_ORIGIN = RAW_API_BASE.replace(/\/api\/v1\/?$/, '');
 

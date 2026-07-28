@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { redirect } from '@/i18n/redirect';
 import { ArrowLeft } from 'lucide-react';
@@ -5,7 +6,6 @@ import type { VendorProfile } from '@smartshaadi/types';
 import type { PortfolioDoc, PortfolioPackage } from '@/components/vendor/VendorPortfolio';
 import { BookingForm } from '@/components/bookings/BookingForm.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface VendorDetailResponse {
   success: boolean;

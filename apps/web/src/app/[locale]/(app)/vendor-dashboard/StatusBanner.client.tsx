@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 /**
  * VendorStatusBanner — rendered at the top of /vendor-dashboard when the
  * vendor's approval status is anything other than APPROVED. Polls
@@ -11,7 +12,6 @@ import { Link } from '@/i18n/navigation';
 import { StatusChip, type StatusTone } from '@/components/ui/StatusChip';
 import { Info, AlertTriangle, Loader2 } from 'lucide-react';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type VendorStatus = 'DRAFT' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 

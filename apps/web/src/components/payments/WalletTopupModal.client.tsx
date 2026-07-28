@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -14,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RazorpayCheckout } from './RazorpayCheckout.client';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface Props {
   isOpen: boolean;

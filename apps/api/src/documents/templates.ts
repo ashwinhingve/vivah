@@ -6,6 +6,8 @@
  * No database template table — templates are versioned in code alongside prompts.
  */
 
+import { DocumentsError } from './documents.service.js';
+
 // Optional fields are explicitly `| undefined` so parser output (zod infers
 // optionals as `T | undefined`) assigns cleanly under exactOptionalPropertyTypes.
 export interface ContractParty {
@@ -250,7 +252,7 @@ export const templateRegistry: Record<string, (data: ContractData) => ContractSe
 export function renderTemplate(templateId: string, data: ContractData): ContractSection[] {
   const factory = templateRegistry[templateId];
   if (!factory) {
-    throw new Error(`Unknown template: ${templateId}`);
+    throw new DocumentsError('UNKNOWN_TEMPLATE', `Unknown template: ${templateId}`);
   }
   return factory(data);
 }

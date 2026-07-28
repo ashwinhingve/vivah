@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useRef, useState } from 'react'
 import { Search, X, ChevronUp, ChevronDown } from 'lucide-react'
@@ -35,7 +36,7 @@ export default function ChatSearch({ open, matchId, onClose, onJumpTo }: ChatSea
 
     setSearching(true)
     debounceRef.current = setTimeout(async () => {
-      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const apiUrl = API_URL
       try {
         const res = await fetch(
           `${apiUrl}/api/v1/chat/conversations/${matchId}/search?q=${encodeURIComponent(q)}`,

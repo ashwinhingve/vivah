@@ -1,8 +1,9 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 type Resolution = 'RELEASE' | 'REFUND' | 'SPLIT';
 

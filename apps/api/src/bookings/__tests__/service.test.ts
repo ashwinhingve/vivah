@@ -436,8 +436,9 @@ describe('bookings/service', () => {
       const { cancelBooking } = await import('../service.js');
       await cancelBooking(CUSTOMER_ID, BOOKING_ID, 'Changed plans');
 
-      // Razorpay requires paise — 25000 rupees → 2_500_000 paise.
-      expect(mockCreateRefund).toHaveBeenCalledWith('pay_test123', 2_500_000);
+      // Razorpay requires paise — 25000 rupees → 2_500_000 paise — with a
+      // deterministic idempotency key (A2-03) = refund:<escrow id>.
+      expect(mockCreateRefund).toHaveBeenCalledWith('pay_test123', 2_500_000, undefined, 'refund:escrow-1');
     });
 
     it('does NOT call createRefund when no escrow is HELD', async () => {

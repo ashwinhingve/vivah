@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 /**
  * VendorReviewActions — sticky action panel on the admin vendor review page.
  * State-driven: shows the right buttons for PENDING / UNDER_REVIEW / APPROVED
@@ -10,7 +11,6 @@ import { useRouter } from '@/i18n/navigation';
 import { Loader2, CheckCircle2, ShieldOff, PlayCircle, RotateCcw, Banknote } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type VendorStatus = 'DRAFT' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 type RejectionCategory = 'INCOMPLETE_DOCS' | 'POLICY_VIOLATION' | 'IDENTITY_CONCERN' | 'OTHER';

@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
@@ -24,7 +25,6 @@ interface ProductFormProps {
 
 type FieldErrors = Partial<Record<keyof CreateProductInput, string>>;
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export function ProductForm({ defaultValues, productId, mode }: ProductFormProps) {
   const router = useRouter();

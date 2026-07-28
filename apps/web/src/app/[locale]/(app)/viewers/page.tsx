@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -15,7 +16,6 @@ import { resolvePhotoUrl } from '@/lib/photo';
 import { getEntitlementsForCurrentUser } from '@/lib/entitlements-server';
 import { UpgradeCTA } from '@/components/ui/UpgradeCTA';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface RecentViewer {
   viewerProfileId:    string;

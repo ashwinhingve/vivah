@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useActionState, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -8,7 +9,7 @@ import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { updateLifestyle } from '../actions';
 import { HYPER_NICHE_TAGS } from '@smartshaadi/schemas';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 const STEPS = [
   { label: 'Personal', done: true, active: false },

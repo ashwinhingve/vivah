@@ -3,6 +3,7 @@
  * Server Component. Fetches /api/v1/admin/vendors/:id and renders a
  * 2-column layout (info | sticky review actions).
  */
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -48,7 +49,7 @@ interface VendorRow {
   commissionPct:     string | null;
 }
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function fetchAuth<T>(path: string, token: string): Promise<T | null> {
   try {

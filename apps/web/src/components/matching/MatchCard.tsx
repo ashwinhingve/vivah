@@ -81,11 +81,12 @@ export function MatchCard(props: Props) {
   } = props;
   const ageLabel = age != null && age > 0 ? `, ${age}` : '';
   const photoUrl = resolvePhotoUrl(primaryPhotoUrl);
+  const hasPhoto = !!(photoUrl && !imgFailed);
 
   return (
     <Card className="group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
       <a href={`/profiles/${id}`} className="relative block aspect-[4/3]">
-        {photoUrl && !imgFailed ? (
+        {hasPhoto ? (
           <Image
             src={photoUrl}
             alt=""
@@ -102,12 +103,20 @@ export function MatchCard(props: Props) {
         <div className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold/70" aria-hidden="true" />
 
         {/* Name overlay */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent px-3 pb-2 pt-8">
-          <p className="truncate font-heading text-sm font-semibold leading-tight text-white drop-shadow-sm">
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-2 pt-8 ${
+            hasPhoto
+              ? 'bg-gradient-to-t from-black/75 via-black/40 to-transparent'
+              : 'bg-transparent'
+          }`}
+        >
+          <p className={`truncate font-heading text-sm font-semibold leading-tight drop-shadow-sm ${
+            hasPhoto ? 'text-white' : 'text-text'
+          }`}>
             {name}
-            {ageLabel ? <span className="font-normal text-white/90">{ageLabel}</span> : null}
+            {ageLabel ? <span className={`font-normal ${hasPhoto ? 'text-white/90' : 'text-text'}`}>{ageLabel}</span> : null}
           </p>
-          <p className="truncate text-xs text-white/80">{city}</p>
+          <p className={`truncate text-xs ${hasPhoto ? 'text-white/80' : 'text-muted'}`}>{city}</p>
         </div>
 
         {isVerified ? (

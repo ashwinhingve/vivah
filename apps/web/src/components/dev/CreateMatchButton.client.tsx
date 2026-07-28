@@ -1,9 +1,9 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState } from 'react';
 import { Heart, Loader2, Check } from 'lucide-react';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 export function CreateMatchButton() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');

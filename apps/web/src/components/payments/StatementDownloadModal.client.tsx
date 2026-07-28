@@ -1,9 +1,9 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);

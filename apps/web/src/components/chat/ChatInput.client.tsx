@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import {
   useCallback, useEffect, useRef, useState,
@@ -158,7 +159,7 @@ export default function ChatInput({
     })
     const dropOptimistic = () => { if (optimisticId) onOptimisticRemove?.(optimisticId) }
 
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     try {
       const res = await fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/photos`, {
         method: 'POST',

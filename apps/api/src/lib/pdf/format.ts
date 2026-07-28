@@ -6,14 +6,22 @@
  */
 
 /**
- * Format rupee amount as "Rs. X.XX"
+ * Format rupee amount as "Rs. X,XX,XXX.XX" with Indian lakh/crore grouping (A2-07).
  *
  * CRITICAL: Always outputs "Rs." ASCII prefix, never the ₹ glyph.
  * PDFKit's Helvetica font renders ₹ incorrectly (renders as blank or misaligned);
  * the ASCII fallback is the documented workaround across all PDF generators.
+ *
+ * Grouping is applied to the integer part only, on top of `toFixed(2)`, so the
+ * 2dp rounding behaviour is unchanged — only thousands/lakh separators are added
+ * (e.g. 1234567.89 → "Rs. 12,34,567.89").
  */
 export function formatRupees(amount: number): string {
-  return `Rs. ${amount.toFixed(2)}`;
+  const fixed = amount.toFixed(2);
+  const negative = fixed.startsWith('-');
+  const [intPart, decPart] = fixed.replace('-', '').split('.');
+  const grouped = Number(intPart).toLocaleString('en-IN');
+  return `Rs. ${negative ? '-' : ''}${grouped}.${decPart}`;
 }
 
 /**

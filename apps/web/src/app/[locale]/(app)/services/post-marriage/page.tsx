@@ -8,6 +8,7 @@
  * Categories come from the database, not a constant in this file — an operator
  * adds "pet care" from the admin UI and it appears here without a deploy.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type {
@@ -20,7 +21,7 @@ import { Link } from '@/i18n/navigation';
 import { ServiceCard } from './ServiceCard';
 import { ServiceFilters } from './ServiceFilters.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 const PAGE_SIZE = 12;
 
 const FILTER_KEYS = ['q', 'category', 'city', 'priceMin', 'priceMax', 'sort'] as const;

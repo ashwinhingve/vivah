@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -6,7 +7,6 @@ import { QuickStockForm } from '@/components/store/QuickStockForm.client';
 import { DeleteProductButton } from '@/components/store/DeleteProductButton.client';
 import type { ProductSummary } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchProduct(
   id: string,

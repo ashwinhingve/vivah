@@ -1,9 +1,9 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function token() {
   return (await cookies()).get('better-auth.session_token')?.value;

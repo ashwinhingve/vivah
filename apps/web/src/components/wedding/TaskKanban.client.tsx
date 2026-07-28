@@ -1,11 +1,11 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useEffect, useTransition } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Loader2, Calendar, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WeddingTask, TaskStatus, TaskPriority } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
   { status: 'TODO',        label: 'To Do' },

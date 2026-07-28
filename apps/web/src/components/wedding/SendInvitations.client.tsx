@@ -1,11 +1,11 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 
 import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import type { GuestSummary } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type Channel = 'EMAIL' | 'SMS' | 'WHATSAPP';
 

@@ -1,5 +1,10 @@
 /**
- * Razorpay client — real SDK with idempotent retries, mock fallback.
+ * Razorpay client — real SDK with retries, mock fallback.
+ *
+ * Money-out calls (createOrder/createRefund/transferToVendor) accept a deterministic
+ * `idempotencyKey`; when supplied, the call is issued via `razorpayPost` with an
+ * `X-Razorpay-Idempotency-Key` header (the SDK cannot send it — see razorpayPost),
+ * so a retried lost/5xx response is deduped by Razorpay instead of executing twice.
  *
  * USE_MOCK_SERVICES=true short-circuits to deterministic stubs (dev/test).
  * USE_MOCK_SERVICES=false uses the official `razorpay` Node SDK.
@@ -64,6 +69,43 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
   throw lastErr;
 }
 
+/**
+ * Direct Razorpay REST POST with optional idempotency key.
+ *
+ * The Razorpay Node SDK (v2.9.6) filters request headers to a hardcoded allowlist
+ * (`X-Razorpay-Account`, `Content-Type`) and passes no per-call headers, so it
+ * CANNOT send `X-Razorpay-Idempotency-Key`. Money-out calls that carry an
+ * idempotency key therefore go through this raw path: because `withRetry` re-invokes
+ * the same closure (reusing the SAME key) on a lost/5xx response, Razorpay dedupes
+ * the retry instead of executing a second refund/transfer. Errors are normalised to
+ * `{ statusCode }` so `withRetry`'s status logic works unchanged.
+ *
+ * Exported for unit tests.
+ */
+export async function razorpayPost<T>(
+  path: string,
+  body: Record<string, unknown>,
+  idempotencyKey?: string,
+): Promise<T> {
+  const auth = Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
+  const headers: Record<string, string> = {
+    Authorization:  `Basic ${auth}`,
+    'Content-Type': 'application/json',
+  };
+  if (idempotencyKey) headers['X-Razorpay-Idempotency-Key'] = idempotencyKey;
+
+  const res = await fetch(`https://api.razorpay.com/v1${path}`, {
+    method:  'POST',
+    headers,
+    body:    JSON.stringify(body),
+  });
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) {
+    throw { statusCode: res.status, error: data['error'] ?? data };
+  }
+  return data as T;
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export interface RazorpayOrder {
@@ -117,19 +159,18 @@ export async function createOrder(
   currency = 'INR',
   receipt: string,
   notes?: Record<string, string>,
+  idempotencyKey?: string,
 ): Promise<RazorpayOrder> {
   if (USE_MOCK) {
     return { id: `mock_order_${Date.now()}`, amount, currency, status: 'created' };
   }
   return razorpayBreaker.call(async () =>
     withRetry(async () => {
-      const r = await (await getSdk()).orders.create({
-        amount,
-        currency,
-        receipt,
-        notes:        notes ?? {},
-        payment_capture: true,
-      });
+      const payload = { amount, currency, receipt, notes: notes ?? {}, payment_capture: true };
+      if (idempotencyKey) {
+        return await razorpayPost<RazorpayOrder>('/orders', payload, idempotencyKey);
+      }
+      const r = await (await getSdk()).orders.create(payload);
       return r as unknown as RazorpayOrder;
     }),
   );
@@ -175,17 +216,18 @@ export async function createRefund(
   paymentId: string,
   amount: number,
   notes?: Record<string, string>,
+  idempotencyKey?: string,
 ): Promise<RazorpayRefund> {
   if (USE_MOCK) {
     return { id: `mock_refund_${Date.now()}`, amount, status: 'processed' };
   }
   return razorpayBreaker.call(async () =>
     withRetry(async () => {
-      const r = await (await getSdk()).payments.refund(paymentId, {
-        amount,
-        speed: 'normal',
-        notes: notes ?? {},
-      });
+      const payload = { amount, speed: 'normal', notes: notes ?? {} };
+      if (idempotencyKey) {
+        return await razorpayPost<RazorpayRefund>(`/payments/${paymentId}/refund`, payload, idempotencyKey);
+      }
+      const r = await (await getSdk()).payments.refund(paymentId, payload);
       return r as unknown as RazorpayRefund;
     }),
   );
@@ -197,16 +239,16 @@ export async function transferToVendor(
   vendorAccountId: string,
   amount: number,
   notes?: Record<string, string>,
+  idempotencyKey?: string,
 ): Promise<RazorpayTransfer> {
   if (USE_MOCK) return { id: `mock_transfer_${Date.now()}`, amount, status: 'processed' };
   return razorpayBreaker.call(async () =>
     withRetry(async () => {
-      const r = await (await getSdk()).transfers.create({
-        account:  vendorAccountId,
-        amount,
-        currency: 'INR',
-        notes:    notes ?? {},
-      });
+      const payload = { account: vendorAccountId, amount, currency: 'INR', notes: notes ?? {} };
+      if (idempotencyKey) {
+        return await razorpayPost<RazorpayTransfer>('/transfers', payload, idempotencyKey);
+      }
+      const r = await (await getSdk()).transfers.create(payload);
       return r as unknown as RazorpayTransfer;
     }),
   );

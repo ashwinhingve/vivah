@@ -1,9 +1,10 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 import { cookies } from 'next/headers';
 import type { InsuranceSku } from '@smartshaadi/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function getToken(): Promise<string> {
   const store = await cookies();

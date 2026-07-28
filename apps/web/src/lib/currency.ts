@@ -30,7 +30,32 @@ export interface WireMoney {
 }
 
 /**
+ * ASCII fallbacks for PDF rendering, keyed by CURRENCY — never by symbol.
+ *
+ * A blind `formatted.replace('$', 'US$')` would rewrite a Canadian "$" into
+ * "US$", mislabelling the currency on an invoice rather than merely making it
+ * ambiguous. Keying on the currency keeps the substitution truthful.
+ */
+const ASCII_CURRENCY_PREFIX: Record<SupportedCurrency, string> = {
+  INR: 'Rs.',   // Web has no rupee glyph — the reason this path exists
+  USD: 'US$',
+  GBP: 'GBP',
+  EUR: 'EUR',
+  AED: 'AED',
+  CAD: 'CA$',
+  AUD: 'A$',
+  SGD: 'SGD',
+};
+
+/**
  * Locale mapping for each currency (mirrored from API).
+ * CAD/AUD/SGD use en-US ON PURPOSE, not their native locales.
+ *
+ * In en-CA / en-AU / en-SG, ICU renders all three as a bare "$1,234,567.89" —
+ * identical to USD. That is correct in isolation (a Canadian writing prices for
+ * Canadians writes "$"), but this unit exists precisely to show one user prices
+ * from several countries at once, where four currencies rendering the same
+ * glyph is a genuine misread. en-US disambiguates them as CA$ / A$ / SGD.
  */
 const CURRENCY_LOCALE_MAP: Record<SupportedCurrency, string> = {
   INR: 'en-IN', // Lakh/crore grouping
@@ -38,9 +63,9 @@ const CURRENCY_LOCALE_MAP: Record<SupportedCurrency, string> = {
   GBP: 'en-GB',
   EUR: 'de-DE',
   AED: 'ar-AE',
-  CAD: 'en-CA',
-  AUD: 'en-AU',
-  SGD: 'en-SG',
+  CAD: 'en-US',
+  AUD: 'en-US',
+  SGD: 'en-US',
 };
 
 /**
@@ -171,11 +196,17 @@ export function formatWireMoney(
   }
 
   if (opts?.ascii) {
-    formatted = formatted.replace('₹', 'Rs.');
-    formatted = formatted.replace('$', 'US$');
-    formatted = formatted.replace('€', 'EUR');
-    formatted = formatted.replace('£', 'GBP');
-    formatted = formatted.replace('د.إ', 'AED');
+    // Rebuild the string from a plain DECIMAL format and prefix the ASCII code
+    // ourselves, rather than substituting the symbol out of the currency-formatted
+    // string. This avoids mislabelling: a blind '$' → 'US$' would rewrite CAD as
+    // "US$", an invoice error, not just ugly. Keying on the currency keeps it truthful.
+    const groupedMajor = new Intl.NumberFormat(locale, {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(absMajor);
+    const sign = isNegative ? '-' : '';
+    formatted = `${sign}${ASCII_CURRENCY_PREFIX[currency]}${groupedMajor}${actualDecimalSep}${minorStr}`;
   }
 
   return formatted;

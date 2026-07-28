@@ -17,6 +17,7 @@ import { db } from '../lib/db.js';
 import { shouldUseMockMongo, env } from '../lib/env.js';
 import { weddings, weddingTasks, profiles, guestLists, ceremonies, weddingMembers } from '@smartshaadi/db';
 import { WeddingPlan } from '../infrastructure/mongo/models/WeddingPlan.js';
+import { getWeddingRole, type WeddingRole } from './access.js';
 import { mockGet, mockUpsertField } from '../lib/mockStore.js';
 import {
   scheduleWeddingCompletion,
@@ -485,7 +486,7 @@ export async function updateBudget(
   weddingId: string,
   input: UpdateBudgetInput,
 ): Promise<BudgetCategory[]> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   if (shouldUseMockMongo) {
@@ -574,7 +575,7 @@ export async function getTaskBoard(
   userId: string,
   weddingId: string,
 ): Promise<TaskBoard | null> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'VIEWER');
   if (!row) return null;
 
   const taskRows = await db
@@ -605,7 +606,7 @@ export async function createTask(
   weddingId: string,
   input: CreateTaskInput,
 ): Promise<WeddingTask> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const [task] = await db
@@ -634,7 +635,7 @@ export async function updateTask(
   taskId: string,
   input: UpdateTaskInput,
 ): Promise<WeddingTask | null> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) return null;
 
   const updates: Partial<TaskRow> = { updatedAt: new Date() };
@@ -661,7 +662,7 @@ export async function deleteTask(
   weddingId: string,
   taskId: string,
 ): Promise<boolean> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) return false;
 
   const deleted = await db
@@ -707,7 +708,7 @@ export async function autoGenerateChecklist(
   weddingId: string,
   weddingDate: string,
 ): Promise<{ created: number }> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const targetDate = new Date(weddingDate);
@@ -743,26 +744,58 @@ export async function autoGenerateChecklist(
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
+/**
+ * Resolve a wedding the caller may act on, at a minimum access level.
+ *
+ * Batch 4 (U4): the default `minRole: 'OWNER'` keeps the original strict
+ * profile-ownership behaviour for owner-only operations (cancel/delete/update
+ * wedding). Passing a relaxed `minRole` ('VIEWER'/'EDITOR') routes through the
+ * shared access guard so an assigned EVENT_COORDINATOR (or an EDITOR/VIEWER
+ * collaborator) can open the wedding its own dashboard links to — previously these
+ * operational reads/edits 404'd for coordinators because they went through the
+ * OWNER-only path.
+ */
 async function resolveOwnedWedding(
   userId: string,
   weddingId: string,
+  minRole: WeddingRole = 'OWNER',
 ): Promise<WeddingRow | null> {
+  // Owner fast path — the strict profile-ownership check, unchanged. This runs first
+  // for every call so an OWNER never touches the access-guard path below.
   const [profile] = await db
     .select({ id: profiles.id })
     .from(profiles)
     .where(eq(profiles.userId, userId))
     .limit(1);
 
-  if (!profile) return null;
+  if (profile) {
+    const [row] = await db
+      .select()
+      .from(weddings)
+      .where(and(
+        eq(weddings.id, weddingId),
+        eq(weddings.profileId, profile.id),
+        isNull(weddings.deletedAt),
+      ))
+      .limit(1);
+
+    if (row) return row;
+  }
+
+  // Not the profile owner. OWNER-only operations deny here (unchanged behaviour).
+  if (minRole === 'OWNER') return null;
+
+  // Relaxed operations (Batch 4) — permit COORDINATOR/EDITOR/VIEWER via the shared
+  // access guard so an assigned EVENT_COORDINATOR (or a collaborator member) can act.
+  const role = await getWeddingRole(weddingId, userId);
+  if (!role) return null;
+  const order: Record<WeddingRole, number> = { OWNER: 4, COORDINATOR: 3, EDITOR: 2, VIEWER: 1 };
+  if (order[role] < order[minRole]) return null;
 
   const [row] = await db
     .select()
     .from(weddings)
-    .where(and(
-      eq(weddings.id, weddingId),
-      eq(weddings.profileId, profile.id),
-      isNull(weddings.deletedAt),
-    ))
+    .where(and(eq(weddings.id, weddingId), isNull(weddings.deletedAt)))
     .limit(1);
 
   return row ?? null;
@@ -801,7 +834,7 @@ export async function addCeremony(
   weddingId: string,
   input: CreateCeremonyInput,
 ): Promise<Ceremony> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const [inserted] = await db
@@ -876,7 +909,7 @@ export async function updateCeremony(
   ceremonyId: string,
   input: UpdateCeremonyInput,
 ): Promise<Ceremony | null> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const updates: Partial<CeremonyRow> = {};
@@ -911,7 +944,7 @@ export async function deleteCeremony(
   weddingId: string,
   ceremonyId: string,
 ): Promise<boolean> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) return false;
 
   const deleted = await db
@@ -928,7 +961,7 @@ export async function getCeremonies(
   userId: string,
   weddingId: string,
 ): Promise<Ceremony[]> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'VIEWER');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   const rows = await db
@@ -1005,7 +1038,7 @@ export async function selectMuhurat(
   weddingId: string,
   input: SelectMuhuratInput,
 ): Promise<MuhuratDate[]> {
-  const row = await resolveOwnedWedding(userId, weddingId);
+  const row = await resolveOwnedWedding(userId, weddingId, 'EDITOR');
   if (!row) throw new Error('WEDDING_NOT_FOUND');
 
   // Also update weddingDate in PostgreSQL

@@ -8,18 +8,25 @@ export function formatCompatibilityScore(score: number): string {
 }
 
 /**
- * Get a color for a compatibility tier.
+ * Map a compatibility tier to a theme-palette key. Returning a semantic key
+ * (rather than a fixed hex) keeps the tier badge correct in both light and dark
+ * themes — the caller resolves it against the active palette, e.g.
+ * `colors[getTierColor(tier)]`.
  */
-export function getTierColor(tier: 'excellent' | 'good' | 'average' | 'low'): string {
+export type TierColorKey = 'success' | 'gold' | 'warning' | 'destructive';
+
+export function getTierColor(
+  tier: 'excellent' | 'good' | 'average' | 'low',
+): TierColorKey {
   switch (tier) {
     case 'excellent':
-      return '#059669'; // success green
+      return 'success';
     case 'good':
-      return '#C5A47E'; // gold
+      return 'gold';
     case 'average':
-      return '#D97706'; // warning amber
+      return 'warning';
     case 'low':
-      return '#DC2626'; // destructive red
+      return 'destructive';
   }
 }
 

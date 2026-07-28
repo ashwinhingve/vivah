@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -21,7 +22,7 @@ const SLICE_COLORS = [
   'var(--color-gold-muted)',
 ] as const;
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 const LENDING_LIVE = process.env['NEXT_PUBLIC_LENDING_LIVE'] === 'true';
 
 interface OffersResponse {

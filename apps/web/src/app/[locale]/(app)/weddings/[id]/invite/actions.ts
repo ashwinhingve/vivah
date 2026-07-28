@@ -1,10 +1,11 @@
 'use server';
+import { API_URL } from '@/lib/api-url';
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import type { InviteRecord } from '@/lib/invites/types';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 async function cookieHeader(): Promise<string> {
   const store = await cookies();

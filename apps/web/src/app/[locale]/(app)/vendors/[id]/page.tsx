@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { cookies } from 'next/headers';
@@ -16,7 +17,6 @@ import { AvailabilityCalendar } from '@/components/vendor/AvailabilityCalendar.c
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type VendorDetail = VendorProfile & { portfolio: PortfolioDoc | null };
 

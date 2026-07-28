@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -13,7 +14,6 @@ import { ProfileCard } from '@/components/ui/ProfileCard.client';
 import { NriFeedFilters } from '@/components/nri/NriFeedFilters.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 interface FetchResult<T> {
   data: T | null;

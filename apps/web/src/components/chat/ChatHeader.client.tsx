@@ -1,4 +1,5 @@
 'use client'
+import { API_URL } from '@/lib/api-url';
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -76,7 +77,7 @@ export default function ChatHeader({
     if (busy) return false
     setBusy(true)
     try {
-      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+      const apiUrl = API_URL
       const res = await fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +116,7 @@ export default function ChatHeader({
   }
   async function reportUser() {
     setConfirm(null)
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     try {
       const res = await fetch(`${apiUrl}/api/v1/chat/conversations/${matchId}/report`, {
         method: 'POST',
@@ -132,7 +133,7 @@ export default function ChatHeader({
   async function blockUser() {
     setConfirm(null)
     if (!initialOther?.profileId) { toast('Cannot block right now', 'error'); return }
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000'
+    const apiUrl = API_URL
     try {
       const res = await fetch(`${apiUrl}/api/v1/matchmaking/block/${initialOther.profileId}`, {
         method: 'POST',

@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api-url';
 /**
  * ProfileActions
  *
@@ -23,7 +24,6 @@ import { useRouter } from '@/i18n/navigation';
 import { Heart, MoreHorizontal, Flag, ShieldOff, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 type MatchStatus = 'none' | 'sent_pending' | 'received_pending' | 'matched';
 type InternalStatus = MatchStatus | 'sending' | 'declined' | 'error';

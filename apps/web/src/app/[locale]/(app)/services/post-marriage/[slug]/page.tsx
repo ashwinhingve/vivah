@@ -9,6 +9,7 @@
  * from the team, not a confirmed partner — and that the enquiry path is the
  * conversion mechanism for capturing leads and confirming availability.
  */
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
@@ -20,7 +21,7 @@ import { Link } from '@/i18n/navigation';
 import { formatINR } from '@/lib/format';
 import { ServiceEnquiryForm } from './ServiceEnquiryForm.client';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+const API_BASE = API_URL;
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;

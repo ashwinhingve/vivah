@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api-url';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -29,7 +30,7 @@ interface HeatmapResponse {
 }
 
 async function fetchHeatmap(month: string): Promise<HeatmapDay[] | null> {
-  const apiBase = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+  const apiBase = API_URL;
   try {
     const h = await headers();
     const cookie = h.get('cookie') ?? '';

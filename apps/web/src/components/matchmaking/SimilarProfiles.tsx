@@ -6,6 +6,7 @@
  * horizontal scroll rail of MatchFeedItem-shaped cards.
  */
 
+import { API_URL } from '@/lib/api-url';
 import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -15,7 +16,6 @@ import { ImageWithFallback } from '@/components/ui/ImageWithFallback.client';
 import { resolvePhotoUrl } from '@/lib/photo';
 import type { MatchFeedItem } from '@smartshaadi/types';
 
-const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
 
 async function fetchSimilar(sourceId: string, token: string): Promise<MatchFeedItem[]> {
   try {

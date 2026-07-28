@@ -5,7 +5,8 @@
  * argument. Browser-side fetches rely on `credentials: 'include'`.
  */
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+import { API_URL } from '@/lib/api-url';
+const API_BASE = API_URL;
 
 export interface FamilyRating {
   id:                    string;
