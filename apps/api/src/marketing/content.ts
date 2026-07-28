@@ -20,6 +20,7 @@ import { marketingContentGenerateQueue, type MarketingContentGenerateJob } from 
 import { callAiService } from '../lib/ai.js';
 import { logger } from '../lib/logger.js';
 import { FALLBACK_TEMPLATES } from './templates.js';
+import { TransitionError } from './service.js';
 
 /**
  * Request generation of LLM-powered content for a campaign.
@@ -41,11 +42,11 @@ export async function requestGeneration(
     .limit(1);
 
   if (!campaign) {
-    throw new Error(`Campaign ${campaignId} not found`);
+    throw new TransitionError(404, `Campaign ${campaignId} not found`);
   }
 
   if (!campaign.templateKey) {
-    throw new Error(`Campaign ${campaignId} has no template key`);
+    throw new TransitionError(422, `Campaign ${campaignId} has no template key`);
   }
 
   // Enqueue generation job
@@ -105,10 +106,10 @@ export async function approveContent(
       .limit(1);
 
     if (!existing) {
-      throw new Error(`Content ${contentId} not found`);
+      throw new TransitionError(404, `Content ${contentId} not found`);
     }
 
-    throw new Error(`Content ${contentId} is not in DRAFT status (current: ${existing.status})`);
+    throw new TransitionError(409, `Content ${contentId} is not in DRAFT status (current: ${existing.status})`);
   }
 
   logger.info({ contentId, adminUserId }, 'marketing_content_approved');
@@ -142,7 +143,7 @@ export async function upsertManualContent(
     .limit(1);
 
   if (!campaign) {
-    throw new Error(`Campaign ${campaignId} not found`);
+    throw new TransitionError(404, `Campaign ${campaignId} not found`);
   }
 
   const now = new Date();
@@ -252,7 +253,7 @@ export async function workerGenerateContent(
     .limit(1);
 
   if (!campaign) {
-    throw new Error(`Campaign ${campaignId} not found (worker)`);
+    throw new TransitionError(404, `Campaign ${campaignId} not found (worker)`);
   }
 
   const now = new Date();
@@ -281,7 +282,7 @@ export async function workerGenerateContent(
     // Fall back to templates
     const template = FALLBACK_TEMPLATES[campaign.templateKey] ?? FALLBACK_TEMPLATES['fallback'];
     if (!template) {
-      throw new Error(`No template found for ${campaign.templateKey}`);
+      throw new TransitionError(422, `No template found for ${campaign.templateKey}`);
     }
     generated = {
       en: template.en,

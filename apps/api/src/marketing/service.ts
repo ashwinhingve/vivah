@@ -105,7 +105,7 @@ export async function createCampaign(input: CreateCampaignInput): Promise<Market
     })
     .returning();
 
-  if (!inserted) throw new Error('Failed to create campaign');
+  if (!inserted) throw new TransitionError(500, 'Failed to create campaign');
   return toCampaign(inserted);
 }
 
@@ -133,7 +133,7 @@ export async function updateCampaign(
 
   if (!campaign) return null;
   if (campaign.status !== 'DRAFT' && campaign.status !== 'PAUSED') {
-    throw new Error(`Cannot edit ${campaign.status} campaign`);
+    throw new TransitionError(409, `Cannot edit ${campaign.status} campaign`);
   }
 
   const [updated] = await db
@@ -243,7 +243,7 @@ async function getCampaignStats(campaignId: string): Promise<CampaignStats> {
 // Lifecycle Transitions
 // ─────────────────────────────────────────────────────────────────────────────
 
-class TransitionError extends Error {
+export class TransitionError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }

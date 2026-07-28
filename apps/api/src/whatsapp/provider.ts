@@ -8,6 +8,7 @@
  */
 
 import { shouldUseMockWhatsApp } from '../lib/env.js';
+import { WhatsAppError } from './service.js';
 
 export interface WhatsAppSendPayload {
   toPhone:  string;
@@ -41,7 +42,8 @@ export async function sendTemplate(payload: WhatsAppSendPayload): Promise<WhatsA
   //   Authorization: Bearer {WHATSAPP_API_KEY}
   //   body: { messaging_product: 'whatsapp', to, type: 'template', template: {...} }
   // Credentials-only swap; nothing else in this unit changes.
-  throw new Error(
+  throw new WhatsAppError(
+    'NOT_CONFIGURED',
     'WhatsApp Cloud API not yet configured (set WHATSAPP_LIVE=true with Meta Business + BSP credentials)',
   );
 }
