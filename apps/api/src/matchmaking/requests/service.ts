@@ -507,17 +507,29 @@ export async function blockUser(
 /** Unblock a previously-blocked profile. `callerProfileId` = blocker's `profiles.id`. */
 export async function unblockUser(callerProfileId: ProfileId, targetProfileId: ProfileId): Promise<void> {
   const userId = callerProfileId;
-  await db
+  const [deleted] = await db
     .delete(blockedUsers)
     .where(and(
       eq(blockedUsers.blockerId, userId),
       eq(blockedUsers.blockedId, targetProfileId),
-    ));
-  // NOTE: unblock is intentionally NOT audit-logged. auditEventTypeEnum has
-  // PROFILE_BLOCKED but no PROFILE_UNBLOCKED counterpart, and logging an unblock as
-  // PROFILE_BLOCKED would write a false record. Adding the enum value needs a schema
-  // change (frozen at 0040), so P2-4's unblock + virtual-date audit coverage stays
-  // deferred until the audit event enum is extended.
+    ))
+    .returning({ id: blockedUsers.id });
+
+  // Audit the unblock (safety action) with the correct PROFILE_UNBLOCKED event
+  // (migration 0041). Best-effort + only if a row was actually removed.
+  if (deleted) {
+    try {
+      await appendAuditLog({
+        eventType:  'PROFILE_UNBLOCKED',
+        entityType: 'profile',
+        entityId:   targetProfileId,
+        actorId:    userId,
+        payload:    { unblockedProfileId: targetProfileId },
+      });
+    } catch {
+      // Audit logging is best-effort; do not fail the unblock operation.
+    }
+  }
 }
 
 export interface BlockedUserItem {

@@ -626,7 +626,10 @@ describe('matchmaking/requests/service', () => {
   describe('unblockUser', () => {
     it('deletes the blocked_users record', async () => {
       const dbMod = await import('../../../lib/db.js');
-      const deleteWhere = vi.fn().mockResolvedValue(undefined);
+      // delete(...).where(...).returning() — the row gates the PROFILE_UNBLOCKED audit.
+      const deleteWhere = vi.fn().mockReturnValue({
+        returning: vi.fn().mockResolvedValue([{ id: 'block-1' }]),
+      });
       (dbMod.db as unknown as AnyRecord)['delete'] = vi.fn().mockReturnValue({
         where: deleteWhere,
       });

@@ -16,6 +16,7 @@ import { getIO }           from '../chat/socket/index.js';
 import { queueNotification, queueDelayedNotification } from '../infrastructure/redis/queues.js';
 import { profiles, matchRequests, virtualDates } from '@smartshaadi/db';
 import { eq, or, and, desc, lt, isNull, inArray } from 'drizzle-orm';
+import { appendAuditLog } from '../payments/service.js';
 import { isValidIcebreakerKey } from './icebreakers.js';
 import { resolveTimezone, formatInZone, overlapHours } from '../lib/timezone.js';
 import {
@@ -290,7 +291,22 @@ export async function sweepVirtualDateLifecycle(
       eq(virtualDates.status, 'PROPOSED'),
       lt(virtualDates.scheduledAt, expiredCutoff),
     ))
-    .returning({ id: virtualDates.id });
+    .returning({ id: virtualDates.id, matchId: virtualDates.matchId });
+
+  // Audit each expiry (P2-4, migration 0041) — best-effort, system actor.
+  for (const row of expiredRows) {
+    try {
+      await appendAuditLog({
+        eventType:  'VIRTUAL_DATE_EXPIRED',
+        entityType: 'virtual_date',
+        entityId:   row.id,
+        actorId:    'system',
+        payload:    { matchId: row.matchId, reason: 'unanswered_proposal' },
+      });
+    } catch {
+      // best-effort — never let audit failure abort the sweep.
+    }
+  }
 
   // 2. NO_SHOW confirmed dates that ended with no feedback from either side.
   //    Pre-filter on scheduledAt (a coarse but correct superset: end =
@@ -330,8 +346,23 @@ export async function sweepVirtualDateLifecycle(
         isNull(virtualDates.proposerRating),
         isNull(virtualDates.inviteeRating),
       ))
-      .returning({ id: virtualDates.id });
+      .returning({ id: virtualDates.id, matchId: virtualDates.matchId });
     noShow = noShowRows.length;
+
+    // Audit each NO_SHOW (P2-4, migration 0041) — best-effort, system actor.
+    for (const row of noShowRows) {
+      try {
+        await appendAuditLog({
+          eventType:  'VIRTUAL_DATE_NO_SHOW',
+          entityType: 'virtual_date',
+          entityId:   row.id,
+          actorId:    'system',
+          payload:    { matchId: row.matchId, reason: 'no_show_unrated' },
+        });
+      } catch {
+        // best-effort — never let audit failure abort the sweep.
+      }
+    }
   }
 
   return { expired: expiredRows.length, noShow };
