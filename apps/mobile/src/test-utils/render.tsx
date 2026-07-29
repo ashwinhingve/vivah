@@ -1,6 +1,14 @@
 import type { ReactElement, ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render } from '@testing-library/react-native';
+
+/** Static insets so `useSafeAreaInsets` (ActionSheet, bottom sheets) works
+ *  under test — the native provider never mounts in jest. */
+const INITIAL_METRICS = {
+  insets: { top: 0, left: 0, right: 0, bottom: 0 },
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+};
 
 /**
  * Canonical way to render a screen under test.
@@ -34,7 +42,11 @@ export async function renderScreen(
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
+        {children}
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 
   const result = await render(ui, { wrapper });

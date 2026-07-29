@@ -1,15 +1,17 @@
-import { useCallback } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Text, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import type { BookingStatus } from '@smartshaadi/types';
 import { Screen } from '../../components/Screen';
+import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
-import { EmptyState, ErrorState, LoadingState } from '../../components/States';
-import { useThemeColors } from '../../hooks/useThemeColors';
-import { withAlpha } from '../../theme/tokens';
+import { Card } from '../../components/Card';
+import { Badge, type BadgeVariant } from '../../components/Badge';
+import { ActionSheet } from '../../components/ActionSheet';
+import { Skeleton } from '../../components/Skeleton';
+import { EmptyState, ErrorState } from '../../components/States';
 import { formatDate, formatINR } from '../../lib/format';
 import { useCancelBooking, useMyBookings } from '../../features/bookings/hooks';
-import type { ThemeColors } from '../../theme/tokens';
 
 /** A booking can be cancelled by the customer only while it is still open. */
 const CANCELLABLE: ReadonlySet<BookingStatus> = new Set([
@@ -17,17 +19,30 @@ const CANCELLABLE: ReadonlySet<BookingStatus> = new Set([
   'CONFIRMED',
 ] as BookingStatus[]);
 
-function statusColor(status: BookingStatus, colors: ThemeColors): string {
+function statusVariant(status: BookingStatus): BadgeVariant {
   switch (status) {
     case 'CONFIRMED':
     case 'COMPLETED':
-      return colors.success;
+      return 'success';
     case 'CANCELLED':
     case 'DISPUTED':
-      return colors.destructive;
+      return 'error';
     default:
-      return colors.warning;
+      return 'warning';
   }
+}
+
+const HEADER = <AppHeader title="My Bookings" showBack />;
+
+/** Booking-card-shaped shimmer for the initial load. */
+function SkeletonBookingCard() {
+  return (
+    <Card className="mb-3">
+      <Skeleton height={16} width="55%" radius={6} />
+      <Skeleton height={12} width="40%" radius={6} className="mt-2" />
+      <Skeleton height={12} width="70%" radius={6} className="mt-2" />
+    </Card>
+  );
 }
 
 /**
@@ -37,49 +52,26 @@ function statusColor(status: BookingStatus, colors: ThemeColors): string {
  * not offered here.
  */
 export default function BookingsScreen() {
-  const router = useRouter();
-  const { colors } = useThemeColors();
-
   const { data, error, isError, isLoading, refetch } = useMyBookings();
   const cancelBooking = useCancelBooking();
+  const [confirmCancel, setConfirmCancel] = useState<{
+    bookingId: string;
+    vendorName: string;
+  } | null>(null);
 
-  const handleCancel = useCallback(
-    (bookingId: string, vendorName: string) => {
-      Alert.alert(
-        'Cancel this booking?',
-        `Your booking with ${vendorName} will be cancelled. This can’t be undone.`,
-        [
-          { text: 'Keep booking', style: 'cancel' },
-          {
-            text: 'Cancel booking',
-            style: 'destructive',
-            onPress: () => cancelBooking.mutate({ bookingId }),
-          },
-        ],
-      );
-    },
-    [cancelBooking],
-  );
-
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Back
-      </Text>
-    </Pressable>
-  );
+  const handleConfirmCancel = useCallback(() => {
+    if (confirmCancel) {
+      cancelBooking.mutate({ bookingId: confirmCancel.bookingId });
+    }
+  }, [cancelBooking, confirmCancel]);
 
   if (isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading your bookings…" />
+        {HEADER}
+        <SkeletonBookingCard />
+        <SkeletonBookingCard />
+        <SkeletonBookingCard />
       </Screen>
     );
   }
@@ -87,7 +79,7 @@ export default function BookingsScreen() {
   if (isError) {
     return (
       <Screen>
-        {backLink}
+        {HEADER}
         <ErrorState error={error} onRetry={() => void refetch()} />
       </Screen>
     );
@@ -98,7 +90,7 @@ export default function BookingsScreen() {
   if (bookings.length === 0) {
     return (
       <Screen>
-        {backLink}
+        {HEADER}
         <EmptyState
           title="No bookings yet"
           message="Book a vendor from the Vendors tab and it will show up here."
@@ -109,63 +101,78 @@ export default function BookingsScreen() {
 
   return (
     <Screen scroll>
-      {backLink}
+      {HEADER}
 
-      <Text className="font-heading text-2xl text-primary mb-6">My Bookings</Text>
-
-      {bookings.map((booking) => (
-        <View
+      {bookings.map((booking, index) => (
+        <Animated.View
           key={booking.id}
-          className="bg-surface border border-gold/20 rounded-xl p-4 mb-3"
+          entering={FadeInUp.delay(Math.min(index, 8) * 60).duration(300)}
         >
-          <View className="flex-row items-start justify-between">
-            <Text className="font-semibold text-ink flex-1 pr-3">
-              {booking.vendorName}
-            </Text>
-            <View
-              className="px-2 py-1 rounded-full"
-              style={{
-                backgroundColor: withAlpha(statusColor(booking.status, colors), '20'),
-              }}
-            >
-              <Text
-                className="text-xs font-semibold"
-                style={{ color: statusColor(booking.status, colors) }}
-              >
-                {booking.status}
+          <Card className="mb-3">
+            <View className="flex-row items-start justify-between">
+              <Text className="font-semibold text-ink flex-1 pr-3">
+                {booking.vendorName}
               </Text>
-            </View>
-          </View>
-
-          {booking.packageName ? (
-            <Text className="text-sm text-ink mt-2">{booking.packageName}</Text>
-          ) : null}
-
-          <View className="flex-row items-center justify-between mt-2">
-            <Text className="text-xs text-muted">
-              {formatDate(booking.eventDate) ?? 'Date TBC'}
-              {booking.ceremonyType ? ` · ${booking.ceremonyType}` : ''}
-            </Text>
-            <Text className="text-sm font-semibold text-ink">
-              {formatINR(booking.totalAmount)}
-            </Text>
-          </View>
-
-          {CANCELLABLE.has(booking.status) ? (
-            <View className="mt-3">
-              <Button
-                title="Cancel booking"
-                variant="destructive"
-                loading={
-                  cancelBooking.isPending &&
-                  cancelBooking.variables?.bookingId === booking.id
-                }
-                onPress={() => handleCancel(booking.id, booking.vendorName)}
+              <Badge
+                label={booking.status}
+                variant={statusVariant(booking.status)}
               />
             </View>
-          ) : null}
-        </View>
+
+            {booking.packageName ? (
+              <Text className="text-sm text-ink mt-2">{booking.packageName}</Text>
+            ) : null}
+
+            <View className="flex-row items-center justify-between mt-2">
+              <Text className="text-xs text-muted">
+                {formatDate(booking.eventDate) ?? 'Date TBC'}
+                {booking.ceremonyType ? ` · ${booking.ceremonyType}` : ''}
+              </Text>
+              <Text className="text-sm font-semibold text-ink">
+                {formatINR(booking.totalAmount)}
+              </Text>
+            </View>
+
+            {CANCELLABLE.has(booking.status) ? (
+              <View className="mt-3">
+                <Button
+                  title="Cancel booking"
+                  variant="destructive"
+                  loading={
+                    cancelBooking.isPending &&
+                    cancelBooking.variables?.bookingId === booking.id
+                  }
+                  onPress={() =>
+                    setConfirmCancel({
+                      bookingId: booking.id,
+                      vendorName: booking.vendorName,
+                    })
+                  }
+                />
+              </View>
+            ) : null}
+          </Card>
+        </Animated.View>
       ))}
+
+      <ActionSheet
+        visible={confirmCancel !== null}
+        onClose={() => setConfirmCancel(null)}
+        title="Cancel this booking?"
+        message={
+          confirmCancel
+            ? `Your booking with ${confirmCancel.vendorName} will be cancelled. This can’t be undone.`
+            : undefined
+        }
+        actions={[
+          {
+            label: 'Cancel booking',
+            destructive: true,
+            onPress: handleConfirmCancel,
+          },
+        ]}
+        cancelLabel="Keep booking"
+      />
     </Screen>
   );
 }
