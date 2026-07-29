@@ -143,7 +143,7 @@ describe('MyProfileScreen', () => {
     });
   });
 
-  it('shows loading state initially', async () => {
+  it('shows loading skeletons, not profile content, while fetching', async () => {
     const mockSession = { user: { id: 'user-123' } };
 
     const useSessionMock = jest.mocked(useSessionModule.useSession);
@@ -156,6 +156,8 @@ describe('MyProfileScreen', () => {
 
     const getMeMock = jest.mocked(api.profiles.getMe);
     getMeMock.mockImplementation(() => new Promise(() => {}));
+    const getStrengthMock = jest.mocked(api.profiles.getStrengthTips);
+    getStrengthMock.mockImplementation(() => new Promise(() => {}));
 
     await render(
       <QueryClientProvider client={queryClient}>
@@ -163,6 +165,11 @@ describe('MyProfileScreen', () => {
       </QueryClientProvider>
     );
 
-    expect(screen.getByText('Loading your profile...')).toBeTruthy();
+    // Skeletons are intentionally unqueryable (accessibilityElementsHidden, no
+    // testID) — assert their absence-of-content signal instead: the header
+    // renders, but no profile text/percentage has appeared yet.
+    expect(screen.getByText('My Profile')).toBeTruthy();
+    expect(screen.queryByText('John Doe')).toBeNull();
+    expect(screen.queryByText(/%$/)).toBeNull();
   });
 });
