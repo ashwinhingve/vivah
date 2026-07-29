@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { phoneNumberMethods } from '../../lib/auth-client';
 import { phoneSchema } from '../../utils/validation';
 import { Screen } from '@/components/Screen';
+import { AuthHero } from '@/components/AuthHero';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { ErrorBanner } from '@/components/ErrorBanner';
@@ -60,43 +61,42 @@ export default function PhoneScreen() {
   }, [phone, router]);
 
   return (
-    <Screen scroll keyboardAvoiding>
-      {/* Header */}
-      <View className="mb-8">
-        <Text className="text-primary font-heading-bold text-3xl mb-2">Welcome</Text>
-        <Text className="text-gold-muted text-base">Enter your phone to get started</Text>
-      </View>
-
-      {/* Phone Input */}
-      <Input
-        label="Phone Number"
-        containerClassName="mb-6"
-        placeholder="10-digit number or +91XXXXXXXXXX"
-        keyboardType="phone-pad"
-        autoComplete="tel"
-        textContentType="telephoneNumber"
-        editable={!isLoading}
-        value={phone}
-        onChangeText={handleChangePhone}
+    <Screen scroll keyboardAvoiding contentClassName="px-6 pt-14 pb-8">
+      {/* Brand hero */}
+      <AuthHero
+        title="Welcome"
+        subtitle="Enter your phone number to begin your journey"
       />
 
-      {/* Error Message */}
-      {error ? <ErrorBanner message={error} className="mb-6" /> : null}
+      {/* Form */}
+      <Animated.View entering={FadeInDown.delay(220).duration(400)}>
+        <Input
+          label="Phone Number"
+          containerClassName="mb-6"
+          placeholder="10-digit number or +91XXXXXXXXXX"
+          keyboardType="phone-pad"
+          autoComplete="tel"
+          textContentType="telephoneNumber"
+          editable={!isLoading}
+          value={phone}
+          onChangeText={handleChangePhone}
+        />
 
-      {/* Send OTP Button */}
-      <Button
-        title="Send OTP"
-        onPress={handleSendOtp}
-        loading={isLoading}
-        disabled={!phone.trim()}
-        accessibilityHint="Sends a one-time code to your phone by SMS"
-      />
+        {error ? <ErrorBanner message={error} className="mb-6" /> : null}
 
-      {/* Info Note */}
-      <InfoNote variant="info" title="Test build" className="mt-8">
-        This is a test build — no real SMS is sent. Enter your phone number, then use the
-        test OTP code shared with you on the next screen.
-      </InfoNote>
+        <Button
+          title="Send OTP"
+          onPress={handleSendOtp}
+          loading={isLoading}
+          disabled={!phone.trim()}
+          accessibilityHint="Sends a one-time code to your phone by SMS"
+        />
+
+        <InfoNote variant="info" title="Test build" className="mt-8">
+          This is a test build — no real SMS is sent. Enter your phone number, then use the
+          test OTP code shared with you on the next screen.
+        </InfoNote>
+      </Animated.View>
     </Screen>
   );
 }

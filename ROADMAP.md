@@ -14,7 +14,16 @@ Blocker:  External: Razorpay live account, MSG91 DLT approval, DigiLocker partne
           legal sign-off. Engineering: staging SLO calibration (real traffic needed).
 Features: 80 placeholder supply rows + fictional venue details (is_placeholder=true) 
           block booking/payment until partner onboarding swaps them to real.
-Last updated: 2026-07-19
+Recent:   Smart Shaadi Assistant production upgrade (2026-07-29, branch
+          feat/smart-shaadi-assistant-rag): website-knowledge RAG (pgvector
+          knowledge_chunks, migration 0042; @smartshaadi/content committed
+          snapshot; nightly + event-driven indexing), search_knowledge tool +
+          grounded prompt v3, chat-history UI (list/resume/delete, auto-resume),
+          page-context awareness. Verified end-to-end in browser on the live
+          local stack (Gemini). Staging needs: apply 0042 via Railway SQL
+          console, run reindex-knowledge backfill, fix ai-service MONGODB_URI
+          credentials (writes were silently failing with auth errors).
+Last updated: 2026-07-29
 ```
 
 ---
@@ -143,6 +152,7 @@ Last updated: 2026-07-19
 | Mobile design system (light/dark theming, tokens, primitives) | ✅ Built | `apps/mobile/src/theme/` · Button/Input/Screen/Card/OTPInput + animations |
 | Mobile feature parity (auth, profile, matches, messages) | ✅ Built | Phase 0+1 complete on 2026-07-18 (commit `35a6c76`). Type-check, jest 17/17, Android bundle export all green. |
 | Mobile UI Polish (Playfair headings, responsive 375px, a11y, haptics) | ✅ Built + **merged to main** | 15 hardcoded hex removed, jest-expo + RNTL migrated, segmented OTP auto-submit, pull-to-refresh, keyboard avoidance. Merged in `bb47af3`; branch `feat/mobile-ui-polish` deleted |
+| Mobile premium redesign — core screens (2026-07-29) | ✅ Built, on branch `feat/mobile-premium-ui` — **awaiting device QA** | Light-locked theme (web parity, dark auto-switch removed, `userInterfaceStyle: light`), warm burgundy shadows, new primitives (Skeleton/Avatar/Badge/Ornament/GradientScrim/AppHeader/Toast/ActionSheet/AuthHero), **floating pill tab bar + junk-tabs fix** (6 undeclared routes rendered as tabs — all now `href: null` + whitelist), lucide icons, expo-image, redesigned auth/matches/chat/vendors/More. Out of scope (follow-up): settings, billing, payments, bookings, booking form, notifications, onboarding forms, edit profile. jest 222/222, `turbo type-check --force` 11/11, lint clean for touched files. Commits `d94e1af`…`be1e89f` |
 | NRI & international matching (country filters, time zone scheduling) | ✅ Built, gated: `NRI_MATCHING_LIVE=false` | Migration 0034 · `apps/api/src/profiles/nri.router.ts` + `apps/api/src/profiles/nri.service.ts` |
 | Virtual Date System (durable scheduling, T-24h/T-15m reminders, icebreakers) | ✅ Built + hardened | Migration 0033 · durable scheduling, reminders, icebreakers, post-date feedback. **Hardened 2026-07-22**: hourly lifecycle sweep (`apps/api/src/jobs/virtualDateLifecycleJob.ts` + `sweepVirtualDateLifecycle` in `video/service.ts`) expires unanswered PROPOSED → CANCELLED and marks ended, un-rated CONFIRMED → NO_SHOW (first + only writer of NO_SHOW; UI already renders it); `createVideoRoom` stamps `roomName` onto the durable row. 32 video-service unit tests green (4 new), api type-check clean |
 | iOS/Android store submission | ⬜ Not built | Blocked: Apple Developer Program + Google Play Console enrollment (Colonel's side, ~6 weeks) + real on-device testing |

@@ -14,20 +14,39 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
-import { err } from '../lib/response.js';
+import { ok, err } from '../lib/response.js';
 import { env } from '../lib/env.js';
 import { redis } from '../lib/redis.js';
 import { resolveProfileId } from '../lib/profile.js';
 import { buildAssistantContext } from '../services/assistantContext.js';
+import {
+  listAssistantConversations,
+  getAssistantConversation,
+  deleteAssistantConversation,
+} from '../services/assistantHistory.js';
 import { openAssistantStream, type AssistantUpstream } from '../services/assistantService.js';
 
 export const assistantRouter = Router();
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
+/**
+ * Where the user currently is in the web app — strict allowlist so nothing
+ * beyond a route + entity id + bounded filters ever reaches the ai-service.
+ */
+const PageContextSchema = z
+  .object({
+    pathname:    z.string().min(1).max(300),
+    entity_type: z.enum(['vendor', 'profile', 'wedding', 'discover']).optional(),
+    entity_id:   z.string().max(100).optional(),
+    filters:     z.record(z.string().max(100)).optional(),
+  })
+  .strip();
+
 const AssistantChatSchema = z.object({
   message:         z.string().trim().min(1).max(2000),
   conversation_id: z.string().uuid().nullable().optional(),
+  page_context:    PageContextSchema.optional(),
 });
 
 // ── Rate limit (60/hr per user) ───────────────────────────────────────────────
@@ -75,7 +94,7 @@ assistantRouter.post(
       err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid request', 400);
       return;
     }
-    const { message, conversation_id } = parsed.data;
+    const { message, conversation_id, page_context } = parsed.data;
 
     const profileId = await resolveProfileId(userId);
     if (!profileId) {
@@ -93,6 +112,7 @@ assistantRouter.post(
         message,
         conversation_id: conversation_id ?? null,
         context,
+        page_context:    page_context ?? null,
       });
     } catch {
       err(res, 'AI_SERVICE_UNAVAILABLE', 'Assistant temporarily unavailable', 503);
@@ -123,5 +143,56 @@ assistantRouter.post(
     } finally {
       if (!aborted) res.end();
     }
+  }),
+);
+
+// ── Conversation history ─────────────────────────────────────────────────────
+// Documents are written by the ai-service; these endpoints are the read side.
+// Ownership is enforced in the service layer (every query filters by user_id).
+
+const ConversationIdSchema = z.string().uuid();
+
+assistantRouter.get(
+  '/conversations',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const conversations = await listAssistantConversations(req.user!.id);
+    ok(res, { conversations });
+  }),
+);
+
+assistantRouter.get(
+  '/conversations/:id',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parsed = ConversationIdSchema.safeParse(req.params['id']);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', 'Invalid conversation id', 400);
+      return;
+    }
+    const conversation = await getAssistantConversation(req.user!.id, parsed.data);
+    if (!conversation) {
+      err(res, 'NOT_FOUND', 'Conversation not found', 404);
+      return;
+    }
+    ok(res, { conversation });
+  }),
+);
+
+assistantRouter.delete(
+  '/conversations/:id',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parsed = ConversationIdSchema.safeParse(req.params['id']);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', 'Invalid conversation id', 400);
+      return;
+    }
+    const deleted = await deleteAssistantConversation(req.user!.id, parsed.data);
+    if (!deleted) {
+      err(res, 'NOT_FOUND', 'Conversation not found', 404);
+      return;
+    }
+    ok(res, { deleted: true });
   }),
 );

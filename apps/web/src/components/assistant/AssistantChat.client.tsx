@@ -2,10 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Send } from 'lucide-react';
+import { Send, History, SquarePen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { streamAssistantChat, type AssistantSSEEvent } from '@/lib/assistant-api';
+import {
+  streamAssistantChat,
+  listConversations,
+  getConversation,
+  deleteConversation,
+  type AssistantSSEEvent,
+  type ConversationSummary,
+} from '@/lib/assistant-api';
+import { getAssistantPageContext } from '@/lib/assistant-page-context';
+import { AssistantHistory } from './AssistantHistory.client';
 
 interface ChatMessage {
   id: string;
@@ -25,6 +34,10 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activity, setActivity] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [conversations, setConversations] = useState<ConversationSummary[] | null>(null);
+  const [resuming, setResuming] = useState(true);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   /** Friendly "thinking" line shown while the assistant runs a data tool. */
@@ -47,25 +60,120 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
     get_wedding_ceremonies: t('tools.get_wedding_ceremonies'),
     suggest_muhurat_dates: t('tools.suggest_muhurat_dates'),
     find_similar_matches: t('tools.find_similar_matches'),
+    search_knowledge: t('tools.search_knowledge'),
   };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  const openConversation = useCallback(async (id: string) => {
+    const detail = await getConversation(id);
+    setMessages(
+      detail.messages.map((m) => ({ id: newId(), role: m.role, content: m.content })),
+    );
+    setConversationId(detail.id);
+    setError(null);
+    setHistoryOpen(false);
+    setConfirmDeleteId(null);
+  }, []);
+
+  // On mount: load the conversation list and auto-resume the most recent
+  // conversation so history is visible without extra taps. Failures fall back
+  // to a fresh chat silently — history is an enhancement, not a gate.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const list = await listConversations();
+        if (cancelled) return;
+        setConversations(list);
+        const latest = list[0];
+        if (latest) await openConversation(latest.id);
+      } catch {
+        if (!cancelled) setConversations([]);
+      } finally {
+        if (!cancelled) setResuming(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [openConversation]);
+
+  const refreshList = useCallback(async () => {
+    try {
+      setConversations(await listConversations());
+    } catch {
+      // keep the stale list — history refresh is best-effort
+    }
+  }, []);
+
+  const startNewChat = useCallback(() => {
+    setMessages([]);
+    setConversationId(null);
+    setError(null);
+    setHistoryOpen(false);
+    setConfirmDeleteId(null);
+  }, []);
+
+  const handleSelect = useCallback(
+    (id: string) => {
+      void openConversation(id).catch(() => setError(t('history.loadError')));
+    },
+    [openConversation, t],
+  );
+
+  // Two-tap delete: first tap arms the row, second tap deletes it.
+  const handleDelete = useCallback(
+    (id: string) => {
+      if (confirmDeleteId !== id) {
+        setConfirmDeleteId(id);
+        return;
+      }
+      setConfirmDeleteId(null);
+      void (async () => {
+        try {
+          await deleteConversation(id);
+          setConversations((prev) => prev?.filter((c) => c.id !== id) ?? prev);
+          if (conversationId === id) startNewChat();
+        } catch {
+          setError(t('history.deleteError'));
+        }
+      })();
+    },
+    [confirmDeleteId, conversationId, startNewChat, t],
+  );
+
+  const toggleHistory = useCallback(() => {
+    setHistoryOpen((open) => {
+      if (!open) void refreshList();
+      return !open;
+    });
+    setConfirmDeleteId(null);
+  }, [refreshList]);
+
   const send = useCallback(async () => {
     const text = draft.trim();
     if (!text || streaming) return;
     setError(null);
     setDraft('');
+    setHistoryOpen(false);
 
     const userMsg: ChatMessage = { id: newId(), role: 'user', content: text };
     const assistantId = newId();
     setMessages(prev => [...prev, userMsg, { id: assistantId, role: 'assistant', content: '' }]);
     setStreaming(true);
 
+    // Captured at send time so "this profile / this vendor" questions resolve
+    // against whatever page the user is actually looking at.
+    const pageContext = getAssistantPageContext(
+      window.location.pathname,
+      window.location.search,
+    );
+
     try {
-      for await (const event of streamAssistantChat({ message: text, conversationId })) {
+      for await (const event of streamAssistantChat({ message: text, conversationId, pageContext })) {
         applyEvent(event, assistantId);
       }
     } catch (e) {
@@ -74,8 +182,9 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
     } finally {
       setStreaming(false);
       setActivity(null);
+      void refreshList();
     }
-  }, [draft, streaming, conversationId]);
+  }, [draft, streaming, conversationId, refreshList]);
 
   function applyEvent(event: AssistantSSEEvent, assistantId: string) {
     if (event.type === 'delta') {
@@ -98,42 +207,76 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={`flex flex-col h-full ${compact ? '' : 'max-w-2xl mx-auto'}`}>
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
-        aria-live="polite"
-      >
-        {messages.length === 0 && (
-          <div className="text-sm text-muted-foreground text-center py-8">
-            {t('chat.greeting')}
-          </div>
-        )}
-        {messages.map(m => (
-          <div
-            key={m.id}
-            className={
-              m.role === 'user'
-                ? 'ml-auto max-w-[85%] rounded-xl bg-primary text-white px-4 py-2 text-sm'
-                : 'mr-auto max-w-[85%] rounded-2xl bg-surface border border-gold/20 text-foreground px-4 py-2 text-sm shadow-card'
-            }
-          >
-            {m.content || (m.role === 'assistant' && streaming ? (
-              <span className="text-muted-foreground italic">…</span>
-            ) : null)}
-          </div>
-        ))}
-        {activity && streaming && (
-          <div className="mr-auto flex items-center gap-2 text-xs text-muted-foreground italic px-1">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal animate-pulse" aria-hidden="true" />
-            {activity}
-          </div>
-        )}
-        {error && (
-          <div className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
-            {error}
-          </div>
-        )}
+      <div className="flex items-center justify-end gap-1 px-3 py-1.5 border-b border-gold/20 bg-surface">
+        <button
+          type="button"
+          onClick={toggleHistory}
+          aria-label={t('history.title')}
+          aria-pressed={historyOpen}
+          className={`flex items-center justify-center h-11 w-11 rounded-lg transition-colors ${
+            historyOpen ? 'bg-gold/15 text-primary' : 'text-muted-foreground hover:bg-gold/10'
+          }`}
+        >
+          <History className="h-4 w-4" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={startNewChat}
+          aria-label={t('history.newChat')}
+          className="flex items-center justify-center h-11 w-11 rounded-lg text-muted-foreground hover:bg-gold/10 transition-colors"
+        >
+          <SquarePen className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
+
+      {historyOpen ? (
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <AssistantHistory
+            conversations={conversations}
+            activeId={conversationId}
+            confirmDeleteId={confirmDeleteId}
+            onSelect={handleSelect}
+            onDelete={handleDelete}
+          />
+        </div>
+      ) : (
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+          aria-live="polite"
+        >
+          {messages.length === 0 && (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              {resuming ? t('history.loading') : t('chat.greeting')}
+            </div>
+          )}
+          {messages.map(m => (
+            <div
+              key={m.id}
+              className={
+                m.role === 'user'
+                  ? 'ml-auto max-w-[85%] rounded-xl bg-primary text-white px-4 py-2 text-sm'
+                  : 'mr-auto max-w-[85%] rounded-2xl bg-surface border border-gold/20 text-foreground px-4 py-2 text-sm shadow-card whitespace-pre-wrap'
+              }
+            >
+              {m.content || (m.role === 'assistant' && streaming ? (
+                <span className="text-muted-foreground italic">…</span>
+              ) : null)}
+            </div>
+          ))}
+          {activity && streaming && (
+            <div className="mr-auto flex items-center gap-2 text-xs text-muted-foreground italic px-1">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal animate-pulse" aria-hidden="true" />
+              {activity}
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+        </div>
+      )}
 
       <form
         className="border-t border-gold/20 bg-surface px-3 py-3 flex items-center gap-2"

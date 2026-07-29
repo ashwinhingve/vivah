@@ -21,12 +21,20 @@ function makeAppError(code: string, message: string, status: number): AppError {
   return e;
 }
 
+export interface AssistantPageContext {
+  pathname: string;
+  entity_type?: 'vendor' | 'profile' | 'wedding' | 'discover' | undefined;
+  entity_id?: string | undefined;
+  filters?: Record<string, string> | undefined;
+}
+
 export interface AssistantChatPayload {
   user_id: string;
   profile_id: string;
   message: string;
   conversation_id: string | null;
   context: RagContext;
+  page_context: AssistantPageContext | null;
 }
 
 export interface AssistantUpstream {

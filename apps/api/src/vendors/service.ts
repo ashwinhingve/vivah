@@ -21,6 +21,7 @@ import {
   vendorFavorites,
   vendorBlockedDates,
 } from '@smartshaadi/db';
+import { queueKnowledgeIndexing } from '../infrastructure/redis/queues.js';
 import { VendorPortfolio } from '../infrastructure/mongo/models/VendorPortfolio.js';
 import type {
   VendorProfile,
@@ -359,6 +360,10 @@ export async function updateVendor(
     .returning();
 
   if (!updated) throw new AppError('DB_UPDATE_FAILED', 'Failed to update vendor', 500);
+
+  // Keep the assistant's knowledge base in sync with the public listing
+  // (best-effort; indexVendor re-checks status/isActive server-side).
+  await queueKnowledgeIndexing({ type: 'vendor', sourceId: vendorId });
 
   const serviceRows = await db
     .select()

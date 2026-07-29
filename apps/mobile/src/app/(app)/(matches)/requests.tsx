@@ -1,19 +1,29 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   Pressable,
   Text,
   View,
 } from 'react-native';
+import Animated, {
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { Inbox, Send } from 'lucide-react-native';
 import { Screen } from '../../../components/Screen';
+import { AppHeader } from '../../../components/AppHeader';
 import {
   EmptyState,
   ErrorState,
-  LoadingState,
 } from '../../../components/States';
+import { SkeletonRow } from '../../../components/Skeleton';
 import { Button } from '../../../components/Button';
-import { useThemeColors } from '../../../hooks/useThemeColors';
-import type { ThemeColors } from '../../../theme/tokens';
+import { Card } from '../../../components/Card';
+import { Badge, type BadgeVariant } from '../../../components/Badge';
+import { useToast } from '../../../components/Toast';
+import { tokens } from '../../../theme/tokens';
 import {
   useReceivedRequests,
   useSentRequests,
@@ -24,34 +34,52 @@ import {
 type Tab = 'received' | 'sent';
 
 /**
- * Color for a request status badge, resolved against the active theme palette.
+ * Badge variant for a request status.
  */
-function getStatusColor(status: string, colors: ThemeColors): string {
+function getStatusVariant(status: string): BadgeVariant {
   switch (status) {
     case 'ACCEPTED':
-      return colors.success;
+      return 'success';
     case 'PENDING':
-      return colors.warning;
+      return 'warning';
     case 'DECLINED':
     case 'WITHDRAWN':
     case 'BLOCKED':
-      return colors.destructive;
+      return 'error';
     default:
-      return colors.muted;
+      return 'neutral';
   }
+}
+
+/** "ACCEPTED" → "Accepted" for display. */
+function humanizeStatus(status: string): string {
+  return status.charAt(0) + status.slice(1).toLowerCase();
 }
 
 /**
  * Match Requests Screen — Sprint I Track B.
  *
- * Displays received and sent match requests with a segmented tab toggle.
- * Received requests: Accept / Decline actions
- * Sent requests: Show status (pending, accepted, declined, etc.)
+ * Received and sent match requests behind an animated segmented control
+ * (burgundy pill slides between segments). Received requests offer
+ * Accept / Decline; sent requests show status + response metadata.
  */
 export default function MatchRequestsScreen() {
-  const { colors } = useThemeColors();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('received');
   const [currentPage, setCurrentPage] = useState(1);
+  const [toggleWidth, setToggleWidth] = useState(0);
+
+  const pillOffset = useSharedValue(0);
+  useEffect(() => {
+    pillOffset.value = withSpring(activeTab === 'sent' ? toggleWidth / 2 : 0, {
+      damping: 18,
+      stiffness: 260,
+    });
+  }, [activeTab, toggleWidth, pillOffset]);
+
+  const pillStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: pillOffset.value }],
+  }));
 
   const receivedQuery = useReceivedRequests(currentPage, 20);
   const sentQuery = useSentRequests(currentPage, 20);
@@ -71,11 +99,12 @@ export default function MatchRequestsScreen() {
     async (requestId: string) => {
       try {
         await acceptMutation.mutateAsync(requestId);
+        toast.show({ message: "It's a match! You can now chat.", type: 'success' });
       } catch {
-        alert('Failed to accept request. Please try again.');
+        toast.show({ message: 'Failed to accept request. Please try again.', type: 'error' });
       }
     },
-    [acceptMutation],
+    [acceptMutation, toast],
   );
 
   /**
@@ -85,11 +114,12 @@ export default function MatchRequestsScreen() {
     async (requestId: string) => {
       try {
         await declineMutation.mutateAsync(requestId);
+        toast.show({ message: 'Request declined', type: 'info' });
       } catch {
-        alert('Failed to decline request. Please try again.');
+        toast.show({ message: 'Failed to decline request. Please try again.', type: 'error' });
       }
     },
-    [declineMutation],
+    [declineMutation, toast],
   );
 
   /**
@@ -98,104 +128,118 @@ export default function MatchRequestsScreen() {
    * For now, show the request status and message, which are available in both types.
    */
   const renderRequestCard = useCallback(
-    ({ item }: { item: typeof requests[0] }) => (
-      <View className="mb-4 rounded-2xl bg-surface p-4 overflow-hidden">
-        {/* Request Info */}
-        <View className="mb-4">
-          <Text className="font-heading text-base text-ink mb-1">
-            {activeTab === 'received' ? 'Received' : 'Sent'} Request
-          </Text>
-          <Text className="text-sm text-muted">
-            {new Date(item.createdAt).toLocaleDateString()}
-          </Text>
-        </View>
-
-        {/* Message (if any) */}
-        {item.message && (
-          <View className="mb-4 p-3 bg-background rounded-lg">
-            <Text className="text-sm text-ink">"{item.message}"</Text>
-          </View>
-        )}
-
-        {/* Status Badge */}
-        <View className="mb-4 px-3 py-2 bg-background rounded-lg self-start">
-          <Text className="text-xs font-semibold" style={{ color: getStatusColor(item.status, colors) }}>
-            {item.status}
-          </Text>
-        </View>
-
-        {/* Actions or Response Info */}
-        {activeTab === 'received' ? (
-          <View className="flex-row gap-2">
-            <Button
-              title="Accept"
-              onPress={() => handleAccept(item.id)}
-              loading={acceptMutation.isPending}
-              variant="primary"
-            />
-            <Button
-              title="Decline"
-              onPress={() => handleDecline(item.id)}
-              loading={declineMutation.isPending}
-              variant="secondary"
-            />
-          </View>
-        ) : (
-          <>
-            {item.respondedAt && (
+    ({ item, index }: { item: typeof requests[0]; index: number }) => (
+      <Animated.View entering={FadeInUp.delay(Math.min(index, 6) * 50).duration(350)}>
+        <Card className="mb-4 p-5">
+          {/* Request Info */}
+          <View className="mb-3 flex-row items-start justify-between">
+            <View>
+              <Text className="font-heading text-base text-primary mb-0.5">
+                {activeTab === 'received' ? 'Received request' : 'Sent request'}
+              </Text>
               <Text className="text-xs text-muted">
-                Responded: {new Date(item.respondedAt).toLocaleDateString()}
+                {new Date(item.createdAt).toLocaleDateString()}
               </Text>
-            )}
-            {item.expiresAt && (
-              <Text className="text-xs text-muted mt-1">
-                Expires: {new Date(item.expiresAt).toLocaleDateString()}
-              </Text>
-            )}
-          </>
-        )}
-      </View>
+            </View>
+            <Badge variant={getStatusVariant(item.status)} label={humanizeStatus(item.status)} />
+          </View>
+
+          {/* Message (if any) — quote block */}
+          {item.message && (
+            <View className="mb-4 rounded-r-lg border-l-2 border-gold bg-gold/5 p-3">
+              <Text className="text-sm italic text-ink">"{item.message}"</Text>
+            </View>
+          )}
+
+          {/* Actions or Response Info */}
+          {activeTab === 'received' ? (
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Button
+                  title="Accept"
+                  onPress={() => handleAccept(item.id)}
+                  loading={acceptMutation.isPending}
+                  variant="primary"
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  title="Decline"
+                  onPress={() => handleDecline(item.id)}
+                  loading={declineMutation.isPending}
+                  variant="ghostDestructive"
+                />
+              </View>
+            </View>
+          ) : (
+            <>
+              {item.respondedAt && (
+                <Text className="text-xs text-muted">
+                  Responded: {new Date(item.respondedAt).toLocaleDateString()}
+                </Text>
+              )}
+              {item.expiresAt && (
+                <Text className="text-xs text-muted mt-1">
+                  Expires: {new Date(item.expiresAt).toLocaleDateString()}
+                </Text>
+              )}
+            </>
+          )}
+        </Card>
+      </Animated.View>
     ),
-    [activeTab, handleAccept, handleDecline, acceptMutation.isPending, declineMutation.isPending, colors],
+    [activeTab, handleAccept, handleDecline, acceptMutation.isPending, declineMutation.isPending],
   );
 
   /**
-   * Render the segmented tab toggle.
+   * Animated segmented control — the burgundy pill slides between segments.
    */
   const renderTabToggle = () => (
-    <View className="flex-row mb-4 p-1 bg-background rounded-lg">
-      {(['received', 'sent'] as const).map((tab) => (
-        <Pressable
-          key={tab}
-          onPress={() => {
-            setActiveTab(tab);
-            setCurrentPage(1);
-          }}
-          className="flex-1 py-2 rounded-md items-center justify-center"
-          style={{
-            backgroundColor:
-              activeTab === tab ? colors.primary : 'transparent',
-          }}
-        >
-          <Text
-            className="font-semibold capitalize"
-            style={{
-              color:
-                activeTab === tab ? colors.onPrimary : colors.ink,
+    <View
+      className="mb-5 flex-row rounded-full bg-gold/10 p-1"
+      onLayout={(e) => setToggleWidth(e.nativeEvent.layout.width - 8)}
+    >
+      {toggleWidth > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          className="absolute left-1 top-1 bottom-1 rounded-full bg-primary"
+          style={[{ width: toggleWidth / 2 }, pillStyle]}
+        />
+      )}
+      {(['received', 'sent'] as const).map((tab) => {
+        const isActive = activeTab === tab;
+        const IconComponent = tab === 'received' ? Inbox : Send;
+        return (
+          <Pressable
+            key={tab}
+            onPress={() => {
+              setActiveTab(tab);
+              setCurrentPage(1);
             }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            className="min-h-11 flex-1 flex-row items-center justify-center gap-1.5 rounded-full"
           >
-            {tab}
-          </Text>
-        </Pressable>
-      ))}
+            <IconComponent size={15} color={isActive ? tokens.onPrimary : tokens.goldMuted} />
+            <Text
+              className={`font-semibold capitalize ${isActive ? 'text-on-primary' : 'text-gold-muted'}`}
+            >
+              {tab}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 
   if (isLoading) {
     return (
       <Screen>
+        <AppHeader title="Requests" showBack />
         {renderTabToggle()}
-        <LoadingState label="Loading requests..." />
+        <SkeletonRow />
+        <SkeletonRow />
+        <SkeletonRow />
       </Screen>
     );
   }
@@ -203,6 +247,7 @@ export default function MatchRequestsScreen() {
   if (isError) {
     return (
       <Screen>
+        <AppHeader title="Requests" showBack />
         {renderTabToggle()}
         <ErrorState error={error} onRetry={refetch} />
       </Screen>
@@ -212,6 +257,7 @@ export default function MatchRequestsScreen() {
   if (requests.length === 0) {
     return (
       <Screen>
+        <AppHeader title="Requests" showBack />
         {renderTabToggle()}
         <EmptyState
           title={activeTab === 'received' ? 'No requests yet' : 'No sent requests'}
@@ -227,6 +273,7 @@ export default function MatchRequestsScreen() {
 
   return (
     <Screen scroll={false}>
+      <AppHeader title="Requests" showBack />
       {renderTabToggle()}
       <FlatList
         data={requests}

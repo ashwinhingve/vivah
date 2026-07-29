@@ -28,10 +28,17 @@ Mocks:    USE_MOCK_SERVICES=true (Razorpay + MSG91 only)
 Blocker:  External only — Razorpay live acct · MSG91 DLT · DigiLocker · legal ·
           App Store/Play enrollment · real venue/vendor supply (80 placeholder rows).
           Engineering: staging SLO calibration + pen-test (post-launch).
-Recent:   Virtual Date System (Phase 7) hardened — durable lifecycle sweep now
-          expires unanswered PROPOSED dates → CANCELLED and marks ended, un-rated
-          CONFIRMED dates → NO_SHOW (first writer of that status); live video rooms
-          now stamp roomName onto the durable virtual_dates row.
+Recent:   Smart Shaadi Assistant production upgrade (branch
+          feat/smart-shaadi-assistant-rag): website-knowledge RAG over pgvector
+          knowledge_chunks (migration 0042) fed by the committed
+          @smartshaadi/content snapshot + vendors/plans, retrieved via the
+          search_knowledge tool (exact source_id lookup for page-context
+          entities); grounded prompt v3 (env-rollback to v2); chat-history
+          list/resume/delete UI with auto-resume; page_context sent with every
+          chat turn. Backfill CLI: pnpm --filter @smartshaadi/api
+          reindex-knowledge. NOTE: local ai-service MONGODB_URI credentials were
+          wrong (conversation writes silently failed with auth errors) — verify
+          the same on Railway before staging sign-off.
 ```
 
 > **Update this block at the start of every session. ROADMAP.md holds the

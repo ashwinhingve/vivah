@@ -1,20 +1,21 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useThemeColors } from '@/hooks/useThemeColors';
-import { withAlpha } from '@/theme/tokens';
+import { FloatingTabBar } from '@/components/FloatingTabBar';
 import { useSession } from '@/hooks/useSession';
 import { useBiometricGate } from '@/hooks/useBiometricGate';
 
 /**
- * Authenticated tab shell — four tabs:
- * Matches · Chat · Profile · More.
+ * Authenticated tab shell — five tabs:
+ * Matches · Chat · Vendors · Profile · More.
  *
  * Each tab is an expo-router GROUP, not a single screen, so a track owns a whole
  * stack (list → detail → sub-detail) without touching this file. That is the
  * point: this layout is Phase-0 shared property and no Phase-1 track edits it.
  *
- * Teal (active) / muted (inactive) icons + labels on a themed surface.
+ * Navigation chrome is the custom FloatingTabBar (floating burgundy-pill bar).
+ * Every non-tab file in this directory MUST be declared below with
+ * `href: null` — expo-router otherwise surfaces it as an extra tab. The
+ * FloatingTabBar also whitelists the five tab routes as a second guard.
  *
  * Biometric gate:
  * Fires when the user has a valid session AND has opted into biometric AND
@@ -29,7 +30,6 @@ import { useBiometricGate } from '@/hooks/useBiometricGate';
  * a login regression. It only gates re-entry over an already-stored session.
  */
 export default function AppLayout() {
-  const { colors } = useThemeColors();
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
 
@@ -45,85 +45,27 @@ export default function AppLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.teal,
-        tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: withAlpha(colors.gold, '33'),
-          borderTopWidth: 1,
-          // 44px minimum touch target (design system), plus room for the label.
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-      }}
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
     >
-      <Tabs.Screen
-        name="(matches)"
-        options={{
-          title: 'Matches',
-          tabBarLabel: 'Matches',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'heart' : 'heart-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(chat)"
-        options={{
-          title: 'Chat',
-          tabBarLabel: 'Chat',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'chatbubbles' : 'chatbubbles-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(vendors)"
-        options={{
-          title: 'Vendors',
-          tabBarLabel: 'Vendors',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'storefront' : 'storefront-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(profile)"
-        options={{
-          title: 'Profile',
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: 'More',
-          tabBarLabel: 'More',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'ellipsis-horizontal-circle' : 'ellipsis-horizontal-circle-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+      <Tabs.Screen name="(matches)" options={{ title: 'Matches' }} />
+      <Tabs.Screen name="(chat)" options={{ title: 'Chat' }} />
+      <Tabs.Screen name="(vendors)" options={{ title: 'Vendors' }} />
+      <Tabs.Screen name="(profile)" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="more" options={{ title: 'More' }} />
 
-      {/* Reachable by navigation, but not its own tab. */}
+      {/* Reachable by navigation, but not tabs. Every non-tab route in this
+          directory must be listed here or expo-router adds it to the bar. */}
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ href: null }} />
       <Tabs.Screen name="payments" options={{ href: null }} />
       <Tabs.Screen name="biometric-unlock" options={{ href: null }} />
+      <Tabs.Screen name="billing" options={{ href: null }} />
+      <Tabs.Screen name="blocked-users" options={{ href: null }} />
+      <Tabs.Screen name="bookings" options={{ href: null }} />
+      <Tabs.Screen name="help" options={{ href: null }} />
+      <Tabs.Screen name="notification-preferences" options={{ href: null }} />
+      <Tabs.Screen name="booking/[vendorId]" options={{ href: null }} />
     </Tabs>
   );
 }

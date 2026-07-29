@@ -72,3 +72,23 @@ def embed_text(text: str) -> list[float] | None:
     except Exception as exc:  # noqa: BLE001
         log.error("embedding_encode_failed", error=str(exc))
         return None
+
+
+def embed_texts(texts: list[str]) -> list[list[float]] | None:
+    """Embed a batch of strings (knowledge chunks / search queries) in one
+    model call — much cheaper than N single encodes during a full reindex.
+
+    Same normalization contract as ``embed_text``. Empty strings embed as the
+    empty-string vector rather than being dropped, so the response aligns
+    1:1 with the request order. Returns None only when the model is down.
+    """
+    model = load_embedding_model()
+    if model is None:
+        return None
+    try:
+        cleaned = [(t or "").strip() for t in texts]
+        vecs = model.encode(cleaned, normalize_embeddings=True)
+        return [[float(x) for x in vec] for vec in vecs]
+    except Exception as exc:  # noqa: BLE001
+        log.error("embedding_batch_encode_failed", count=len(texts), error=str(exc))
+        return None

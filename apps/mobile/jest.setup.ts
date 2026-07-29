@@ -8,15 +8,53 @@
 // Reanimated's shipped mock still imports the real worklets native module,
 // which has no jest counterpart — stub the small API surface we use instead.
 jest.mock('react-native-reanimated', () => {
-  const { View } = require('react-native');
+  const { View, Text } = require('react-native');
+
+  // Entering/exiting/layout builders (FadeInDown.delay(80).springify()…) are
+  // chainable statics; a self-returning method bag covers any chain order.
+  const makeBuilder = () => {
+    const builder: Record<string, () => unknown> = {};
+    const methods = [
+      'duration',
+      'delay',
+      'springify',
+      'damping',
+      'stiffness',
+      'mass',
+      'easing',
+      'overshootClamping',
+      'withInitialValues',
+      'reduceMotion',
+      'build',
+    ];
+    for (const method of methods) {
+      builder[method] = () => builder;
+    }
+    return builder;
+  };
+
   return {
     __esModule: true,
-    default: { View, createAnimatedComponent: (c: unknown) => c },
+    default: { View, Text, createAnimatedComponent: (c: unknown) => c },
     useSharedValue: (init: unknown) => ({ value: init }),
     useAnimatedStyle: (factory: () => unknown) => factory(),
     withSpring: (v: unknown) => v,
     withTiming: (v: unknown) => v,
     withSequence: (...steps: unknown[]) => steps[steps.length - 1],
+    withRepeat: (v: unknown) => v,
+    Easing: {
+      ease: (t: number) => t,
+      linear: (t: number) => t,
+      inOut: (fn: unknown) => fn,
+    },
+    FadeIn: makeBuilder(),
+    FadeInDown: makeBuilder(),
+    FadeInUp: makeBuilder(),
+    FadeOut: makeBuilder(),
+    FadeOutDown: makeBuilder(),
+    SlideInDown: makeBuilder(),
+    SlideOutDown: makeBuilder(),
+    LinearTransition: makeBuilder(),
   };
 });
 

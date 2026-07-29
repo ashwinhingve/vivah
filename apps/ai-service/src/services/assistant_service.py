@@ -23,7 +23,7 @@ from typing import Any
 
 import structlog
 
-from src.schemas.assistant import AssistantChatRequest, RagContext
+from src.schemas.assistant import AssistantChatRequest, PageContext, RagContext
 from src.services.assistant_errors import LlmProviderError
 from src.services.assistant_tools import execute_tool_call, get_tool_schemas
 from src.services.llm_client import (
@@ -119,9 +119,17 @@ def _conversation_collection():
 # Docker image (vendored ``src/prompts/``; the container only ``COPY src ./src``).
 # A hardcoded ``parents[4]`` crashed the whole service at import in Docker
 # (``/app/src/services/...`` has no 5th parent → IndexError). Never raise here.
+#
+# ASSISTANT_PROMPT_VERSION selects the file (default v3 — knowledge-grounded;
+# set to v2 to roll back to the pre-RAG prompt without a deploy).
+def _prompt_version() -> str:
+    raw = os.getenv("ASSISTANT_PROMPT_VERSION", "v3").strip().lower()
+    return raw if raw in {"v2", "v3"} else "v3"
+
+
 def _resolve_prompt_path() -> Path:
     here = Path(__file__).resolve()
-    rel = ("prompts", "matrimony-assistant-v2.md")
+    rel = ("prompts", f"matrimony-assistant-{_prompt_version()}.md")
     candidates = [
         here.parent.parent.joinpath(*rel),         # src/prompts (vendored → in Docker image)
         *(p.joinpath(*rel) for p in here.parents),  # any ancestor (monorepo repo root)
@@ -132,9 +140,6 @@ def _resolve_prompt_path() -> Path:
     # None found: return the vendored location; the request-time read is guarded
     # (try/except) and falls back to _FALLBACK_SYSTEM.
     return candidates[0]
-
-
-_PROMPT_PATH = _resolve_prompt_path()
 
 # Fallback if the prompt file is unreadable — keeps the assistant answering with
 # the essential safety + tool rules baked in.
@@ -166,14 +171,36 @@ def _render_context_snapshot(context: RagContext) -> str:
     )
 
 
-def build_system_prompt(context: RagContext) -> str:
-    """Load the v2 system prompt and inject the user's orientation snapshot."""
+def render_page_context(page_context: PageContext | None) -> str | None:
+    """Render the client-supplied page context as one orientation line."""
+    if page_context is None:
+        return None
+    parts = [f"User is currently viewing: {page_context.pathname}"]
+    if page_context.entity_type and page_context.entity_id:
+        parts.append(f"({page_context.entity_type} id: {page_context.entity_id})")
+    elif page_context.entity_type:
+        parts.append(f"({page_context.entity_type} page)")
+    if page_context.filters:
+        rendered = ", ".join(f"{k}={v}" for k, v in list(page_context.filters.items())[:10])
+        parts.append(f"Active search filters: {rendered}.")
+    return " ".join(parts)
+
+
+def build_system_prompt(context: RagContext, page_context: str | None = None) -> str:
+    """Load the versioned system prompt and inject the user's orientation
+    snapshot + current page context (v3). Resolved at request time so an
+    ASSISTANT_PROMPT_VERSION change takes effect without a restart."""
+    prompt_path = _resolve_prompt_path()
     try:
-        template = _PROMPT_PATH.read_text(encoding="utf-8")
+        template = prompt_path.read_text(encoding="utf-8")
     except OSError:
-        log.error("assistant_prompt_missing", path=str(_PROMPT_PATH))
+        log.error("assistant_prompt_missing", path=str(prompt_path))
         template = _FALLBACK_SYSTEM
-    return template.replace("{{USER_CONTEXT}}", _render_context_snapshot(context))
+    return (
+        template
+        .replace("{{USER_CONTEXT}}", _render_context_snapshot(context))
+        .replace("{{PAGE_CONTEXT}}", page_context or "(not provided)")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -360,7 +387,9 @@ async def stream_chat(
     tools = get_tool_schemas()
     model = os.getenv("ASSISTANT_MODEL", "claude-sonnet-4-6")
     max_tokens = _env_int("ASSISTANT_MAX_TOKENS", 1500)
-    system_prompt = build_system_prompt(request.context)
+    system_prompt = build_system_prompt(
+        request.context, render_page_context(request.page_context)
+    )
     base_headers = {
         "Helicone-Property-Feature": "matrimony-assistant",
         "Helicone-User-Id": request.profile_id,

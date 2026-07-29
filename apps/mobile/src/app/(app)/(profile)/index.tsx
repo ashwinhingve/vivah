@@ -81,7 +81,7 @@ export default function MyProfileScreen() {
   const completenessPercent = Math.round(profile.profileCompleteness || 0);
 
   return (
-    <Screen scroll>
+    <Screen scroll tabBarInset>
       {/* Profile header */}
       <View className="mb-6">
         {profile.photos && profile.photos.length > 0 && (

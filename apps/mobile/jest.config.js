@@ -32,8 +32,25 @@ module.exports = {
   // the 15s headroom the api's vitest config settled on.
   testTimeout: 15000,
   setupFiles: [...(require('jest-expo/ios/jest-preset').setupFiles ?? []), '<rootDir>/jest.setup.js'],
+  // Extend (never replace) the preset's whitelist: lucide-react-native ships
+  // untranspiled ESM and must be run through babel like the RN packages. The
+  // preset pattern is edited in place so its own entries stay intact.
+  transformIgnorePatterns: (
+    require('jest-expo/ios/jest-preset').transformIgnorePatterns ?? []
+  ).map((pattern) =>
+    pattern.includes('(?!(')
+      ? pattern.replace('(?!(', '(?!(lucide-react-native|')
+      : pattern,
+  ),
+  // The preset's babel transform only matches \.[jt]sx? — lucide resolves to a
+  // .mjs bundle, so route .mjs through the same babel-jest entry (spreading the
+  // preset first keeps its asset transformers intact).
+  transform: {
+    ...require('jest-expo/ios/jest-preset').transform,
+    '\\.mjs$': require('jest-expo/ios/jest-preset').transform['\\.[jt]sx?$'],
+  },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'mjs'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

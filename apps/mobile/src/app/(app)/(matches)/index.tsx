@@ -3,20 +3,24 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   RefreshControl,
   Text,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { BadgeCheck, Bookmark, ChevronRight, ImageOff, MapPin, UserRoundPlus } from 'lucide-react-native';
 import { Screen } from '../../../components/Screen';
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from '../../../components/States';
+import { AppHeader, HeaderIconButton } from '../../../components/AppHeader';
+import { GradientScrim } from '../../../components/GradientScrim';
+import { Badge } from '../../../components/Badge';
+import { SkeletonFeedCard } from '../../../components/Skeleton';
+import { EmptyState, ErrorState } from '../../../components/States';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { shadowWarm } from '../../../theme/shadows';
 import { useThemeColors } from '../../../hooks/useThemeColors';
 import { MEDIA_BASE_URL } from '../../../lib/env';
 import { useMatchFeed } from '../../../features/matches/hooks';
@@ -29,15 +33,18 @@ import {
 /**
  * Match Feed Screen — Sprint I Track B.
  *
- * Displays a paginated feed of match profiles as tap-based cards.
- * Each card shows: photo, name, age, city, and compatibility score.
- * Pull-to-refresh re-fetches the first page; scrolling to the bottom
- * auto-loads the next page.
- *
- * TAP to navigate to the profile detail screen.
- * SCROLL DOWN to load more matches.
- * PULL DOWN to refresh the entire feed.
+ * Photo-led premium cards (web MatchCard parity): tall portrait with a
+ * legibility scrim and gold inner frame, name/age in Playfair overlaid on
+ * the photo, color-coded compatibility pill, verified check. Pull-to-refresh
+ * re-fetches the first page; scrolling to the bottom auto-loads the next.
  */
+const CARD_STAGGER_MS = 60;
+const CARD_STAGGER_CAP = 6;
+/** Clears the floating pill tab bar (list content scrolls beneath it). */
+const TAB_BAR_CLEARANCE = 112;
+
+const PHOTO_FALLBACK_WASH = [tokens.blush, tokens.background] as const;
+
 export default function MatchFeedScreen() {
   const router = useRouter();
   const { colors } = useThemeColors();
@@ -96,101 +103,113 @@ export default function MatchFeedScreen() {
    * Render a single match card — tappable to navigate to detail.
    */
   const renderMatchCard = useCallback(
-    ({ item }: { item: typeof items[0] }) => {
+    ({ item, index }: { item: typeof items[0]; index: number }) => {
       const tierColor = colors[getTierColor(item.compatibility.tier)];
       return (
-      <Pressable
-        onPress={() => router.push(`/(app)/(matches)/${item.profileId}`)}
-        className="mb-4 rounded-2xl bg-surface overflow-hidden"
-        style={{ minHeight: 320 }}
-      >
-        {/* Photo Container */}
-        <View className="h-48 bg-background overflow-hidden">
-          {item.photoKey && !item.photoHidden ? (
-            <Image
-              source={{ uri: `${MEDIA_BASE_URL}/${item.photoKey}` }}
-              className="w-full h-full"
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="w-full h-full items-center justify-center">
-              <Text className="text-muted">Photo hidden</Text>
-            </View>
-          )}
+        <Animated.View
+          entering={FadeInUp.delay(Math.min(index, CARD_STAGGER_CAP) * CARD_STAGGER_MS)
+            .springify()
+            .damping(18)}
+        >
+          <Pressable
+            onPress={() => router.push(`/(app)/(matches)/${item.profileId}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`View ${item.name}'s profile`}
+            className="mb-5 rounded-2xl border border-gold/20 bg-surface overflow-hidden active:opacity-90"
+            style={shadowWarm}
+          >
+            {/* Photo with scrim + gold inner frame */}
+            <View className="h-72 bg-background overflow-hidden">
+              {item.photoKey && !item.photoHidden ? (
+                <Image
+                  source={{ uri: `${MEDIA_BASE_URL}/${item.photoKey}` }}
+                  style={{ width: '100%', height: '100%' }}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <LinearGradient
+                  colors={PHOTO_FALLBACK_WASH}
+                  style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                >
+                  <ImageOff size={32} color={withAlpha(tokens.goldMuted, '99')} strokeWidth={1.5} />
+                  <Text className="text-sm text-gold-muted">Photo hidden</Text>
+                </LinearGradient>
+              )}
 
-          {/* Verified Badge (top-right) */}
-          {item.isVerified && (
-            <View
-              className="absolute top-3 right-3 bg-success px-2 py-1 rounded-full"
-              style={{ backgroundColor: tokens.success }}
-            >
-              <Text className="text-white text-xs font-semibold">Verified</Text>
-            </View>
-          )}
+              <GradientScrim intensity="high" />
 
-          {/* New Badge (top-left) */}
-          {item.isNew && (
-            <View
-              className="absolute top-3 left-3 bg-primary px-2 py-1 rounded-full"
-              style={{ backgroundColor: tokens.primary }}
-            >
-              <Text className="text-white text-xs font-semibold">New</Text>
-            </View>
-          )}
-        </View>
+              {/* Gold inner frame (web: ring-2 ring-inset ring-gold/70) */}
+              <View
+                pointerEvents="none"
+                className="absolute inset-0 m-2.5 rounded-xl border border-gold/70"
+              />
 
-        {/* Card Info Section */}
-        <View className="p-4">
-          {/* Name, Age, City */}
-          <View className="mb-3">
-            <View className="flex-row items-baseline justify-between mb-1">
-              <Text className="font-heading text-lg text-ink">
-                {item.name}
-                {item.age ? `, ${item.age}` : ''}
+              {/* Compatibility pill + New (top-left) */}
+              <View className="absolute top-4 left-4 flex-row items-center gap-2">
+                <View
+                  className="rounded-full px-2.5 py-1"
+                  style={{ backgroundColor: tierColor }}
+                >
+                  <Text className="text-xs font-bold text-white">
+                    {formatCompatibilityScore(item.compatibility.totalScore)}
+                  </Text>
+                </View>
+                {item.isNew && <Badge variant="goldSolid" label="New" size="sm" />}
+              </View>
+
+              {/* Verified check (top-right) */}
+              {item.isVerified && (
+                <View
+                  className="absolute top-4 right-4 h-7 w-7 items-center justify-center rounded-full bg-success"
+                  accessibilityLabel="Verified profile"
+                >
+                  <BadgeCheck size={16} color={tokens.onPrimary} />
+                </View>
+              )}
+
+              {/* Name + city overlaid on the scrim */}
+              <View className="absolute bottom-4 left-5 right-5">
+                <Text className="font-heading text-2xl text-white" numberOfLines={1}>
+                  {item.name}
+                  {item.age ? `, ${item.age}` : ''}
+                </Text>
+                {item.city ? (
+                  <View className="mt-1 flex-row items-center gap-1">
+                    <MapPin size={12} color="rgba(255,255,255,0.85)" />
+                    <Text className="text-sm text-white/85">{item.city}</Text>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+
+            {/* Footer */}
+            <View className="flex-row items-center justify-between px-4 py-3">
+              <Text className="text-xs text-muted">
+                {getTierLabel(item.compatibility.tier)}
               </Text>
+              <View className="flex-row items-center gap-0.5">
+                <Text className="text-xs font-semibold text-teal">View profile</Text>
+                <ChevronRight size={14} color={tokens.teal} />
+              </View>
             </View>
-            <Text className="text-sm text-muted">{item.city}</Text>
-          </View>
-
-          {/* Compatibility Score Badge */}
-          <View className="flex-row items-center justify-between pt-3 border-t border-gold/20">
-            <Text className="text-xs text-muted">Compatibility</Text>
-            <View
-              className="px-3 py-1 rounded-full"
-              style={{ backgroundColor: withAlpha(tierColor, '20') }}
-            >
-              <Text
-                className="font-semibold text-sm"
-                style={{ color: tierColor }}
-              >
-                {formatCompatibilityScore(item.compatibility.totalScore)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Tier Label */}
-          <Text className="text-xs text-muted mt-2">
-            {getTierLabel(item.compatibility.tier)}
-          </Text>
-        </View>
-
-        {/* Tap Indicator */}
-        <View className="px-4 pb-3">
-          <Text className="text-xs text-teal text-center">Tap to view profile</Text>
-        </View>
-      </Pressable>
+          </Pressable>
+        </Animated.View>
       );
     },
     [router, colors],
   );
 
   /**
-   * Loading state: spinner while fetching the first page.
+   * Loading state: warm shimmer skeleton cards while fetching the first page.
    */
   if (isLoading) {
     return (
       <Screen>
-        <LoadingState label="Finding your perfect match..." />
+        <AppHeader title="Matches" />
+        <SkeletonFeedCard />
+        <SkeletonFeedCard />
+        <SkeletonFeedCard />
       </Screen>
     );
   }
@@ -201,6 +220,7 @@ export default function MatchFeedScreen() {
   if (isError) {
     return (
       <Screen>
+        <AppHeader title="Matches" />
         <ErrorState error={error} onRetry={handleRefresh} />
       </Screen>
     );
@@ -212,6 +232,7 @@ export default function MatchFeedScreen() {
   if (items.length === 0) {
     return (
       <Screen>
+        <AppHeader title="Matches" />
         <EmptyState
           title="No matches yet"
           message="Check back later for new matches tailored to your preferences."
@@ -223,38 +244,55 @@ export default function MatchFeedScreen() {
   }
 
   /**
-   * Happy path: render the infinite list with pull-to-refresh.
+   * Happy path: fixed header, list scrolls beneath the floating tab bar.
    */
   return (
-    <Screen scroll={false}>
-      <View className="flex-1 px-0 py-0">
-        <FlatList
-          data={items}
-          renderItem={renderMatchCard}
-          keyExtractor={(item) => item.profileId}
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor={tokens.primary}
+    <Screen scroll={false} contentClassName="px-0 py-0">
+      <AppHeader
+        title="Matches"
+        className="px-6 pt-4 mb-2"
+        right={
+          <View className="flex-row gap-2">
+            <HeaderIconButton
+              icon={<UserRoundPlus size={20} color={tokens.primary} />}
+              accessibilityLabel="Match requests"
+              onPress={() => router.push('/(app)/(matches)/requests')}
             />
-          }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View className="py-4">
-                <ActivityIndicator size="small" color={tokens.primary} />
-              </View>
-            ) : null
-          }
-          contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingVertical: 16,
-          }}
-          scrollIndicatorInsets={{ right: 1 }}
-        />
-      </View>
+            <HeaderIconButton
+              icon={<Bookmark size={20} color={tokens.primary} />}
+              accessibilityLabel="Shortlisted profiles"
+              onPress={() => router.push('/(app)/(matches)/shortlists')}
+            />
+          </View>
+        }
+      />
+      <FlatList
+        data={items}
+        renderItem={renderMatchCard}
+        keyExtractor={(item) => item.profileId}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={tokens.primary}
+          />
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View className="py-4">
+              <ActivityIndicator size="small" color={tokens.primary} />
+            </View>
+          ) : null
+        }
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingTop: 8,
+          paddingBottom: TAB_BAR_CLEARANCE,
+        }}
+        scrollIndicatorInsets={{ right: 1 }}
+      />
     </Screen>
   );
 }

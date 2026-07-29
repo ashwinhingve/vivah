@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "smartshaadi",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "in.co.smartshaadi.app",
@@ -46,9 +46,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "b291b6cf-78d5-4006-a81c-603784b01a25"
+        "projectId": "569b814a-5662-438b-8eea-32c8a8ad1f9d"
       }
     },
-    "owner": "gulaabi-cleans-team"
+    "owner": "hingve"
   }
 }
