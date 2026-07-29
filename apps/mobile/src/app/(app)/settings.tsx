@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Text, View, Switch } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { AppHeader } from '../../components/AppHeader';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
 import { LoadingState, EmptyState } from '../../components/States';
@@ -82,8 +83,7 @@ export default function SettingsScreen() {
 
   return (
     <Screen scroll>
-      {/* Header */}
-      <Text className="font-heading text-2xl text-primary mb-6">Settings</Text>
+      <AppHeader title="Settings" showBack />
 
       {/* Account Section */}
       <View className="mb-8">

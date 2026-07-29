@@ -5,6 +5,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { AppHeader } from '../../components/AppHeader';
 import { Screen } from '../../components/Screen';
 import { LoadingState, EmptyState, ErrorState } from '../../components/States';
 import { useNotifications } from '../../features/chat/useNotifications';
@@ -89,9 +90,7 @@ export default function NotificationsScreen() {
   if (loading && notifications.length === 0) {
     return (
       <Screen>
-        <Text className="font-heading text-2xl text-primary mb-6">
-          Notifications
-        </Text>
+        <AppHeader title="Notifications" showBack />
         <LoadingState label="Loading notifications..." />
       </Screen>
     );
@@ -100,9 +99,7 @@ export default function NotificationsScreen() {
   if (error) {
     return (
       <Screen>
-        <Text className="font-heading text-2xl text-primary mb-6">
-          Notifications
-        </Text>
+        <AppHeader title="Notifications" showBack />
         <ErrorState error={error} onRetry={retry} />
       </Screen>
     );
@@ -110,11 +107,10 @@ export default function NotificationsScreen() {
 
   return (
     <Screen>
-      <View className="mb-6">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="font-heading text-2xl text-primary">
-            Notifications
-          </Text>
+      <AppHeader
+        title="Notifications"
+        showBack
+        right={
           <View className="flex-row items-center gap-3">
             {unreadCount > 0 && (
               <View
@@ -135,8 +131,9 @@ export default function NotificationsScreen() {
               <Text className="text-sm font-semibold text-teal">Preferences</Text>
             </Pressable>
           </View>
-        </View>
-
+        }
+      />
+      <View className="mb-6">
         {/* Filter and actions */}
         <View className="flex-row gap-2 justify-between">
           <Pressable
