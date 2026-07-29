@@ -23,7 +23,7 @@ from typing import Any
 
 import structlog
 
-from src.schemas.assistant import AssistantChatRequest, RagContext
+from src.schemas.assistant import AssistantChatRequest, PageContext, RagContext
 from src.services.assistant_errors import LlmProviderError
 from src.services.assistant_tools import execute_tool_call, get_tool_schemas
 from src.services.llm_client import (
@@ -169,6 +169,21 @@ def _render_context_snapshot(context: RagContext) -> str:
         f"- Incomplete profile sections: {gaps}\n"
         f"- Last active: {context.last_active_iso or '(unknown)'}"
     )
+
+
+def render_page_context(page_context: PageContext | None) -> str | None:
+    """Render the client-supplied page context as one orientation line."""
+    if page_context is None:
+        return None
+    parts = [f"User is currently viewing: {page_context.pathname}"]
+    if page_context.entity_type and page_context.entity_id:
+        parts.append(f"({page_context.entity_type} id: {page_context.entity_id})")
+    elif page_context.entity_type:
+        parts.append(f"({page_context.entity_type} page)")
+    if page_context.filters:
+        rendered = ", ".join(f"{k}={v}" for k, v in list(page_context.filters.items())[:10])
+        parts.append(f"Active search filters: {rendered}.")
+    return " ".join(parts)
 
 
 def build_system_prompt(context: RagContext, page_context: str | None = None) -> str:
@@ -372,7 +387,9 @@ async def stream_chat(
     tools = get_tool_schemas()
     model = os.getenv("ASSISTANT_MODEL", "claude-sonnet-4-6")
     max_tokens = _env_int("ASSISTANT_MAX_TOKENS", 1500)
-    system_prompt = build_system_prompt(request.context)
+    system_prompt = build_system_prompt(
+        request.context, render_page_context(request.page_context)
+    )
     base_headers = {
         "Helicone-Property-Feature": "matrimony-assistant",
         "Helicone-User-Id": request.profile_id,

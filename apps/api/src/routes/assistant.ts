@@ -30,9 +30,23 @@ export const assistantRouter = Router();
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
+/**
+ * Where the user currently is in the web app — strict allowlist so nothing
+ * beyond a route + entity id + bounded filters ever reaches the ai-service.
+ */
+const PageContextSchema = z
+  .object({
+    pathname:    z.string().min(1).max(300),
+    entity_type: z.enum(['vendor', 'profile', 'wedding', 'discover']).optional(),
+    entity_id:   z.string().max(100).optional(),
+    filters:     z.record(z.string().max(100)).optional(),
+  })
+  .strip();
+
 const AssistantChatSchema = z.object({
   message:         z.string().trim().min(1).max(2000),
   conversation_id: z.string().uuid().nullable().optional(),
+  page_context:    PageContextSchema.optional(),
 });
 
 // ── Rate limit (60/hr per user) ───────────────────────────────────────────────
@@ -80,7 +94,7 @@ assistantRouter.post(
       err(res, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid request', 400);
       return;
     }
-    const { message, conversation_id } = parsed.data;
+    const { message, conversation_id, page_context } = parsed.data;
 
     const profileId = await resolveProfileId(userId);
     if (!profileId) {
@@ -98,6 +112,7 @@ assistantRouter.post(
         message,
         conversation_id: conversation_id ?? null,
         context,
+        page_context:    page_context ?? null,
       });
     } catch {
       err(res, 'AI_SERVICE_UNAVAILABLE', 'Assistant temporarily unavailable', 503);

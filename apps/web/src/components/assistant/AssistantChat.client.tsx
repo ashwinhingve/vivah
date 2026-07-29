@@ -13,6 +13,7 @@ import {
   type AssistantSSEEvent,
   type ConversationSummary,
 } from '@/lib/assistant-api';
+import { getAssistantPageContext } from '@/lib/assistant-page-context';
 import { AssistantHistory } from './AssistantHistory.client';
 
 interface ChatMessage {
@@ -164,8 +165,15 @@ export function AssistantChat({ compact = false }: { compact?: boolean }) {
     setMessages(prev => [...prev, userMsg, { id: assistantId, role: 'assistant', content: '' }]);
     setStreaming(true);
 
+    // Captured at send time so "this profile / this vendor" questions resolve
+    // against whatever page the user is actually looking at.
+    const pageContext = getAssistantPageContext(
+      window.location.pathname,
+      window.location.search,
+    );
+
     try {
-      for await (const event of streamAssistantChat({ message: text, conversationId })) {
+      for await (const event of streamAssistantChat({ message: text, conversationId, pageContext })) {
         applyEvent(event, assistantId);
       }
     } catch (e) {

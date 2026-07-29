@@ -16,9 +16,12 @@ export type AssistantSSEEvent =
   | { type: 'error';         message: string; recoverable?: boolean }
   | { type: 'done';          conversation_id: string };
 
+import type { AssistantPageContext } from '@/lib/assistant-page-context';
+
 export interface AssistantStreamInput {
   message: string;
   conversationId: string | null;
+  pageContext?: AssistantPageContext;
 }
 
 export class AssistantError extends Error {
@@ -92,13 +95,17 @@ export async function deleteConversation(id: string): Promise<void> {
 }
 
 export async function* streamAssistantChat(
-  { message, conversationId }: AssistantStreamInput,
+  { message, conversationId, pageContext }: AssistantStreamInput,
 ): AsyncGenerator<AssistantSSEEvent> {
   const res = await fetch(`${API_BASE}/api/v1/assistant/chat`, {
     method:      'POST',
     credentials: 'include',
     headers:     { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, conversation_id: conversationId }),
+    body: JSON.stringify({
+      message,
+      conversation_id: conversationId,
+      ...(pageContext ? { page_context: pageContext } : {}),
+    }),
   });
 
   if (!res.ok) {

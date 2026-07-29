@@ -32,12 +32,23 @@ class RagContext(BaseModel):
     last_active_iso: str | None = Field(default=None)
 
 
+class PageContext(BaseModel):
+    """Where the user currently is in the web app. Validated/allowlisted on
+    the Node side (routes/assistant.ts PageContextSchema) before reaching us."""
+
+    pathname: str = Field(..., max_length=300)
+    entity_type: str | None = Field(default=None, max_length=32)
+    entity_id: str | None = Field(default=None, max_length=100)
+    filters: dict[str, str] | None = Field(default=None)
+
+
 class AssistantChatRequest(BaseModel):
     user_id: str
     profile_id: str
     message: str = Field(..., min_length=1, max_length=2000)
     conversation_id: str | None = Field(default=None)
     context: RagContext
+    page_context: PageContext | None = Field(default=None)
 
 
 # Response is streamed as SSE — these models document the wire shape but the

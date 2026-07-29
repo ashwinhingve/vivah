@@ -12,7 +12,7 @@
  * Python writer untouched.
  */
 import { shouldUseMockMongo } from '../lib/env.js';
-import { AssistantConversation } from '../infrastructure/mongo/models/AssistantConversation.js';
+import { getAssistantConversationModel } from '../infrastructure/mongo/models/AssistantConversation.js';
 
 const TITLE_MAX_CHARS = 60;
 const PREVIEW_MAX_CHARS = 100;
@@ -68,12 +68,14 @@ interface ConversationModel {
   deleteOne: (filter: object) => Promise<{ deletedCount?: number }>;
 }
 
-const model = AssistantConversation as unknown as ConversationModel;
+function model(): ConversationModel {
+  return getAssistantConversationModel() as unknown as ConversationModel;
+}
 
 /** Newest-first summaries of the user's assistant conversations. */
 export async function listAssistantConversations(userId: string): Promise<ConversationSummary[]> {
   if (shouldUseMockMongo) return [];
-  const docs = await model
+  const docs = await model()
     .find({ user_id: userId })
     .sort({ updated_at: -1 })
     .limit(LIST_LIMIT)
@@ -97,7 +99,7 @@ export async function getAssistantConversation(
   conversationId: string,
 ): Promise<ConversationDetail | null> {
   if (shouldUseMockMongo) return null;
-  const doc = await model
+  const doc = await model()
     .findOne({ conversation_id: conversationId, user_id: userId })
     .lean();
   if (!doc) return null;
@@ -121,6 +123,6 @@ export async function deleteAssistantConversation(
   conversationId: string,
 ): Promise<boolean> {
   if (shouldUseMockMongo) return false;
-  const result = await model.deleteOne({ conversation_id: conversationId, user_id: userId });
+  const result = await model().deleteOne({ conversation_id: conversationId, user_id: userId });
   return (result.deletedCount ?? 0) > 0;
 }

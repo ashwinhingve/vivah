@@ -62,7 +62,11 @@ vi.mock('../lib/env.js', () => ({
     USE_MOCK_SERVICES:        false,
     AI_SERVICE_URL:           'http://localhost:8000',
     AI_SERVICE_INTERNAL_KEY:  'k',
+    MONGODB_DB:               'smartshaadiDB',
   },
+  // History endpoints guard on this before touching mongoose — true keeps the
+  // route import safe with no Mongo in the test environment.
+  shouldUseMockMongo: true,
 }));
 
 import { assistantRouter } from '../routes/assistant.js';

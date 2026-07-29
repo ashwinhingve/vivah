@@ -9,8 +9,10 @@
  * The ai-service selects its database via MONGODB_DB (default smartshaadiDB),
  * independent of any db name in MONGODB_URI's path — so this model binds to
  * mongoose.connection.useDb(env.MONGODB_DB) to guarantee both services use the
- * same database.
+ * same database. Resolution is LAZY (first call, memoized): callers guard with
+ * shouldUseMockMongo first (rule 11), so mock mode never touches mongoose.
  */
+import type { Model } from 'mongoose';
 import { mongoose } from '../index.js';
 import { env } from '../../../lib/env.js';
 
@@ -35,8 +37,14 @@ const AssistantConversationSchema = new mongoose.Schema(
   { collection: 'assistant_conversations', versionKey: false },
 );
 
-const conn = mongoose.connection.useDb(env.MONGODB_DB, { useCache: true });
+let cached: Model<Record<string, unknown>> | null = null;
 
-export const AssistantConversation =
-  conn.models['AssistantConversation'] ??
-  conn.model('AssistantConversation', AssistantConversationSchema);
+export function getAssistantConversationModel(): Model<Record<string, unknown>> {
+  if (cached) return cached;
+  const conn = mongoose.connection.useDb(env.MONGODB_DB, { useCache: true });
+  cached = (conn.models['AssistantConversation'] ??
+    conn.model('AssistantConversation', AssistantConversationSchema)) as Model<
+    Record<string, unknown>
+  >;
+  return cached;
+}
