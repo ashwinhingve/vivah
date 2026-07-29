@@ -1,13 +1,29 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Text, View, ScrollView } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { Screen } from '../../../components/Screen';
+import { AppHeader } from '../../../components/AppHeader';
 import { Button } from '../../../components/Button';
+import { Card } from '../../../components/Card';
 import { Input } from '../../../components/Input';
-import { LoadingState, ErrorState, EmptyState, describeError } from '../../../components/States';
+import { ErrorBanner } from '../../../components/ErrorBanner';
+import { Skeleton } from '../../../components/Skeleton';
+import { ErrorState, EmptyState, describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import { useSession } from '../../../hooks/useSession';
+
+const TABS = [
+  { id: 'personal', label: 'Personal' },
+  { id: 'location', label: 'Location' },
+  { id: 'education', label: 'Education' },
+  { id: 'profession', label: 'Career' },
+  { id: 'lifestyle', label: 'Lifestyle' },
+] as const;
+
+const HEADER = <AppHeader title="Edit Profile" showBack />;
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -71,12 +87,28 @@ export default function EditProfileScreen() {
   }
 
   if (isLoading) {
-    return <LoadingState label="Loading your profile..." />;
+    return (
+      <Screen>
+        {HEADER}
+        <View className="flex-row gap-2 mb-6">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} height={40} width={96} radius={20} />
+          ))}
+        </View>
+        <Card testID="edit-profile-loading">
+          <Skeleton height={14} width="30%" radius={6} />
+          <Skeleton height={44} radius={8} className="mt-2" />
+          <Skeleton height={14} width="30%" radius={6} className="mt-4" />
+          <Skeleton height={44} radius={8} className="mt-2" />
+        </Card>
+      </Screen>
+    );
   }
 
   if (error) {
     return (
       <Screen>
+        {HEADER}
         <ErrorState error={error} onRetry={() => refetch()} />
       </Screen>
     );
@@ -85,6 +117,7 @@ export default function EditProfileScreen() {
   if (!profile) {
     return (
       <Screen>
+        {HEADER}
         <EmptyState
           title="Profile not found"
           message="We couldn't load your profile to edit."
@@ -115,7 +148,7 @@ export default function EditProfileScreen() {
               onChangeText={(value) => handleUpdateField('fullName', value)}
               placeholder="Enter your name"
             />
-            <Input containerClassName="mb-4"
+            <Input
               label="Height (cm)"
               value={
                 formState.height
@@ -156,7 +189,7 @@ export default function EditProfileScreen() {
               onChangeText={(value) => handleUpdateField('state', value)}
               placeholder="Enter state"
             />
-            <Input containerClassName="mb-4"
+            <Input
               label="Country"
               value={
                 (formState.country as string) ||
@@ -182,7 +215,7 @@ export default function EditProfileScreen() {
               onChangeText={(value) => handleUpdateField('degree', value)}
               placeholder="Enter degree"
             />
-            <Input containerClassName="mb-4"
+            <Input
               label="College"
               value={
                 (formState.college as string) ||
@@ -218,7 +251,7 @@ export default function EditProfileScreen() {
               onChangeText={(value) => handleUpdateField('employer', value)}
               placeholder="Enter employer"
             />
-            <Input containerClassName="mb-4"
+            <Input
               label="Income Range"
               value={
                 (formState.incomeRange as string) ||
@@ -244,7 +277,7 @@ export default function EditProfileScreen() {
               onChangeText={(value) => handleUpdateField('diet', value)}
               placeholder="VEG, NON_VEG, JAIN, VEGAN"
             />
-            <Input containerClassName="mb-4"
+            <Input
               label="Hobbies (comma-separated)"
               value={
                 Array.isArray(formState.hobbies)
@@ -271,46 +304,50 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Text className="font-heading text-2xl text-primary mb-6">Edit Profile</Text>
+    <Screen scroll keyboardAvoiding>
+      {HEADER}
 
-      {/* Tab buttons */}
+      {/* Tab pills */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
-        {[
-          { id: 'personal', label: 'Personal' },
-          { id: 'location', label: 'Location' },
-          { id: 'education', label: 'Education' },
-          { id: 'profession', label: 'Career' },
-          { id: 'lifestyle', label: 'Lifestyle' },
-        ].map((tab) => (
-          <View key={tab.id} className="mr-2">
-            <Button
-              title={tab.label}
-              variant={activeTab === tab.id ? 'primary' : 'secondary'}
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <Pressable
+              key={tab.id}
               onPress={() => {
+                void Haptics.selectionAsync();
                 setActiveTab(tab.id);
                 setFormState({});
                 setErrors({});
               }}
-            />
-          </View>
-        ))}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              className={`mr-2 min-h-11 items-center justify-center px-4 rounded-full border ${
+                isActive ? 'bg-primary border-primary' : 'bg-surface border-gold/40'
+              }`}
+            >
+              <Text
+                className={`text-sm font-semibold ${
+                  isActive ? 'text-on-primary' : 'text-ink'
+                }`}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
-      {/* Form fields */}
-      <View className="mb-6">
-        {renderFormFields()}
-      </View>
+      {/* Form fields — re-animate when the tab changes */}
+      <Animated.View key={activeTab} entering={FadeInUp.duration(250)} className="mb-6">
+        <Card>{renderFormFields()}</Card>
+      </Animated.View>
 
       {/* Errors */}
-      {errors.submit && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.submit}</Text>
-        </View>
-      )}
+      {errors.submit && <ErrorBanner message={errors.submit} className="mb-4" />}
 
       {/* Action buttons */}
-      <View className="gap-3">
+      <View className="gap-3 mb-8">
         <Button
           title={updateMutation.isPending ? 'Saving...' : 'Save Changes'}
           loading={updateMutation.isPending}

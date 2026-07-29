@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type { ProfileContentResponse, FamilySection } from '@smartshaadi/types';
@@ -74,12 +75,8 @@ export default function OnboardingFamily({ profile }: OnboardingFamilyProps) {
         onChangeText={(value) => handleUpdateField('fatherName', value)}
         placeholder="Enter father's name"
         maxLength={255}
+        error={errors.fatherName}
       />
-      {errors.fatherName && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.fatherName}</Text>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Father's Occupation (optional)"
@@ -95,12 +92,8 @@ export default function OnboardingFamily({ profile }: OnboardingFamilyProps) {
         onChangeText={(value) => handleUpdateField('motherName', value)}
         placeholder="Enter mother's name"
         maxLength={255}
+        error={errors.motherName}
       />
-      {errors.motherName && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.motherName}</Text>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Mother's Occupation (optional)"
@@ -154,11 +147,7 @@ export default function OnboardingFamily({ profile }: OnboardingFamilyProps) {
         maxLength={100}
       />
 
-      {errors.submit && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.submit}</Text>
-        </View>
-      )}
+      {errors.submit && <ErrorBanner message={errors.submit} className="mb-4" />}
 
       <Button
         title={updateMutation.isPending ? 'Saving...' : 'Save & Continue'}

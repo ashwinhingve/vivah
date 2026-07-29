@@ -168,8 +168,8 @@ describe('EditProfileScreen', () => {
       </QueryClientProvider>
     );
 
-    // The loading state should be shown
-    expect(screen.getByText('Loading your profile...')).toBeTruthy();
+    // The loading state should be shown (skeleton card, not a spinner label)
+    expect(screen.getByTestId('edit-profile-loading')).toBeTruthy();
     expect(getContentMock).toHaveBeenCalled();
   });
 });

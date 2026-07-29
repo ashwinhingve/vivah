@@ -1,9 +1,20 @@
+import { useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { Screen } from '../../../../components/Screen';
 import { Button } from '../../../../components/Button';
-import { LoadingState, ErrorState, EmptyState } from '../../../../components/States';
+import { Card } from '../../../../components/Card';
+import { Eyebrow } from '../../../../components/Ornament';
+import { Skeleton } from '../../../../components/Skeleton';
+import { ErrorState, EmptyState } from '../../../../components/States';
 import { api } from '../../../../lib/api';
 import { useSession } from '../../../../hooks/useSession';
 import OnboardingBasics from '../../../../features/profile/onboarding/OnboardingBasics';
@@ -26,6 +37,28 @@ const ONBOARDING_STEPS = [
   { slug: 'preferences', title: 'Partner preferences', description: 'Who are you looking for?' },
   { slug: 'photos', title: 'Photos', description: 'Add your profile photos' },
 ] as const;
+
+/** Gold progress bar that springs to the current step's fill. */
+function StepProgress({ stepIndex }: { stepIndex: number }) {
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withSpring(
+      (stepIndex + 1) / ONBOARDING_STEPS.length,
+      { damping: 20, stiffness: 180 },
+    );
+  }, [progress, stepIndex]);
+
+  const fillStyle = useAnimatedStyle(() => ({
+    width: `${progress.value * 100}%`,
+  }));
+
+  return (
+    <View className="h-1.5 bg-gold/20 rounded-full mb-8 overflow-hidden">
+      <Animated.View className="h-full bg-gold rounded-full" style={fillStyle} />
+    </View>
+  );
+}
 
 export default function OnboardingStepScreen() {
   const { step } = useLocalSearchParams<{ step: string }>();
@@ -115,7 +148,21 @@ export default function OnboardingStepScreen() {
   }
 
   if (isLoading) {
-    return <LoadingState label="Loading your profile..." />;
+    return (
+      <Screen>
+        <View className="mb-6">
+          <Skeleton height={14} width="35%" radius={6} />
+          <Skeleton height={28} width="60%" radius={6} className="mt-3" />
+          <Skeleton height={14} width="80%" radius={6} className="mt-2" />
+        </View>
+        <Card>
+          <Skeleton height={14} width="30%" radius={6} />
+          <Skeleton height={44} radius={8} className="mt-2" />
+          <Skeleton height={14} width="30%" radius={6} className="mt-4" />
+          <Skeleton height={44} radius={8} className="mt-2" />
+        </Card>
+      </Screen>
+    );
   }
 
   if (error) {
@@ -127,35 +174,34 @@ export default function OnboardingStepScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboardAvoiding>
       {/* Header with progress */}
-      <View className="mb-6">
-        <Text className="text-sm text-muted mb-2">
-          Step {currentStepIndex + 1} of {ONBOARDING_STEPS.length}
-        </Text>
-        <Text className="font-heading text-2xl text-primary mb-2">
+      <Animated.View entering={FadeInDown.duration(350)} className="mb-6">
+        <Eyebrow
+          text={`Step ${currentStepIndex + 1} of ${ONBOARDING_STEPS.length}`}
+          className="mb-3"
+        />
+        <Text className="font-heading text-2xl text-primary mb-2 text-center">
           {currentStep.title}
         </Text>
-        <Text className="text-muted">
+        <Text className="text-muted text-center">
           {currentStep.description}
         </Text>
-      </View>
+      </Animated.View>
 
       {/* Progress bar */}
-      <View className="h-1 bg-gold/20 rounded-full mb-8 overflow-hidden">
-        <View
-          className="h-full bg-gold"
-          style={{
-            width: `${((currentStepIndex + 1) / ONBOARDING_STEPS.length) * 100}%`,
-          }}
-        />
-      </View>
+      <StepProgress stepIndex={currentStepIndex} />
 
       {/* Step component */}
-      {renderStepComponent()}
+      <Animated.View entering={FadeInUp.delay(80).duration(300)}>
+        {renderStepComponent()}
+      </Animated.View>
 
       {/* Navigation */}
-      <View className="mt-8 gap-3">
+      <Animated.View
+        entering={FadeInUp.delay(160).duration(300)}
+        className="mt-8 gap-3 mb-8"
+      >
         <Button
           title={currentStepIndex === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
           variant="primary"
@@ -168,7 +214,7 @@ export default function OnboardingStepScreen() {
             onPress={handlePrevStep}
           />
         )}
-      </View>
+      </Animated.View>
     </Screen>
   );
 }
