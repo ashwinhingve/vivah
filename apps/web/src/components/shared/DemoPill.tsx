@@ -20,8 +20,10 @@ export function DemoPill() {
 
   if (process.env['NEXT_PUBLIC_DEMO_MODE'] !== 'true' || dismissed) return null;
 
+  // z-40: above page chrome (nav z-30) but BELOW dialogs/sheets (z-50) —
+  // dev chrome must never cover an open drawer's buttons.
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-[60] flex justify-center md:inset-x-auto md:bottom-5 md:left-5 md:justify-start">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-40 flex justify-center md:inset-x-auto md:bottom-5 md:left-5 md:justify-start">
       <div
         role="note"
         aria-label="Demo mode active"
