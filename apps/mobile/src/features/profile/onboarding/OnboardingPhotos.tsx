@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { View, Text, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ActionSheet } from '../../../components/ActionSheet';
+import { Badge } from '../../../components/Badge';
 import { Button } from '../../../components/Button';
-import { LoadingState, describeError } from '../../../components/States';
+import { ErrorBanner } from '../../../components/ErrorBanner';
+import { InfoNote } from '../../../components/InfoNote';
+import { Skeleton } from '../../../components/Skeleton';
+import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type { ProfileContentResponse } from '@smartshaadi/types';
 
@@ -16,6 +21,7 @@ export default function OnboardingPhotos({ profile: _profile }: OnboardingPhotos
 
   const [uploadingPhotoIds, setUploadingPhotoIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Fetch current photos
   const {
@@ -143,26 +149,17 @@ export default function OnboardingPhotos({ profile: _profile }: OnboardingPhotos
     }
   };
 
-  const handleDeletePhoto = async (photoId: string) => {
-    Alert.alert(
-      'Delete Photo',
-      'Are you sure you want to delete this photo?',
-      [
-        { text: 'Cancel', onPress: () => {} },
-        {
-          text: 'Delete',
-          onPress: () => deleteMutation.mutate(photoId),
-          style: 'destructive',
-        },
-      ]
-    );
-  };
-
   const isUploading = uploadingPhotoIds.length > 0 || presignMutation.isPending ||
                       registerMutation.isPending;
 
   if (isLoading) {
-    return <LoadingState label="Loading photos..." />;
+    return (
+      <View className="flex-row flex-wrap gap-3">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} height={100} width={100} radius={16} />
+        ))}
+      </View>
+    );
   }
 
   return (
@@ -178,21 +175,25 @@ export default function OnboardingPhotos({ profile: _profile }: OnboardingPhotos
                 className="relative"
               >
                 {photo.url && (
-                  <Image
-                    source={{ uri: photo.url }}
-                    style={{ width: 100, height: 100 }}
-                    className="rounded-lg"
-                  />
+                  <View className="rounded-2xl border-2 border-gold overflow-hidden">
+                    <Image
+                      source={{ uri: photo.url }}
+                      style={{ width: 100, height: 100 }}
+                    />
+                  </View>
                 )}
                 {photo.isPrimary && (
-                  <View className="absolute top-1 right-1 bg-gold px-2 py-1 rounded-full">
-                    <Text className="text-xs font-semibold text-primary">Primary</Text>
-                  </View>
+                  <Badge
+                    label="Primary"
+                    variant="goldSolid"
+                    size="sm"
+                    className="absolute top-1.5 right-1.5"
+                  />
                 )}
                 <Button
                   title="Delete"
                   variant="secondary"
-                  onPress={() => handleDeletePhoto(photo.id)}
+                  onPress={() => setConfirmDeleteId(photo.id)}
                   disabled={deleteMutation.isPending}
                 />
               </View>
@@ -211,38 +212,34 @@ export default function OnboardingPhotos({ profile: _profile }: OnboardingPhotos
       />
 
       {/* Errors */}
-      {errors.picker && (
-        <View className="mt-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.picker}</Text>
-        </View>
-      )}
-      {errors.presign && (
-        <View className="mt-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.presign}</Text>
-        </View>
-      )}
-      {errors.upload && (
-        <View className="mt-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.upload}</Text>
-        </View>
-      )}
-      {errors.register && (
-        <View className="mt-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.register}</Text>
-        </View>
-      )}
-      {errors.delete && (
-        <View className="mt-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.delete}</Text>
-        </View>
-      )}
+      {errors.picker && <ErrorBanner message={errors.picker} className="mt-4" />}
+      {errors.presign && <ErrorBanner message={errors.presign} className="mt-4" />}
+      {errors.upload && <ErrorBanner message={errors.upload} className="mt-4" />}
+      {errors.register && <ErrorBanner message={errors.register} className="mt-4" />}
+      {errors.delete && <ErrorBanner message={errors.delete} className="mt-4" />}
 
       {/* Info text */}
-      <View className="mt-6 p-4 bg-gold/10 rounded-lg">
-        <Text className="text-sm text-ink">
-          Add at least one clear photo. The first photo will be your primary profile picture.
-        </Text>
-      </View>
+      <InfoNote className="mt-6">
+        Add at least one clear photo. The first photo will be your primary profile picture.
+      </InfoNote>
+
+      <ActionSheet
+        visible={confirmDeleteId !== null}
+        onClose={() => setConfirmDeleteId(null)}
+        title="Delete Photo"
+        message="Are you sure you want to delete this photo?"
+        actions={[
+          {
+            label: 'Delete',
+            destructive: true,
+            onPress: () => {
+              if (confirmDeleteId) {
+                deleteMutation.mutate(confirmDeleteId);
+              }
+            },
+          },
+        ]}
+      />
     </ScrollView>
   );
 }

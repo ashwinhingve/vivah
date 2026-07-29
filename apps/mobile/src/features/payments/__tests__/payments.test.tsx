@@ -165,7 +165,8 @@ describe('PaymentsScreen', () => {
     await renderWithQuery(<PaymentsScreen />);
     await screen.findByText('Something went wrong');
 
-    expect(screen.getByLabelText('Back')).toBeTruthy();
+    // The standard AppHeader back circle is labelled "Go back".
+    expect(screen.getByLabelText('Go back')).toBeTruthy();
   });
 
   it('offers no way to change the plan from mobile', async () => {

@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type { ProfileContentResponse, LifestyleSection } from '@smartshaadi/types';
@@ -73,12 +74,8 @@ export default function OnboardingLifestyle({ profile }: OnboardingLifestyleProp
           }
         }}
         placeholder="VEG, NON_VEG, JAIN, VEGAN, EGGETARIAN"
+        error={errors.diet}
       />
-      {errors.diet && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.diet}</Text>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Smoking"
@@ -134,11 +131,7 @@ export default function OnboardingLifestyle({ profile }: OnboardingLifestyleProp
         placeholder="ACTIVE, MODERATE, SEDENTARY"
       />
 
-      {errors.submit && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.submit}</Text>
-        </View>
-      )}
+      {errors.submit && <ErrorBanner message={errors.submit} className="mb-4" />}
 
       <Button
         title={updateMutation.isPending ? 'Saving...' : 'Save & Continue'}

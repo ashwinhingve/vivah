@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type { ProfileContentResponse, LocationSection } from '@smartshaadi/types';
@@ -73,12 +74,8 @@ export default function OnboardingLocation({ profile }: OnboardingLocationProps)
         onChangeText={(value) => handleUpdateField('city', value)}
         placeholder="e.g., Mumbai"
         maxLength={100}
+        error={errors.city}
       />
-      {errors.city && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.city}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="State"
@@ -86,12 +83,8 @@ export default function OnboardingLocation({ profile }: OnboardingLocationProps)
         onChangeText={(value) => handleUpdateField('state', value)}
         placeholder="e.g., Maharashtra"
         maxLength={100}
+        error={errors.state}
       />
-      {errors.state && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.state}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Country"
@@ -99,12 +92,8 @@ export default function OnboardingLocation({ profile }: OnboardingLocationProps)
         onChangeText={(value) => handleUpdateField('country', value)}
         placeholder="e.g., India"
         maxLength={100}
+        error={errors.country}
       />
-      {errors.country && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.country}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Pincode (optional)"
@@ -114,11 +103,7 @@ export default function OnboardingLocation({ profile }: OnboardingLocationProps)
         maxLength={10}
       />
 
-      {errors.submit && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.submit}</View>
-        </View>
-      )}
+      {errors.submit && <ErrorBanner message={errors.submit} className="mb-4" />}
 
       <Button
         title={updateMutation.isPending ? 'Saving...' : 'Save & Continue'}

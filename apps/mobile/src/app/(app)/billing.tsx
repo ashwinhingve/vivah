@@ -1,20 +1,37 @@
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Text, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import * as WebBrowser from 'expo-web-browser';
 import type { SubscriptionPlan } from '@smartshaadi/api-client';
 import { Screen } from '../../components/Screen';
+import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
 import { InfoNote } from '../../components/InfoNote';
-import { describeError, ErrorState, LoadingState } from '../../components/States';
-import { useThemeColors } from '../../hooks/useThemeColors';
-import { withAlpha } from '../../theme/tokens';
+import { Skeleton } from '../../components/Skeleton';
+import { useToast } from '../../components/Toast';
+import { describeError, ErrorState } from '../../components/States';
 import { formatINR } from '../../lib/format';
 import {
   usePlans,
   useStartSubscription,
   useSubscription,
 } from '../../features/payments/hooks';
+
+const HEADER = <AppHeader title="Choose your plan" showBack />;
+
+/** Plan-card-shaped shimmer for the initial load. */
+function SkeletonPlanCard() {
+  return (
+    <Card className="mb-4">
+      <Skeleton height={20} width="50%" radius={6} />
+      <Skeleton height={12} width="35%" radius={6} className="mt-2" />
+      <Skeleton height={26} width="40%" radius={6} className="mt-4" />
+      <Skeleton height={44} radius={12} className="mt-4" />
+    </Card>
+  );
+}
 
 /**
  * Subscription / upgrade — reached from Settings → Upgrade to Premium.
@@ -30,8 +47,7 @@ import {
  * so it is displayed directly without conversion.
  */
 export default function BillingScreen() {
-  const router = useRouter();
-  const { colors } = useThemeColors();
+  const toast = useToast();
   const [pendingCode, setPendingCode] = useState<string | null>(null);
 
   const plans = usePlans();
@@ -51,40 +67,27 @@ export default function BillingScreen() {
         } else {
           // Mock mode with no hosted link: nothing to open, just re-read.
           await subscription.refetch();
-          Alert.alert(
-            'Subscription started',
-            'Your plan is being activated. It will reflect here shortly.',
-          );
+          toast.show({
+            message: 'Subscription started — your plan will reflect here shortly.',
+            type: 'success',
+          });
         }
       } catch (err) {
         const { title, message } = describeError(err);
-        Alert.alert(title, message);
+        toast.show({ message: `${title}. ${message}`, type: 'error' });
       } finally {
         setPendingCode(null);
       }
     },
-    [startSubscription, subscription],
-  );
-
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Back
-      </Text>
-    </Pressable>
+    [startSubscription, subscription, toast],
   );
 
   if (plans.isLoading || subscription.isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading plans…" />
+        {HEADER}
+        <SkeletonPlanCard />
+        <SkeletonPlanCard />
       </Screen>
     );
   }
@@ -92,7 +95,7 @@ export default function BillingScreen() {
   if (plans.isError) {
     return (
       <Screen>
-        {backLink}
+        {HEADER}
         <ErrorState error={plans.error} onRetry={() => void plans.refetch()} />
       </Screen>
     );
@@ -103,74 +106,61 @@ export default function BillingScreen() {
 
   return (
     <Screen scroll>
-      {backLink}
+      {HEADER}
 
-      <Text className="font-heading text-2xl text-primary mb-2">
-        Choose your plan
-      </Text>
-      <Text className="text-sm text-muted mb-6">
+      <Text className="text-sm text-muted -mt-3 mb-6">
         Upgrade to unlock premium matchmaking features.
       </Text>
 
       {planList.length === 0 ? (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4">
+        <Card>
           <Text className="text-sm text-muted">
             No plans are available right now. Please check back later.
           </Text>
-        </View>
+        </Card>
       ) : (
-        planList.map((plan) => {
+        planList.map((plan, index) => {
           const isCurrent = activePlanCode === plan.code;
           const isPending =
             startSubscription.isPending && pendingCode === plan.code;
 
           return (
-            <View
+            <Animated.View
               key={plan.id}
-              className="bg-surface border border-gold/40 rounded-2xl p-5 mb-4"
+              entering={FadeInUp.delay(Math.min(index, 8) * 60).duration(300)}
             >
-              <View className="flex-row items-start justify-between">
-                <View className="flex-1 pr-3">
-                  <Text className="font-heading text-xl text-primary">
-                    {plan.name}
-                  </Text>
-                  <Text className="text-xs text-muted mt-1 uppercase">
-                    {plan.tier} · {plan.interval}
-                  </Text>
-                </View>
-                {isCurrent ? (
-                  <View
-                    className="px-3 py-1 rounded-full"
-                    style={{ backgroundColor: withAlpha(colors.success, '20') }}
-                  >
-                    <Text
-                      className="text-xs font-semibold"
-                      style={{ color: colors.success }}
-                    >
-                      Current
+              <Card elevated className="mb-4">
+                <View className="flex-row items-start justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text className="font-heading text-xl text-primary">
+                      {plan.name}
+                    </Text>
+                    <Text className="text-xs text-muted mt-1 uppercase">
+                      {plan.tier} · {plan.interval}
                     </Text>
                   </View>
-                ) : null}
-              </View>
+                  {isCurrent ? <Badge label="Current" variant="success" /> : null}
+                </View>
 
-              <View className="flex-row items-baseline mt-3 mb-4">
-                <Text className="font-heading text-2xl text-ink">
-                  {formatINR(plan.amount)}
-                </Text>
-                <Text className="text-sm text-muted ml-1">
-                  / {plan.interval.toLowerCase()}
-                </Text>
-              </View>
+                <View className="flex-row items-baseline mt-3 mb-4">
+                  <Text className="font-heading text-2xl text-ink">
+                    {formatINR(plan.amount)}
+                  </Text>
+                  <Text className="text-sm text-muted ml-1">
+                    / {plan.interval.toLowerCase()}
+                  </Text>
+                </View>
 
-              <Button
-                title={isCurrent ? 'Your current plan' : `Subscribe`}
-                variant={isCurrent ? 'secondary' : 'primary'}
-                disabled={isCurrent}
-                loading={isPending}
-                onPress={() => void handleSubscribe(plan)}
-                accessibilityLabel={`Subscribe to ${plan.name}`}
-              />
-            </View>
+                <Button
+                  title={isCurrent ? 'Your current plan' : `Subscribe`}
+                  variant={isCurrent ? 'secondary' : 'primary'}
+                  disabled={isCurrent}
+                  loading={isPending}
+                  onPress={() => void handleSubscribe(plan)}
+                  accessibilityLabel={`Subscribe to ${plan.name}`}
+                />
+              </Card>
+            </Animated.View>
           );
         })
       )}

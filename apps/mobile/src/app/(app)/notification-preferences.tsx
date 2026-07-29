@@ -1,10 +1,12 @@
-import { Pressable, Switch, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import type { NotificationPreferences } from '@smartshaadi/api-client';
 import { Screen } from '../../components/Screen';
-import { ErrorState, LoadingState } from '../../components/States';
-import { useThemeColors } from '../../hooks/useThemeColors';
-import { withAlpha } from '../../theme/tokens';
+import { AppHeader } from '../../components/AppHeader';
+import { Card } from '../../components/Card';
+import { SwitchRow } from '../../components/SwitchRow';
+import { Skeleton } from '../../components/Skeleton';
+import { ErrorState } from '../../components/States';
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -26,38 +28,44 @@ const CHANNELS: { key: Channel; label: string; description: string }[] = [
   },
 ];
 
+const HEADER = (
+  <AppHeader
+    title="Notification Preferences"
+    subtitle="Choose how Smart Shaadi can reach you."
+    showBack
+  />
+);
+
 /**
  * Notification preferences — reached from the notification centre (⚙︎) and from
  * Settings. Each switch is an independent optimistic toggle: flip it and the
  * change persists immediately, rolling back only if the server rejects it.
  */
 export default function NotificationPreferencesScreen() {
-  const router = useRouter();
-  const { colors } = useThemeColors();
-
   const { data: prefs, error, isError, isLoading, refetch } =
     useNotificationPreferences();
   const update = useUpdateNotificationPreferences();
 
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Back
-      </Text>
-    </Pressable>
-  );
-
   if (isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading preferences…" />
+        {HEADER}
+        <Card className="p-0 overflow-hidden">
+          {CHANNELS.map((channel, index) => (
+            <View
+              key={channel.key}
+              className={`flex-row items-center justify-between gap-4 px-4 py-3.5 ${
+                index < CHANNELS.length - 1 ? 'border-b border-gold/15' : ''
+              }`}
+            >
+              <View className="flex-1 gap-2">
+                <Skeleton height={16} width="45%" radius={6} />
+                <Skeleton height={12} width="70%" radius={6} />
+              </View>
+              <Skeleton height={28} width={48} radius={14} />
+            </View>
+          ))}
+        </Card>
       </Screen>
     );
   }
@@ -65,7 +73,7 @@ export default function NotificationPreferencesScreen() {
   if (isError || !prefs) {
     return (
       <Screen>
-        {backLink}
+        {HEADER}
         <ErrorState error={error} onRetry={() => void refetch()} />
       </Screen>
     );
@@ -73,41 +81,23 @@ export default function NotificationPreferencesScreen() {
 
   return (
     <Screen scroll>
-      {backLink}
+      {HEADER}
 
-      <Text className="font-heading text-2xl text-primary mb-2">
-        Notification Preferences
-      </Text>
-      <Text className="text-sm text-muted mb-6">
-        Choose how Smart Shaadi can reach you.
-      </Text>
-
-      {CHANNELS.map((channel) => {
-        const value = prefs[channel.key];
-        return (
-          <View
-            key={channel.key}
-            className="bg-surface border border-gold/20 rounded-xl p-4 mb-4"
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1 pr-4">
-                <Text className="font-semibold text-ink mb-1">
-                  {channel.label}
-                </Text>
-                <Text className="text-xs text-muted">{channel.description}</Text>
-              </View>
-              <Switch
-                value={value}
-                onValueChange={(next) => update.mutate({ [channel.key]: next })}
-                trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
-                thumbColor={value ? colors.primary : colors.gold}
-                testID={`pref-${channel.key}`}
-                accessibilityLabel={channel.label}
-              />
-            </View>
-          </View>
-        );
-      })}
+      <Animated.View entering={FadeInUp.duration(300)}>
+        <Card className="p-0 overflow-hidden">
+          {CHANNELS.map((channel, index) => (
+            <SwitchRow
+              key={channel.key}
+              label={channel.label}
+              description={channel.description}
+              value={prefs[channel.key]}
+              onValueChange={(next) => update.mutate({ [channel.key]: next })}
+              divider={index < CHANNELS.length - 1}
+              testID={`pref-${channel.key}`}
+            />
+          ))}
+        </Card>
+      </Animated.View>
     </Screen>
   );
 }

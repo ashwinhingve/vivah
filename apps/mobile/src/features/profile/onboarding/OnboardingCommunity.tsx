@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type {
@@ -104,12 +105,8 @@ export default function OnboardingCommunity({ profile }: OnboardingCommunityProp
         onChangeText={(value) => handleUpdatePersonal('religion', value)}
         placeholder="e.g., Hindu"
         maxLength={100}
+        error={errors.religion}
       />
-      {errors.religion && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.religion}</Text>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Caste (optional)"
@@ -180,17 +177,9 @@ export default function OnboardingCommunity({ profile }: OnboardingCommunityProp
         placeholder="YES, NO, PARTIAL"
       />
 
-      {errors.personal && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.personal}</Text>
-        </View>
-      )}
+      {errors.personal && <ErrorBanner message={errors.personal} className="mb-4" />}
 
-      {errors.horoscope && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.horoscope}</Text>
-        </View>
-      )}
+      {errors.horoscope && <ErrorBanner message={errors.horoscope} className="mb-4" />}
 
       <Button
         title={isLoading ? 'Saving...' : 'Save & Continue'}

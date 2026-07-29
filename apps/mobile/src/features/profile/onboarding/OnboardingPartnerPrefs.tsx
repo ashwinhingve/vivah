@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type {
@@ -95,12 +96,8 @@ export default function OnboardingPartnerPrefs({
         }
         placeholder="40"
         keyboardType="decimal-pad"
+        error={errors.ageRange}
       />
-      {errors.ageRange && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.ageRange}</Text>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Height Range (min cm)"
@@ -211,11 +208,7 @@ export default function OnboardingPartnerPrefs({
         maxLength={1000}
       />
 
-      {errors.submit && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <Text className="text-destructive text-sm">{errors.submit}</Text>
-        </View>
-      )}
+      {errors.submit && <ErrorBanner message={errors.submit} className="mb-4" />}
 
       <Button
         title={updateMutation.isPending ? 'Saving...' : 'Save & Continue'}

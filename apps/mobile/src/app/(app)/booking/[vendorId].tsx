@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { CreateBookingSchema } from '@smartshaadi/schemas';
 import { Screen } from '../../../components/Screen';
+import { AppHeader } from '../../../components/AppHeader';
 import { Button } from '../../../components/Button';
+import { Card } from '../../../components/Card';
 import { Input } from '../../../components/Input';
-import {
-  describeError,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from '../../../components/States';
-import { useThemeColors } from '../../../hooks/useThemeColors';
+import { Eyebrow } from '../../../components/Ornament';
+import { ErrorBanner } from '../../../components/ErrorBanner';
+import { Skeleton } from '../../../components/Skeleton';
+import { useToast } from '../../../components/Toast';
+import { describeError, EmptyState, ErrorState } from '../../../components/States';
+import { shadowWarm } from '../../../theme/shadows';
 import { formatDate, formatINR } from '../../../lib/format';
 import {
   useVendorAvailability,
@@ -48,7 +51,7 @@ const DAYS_AHEAD = 45;
  */
 export default function BookingScreen() {
   const router = useRouter();
-  const { colors } = useThemeColors();
+  const toast = useToast();
   const params = useLocalSearchParams<{ vendorId: string }>();
   const vendorId = params.vendorId ?? '';
 
@@ -95,25 +98,18 @@ export default function BookingScreen() {
     return out;
   }, [now, unavailable]);
 
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back to vendor"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Vendor
-      </Text>
-    </Pressable>
-  );
-
   if (vendor.isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading…" />
+        <AppHeader title="Request Booking" showBack />
+        <Card className="mb-3">
+          <Skeleton height={16} width="55%" radius={6} />
+          <Skeleton height={12} width="35%" radius={6} className="mt-2" />
+        </Card>
+        <Card className="mb-3">
+          <Skeleton height={16} width="55%" radius={6} />
+          <Skeleton height={12} width="35%" radius={6} className="mt-2" />
+        </Card>
       </Screen>
     );
   }
@@ -121,7 +117,7 @@ export default function BookingScreen() {
   if (vendor.isError || !vendor.data) {
     return (
       <Screen>
-        {backLink}
+        <AppHeader title="Request Booking" showBack />
         <ErrorState error={vendor.error} onRetry={() => void vendor.refetch()} />
       </Screen>
     );
@@ -132,7 +128,7 @@ export default function BookingScreen() {
   if (services.length === 0) {
     return (
       <Screen>
-        {backLink}
+        <AppHeader title="Request Booking" subtitle={vendor.data.businessName} showBack />
         <EmptyState
           title="No bookable packages"
           message={`${vendor.data.businessName} hasn’t listed any bookable services yet. Save the vendor and check back soon.`}
@@ -189,140 +185,150 @@ export default function BookingScreen() {
 
     createBooking.mutate(parsed.data, {
       onSuccess: () => {
-        Alert.alert(
-          'Booking requested',
-          `Your request to ${vendor.data.businessName} has been sent. You can track it under My Bookings.`,
-          [{ text: 'OK', onPress: () => router.replace('/(app)/bookings') }],
-        );
+        toast.show({
+          message: `Booking request sent to ${vendor.data.businessName}. Track it under My Bookings.`,
+          type: 'success',
+        });
+        router.replace('/(app)/bookings');
       },
       onError: (err) => {
         const { title, message } = describeError(err);
-        Alert.alert(title, message);
+        toast.show({ message: `${title}. ${message}`, type: 'error' });
       },
     });
   };
 
   return (
     <Screen scroll keyboardAvoiding>
-      {backLink}
-
-      <Text className="font-heading text-2xl text-primary mb-1">
-        Request Booking
-      </Text>
-      <Text className="text-sm text-muted mb-6">{vendor.data.businessName}</Text>
+      <AppHeader
+        title="Request Booking"
+        subtitle={vendor.data.businessName}
+        showBack
+      />
 
       {/* ── Package ──────────────────────────────────────────────────────── */}
-      <Text className="font-semibold text-ink text-lg mb-3">Choose a package</Text>
-      {services.map((service) => {
-        const isSelected = service.id === selectedServiceId;
-        return (
-          <Pressable
-            key={service.id}
-            onPress={() => setSelectedServiceId(service.id)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isSelected }}
-            className={`rounded-xl p-4 mb-3 border ${
-              isSelected
-                ? 'bg-gold/10 border-gold'
-                : 'bg-surface border-gold/20'
-            }`}
-          >
-            <View className="flex-row items-baseline justify-between">
-              <Text className="font-semibold text-ink flex-1 pr-3">
-                {service.name}
-              </Text>
-              <Text
-                className="text-sm font-semibold"
-                style={{ color: colors.teal }}
-              >
-                {formatINR(service.priceFrom)}
-              </Text>
-            </View>
-            <Text className="text-xs text-muted mt-1">per {service.unit}</Text>
-          </Pressable>
-        );
-      })}
+      <Animated.View entering={FadeInUp.duration(300)}>
+        <Eyebrow text="Package" className="mb-4" />
+        {services.map((service) => {
+          const isSelected = service.id === selectedServiceId;
+          return (
+            <Pressable
+              key={service.id}
+              onPress={() => {
+                void Haptics.selectionAsync();
+                setSelectedServiceId(service.id);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
+              className={`rounded-2xl p-4 mb-3 border ${
+                isSelected
+                  ? 'bg-gold/10 border-gold'
+                  : 'bg-surface border-gold/20'
+              }`}
+              style={shadowWarm}
+            >
+              <View className="flex-row items-baseline justify-between">
+                <Text className="font-semibold text-ink flex-1 pr-3">
+                  {service.name}
+                </Text>
+                <Text className="text-sm font-semibold text-teal">
+                  {formatINR(service.priceFrom)}
+                </Text>
+              </View>
+              <Text className="text-xs text-muted mt-1">per {service.unit}</Text>
+            </Pressable>
+          );
+        })}
+      </Animated.View>
 
       {/* ── Date ─────────────────────────────────────────────────────────── */}
-      <Text className="font-semibold text-ink text-lg mt-4 mb-1">Event date</Text>
-      <Text className="text-xs text-muted mb-3">
-        Unavailable dates are hidden. Showing the next {DAYS_AHEAD} days.
-      </Text>
-      {dateOptions.length === 0 ? (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-2">
-          <Text className="text-sm text-muted">
-            No open dates in the next {DAYS_AHEAD} days. Please contact the vendor.
-          </Text>
-        </View>
-      ) : (
-        <View className="flex-row flex-wrap gap-2 mb-2">
-          {dateOptions.map((date) => {
-            const isSelected = date === selectedDate;
-            return (
-              <Pressable
-                key={date}
-                onPress={() => setSelectedDate(date)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                className={`px-3 py-2 rounded-full border ${
-                  isSelected
-                    ? 'bg-primary border-primary'
-                    : 'bg-surface border-gold/40'
-                }`}
-              >
-                <Text
-                  className={`text-xs font-semibold ${
-                    isSelected ? 'text-on-primary' : 'text-ink'
+      <Animated.View entering={FadeInUp.delay(60).duration(300)}>
+        <Eyebrow text="Event Date" className="mt-4 mb-2" />
+        <Text className="text-xs text-muted text-center mb-3">
+          Unavailable dates are hidden. Showing the next {DAYS_AHEAD} days.
+        </Text>
+        {dateOptions.length === 0 ? (
+          <Card className="mb-2">
+            <Text className="text-sm text-muted">
+              No open dates in the next {DAYS_AHEAD} days. Please contact the vendor.
+            </Text>
+          </Card>
+        ) : (
+          <View className="flex-row flex-wrap gap-2 mb-2">
+            {dateOptions.map((date) => {
+              const isSelected = date === selectedDate;
+              return (
+                <Pressable
+                  key={date}
+                  onPress={() => {
+                    void Haptics.selectionAsync();
+                    setSelectedDate(date);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  className={`px-3 py-2 rounded-full border ${
+                    isSelected
+                      ? 'bg-primary border-primary'
+                      : 'bg-surface border-gold/40'
                   }`}
                 >
-                  {formatDate(date)}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      )}
+                  <Text
+                    className={`text-xs font-semibold ${
+                      isSelected ? 'text-on-primary' : 'text-ink'
+                    }`}
+                  >
+                    {formatDate(date)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
+      </Animated.View>
 
       {/* ── Optional details ─────────────────────────────────────────────── */}
-      <Text className="font-semibold text-ink text-lg mt-6 mb-3">
-        Event details <Text className="text-xs text-muted">(optional)</Text>
-      </Text>
+      <Animated.View entering={FadeInUp.delay(120).duration(300)}>
+        <Eyebrow text="Event Details" className="mt-6 mb-2" />
+        <Text className="text-xs text-muted text-center mb-3">
+          All fields are optional.
+        </Text>
 
-      <Input
-        label="Ceremony type"
-        placeholder="e.g. Wedding, Sangeet, Reception"
-        value={ceremonyType}
-        onChangeText={setCeremonyType}
-        containerClassName="mb-4"
-      />
-      <Input
-        label="Guest count"
-        placeholder="e.g. 250"
-        value={guestCount}
-        onChangeText={setGuestCount}
-        keyboardType="number-pad"
-        containerClassName="mb-4"
-      />
-      <Input
-        label="Event location"
-        placeholder="City or venue"
-        value={eventLocation}
-        onChangeText={setEventLocation}
-        containerClassName="mb-4"
-      />
-      <Input
-        label="Notes for the vendor"
-        placeholder="Anything they should know"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-        numberOfLines={3}
-        containerClassName="mb-4"
-      />
+        <Input
+          label="Ceremony type"
+          placeholder="e.g. Wedding, Sangeet, Reception"
+          value={ceremonyType}
+          onChangeText={setCeremonyType}
+          containerClassName="mb-4"
+        />
+        <Input
+          label="Guest count"
+          placeholder="e.g. 250"
+          value={guestCount}
+          onChangeText={setGuestCount}
+          keyboardType="number-pad"
+          containerClassName="mb-4"
+        />
+        <Input
+          label="Event location"
+          placeholder="City or venue"
+          value={eventLocation}
+          onChangeText={setEventLocation}
+          containerClassName="mb-4"
+        />
+        <Input
+          label="Notes for the vendor"
+          placeholder="Anything they should know"
+          value={notes}
+          onChangeText={setNotes}
+          multiline
+          numberOfLines={3}
+          containerClassName="mb-4"
+        />
+      </Animated.View>
 
       {/* ── Summary + submit ─────────────────────────────────────────────── */}
       {selectedService ? (
-        <View className="bg-gold/10 border border-gold/40 rounded-xl p-4 mb-4">
+        <Card elevated className="bg-gold/10 border-gold/40 mb-4 p-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-sm text-muted">Estimated total</Text>
             <Text className="font-heading text-xl text-primary">
@@ -332,17 +338,10 @@ export default function BookingScreen() {
           <Text className="text-xs text-muted mt-1">
             Final amount is confirmed by the vendor.
           </Text>
-        </View>
+        </Card>
       ) : null}
 
-      {formError ? (
-        <Text
-          accessibilityLiveRegion="polite"
-          className="text-destructive text-sm mb-3"
-        >
-          {formError}
-        </Text>
-      ) : null}
+      {formError ? <ErrorBanner message={formError} className="mb-3" /> : null}
 
       <View className="mb-8">
         <Button

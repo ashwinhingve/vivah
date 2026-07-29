@@ -10,6 +10,8 @@ import type { ReactElement } from 'react';
 import { Badge } from '../Badge';
 import { Avatar } from '../Avatar';
 import { ActionSheet } from '../ActionSheet';
+import { SwitchRow } from '../SwitchRow';
+import { LedgerRow } from '../LedgerRow';
 
 const INITIAL_METRICS = {
   insets: { top: 0, left: 0, right: 0, bottom: 0 },
@@ -72,5 +74,42 @@ describe('ActionSheet', () => {
       <ActionSheet visible={false} onClose={jest.fn()} title="Hidden" actions={[]} />,
     );
     expect(screen.queryByText('Hidden')).toBeNull();
+  });
+});
+
+describe('SwitchRow', () => {
+  it('forwards testID and valueChange to the Switch', async () => {
+    const onValueChange = jest.fn();
+    await render(
+      <SwitchRow
+        label="Push notifications"
+        description="Alerts on this device"
+        value={false}
+        onValueChange={onValueChange}
+        testID="pref-push"
+      />,
+    );
+
+    expect(screen.getByText('Push notifications')).toBeTruthy();
+    expect(screen.getByText('Alerts on this device')).toBeTruthy();
+
+    fireEvent(screen.getByTestId('pref-push'), 'valueChange', true);
+    expect(onValueChange).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('LedgerRow', () => {
+  it('renders title, description and amount', async () => {
+    await render(
+      <LedgerRow
+        title="Refund — Booking"
+        description="12 Jul 2026"
+        amount="₹5,000"
+        amountTone="success"
+      />,
+    );
+
+    expect(screen.getByText('Refund — Booking')).toBeTruthy();
+    expect(screen.getByText('₹5,000')).toBeTruthy();
   });
 });

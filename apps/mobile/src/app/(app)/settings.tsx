@@ -1,15 +1,19 @@
 import { useRouter } from 'expo-router';
-import { Text, View, Switch } from 'react-native';
+import { Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { AppHeader } from '../../components/AppHeader';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
-import { LoadingState, EmptyState } from '../../components/States';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Eyebrow } from '../../components/Ornament';
+import { SwitchRow } from '../../components/SwitchRow';
+import { SkeletonRow } from '../../components/Skeleton';
+import { EmptyState } from '../../components/States';
 import { api } from '../../lib/api';
 import { useSession } from '../../hooks/useSession';
-import { tokens, withAlpha } from '../../theme/tokens';
-import { useThemeColors } from '../../hooks/useThemeColors';
 import {
   canUseBiometric,
   isBiometricEnabled,
@@ -17,9 +21,47 @@ import {
   disableBiometric,
 } from '../../lib/biometric';
 
+/** Label/value line inside the grouped account card. */
+function InfoRow({
+  label,
+  children,
+  divider = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  divider?: boolean;
+}) {
+  return (
+    <View className={`px-4 py-3.5 ${divider ? 'border-b border-gold/15' : ''}`}>
+      <Text className="text-xs text-muted mb-1">{label}</Text>
+      {children}
+    </View>
+  );
+}
+
+/** Section wrapper: gold eyebrow + staggered entrance. */
+function Section({
+  eyebrow,
+  index,
+  children,
+}: {
+  eyebrow?: string;
+  index: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Animated.View
+      entering={FadeInUp.delay(Math.min(index, 8) * 60).duration(300)}
+      className="mb-8"
+    >
+      {eyebrow ? <Eyebrow text={eyebrow} className="mb-4" /> : null}
+      {children}
+    </Animated.View>
+  );
+}
+
 export default function SettingsScreen() {
   const router = useRouter();
-  const { colors } = useThemeColors();
   const { data: session } = useSession();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -78,169 +120,143 @@ export default function SettingsScreen() {
   }
 
   if (isLoading) {
-    return <LoadingState label="Loading settings..." />;
+    return (
+      <Screen scroll>
+        <AppHeader title="Settings" showBack />
+        <Card className="p-0 overflow-hidden">
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonRow key={i} />
+          ))}
+        </Card>
+      </Screen>
+    );
   }
+
+  const isVerified = profile?.verificationStatus === 'VERIFIED';
+  const isPremium = profile?.premiumTier === 'PREMIUM';
+  const biometricDescription = !biometricCheckDone
+    ? 'Checking device...'
+    : !biometricAvailable
+      ? biometricReason === 'no_hardware'
+        ? 'No biometric hardware on this device'
+        : 'No biometrics enrolled on this device'
+      : 'Unlock your account with fingerprint or face';
 
   return (
     <Screen scroll>
       <AppHeader title="Settings" showBack />
 
-      {/* Account Section */}
-      <View className="mb-8">
-        <Text className="font-semibold text-ink text-lg mb-4">Account</Text>
-
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <Text className="text-sm text-muted mb-1">Email</Text>
-          <Text className="font-semibold text-ink">
-            {profile?.email || 'Not set'}
-          </Text>
-        </View>
-
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <Text className="text-sm text-muted mb-1">Phone</Text>
-          <Text className="font-semibold text-ink">
-            {profile?.phoneNumber || 'Not set'}
-          </Text>
-        </View>
-
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <Text className="text-sm text-muted mb-1">Verification Status</Text>
-          <View className="flex-row items-center gap-2">
-            <View
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: profile?.verificationStatus === 'VERIFIED' ? tokens.success : tokens.warning }}
-            />
+      <Section eyebrow="Account" index={0}>
+        <Card className="p-0 overflow-hidden">
+          <InfoRow label="Email" divider>
             <Text className="font-semibold text-ink">
-              {profile?.verificationStatus || 'PENDING'}
+              {profile?.email || 'Not set'}
             </Text>
-          </View>
-        </View>
+          </InfoRow>
 
-        {/* No "Change Password": accounts sign in with phone OTP, there is no
-            password credential to change. */}
-        <View className="bg-surface border border-gold/20 rounded-xl p-4">
-          <Text className="text-sm text-muted mb-1">Sign-in method</Text>
-          <Text className="font-semibold text-ink">Phone OTP</Text>
-        </View>
-      </View>
-
-      {/* Subscription Section */}
-      <View className="mb-8">
-        <Text className="font-semibold text-ink text-lg mb-4">Subscription</Text>
-
-        <View className="bg-gold/10 border border-gold/40 rounded-xl p-4 mb-4">
-          <Text className="text-sm text-muted mb-2">Current Plan</Text>
-          <View className="flex-row items-center justify-between">
-            <Text className="font-heading text-lg text-primary">
-              {profile?.premiumTier || 'Standard'}
+          <InfoRow label="Phone" divider>
+            <Text className="font-semibold text-ink">
+              {profile?.phoneNumber || 'Not set'}
             </Text>
-            {profile?.premiumTier === 'PREMIUM' && (
-              <View className="bg-gold/20 px-3 py-1 rounded-full">
-                <Text className="text-xs font-semibold text-primary">Active</Text>
-              </View>
-            )}
-          </View>
-        </View>
+          </InfoRow>
 
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <Text className="text-sm text-muted mb-1">Member Since</Text>
-          <Text className="font-semibold text-ink">
-            {profile?.createdAt
-              ? new Date(profile.createdAt).toLocaleDateString()
-              : 'N/A'}
+          <InfoRow label="Verification Status" divider>
+            <Badge
+              label={profile?.verificationStatus || 'PENDING'}
+              variant={isVerified ? 'successSolid' : 'warning'}
+              size="sm"
+            />
+          </InfoRow>
+
+          {/* No "Change Password": accounts sign in with phone OTP, there is no
+              password credential to change. */}
+          <InfoRow label="Sign-in method">
+            <Text className="font-semibold text-ink">Phone OTP</Text>
+          </InfoRow>
+        </Card>
+      </Section>
+
+      <Section eyebrow="Subscription" index={1}>
+        <Card elevated className="mb-4">
+          <View className="flex-row items-center justify-between mb-1">
+            <Text className="text-xs text-muted">Current Plan</Text>
+            {isPremium && <Badge label="Active" variant="goldSolid" size="sm" />}
+          </View>
+          <Text className="font-heading text-xl text-primary">
+            {profile?.premiumTier || 'Standard'}
           </Text>
-        </View>
 
-        {profile?.premiumTier !== 'PREMIUM' && (
+          <View className="border-t border-gold/15 mt-4 pt-3">
+            <Text className="text-xs text-muted mb-1">Member Since</Text>
+            <Text className="font-semibold text-ink">
+              {profile?.createdAt
+                ? new Date(profile.createdAt).toLocaleDateString()
+                : 'N/A'}
+            </Text>
+          </View>
+        </Card>
+
+        {!isPremium && (
           <Button
             title="Upgrade to Premium"
             variant="primary"
             onPress={() => router.push('/(app)/billing')}
           />
         )}
-      </View>
+      </Section>
 
-      {/* Security */}
-      <View className="mb-8">
-        <Text className="font-semibold text-ink text-lg mb-4">Security</Text>
+      <Section eyebrow="Security" index={2}>
+        <Card className="p-0 overflow-hidden">
+          <SwitchRow
+            label="Biometric Unlock"
+            description={biometricDescription}
+            descriptionTone={
+              biometricCheckDone && !biometricAvailable ? 'warning' : 'muted'
+            }
+            value={biometricEnabled && biometricAvailable}
+            onValueChange={handleBiometricToggle}
+            disabled={!biometricAvailable || !biometricCheckDone}
+            testID="biometric-toggle"
+          />
+        </Card>
+      </Section>
 
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1 pr-4">
-              <Text className="font-semibold text-ink mb-1">Biometric Unlock</Text>
-              {!biometricCheckDone ? (
-                <Text className="text-xs text-muted">Checking device...</Text>
-              ) : !biometricAvailable ? (
-                <Text className="text-xs text-warning">
-                  {biometricReason === 'no_hardware'
-                    ? 'No biometric hardware on this device'
-                    : 'No biometrics enrolled on this device'}
-                </Text>
-              ) : (
-                <Text className="text-xs text-muted">
-                  Unlock your account with fingerprint or face
-                </Text>
-              )}
-            </View>
-            <Switch
-              value={biometricEnabled && biometricAvailable}
-              onValueChange={handleBiometricToggle}
-              disabled={!biometricAvailable || !biometricCheckDone}
-              trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
-              thumbColor={
-                biometricEnabled && biometricAvailable ? colors.primary : colors.gold
-              }
-              testID="biometric-toggle"
-            />
-          </View>
-        </View>
-      </View>
-
-      {/* Privacy & Safety */}
-      <View className="mb-8">
-        <Text className="font-semibold text-ink text-lg mb-4">Privacy & Safety</Text>
-
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-4">
-          <View className="flex-row items-center justify-between">
-            <Text className="font-semibold text-ink">Online Status</Text>
-            <Switch
-              value={profile?.isActive || false}
-              disabled={true}
-              trackColor={{ false: withAlpha(colors.muted, '40'), true: colors.teal }}
-              thumbColor={profile?.isActive ? colors.primary : colors.gold}
-            />
-          </View>
-        </View>
+      <Section eyebrow="Privacy & Safety" index={3}>
+        <Card className="p-0 overflow-hidden mb-4">
+          <SwitchRow
+            label="Online Status"
+            description="Shown automatically while you use the app"
+            value={profile?.isActive || false}
+            onValueChange={() => undefined}
+            disabled
+          />
+        </Card>
 
         <Button
           title="Manage Blocked Users"
           variant="secondary"
           onPress={() => router.push('/(app)/blocked-users')}
         />
-      </View>
+      </Section>
 
-      {/* Help & Support */}
-      <View className="mb-8">
-        <Text className="font-semibold text-ink text-lg mb-4">Help & Support</Text>
-
+      <Section eyebrow="Help & Support" index={4}>
         <Button
           title="FAQs"
           variant="secondary"
           onPress={() => router.push('/(app)/help')}
         />
-      </View>
+      </Section>
 
-      {/* Logout */}
-      <View className="mb-8">
+      <Section index={5}>
         <Button
           title="Sign Out"
-          variant="secondary"
+          variant="ghostDestructive"
           onPress={() => {
             // Sign out logic
             router.replace('/(auth)/phone');
           }}
         />
-      </View>
+      </Section>
     </Screen>
   );
 }

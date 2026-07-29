@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
+import { ErrorBanner } from '../../../components/ErrorBanner';
 import { describeError } from '../../../components/States';
 import { api } from '../../../lib/api';
 import type {
@@ -114,12 +115,8 @@ export default function OnboardingEducationCareer({
         onChangeText={(value) => handleUpdateEducation('degree', value)}
         placeholder="e.g., Bachelor of Technology"
         maxLength={255}
+        error={errors.degree}
       />
-      {errors.degree && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.degree}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="College"
@@ -127,12 +124,8 @@ export default function OnboardingEducationCareer({
         onChangeText={(value) => handleUpdateEducation('college', value)}
         placeholder="e.g., IIT Mumbai"
         maxLength={255}
+        error={errors.college}
       />
-      {errors.college && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.college}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Field of Study"
@@ -159,12 +152,8 @@ export default function OnboardingEducationCareer({
         onChangeText={(value) => handleUpdateProfession('occupation', value)}
         placeholder="e.g., Software Engineer"
         maxLength={255}
+        error={errors.occupation}
       />
-      {errors.occupation && (
-        <View className="mb-4 -mt-2 px-3 py-2 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.occupation}</View>
-        </View>
-      )}
 
       <Input containerClassName="mb-4"
         label="Employer"
@@ -204,16 +193,10 @@ export default function OnboardingEducationCareer({
         placeholder="PRIVATE, GOVERNMENT, BUSINESS, SELF_EMPLOYED, NOT_WORKING"
       />
 
-      {errors.education && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.education}</View>
-        </View>
-      )}
+      {errors.education && <ErrorBanner message={errors.education} className="mb-4" />}
 
       {errors.profession && (
-        <View className="mb-4 p-3 bg-destructive/10">
-          <View className="text-destructive text-sm">{errors.profession}</View>
-        </View>
+        <ErrorBanner message={errors.profession} className="mb-4" />
       )}
 
       <Button

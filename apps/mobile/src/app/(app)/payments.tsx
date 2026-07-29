@@ -1,11 +1,15 @@
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Pressable } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Screen } from '../../components/Screen';
-import { ErrorState, LoadingState } from '../../components/States';
+import { AppHeader } from '../../components/AppHeader';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Eyebrow } from '../../components/Ornament';
+import { LedgerRow } from '../../components/LedgerRow';
+import { SkeletonRow } from '../../components/Skeleton';
+import { ErrorState } from '../../components/States';
 import { InfoNote } from '../../components/InfoNote';
-import { useThemeColors } from '../../hooks/useThemeColors';
 import { formatDate, formatINR } from '../../lib/format';
 import {
   defaultStatementRange,
@@ -14,6 +18,32 @@ import {
   useSubscription,
 } from '../../features/payments/hooks';
 import { usePlatformSettings } from '@/features/settings/platformSettingsHook';
+
+// The header (with its back circle) is rendered in EVERY state, not just the
+// happy one. Dropping it from the loading/error branches would leave a pushed
+// route with nothing to press.
+const HEADER = <AppHeader title="Payments & Billing" showBack />;
+
+/** Section wrapper: gold eyebrow + staggered entrance. */
+function Section({
+  eyebrow,
+  index,
+  children,
+}: {
+  eyebrow: string;
+  index: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Animated.View
+      entering={FadeInUp.delay(Math.min(index, 8) * 60).duration(300)}
+      className="mb-8"
+    >
+      <Eyebrow text={eyebrow} className="mb-4" />
+      {children}
+    </Animated.View>
+  );
+}
 
 /**
  * Payments & billing — Unit 7.1 (mobile parity). READ-ONLY.
@@ -25,8 +55,6 @@ import { usePlatformSettings } from '@/features/settings/platformSettingsHook';
  * the merchant account. Changing a plan stays on the web app.
  */
 export default function PaymentsScreen() {
-  const router = useRouter();
-  const { colors } = useThemeColors();
   const platformSettings = usePlatformSettings();
 
   // Computed once per mount so the window cannot slide underneath a cached key.
@@ -44,28 +72,15 @@ export default function PaymentsScreen() {
   // money simply is not there.
   const error = subscription.error ?? statement.error ?? invoices.error;
 
-  // The back control is rendered in EVERY state, not just the happy one.
-  // Returning a bare <ErrorState> from these branches drops it, which on a
-  // pushed route leaves the user on a dead end with nothing to press.
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Back
-      </Text>
-    </Pressable>
-  );
-
   if (isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading your billing…" />
+        {HEADER}
+        <Card className="p-0 overflow-hidden">
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonRow key={i} />
+          ))}
+        </Card>
       </Screen>
     );
   }
@@ -73,7 +88,7 @@ export default function PaymentsScreen() {
   if (error) {
     return (
       <Screen>
-        {backLink}
+        {HEADER}
         <ErrorState
           error={error}
           onRetry={() => {
@@ -92,156 +107,114 @@ export default function PaymentsScreen() {
 
   return (
     <Screen scroll>
-      {backLink}
+      {HEADER}
 
-      <Text className="font-heading text-2xl text-primary mb-6">
-        Payments &amp; Billing
-      </Text>
-
-      {/* Test Mode Badge */}
       {platformSettings.data?.isMockMode && (
-        <View className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2">
-          <Text className="text-warning text-sm">Test Mode — no real charge will be made</Text>
-        </View>
+        <InfoNote variant="warning" title="Test Mode" className="mb-6">
+          No real charge will be made.
+        </InfoNote>
       )}
 
       {/* ── Current plan ─────────────────────────────────────────────────── */}
-      <Text className="font-heading text-lg text-primary mb-2">Your plan</Text>
-      {plan ? (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4">
-          <View className="flex-row items-center justify-between">
-            <Text className="font-heading text-xl text-ink">{plan.tier}</Text>
-            <View
-              className="px-2 py-1 rounded-full"
-              style={{
-                backgroundColor:
-                  plan.status === 'ACTIVE'
-                    ? `${colors.success}20`
-                    : `${colors.warning}20`,
-              }}
-            >
-              <Text
-                className="text-xs font-semibold"
-                style={{
-                  color: plan.status === 'ACTIVE' ? colors.success : colors.warning,
-                }}
-              >
-                {plan.status}
-              </Text>
+      <Section eyebrow="Your Plan" index={0}>
+        {plan ? (
+          <Card elevated>
+            <View className="flex-row items-center justify-between">
+              <Text className="font-heading text-xl text-ink">{plan.tier}</Text>
+              <Badge
+                label={plan.status}
+                variant={plan.status === 'ACTIVE' ? 'success' : 'warning'}
+              />
             </View>
-          </View>
-          <Text className="text-xs text-muted mt-1">{plan.planCode}</Text>
-          {formatDate(plan.currentPeriodEnd) ? (
-            <Text className="text-sm text-muted mt-3">
-              {plan.cancelAtPeriodEnd ? 'Ends on ' : 'Renews on '}
-              {formatDate(plan.currentPeriodEnd)}
+            <Text className="text-xs text-muted mt-1">{plan.planCode}</Text>
+            {formatDate(plan.currentPeriodEnd) ? (
+              <Text className="text-sm text-muted mt-3">
+                {plan.cancelAtPeriodEnd ? 'Ends on ' : 'Renews on '}
+                {formatDate(plan.currentPeriodEnd)}
+              </Text>
+            ) : null}
+          </Card>
+        ) : (
+          <Card>
+            <Text className="text-ink font-semibold">Free plan</Text>
+            <Text className="text-sm text-muted mt-1">
+              You don&apos;t have an active subscription.
             </Text>
-          ) : null}
-        </View>
-      ) : (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4">
-          <Text className="text-ink font-semibold">Free plan</Text>
-          <Text className="text-sm text-muted mt-1">
-            You don&apos;t have an active subscription.
-          </Text>
-        </View>
-      )}
+          </Card>
+        )}
 
-      <View className="mt-3">
-        <InfoNote>Plans are managed on the Smart Shaadi website.</InfoNote>
-      </View>
+        <View className="mt-3">
+          <InfoNote>Plans are managed on the Smart Shaadi website.</InfoNote>
+        </View>
+      </Section>
 
       {/* ── Statement ────────────────────────────────────────────────────── */}
-      <Text className="font-heading text-lg text-primary mt-8 mb-1">Activity</Text>
-      <Text className="text-xs text-muted mb-3">
-        {formatDate(range.fromDate)} – {formatDate(range.toDate)}
-      </Text>
+      <Section eyebrow="Activity" index={1}>
+        <Text className="text-xs text-muted text-center -mt-2 mb-3">
+          {formatDate(range.fromDate)} – {formatDate(range.toDate)}
+        </Text>
 
-      {rows.length === 0 ? (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4">
-          <Text className="text-sm text-muted">
-            No payments or refunds in this period.
-          </Text>
-        </View>
-      ) : (
-        <View className="bg-surface border border-gold/20 rounded-xl overflow-hidden">
-          {rows.map((row, index) => (
-            <View
-              key={`${row.reference}-${index}`}
-              className={`p-4 ${index > 0 ? 'border-t border-gold/20' : ''}`}
-            >
-              <View className="flex-row items-start justify-between">
-                <View className="flex-1 pr-3">
-                  <Text className="text-sm font-semibold text-ink">
-                    {row.description}
-                  </Text>
-                  <Text className="text-xs text-muted mt-1">
-                    {formatDate(row.date)} · {row.type.replace(/_/g, ' ')}
-                  </Text>
-                </View>
-                {/* Sign carries the direction — money out is already negative
-                    from the server, so formatINR renders the minus itself. */}
-                <Text
-                  className="text-sm font-semibold"
-                  style={{ color: row.amount < 0 ? colors.ink : colors.success }}
-                >
-                  {formatINR(row.amount)}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
+        {rows.length === 0 ? (
+          <Card>
+            <Text className="text-sm text-muted">
+              No payments or refunds in this period.
+            </Text>
+          </Card>
+        ) : (
+          <Card className="p-0 overflow-hidden">
+            {rows.map((row, index) => (
+              // Sign carries the direction — money out is already negative
+              // from the server, so formatINR renders the minus itself.
+              <LedgerRow
+                key={`${row.reference}-${index}`}
+                title={row.description}
+                description={`${formatDate(row.date)} · ${row.type.replace(/_/g, ' ')}`}
+                amount={formatINR(row.amount)}
+                amountTone={row.amount < 0 ? 'ink' : 'success'}
+                divider={index < rows.length - 1}
+              />
+            ))}
+          </Card>
+        )}
 
-      {statement.data ? (
-        <View className="flex-row gap-3 mt-3">
-          <View className="flex-1 bg-surface border border-gold/20 rounded-xl p-3">
-            <Text className="text-xs text-muted">Received</Text>
-            <Text className="font-semibold mt-1" style={{ color: colors.success }}>
-              {formatINR(statement.data.totalIn)}
-            </Text>
+        {statement.data ? (
+          <View className="flex-row gap-3 mt-3">
+            <Card className="flex-1 p-4">
+              <Text className="text-xs text-muted">Received</Text>
+              <Text className="font-semibold text-success mt-1">
+                {formatINR(statement.data.totalIn)}
+              </Text>
+            </Card>
+            <Card className="flex-1 p-4">
+              <Text className="text-xs text-muted">Paid</Text>
+              <Text className="font-semibold text-ink mt-1">
+                {formatINR(statement.data.totalOut)}
+              </Text>
+            </Card>
           </View>
-          <View className="flex-1 bg-surface border border-gold/20 rounded-xl p-3">
-            <Text className="text-xs text-muted">Paid</Text>
-            <Text className="font-semibold text-ink mt-1">
-              {formatINR(statement.data.totalOut)}
-            </Text>
-          </View>
-        </View>
-      ) : null}
+        ) : null}
+      </Section>
 
       {/* ── Invoices ─────────────────────────────────────────────────────── */}
-      <Text className="font-heading text-lg text-primary mt-8 mb-3">Invoices</Text>
-      {invoiceItems.length === 0 ? (
-        <View className="bg-surface border border-gold/20 rounded-xl p-4 mb-8">
-          <Text className="text-sm text-muted">No invoices yet.</Text>
-        </View>
-      ) : (
-        <View className="mb-8">
-          {invoiceItems.map((invoice) => (
-            <View
-              key={invoice.id}
-              className="bg-surface border border-gold/20 rounded-xl p-4 mb-3"
-            >
-              <View className="flex-row items-start justify-between">
-                <View className="flex-1 pr-3">
-                  <Text className="font-semibold text-ink">
-                    {invoice.invoiceNo}
-                  </Text>
-                  {invoice.vendorName ? (
-                    <Text className="text-xs text-muted mt-1">
-                      {invoice.vendorName}
-                    </Text>
-                  ) : null}
-                </View>
-                <Text className="font-semibold text-ink">
-                  {formatINR(invoice.totalAmount)}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
+      <Section eyebrow="Invoices" index={2}>
+        {invoiceItems.length === 0 ? (
+          <Card>
+            <Text className="text-sm text-muted">No invoices yet.</Text>
+          </Card>
+        ) : (
+          <Card className="p-0 overflow-hidden">
+            {invoiceItems.map((invoice, index) => (
+              <LedgerRow
+                key={invoice.id}
+                title={invoice.invoiceNo}
+                description={invoice.vendorName || undefined}
+                amount={formatINR(invoice.totalAmount)}
+                divider={index < invoiceItems.length - 1}
+              />
+            ))}
+          </Card>
+        )}
+      </Section>
     </Screen>
   );
 }
