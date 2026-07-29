@@ -12,6 +12,10 @@ export const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   MONGODB_URI:  z.string().default('mongodb://localhost:27017/smartshaadi'),
+  // Database the Python ai-service writes assistant_conversations into. The
+  // api reads that collection via useDb(MONGODB_DB) — NOT the db in
+  // MONGODB_URI's path — so both services always agree on the database.
+  MONGODB_DB:   z.string().default('smartshaadiDB'),
   REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
 
   // JWT_SECRET retained for backwards compatibility with test setups.

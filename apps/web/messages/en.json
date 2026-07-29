@@ -4985,7 +4985,18 @@
       "get_wedding_ceremonies": "Looking at your ceremonies…",
       "suggest_muhurat_dates": "Finding auspicious dates…",
       "find_similar_matches": "Finding similar profiles…",
+      "search_knowledge": "Searching Smart Shaadi pages & help…",
       "default": "Looking that up…"
+    },
+    "history": {
+      "title": "Chat history",
+      "loading": "Loading your conversations…",
+      "empty": "No conversations yet — ask your first question!",
+      "newChat": "New chat",
+      "delete": "Delete conversation",
+      "confirmDelete": "Tap again to delete",
+      "loadError": "Couldn't load that conversation. Please try again.",
+      "deleteError": "Couldn't delete the conversation. Please try again."
     }
   }
 }

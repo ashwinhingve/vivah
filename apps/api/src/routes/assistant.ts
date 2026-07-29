@@ -14,11 +14,16 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../auth/middleware.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
-import { err } from '../lib/response.js';
+import { ok, err } from '../lib/response.js';
 import { env } from '../lib/env.js';
 import { redis } from '../lib/redis.js';
 import { resolveProfileId } from '../lib/profile.js';
 import { buildAssistantContext } from '../services/assistantContext.js';
+import {
+  listAssistantConversations,
+  getAssistantConversation,
+  deleteAssistantConversation,
+} from '../services/assistantHistory.js';
 import { openAssistantStream, type AssistantUpstream } from '../services/assistantService.js';
 
 export const assistantRouter = Router();
@@ -123,5 +128,56 @@ assistantRouter.post(
     } finally {
       if (!aborted) res.end();
     }
+  }),
+);
+
+// ── Conversation history ─────────────────────────────────────────────────────
+// Documents are written by the ai-service; these endpoints are the read side.
+// Ownership is enforced in the service layer (every query filters by user_id).
+
+const ConversationIdSchema = z.string().uuid();
+
+assistantRouter.get(
+  '/conversations',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const conversations = await listAssistantConversations(req.user!.id);
+    ok(res, { conversations });
+  }),
+);
+
+assistantRouter.get(
+  '/conversations/:id',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parsed = ConversationIdSchema.safeParse(req.params['id']);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', 'Invalid conversation id', 400);
+      return;
+    }
+    const conversation = await getAssistantConversation(req.user!.id, parsed.data);
+    if (!conversation) {
+      err(res, 'NOT_FOUND', 'Conversation not found', 404);
+      return;
+    }
+    ok(res, { conversation });
+  }),
+);
+
+assistantRouter.delete(
+  '/conversations/:id',
+  authenticate,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const parsed = ConversationIdSchema.safeParse(req.params['id']);
+    if (!parsed.success) {
+      err(res, 'VALIDATION_ERROR', 'Invalid conversation id', 400);
+      return;
+    }
+    const deleted = await deleteAssistantConversation(req.user!.id, parsed.data);
+    if (!deleted) {
+      err(res, 'NOT_FOUND', 'Conversation not found', 404);
+      return;
+    }
+    ok(res, { deleted: true });
   }),
 );
