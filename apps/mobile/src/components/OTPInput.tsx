@@ -84,14 +84,18 @@ export function OTPInput({
               const digit = value[i] ?? '';
               const isActive = focused && i === activeIndex;
               const borderClass = error
-                ? 'border-destructive'
+                ? 'border-destructive border-2'
                 : isActive
-                  ? 'border-teal'
-                  : 'border-gold/40';
+                  ? 'border-teal border-2'
+                  : digit
+                    ? 'border-gold'
+                    : 'border-gold/40';
               return (
                 <View
                   key={i}
-                  className={`w-12 h-14 rounded-lg border bg-surface items-center justify-center ${borderClass}`}
+                  className={`w-12 h-14 rounded-xl border items-center justify-center ${borderClass} ${
+                    digit ? 'bg-gold/5' : 'bg-surface'
+                  }`}
                 >
                   <Text className="text-ink text-xl font-semibold">
                     {digit}

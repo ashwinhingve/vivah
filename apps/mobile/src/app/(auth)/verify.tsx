@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { Timer } from 'lucide-react-native';
 import { phoneNumberMethods } from '../../lib/auth-client';
 import { otpSchema } from '../../utils/validation';
 import { Screen } from '@/components/Screen';
+import { AuthHero } from '@/components/AuthHero';
+import { Badge } from '@/components/Badge';
 import { OTPInput, OTP_LENGTH } from '@/components/OTPInput';
 import { Button } from '@/components/Button';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { InfoNote } from '@/components/InfoNote';
 import { usePlatformSettings } from '@/features/settings/platformSettingsHook';
+import { tokens } from '@/theme/tokens';
 
 /**
  * OTP verification screen.
@@ -108,69 +113,69 @@ export default function VerifyScreen() {
   }
 
   return (
-    <Screen scroll keyboardAvoiding>
-      {/* Header */}
-      <View className="mb-8">
-        <Text className="text-primary font-heading-bold text-3xl mb-2">Verify OTP</Text>
-        <Text className="text-gold-muted text-base">
-          We&apos;ve sent a code to {phone}
-        </Text>
-      </View>
+    <Screen scroll keyboardAvoiding contentClassName="px-6 pt-10 pb-8">
+      {/* Brand hero */}
+      <AuthHero compact title="Verify your number" subtitle={`We've sent a code to ${phone}`} />
 
       {/* Test Mode Badge */}
       {platformSettings.data?.isMockMode && (
-        <View className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2">
-          <Text className="text-warning text-sm">Test Mode — no real charge will be made</Text>
+        <View className="items-center mb-6">
+          <Badge variant="warning" label="Test mode — no real SMS is sent" />
         </View>
       )}
 
-      {/* OTP Input — auto-submits when all 6 digits are entered */}
-      <View className="mb-6">
-        <Text className="text-ink text-sm font-semibold mb-2">6-Digit Code</Text>
-        <OTPInput
-          value={otp}
-          onChangeText={handleChangeOtp}
-          onComplete={handleVerifyOtp}
-          error={error}
-          editable={!isLoading}
-          testID="otp-input"
-        />
-      </View>
-
-      {/* Error Message */}
-      {error ? <ErrorBanner message={error} className="mb-6" /> : null}
-
-      {/* Verify Button */}
-      <Button
-        title="Verify"
-        onPress={() => void handleVerifyOtp(otp)}
-        loading={isLoading}
-        disabled={otp.length !== OTP_LENGTH}
-        accessibilityHint="Verifies the code and signs you in"
-      />
-
-      {/* Resend */}
-      <View className="mt-6 items-center">
-        {cooldown > 0 ? (
-          <Text className="text-muted text-sm" accessibilityLiveRegion="polite">
-            Resend code in {cooldown}s
-          </Text>
-        ) : (
-          <Button
-            title="Resend Code"
-            variant="secondary"
-            onPress={handleResend}
-            loading={isResending}
-            disabled={isLoading}
-            accessibilityHint="Sends a new one-time code to your phone"
+      <Animated.View entering={FadeInDown.delay(200).duration(400)}>
+        {/* OTP Input — auto-submits when all 6 digits are entered */}
+        <View className="mb-6">
+          <Text className="text-ink text-sm font-semibold mb-2">6-Digit Code</Text>
+          <OTPInput
+            value={otp}
+            onChangeText={handleChangeOtp}
+            onComplete={handleVerifyOtp}
+            error={error}
+            editable={!isLoading}
+            testID="otp-input"
           />
-        )}
-      </View>
+        </View>
 
-      {/* Info Note */}
-      <InfoNote variant="info" title="Test build" className="mt-8">
-        No real SMS is sent in this test build. Enter the test OTP code shared with you.
-      </InfoNote>
+        {error ? <ErrorBanner message={error} className="mb-6" /> : null}
+
+        <Button
+          title="Verify"
+          onPress={() => void handleVerifyOtp(otp)}
+          loading={isLoading}
+          disabled={otp.length !== OTP_LENGTH}
+          accessibilityHint="Verifies the code and signs you in"
+        />
+
+        {/* Resend */}
+        <View className="mt-6 items-center">
+          {cooldown > 0 ? (
+            <View
+              className="flex-row items-center gap-1.5 rounded-full bg-gold/10 px-4 py-2"
+              accessibilityLiveRegion="polite"
+            >
+              <Timer size={14} color={tokens.goldMuted} />
+              <Text className="text-gold-muted text-sm font-medium">
+                Resend code in {cooldown}s
+              </Text>
+            </View>
+          ) : (
+            <Button
+              title="Resend Code"
+              variant="ghost"
+              onPress={handleResend}
+              loading={isResending}
+              disabled={isLoading}
+              accessibilityHint="Sends a new one-time code to your phone"
+            />
+          )}
+        </View>
+
+        <InfoNote variant="info" title="Test build" className="mt-8">
+          No real SMS is sent in this test build. Enter the test OTP code shared with you.
+        </InfoNote>
+      </Animated.View>
     </Screen>
   );
 }
