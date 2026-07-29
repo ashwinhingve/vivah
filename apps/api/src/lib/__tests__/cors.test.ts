@@ -21,10 +21,10 @@ describe('isAllowedOrigin (production)', () => {
   })
 
   it('allows Vercel project alias + team-scoped preview URLs', () => {
-    expect(isAllowedOrigin('https://vivah-web.vercel.app')).toBe(true)
-    expect(isAllowedOrigin('https://vivah-web-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
-    expect(isAllowedOrigin('https://vivah-web-git-fix-soc-3b8525-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
-    expect(isAllowedOrigin('https://vivah-web-abc123def-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
+    expect(isAllowedOrigin('https://smart-shaadi-web.vercel.app')).toBe(true)
+    expect(isAllowedOrigin('https://smart-shaadi-web-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
+    expect(isAllowedOrigin('https://smart-shaadi-web-git-fix-soc-3b8525-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
+    expect(isAllowedOrigin('https://smart-shaadi-web-abc123def-smartshaadiofficial-7717s-projects.vercel.app')).toBe(true)
   })
 
   it('allows an explicit CORS_ORIGIN override', () => {
@@ -35,13 +35,15 @@ describe('isAllowedOrigin (production)', () => {
   it('rejects unknown / look-alike / non-https origins', () => {
     expect(isAllowedOrigin('https://evil.com')).toBe(false)
     expect(isAllowedOrigin('https://evil.vercel.app')).toBe(false)
-    expect(isAllowedOrigin('https://vivah-web.evil.com')).toBe(false)
+    expect(isAllowedOrigin('https://smart-shaadi-web.evil.com')).toBe(false)
     // right project prefix but NOT our team scope
-    expect(isAllowedOrigin('https://vivah-web-git-x-someoneelse.vercel.app')).toBe(false)
-    // our team scope but a different project (no vivah-web prefix)
+    expect(isAllowedOrigin('https://smart-shaadi-web-git-x-someoneelse.vercel.app')).toBe(false)
+    // our team scope but a different project (no smart-shaadi-web prefix)
     expect(isAllowedOrigin('https://other-app-smartshaadiofficial-7717s-projects.vercel.app')).toBe(false)
-    expect(isAllowedOrigin('https://vivah-webx.vercel.app')).toBe(false)
-    expect(isAllowedOrigin('http://vivah-web.vercel.app')).toBe(false) // not https
+    expect(isAllowedOrigin('https://smart-shaadi-webx.vercel.app')).toBe(false)
+    expect(isAllowedOrigin('http://smart-shaadi-web.vercel.app')).toBe(false) // not https
+    // the retired codename alias must no longer be trusted (A4-06)
+    expect(isAllowedOrigin('https://vivah-web.vercel.app')).toBe(false)
     expect(isAllowedOrigin('https://smartshaadi.co.in.evil.com')).toBe(false)
   })
 
@@ -71,8 +73,8 @@ describe('authTrustedOrigins', () => {
   it('covers the static prod origins plus tight Vercel preview globs (no bare *.vercel.app)', () => {
     const trusted = authTrustedOrigins()
     expect(trusted).toContain('https://smartshaadi.co.in')
-    expect(trusted).toContain('https://vivah-web-*-smartshaadiofficial-7717s-projects.vercel.app')
-    expect(trusted).toContain('https://vivah-web.vercel.app')
+    expect(trusted).toContain('https://smart-shaadi-web-*-smartshaadiofficial-7717s-projects.vercel.app')
+    expect(trusted).toContain('https://smart-shaadi-web.vercel.app')
     // never an open wildcard that would trust any vercel app
     expect(trusted).not.toContain('*')
     expect(trusted).not.toContain('https://*.vercel.app')

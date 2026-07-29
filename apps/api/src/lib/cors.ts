@@ -1,18 +1,19 @@
 import { env } from './env.js'
 
 /**
- * Vercel deployments of the web app. The Vercel project is `vivah-web` and our
- * Vercel team scope is `smartshaadiofficial-7717s-projects`, so deploy URLs are:
- *   https://vivah-web.vercel.app                                            (project alias)
- *   https://vivah-web-smartshaadiofficial-7717s-projects.vercel.app         (team-scoped alias)
- *   https://vivah-web-git-<branch>-smartshaadiofficial-7717s-projects.vercel.app  (branch preview)
- *   https://vivah-web-<hash>-smartshaadiofficial-7717s-projects.vercel.app        (commit preview)
- * Anchored to BOTH the `vivah-web` project prefix and the unique team suffix so
- * it never matches an arbitrary third-party *.vercel.app origin.
+ * Vercel deployments of the web app. The Vercel project is `smart-shaadi-web`
+ * (renamed from the `vivah-web` codename — A4-06) and our Vercel team scope is
+ * `smartshaadiofficial-7717s-projects`, so deploy URLs are:
+ *   https://smart-shaadi-web.vercel.app                                            (project alias)
+ *   https://smart-shaadi-web-smartshaadiofficial-7717s-projects.vercel.app         (team-scoped alias)
+ *   https://smart-shaadi-web-git-<branch>-smartshaadiofficial-7717s-projects.vercel.app  (branch preview)
+ *   https://smart-shaadi-web-<hash>-smartshaadiofficial-7717s-projects.vercel.app        (commit preview)
+ * Anchored to BOTH the `smart-shaadi-web` project prefix and the unique team
+ * suffix so it never matches an arbitrary third-party *.vercel.app origin.
  */
 const VERCEL_PREVIEW_RES = [
-  /^https:\/\/vivah-web(?:-[a-z0-9-]+)?-smartshaadiofficial-7717s-projects\.vercel\.app$/,
-  /^https:\/\/vivah-web\.vercel\.app$/,
+  /^https:\/\/smart-shaadi-web(?:-[a-z0-9-]+)?-smartshaadiofficial-7717s-projects\.vercel\.app$/,
+  /^https:\/\/smart-shaadi-web\.vercel\.app$/,
 ]
 
 /**
@@ -21,9 +22,9 @@ const VERCEL_PREVIEW_RES = [
  * chars — equivalent to the regexes above for our single-label preview hosts.
  */
 const VERCEL_PREVIEW_GLOBS = [
-  'https://vivah-web-*-smartshaadiofficial-7717s-projects.vercel.app',
-  'https://vivah-web-smartshaadiofficial-7717s-projects.vercel.app',
-  'https://vivah-web.vercel.app',
+  'https://smart-shaadi-web-*-smartshaadiofficial-7717s-projects.vercel.app',
+  'https://smart-shaadi-web-smartshaadiofficial-7717s-projects.vercel.app',
+  'https://smart-shaadi-web.vercel.app',
 ]
 
 /**
