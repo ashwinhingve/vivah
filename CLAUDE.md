@@ -495,6 +495,37 @@ Agents spawning model-call payloads sometimes wrap fields in `{"features": {...}
 - `tsx watch` is flaky on DrvFs mounts — fall back to `pnpm build && node dist` when reloads stop firing
 - Bash `!` history expansion mangles JS like `if (!doc)` in inline `-c` strings — use heredocs (`bash <<'EOF' ... EOF`)
 
+### Local dev database (2026-07-29 — moved off Docker)
+
+**Docker Desktop's engine is broken on this box** (`docker ps` / any Docker CLI
+command returns `500 Internal Server Error` from `dockerDesktopLinuxEngine`) and it
+previously owned the Postgres container on `:5433`. Local dev Postgres now runs as
+the **native WSL2 cluster**, not Docker:
+
+- Cluster: PG **16**, `16/main`, port **5433** (same port apps/api/.env already
+  expects — no env changes needed).
+- Role: `vivah` (password matches `DATABASE_URL` in `apps/api/.env`), db:
+  `smart_shaadi`, extension: `pgvector` (installed via
+  `postgresql-16-pgvector`, `CREATE EXTENSION vector`).
+- Provisioned via `pnpm --filter @smartshaadi/db db:push` + `pnpm db:seed` (demo
+  data: 18 vendors + Phase-8 supply, mock-store profile content) + `pnpm
+  --filter @smartshaadi/db db:seed:test-accounts` (QA accounts — see below).
+- **Start before dev work**: `sudo service postgresql start && sudo service
+  redis-server start` (Redis is also native WSL, not Docker). Both need the
+  operator's sudo password on this non-systemd WSL install — no way around an
+  interactive prompt unless the box is reconfigured for passwordless sudo on
+  just these two services.
+- **QA accounts on the fresh DB differ from the old Docker DB**: seeded via
+  `packages/db/seed/test-accounts.ts` — INDIVIDUAL `+9170000000NN` (NN = 01–19+),
+  VENDOR `+91700000020N`, plus the `demo-01`/full-demo seed's `+9188888800NN`
+  range (Demo Admin = `+918888880006`). The old memory note that qa-ind-01/02
+  were promoted to ADMIN was true only on the retired Docker-backed DB — on this
+  DB every `+9170000000NN` account is plain INDIVIDUAL unless re-promoted.
+- If Docker Desktop's engine gets fixed later and someone wants to go back to a
+  containerized Postgres, the WSL cluster and the old Docker container will
+  fight over `:5433` — stop the WSL cluster first (`sudo service postgresql
+  stop`) before starting any Docker Postgres container.
+
 ### Production verification rituals
 
 - All AI endpoints return `401` when called without auth — easy smoke check
