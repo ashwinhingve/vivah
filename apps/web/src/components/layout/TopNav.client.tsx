@@ -49,7 +49,7 @@ export function TopNav({ initialRole }: { initialRole?: string }) {
       aria-label={t('primaryNav')}
       className="hidden items-center gap-1 md:flex"
     >
-      {items.map(({ href, labelKey, Icon }) => {
+      {items.map(({ href, labelKey, Icon }, i) => {
         const isActive = href === currentHref;
         return (
           <Link
@@ -59,6 +59,10 @@ export function TopNav({ initialRole }: { initialRole?: string }) {
             className={cn(
               'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              // Tablet cap: items past the first 4 wrap/overflow at md widths
+              // (VENDOR has 7); they stay reachable via the More dropdown's
+              // lg:hidden quick-access group below.
+              i >= 4 && 'hidden lg:inline-flex',
               isActive
                 ? 'bg-teal/10 text-teal'
                 : 'text-fg-1 hover:bg-surface-muted',
@@ -83,6 +87,35 @@ export function TopNav({ initialRole }: { initialRole?: string }) {
             <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" aria-hidden />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8} className="min-w-[15rem]">
+            {items.length > 4 && (
+              <div className="lg:hidden">
+                <DropdownMenuLabel className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t('groupQuickAccess')}
+                </DropdownMenuLabel>
+                {items.slice(4).map(({ href, labelKey, Icon }) => {
+                  const isActive = href === currentHref;
+                  return (
+                    <DropdownMenuItem
+                      key={href}
+                      onSelect={() => router.push(href)}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={cn(
+                        'flex cursor-pointer items-center gap-2.5',
+                        isActive && 'bg-teal/10 text-teal focus:bg-teal/15 focus:text-teal',
+                      )}
+                    >
+                      <Icon
+                        strokeWidth={1.75}
+                        className={cn('h-4 w-4', isActive ? 'text-teal' : 'text-muted-foreground')}
+                        aria-hidden
+                      />
+                      {t(labelKey)}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator />
+              </div>
+            )}
             {groups.map((group, gi) => (
               <div key={group.titleKey}>
                 {gi > 0 && <DropdownMenuSeparator />}

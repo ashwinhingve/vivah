@@ -8,7 +8,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MoreHorizontal, X } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
-import { navForRole, filterForDemo, activeNavHref, type NavGroup } from './nav-config';
+import { navForRole, filterForDemo, activeNavHref, splitPrimary, type NavGroup } from './nav-config';
 
 export function AppNav({ initialRole }: { initialRole?: string }) {
   const t = useTranslations('nav.app');
@@ -64,8 +64,14 @@ export function AppNav({ initialRole }: { initialRole?: string }) {
     };
   }, [moreOpen]);
 
-  const { primary: primaryRaw, moreGroups: moreGroupsRaw } = navForRole(role);
-  const moreGroups: NavGroup[] = moreGroupsRaw
+  const { primary: desktopPrimary, primaryMobile, moreGroups: moreGroupsRaw } = navForRole(role);
+  // The phone bar carries the curated mobile set; desktop-primary items that
+  // didn't make the cut resurface at the top of the More sheet.
+  const { mobile: primaryRaw, overflow } = splitPrimary(desktopPrimary, primaryMobile);
+  const moreGroups: NavGroup[] = [
+    ...(overflow.length > 0 ? [{ titleKey: 'groupQuickAccess', items: overflow }] : []),
+    ...moreGroupsRaw,
+  ]
     .map((g) => ({ ...g, items: filterForDemo(g.items) }))
     .filter((g) => g.items.length > 0);
   const moreItems = moreGroups.flatMap((g) => g.items);
