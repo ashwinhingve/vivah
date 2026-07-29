@@ -15,7 +15,9 @@ export default async function TrustSection() {
   return (
     <section id="for-families" className="grid grid-cols-1 lg:grid-cols-2">
       {/* LEFT — For Individuals (burgundy-overlaid bride photo) */}
-      <div className="relative isolate min-h-[600px] lg:min-h-[680px] flex items-center">
+      {/* overflow-hidden: the AnimatedSection entrance translate + full-bleed
+          Image would otherwise push past the viewport at 375px (scrollWidth 407). */}
+      <div className="relative isolate overflow-hidden min-h-[600px] lg:min-h-[680px] flex items-center">
         <Image
           src={coupleDusk}
           alt="Couple in wedding attire overlooking a lit palace lake at dusk"
@@ -72,7 +74,7 @@ export default async function TrustSection() {
       </div>
 
       {/* RIGHT — For Families (ivory-washed family photo) */}
-      <div className="relative isolate min-h-[600px] lg:min-h-[680px] flex items-center">
+      <div className="relative isolate overflow-hidden min-h-[600px] lg:min-h-[680px] flex items-center">
         <Image
           src={floralIvory}
           alt=""

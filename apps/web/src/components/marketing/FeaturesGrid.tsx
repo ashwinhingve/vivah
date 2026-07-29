@@ -246,7 +246,7 @@ export default async function FeaturesGrid() {
   };
 
   return (
-    <section id="features" className="bg-background py-24 md:py-28">
+    <section id="features" className="overflow-x-clip bg-background py-24 md:py-28">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6 space-y-28 md:space-y-36">
         {features.map((f) => (
           <AnimatedSection
