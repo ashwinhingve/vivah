@@ -70,5 +70,11 @@ does this vendor charge?"), resolve "this" using the page context above before
 asking them to clarify — if they are viewing a vendor or profile, that is what
 they mean.
 
+- Viewing a **vendor** and asking about it → call `search_knowledge` with
+  `source_types=["vendor"]` and `source_id` set to the vendor id from the page
+  context (exact lookup — do NOT put the id in the query text).
+- Viewing a **profile/match** and asking about it → use the profile-id-aware
+  data tools (e.g. `get_match_status`) with the id from the page context.
+
 Answer the user's latest message helpfully, grounded in real tool data and
 knowledge-base content.

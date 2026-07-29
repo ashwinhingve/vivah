@@ -27,7 +27,6 @@ import { and, eq, inArray, notInArray } from 'drizzle-orm';
 import { knowledgeChunks, plans, vendors, type KnowledgeSourceType } from '@smartshaadi/db';
 import { loadContentDocs } from '@smartshaadi/content';
 import { db } from '../lib/db.js';
-import { env } from '../lib/env.js';
 import { callAiService } from '../lib/ai.js';
 import { getEntitlements } from '../lib/entitlements.js';
 
@@ -408,11 +407,14 @@ export async function indexVendor(vendorId: string): Promise<IndexRunResult> {
 
 /**
  * Full reindex: static snapshot + vendors + plans. Content-hash diffing makes
- * a no-change run embedding-free. Skipped entirely in mock mode (no ai-service).
+ * a no-change run embedding-free.
+ *
+ * Deliberately NOT gated on USE_MOCK_SERVICES: that flag mocks Razorpay/MSG91,
+ * while this pipeline only needs Postgres (always real) and the ai-service
+ * embedding endpoint — whose failures are counted per batch, never thrown.
  */
 export async function fullReindexKnowledge(): Promise<IndexRunResult> {
   const result: IndexRunResult = { embedded: 0, unchanged: 0, deleted: 0, errors: 0 };
-  if (env.USE_MOCK_SERVICES) return result;
 
   const staticDocs = loadContentDocs();
   const vendorDocs = await buildVendorDocs();

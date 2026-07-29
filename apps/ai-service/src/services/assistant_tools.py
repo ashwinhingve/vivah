@@ -239,6 +239,15 @@ _KNOWLEDGE_TOOL: dict[str, Any] = {
                     "cost questions, ['vendor'] for vendor lookups). Omit to search everything."
                 ),
             },
+            "source_id": {
+                "type": "string",
+                "description": (
+                    "Exact-entity lookup: fetch this specific source's content instead of "
+                    "semantic search. Use the entity id from the page context — e.g. when the "
+                    "user is viewing a vendor page and asks about 'this vendor', pass "
+                    "source_types=['vendor'] and source_id=<the vendor id from page context>."
+                ),
+            },
         },
         "required": ["query"],
     },

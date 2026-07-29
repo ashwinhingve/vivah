@@ -256,11 +256,45 @@ export const ASSISTANT_TOOLS: Record<string, ToolRunner> = {
           .array(z.enum(['i18n_page', 'seo_page', 'vendor', 'faq', 'legal', 'plan_pricing']))
           .max(6)
           .optional(),
+        source_id: z.string().trim().max(256).optional(),
       })
       .strip(),
-    async ({ query, source_types }) => {
+    async ({ query, source_types, source_id }) => {
       // Global public content — deliberately NOT per-user (see knowledgeBase.ts).
       if (!isKnowledgeEnabled()) return { error: 'not_enabled' };
+
+      // Exact-entity lookup: when the caller knows WHICH source it wants (the
+      // page-context vendor id, a seo slug), semantic ranking of a UUID query
+      // is useless — return that source's chunks directly.
+      if (source_id) {
+        const filters = [eq(knowledgeChunks.sourceId, source_id)];
+        if (source_types?.length) {
+          filters.push(inArray(knowledgeChunks.sourceType, source_types as KnowledgeSourceType[]));
+        }
+        const rows = await db
+          .select({
+            title: knowledgeChunks.title,
+            url: knowledgeChunks.url,
+            content: knowledgeChunks.content,
+            sourceType: knowledgeChunks.sourceType,
+            locale: knowledgeChunks.locale,
+            chunkIndex: knowledgeChunks.chunkIndex,
+          })
+          .from(knowledgeChunks)
+          .where(and(...filters))
+          .orderBy(knowledgeChunks.chunkIndex)
+          .limit(envInt('KNOWLEDGE_MAX_RESULTS', 6));
+        return {
+          count: rows.length,
+          results: rows.map((r) => ({
+            title: r.title,
+            url: r.url,
+            snippet: r.content.length > 600 ? `${r.content.slice(0, 600)}…` : r.content,
+            source_type: r.sourceType,
+            locale: r.locale,
+          })),
+        };
+      }
 
       const embRes = await callAiService<{
         embeddings?: number[][];
