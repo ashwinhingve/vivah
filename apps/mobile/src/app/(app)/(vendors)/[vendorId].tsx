@@ -12,7 +12,6 @@ import {
   Flower2,
   MapPin,
   Music,
-  Sparkles,
   Star,
   Store,
   UtensilsCrossed,
