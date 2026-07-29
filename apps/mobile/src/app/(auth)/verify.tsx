@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Timer } from 'lucide-react-native';
+import { ChevronLeft, Timer } from 'lucide-react-native';
 import { phoneNumberMethods } from '../../lib/auth-client';
 import { otpSchema } from '../../utils/validation';
 import { Screen } from '@/components/Screen';
@@ -114,6 +114,18 @@ export default function VerifyScreen() {
 
   return (
     <Screen scroll keyboardAvoiding contentClassName="px-6 pt-10 pb-8">
+      {/* Back to phone entry — the only way to fix a mistyped number besides
+          the OS back gesture, which isn't discoverable for every user. */}
+      <Pressable
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Back to phone number entry"
+        hitSlop={4}
+        className="h-11 w-11 items-center justify-center rounded-full bg-gold/10 active:bg-gold/20 mb-2"
+      >
+        <ChevronLeft size={24} color={tokens.primary} />
+      </Pressable>
+
       {/* Brand hero */}
       <AuthHero compact title="Verify your number" subtitle={`We've sent a code to ${phone}`} />
 
