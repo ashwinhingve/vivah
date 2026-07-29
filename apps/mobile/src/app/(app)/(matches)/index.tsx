@@ -226,7 +226,7 @@ export default function MatchFeedScreen() {
    * Happy path: render the infinite list with pull-to-refresh.
    */
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} tabBarInset>
       <View className="flex-1 px-0 py-0">
         <FlatList
           data={items}

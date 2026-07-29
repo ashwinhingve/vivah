@@ -108,7 +108,7 @@ export default function ConversationsScreen() {
   }
 
   return (
-    <Screen>
+    <Screen tabBarInset>
       <View className="mb-6">
         <Text className="font-heading text-2xl text-primary mb-4">Chats</Text>
 

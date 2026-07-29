@@ -74,7 +74,7 @@ export default function MoreScreen() {
   ];
 
   return (
-    <Screen scroll>
+    <Screen scroll tabBarInset>
       {/* Header */}
       <Text className="font-heading text-2xl text-primary mb-6">More</Text>
 

@@ -216,7 +216,7 @@ export default function VendorBrowseScreen() {
   }
 
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} tabBarInset>
       <FlatList
         data={vendors}
         renderItem={renderVendorCard}
