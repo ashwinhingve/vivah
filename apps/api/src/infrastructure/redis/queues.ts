@@ -343,3 +343,30 @@ export async function queueEmbeddingGeneration(job: EmbeddingGenerationJob): Pro
     // non-critical enhancement; skip silently.
   }
 }
+
+/**
+ * Knowledge-base indexing (assistant RAG) — keeps knowledge_chunks in sync
+ * with website content. 'full-reindex' re-embeds everything (nightly cron +
+ * manual backfill); 'vendor' re-indexes one vendor row, enqueued from vendor
+ * create/update/delete paths. NEVER synchronous in a request handler (Rule 8).
+ * Deterministic jobIds collapse rapid successive edits into one refresh.
+ */
+export type KnowledgeIndexingJob =
+  | { type: 'full-reindex' }
+  | { type: 'vendor'; sourceId: string };
+
+export const knowledgeIndexingQueue = new Queue<KnowledgeIndexingJob>(
+  'knowledge-indexing',
+  { connection },
+);
+
+/** Enqueue a knowledge-base index refresh (best-effort — never throws to callers). */
+export async function queueKnowledgeIndexing(job: KnowledgeIndexingJob): Promise<void> {
+  try {
+    const jobId = job.type === 'full-reindex' ? 'knowledge-full' : `knowledge-vendor-${job.sourceId}`;
+    await knowledgeIndexingQueue.add(job.type, job, { jobId, ...DEFAULT_JOB_OPTS });
+  } catch {
+    // Redis unreachable (dev/test without infra) — index freshness is a
+    // non-critical enhancement; skip silently.
+  }
+}

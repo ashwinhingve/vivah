@@ -19,7 +19,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '../lib/db.js';
 import * as schema from '@smartshaadi/db';
 import { appendAuditLog } from '../payments/service.js';
-import { notificationsQueue } from '../infrastructure/redis/queues.js';
+import { notificationsQueue, queueKnowledgeIndexing } from '../infrastructure/redis/queues.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -147,6 +147,7 @@ export async function approve(
     type:    'VENDOR_APPROVED',
     payload: { vendorId, businessName: updated.businessName },
   });
+  await queueKnowledgeIndexing({ type: 'vendor', sourceId: vendorId });
   return updated;
 }
 
@@ -181,6 +182,7 @@ export async function reject(
     type:    'VENDOR_REJECTED',
     payload: { vendorId, reason: reason.trim(), category },
   });
+  await queueKnowledgeIndexing({ type: 'vendor', sourceId: vendorId });
   return updated;
 }
 
@@ -213,6 +215,7 @@ export async function suspend(
     type:    'VENDOR_SUSPENDED',
     payload: { vendorId, reason: reason.trim() },
   });
+  await queueKnowledgeIndexing({ type: 'vendor', sourceId: vendorId });
   return updated;
 }
 
@@ -239,6 +242,7 @@ export async function reinstate(
     type:    'VENDOR_REINSTATED',
     payload: { vendorId },
   });
+  await queueKnowledgeIndexing({ type: 'vendor', sourceId: vendorId });
   return updated;
 }
 

@@ -21,3 +21,21 @@ class EmbeddingResponse(BaseModel):
     embedding: list[float] = Field(default_factory=list)
     dims: int = Field(0, description="Length of embedding; 0 when the model is unavailable")
     available: bool = Field(True, description="False when the embedding model failed to load")
+
+
+class BatchEmbeddingRequest(BaseModel):
+    """Batch embedding for knowledge-base chunks and search queries.
+
+    Same redaction contract as profiles: the Node api sends already-safe text.
+    Capped at 64 texts per call to bound one request's model time.
+    """
+
+    texts: list[str] = Field(..., min_length=1, max_length=64)
+
+
+class BatchEmbeddingResponse(BaseModel):
+    embeddings: list[list[float]] = Field(
+        default_factory=list, description="One 768-dim vector per input text, same order"
+    )
+    dims: int = Field(0, description="Vector dimension; 0 when the model is unavailable")
+    available: bool = Field(True, description="False when the embedding model failed to load")

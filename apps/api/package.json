@@ -8,7 +8,8 @@
     "start": "node dist/src/index.js",
     "lint": "eslint src",
     "type-check": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "reindex-knowledge": "tsx src/bin/reindex-knowledge.ts"
   },
   "dependencies": {
     "@aws-sdk/client-rekognition": "^3.1025.0",

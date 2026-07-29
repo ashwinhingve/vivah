@@ -87,6 +87,10 @@ import { registerEscrowReleaseWorker } from './jobs/escrowReleaseJob.js';
 import { registerInvitationBlastWorker } from './jobs/invitationBlastJob.js';
 import { registerEmbeddingWorker } from './jobs/embeddingGenerationJob.js';
 import {
+  registerKnowledgeIndexingWorker,
+  scheduleKnowledgeIndexingJob,
+} from './jobs/knowledgeIndexingJob.js';
+import {
   registerAuditChainVerifierWorker,
   scheduleAuditChainVerifierJob,
 } from './jobs/auditChainVerifierJob.js';
@@ -655,6 +659,8 @@ async function bootstrap(): Promise<void> {
     workers.push(registerBehaviorAggregateWorker());
     void scheduleBehaviorAggregateJob();
     workers.push(registerEmbeddingWorker());
+    workers.push(registerKnowledgeIndexingWorker()); // Assistant RAG — knowledge base sync
+    void scheduleKnowledgeIndexingJob();
     workers.push(startWhatsAppWorker()); // Phase 6 Sprint D — WhatsApp send queue
     workers.push(registerChurnRecoverySweepWorker()); // Phase 7 Sprint F — churn recovery sweep
     void scheduleChurnRecoverySweepJob();
