@@ -6,35 +6,23 @@ import { useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
 import { LogoFull } from './Logo';
 import { LanguageToggle } from '@/components/i18n/LanguageToggle.client';
-
-interface NavLink {
-  labelKey: string;
-  href: string;
-}
-
-const navLinks: NavLink[] = [
-  { labelKey: 'howItWorks',  href: '#how-it-works' },
-  { labelKey: 'forFamilies', href: '#for-families' },
-  { labelKey: 'features',    href: '#features' },
-  { labelKey: 'vendors',     href: '/vendors' },
-  { labelKey: 'pricing',     href: '#pricing' },
-];
-
-/**
- * Desktop nav link. The underline is a scale-x wipe on a pseudo-element rather
- * than `text-decoration`, so it grows from the left edge instead of appearing
- * all at once. `motion-reduce:transition-none` keeps it instant for users who
- * have asked for less motion.
- */
-const desktopLinkClass =
-  'relative inline-flex min-h-[44px] items-center text-sm text-foreground/75 ' +
-  'transition-colors duration-150 hover:text-primary ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ' +
-  'focus-visible:ring-offset-2 focus-visible:rounded-sm ' +
-  'after:pointer-events-none after:absolute after:bottom-2.5 after:left-0 after:h-px ' +
-  'after:w-full after:origin-left after:scale-x-0 after:bg-primary ' +
-  'after:transition-transform after:duration-200 after:ease-out ' +
-  'hover:after:scale-x-100 motion-reduce:after:transition-none';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import {
+  PLAIN_LINKS_BEFORE,
+  PLAIN_LINKS_AFTER,
+  FEATURES_MENU,
+  BROWSE_MENU,
+  POPULAR_SEARCHES,
+  type MarketingMenuItem,
+} from './nav-links';
 
 export default function Navbar() {
   const t = useTranslations('marketing.navbar');
@@ -80,6 +68,48 @@ export default function Navbar() {
     ? 'h-14 bg-surface/95 border-gold/30 shadow-[var(--shadow-lg)]'
     : 'h-16 bg-surface/75 border-white/70 shadow-[var(--shadow-md)]';
 
+  /**
+   * Dropdown-panel row: icon chip + label + one-line description. Defined as a
+   * closure so it can read `t` (marketing.navbar scope). `topLevelLabel` covers
+   * the one label ('vendors') that predates the menu.* namespace.
+   */
+  function MenuRow({
+    item,
+    topLevelLabel = false,
+  }: {
+    item: MarketingMenuItem;
+    topLevelLabel?: boolean;
+  }) {
+    const { Icon } = item;
+    return (
+      <NavigationMenuLink asChild>
+        <Link
+          href={item.href}
+          className="group/row flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-primary">
+            <Icon className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
+          </span>
+          <span>
+            <span className="block text-sm font-medium text-foreground group-hover/row:text-primary">
+              {topLevelLabel ? t(item.labelKey) : t(`menu.${item.labelKey}`)}
+            </span>
+            <span className="block pt-0.5 text-xs text-muted-foreground">
+              {t(`menu.${item.descKey}`)}
+            </span>
+          </span>
+        </Link>
+      </NavigationMenuLink>
+    );
+  }
+
+  // Task-5 glue: the interim mobile overlay list until the drawer replaces it.
+  const mobileLinks = [
+    ...PLAIN_LINKS_BEFORE,
+    { labelKey: 'vendors', href: '/vendors' },
+    ...PLAIN_LINKS_AFTER,
+  ];
+
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-30 px-3 pt-3 sm:px-4">
@@ -105,28 +135,77 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop nav links */}
-          <ul className="hidden items-center gap-6 md:flex md:justify-self-center" role="list">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                {link.href.startsWith('#') ? (
-                  <a
-                    href={link.href}
-                    className={desktopLinkClass}
-                  >
-                    {t(link.labelKey)}
-                  </a>
-                ) : (
-                  <Link
-                    href={link.href}
-                    className={desktopLinkClass}
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
+          {/* Desktop nav — plain links + two dropdown panels */}
+          <NavigationMenu className="hidden md:flex md:justify-self-center">
+            <NavigationMenuList>
+              {PLAIN_LINKS_BEFORE.map((link) => (
+                <NavigationMenuItem key={link.href}>
+                  <NavigationMenuLink asChild>
+                    <Link href={link.href} className={navigationMenuTriggerStyle()}>
+                      {t(link.labelKey)}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>{t('features')}</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[26rem] gap-1 p-1" role="list">
+                    {FEATURES_MENU.map((item) => (
+                      <li key={item.href + item.labelKey}>
+                        <MenuRow item={item} />
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>{t('browse')}</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[34rem] grid-cols-[1.2fr_1fr] gap-3 p-1">
+                    <ul className="grid gap-1" role="list">
+                      {BROWSE_MENU.map((item) => (
+                        <li key={item.href}>
+                          <MenuRow item={item} topLevelLabel={item.labelKey === 'vendors'} />
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="rounded-xl bg-background p-3">
+                      <p className="px-2 pb-2 text-2xs font-semibold uppercase tracking-wider text-gold-muted">
+                        {t('menu.popularSearches')}
+                      </p>
+                      <ul className="grid gap-0.5" role="list">
+                        {POPULAR_SEARCHES.map((link) => (
+                          <li key={link.href}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href={link.href}
+                                className="block rounded-lg px-2 py-1.5 text-sm text-foreground/75 transition-colors hover:bg-gold/10 hover:text-primary"
+                              >
+                                {t(`menu.popular.${link.labelKey}`)}
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {PLAIN_LINKS_AFTER.map((link) => (
+                <NavigationMenuItem key={link.href}>
+                  <NavigationMenuLink asChild>
+                    <Link href={link.href} className={navigationMenuTriggerStyle()}>
+                      {t(link.labelKey)}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Desktop auth buttons */}
           <div className="hidden items-center gap-2.5 md:flex md:justify-self-end">
@@ -159,7 +238,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile menu — full-screen overlay */}
+      {/* Mobile menu — full-screen overlay (replaced by the drawer in Task 5) */}
       {isOpen && (
         <div
           id="mobile-menu"
@@ -183,25 +262,15 @@ export default function Navbar() {
 
           {/* Nav links */}
           <ul className="flex flex-1 flex-col justify-center px-8" role="list">
-            {navLinks.map((link) => (
+            {mobileLinks.map((link) => (
               <li key={link.href}>
-                {link.href.startsWith('#') ? (
-                  <a
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="block w-full border-b border-border py-5 font-heading text-2xl font-semibold text-primary transition-colors hover:text-primary-hover"
-                  >
-                    {t(link.labelKey)}
-                  </a>
-                ) : (
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="block w-full border-b border-border py-5 font-heading text-2xl font-semibold text-primary transition-colors hover:text-primary-hover"
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                )}
+                <Link
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full border-b border-border py-5 font-heading text-2xl font-semibold text-primary transition-colors hover:text-primary-hover"
+                >
+                  {t(link.labelKey)}
+                </Link>
               </li>
             ))}
           </ul>

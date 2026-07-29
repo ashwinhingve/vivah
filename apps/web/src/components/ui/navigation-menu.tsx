@@ -87,7 +87,10 @@ const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
-  <div className="absolute left-0 top-full flex w-full justify-center">
+  // No w-full on this wrapper: the root is max-w-max, and a full-width flex
+  // wrapper squeezes the viewport to the menu's own width, clipping wide
+  // panels. Shrink-to-fit + translate centres the panel under the menu.
+  <div className="absolute left-1/2 top-full flex -translate-x-1/2 justify-center">
     <NavigationMenuPrimitive.Viewport
       ref={ref}
       className={cn(
