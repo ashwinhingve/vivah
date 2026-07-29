@@ -1,0 +1,36 @@
+{
+  "marketing": {
+    "navbar": {
+      "browse": "Browse",
+      "menu": {
+        "gunaMilan": "Guna Milan Compatibility",
+        "gunaMilanDesc": "8-factor Vedic Ashtakoot scoring you can inspect",
+        "aiMatch": "AI Matchmaking",
+        "aiMatchDesc": "Reciprocal matches, explained in plain language",
+        "families": "For Families",
+        "familiesDesc": "Parent Mode, shared shortlists, family verification",
+        "safety": "Safety & Privacy",
+        "safetyDesc": "Verified profiles, masked contacts, privacy by default",
+        "vendorsDesc": "Venues, photographers, caterers and more",
+        "helpCentre": "Help Centre",
+        "helpDesc": "Guides and answers to common questions",
+        "aboutUs": "About Us",
+        "aboutDesc": "Why Smart Shaadi exists",
+        "popularSearches": "Popular searches",
+        "popular": {
+          "hindu": "Hindu Matrimony",
+          "sikh": "Sikh Matrimony",
+          "delhi": "Marriages in Delhi",
+          "mumbai": "Marriages in Mumbai",
+          "bangalore": "Marriages in Bangalore",
+          "jaipur": "Marriages in Jaipur"
+        }
+      }
+    }
+  },
+  "nav": {
+    "app": {
+      "groupQuickAccess": "Quick access"
+    }
+  }
+}
