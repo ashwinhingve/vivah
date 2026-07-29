@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type ComponentType } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,13 +9,33 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import {
+  BookOpen,
+  Brush,
+  Building2,
+  Camera,
+  Flower2,
+  MapPin,
+  Music,
+  Search,
+  Sparkles,
+  Star,
+  Store,
+  UtensilsCrossed,
+  type LucideProps,
+} from 'lucide-react-native';
 import type { VendorCategory } from '@smartshaadi/types';
 import type { VendorListParams } from '@smartshaadi/api-client';
 import { Screen } from '../../../components/Screen';
+import { AppHeader } from '../../../components/AppHeader';
 import { Input } from '../../../components/Input';
-import { EmptyState, ErrorState, LoadingState } from '../../../components/States';
+import { Badge } from '../../../components/Badge';
+import { SkeletonRow } from '../../../components/Skeleton';
+import { EmptyState, ErrorState } from '../../../components/States';
 import { useThemeColors } from '../../../hooks/useThemeColors';
-import { withAlpha } from '../../../theme/tokens';
+import { tokens } from '../../../theme/tokens';
+import { shadowWarm } from '../../../theme/shadows';
 import { formatPriceRange } from '../../../lib/format';
 import { useVendorList } from '../../../features/vendors/hooks';
 
@@ -29,16 +49,26 @@ import { useVendorList } from '../../../features/vendors/hooks';
  * Only the categories users actually browse by are offered as chips. The API
  * accepts 17; showing all 17 in a horizontal scroller is a wall nobody reads.
  */
-const CATEGORY_CHIPS: Array<{ value: VendorCategory | null; label: string }> = [
-  { value: null, label: 'All' },
-  { value: 'VENUE', label: 'Venues' },
-  { value: 'PHOTOGRAPHY', label: 'Photography' },
-  { value: 'CATERING', label: 'Catering' },
-  { value: 'DECORATION', label: 'Decor' },
-  { value: 'MAKEUP', label: 'Makeup' },
-  { value: 'MUSIC', label: 'Music' },
-  { value: 'PRIEST', label: 'Priest' },
+const CATEGORY_CHIPS: Array<{
+  value: VendorCategory | null;
+  label: string;
+  icon: ComponentType<LucideProps>;
+}> = [
+  { value: null, label: 'All', icon: Sparkles },
+  { value: 'VENUE', label: 'Venues', icon: Building2 },
+  { value: 'PHOTOGRAPHY', label: 'Photography', icon: Camera },
+  { value: 'CATERING', label: 'Catering', icon: UtensilsCrossed },
+  { value: 'DECORATION', label: 'Decor', icon: Flower2 },
+  { value: 'MAKEUP', label: 'Makeup', icon: Brush },
+  { value: 'MUSIC', label: 'Music', icon: Music },
+  { value: 'PRIEST', label: 'Priest', icon: BookOpen },
 ];
+
+/** Medallion icon for a vendor's category; Store covers the long tail. */
+function categoryIcon(category: string): ComponentType<LucideProps> {
+  const chip = CATEGORY_CHIPS.find((c) => c.value === category);
+  return chip?.icon ?? Store;
+}
 
 export default function VendorBrowseScreen() {
   const router = useRouter();
@@ -92,67 +122,74 @@ export default function VendorBrowseScreen() {
   );
 
   const renderVendorCard = useCallback(
-    ({ item }: { item: (typeof vendors)[number] }) => {
+    ({ item, index }: { item: (typeof vendors)[number]; index: number }) => {
       const priceBand = formatPriceRange(item.priceMin, item.priceMax);
+      const IconComponent = categoryIcon(item.category);
       return (
-        <Pressable
-          testID={`vendor-card-${item.id}`}
-          accessibilityRole="button"
-          accessibilityLabel={`${item.businessName}, ${item.city}`}
-          onPress={() => router.push(`/(app)/(vendors)/${item.id}`)}
-          className="mb-4 rounded-2xl bg-surface border border-gold/20 p-4 active:opacity-70"
-        >
-          <View className="flex-row items-start justify-between">
-            <View className="flex-1 pr-3">
-              <Text className="font-heading text-lg text-ink">
-                {item.businessName}
+        <Animated.View entering={FadeInUp.delay(Math.min(index, 6) * 50).duration(350)}>
+          <Pressable
+            testID={`vendor-card-${item.id}`}
+            accessibilityRole="button"
+            accessibilityLabel={`${item.businessName}, ${item.city}`}
+            onPress={() => router.push(`/(app)/(vendors)/${item.id}`)}
+            className="mb-4 rounded-2xl bg-surface border border-gold/20 p-4 active:opacity-90"
+            style={shadowWarm}
+          >
+            <View className="flex-row items-start gap-3">
+              {/* Category medallion */}
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-gold/15">
+                <IconComponent size={22} color={tokens.goldMuted} strokeWidth={1.75} />
+              </View>
+
+              <View className="flex-1">
+                <Text className="font-heading text-lg text-primary" numberOfLines={1}>
+                  {item.businessName}
+                </Text>
+                <View className="mt-0.5 flex-row items-center gap-1">
+                  <MapPin size={12} color={tokens.muted} />
+                  <Text className="text-sm text-muted">
+                    {item.city}, {item.state}
+                  </Text>
+                </View>
+              </View>
+
+              {item.verified ? <Badge variant="success" label="Verified" size="sm" /> : null}
+            </View>
+
+            {item.tagline ? (
+              <Text className="text-sm text-muted mt-3" numberOfLines={2}>
+                {item.tagline}
               </Text>
-              <Text className="text-sm text-muted mt-1">
-                {item.city}, {item.state}
+            ) : null}
+
+            <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gold/15">
+              {/* totalReviews guards the rating: a fresh vendor sits at 0, and
+                  a 0.0 rating reads as a bad vendor rather than an unrated one. */}
+              {item.totalReviews > 0 ? (
+                <View className="flex-row items-center gap-1">
+                  <Star size={14} color={tokens.gold} fill={tokens.gold} />
+                  <Text className="text-sm font-semibold text-gold-muted">
+                    {item.rating.toFixed(1)}
+                    <Text className="font-normal text-muted"> ({item.totalReviews})</Text>
+                  </Text>
+                </View>
+              ) : (
+                <Text className="text-sm text-muted">No reviews yet</Text>
+              )}
+              <Text className="text-sm font-semibold text-teal">
+                {priceBand ?? 'Price on request'}
               </Text>
             </View>
-            {item.verified ? (
-              <View
-                className="px-2 py-1 rounded-full"
-                style={{ backgroundColor: withAlpha(colors.success, '20') }}
-              >
-                <Text
-                  className="text-xs font-semibold"
-                  style={{ color: colors.success }}
-                >
-                  Verified
-                </Text>
-              </View>
-            ) : null}
-          </View>
-
-          {item.tagline ? (
-            <Text className="text-sm text-muted mt-2" numberOfLines={2}>
-              {item.tagline}
-            </Text>
-          ) : null}
-
-          <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gold/20">
-            <Text className="text-sm" style={{ color: colors.gold }}>
-              {/* totalReviews guards the rating: a fresh vendor sits at 0, and
-                  "0.0 ★" reads as a bad vendor rather than an unrated one. */}
-              {item.totalReviews > 0
-                ? `★ ${item.rating.toFixed(1)} (${item.totalReviews})`
-                : 'No reviews yet'}
-            </Text>
-            <Text className="text-sm font-semibold text-ink">
-              {priceBand ?? 'Price on request'}
-            </Text>
-          </View>
-        </Pressable>
+          </Pressable>
+        </Animated.View>
       );
     },
-    [router, colors],
+    [router],
   );
 
   const header = (
     <View className="mb-4">
-      <Text className="font-heading text-2xl text-primary mb-4">Vendors</Text>
+      <AppHeader title="Vendors" className="mb-4" />
 
       <Input
         placeholder="Search vendors, cities…"
@@ -162,6 +199,7 @@ export default function VendorBrowseScreen() {
         returnKeyType="search"
         accessibilityLabel="Search vendors"
         containerClassName="mb-3"
+        leftIcon={<Search size={18} color={tokens.muted} />}
       />
 
       <ScrollView
@@ -171,22 +209,23 @@ export default function VendorBrowseScreen() {
       >
         {CATEGORY_CHIPS.map((chip) => {
           const selected = chip.value === category;
+          const ChipIcon = chip.icon;
           return (
             <Pressable
               key={chip.label}
               accessibilityRole="button"
               accessibilityState={{ selected }}
               onPress={() => setCategory(chip.value)}
-              className="px-4 rounded-full border justify-center"
-              style={{
-                minHeight: 44,
-                backgroundColor: selected ? colors.primary : 'transparent',
-                borderColor: selected ? colors.primary : withAlpha(colors.gold, '66'),
-              }}
+              className={`min-h-11 flex-row items-center gap-1.5 justify-center rounded-full border px-4 ${
+                selected ? 'bg-primary border-primary' : 'bg-surface border-gold/40'
+              }`}
             >
+              <ChipIcon
+                size={15}
+                color={selected ? tokens.onPrimary : tokens.goldMuted}
+              />
               <Text
-                className="text-sm font-semibold"
-                style={{ color: selected ? colors.onPrimary : colors.ink }}
+                className={`text-sm font-semibold ${selected ? 'text-on-primary' : 'text-ink'}`}
               >
                 {chip.label}
               </Text>
@@ -201,7 +240,10 @@ export default function VendorBrowseScreen() {
     return (
       <Screen>
         {header}
-        <LoadingState label="Finding vendors…" />
+        <SkeletonRow />
+        <SkeletonRow />
+        <SkeletonRow />
+        <SkeletonRow />
       </Screen>
     );
   }
