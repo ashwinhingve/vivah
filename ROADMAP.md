@@ -217,7 +217,51 @@ Every feature below is **live in code** but **gated OFF** by environment variabl
 
 ## Recent Session History
 
-### 2026-07-22 (current) — Premium UI follow-ups: phase-6 tail cleared
+### 2026-07-29/30 (current) — Navigation redesign (Phase 1) + mobile screen polish (Phase 2)
+
+Overnight autonomous pass on `main`, direct commits (no branch/worktree — see
+shared-working-tree note below). Two phases:
+
+**Phase 1 — navigation chrome** (`feat/nav-ui-phase1`, merged): marketing navbar
+rebuilt with Radix `NavigationMenu` desktop dropdowns (Features/Browse, icon +
+description rows, SEO popular-searches column) and a right-side Sheet drawer
+replacing the old full-screen mobile overlay; logged-in nav gained a
+`splitPrimary` helper capping VENDOR's phone bar at 4 tabs + a "Quick access"
+group in the More sheet (was 7 cramped columns); RN `FloatingTabBar` got a Chat
+unread badge (`useUnreadTotal` hook, no polling — an interval hung jest and
+contradicted the client's metered-data defaults) and a back-affordance audit
+that fixed two stranded utility screens (notifications, settings).
+
+**Phase 2 — mobile screen polish**: a second, independent session was found
+mid-flight on the same working tree, polishing settings/billing/payments/
+bookings/notifications/edit-profile/onboarding to a new "premium" pattern
+(AppHeader, Card-grouped lists, SkeletonRow loading, staggered FadeInUp) — it
+merged `feat/mobile-premium-ui-2` on its own. This session covered the
+remainder: My Profile (was bare LoadingState text + plain Views — now Avatar
+identity block, Card sections, Skeleton loading), Help & Support (Card-grouped
+FAQ), Blocked Users (Avatar rows, SkeletonRow), and light touches on the two
+already-polished auth screens (verify.tsx gained a back button — previously
+only the OS gesture could fix a mistyped phone number) and biometric-unlock
+(entrance animation only — gate logic untouched).
+
+**Also fixed**: horizontal overflow at 375px on the marketing home
+(`TrustSection` panels + `FeaturesGrid`'s left/right `AnimatedSection` entrance
+transforms were unclipped, scrollWidth 407→375 now); `(public)` and `(legal)`
+route groups previously rendered with zero navbar/footer (SEO landing pages,
+`/help`, `/privacy`, `/terms` etc. had no way back to the site) — both groups
+now mount the marketing chrome via a layout wrapper.
+
+**Infra note**: local dev Postgres moved off Docker (Desktop's engine is
+broken — 500s on every command) onto a native WSL2 PG16 cluster; see CLAUDE.md
+"Local dev database" section.
+
+Verification: cold `turbo type-check --force` 13/13; web vitest 36/36 (+3
+nav-config tests); mobile jest 223/223; Playwright sweep at 375/1440 across
+marketing home, an SEO page, /help, /privacy, /hi — zero console errors, zero
+horizontal overflow. Not pushed to origin (~30+ commits ahead of
+`origin/main`) — deploy is a deliberate follow-up decision, not automatic here.
+
+### 2026-07-22 — Premium UI follow-ups: phase-6 tail cleared
 
 Merged PR #7 (phase 6) to main, then cleared all four documented follow-ups on
 `feat/premium-ui-followups`: (1) OnboardingStepper fully i18n'd (async server
