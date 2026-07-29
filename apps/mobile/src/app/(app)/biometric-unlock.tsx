@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, View, Pressable } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authenticate, canUseBiometric, recordUnlock } from '../../lib/biometric';
@@ -107,38 +108,41 @@ export default function BiometricUnlockScreen() {
         {/* Center content */}
         <View className="items-center px-4">
           {/* Icon */}
-          <View
+          <Animated.View
+            entering={FadeIn.duration(400)}
             className="w-16 h-16 rounded-full mb-6 items-center justify-center"
             style={{ backgroundColor: withAlpha(colors.primary, '15') }}
           >
             <Ionicons name="finger-print" size={32} color={colors.primary} />
-          </View>
+          </Animated.View>
 
-          {/* Title */}
-          <Text className="font-heading text-2xl text-primary mb-2 text-center">
-            Unlock Your Account
-          </Text>
+          <Animated.View entering={FadeInDown.delay(120).duration(400)} className="items-center">
+            {/* Title */}
+            <Text className="font-heading text-2xl text-primary mb-2 text-center">
+              Unlock Your Account
+            </Text>
 
-          {/* Subtitle */}
-          <Text className="text-muted text-center text-base mb-8">
-            Use your fingerprint or face to continue
-          </Text>
+            {/* Subtitle */}
+            <Text className="text-muted text-center text-base mb-8">
+              Use your fingerprint or face to continue
+            </Text>
 
-          {/* Error state */}
-          {error ? (
-            <ErrorBanner message={error} className="mb-6" />
-          ) : null}
+            {/* Error state */}
+            {error ? (
+              <ErrorBanner message={error} className="mb-6" />
+            ) : null}
 
-          {/* Unlock button */}
-          <Button
-            title={isLoading ? 'Authenticating...' : 'Unlock'}
-            onPress={handleUnlock}
-            loading={isLoading}
-            disabled={!canUse || isLoading}
-            accessibilityLabel="Biometric unlock"
-            accessibilityHint="Use your fingerprint or face to unlock the app"
-            testID="biometric-unlock-button"
-          />
+            {/* Unlock button */}
+            <Button
+              title={isLoading ? 'Authenticating...' : 'Unlock'}
+              onPress={handleUnlock}
+              loading={isLoading}
+              disabled={!canUse || isLoading}
+              accessibilityLabel="Biometric unlock"
+              accessibilityHint="Use your fingerprint or face to unlock the app"
+              testID="biometric-unlock-button"
+            />
+          </Animated.View>
         </View>
 
         {/* Bottom: Sign out escape hatch */}
