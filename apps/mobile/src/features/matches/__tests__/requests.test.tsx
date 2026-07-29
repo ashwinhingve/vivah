@@ -52,7 +52,8 @@ describe('MatchRequestsScreen', () => {
 
     // The message text can only have come from the mocked response.
     expect(await screen.findByText(/I liked your profile/)).toBeTruthy();
-    expect(screen.getByText('PENDING')).toBeTruthy();
+    // Status enums are humanized for display: PENDING → "Pending".
+    expect(screen.getByText('Pending')).toBeTruthy();
     expect(getReceived).toHaveBeenCalled();
   });
 
