@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -7,13 +7,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { shadowWarm } from '@/theme/shadows';
 
 /**
- * Button — primary/secondary/destructive variants with loading + disabled
- * states, press-scale animation, selection haptic, and a11y built in.
- * Min height 44px (touch target). Colors come from theme tokens only.
+ * Button — brand CTA with loading + disabled states, press-scale spring,
+ * selection haptic, and a11y built in. Min height 44px (touch target).
+ * Variants: primary (burgundy, warm shadow), secondary (teal outline),
+ * destructive, ghost (quiet teal text), ghostDestructive (quiet red text).
  */
-type ButtonVariant = 'primary' | 'secondary' | 'destructive';
+type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'ghostDestructive';
 
 interface ButtonProps {
   title: string;
@@ -21,21 +23,27 @@ interface ButtonProps {
   variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
+  /** Optional leading icon (~18–20px, colored by the caller). */
+  icon?: ReactNode;
   accessibilityLabel?: string;
   accessibilityHint?: string;
   testID?: string;
 }
 
 const containerClass: Record<ButtonVariant, string> = {
-  primary: 'bg-primary',
-  secondary: 'bg-transparent border border-teal',
+  primary: 'bg-primary active:bg-primary-hover',
+  secondary: 'bg-transparent border border-teal active:bg-teal/5',
   destructive: 'bg-destructive',
+  ghost: 'bg-transparent active:bg-teal/5',
+  ghostDestructive: 'bg-transparent active:bg-destructive/5',
 };
 
 const titleClass: Record<ButtonVariant, string> = {
   primary: 'text-on-primary',
   secondary: 'text-teal',
   destructive: 'text-on-primary',
+  ghost: 'text-teal',
+  ghostDestructive: 'text-destructive',
 };
 
 const PRESS_SPRING = { damping: 20, stiffness: 350 };
@@ -46,6 +54,7 @@ export function Button({
   variant = 'primary',
   loading = false,
   disabled = false,
+  icon,
   accessibilityLabel,
   accessibilityHint,
   testID,
@@ -71,10 +80,17 @@ export function Button({
     onPress?.();
   }, [onPress]);
 
-  const spinnerColor = variant === 'secondary' ? colors.teal : colors.onPrimary;
+  const spinnerColor =
+    variant === 'secondary' || variant === 'ghost'
+      ? colors.teal
+      : variant === 'ghostDestructive'
+        ? colors.destructive
+        : colors.onPrimary;
+
+  const elevate = variant === 'primary' && !isDisabled;
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, elevate ? shadowWarm : null]}>
       <Pressable
         onPress={handlePress}
         onPressIn={handlePressIn}
@@ -85,14 +101,17 @@ export function Button({
         accessibilityLabel={accessibilityLabel ?? title}
         accessibilityHint={accessibilityHint}
         accessibilityState={{ disabled: isDisabled, busy: loading }}
-        className={`min-h-11 px-6 rounded-lg flex-row items-center justify-center ${containerClass[variant]} ${isDisabled ? 'opacity-50' : ''}`}
+        className={`min-h-11 px-6 rounded-lg flex-row items-center justify-center gap-2 ${containerClass[variant]} ${isDisabled ? 'opacity-50' : ''}`}
       >
         {loading ? (
           <ActivityIndicator size="small" color={spinnerColor} />
         ) : (
-          <Text className={`text-base font-semibold ${titleClass[variant]}`}>
-            {title}
-          </Text>
+          <>
+            {icon}
+            <Text className={`text-base font-semibold ${titleClass[variant]}`}>
+              {title}
+            </Text>
+          </>
         )}
       </Pressable>
     </Animated.View>

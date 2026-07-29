@@ -19,6 +19,11 @@ interface ScreenProps {
   keyboardAvoiding?: boolean;
   refreshControl?: ReactElement<RefreshControlProps>;
   contentClassName?: string;
+  /**
+   * Reserve space for the floating pill tab bar so scrolled content clears it.
+   * Set on tab-root screens only — pushed detail screens hide the bar.
+   */
+  tabBarInset?: boolean;
 }
 
 export function Screen({
@@ -27,17 +32,19 @@ export function Screen({
   keyboardAvoiding = false,
   refreshControl,
   contentClassName = 'px-6 py-8',
+  tabBarInset = false,
 }: ScreenProps) {
+  const insetClass = tabBarInset ? 'pb-28' : '';
   let body: ReactNode = scroll ? (
     <ScrollView
-      contentContainerClassName={`grow ${contentClassName}`}
+      contentContainerClassName={`grow ${contentClassName} ${insetClass}`}
       keyboardShouldPersistTaps="handled"
       refreshControl={refreshControl}
     >
       {children}
     </ScrollView>
   ) : (
-    <View className={`flex-1 ${contentClassName}`}>{children}</View>
+    <View className={`flex-1 ${contentClassName} ${insetClass}`}>{children}</View>
   );
 
   if (keyboardAvoiding) {

@@ -13,7 +13,7 @@ import {
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_700Bold,
 } from '@expo-google-fonts/playfair-display';
-import { useThemeColors } from '@/hooks/useThemeColors';
+import { ToastProvider } from '@/components/Toast';
 
 import { queryClient } from '../lib/queryClient';
 import { bootDiagnostics } from '../lib/bootDiagnostics';
@@ -34,7 +34,6 @@ const rootStyle = { flex: 1 } as const;
 const FONT_TIMEOUT_MS = 3000;
 
 export default function RootLayout() {
-  const { isDark } = useThemeColors();
   const [fontsLoaded, fontError] = useFonts({
     PlayfairDisplay_600SemiBold,
     PlayfairDisplay_700Bold,
@@ -65,8 +64,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={rootStyle}>
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-          <StatusBar style={isDark ? 'light' : 'dark'} />
+          <ToastProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+            {/* Light-only brand — dark ink icons on warm ivory, always. */}
+            <StatusBar style="dark" />
+          </ToastProvider>
         </SafeAreaProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
