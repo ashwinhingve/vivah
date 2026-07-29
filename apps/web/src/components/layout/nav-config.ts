@@ -111,6 +111,16 @@ const VENDOR_PRIMARY: NavItem[] = [
   { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
 ];
 
+// Phone bottom bar carries at most 4 primary items + More. VENDOR's 7 squeeze
+// into ~45px columns at 360px, so it gets an explicit mobile set; overflow
+// items surface in the More sheet's "Quick access" group (see splitPrimary).
+const VENDOR_PRIMARY_MOBILE: NavItem[] = [
+  { href: '/vendor-dashboard',        labelKey: 'home',     Icon: Home },
+  { href: '/bookings',                labelKey: 'bookings', Icon: Calendar },
+  { href: '/vendor-dashboard/orders', labelKey: 'orders',   Icon: ShoppingCart },
+  { href: '/profile/personal',        labelKey: 'profile',  Icon: User },
+];
+
 const VENDOR_MORE_GROUPS: NavGroup[] = [
   {
     titleKey: 'groupBusiness',
@@ -270,15 +280,34 @@ export function activeNavHref(pathname: string, hrefs: string[]): string | null 
   return best;
 }
 
+// Mobile carries `primaryMobile` when defined; anything in desktop-primary but
+// not in the mobile set is "overflow" and must resurface in the More sheet.
+export function splitPrimary(
+  primary: NavItem[],
+  primaryMobile?: NavItem[],
+): { mobile: NavItem[]; overflow: NavItem[] } {
+  if (!primaryMobile || primaryMobile.length === 0) return { mobile: primary, overflow: [] };
+  const mobileHrefs = new Set(primaryMobile.map((i) => i.href));
+  return { mobile: primaryMobile, overflow: primary.filter((i) => !mobileHrefs.has(i.href)) };
+}
+
 // ── Selector — single source of truth shared by AppNav + TopNav ────────────────
-export function navForRole(role: string): { primary: NavItem[]; moreGroups: NavGroup[] } {
+export function navForRole(role: string): {
+  primary: NavItem[];
+  primaryMobile?: NavItem[];
+  moreGroups: NavGroup[];
+} {
   switch (role as UserRole) {
     case 'ADMIN':
       return { primary: ADMIN_PRIMARY, moreGroups: ADMIN_MORE_GROUPS };
     case 'SUPPORT':
       return { primary: SUPPORT_PRIMARY, moreGroups: SUPPORT_MORE_GROUPS };
     case 'VENDOR':
-      return { primary: VENDOR_PRIMARY, moreGroups: VENDOR_MORE_GROUPS };
+      return {
+        primary: VENDOR_PRIMARY,
+        primaryMobile: VENDOR_PRIMARY_MOBILE,
+        moreGroups: VENDOR_MORE_GROUPS,
+      };
     case 'FAMILY_MEMBER':
       return { primary: FAMILY_MEMBER_PRIMARY, moreGroups: FAMILY_MEMBER_MORE_GROUPS };
     case 'EVENT_COORDINATOR':
