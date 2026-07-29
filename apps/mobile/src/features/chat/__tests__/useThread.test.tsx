@@ -142,7 +142,7 @@ describe('ChatThreadScreen', () => {
       screen.getByPlaceholderText('Type a message...'),
       'Bahut accha',
     );
-    await fireEvent.press(screen.getByText('→'));
+    await fireEvent.press(screen.getByLabelText('Send message'));
 
     await waitFor(() => {
       // Payload key is `matchRequestId`, matching the server's socket contract

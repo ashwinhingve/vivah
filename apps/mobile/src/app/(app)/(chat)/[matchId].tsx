@@ -4,34 +4,43 @@ import {
   Text,
   TextInput,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { Check, CheckCheck, ChevronLeft, Send } from 'lucide-react-native';
 import { Screen } from '../../../components/Screen';
-import { LoadingState, ErrorState } from '../../../components/States';
+import { Avatar } from '../../../components/Avatar';
+import { SkeletonRow } from '../../../components/Skeleton';
+import { ErrorState } from '../../../components/States';
 import { useThread } from '../../../features/chat/useThread';
 import { useSession } from '../../../hooks/useSession';
-import { tokens } from '../../../theme/tokens';
+import { tokens, withAlpha } from '../../../theme/tokens';
+import { MEDIA_BASE_URL } from '../../../lib/env';
 import type { ChatMessage } from '@smartshaadi/types';
 import { useState, useEffect, useRef } from 'react';
 
 /**
  * Chat thread screen — Track C.
  * Displays messages in realtime with:
+ * - Slim identity header (avatar + name from route params, connection state)
  * - Inverted FlatList (newest at bottom, auto-scroll)
- * - Message bubbles (own vs other)
- * - Read receipts, delivery state
- * - Composer with send
- * - Typing indicator
- * - Socket connection status
+ * - Brand message bubbles (own = burgundy, other = surface + gold hairline)
+ * - Day separator chips between calendar days
+ * - Read receipts as check icons, delivery state
+ * - Rounded composer with circular send button
  */
 export default function ChatThreadScreen() {
-  const { matchId } = useLocalSearchParams<{ matchId: string }>();
+  const { matchId, name, photoKey } = useLocalSearchParams<{
+    matchId: string;
+    name?: string;
+    photoKey?: string;
+  }>();
+  const router = useRouter();
   const { data: session } = useSession();
   const [messageContent, setMessageContent] = useState('');
   const [sending, setSending] = useState(false);
+  const [composerFocused, setComposerFocused] = useState(false);
 
   const {
     messages,
@@ -44,6 +53,8 @@ export default function ChatThreadScreen() {
   } = useThread(matchId || '');
 
   const flatListRef = useRef<FlatList>(null);
+
+  const participantName = name || 'Chat';
 
   // The signed-in user's id, used to tell own messages from the other party's.
   // Read reactively from the session (not stashed in a ref) so that when the
@@ -72,47 +83,63 @@ export default function ChatThreadScreen() {
     setSending(false);
   };
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
+  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isOwn = item.senderId === currentUserId;
     const isDeleted = !!item.deletedAt;
+    // Inverted list: index + 1 is the OLDER neighbour. When the calendar day
+    // changes against it, this message opens a new day — render a chip above.
+    const older = messages[index + 1];
+    const showDayChip = !older || dayKey(older.sentAt) !== dayKey(item.sentAt);
 
     return (
-      <View
-        className={`px-4 py-2 ${isOwn ? 'items-end' : 'items-start'}`}
-      >
-        <View
-          className={`max-w-xs px-3 py-2 rounded-lg ${
-            isOwn
-              ? 'bg-primary rounded-br-none'
-              : 'bg-gold/10 rounded-bl-none'
-          }`}
+      <View className="px-4 py-1">
+        {showDayChip && (
+          <View className="items-center py-3">
+            <View className="rounded-full bg-gold/10 px-3 py-1">
+              <Text className="text-2xs font-semibold uppercase text-gold-muted">
+                {formatDay(item.sentAt)}
+              </Text>
+            </View>
+          </View>
+        )}
+        <Animated.View
+          entering={FadeInUp.duration(200)}
+          className={isOwn ? 'items-end' : 'items-start'}
         >
-          <Text
-            className={`text-base ${
-              isOwn ? 'text-white' : 'text-ink'
+          <View
+            className={`px-3.5 py-2.5 rounded-2xl ${
+              isOwn
+                ? 'bg-primary rounded-br-md'
+                : 'bg-surface border border-gold/30 rounded-bl-md'
             }`}
-            selectable
+            style={{ maxWidth: '80%' }}
           >
-            {isDeleted ? '[deleted]' : item.content}
-          </Text>
-
-          {/* Timestamp and read status */}
-          <View className="flex-row gap-1 mt-1 items-center">
             <Text
-              className={`text-xs ${
-                isOwn ? 'text-white/70' : 'text-muted'
-              }`}
+              className={
+                isDeleted
+                  ? `text-base italic ${isOwn ? 'text-white/70' : 'text-muted'}`
+                  : `text-base ${isOwn ? 'text-white' : 'text-ink'}`
+              }
+              selectable
             >
-              {formatTime(item.sentAt)}
+              {isDeleted ? 'Message deleted' : item.content}
             </Text>
 
-            {isOwn && (
-              <Text className="text-xs text-white/70">
-                {item.readBy?.length > 0 ? '✓✓' : item.deliveredTo?.length > 0 ? '✓' : ''}
+            {/* Timestamp and read status */}
+            <View className="flex-row gap-1 mt-1 items-center self-end">
+              <Text className={`text-xs ${isOwn ? 'text-white/70' : 'text-muted'}`}>
+                {formatTime(item.sentAt)}
               </Text>
-            )}
+
+              {isOwn &&
+                (item.readBy?.length > 0 ? (
+                  <CheckCheck size={14} color={tokens.peach} />
+                ) : item.deliveredTo?.length > 0 ? (
+                  <Check size={14} color="rgba(255,255,255,0.7)" />
+                ) : null)}
+            </View>
           </View>
-        </View>
+        </Animated.View>
       </View>
     );
   };
@@ -125,35 +152,64 @@ export default function ChatThreadScreen() {
     );
   }
 
+  const header = (
+    <View className="flex-row items-center gap-3 border-b border-gold/20 bg-surface px-4 py-2.5">
+      <Pressable
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+        hitSlop={4}
+        className="h-10 w-10 items-center justify-center rounded-full active:bg-gold/10"
+      >
+        <ChevronLeft size={24} color={tokens.primary} />
+      </Pressable>
+      <Avatar
+        uri={photoKey ? `${MEDIA_BASE_URL}/${photoKey}` : undefined}
+        name={participantName}
+        size="sm"
+      />
+      <View className="flex-1">
+        <Text className="font-heading text-lg text-primary" numberOfLines={1}>
+          {participantName}
+        </Text>
+        {socketStatus !== 'connected' && (
+          <Text className="text-xs font-medium text-warning">
+            {socketStatus === 'connecting' ? 'Connecting…' : 'Reconnecting…'}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+
   if (loading && messages.length === 0) {
     return (
-      <Screen>
-        <LoadingState label="Loading chat..." />
+      <Screen scroll={false} contentClassName="px-0 py-0">
+        {header}
+        <View className="pt-4">
+          <SkeletonRow />
+          <SkeletonRow />
+          <SkeletonRow />
+        </View>
       </Screen>
     );
   }
 
   if (error) {
     return (
-      <Screen>
-        <ErrorState error={error} onRetry={retry} />
+      <Screen scroll={false} contentClassName="px-0 py-0">
+        {header}
+        <View className="flex-1 px-6">
+          <ErrorState error={error} onRetry={retry} />
+        </View>
       </Screen>
     );
   }
 
+  const canSend = !sending && !!messageContent.trim() && socketStatus === 'connected';
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-background"
-    >
-      {/* Connection status indicator */}
-      {socketStatus !== 'connected' && (
-        <View className="bg-warning px-4 py-2">
-          <Text className="text-white text-xs text-center">
-            {socketStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
-          </Text>
-        </View>
-      )}
+    <Screen scroll={false} keyboardAvoiding contentClassName="px-0 py-0">
+      {header}
 
       {/* Messages list (inverted) */}
       <View className="flex-1">
@@ -165,21 +221,21 @@ export default function ChatThreadScreen() {
           inverted
           onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
           contentContainerStyle={{ paddingVertical: 12 }}
-          className="px-2"
         />
       </View>
 
       {/* Composer */}
-      <View
-        className="px-4 py-3 border-t border-gold/20 flex-row items-center gap-2"
-        style={{ backgroundColor: tokens.surface }}
-      >
+      <View className="flex-row items-end gap-2 border-t border-gold/20 bg-surface px-4 py-3">
         <TextInput
           value={messageContent}
           onChangeText={setMessageContent}
+          onFocus={() => setComposerFocused(true)}
+          onBlur={() => setComposerFocused(false)}
           placeholder="Type a message..."
           placeholderTextColor={tokens.muted}
-          className="flex-1 h-10 px-3 rounded-lg border border-gold/40 text-ink"
+          className={`flex-1 min-h-11 max-h-28 rounded-3xl border bg-background px-4 py-2.5 text-base text-ink ${
+            composerFocused ? 'border-teal' : 'border-gold/40'
+          }`}
           editable={!sending && socketStatus === 'connected'}
           maxLength={4000}
           multiline
@@ -187,23 +243,23 @@ export default function ChatThreadScreen() {
 
         <Pressable
           onPress={handleSendMessage}
-          disabled={sending || !messageContent.trim() || socketStatus !== 'connected'}
-          className="h-10 w-10 rounded-lg items-center justify-center"
+          disabled={!canSend}
+          accessibilityRole="button"
+          accessibilityLabel="Send message"
+          accessibilityState={{ disabled: !canSend }}
+          className="h-11 w-11 items-center justify-center rounded-full active:opacity-80"
           style={{
-            backgroundColor:
-              sending || !messageContent.trim() || socketStatus !== 'connected'
-                ? tokens.gold + '40'
-                : tokens.primary,
+            backgroundColor: canSend ? tokens.primary : withAlpha(tokens.gold, '40'),
           }}
         >
           {sending ? (
-            <ActivityIndicator size="small" color={tokens.surface} />
+            <ActivityIndicator size="small" color={tokens.onPrimary} />
           ) : (
-            <Text className="text-lg">→</Text>
+            <Send size={18} color={tokens.onPrimary} style={{ marginLeft: -2, marginTop: 1 }} />
           )}
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
@@ -216,4 +272,20 @@ function formatTime(isoString: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+/** Calendar-day key for day-separator comparison. */
+function dayKey(isoString: string): string {
+  return new Date(isoString).toDateString();
+}
+
+/** "Today", "Yesterday", or "Mon, Jan 15" for the day separator chip. */
+function formatDay(isoString: string): string {
+  const date = new Date(isoString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (date.toDateString() === today.toDateString()) return 'Today';
+  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
