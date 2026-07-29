@@ -1,5 +1,5 @@
 import { useEffect, useState, type ComponentProps, type ComponentType } from 'react';
-import { Keyboard, Platform, Pressable, View } from 'react-native';
+import { Keyboard, Platform, Pressable, Text, View } from 'react-native';
 import type { Tabs } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -13,6 +13,7 @@ import * as Haptics from 'expo-haptics';
 import { Heart, Menu, MessageCircle, Store, User, type LucideProps } from 'lucide-react-native';
 import { tokens } from '@/theme/tokens';
 import { shadowWarmLg } from '@/theme/shadows';
+import { useUnreadTotal } from '@/features/chat/useUnreadTotal';
 
 /**
  * FloatingTabBar — the app's floating pill navigation. A detached rounded-full
@@ -51,6 +52,7 @@ type BottomTabBarProps = Parameters<
 
 export function FloatingTabBar({ state, navigation, insets }: BottomTabBarProps) {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const unreadTotal = useUnreadTotal();
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -129,6 +131,17 @@ export function FloatingTabBar({ state, navigation, insets }: BottomTabBarProps)
                   color={isFocused ? tokens.onPrimary : tokens.goldMuted}
                   strokeWidth={isFocused ? 2.4 : 2}
                 />
+                {route.name === '(chat)' && !isFocused && unreadTotal > 0 ? (
+                  <View
+                    testID="chat-unread-badge"
+                    pointerEvents="none"
+                    className="absolute right-1 top-1 h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-surface bg-primary px-1"
+                  >
+                    <Text className="text-[10px] font-bold text-on-primary">
+                      {unreadTotal > 99 ? '99+' : String(unreadTotal)}
+                    </Text>
+                  </View>
+                ) : null}
                 {isFocused ? (
                   <Animated.Text
                     entering={FadeIn.delay(80).duration(160)}

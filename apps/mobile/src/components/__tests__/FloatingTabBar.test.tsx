@@ -5,6 +5,11 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { FloatingTabBar } from '../FloatingTabBar';
+import { useUnreadTotal } from '../../features/chat/useUnreadTotal';
+
+jest.mock('../../features/chat/useUnreadTotal', () => ({
+  useUnreadTotal: jest.fn(() => 0),
+}));
 
 type TabBarProps = Parameters<typeof FloatingTabBar>[0];
 
@@ -63,5 +68,34 @@ describe('FloatingTabBar', () => {
       expect.objectContaining({ type: 'tabPress', target: '(chat)-key' }),
     );
     expect(navigation.navigate).toHaveBeenCalledWith('(chat)', undefined);
+  });
+
+  it('shows the unread badge on the Chat tab when there are unread messages', async () => {
+    (useUnreadTotal as jest.Mock).mockReturnValue(3);
+    await render(<FloatingTabBar {...makeProps({ index: 0 })} />);
+
+    expect(screen.getByTestId('chat-unread-badge')).toBeTruthy();
+    expect(screen.getByText('3')).toBeTruthy();
+  });
+
+  it('caps the badge label at 99+', async () => {
+    (useUnreadTotal as jest.Mock).mockReturnValue(140);
+    await render(<FloatingTabBar {...makeProps({ index: 0 })} />);
+
+    expect(screen.getByText('99+')).toBeTruthy();
+  });
+
+  it('hides the badge when there are no unreads', async () => {
+    (useUnreadTotal as jest.Mock).mockReturnValue(0);
+    await render(<FloatingTabBar {...makeProps({ index: 0 })} />);
+
+    expect(screen.queryByTestId('chat-unread-badge')).toBeNull();
+  });
+
+  it('hides the badge while the Chat tab is focused', async () => {
+    (useUnreadTotal as jest.Mock).mockReturnValue(3);
+    await render(<FloatingTabBar {...makeProps({ index: 1 })} />); // (chat) is index 1
+
+    expect(screen.queryByTestId('chat-unread-badge')).toBeNull();
   });
 });
