@@ -1,10 +1,13 @@
 import { useCallback } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Alert, Text, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { AppHeader } from '../../components/AppHeader';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
-import { EmptyState, ErrorState, LoadingState } from '../../components/States';
-import { useThemeColors } from '../../hooks/useThemeColors';
+import { Card } from '../../components/Card';
+import { Avatar } from '../../components/Avatar';
+import { SkeletonRow } from '../../components/Skeleton';
+import { EmptyState, ErrorState } from '../../components/States';
 import { formatDate } from '../../lib/format';
 import {
   useBlockedUsers,
@@ -18,9 +21,6 @@ import {
  * the opposite of a safety action, so a stray tap should not undo one silently.
  */
 export default function BlockedUsersScreen() {
-  const router = useRouter();
-  const { colors } = useThemeColors();
-
   const { data, error, isError, isLoading, refetch } = useBlockedUsers();
   const unblock = useUnblockProfile();
 
@@ -43,25 +43,17 @@ export default function BlockedUsersScreen() {
   );
 
   // Rendered in every state — this is a pushed route with no tab bar behind it.
-  const backLink = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back to settings"
-      onPress={() => router.back()}
-      className="mb-4"
-      style={{ minHeight: 44, justifyContent: 'center' }}
-    >
-      <Text className="text-sm" style={{ color: colors.teal }}>
-        ← Settings
-      </Text>
-    </Pressable>
-  );
+  const header = <AppHeader title="Blocked Users" showBack />;
 
   if (isLoading) {
     return (
       <Screen>
-        {backLink}
-        <LoadingState label="Loading blocked users…" />
+        {header}
+        <Card className="p-0 overflow-hidden">
+          {[0, 1, 2].map((i) => (
+            <SkeletonRow key={i} />
+          ))}
+        </Card>
       </Screen>
     );
   }
@@ -69,7 +61,7 @@ export default function BlockedUsersScreen() {
   if (isError) {
     return (
       <Screen>
-        {backLink}
+        {header}
         <ErrorState error={error} onRetry={() => void refetch()} />
       </Screen>
     );
@@ -80,7 +72,7 @@ export default function BlockedUsersScreen() {
   if (blocks.length === 0) {
     return (
       <Screen>
-        {backLink}
+        {header}
         <EmptyState
           title="No blocked users"
           message="Profiles you block will appear here. You can unblock them at any time."
@@ -91,19 +83,20 @@ export default function BlockedUsersScreen() {
 
   return (
     <Screen scroll>
-      {backLink}
+      {header}
 
-      <Text className="font-heading text-2xl text-primary mb-6">
-        Blocked Users
-      </Text>
+      <Card className="p-0 overflow-hidden">
+        {blocks.map((block, index) => (
+          <Animated.View
+            key={block.blockId}
+            entering={FadeInUp.delay(Math.min(index, 8) * 40).duration(250)}
+            className={`flex-row items-center gap-3 px-4 py-3.5 ${
+              index < blocks.length - 1 ? 'border-b border-gold/15' : ''
+            }`}
+          >
+            <Avatar uri={null} name={block.name ?? 'Smart Shaadi member'} size="md" />
 
-      {blocks.map((block) => (
-        <View
-          key={block.blockId}
-          className="bg-surface border border-gold/20 rounded-xl p-4 mb-3"
-        >
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1 pr-3">
+            <View className="flex-1 pr-2">
               <Text className="font-semibold text-ink">
                 {block.name ?? 'Smart Shaadi member'}
               </Text>
@@ -118,6 +111,7 @@ export default function BlockedUsersScreen() {
                 </Text>
               ) : null}
             </View>
+
             <View className="w-28">
               <Button
                 title="Unblock"
@@ -129,9 +123,9 @@ export default function BlockedUsersScreen() {
                 accessibilityLabel={`Unblock ${block.name ?? 'this member'}`}
               />
             </View>
-          </View>
-        </View>
-      ))}
+          </Animated.View>
+        ))}
+      </Card>
     </Screen>
   );
 }
