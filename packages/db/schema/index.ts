@@ -1773,3 +1773,6 @@ export const platformSettings = pgTable('platform_settings', {
   updatedAt:  timestamp('updated_at').notNull().defaultNow(),
   updatedBy:  text('updated_by').references(() => user.id),
 });
+
+// ── Assistant knowledge base (RAG over website content, migration 0042) ──────
+export { knowledgeChunks, type KnowledgeSourceType } from './knowledgeBase';

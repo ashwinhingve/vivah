@@ -17,6 +17,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1029.0",
     "@better-auth/expo": "1.6.2",
     "@sentry/node": "^9",
+    "@smartshaadi/content": "workspace:*",
     "@smartshaadi/db": "workspace:*",
     "@smartshaadi/schemas": "workspace:*",
     "@smartshaadi/types": "workspace:*",

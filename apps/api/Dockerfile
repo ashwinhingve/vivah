@@ -16,6 +16,7 @@ COPY tsconfig.base.json ./
 COPY packages/types/package.json ./packages/types/
 COPY packages/schemas/package.json ./packages/schemas/
 COPY packages/db/package.json ./packages/db/
+COPY packages/content/package.json ./packages/content/
 COPY apps/api/package.json ./apps/api/
 
 # Install all dependencies
@@ -25,12 +26,14 @@ RUN pnpm install --frozen-lockfile
 COPY packages/types/ ./packages/types/
 COPY packages/schemas/ ./packages/schemas/
 COPY packages/db/ ./packages/db/
+COPY packages/content/ ./packages/content/
 COPY apps/api/ ./apps/api/
 
 # Build shared packages first, then API
 RUN pnpm --filter @smartshaadi/types build
 RUN pnpm --filter @smartshaadi/schemas build
 RUN pnpm --filter @smartshaadi/db build
+RUN pnpm --filter @smartshaadi/content build
 RUN pnpm --filter @smartshaadi/api build
 
 # ── Stage 2: Runner ──────────────────────────────────────────
@@ -48,6 +51,7 @@ COPY pnpm-lock.yaml ./
 COPY packages/types/package.json ./packages/types/
 COPY packages/schemas/package.json ./packages/schemas/
 COPY packages/db/package.json ./packages/db/
+COPY packages/content/package.json ./packages/content/
 COPY apps/api/package.json ./apps/api/
 
 # Install production dependencies only
@@ -57,6 +61,7 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/packages/types/dist ./packages/types/dist
 COPY --from=builder /app/packages/schemas/dist ./packages/schemas/dist
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/content/dist ./packages/content/dist
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Set production environment
