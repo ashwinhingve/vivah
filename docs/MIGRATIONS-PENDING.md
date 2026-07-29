@@ -254,16 +254,21 @@ from PowerShell — idempotent (run 1 = 190 inserted, run 2 = 0). Data only, no 
 > **⚠️ SCHEMA FROZEN AT 0040** — operator directive 2026-07-26. Migration 0041 is
 > enum-only (forward-only, cannot rollback per Postgres semantics).
 >
-> **Apply-state NOT confirmed on prod.** The `__drizzle_migrations` ledger on prod
-> was baseline-seeded only through `0029` on 2026-06-07. Migrations `0030–0041`
-> exist in `packages/db/migrations/*.sql` and have been applied to local dev, but
-> **operator verification against prod's current `__drizzle_migrations` table is
-> required before next rollout.** See `docs/db/journal-drift.md` for the 0030/0031
-> hand-authored background; `0032–0041` followed the same pattern (bypass
-> `drizzle-kit generate`, apply via Railway SQL console or psql).
+> **✅ APPLY-STATE VERIFIED ON PROD 2026-07-29** (psql from WSL against Railway,
+> PG 18.3). Every object from `0030–0041` was already present live — pgvector +
+> `vector(768)` + HNSW index, all tables/indexes/columns, and the three 0041 enum
+> values. Files `0031–0041` were re-run with `ON_ERROR_STOP=1` as an idempotence
+> check: all no-oped except 0038's guarded `vendors.city_id` backfill, which
+> linked 12 vendors that were still NULL (designed behaviour; pre-state snapshot
+> + `rollback-0038-vendors-backfill.sql` kept in `~/prod-snapshots-2026-07-29/`).
+> 0030 was not re-run (fully applied; a re-run would only churn the HNSW index).
+> The prod `__drizzle_migrations` ledger was then seeded through `0041` via
+> `scripts/db/reconcile-ledger-0030-0041-2026-07-29.sql` → **42 rows, high-water
+> 0041** (local dev DB seeded identically). File-side meta (journal + snapshots)
+> still stops at 0029 — see `docs/db/journal-drift.md` before any
+> `drizzle-kit generate`.
 >
-> All **0030–0040 are additive + idempotent**. Can be applied via Railway SQL
-> console or `psql` with `ON_ERROR_STOP=1`. **0041 is forward-only** (adds enum
+> All **0030–0040 are additive + idempotent**. **0041 is forward-only** (adds enum
 > values; Postgres does not support dropping enum values).
 
 ### 0030 — pgvector embedding resize (768-dim)
