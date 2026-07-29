@@ -10,6 +10,7 @@ import Testimonials from '@/components/marketing/Testimonials';
 import Pricing from '@/components/marketing/Pricing';
 import CtaBanner from '@/components/marketing/CtaBanner';
 import Footer from '@/components/marketing/Footer';
+import { HashScrollOnLoad } from '@/components/marketing/HashScrollOnLoad.client';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 
 const isDemoMode = process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true';
@@ -51,6 +52,7 @@ export default function LandingPage() {
   return (
     <>
       <Navbar />
+      <HashScrollOnLoad />
       {/* No top padding: the hero's floral backdrop flows under the floating navbar */}
       <main id="main-content">
         <Hero />
