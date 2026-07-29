@@ -14,7 +14,16 @@ Blocker:  External: Razorpay live account, MSG91 DLT approval, DigiLocker partne
           legal sign-off. Engineering: staging SLO calibration (real traffic needed).
 Features: 80 placeholder supply rows + fictional venue details (is_placeholder=true) 
           block booking/payment until partner onboarding swaps them to real.
-Last updated: 2026-07-19
+Recent:   Smart Shaadi Assistant production upgrade (2026-07-29, branch
+          feat/smart-shaadi-assistant-rag): website-knowledge RAG (pgvector
+          knowledge_chunks, migration 0042; @smartshaadi/content committed
+          snapshot; nightly + event-driven indexing), search_knowledge tool +
+          grounded prompt v3, chat-history UI (list/resume/delete, auto-resume),
+          page-context awareness. Verified end-to-end in browser on the live
+          local stack (Gemini). Staging needs: apply 0042 via Railway SQL
+          console, run reindex-knowledge backfill, fix ai-service MONGODB_URI
+          credentials (writes were silently failing with auth errors).
+Last updated: 2026-07-29
 ```
 
 ---
