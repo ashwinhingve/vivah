@@ -11,11 +11,12 @@
  * Tool names must stay in lockstep with the Python catalog
  * (apps/ai-service/src/services/assistant_tools.py).
  */
-import { or, eq, desc } from 'drizzle-orm';
+import { or, eq, desc, sql, isNotNull, inArray, and, cosineDistance } from 'drizzle-orm';
 import { z } from 'zod';
-import { matchScores } from '@smartshaadi/db';
+import { matchScores, knowledgeChunks, type KnowledgeSourceType } from '@smartshaadi/db';
 import { asProfileId, type ProfileId } from '@smartshaadi/types';
 import { db } from '../lib/db.js';
+import { callAiService } from '../lib/ai.js';
 import { getMyProfile, type ProfileResponse } from '../profiles/service.js';
 import {
   getReceivedRequests,
@@ -36,6 +37,16 @@ import { findSimilarMatches } from '../matchmaking/semanticSearch.js';
 /** Semantic search is gated — default off. Flip ASSISTANT_SEMANTIC_SEARCH_ENABLED=true to enable. */
 function isSemanticEnabled(): boolean {
   return (process.env['ASSISTANT_SEMANTIC_SEARCH_ENABLED'] ?? '').toLowerCase() === 'true';
+}
+
+/** Knowledge-base search — default ON; set ASSISTANT_KNOWLEDGE_ENABLED=false to kill-switch. */
+function isKnowledgeEnabled(): boolean {
+  return (process.env['ASSISTANT_KNOWLEDGE_ENABLED'] ?? 'true').toLowerCase() !== 'false';
+}
+
+function envInt(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 export interface ToolContext {
@@ -234,6 +245,67 @@ export const ASSISTANT_TOOLS: Record<string, ToolRunner> = {
     async ({ limit }, { userId }) => {
       if (!isSemanticEnabled()) return { error: 'not_enabled' };
       return findSimilarMatches(userId, limit ?? 5);
+    },
+  ),
+
+  search_knowledge: tool(
+    z
+      .object({
+        query: z.string().trim().min(2).max(500),
+        source_types: z
+          .array(z.enum(['i18n_page', 'seo_page', 'vendor', 'faq', 'legal', 'plan_pricing']))
+          .max(6)
+          .optional(),
+      })
+      .strip(),
+    async ({ query, source_types }) => {
+      // Global public content — deliberately NOT per-user (see knowledgeBase.ts).
+      if (!isKnowledgeEnabled()) return { error: 'not_enabled' };
+
+      const embRes = await callAiService<{
+        embeddings?: number[][];
+        available?: boolean;
+      }>('/ai/embedding/batch', { texts: [query] });
+      const queryVec = embRes.embeddings?.[0];
+      if (!embRes.available || !queryVec || queryVec.length !== 768) {
+        return { error: 'search_unavailable' };
+      }
+
+      const maxResults = envInt('KNOWLEDGE_MAX_RESULTS', 6);
+      const minSimilarity = Number.parseFloat(process.env['KNOWLEDGE_MIN_SIMILARITY'] ?? '0.3');
+      const similarity = sql<number>`1 - (${cosineDistance(knowledgeChunks.embedding, queryVec)})`;
+
+      const filters = [isNotNull(knowledgeChunks.embedding)];
+      if (source_types?.length) {
+        filters.push(inArray(knowledgeChunks.sourceType, source_types as KnowledgeSourceType[]));
+      }
+
+      const rows = await db
+        .select({
+          title: knowledgeChunks.title,
+          url: knowledgeChunks.url,
+          content: knowledgeChunks.content,
+          sourceType: knowledgeChunks.sourceType,
+          locale: knowledgeChunks.locale,
+          similarity,
+        })
+        .from(knowledgeChunks)
+        .where(and(...filters))
+        .orderBy(desc(similarity))
+        .limit(maxResults);
+
+      const results = rows
+        .filter((r) => r.similarity >= minSimilarity)
+        .map((r) => ({
+          title: r.title,
+          url: r.url,
+          snippet: r.content.length > 600 ? `${r.content.slice(0, 600)}…` : r.content,
+          source_type: r.sourceType,
+          locale: r.locale,
+          similarity: Math.round(r.similarity * 100) / 100,
+        }));
+
+      return { count: results.length, results };
     },
   ),
 };

@@ -206,9 +206,54 @@ def _semantic_enabled() -> bool:
     return os.getenv("ASSISTANT_SEMANTIC_SEARCH_ENABLED", "false").strip().lower() == "true"
 
 
+# Knowledge-base RAG search over public website content (i18n pages, SEO pages,
+# FAQ, legal, vendors, plan pricing) — pgvector-backed via the Node api. This is
+# how the assistant grounds platform/feature/pricing answers in real site
+# content instead of the base model's guesses. Default ON; kill-switch via
+# ASSISTANT_KNOWLEDGE_ENABLED=false.
+_KNOWLEDGE_TOOL: dict[str, Any] = {
+    "name": "search_knowledge",
+    "description": (
+        "Search Smart Shaadi's own knowledge base (platform features, how-it-works, "
+        "pricing and subscription plans, policies/legal, FAQ, vendor listings, city/"
+        "community pages). Returns the most relevant content chunks with their page "
+        "URLs. Use for ANY question about the platform itself — 'how does X work', "
+        "'what does premium cost', 'refund policy', 'photographers in Bhopal' — and "
+        "answer ONLY from what it returns, citing the URL."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The user's question or search phrase, in their own language.",
+            },
+            "source_types": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": ["i18n_page", "seo_page", "vendor", "faq", "legal", "plan_pricing"],
+                },
+                "description": (
+                    "Optional filter to specific content kinds (e.g. ['plan_pricing'] for "
+                    "cost questions, ['vendor'] for vendor lookups). Omit to search everything."
+                ),
+            },
+        },
+        "required": ["query"],
+    },
+}
+
+
+def _knowledge_enabled() -> bool:
+    return os.getenv("ASSISTANT_KNOWLEDGE_ENABLED", "true").strip().lower() != "false"
+
+
 def get_tool_schemas() -> list[dict[str, Any]]:
-    """Return the active tool catalog (semantic tool included only when enabled)."""
+    """Return the active tool catalog (gated tools included only when enabled)."""
     tools = list(_CORE_TOOLS)
+    if _knowledge_enabled():
+        tools.append(_KNOWLEDGE_TOOL)
     if _semantic_enabled():
         tools.append(_SEMANTIC_TOOL)
     return tools

@@ -145,6 +145,9 @@ const TOOL_CACHE_TTL: Record<string, number> = {
   get_wedding_tasks: 30,
   get_wedding_ceremonies: 60,
   suggest_muhurat_dates: 300,
+  // Public website content changes on git deploys / nightly reindex — cache
+  // aggressively. (Cache key still includes profileId by convention.)
+  search_knowledge: 300,
 };
 
 // Backstop rate limit protecting against a runaway ai-service loop. The primary
