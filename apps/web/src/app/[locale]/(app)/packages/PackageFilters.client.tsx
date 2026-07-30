@@ -156,7 +156,7 @@ export function PackageFilters({ facets }: Props) {
             // onBlur, not onChange: firing per keystroke would push a history
             // entry and a server round-trip for every digit typed.
             onBlur={(e) => setParam('capacity', e.currentTarget.value)}
-            className="mt-1 h-11 w-full rounded-lg border border-gold/40 bg-background px-3 text-primary placeholder:text-muted focus:border-teal focus:outline-none"
+            className="mt-1 h-11 w-full rounded-lg border border-gold/40 bg-background px-3 text-primary placeholder:text-muted-foreground focus:border-teal focus:outline-none"
           />
         </div>
 

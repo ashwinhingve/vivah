@@ -82,13 +82,13 @@ export async function ServiceCard({ service }: { service: PostMarriageServiceWit
       </p>
 
       {service.description && (
-        <p className="mt-3 line-clamp-3 text-sm text-muted">{service.description}</p>
+        <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{service.description}</p>
       )}
 
       <div className="mt-auto flex items-end justify-between pt-4">
         <div>
           <p className="font-heading text-lg text-primary">{priceLabel}</p>
-          {unitSuffix && <p className="text-xs text-muted">{unitSuffix}</p>}
+          {unitSuffix && <p className="text-xs text-muted-foreground">{unitSuffix}</p>}
         </div>
         <span className="flex items-center gap-1 text-sm text-gold-muted">
           <Star className="h-4 w-4 fill-gold text-gold" aria-hidden="true" />

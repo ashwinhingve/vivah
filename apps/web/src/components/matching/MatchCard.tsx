@@ -116,7 +116,7 @@ export function MatchCard(props: Props) {
             {name}
             {ageLabel ? <span className={`font-normal ${hasPhoto ? 'text-white/90' : 'text-text'}`}>{ageLabel}</span> : null}
           </p>
-          <p className={`truncate text-xs ${hasPhoto ? 'text-white/80' : 'text-muted'}`}>{city}</p>
+          <p className={`truncate text-xs ${hasPhoto ? 'text-white/80' : 'text-muted-foreground'}`}>{city}</p>
         </div>
 
         {isVerified ? (

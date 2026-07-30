@@ -134,17 +134,17 @@ export function CityDetail({ density }: { density: CityDensityReport }) {
         {!isEditing ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">{t('editForm.status')}</span>
+              <span className="text-sm text-muted-foreground">{t('editForm.status')}</span>
               <Badge className={STATUS_COLORS[density.city.status]}>
                 {STATUS_LABELS[density.city.status]}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">{t('editForm.targetVendors')}</span>
+              <span className="text-sm text-muted-foreground">{t('editForm.targetVendors')}</span>
               <span className="font-medium text-primary">{density.city.targetVendorsPerCategory}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">{t('editForm.displayOrder')}</span>
+              <span className="text-sm text-muted-foreground">{t('editForm.displayOrder')}</span>
               <span className="font-medium text-primary">{density.city.displayOrder}</span>
             </div>
             <div className="pt-2">
@@ -160,7 +160,7 @@ export function CityDetail({ density }: { density: CityDensityReport }) {
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted">{t('editForm.status')}</label>
+              <label className="text-xs font-medium text-muted-foreground">{t('editForm.status')}</label>
               <select
                 value={formData.status}
                 onChange={(e) =>
@@ -175,7 +175,7 @@ export function CityDetail({ density }: { density: CityDensityReport }) {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-muted">
+              <label className="text-xs font-medium text-muted-foreground">
                 {t('editForm.targetVendors')}
               </label>
               <Input
@@ -194,7 +194,7 @@ export function CityDetail({ density }: { density: CityDensityReport }) {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-muted">{t('editForm.displayOrder')}</label>
+              <label className="text-xs font-medium text-muted-foreground">{t('editForm.displayOrder')}</label>
               <Input
                 type="number"
                 min="0"

@@ -44,7 +44,7 @@ export function AdminPackageTable({ packages }: { packages: PremiumPackageWithVe
 
   if (packages.length === 0) {
     return (
-      <p className="mt-8 rounded-2xl border border-gold/25 bg-surface p-8 text-center text-muted">
+      <p className="mt-8 rounded-2xl border border-gold/25 bg-surface p-8 text-center text-muted-foreground">
         {t('empty')}
       </p>
     );
@@ -84,10 +84,10 @@ export function AdminPackageTable({ packages }: { packages: PremiumPackageWithVe
                 >
                   <td className="px-4 py-3">
                     <p className="font-medium text-primary">{pkg.title}</p>
-                    <p className="text-xs text-muted">{pkg.vendorName}</p>
+                    <p className="text-xs text-muted-foreground">{pkg.vendorName}</p>
                   </td>
-                  <td className="px-4 py-3 text-muted">{pkg.destinationCity}</td>
-                  <td className="px-4 py-3 text-muted">{t(`tier.${pkg.tier}`)}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{pkg.destinationCity}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{t(`tier.${pkg.tier}`)}</td>
                   <td className="px-4 py-3 text-primary">{formatINRCompact(pkg.priceFrom)}</td>
 
                   <td className="px-4 py-3">
@@ -137,7 +137,7 @@ export function AdminPackageTable({ packages }: { packages: PremiumPackageWithVe
         </table>
       </div>
 
-      <p className="mt-4 flex items-start gap-2 text-xs text-muted">
+      <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
         {t('footnote')}
       </p>

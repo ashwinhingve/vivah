@@ -67,14 +67,14 @@ export default async function AdminPackagesPage() {
           {forbidden ? (
             <div className="mt-8 rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
               <p className="font-heading text-lg text-primary">{t('forbidden.title')}</p>
-              <p className="mt-2 text-muted">{t('forbidden.body')}</p>
+              <p className="mt-2 text-muted-foreground">{t('forbidden.body')}</p>
             </div>
           ) : (
             <>
               {placeholderCount > 0 && (
                 <div className="mt-6 rounded-2xl border border-warning/30 bg-warning/5 p-4 sm:p-6">
                   <p className="font-heading text-primary">{t('seedBanner.title')}</p>
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {t('seedBanner.body', { count: placeholderCount })}
                   </p>
                 </div>

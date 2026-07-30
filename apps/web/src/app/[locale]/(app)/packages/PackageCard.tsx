@@ -63,10 +63,10 @@ export async function PackageCard({ pkg }: { pkg: PremiumPackageWithVendor }) {
         </p>
 
         {pkg.summary && (
-          <p className="mt-3 line-clamp-2 text-sm text-muted">{pkg.summary}</p>
+          <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{pkg.summary}</p>
         )}
 
-        <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted">
+        <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
             <dt className="sr-only">{t('capacity')}</dt>

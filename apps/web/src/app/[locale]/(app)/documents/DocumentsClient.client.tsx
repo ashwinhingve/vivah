@@ -158,7 +158,7 @@ export function DocumentsClient({ initialContracts, isMockEsign }: DocumentsClie
                 <h3 className="font-heading text-lg font-semibold text-primary truncate">
                   {contract.title}
                 </h3>
-                <p className="text-sm text-muted mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {t('createdLabel')} {mounted ? new Date(contract.createdAt).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN') : contract.createdAt.slice(0, 10)}
                 </p>
               </div>

@@ -56,7 +56,7 @@ export function ServiceEnquiryForm({ serviceId }: { serviceId: string }) {
       <div role="status" className="rounded-lg border border-success/30 bg-success/5 p-4 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" aria-hidden="true" />
         <p className="mt-2 font-heading text-lg text-primary">{t('sentTitle')}</p>
-        <p className="mt-1 text-sm text-muted">{t('sentBody')}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t('sentBody')}</p>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export function ServiceEnquiryForm({ serviceId }: { serviceId: string }) {
           onChange={(e) => setMessage(e.currentTarget.value)}
           placeholder={t('messagePlaceholder')}
           aria-describedby={tooShort ? 'svc-message-hint' : undefined}
-          className="mt-1 w-full rounded-lg border border-gold/40 bg-background p-3 text-primary placeholder:text-muted focus:border-teal focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-gold/40 bg-background p-3 text-primary placeholder:text-muted-foreground focus:border-teal focus:outline-none"
         />
         {tooShort && (
           <p id="svc-message-hint" className="mt-1 text-xs text-warning">{t('tooShort')}</p>

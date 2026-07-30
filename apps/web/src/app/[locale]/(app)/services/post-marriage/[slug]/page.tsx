@@ -93,7 +93,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               {svc.description && (
                 <section>
                   <h2 className="font-heading text-xl text-primary">{t('about')}</h2>
-                  <p className="mt-3 whitespace-pre-line leading-relaxed text-muted">
+                  <p className="mt-3 whitespace-pre-line leading-relaxed text-muted-foreground">
                     {svc.description}
                   </p>
                 </section>
@@ -130,7 +130,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                       {svc.partner.rating}
                     </p>
                     {svc.partner.description && (
-                      <p className="mt-3 text-sm text-muted">{svc.partner.description}</p>
+                      <p className="mt-3 text-sm text-muted-foreground">{svc.partner.description}</p>
                     )}
                   </div>
                 </div>
@@ -166,8 +166,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               <div className="sticky top-24 rounded-2xl border border-gold/25 bg-surface p-4 shadow-card sm:p-6">
                 <p className="text-xs uppercase tracking-wide text-gold-muted">{t('price')}</p>
                 <p className="font-heading text-3xl text-primary">{priceLabel}</p>
-                {unitSuffix && <p className="text-sm text-muted">{unitSuffix}</p>}
-                <p className="mt-2 text-sm text-muted">{t('priceNote')}</p>
+                {unitSuffix && <p className="text-sm text-muted-foreground">{unitSuffix}</p>}
+                <p className="mt-2 text-sm text-muted-foreground">{t('priceNote')}</p>
 
                 <div className="mt-6">
                   <ServiceEnquiryForm serviceId={svc.id} />

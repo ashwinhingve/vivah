@@ -68,7 +68,7 @@ export function EnquiryForm({ packageId, bookable }: Props) {
       >
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" aria-hidden="true" />
         <p className="mt-2 font-heading text-lg text-primary">{t('sentTitle')}</p>
-        <p className="mt-1 text-sm text-muted">{t('sentBody')}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t('sentBody')}</p>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export function EnquiryForm({ packageId, bookable }: Props) {
           onChange={(e) => setMessage(e.currentTarget.value)}
           placeholder={t('messagePlaceholder')}
           aria-describedby={tooShort ? 'enq-message-hint' : undefined}
-          className="mt-1 w-full rounded-lg border border-gold/40 bg-background p-3 text-primary placeholder:text-muted focus:border-teal focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-gold/40 bg-background p-3 text-primary placeholder:text-muted-foreground focus:border-teal focus:outline-none"
         />
         {tooShort && (
           <p id="enq-message-hint" className="mt-1 text-xs text-warning">

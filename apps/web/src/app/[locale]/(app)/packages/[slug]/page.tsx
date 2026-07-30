@@ -147,7 +147,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
               {pkg.description && (
                 <section className="mt-6">
                   <h2 className="font-heading text-xl text-primary">{t('about')}</h2>
-                  <p className="mt-3 whitespace-pre-line leading-relaxed text-muted">
+                  <p className="mt-3 whitespace-pre-line leading-relaxed text-muted-foreground">
                     {pkg.description}
                   </p>
                 </section>
@@ -158,7 +158,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
                   <h2 className="font-heading text-lg text-primary">{t('included')}</h2>
                   <ul className="mt-3 space-y-2">
                     {pkg.inclusions.map((i) => (
-                      <li key={i.id} className="flex gap-2 text-sm text-muted">
+                      <li key={i.id} className="flex gap-2 text-sm text-muted-foreground">
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
                         <span>{i.label}</span>
                       </li>
@@ -172,7 +172,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
                   <h2 className="font-heading text-lg text-primary">{t('notIncluded')}</h2>
                   <ul className="mt-3 space-y-2">
                     {pkg.exclusions.map((i) => (
-                      <li key={i.id} className="flex gap-2 text-sm text-muted">
+                      <li key={i.id} className="flex gap-2 text-sm text-muted-foreground">
                         <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
                         <span>{i.label}</span>
                       </li>
@@ -194,7 +194,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
                         <span className="text-primary">
                           {formatDateIN(a.blockedFrom)} — {formatDateIN(a.blockedTo)}
                         </span>
-                        {a.reason && <span className="text-muted">· {a.reason}</span>}
+                        {a.reason && <span className="text-muted-foreground">· {a.reason}</span>}
                       </li>
                     ))}
                   </ul>
@@ -209,7 +209,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
                   {t('startingFrom')}
                 </p>
                 <p className="font-heading text-3xl text-primary">{formatINR(pkg.priceFrom)}</p>
-                <p className="mt-1 text-sm text-muted">{t('priceNote')}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t('priceNote')}</p>
 
                 {pkg.isPlaceholder && (
                   <div className="mt-6 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm text-warning">

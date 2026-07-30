@@ -131,7 +131,7 @@ export default async function PostMarriagePage({ searchParams }: PageProps) {
           {result.services.length === 0 ? (
             <div className="mt-10 rounded-2xl border border-gold/30 bg-surface p-10 text-center shadow-card">
               <p className="font-heading text-xl text-primary">{t('empty.title')}</p>
-              <p className="mt-2 text-muted">{t('empty.body')}</p>
+              <p className="mt-2 text-muted-foreground">{t('empty.body')}</p>
               <Link
                 href="/services/post-marriage"
                 className="mt-6 inline-flex h-11 items-center rounded-lg bg-primary px-6 text-surface transition hover:opacity-90"
@@ -162,7 +162,7 @@ export default async function PostMarriagePage({ searchParams }: PageProps) {
                       {t('pagination.prev')}
                     </Link>
                   )}
-                  <span className="text-sm text-muted">
+                  <span className="text-sm text-muted-foreground">
                     {t('pagination.status', { page, totalPages })}
                   </span>
                   {page < totalPages && (
