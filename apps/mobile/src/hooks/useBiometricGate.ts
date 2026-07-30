@@ -63,7 +63,6 @@ export function useBiometricGate(params: {
   // would silently never fire — the very hole this exists to close.
   useEffect(() => {
     if (!sessionLoading) void evaluateGate(hasSession);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionLoading, hasSession]);
 
   // Return from background.
@@ -81,6 +80,5 @@ export function useBiometricGate(params: {
 
     const sub = AppState.addEventListener('change', handleChange);
     return () => sub.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasSession]);
 }

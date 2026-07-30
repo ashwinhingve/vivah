@@ -22,9 +22,6 @@ describe('Biometric Module', () => {
     jest.clearAllMocks();
   });
 
-  // Import the new functions for testing
-  const { recordUnlock, getLastUnlockAt } = require('../biometric');
-
   describe('canUseBiometric', () => {
     it('checks hardware availability', async () => {
       (LocalAuthentication.hasHardwareAsync as jest.Mock).mockResolvedValue(true);
@@ -196,7 +193,6 @@ describe('Biometric Module', () => {
   describe('recordUnlock', () => {
     it('stores current timestamp as epoch-ms string in SecureStore', async () => {
       const { recordUnlock } = require('../biometric');
-      const now = Date.now();
 
       await recordUnlock();
 

@@ -39,7 +39,7 @@ export async function initializePush(): Promise<void> {
 
   // Simulator / Expo Go — no push
   if (!Device.isDevice) {
-    console.log('[push] Not on physical device, skipping push initialization');
+    console.info('[push] Not on physical device, skipping push initialization');
     return;
   }
 
@@ -55,7 +55,7 @@ export async function initializePush(): Promise<void> {
     }
 
     if (finalStatus !== 'granted') {
-      console.log('[push] Permission not granted');
+      console.info('[push] Permission not granted');
       return;
     }
 
@@ -65,7 +65,7 @@ export async function initializePush(): Promise<void> {
     );
 
     if (!token) {
-      console.log('[push] Failed to obtain token');
+      console.info('[push] Failed to obtain token');
       return;
     }
 
@@ -79,7 +79,7 @@ export async function initializePush(): Promise<void> {
       appVersion: Constants.expoConfig?.version ?? '0.1.0',
     });
 
-    console.log('[push] Initialized with token:', token.slice(0, 20) + '...');
+    console.info('[push] Initialized with token:', token.slice(0, 20) + '...');
   } catch (err) {
     console.error('[push] Initialization failed:', err);
     // Do not throw — push failure must not crash the app
@@ -96,7 +96,7 @@ export async function unregisterPush(): Promise<void> {
   try {
     await api.users.unregisterDevice(state.token);
     state.token = null;
-    console.log('[push] Device unregistered');
+    console.info('[push] Device unregistered');
   } catch (err) {
     console.error('[push] Unregister failed:', err);
     // Do not throw — best-effort cleanup
