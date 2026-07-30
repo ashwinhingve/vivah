@@ -48,8 +48,10 @@ vi.mock('../../payments/service.js', () => ({
 }));
 
 const mockNotificationsAdd = vi.fn().mockResolvedValue({ id: 'job-1' });
+const mockQueueKnowledgeIndexing = vi.fn().mockResolvedValue(undefined);
 vi.mock('../../infrastructure/redis/queues.js', () => ({
   notificationsQueue: { add: mockNotificationsAdd },
+  queueKnowledgeIndexing: mockQueueKnowledgeIndexing,
 }));
 
 // ── DB chain helpers ─────────────────────────────────────────────────────────
@@ -96,6 +98,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockAppendAuditLog.mockResolvedValue(undefined);
   mockNotificationsAdd.mockResolvedValue({ id: 'job-1' });
+  mockQueueKnowledgeIndexing.mockResolvedValue(undefined);
 });
 
 // ── submitForReview ──────────────────────────────────────────────────────────

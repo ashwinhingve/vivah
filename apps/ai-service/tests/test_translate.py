@@ -54,6 +54,7 @@ def test_request_schema_rejects_unknown_target():
         TranslateRequest(text="hello", target="fr")  # type: ignore[arg-type]
 
 
+@pytest.mark.asyncio
 async def test_service_translates_en_to_hi(fake_hi):
     translate_service._set_pipeline_for_testing("hi", fake_hi)
     out = await translate_service.translate(TranslateRequest(text="hello", target="hi"))
@@ -63,6 +64,7 @@ async def test_service_translates_en_to_hi(fake_hi):
     assert out.model == "Helsinki-NLP/opus-mt-en-hi"
 
 
+@pytest.mark.asyncio
 async def test_service_translates_hi_to_en(fake_en):
     translate_service._set_pipeline_for_testing("en", fake_en)
     out = await translate_service.translate(TranslateRequest(text="नमस्ते", target="en"))
@@ -71,6 +73,7 @@ async def test_service_translates_hi_to_en(fake_en):
     assert out.model == "Helsinki-NLP/opus-mt-hi-en"
 
 
+@pytest.mark.asyncio
 async def test_service_falls_back_to_input_on_empty_pipeline_output():
     def empty_pipe(_text: str):
         return []
