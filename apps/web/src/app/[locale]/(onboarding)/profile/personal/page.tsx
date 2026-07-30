@@ -113,8 +113,9 @@ export default function PersonalPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">{t('fullName')}</label>
+              <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-1">{t('fullName')}</label>
               <input
+                id="fullName"
                 name="fullName"
                 type="text"
                 autoComplete="name"
@@ -234,6 +235,7 @@ export default function PersonalPage() {
                   <select
                     id="heightIn"
                     name="heightIn"
+                    aria-label="Height (inches)"
                     defaultValue={String(inches)}
                     className="w-full border border-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-teal focus:border-transparent outline-none bg-surface"
                   >
@@ -305,8 +307,9 @@ export default function PersonalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">{t('aboutMe')}</label>
+              <label htmlFor="aboutMe" className="block text-sm font-medium text-foreground mb-1">{t('aboutMe')}</label>
               <textarea
+                id="aboutMe"
                 name="aboutMe"
                 rows={3}
                 maxLength={500}
