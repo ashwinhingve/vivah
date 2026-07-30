@@ -1,8 +1,24 @@
-# Welcome to your Expo app 👋
+# Smart Shaadi — mobile app (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo SDK 57 · React Native 0.86 · Expo Router · NativeWind. Part of the `vivahOS` monorepo.
 
-## Get started
+## 📦 Building an installable APK
+
+**How to build a preview APK, manage EAS accounts/quota, and ship to the Play Store:**
+see **[`docs/mobile/EAS-PREVIEW-APK.md`](../../docs/mobile/EAS-PREVIEW-APK.md)**.
+
+Quick version (from WSL, one-time setup done):
+
+```bash
+cd ~/vivahOS/apps/mobile
+npx eas-cli build --platform android --profile preview
+```
+
+This machine has **no local Android toolchain** — EAS **cloud** builds only. The doc covers
+the full setup, the per-account monthly free-quota relink dance, installing/distributing to
+testers, other build methods, and production + Play Store submission.
+
+## Get started (local dev)
 
 1. Install dependencies
 
