@@ -1,5 +1,33 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { ApiRequestError } from '@smartshaadi/api-client';
+import { signOut } from './auth-client';
+
+/**
+ * Recover from a genuinely expired/invalid session.
+ *
+ * A 401 on ANY query means the credential is dead — clear it and send the user
+ * to sign-in rather than leaving them staring at "Your session has expired." on
+ * a tab they can't escape (the `(app)` shell has no auth re-guard). This is what
+ * makes the error self-healing; it also rescues an app that was updated in place
+ * and still holds a stale pre-bearer-token session.
+ *
+ * `handling` guards against the thundering herd: several screens' queries fail
+ * with 401 at once, but we sign out and redirect exactly once. `router.replace`
+ * is idempotent besides, and after `signOut` the token is gone so refires are
+ * harmless. Reset in `finally` so a later re-login that expires again is handled.
+ */
+let handlingUnauthorized = false;
+async function handleUnauthorized(): Promise<void> {
+  if (handlingUnauthorized) return;
+  handlingUnauthorized = true;
+  try {
+    await signOut();
+    router.replace('/(auth)/phone');
+  } finally {
+    handlingUnauthorized = false;
+  }
+}
 
 /**
  * Shared React Query client.
@@ -8,6 +36,22 @@ import { ApiRequestError } from '@smartshaadi/api-client';
  * device profile — not a desktop on wifi.
  */
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      if (error instanceof ApiRequestError && error.isUnauthorized) {
+        void handleUnauthorized();
+      }
+    },
+  }),
+  // Mutations can 401 too (e.g. sending a match request after the session
+  // expired) — same recovery so no write is a dead-end either.
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      if (error instanceof ApiRequestError && error.isUnauthorized) {
+        void handleUnauthorized();
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
       // Data here is social, not financial: a slightly stale feed is fine, and

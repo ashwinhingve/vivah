@@ -43,7 +43,7 @@ export default function ConversationsScreen() {
       <Animated.View entering={FadeInUp.delay(Math.min(index, 8) * 40).duration(300)}>
         <Link
           href={{
-            pathname: '/chat/[matchId]',
+            pathname: '/(app)/(chat)/[matchId]',
             params: {
               matchId: item.matchRequestId,
               name,

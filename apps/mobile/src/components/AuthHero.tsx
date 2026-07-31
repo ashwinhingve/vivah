@@ -1,15 +1,16 @@
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { Heart } from 'lucide-react-native';
 import { Eyebrow } from '@/components/Ornament';
+import { LogoMark } from '@/components/Logo';
 import { withAlpha, tokens } from '@/theme/tokens';
 
 /**
  * AuthHero — the auth flow's brand hero: an arch-top frame (the web hero's
  * Mughal-arch motif, approximated with large numeric top radii — RN has no
- * two-axis border-radius) holding a warm blush wash and a gold-tinted heart,
- * followed by the ─◇ SMART SHAADI ◇─ eyebrow, Playfair title, and subtitle.
+ * two-axis border-radius) holding a warm blush wash and the Smart Shaadi logo
+ * badge, followed by the ─◇ SMART SHAADI ◇─ eyebrow, Playfair title, and
+ * subtitle.
  */
 interface AuthHeroProps {
   title: string;
@@ -41,12 +42,7 @@ export function AuthHero({ title, subtitle, compact = false }: AuthHeroProps) {
         }}
       >
         <LinearGradient colors={WASH} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Heart
-            size={compact ? 34 : 44}
-            color={tokens.primary}
-            fill={withAlpha(tokens.primary, '26')}
-            strokeWidth={1.5}
-          />
+          <LogoMark size={compact ? 56 : 72} decorative />
         </LinearGradient>
       </Animated.View>
 

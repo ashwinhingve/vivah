@@ -8,14 +8,14 @@
     "scheme": "smartshaadi",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "in.co.smartshaadi.app",
       "supportsTablet": true
     },
     "android": {
       "package": "in.co.smartshaadi.app",
       "adaptiveIcon": {
-        "backgroundColor": "#FEFAF6",
+        "backgroundColor": "#7B2D42",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"

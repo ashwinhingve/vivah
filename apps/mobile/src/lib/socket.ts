@@ -1,18 +1,17 @@
 import { AppState, type AppStateStatus } from 'react-native';
 import { io, type Socket } from 'socket.io-client';
-import { getSessionCookie } from './auth-client';
+import { getAuthToken } from './auth-client';
 import { API_BASE_URL } from './env';
 
 /**
  * Realtime chat transport.
  *
- * Auth: we send the full Cookie header as `handshake.auth.cookie`. React Native
- * has no cookie jar, so the browser's `withCredentials` path is unavailable, and
- * the older `auth.token` path is not viable either — the server wraps that value
- * in the hardcoded non-Secure cookie name (`better-auth.session_token`), which
- * is wrong once the API issues `__Secure-` cookies in production. Sending the
- * whole header keeps the name correct in every environment. The matching server
- * branch is source 1 in apps/api/src/chat/socket/auth.ts.
+ * Auth: we send the bearer session token as `handshake.auth.token`. React Native
+ * has no reliable cookie jar (see ADR-002), so the same token the REST client
+ * uses is the credential here too. The server wraps it back into the session
+ * cookie name it expects — source 2 in apps/api/src/chat/socket/auth.ts
+ * (`better-auth.session_token=<token>`), which matches the non-`__Secure-` cookie
+ * name the API is configured to issue (`useSecureCookies: false`).
  *
  * Lifecycle: mobile apps are suspended, not closed. iOS tears down sockets on
  * background within seconds; Android is laxer but still kills them under memory
@@ -52,8 +51,8 @@ export class ChatSocket {
   connect(): void {
     if (this.socket?.connected) return;
 
-    const cookie = getSessionCookie();
-    if (!cookie) {
+    const token = getAuthToken();
+    if (!token) {
       // Signed out. Connecting would just be rejected by the handshake.
       this.setStatus('disconnected');
       return;
@@ -64,7 +63,7 @@ export class ChatSocket {
 
     this.setStatus('connecting');
     this.socket = io(`${API_BASE_URL}/chat`, {
-      auth: { cookie },
+      auth: { token },
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: Infinity,
@@ -106,7 +105,7 @@ export class ChatSocket {
       'change',
       (state: AppStateStatus) => {
         if (state === 'active') {
-          // Re-read the cookie on resume: the session may have been rotated or
+          // Re-read the token on resume: the session may have been rotated or
           // signed out in the meantime.
           if (!this.socket?.connected) this.connect();
         } else {

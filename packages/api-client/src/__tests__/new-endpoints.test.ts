@@ -28,7 +28,7 @@ function harness() {
   const fetchImpl = vi.fn(async () => jsonResponse(ok({}))) as unknown as typeof fetch;
   const client = new ApiClient({
     baseUrl: 'https://api.example.test',
-    getCookieHeader: () => 'better-auth.session_token=t',
+    getAuthHeader: () => 'Bearer tok-t',
     fetchImpl,
   });
   const call = () => vi.mocked(fetchImpl).mock.calls[0];

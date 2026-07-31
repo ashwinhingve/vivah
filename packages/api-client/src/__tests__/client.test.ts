@@ -20,11 +20,11 @@ function successEnvelope<T>(data: T): unknown {
 
 function client(
   fetchImpl: typeof fetch,
-  cookie: string | null = 'better-auth.session_token=tok123',
+  authHeader: string | null = 'Bearer tok123',
 ): ApiClient {
   return new ApiClient({
     baseUrl: 'https://api.example.test',
-    getCookieHeader: () => cookie,
+    getAuthHeader: () => authHeader,
     fetchImpl,
   });
 }
@@ -115,23 +115,23 @@ describe('ApiClient', () => {
   });
 
   describe('authentication', () => {
-    it('forwards the cookie header verbatim', async () => {
+    it('forwards the Authorization header verbatim', async () => {
       const fetchImpl = vi.fn(async () =>
         jsonResponse(successEnvelope({ ok: true })),
       ) as unknown as typeof fetch;
 
-      await client(fetchImpl, '__Secure-better-auth.session_token=abc').get(
+      await client(fetchImpl, 'Bearer abc-token-xyz').get(
         '/api/v1/profiles/me',
       );
 
       const init = vi.mocked(fetchImpl).mock.calls[0]?.[1];
       const headers = init?.headers as Record<string, string>;
-      // Verbatim matters: rebuilding the cookie name here would break the
-      // dev (`better-auth.…`) vs prod (`__Secure-better-auth.…`) difference.
-      expect(headers['Cookie']).toBe('__Secure-better-auth.session_token=abc');
+      // Verbatim matters: the getter returns the full `Bearer <token>` value so
+      // the client never has to know the token's shape (signed cookie value).
+      expect(headers['Authorization']).toBe('Bearer abc-token-xyz');
     });
 
-    it('omits the Cookie header entirely when there is no session', async () => {
+    it('omits the Authorization header entirely when there is no session', async () => {
       const fetchImpl = vi.fn(async () =>
         jsonResponse(successEnvelope({ ok: true })),
       ) as unknown as typeof fetch;
@@ -139,7 +139,7 @@ describe('ApiClient', () => {
       await client(fetchImpl, null).get('/api/v1/profiles/me');
 
       const init = vi.mocked(fetchImpl).mock.calls[0]?.[1];
-      expect(init?.headers as Record<string, string>).not.toHaveProperty('Cookie');
+      expect(init?.headers as Record<string, string>).not.toHaveProperty('Authorization');
     });
   });
 

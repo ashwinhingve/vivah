@@ -1,5 +1,5 @@
 import { createSmartShaadiApi, type SmartShaadiApi } from '@smartshaadi/api-client';
-import { getSessionCookie } from './auth-client';
+import { getAuthHeader } from './auth-client';
 import { API_BASE_URL } from './env';
 
 /**
@@ -11,11 +11,13 @@ import { API_BASE_URL } from './env';
  *
  * The credential is passed as a *getter*, not a value: the session changes
  * (sign-in, sign-out, token rotation on refresh) and a captured string would go
- * stale, producing 401s that look like a server problem.
+ * stale, producing 401s that look like a server problem. It returns the
+ * `Authorization: Bearer <token>` header value (see ADR-002 — mobile uses the
+ * token path, not cookies).
  */
 export const api: SmartShaadiApi = createSmartShaadiApi({
   baseUrl: API_BASE_URL,
-  getCookieHeader: getSessionCookie,
+  getAuthHeader,
 });
 
 export { ApiRequestError, NetworkError } from '@smartshaadi/api-client';

@@ -15,7 +15,7 @@
 export { ApiClient, createApiClient } from './client.js';
 export type {
   ApiClientConfig,
-  GetCookieHeader,
+  GetAuthHeader,
   RequestOptions,
 } from './client.js';
 

@@ -2,26 +2,26 @@ import type { ApiResponse } from '@smartshaadi/types';
 import { ApiRequestError, NetworkError } from './errors.js';
 
 /**
- * Supplies the credential for each request.
+ * Supplies the `Authorization` header value for each request.
  *
- * On React Native this returns the full Cookie header string produced by
- * `@better-auth/expo`'s `authClient.getCookie()` — e.g.
- * `better-auth.session_token=<value>` (or `__Secure-better-auth.session_token=…`
- * once the server sets Secure cookies in prod). We forward it verbatim as the
- * `Cookie` header rather than picking the token out of it: `authenticate` in
- * apps/api/src/auth/middleware.ts hands *all* request headers to Better Auth's
- * `getSession`, so the header the plugin already built is exactly what the
- * server wants, and forwarding it whole means the cookie NAME stays correct
- * across the dev/prod Secure-prefix difference instead of being hardcoded here.
+ * On React Native this returns `Bearer <session-token>`. We use the TOKEN path,
+ * not a `Cookie`, deliberately (see ADR-002): RN has no reliable browser cookie
+ * jar — the native networking layer swallows the server's `Set-Cookie` before
+ * `@better-auth/expo` can persist it, so a cookie-based credential silently
+ * comes back empty and every request 401s. The Better Auth `bearer()` plugin
+ * echoes the session token in a plain `set-auth-token` response header the RN
+ * client CAN read, and accepts `Authorization: Bearer <token>` on the way back —
+ * `authenticate` in apps/api/src/auth/middleware.ts hands all request headers to
+ * `getSession`, which the bearer plugin turns back into a session lookup.
  *
  * Returning null means "no session" — the request goes out unauthenticated and
  * will come back 401, which is the correct outcome rather than a thrown error.
  */
-export type GetCookieHeader = () => string | null | Promise<string | null>;
+export type GetAuthHeader = () => string | null | Promise<string | null>;
 
 export interface ApiClientConfig {
   baseUrl: string;
-  getCookieHeader: GetCookieHeader;
+  getAuthHeader: GetAuthHeader;
   /** Per-request timeout. Mobile networks stall silently; never wait forever. */
   timeoutMs?: number;
   /** Injectable for tests. Defaults to global fetch. */
@@ -66,13 +66,13 @@ function buildUrl(
  */
 export class ApiClient {
   private readonly baseUrl: string;
-  private readonly getCookieHeader: GetCookieHeader;
+  private readonly getAuthHeader: GetAuthHeader;
   private readonly timeoutMs: number;
   private readonly fetchImpl: typeof fetch;
 
   constructor(config: ApiClientConfig) {
     this.baseUrl = config.baseUrl;
-    this.getCookieHeader = config.getCookieHeader;
+    this.getAuthHeader = config.getAuthHeader;
     this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.fetchImpl = config.fetchImpl ?? globalThis.fetch;
   }
@@ -84,10 +84,10 @@ export class ApiClient {
     options: RequestOptions = {},
   ): Promise<T> {
     const url = buildUrl(this.baseUrl, path, options.query);
-    const cookie = await this.getCookieHeader();
+    const authHeader = await this.getAuthHeader();
 
     const headers: Record<string, string> = { Accept: 'application/json' };
-    if (cookie) headers['Cookie'] = cookie;
+    if (authHeader) headers['Authorization'] = authHeader;
     if (body !== undefined) headers['Content-Type'] = 'application/json';
 
     // Compose our timeout with any caller-supplied signal (React Query passes

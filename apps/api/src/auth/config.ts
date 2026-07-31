@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware } from 'better-auth/api';
-import { phoneNumber, twoFactor } from 'better-auth/plugins';
+import { phoneNumber, twoFactor, bearer } from 'better-auth/plugins';
 import { expo } from '@better-auth/expo';
 import { sql, eq as drizzleEq } from 'drizzle-orm';
 import { user, session, account, verification, twoFactor as twoFactorTable } from '@smartshaadi/db';
@@ -102,6 +102,16 @@ export const auth = betterAuth({
 
   plugins: [
     expo(),
+    // Mobile (React Native) has no reliable browser cookie jar — the native
+    // OkHttp layer swallows Set-Cookie before @better-auth/expo can persist it,
+    // so the app's api-client never gets a credential and every screen 401s
+    // ("session expired"). See ADR-002: mobile must use the TOKEN path, not
+    // cookies. The bearer plugin (a) echoes the session token in a plain
+    // `set-auth-token` response header the RN client CAN read, and (b) accepts
+    // `Authorization: Bearer <token>` and reconstructs the session cookie
+    // internally, so `authenticate` (getSession over req.headers) works
+    // unchanged. Additive: the web app keeps using cookies untouched.
+    bearer(),
     phoneNumber({
       sendOTP: async ({ phoneNumber: phone, code }, request) => {
         const headers = (request as unknown as { headers?: Headers })?.headers;
