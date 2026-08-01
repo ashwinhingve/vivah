@@ -23,30 +23,46 @@ Phase:    8 (all phases 1–8 shipped — launch staging). See ROADMAP.md for th
           authoritative per-unit status; it is the source of truth, not this block.
 Week:     Post-launch prep
 Focus:    Awaiting Colonel's registrations to go live
-Mocks:    USE_MOCK_SERVICES=true (Razorpay + MSG91 only)
-          R2_LIVE=true · VIDEO_LIVE=true · LLM_PROVIDER=gemini
+Mocks:    USE_MOCK_SERVICES=true (+ ALLOW_MOCK_SERVICES_IN_PROD active in prod)
+          R2_LIVE=true · VIDEO_LIVE=true · MONGO_LIVE=true · LLM_PROVIDER=gemini
+          Razorpay + MSG91 stubbed; the per-service *_LIVE flags override the rest.
+          ⚠ SIDE EFFECT: USE_MOCK_SERVICES=true gates the ENTIRE Bull workers block
+          off in prod (index.ts `if (!env.USE_MOCK_SERVICES)`), so NO background
+          jobs/crons run — knowledge reindex, notifications, escrow, expiry sweeps —
+          until the flag flips false at go-live.
 Blocker:  External only — Razorpay live acct · MSG91 DLT · DigiLocker · legal ·
           App Store/Play enrollment · real venue/vendor supply (80 placeholder rows).
           Engineering: staging SLO calibration + pen-test (post-launch).
-Recent:   Mobile production hotfix (2026-08-01, merged to main 67f24cb, prod
-          deploy triggered): fixed "session expired on every screen" after login.
-          RN native networking swallows the server Set-Cookie so @better-auth/expo
-          never persisted it → the api-client cookie credential was empty and every
-          tab 401'd (useSession still routed in; (app) shell has no re-guard).
-          Switched mobile to Better Auth bearer tokens (ADR-002): server bearer()
-          plugin echoes a plain set-auth-token header RN can read; mobile captures
-          it → SecureStore and sends Authorization: Bearer on api-client + socket
-          (auth.token) + fetchSessionDirect; global QueryCache/MutationCache 401 →
-          signOut + redirect to phone login. Also replaced the default Expo icons
-          with the Smart Shaadi mandap-arch mark (scripts/generate-mobile-icons.mjs)
-          + in-app react-native-svg LogoMark. Verified: api-client 20/20, cold
-          type-check 13/13, mobile jest 223/223. DEVICE verification pending EAS APK.
+Recent:   Assistant RAG staging closeout (2026-08-01) — the three carried-over
+          staging items are DONE + verified. (①) migration 0042 applied to prod
+          (table + hnsw/unique/locale indexes + embedding vector(768)).
+          (②) knowledge_chunks backfilled: embedded=81, errors=0, 0 null
+          embeddings, 6 source types (seo_page 22 · vendor 20 · legal 18 ·
+          i18n_page 10 · plan_pricing 9 · faq 2), locales en(65)+hi(16). The
+          backfill runs IN-CONTAINER only — prod image ships compiled dist/ with no
+          tsx, so `pnpm reindex-knowledge` fails there:
+            railway ssh -s vivah -i ~/.ssh/railway_ss node /app/apps/api/dist/src/bin/reindex-knowledge.js
+          (Railway api service = `vivah`, project considerate-appreciation, under
+          workspace "dec's Projects" — a DIFFERENT Railway account from the
+          GitHub/pulse one; needs its own registered SSH key.) (③) ai-service Mongo
+          assistant history confirmed writing to smartshaadiDB.assistant_conversations.
+          ⚠ Prod is in mock mode (Bull workers OFF), so the RAG index is a STATIC
+          snapshot: re-run the one-off above after ANY website-content change
+          (content-hash diffing skips unchanged chunks → cheap). Auto-indexing
+          (nightly 03:00 IST cron + vendor-event) only resumes once USE_MOCK_SERVICES
+          flips false at go-live.
+          Also 2026-08-01: Mobile production hotfix (merged to main 67f24cb, prod
+          deploy triggered) — "session expired on every screen" fixed by switching
+          mobile to Better Auth bearer tokens (ADR-002): server bearer() echoes
+          set-auth-token, mobile captures it → SecureStore, sends Authorization:
+          Bearer on api-client + socket + fetchSessionDirect; global 401 → signOut
+          + phone login. Plus Smart Shaadi mandap-arch launcher icon + in-app
+          LogoMark. Verified api-client 20/20, cold type-check 13/13, jest 223/223;
+          DEVICE verification pending EAS APK.
           Prior (2026-07-29): Smart Shaadi Assistant RAG upgrade (branch
           feat/smart-shaadi-assistant-rag): website-knowledge RAG over pgvector
           knowledge_chunks (migration 0042), search_knowledge tool, grounded prompt
-          v3, chat-history UI. Staging still needs: apply 0042 via Railway SQL
-          console, run reindex-knowledge backfill, fix ai-service MONGODB_URI
-          credentials (writes silently failed with auth errors).
+          v3, chat-history UI. [Staging items above — all resolved 2026-08-01.]
 ```
 
 > **Update this block at the start of every session. ROADMAP.md holds the

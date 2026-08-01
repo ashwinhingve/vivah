@@ -14,7 +14,20 @@ Blocker:  External: Razorpay live account, MSG91 DLT approval, DigiLocker partne
           legal sign-off. Engineering: staging SLO calibration (real traffic needed).
 Features: 80 placeholder supply rows + fictional venue details (is_placeholder=true) 
           block booking/payment until partner onboarding swaps them to real.
-Recent:   Mobile production hotfix (2026-08-01, merged to main 67f24cb):
+Recent:   Assistant RAG staging closeout (2026-08-01) — all three carried-over
+          staging items DONE + verified: (①) migration 0042 applied to prod;
+          (②) knowledge_chunks backfilled (embedded=81, errors=0, 0 null vectors,
+          6 source types, en(65)+hi(16)); (③) ai-service Mongo assistant history
+          writing to smartshaadiDB.assistant_conversations. The backfill runs
+          IN-CONTAINER only (prod image = compiled dist/, no tsx):
+            railway ssh -s vivah -i ~/.ssh/railway_ss node /app/apps/api/dist/src/bin/reindex-knowledge.js
+          (api service = `vivah`, project considerate-appreciation, Railway
+          workspace "dec's Projects" — NOT the GitHub/pulse account.) ⚠ Prod runs
+          in mock mode (ALLOW_MOCK_SERVICES_IN_PROD) which gates ALL Bull workers
+          OFF, so the RAG index is a STATIC snapshot — re-run the one-off after any
+          content change; nightly cron + vendor-event indexing only resume when
+          USE_MOCK_SERVICES flips false at go-live.
+          Mobile production hotfix (2026-08-01, merged to main 67f24cb):
           fixed "session expired on every screen" right after login. RN's native
           networking swallows the server Set-Cookie so @better-auth/expo never
           persisted it -> the api-client's cookie credential was empty and every
@@ -33,9 +46,7 @@ Recent:   Mobile production hotfix (2026-08-01, merged to main 67f24cb):
           Prior (2026-07-29): Smart Shaadi Assistant RAG upgrade (branch
           feat/smart-shaadi-assistant-rag): pgvector knowledge_chunks (migration
           0042), @smartshaadi/content snapshot + nightly/event indexing,
-          search_knowledge tool + grounded prompt v3, chat-history UI. Staging
-          still needs: apply 0042 via Railway SQL console, run reindex-knowledge
-          backfill, fix ai-service MONGODB_URI credentials (writes silently failing).
+          search_knowledge tool + grounded prompt v3, chat-history UI. [Staging items above — all resolved 2026-08-01.]
 Last updated: 2026-08-01
 ```
 
